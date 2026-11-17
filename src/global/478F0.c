@@ -2460,7 +2460,6 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 
-extern u8 gPlayerCharacterId;
 void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFx *p;
     CsFxEnt *e;
@@ -2528,7 +2527,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (p->cool == 0) {
         pl = gPlayerSlots->actor;
-        if (pl->state == 0x1C && pl->unk155 < 7 && gPlayerCharacterId == 0 && pl->attachMode == 1) {
+        if (pl->state == 0x1C && pl->unk155 < 7 && gPlayerCharacterId[0] == 0 && pl->attachMode == 1) {
             if (csId == pl->cutsceneId) {
                 bestD = 100000.0f;
                 best = -1;
@@ -3823,7 +3822,6 @@ s32 csCondFlags82Or83(CsState *cs, s16 csId, s16 b, s16 c) {
     return 0;
 }
 
-extern u8 gPlayerCharacterId;
 
 u8 csCondCheckSlotMapIndex(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
@@ -3834,7 +3832,7 @@ u8 csCondCheckSlotMapIndex(CsState *cs, s16 csId, s16 b, s16 c) {
         idx = 0;
     }
     v = D_807446F0[idx];
-    return gPlayerCharacterId == v;
+    return gPlayerCharacterId[0] == v;
 }
 
 extern s16 D_807446D0[];
@@ -4032,7 +4030,7 @@ u8 csCondKongHasHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     PlayerInventory *p = &gPlayerInventoryTable[gCurrentPlayerIndex];
     s32 idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
 
-    return p->kong[(&gPlayerCharacterId)[gCurrentPlayerIndex]].coloredBananas[idx] > 0;
+    return p->kong[gPlayerCharacterId[gCurrentPlayerIndex]].coloredBananas[idx] > 0;
 }
 
 

@@ -43,7 +43,6 @@ void collectibleCountsClear(void) {
     }
 }
 
-extern u8 gPlayerCharacterId[];
 
 s32 playerGetModelAssetId(void) {
     return gKongCharacterTable[gPlayerCharacterId[0]].actorType;

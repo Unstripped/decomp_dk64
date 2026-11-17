@@ -595,7 +595,6 @@ extern KongInventory *gCurrentKongInventory;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern u8 gGameMode;
-extern u8 gPlayerCharacterId;
 extern s16 D_8076AEF2;
 extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
 
@@ -653,7 +652,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x38:
-        ret = gPlayerCharacterId < 5;
+        ret = gPlayerCharacterId[0] < 5;
         break;
     case 0x37:
         modelAnimEntryGetState(csId, cond->arg[0], &sAnim, &fAnim, &uAnim);

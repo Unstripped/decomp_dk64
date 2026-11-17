@@ -71,7 +71,6 @@ extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
 extern s32 D_8071FE08;
-extern u8 gPlayerCharacterId[];
 extern ActorMapFlag D_8074E7A0[];
 extern s16 D_8074E7E0[];
 extern KongActionEntry D_8074E814[];

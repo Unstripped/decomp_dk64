@@ -1566,7 +1566,6 @@ void actorTableSort(void) {
     } while (!done);
 }
 
-extern u8 gPlayerCharacterId[];
 extern KongInventory *gCurrentKongInventory;
 extern OSContPad *gCurrentContPad;
 extern u16 gContPressedButtons;

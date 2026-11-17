@@ -52,7 +52,6 @@ extern u8 D_80744820;
 extern u8 D_80744824;
 extern u8 D_80744828;
 extern Struct8074482C D_8074482C[];
-extern u8 gPlayerCharacterId;
 const u8 D_807565E0[80] = {
     0x01, 0x0F, 0x05, 0x19, 0x07, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x2A, 0x11, 0x26, 0x0A, 0x73, 0x74,
     0x75, 0x12, 0x76, 0x77, 0x78, 0x20, 0x79, 0x7A, 0x7B, 0x42, 0x44, 0x45, 0x7C, 0x43, 0x4A, 0x4B,
@@ -249,8 +248,8 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
     if ((gGameMode == 6) || (menuIsTransitionActive() == 0)) {
         menuCheckCutsceneTransition(&map, &exitIndex);
         if (map != -1) {
-            if (gPlayerCharacterId >= 6) {
-                gPlayerCharacterId = playerGetResolvedKongId(0);
+            if (gPlayerCharacterId[0] >= 6) {
+                gPlayerCharacterId[0] = playerGetResolvedKongId(0);
             }
             gScreenRenderFlags |= 1;
             D_8076AEF2 = gCurrentMap;

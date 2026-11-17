@@ -2776,8 +2776,6 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     return gfx;
 }
 
-extern u8 gPlayerCharacterId[];
-
 void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
     s32 hit = 0;
     PlayerState *playerState;

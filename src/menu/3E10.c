@@ -1047,7 +1047,6 @@ extern s32 D_80033834[];
 extern u8 D_8003384C[];
 extern s32 D_80033858;
 extern s32 D_8003385C[];
-extern s8 gPlayerCharacterId[];
 extern u8 D_80750ABC;
 extern u8 gActivePlayerCount;
 extern u8 D_807ECD09;

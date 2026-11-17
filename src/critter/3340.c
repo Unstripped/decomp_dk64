@@ -43,7 +43,6 @@ void critterSetDigitFrames(s32 val) {
 
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
-extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern s16 D_807446D0[];
 extern s8 D_807446E0[];
@@ -109,7 +108,7 @@ void critterBananaFairyUpdate(void) {
     } else if (D_80029F84 != 0) {
         s8 *pair = &D_807446E0[worldIndex + worldIndex];
 
-        if (gPlayerCharacterId == pair[1]) {
+        if (gPlayerCharacterId[0] == pair[1]) {
             if (func_806FB418() < requiredCount && worldIndex != 7) {
                 requiredCount = pair[0];
                 hasSecretDiscount = 1;
@@ -159,7 +158,7 @@ void critterBananaFairyUpdate(void) {
             }
             break;
         case 0:
-            if (gCurrentMap == 0xAA && gPlayerCharacterId != 4) {
+            if (gCurrentMap == 0xAA && gPlayerCharacterId[0] != 4) {
                 D_8002A1B0 = 0.0f;
             }
             if (dist < 70.0 && D_8002A1B0 >= 70.0) {

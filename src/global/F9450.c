@@ -33,7 +33,6 @@ extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
-extern u8 gPlayerCharacterId[];
 
 // A sphere the grid tests nodes against: the player's own (D_807FD740) and extra ones
 // appended per player (D_807FD780 lists).

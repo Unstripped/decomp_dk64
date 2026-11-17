@@ -1327,7 +1327,6 @@ s16 playerSelectMoveTier(Actor *actor, f32 targetSpeed, f32 speed, s16 tier, s16
 }
 
 
-extern u8 gPlayerCharacterId[];
 
 s16 playerSelectWalkRunState(Actor *actor, f32 targetSpeed, f32 speed, s32 unused) {
     s16 nextState;

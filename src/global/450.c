@@ -79,7 +79,6 @@ extern s32 D_8000DDE4;
 extern s8 D_807467CC;
 extern u8 gSaveIconTimer;
 extern s8 D_80746830;
-extern s8 gPlayerCharacterId;
 extern s32 D_80750AB0;
 extern u8 gSplitScreenMode;
 extern u8 gActivePlayerCount;
@@ -991,10 +990,10 @@ void mapLoadLevel(void) {
     gfxAllocateBuffers(gActivePlayerCount);
     if (gCurrentMap != 0xB8) {
         if (gCurrentMap == 0xBF) {
-            gPlayerCharacterId = 6;
+            gPlayerCharacterId[0] = 6;
         }
     } else {
-        gPlayerCharacterId = 7;
+        gPlayerCharacterId[0] = 7;
     }
     D_807F6010 = NULL;
     collisionInitTables();

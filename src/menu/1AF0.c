@@ -46,14 +46,13 @@ typedef struct MenuShopActor {
 } MenuShopActor;
 
 
-extern u8 gPlayerCharacterId;
 
 s32 menuCheckBitgridOtherSlots(MenuShopState *state, s32 bitOffset) {
     s32 found = 0;
     s32 i;
 
     for (i = 0; found == 0 && i != 5; i++) {
-        if (i != gPlayerCharacterId) {
+        if (i != gPlayerCharacterId[0]) {
             found |= gPlayerInventoryTable[0].kong[i].unk0[state->itemSlot] & (1 << (bitOffset + 0x1F));
         }
     }
@@ -135,7 +134,7 @@ extern u8 D_800334DC[];
 
 void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     s16 queueItemId = -1;
-    u8 hasItem = kongUsesAbilityEnergy(gPlayerCharacterId);
+    u8 hasItem = kongUsesAbilityEnergy(gPlayerCharacterId[0]);
 
     switch (state->itemSlot) {
     case 2:
@@ -143,7 +142,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
         if (state->itemLevel >= 2) {
             menuUpdateAllBitgridSlots(state, 1);
         } else {
-            menuSetBitgridBit(state, gPlayerCharacterId);
+            menuSetBitgridBit(state, gPlayerCharacterId[0]);
         }
         break;
     case 1:
@@ -151,7 +150,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
         menuUpdateAllBitgridSlots(state, 0);
         break;
     default:
-        menuSetBitgridValue(state, gPlayerCharacterId);
+        menuSetBitgridValue(state, gPlayerCharacterId[0]);
         break;
     }
     if (state->itemSlot == 4) {
@@ -171,7 +170,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
         queueItemId = 7;
         break;
     case 0:
-        if (hasItem == 0 && kongUsesAbilityEnergy(gPlayerCharacterId) != 0) {
+        if (hasItem == 0 && kongUsesAbilityEnergy(gPlayerCharacterId[0]) != 0) {
             queueItemId = 5;
         }
         break;
@@ -223,7 +222,7 @@ void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 is
         tbl = D_80033408[0];
         break;
     }
-    tbl += gPlayerCharacterId * 7;
+    tbl += gPlayerCharacterId[0] * 7;
     for (i = 0; i < count && found == 0; i++) {
         if (tbl[i].slot >= 0) {
             switch (tbl[i].slot) {
@@ -579,7 +578,7 @@ void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagI
             currentActorClearFlag();
             switch (state->itemSlot) {
             case 0:
-                textParam2 = D_80033A50[gPlayerCharacterId][((u8 *)inventory)[state->itemSlot]];
+                textParam2 = D_80033A50[gPlayerCharacterId[0]][((u8 *)inventory)[state->itemSlot]];
             case 1:
                 if (textParam2 == -1) {
                     textParam2 = D_80033A78[((u8 *)inventory)[state->itemSlot]];
@@ -745,7 +744,7 @@ void menuUpdateCrankyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 5) {
         st = gCurrentActor->shop;
-        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0;
+        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
         if (!(gCurrentActor->base.flags & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
                 gCurrentActor->base.unk155 = 0;
@@ -878,7 +877,7 @@ void menuCheckControllerAntiPiracy(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 0x19) {
         st = gCurrentActor->shop;
-        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0;
+        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
 
         if (!(gCurrentActor->base.flags & 0x10)) {
 
@@ -911,7 +910,7 @@ void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
         MenuShopState *st = gCurrentActor->shop;
-        u8 *inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0;
+        u8 *inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
 
         if (!(gCurrentActor->base.flags & 0x10)) {
             menuExitSubmenu(st, inventory, 0x176);
@@ -993,7 +992,7 @@ void menuUpdateTransformedWidgets(void) {
             guMtxF2L(mA, &widget->mtx[1]);
             if (st->itemSlot == 0) {
                 for (i = 0; i < 2; i++) {
-                    textIds.a[i] = D_80033544[gPlayerCharacterId][st->itemLevel][i];
+                    textIds.a[i] = D_80033544[gPlayerCharacterId[0]][st->itemLevel][i];
                 }
             } else if (st->itemSlot == 1) {
                 for (i = 0; i < 2; i++) {
@@ -1004,7 +1003,7 @@ void menuUpdateTransformedWidgets(void) {
                 if (st->itemLevel >= 2) {
                     textIds.a[0] = D_80033618[st->itemLevel];
                 } else {
-                    textIds.a[0] = D_80033604[gPlayerCharacterId];
+                    textIds.a[0] = D_80033604[gPlayerCharacterId[0]];
                 }
             } else if (st->itemSlot == 3) {
                 widget->timer = 0x82;
@@ -1012,7 +1011,7 @@ void menuUpdateTransformedWidgets(void) {
             } else if (st->itemSlot == 4) {
                 widget->timer = 0x82;
                 if (st->itemLevel == 1) {
-                    textIds.a[0] = D_80033634[gPlayerCharacterId];
+                    textIds.a[0] = D_80033634[gPlayerCharacterId[0]];
                 } else if (st->requirementUnmet == 0) {
                     textIds.a[0] = D_80033648[st->itemLevel];
                 } else {

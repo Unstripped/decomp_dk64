@@ -854,7 +854,6 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, x + (w - 0x10) * scale, y + 45.0f * scale, scale * 3.125, scale * 3.125, 0, 0.0f);
 }
 
-extern u8 gPlayerCharacterId;
 extern s8 sPauseCarouselKong;
 extern f32 sPauseCarouselTimer;
 extern s8 D_807FC80D;
@@ -900,9 +899,9 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     s32 cnt;
     KongInventory *inv;
 
-    saved = gPlayerCharacterId;
+    saved = gPlayerCharacterId[0];
     playerKong = &gPlayerInventoryTable[0].kong[playerGetResolvedKongId(0)];
-    gPlayerCharacterId = iconObj->kong;
+    gPlayerCharacterId[0] = iconObj->kong;
     pageKong = &gPlayerInventoryTable[0].kong[iconObj->kong];
     idx = iconObj->worldIndex[iconObj->buffer];
     sPauseTextCounts[iconObj->buffer] = 0;
@@ -917,7 +916,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     sPauseIconList = 1;
     switch (iconObj->page) {
     case 0:
-        gPlayerCharacterId = saved;
+        gPlayerCharacterId[0] = saved;
         idx = mapGetHubWorldIndex(gCurrentWorldId, 1);
         if (idx >= 9) {
             idx = 7;
@@ -934,7 +933,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             hudPauseMenuAddCounter(iconObj, 0x1E, 0x7D, 0xC, -0xA, gPlayerInventoryTable[0].ammo, 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 2, 0x1E, 0x7D, 0.65f, 2, 1);
         }
-        if (kongUsesAbilityEnergy(gPlayerCharacterId)) {
+        if (kongUsesAbilityEnergy(gPlayerCharacterId[0])) {
             f = slotQueueGetCountStep(5);
             hudPauseMenuAddCounter(iconObj, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil(gPlayerInventoryTable[0].abilityEnergy / f), 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 5, 0x1E, 0xA0, 0.65f, 2, 1);
@@ -955,7 +954,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             hudPauseMenuAddCounter(iconObj, 0x91, 0xBE, 0xF, -0xA, gPauseCollectibleCounts[0], 1, 0);
             hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xBE, 1.0f, 2, 1);
         }
-        gPlayerCharacterId = iconObj->kong;
+        gPlayerCharacterId[0] = iconObj->kong;
         break;
     case 1:
         if (idx != 7) {
@@ -968,12 +967,12 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
             if (D_807FC82E > 0) {
                 if (idx != 8) {
-                    sPauseIconList = (gPlayerInventoryTable[0].kong[gPlayerCharacterId].coloredBananas[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId].bananasDelivered[idx]) >= 0x4B;
+                    sPauseIconList = (gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].coloredBananas[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].bananasDelivered[idx]) >= 0x4B;
                 } else {
-                    sPauseIconList = flagGridSumRows(0x225, i, i, gPlayerCharacterId);
+                    sPauseIconList = flagGridSumRows(0x225, i, i, gPlayerCharacterId[0]);
                 }
                 hudPauseMenuSpawnIcon(iconObj, 0xA, 0x113, 0x7D, 0.75f, 2, 2);
-                if (flagGridSumRows(0x225, i, i, gPlayerCharacterId)) {
+                if (flagGridSumRows(0x225, i, i, gPlayerCharacterId[0])) {
                     hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721518, 0x113, 0x7D, 0.35f, 2, 0xD);
                 }
             }
@@ -999,9 +998,9 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
             if (sum) {
                 i = idx;
-                sPauseIconList = flagGet(flagGridIndex(0x1D5, i, gPlayerCharacterId), 0);
+                sPauseIconList = flagGet(flagGridIndex(0x1D5, i, gPlayerCharacterId[0]), 0);
                 hudPauseMenuSpawnIcon(iconObj, 0xC, 0x26, 0x7D, 0.75f, 2, 2);
-                if (flagGet(flagGridIndex(0x1FD, i, gPlayerCharacterId), 0)) {
+                if (flagGet(flagGridIndex(0x1FD, i, gPlayerCharacterId[0]), 0)) {
                     hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721518, 0x26, 0x7D, 0.35f, 2, 0xD);
                 }
             }
@@ -1124,7 +1123,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D38, 0x2D, 0xC8, 1.0f, 2, 1);
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_8072104C, 0x113, 0xC8, 1.0f, 2, 1);
     }
-    gPlayerCharacterId = saved;
+    gPlayerCharacterId[0] = saved;
 }
 
 void hudPauseMenuSpawnIcon(HudEntry *hud, s32 sprite, s32 x, s32 y, f32 scale, u8 mode, s32 kind) {

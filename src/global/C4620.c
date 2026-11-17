@@ -901,7 +901,6 @@ void func_806C1E44(void) {
 
 extern f32 D_807502F4;
 extern s16 gCsModelIds[];
-extern u8 gPlayerCharacterId[];
 extern u8 D_8071FC40;
 
 void func_806C226C(void) {

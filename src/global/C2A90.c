@@ -105,7 +105,6 @@ void func_806BDEC8(void) {
 
 
 extern u8 gCurrentWorldId;
-extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern u16 gLevelCollectibleCounts[];
 
@@ -157,7 +156,7 @@ void bananaDeliveryNpcUpdate(void) {
             }
             if (gBehaviourWorkState->timer != 0) {
                 if (!(gFrameCounter & 3)) {
-                    row = &gPlayerInventoryTable[0].kong[gPlayerCharacterId];
+                    row = &gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]];
                     gBehaviourWorkState->timer--;
                     slotQueueAddValue(0, 0, -1);
                     row->bananasDelivered[idx] += 1;

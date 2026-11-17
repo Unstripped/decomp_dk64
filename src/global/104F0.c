@@ -731,7 +731,6 @@ void eepromSaveRecordsOffset(void) {
 }
 
 extern u8 D_807FC952; // gPlayerInventoryTable[0].kong[0].weaponFlags; that spelling CSEs into the table base (lbu 2(s0)), the target loads this label
-extern u8 gPlayerCharacterId;
 
 void eepromRefillHalfConsumables(void) {
     s32 i;
@@ -749,12 +748,12 @@ void eepromRefillHalfConsumables(void) {
         gPlayerInventoryTable[0].ammo = slotQueueGetMaxValue(2, 0) * 0.5;
     }
     for (i = 0; i < 5; i++) {
-        gPlayerCharacterId = i;
+        gPlayerCharacterId[0] = i;
         if (gPlayerInventoryTable[0].kong[i].instrumentFlags != 0) {
             gPlayerInventoryTable[0].kong[i].instrumentEnergy = slotQueueGetMaxValue(7, 0) * 0.5;
         }
     }
-    gPlayerCharacterId = 0;
+    gPlayerCharacterId[0] = 0;
 }
 
 extern u8 gActivePlayerCount;
@@ -774,7 +773,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     playerResetSpawnGlobals();
     memcpy(sEepromSlotBuffer, sEepromImage, 0x800);
     gEepromCurrentSlot = slot;
-    gPlayerCharacterId = 0;
+    gPlayerCharacterId[0] = 0;
     if (eepromGetField(0xD, 0, 0, slot) == 0) {
         eepromClearSlotData(slot & 0xFF, 0);  // ORIG: the target re-masks the u8 slot for this unprototyped (K&R) call, andi a0,s5,0xff at 0x24e0
     }
@@ -806,7 +805,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     if (fromCopy != 0) {
         eepromRefillHalfConsumables();
     }
-    gPlayerCharacterId = 0;
+    gPlayerCharacterId[0] = 0;
 }
 
 void func_8060DEA8(void) {

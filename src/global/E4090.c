@@ -1303,7 +1303,6 @@ extern f32 D_80753DC8[];
 extern f32 D_80753DE4[];
 extern u16 *gActorScriptIndexTable;
 
-extern u8 gPlayerCharacterId[];
 
 void playerInputUpdateMoveTargetClamped(void) {
     f32 dist;

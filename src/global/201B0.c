@@ -753,7 +753,6 @@ void camRequestPathLength(void) {
 
 extern Actor *gSpawnedActor;
 extern u8 gAmbientIndoors;
-extern u8 gPlayerCharacterId[];
 extern PlayerState *gActivePlayerState;
 
 void func_80029140(s16 *);

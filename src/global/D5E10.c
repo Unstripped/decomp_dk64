@@ -1117,7 +1117,6 @@ void playerUpdateTargetYawFromStick(void) {
     }
 }
 
-extern u8 gPlayerCharacterId[];
 extern SchedStruct gScheduler;
 extern f32 D_80753604[];
 

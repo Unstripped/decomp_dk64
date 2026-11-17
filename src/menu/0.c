@@ -262,7 +262,6 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
 
 extern OSContPad *gCurrentContPad;
 extern u8 gCurrentPlayerIndex;
-extern u8 gPlayerCharacterId;
 extern u8 D_800330C0[];
 extern u8 D_80032F50;
 extern s16 D_800330D8;
@@ -282,10 +281,10 @@ void menuUpdateOptionsState(MenuState *menu) {
         break;
     case 0:
         if (listContainsS16(4) != 0) {
-            playerSaveData = &gPlayerInventoryTable[0].kong[gPlayerCharacterId];
+            playerSaveData = &gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]];
             for (i = 0; i < 8; i++) {
-                if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId), 0) != 0) {
-                    awardFlag = flagGridIndex(0x1FD, i, gPlayerCharacterId);
+                if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId[0]), 0) != 0) {
+                    awardFlag = flagGridIndex(0x1FD, i, gPlayerCharacterId[0]);
                     if (flagGet((s16)awardFlag, 0) == 0) {
                         flagSet((s16)awardFlag, 1, 0);
                         playerSaveData->goldenBananas[i]++;
@@ -407,8 +406,8 @@ void menuDispatchAction(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         camPathIndex = 1;
         menu->medalCount = flagCountRange(0x1FD, 0x28, 0);
-        menu->pendingMedals = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
-        menu->pendingMedals -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId);
+        menu->pendingMedals = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId[0]);
+        menu->pendingMedals -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId[0]);
         if (D_8076AEF2 != 0x1C) {
             if (flagGet(0x174, 0) == 0) {
                 menu->mode = 0;

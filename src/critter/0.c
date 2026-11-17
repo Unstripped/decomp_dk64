@@ -990,7 +990,6 @@ void critterDispatchAll(CritterGroup *grp) {
     }
 }
 
-extern u8 gPlayerCharacterId;
 typedef struct CritterZoneRow {
     CritterZoneShape shape;
     s16 yOffset;
@@ -1004,7 +1003,7 @@ void critterUpdateGroups(CritterGroups *groups) {
     CritterZoneRow *rows;
     CritterZoneRow *row;
     s16 rowIdx;
-    u8 character = gPlayerCharacterId;
+    u8 character = gPlayerCharacterId[0];
 
     if (groups != NULL) {
         grp = groups->groups;

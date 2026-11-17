@@ -413,7 +413,6 @@ s32 mpRandomSpawnDelay(void) {
     return (((randomNonNegative() >> 15) % 0x7FFF) % 211) + 0x5A;
 }
 
-extern u8 gPlayerCharacterId[];
 extern u8 D_807207BC;
 
 s32 mpUpdateScoreEffects(void) {

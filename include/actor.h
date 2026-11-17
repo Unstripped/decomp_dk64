@@ -989,6 +989,10 @@ typedef struct PlayerInventory {
 // Per-player inventory (4 players at 0x807FC950); gCurrentKongInventory points at the current kong's row.
 extern PlayerInventory gPlayerInventoryTable[];
 
+// Character (kong) id of each of the 4 players (0x8074E77C-F): indexes gKongCharacterTable (CC800) and
+// PlayerInventory.kong; single player uses [0].
+extern u8 gPlayerCharacterId[];
+
 // One row of the two five-entry high-score tables D_80744548 / D_80744568 (EEPROM fields 0x16-0x19 and
 // 0x1A-0x1D, see 104F0.c eepromInitConfigs; defaults D_80757044 / D_80757064).
 typedef struct MenuHighScoreEntry {

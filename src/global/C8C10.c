@@ -278,7 +278,6 @@ void func_806C49D0(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 gPlayerCharacterId;
 extern Actor *gSpawnedActor;
 
 
@@ -325,7 +324,7 @@ u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
                     }
                 }
             }
-            if (gPlayerCharacterId != 1) {
+            if (gPlayerCharacterId[0] != 1) {
                 ret = 1;
             }
             if (*cooldownPtr != 0) {

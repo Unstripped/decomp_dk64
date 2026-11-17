@@ -527,7 +527,6 @@ u16 slotQueueGetMaxValue(s32 slot, s32 player) {
 }
 
 
-extern u8 gPlayerCharacterId[];
 
 void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
     s32 max;

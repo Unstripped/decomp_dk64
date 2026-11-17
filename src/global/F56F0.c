@@ -31,7 +31,6 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 extern s32 gCurrentMap;
-extern u8 gPlayerCharacterId[];
 
 void playerKongStopAudioChannels(Actor *actor, u16 actorType) {
     switch (actorType) {

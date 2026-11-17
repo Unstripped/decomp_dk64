@@ -118,12 +118,11 @@ void menuSetTransitionTypeBFlag(void) {
     }
 }
 
-extern s8 gPlayerCharacterId;
 
 void menuSetupPlayerInventory(s32 map, s32 exit, s32 characterId, s8 inventory0, s8 inventory1, s8 inventory4, s8 shared) {
     s32 i;
 
-    gPlayerCharacterId = characterId;
+    gPlayerCharacterId[0] = characterId;
     gPlayerInventoryTable[0].melons = shared;
     gPlayerInventoryTable[0].health = shared * 4;
     for (i = 0; i < 5; i++) {
@@ -270,7 +269,7 @@ extern BonusStageEntry D_8075E5C0[];
 void menuSetupBonusCharacter(void) {
     if (gMenuTargetMode == 3) {
         func_8060B750(D_8075E5C0[gMenuBonusStageIndex].characterId);
-        gPlayerCharacterId = func_8060B7C4();
+        gPlayerCharacterId[0] = func_8060B7C4();
     }
 }
 
@@ -884,7 +883,7 @@ void menuStartGameFromSave(s8 saveSlot) {
     playerResetSpawnGlobals();
     flagsClearAllBank2();
     eepromLoadPlayerData(saveSlot, 1);
-    gPlayerCharacterId = 0;
+    gPlayerCharacterId[0] = 0;
     if ((eepromGetField(0xD, 0, 0, gEepromCurrentSlot) != 0) || (D_8074452C != 0)) {
         if (flagGet(0x186, 0) != 0) {
             map = 0x22;
