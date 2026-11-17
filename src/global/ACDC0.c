@@ -593,7 +593,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     f32 fb;
     f32 fc;
     f32 fd;
-    f32 fadeInput0 = 0.0f;
+    f32 fadeInput0 = 0.0f; // FAKE: dead initializer; first appearance orders fadeInput0 ahead of fadeInput4 for uopt colouring (Q0584)
     f32 fadeInput4;
     s32 cnt;
 
@@ -654,7 +654,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 fe = (fe * 0.5f + 0.5f) * 30.0f * 0.75f;
                 gDPPipeSync(dl++);
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0x50);
-                y = (s32)((j * 0x69 + 0x280) + fd - fb);
+                y = (j * 0x69 + 0x280) + fd - fb;
                 fh = -fc;
                 dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)fe, fa, fh, 0, 0.0f);
                 gDPPipeSync(dl++);
@@ -677,7 +677,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             }
             gDPPipeSync(dl++);
             y = 0x198;
-            alpha = (s32)((1.0f - hud->fade) * 255.0f);
+            alpha = (1.0f - hud->fade) * 255.0f;
             if (alpha < 0) {
                 alpha = 0;
             }
@@ -694,7 +694,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (j == 2 && (hubWorld == 7 || (hubWorld == 8 && menuGetTimerFlag() != 0 && gPauseMenuMode == 0))) {
                         j++;
                     }
-                    i = j;
+                    i = j; // ORIG: i's own home 0x158(sp) holds the string index (sh at 0x1858/0x186c/0x1894); a dedicated local gives 228
                     if (j == 1 && gPauseMenuMode != 0) {
                         i = 4;
                     }
@@ -736,9 +736,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         ff = fa * 1.33;
                         for (j = 0; j < 5; j++) {
                             sa = angv;
-                            yy = (s32)(mathSinF(sa) * fb);
+                            yy = mathSinF(sa) * fb;
                             yy += 0x280;
-                            y0 = (s32)(mathCosF(sa) * fb);
+                            y0 = mathCosF(sa) * fb;
                             yy += 0x20;
                             off = j + slotBase;
                             D_807FC840[off] = yy - fd;
@@ -760,7 +760,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         fc += fd * 400.0;
                     }
                     j = tab->kong[hud->kong].goldenBananas[sPauseLevelOrder[hud->worldIndex[i]]]; // FAKE: reuses the loop index j for the golden-banana count; a dedicated s16 local or the read inlined into hudDrawCountPair fails fdiff
-                    dl = hudDrawCountPair(0x2A8, (s32)(slide + fc), j, 5, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2A8, slide + fc, j, 5, dl, 0, 0.8f);
                 }
             }
             sPauseCarouselFrame++;
@@ -790,7 +790,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (off == 0) {
                         fc += fd * 400.0;
                     }
-                    dl = hudDrawCountPair(0x2B0, (s32)(off + fc), cnt, 0x19, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2B0, off + fc, cnt, 0x19, dl, 0, 0.8f);
                 }
             }
             break;
