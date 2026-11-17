@@ -1416,7 +1416,7 @@ void playerTurnByStickX(void) {
     playerUpdateMoveTargetFromStick();
     if (gActivePlayerState->maxSpeed != 0.0f) {
         pad = &gPlayerPadState[gCurrentPlayerIndex];
-        scale = pad->stickMagNorm; // FAKE: dead sibling scale chain (playerInputUpdateMoveTargetWithDeadzone2); its deleted pad->stickMagNorm read and 0.2 compare split the block after the pad address, so &gCurrentActor (a3) loads after it and pad takes a1
+        scale = pad->stickMagNorm; // FAKE: dead copy of the sibling's scaled turn (playerInputUpdateMoveTargetWithDeadzone2), this scale chain through the turnRate/scale store below, overwritten by the stick term; the deleted stickMagNorm read and 0.2 compare split the block after the pad address (&gCurrentActor in a3 after it, pad in a1), and the store's read of turn keeps the 400 compare (Q0200)
         scale = scale * scale;
         if (scale < 0.2) {
             scale = 0.2f;
@@ -1433,9 +1433,7 @@ void playerTurnByStickX(void) {
         if (turn > 400.0f) {
             turn = 400.0f;
         }
-        if (turn < -400.0f) { // FAKE: logically dead lower clamp (turn >= 0 here), a Q0200 keeper replacing the c5577b dead store
-            turn = -400.0f;
-        }
+        turn = turn * (gActivePlayerState->turnRate / 400.0) * scale;
         turn = (pad->stickX * gActivePlayerState->turnRate) / 400;
         gCurrentActor->yaw -= turn;
         if (gCurrentActor->yaw >= 0x1000) {
