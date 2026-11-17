@@ -93,14 +93,14 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     f32 brake;
     f32 friction;
     f32 steerAmount;
-    f32 factor;
+    f32 brakeDrag;
     s32 steerSign;
     s16 signedDist;
     s16 pitchAngle;
     s16 yawDelta;
     s16 airPitch;
     s16 airYaw;
-    f32 tiltScale;
+    f32 speedGain;
 
     onGround = gCurrentActor->contactFlags & 1;
     thrustYaw = gCurrentActor->yaw;
@@ -121,13 +121,11 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
         thrustYaw &= 0xFFF;
         racerState->throttle *= 0.85;
     }
-    if (onGround != 0) {
-        factor = racerState->brake * gCurrentActor->speedXZ * 0.2;
-        if (!(factor > 1.0f)) {
-            factor = 1.0f;
-        }
+    if (onGround) {
+        brakeDrag = racerState->brake * gCurrentActor->speedXZ * 0.2;
+        brakeDrag = (brakeDrag > 1.0f) ? brakeDrag : 1.0f;
         forwardAccel = (racerState->throttle * 35.0f) + (gCurrentActor->speedXZ * 0.13);
-        friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00025f) + (27.0 + factor);
+        friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00025f) + (27.0 + brakeDrag);
     } else {
         forwardAccel = racerState->throttle * 2;
         friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f) + 2;
@@ -139,9 +137,8 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     if (onGround) {
         pitchAngle = 0x400 - gCurrentActor->floorSlopePitch;
         signedDist = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, gCurrentActor->yaw);
-        tiltScale = pitchAngle;
-        targetRoll = mathCosF(signedDist) * tiltScale;
-        targetPitch = mathSinF(signedDist) * tiltScale;
+        targetRoll = mathCosF(signedDist) * pitchAngle;
+        targetPitch = mathSinF(signedDist) * pitchAngle;
         targetRoll &= 0xFFF;
         targetPitch &= 0xFFF;
     } else {
@@ -153,27 +150,21 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
             airYaw &= 0xFFF;
         }
         yawDelta = mathAngleSignedDistance(airYaw, gCurrentActor->yaw);
-        tiltScale = airPitch;
-        targetRoll = mathCosF(yawDelta) * tiltScale;
-        targetPitch = mathSinF(yawDelta) * tiltScale;
+        targetRoll = mathCosF(yawDelta) * airPitch;
+        targetPitch = mathSinF(yawDelta) * airPitch;
         targetRoll &= 0xFFF;
         targetPitch &= 0xFFF;
     }
     brake = racerState->brake;
     steerAmount = racerState->steerGain * racerState->steer;
     if (brake > 0) {
-        if (steerAmount > 0.0f) {
-            factor = steerAmount; // FAKE: factor reused for the brake drag, |steer| and the speed gain; separate locals cost 39-51 words
-        } else {
-            factor = -steerAmount;
-        }
-        if (factor > 0.1f) {
+        if ((steerAmount > 0.0f ? steerAmount : -steerAmount) > 0.1f) {
             if (steerAmount >= 0.0f) {
                 steerSign = 1;
             } else {
                 steerSign = -1;
             }
-            steerAmount += 2.0f * (f32)steerSign * brake;
+            steerAmount += 2.0f * steerSign * brake;
         }
     }
     gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, targetRoll, 4.0f);
@@ -185,11 +176,11 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     if (racerState->reverseThrust != 0) {
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 100.0f) ? gCurrentActor->speedXZ : 100.0f;
     }
-    factor = gCurrentActor->speedXZ - gCurrentActor->prevSpeedXZ;
-    if (factor < 0.0f) {
-        factor = 0.0f;
+    speedGain = gCurrentActor->speedXZ - gCurrentActor->prevSpeedXZ;
+    if (speedGain < 0.0f) {
+        speedGain = 0.0f;
     }
-    gCurrentActor->yaw += (steerAmount * -40.0f) * (1.0 + (factor * 0.05));
+    gCurrentActor->yaw += (steerAmount * -40.0f) * (1.0 + (speedGain * 0.05));
     gCurrentActor->yaw &= 0xFFF;
     gCurrentActor->speedY += gCurrentActor->accelY;
     if (gCurrentActor->speedY < gCurrentActor->terminalSpeedY) {
