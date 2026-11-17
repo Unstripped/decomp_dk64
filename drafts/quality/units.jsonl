@@ -878,3 +878,4 @@
 {"type": "unit", "t": "2026-11-17T04:41:05Z", "unit": "2026-11-16d: cleanup Polishmenu3E10b", "commit": "2633de34352c8fc034024f4d1a2a2495958dd14f"}
 {"type": "unit", "t": "2026-11-17T04:41:34Z", "unit": "2026-11-16: cleanup Polishrace6650b (orphaned Lead-d result, model unknown)", "commit": "2d80041ce4e14adfe5f67f42d8fd6d225f61ab49"}
 {"type": "unit", "t": "2026-11-17T04:41:38Z", "unit": "2026-11-16: cleanup HackvehicleUpdateMotion6 (orphaned Lead-d result, model unknown)", "commit": "2d80041ce4e14adfe5f67f42d8fd6d225f61ab49"}
+{"type": "unit", "t": "2026-11-17T04:42:16Z", "unit": "2026-11-16: cleanup HackbonusSearchlightSeekGameUpdate5 (orphaned Lead-d result, model unknown)", "commit": "81911d611a0a6732ecf2f0f73aaf17a2080addf7"}

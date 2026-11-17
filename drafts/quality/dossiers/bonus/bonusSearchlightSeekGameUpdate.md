@@ -39,6 +39,11 @@ bonus:8002BF98:other:d3c36c other (copy-only, new tag): velX also holds the x ve
 - `stickX = stick_x; stickX = stickX * 0.06f;` 5.0: all five FP values coloured right, but the cvt lands in $f2 (`mul.s $f2,$f2,$f10`): 108. Block-scoped stickX in case 0 10; `stickX = 0.06f; stickX *= stick_x` 66 (constant def not counted); `sens = 0.06f` local 10.
 - Error: the bit order needs velX load < velZ load < stickY, and the error is defined from stickY, so it must outrank the 3.0 velX load on adjsave alone (2 defs + 2 uses with no emitted code). `dx = t; dx -= subExt->velX` 13 (first def propagated, 2.0); dead `velX = subExt->velX;` before `velX = t - subExt->velX` 10 (removed, 2.0); `velX *= 0.155f; subExt->velX += velX` 96/103 (4.0, but a real `mul.s $f2,$f2,$f6`); accX `*=` two-step 88.
 - Final: no change, fdiff 0, clint uninit 0 (only the pre-existing bonusBigBugBashGameUpdate diffDelta line).
+2026-11-16d HackbonusSearchlightSeekGameUpdate5 anthropic/claude-opus-5-5 (variants.py try, full= lines, on the shared `void func_806FDAB8(s16, f32)` prototype):
+- honest trailing `f32 stickX` 10 (same as before the prototype change, so the stale cause did not move this site); `register f32 stickX` 10 (keyword ignored).
+- stick_x into a trailing `s8 sx`/`s32 sx` with `sx * 0.06f` written in both products (a CSE expression temp instead of a variable) 80, `(sx * 0.06f)` 80; unscaled `f32 sx` with `sx * 0.06f` twice 134.
+- d3c36c not retried (no new idea).
+- Final: no change to this function, fdiff 0, clint uninit 0.
 
 ## Untried ideas
 stickX (83418a) / velX error (d3c36c): each needs one more counted ref that emits no code (stickX >= 4.0 with a lower bit than the error, error > 3.0). Only the reuse of a load-copied local (`v = p->f; v = e - v;`) produces such refs. No natural spelling found; Q0771-style constant-propagated refs land on the constant local, not on stickX.
