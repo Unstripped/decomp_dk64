@@ -2797,7 +2797,7 @@ int playerIsOnOwnInstrumentPad(Actor *mob) {
 }
 
 
-extern u8 D_807F6903;
+extern u8 gCsCondFlag;
 extern s32 D_8076A094;
 extern u8 D_8076A0B2;
 extern f32 D_807536AC[];
@@ -2820,7 +2820,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 }
                 break;
             case 5:
-                if (D_807F6903 == 0) {
+                if (gCsCondFlag == 0) {
                     if (++D_8076A094 < 0x5DD) {
                         gActivePlayerState->unk204 = gActorGlobalState.unk4;
                         gActivePlayerState->unk208 = gActorGlobalState.unk8;
@@ -2832,7 +2832,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 }
                 break;
             case 3:
-                if (D_807F6903 == 0) {
+                if (gCsCondFlag == 0) {
                     if (++D_8076A094 < 0x5DD) {
                         gActivePlayerState->unk204 = gActorGlobalState.unk4;
                         gActivePlayerState->unk208 = gActorGlobalState.unk8;

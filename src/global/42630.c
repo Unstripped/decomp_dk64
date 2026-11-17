@@ -86,7 +86,7 @@ s32 D_807F623C;
 s16 gCsModelIds[600];
 u8 gCsVarsDirty[0x212];
 s8 D_807F6902;
-s8 D_807F6903;
+s8 gCsCondFlag;
 s16 D_807F6904;
 s16 D_807F6906;
 s16 D_807F6908;
@@ -99,7 +99,7 @@ u8 gCsTrackedModelCount;
 u8 D_807F6939;
 s16 D_807F693A;
 s16 D_807F693C;
-u8 D_807F693E;
+u8 gCsFlagBits;
 u8 D_807F693F;
 
 void csModelIdTableReset(void) {
@@ -191,9 +191,9 @@ void csTimerQueueFire(s16 timerId) {
     }
 }
 
-extern s8 D_807F6903;
+extern s8 gCsCondFlag;
 extern s16 D_807F693C;
-extern u8 D_807F693E;
+extern u8 gCsFlagBits;
 extern u8 D_807F693F;
 
 void csScriptLoad(s16 *scriptData) {
@@ -260,9 +260,9 @@ void csScriptLoad(s16 *scriptData) {
         } while (n != 0);
     }
     D_807F693F = 0;
-    D_807F693E = 0;
+    gCsFlagBits = 0;
     D_807F6902 = 0;
-    D_807F6903 = 0;
+    gCsCondFlag = 0;
     D_807F693C = 0;
     D_807F61F0.timerActor = NULL;
     D_807F61F0.hostActor = NULL;
@@ -625,13 +625,13 @@ u8 csCondEval(CsCond *cond, CsStateFull *cs, s16 csId) {
         ret = 1;
         break;
     case 0x3D:
-        ret = D_807F6903;
+        ret = gCsCondFlag;
         break;
     case 0x3C:
         ret = cond->arg[0] == gPlayerSlots->unk290;
         break;
     case 0x3A:
-        if ((1 << cond->arg[0]) & D_807F693E) {
+        if ((1 << cond->arg[0]) & gCsFlagBits) {
             ret = 1;
         } else {
             ret = 0;
@@ -1119,7 +1119,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F6902 = cmd->a;
         break;
     case 0x96:
-        D_807F6903 = cmd->a;
+        gCsCondFlag = cmd->a;
         break;
     case 0x8E:
         dynamicBufferFree(&gModelSlots[hashTableLookup(csId)].unk28);
@@ -1137,10 +1137,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         eepromSavePlayerData();
         break;
     case 0x81:
-        D_807F693E |= 1 << cmd->a;
+        gCsFlagBits |= 1 << cmd->a;
         break;
     case 0x82:
-        D_807F693E &= ~(1 << cmd->a);
+        gCsFlagBits &= ~(1 << cmd->a);
         break;
     case 0x7F:
         switch (cmd->b) {

@@ -114,3 +114,4 @@ jetpacUpdateStateAndInput = 0x80025168; // type:func
 jetpacDrawScoreboard = 0x80024408; // type:func
 jetpacRocketItemUpdate = 0x80027728; // type:func
 jetpacBonusItemUpdate = 0x80027EC0; // type:func
+jetpacInitPending = 0x8002BA70;

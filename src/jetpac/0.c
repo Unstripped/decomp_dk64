@@ -401,11 +401,11 @@ void jetpacStartStage(void) {
     }
 }
 
-extern u8 D_8002BA70;
+extern u8 jetpacInitPending;
 extern OSContPad *D_807ECDE8;
 
 void jetpacUpdateStateAndInput(Gfx **glist) {
-    u8 *initPending = &D_8002BA70;
+    u8 *initPending = &jetpacInitPending;
     u8 flag;
 
     if (*initPending != 0) {
