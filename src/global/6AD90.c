@@ -1686,7 +1686,7 @@ typedef struct CollisionBoxTri {
 s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloorY) {
     f32 pad;
     CollisionBoxTri *hitTri;
-    f64 nx, ny, nz;
+    f64 nx, ny, nzPart;
     f64 d;
     f64 val;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
@@ -1722,11 +1722,10 @@ s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloo
                         dz02 = tri->z0 - tri->z2;
                         nx = (dy01 * dz02) - (dz01 * dy02);
                         ny = (dz01 * dx02) - (dx01 * dz02);
-                        nz = (dx01 * dy02) - (dy01 * dx02);
-                        dy02 = 0.0;  // FAKE: kills nz store forwarding into d
-                        d = -(nz * tri->z1 + (nx * tri->x1 + ny * tri->y1));
+                        nzPart = dx01 * dy02;
+                        d = -((tri->z1 * (nzPart - (dy01 * dx02))) + (nx * tri->x1 + ny * tri->y1));
                         if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
-                            val = (0.0 - (((x * nx) + (ny * -1000.0) + (nz * z) + d) / (ny * 2000.0)));
+                            val = (0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0)));
                             y = (2000.0 * val) - 1000.0;
                             if (self != NULL) {
                                 collisionCheckSlopeAngle(refY, y, 0, self, 0);
