@@ -40,6 +40,8 @@ int _sprintf(void *buf, const void *fmt, ...) { // buf/fmt: game u8 buffers and 
 
 
 
+#define PUTC(ch) do { count++; *buf++ = (ch); } while (0) // FAKE: do-while(0) blocks split the zero-pad loop / sign arms (stand in for dead tests 2829ec, u8169d); used for char-literal stores only (all 35 sites: 94)
+
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     const unsigned char *f;
     int elen;
@@ -97,8 +99,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
             c = *++f;
             if ((c ^ 0) == '%') { // FAKE: operand order of the compare
                 f++;
-                count++;
-                *buf++ = '%';
+                PUTC('%');
             } else {
                 alt = 0;
                 minus = 0;
@@ -267,20 +268,14 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         width--;
                     }
                     if (!minus && padChar == ' ') {
-                        for (; width-- > 0;) {
-                            count++;
-                            *buf++ = ' ';
-                        }
+                        for (; width-- > 0;) PUTC(' ');
                     }
                     if (neg) {
-                        count++;
-                        *buf++ = '-';
+                        PUTC('-');
                     } else if (plus) {
-                        count++;
-                        *buf++ = '+';
+                        PUTC('+');
                     } else if (space) {
-                        count++;
-                        *buf++ = ' ';
+                        PUTC(' ');
                     }
                     if (alt && base == 16) {
                         *buf++ = '0';
@@ -288,18 +283,14 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         *buf++ = conv;
                     }
                     if (!minus && padChar == '0') {
-                        for (; width-- > 0;) { count++; *buf++ = '0'; if (width == 0) {} // FAKE: splits the loop body so the '0' const is not hoisted/coloured (ring temp like the original); LAYOUT: one line
-                        }
+                        for (; width-- > 0;) PUTC('0'); // LAYOUT: for header joined with the store so as1 schedules the loop test above count++/sb (split: 2)
                     }
                     while (np <= end) {
                         count++;
                         *buf++ = *np++;
                     }
                     if (minus) {
-                        for (; width-- > 0;) {
-                            count++;
-                            *buf++ = ' ';
-                        }
+                        for (; width-- > 0;) PUTC(' ');
                     }
                     break;
                 case 'e':
@@ -355,14 +346,11 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         }
                     }
                     if (fneg2) {
-                        count++;
-                        *buf++ = '-';
+                        PUTC('-');
                     } else if (plus) {
-                        count++;
-                        *buf++ = '+';
+                        PUTC('+');
                     } else if (space) {
-                        count++;
-                        *buf++ = ' ';
+                        PUTC(' ');
                     }
                     if (!minus && padChar == '0') {
                         d = width; // FAKE
@@ -382,8 +370,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     *buf++ = d;
                     scale /= 10.0;
                     if (prec > 0 || alt) {
-                        count++;
-                        *buf++ = '.';
+                        PUTC('.');
                     }
                     while (prec > 0) {
                         d = '0';
@@ -398,7 +385,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     count++;
                     *buf++ = conv;
-                    if (exp < 0) { exp = -exp; count++; *buf++ = '-'; } else { if (space && space) {} count++; *buf++ = '+'; } // LAYOUT: one-line if/else drops the else .loc; FAKE: dead space test steers the exp/10 hoist
+                    if (exp < 0) { exp = -exp; PUTC('-'); } else { PUTC('+'); } // LAYOUT: one-line if/else (multi-line costs 2: the else .loc); both statement orders of the then-arm match
                     if (exp >= 100) {
                         d = exp / 100 + '0';
                         *buf = d;
@@ -410,10 +397,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     count += 2;
                     *buf++ = exp % 10 + '0';
                     if (minus) {
-                        for (; elen < width--;) {
-                            count++;
-                            *buf++ = ' ';
-                        }
+                        for (; elen < width--;) PUTC(' ');
                     }
                     break;
                 case 'g':
@@ -454,14 +438,11 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         }
                     }
                     if (fneg) {
-                        count++;
-                        *buf++ = '-';
+                        PUTC('-');
                     } else if (plus) {
-                        count++;
-                        *buf++ = '+';
+                        PUTC('+');
                     } else if (space) {
-                        count++;
-                        *buf++ = ' ';
+                        PUTC(' ');
                     }
                     if (!minus && padChar == '0') {
                         for (; elen < width--;) {
@@ -480,8 +461,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         fscale /= 10.0;
                     } while (fscale >= 1.0);
                     if (prec > 0 || alt) {
-                        count++;
-                        *buf++ = '.';
+                        PUTC('.');
                     }
                     while (prec > 0) {
                         d = '0';
@@ -495,10 +475,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         fscale /= 10.0;
                     }
                     if (minus) {
-                        for (; elen < width--;) {
-                            count++;
-                            *buf++ = ' ';
-                        }
+                        for (; elen < width--;) PUTC(' ');
                     }
                     break;
                 case 'c':
@@ -513,8 +490,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     *buf++ = uv;
                     if (minus) {
                         while (--width > 0) {
-                            count++;
-                            *buf++ = ' ';
+                            PUTC(' ');
                         }
                     }
                     break;
@@ -536,20 +512,14 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     width -= len;
                     if (!minus) {
-                        for (; width-- > 0;) {
-                            count++;
-                            *buf++ = ' ';
-                        }
+                        for (; width-- > 0;) PUTC(' ');
                     }
                     for (; len-- > 0;) {
                         count++;
                         *buf++ = *p++;
                     }
                     if (minus) {
-                        for (; width-- > 0;) {
-                            count++;
-                            *buf++ = ' ';
-                        }
+                        for (; width-- > 0;) PUTC(' ');
                     }
                     break;
                 case 'p':
@@ -565,10 +535,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         const unsigned char *s;
                         width -= 5;
                         if (!minus) {
-                            for (; width-- > 0;) {
-                                count++;
-                                *buf++ = ' ';
-                            }
+                            for (; width-- > 0;) PUTC(' ');
                         }
                         s = sNilString;
                         while (*s != 0) {
@@ -577,10 +544,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             s++;
                         }
                         if (minus) {
-                            for (; width-- > 0;) {
-                                count++;
-                                *buf++ = ' ';
-                            }
+                            for (; width-- > 0;) PUTC(' ');
                         }
                     }
                     break;
