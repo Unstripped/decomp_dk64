@@ -5,7 +5,8 @@
   steers uopt colouring of the dispatch `lbu v1,53(s1); move a0,v1; beqz v1; move v0,v1`
   (load/cvt in v1, phase in a0, selector in v0). The selector must be a variable colored
   before the u8->s32 cvt of the load (cvt adjsave 2.0-2.5); cursorVal (u32 stunTimer local,
-  adjsave 3.5 from its earlier uses) is that variable. Still OPEN (kept tagged).
+  adjsave 3.5 from its earlier uses) is that variable. REMOVED 2026-11-16d (see Attempts): a
+  dedicated `u32 sel` selector shared by both unk35 switches is that variable.
 - race:80028440:other:1dd5de (byte-offset iterator `*(s16 *)((u8 *)soundSlots + audioSlot)`):
   REMOVED in this session (see Attempts 2026-11-16).
 
@@ -33,11 +34,26 @@
     no C-emittable single edit.
   - permute (v3 base: soundSlots[idx], no statePhase, `switch (state->unk35)`): see ledger.
 
+- 2026-11-16d HackraceOpponentCarBehaviorUpdate2 anthropic/claude-opus-5-5
+  - Re-scored on the u16 gTextNumberArg declaration (TypesOwner batch_6 part A): every
+    form above scores the same (switch(F) 7, `phase = statePhase = F` / `statePhase = F;
+    phase = statePhase` 4 order-only, `phase = F; statePhase = F; switch (statePhase)` 7
+    colour-swap, `phase = F; switch (phase)` 9); statePhase/phase widths u8/u16 2-10.
+  - f726c6 fixed: `u32 sel` used as the selector of BOTH switches (`sel = statePhase;
+    switch (sel)` on raceStatus 0, `sel = state->unk35; switch (sel)` on raceStatus 5).
+    uopt -l 5: a u32 selector needs no cfe switch temp; sel adjsave 3.0 (two switches) >
+    load cvt {210} 2.0, so sel takes v0 and the cvt v1. Frame: sel declared second under a
+    one-word pad (`s32 pad74; u32 sel;`): pad70[2] -> pad74 keeps the homes (flagPtr 0x6c)
+    and the IV spill at 52(sp). Needs the s32 statePhase single-def copy (`statePhase = F;
+    sel = statePhase`, or `switch (sel = statePhase)`): `sel = F` gets its own u8->u32 cvt
+    (16), `sel = phase` 9 (phase multi-def). Declaring sel beside statePhase shifts homes (11).
+    stunTimer local (was cursorVal) renamed. fdiff 0, whole-file OK, uninit 0.
+
 ## Untried ideas
-- A selector variable whose own earlier uses give it priority > the cvt without reusing an
-  unrelated local (none found among the function's roles).
+- (none left for this function)
 
 ## Evidence
 - Target 0x1098-0x10ac: `lbu v1,53(s1); li at,1; lui t5; move a0,v1; beqz v1; move v0,v1`.
 - Target 0x12ac-0x12e8: loop `addu t3,a2,v1; lh t6,110(t3)`, IV v1 spilled `sw v1,52(sp)`
   around `sfxStopSlotSound`; homes 108/104/96, frame 0x78.
+- 2026-11-16d lead ruling (not merged): the u32 sel form (fdiff 0) keeps `statePhase = state->unk35;` only to copy it into sel (`sel = state->unk35` scores 16): a redundant alias, so it would carry its own `// FAKE` tag; swapping the tagged reuse for a tagged alias is no net drop. Untried: a selector form with the u32 sel and NO alias (e.g. a real second use of statePhase, or a different first-switch arm order) that fdiffs.
