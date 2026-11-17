@@ -2691,112 +2691,111 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
     s32 floorY;
     s32 bias;
 
-    if (gArcadeFrozen == 0) {
-        D_8004BCD0[entIndex].animTimer += 0.15;
-        if (D_8004BCD0[entIndex].animTimer >= 5.0f) {
-            D_8004BCD0[entIndex].animTimer -= 5.0f;
-        }
-        if (D_8004C722 == 2) {
-            if (D_8004C710 != 0) {
-                if ((D_8004C6DC / 4) & 1) {
-                    D_8004BCD0[entIndex].sprite = D_80036810;
-                } else {
-                    D_8004BCD0[entIndex].sprite = D_80036A58;
-                }
-            } else if ((D_8004C6DC / 4) & 1) {
-                D_8004BCD0[entIndex].sprite = D_80036380;
-            } else {
-                D_8004BCD0[entIndex].sprite = D_800365C8;
-            }
-        } else if (D_8004C710 != 0) {
+    if (gArcadeFrozen != 0) {
+        return;
+    }
+    D_8004BCD0[entIndex].animTimer += 0.15;
+    if (D_8004BCD0[entIndex].animTimer >= 5.0f) {
+        D_8004BCD0[entIndex].animTimer -= 5.0f;
+    }
+    if (D_8004C722 == 2) {
+        if (D_8004C710 != 0) {
             if ((D_8004C6DC / 4) & 1) {
-                D_8004BCD0[entIndex].sprite = D_80036CA0;
+                D_8004BCD0[entIndex].sprite = D_80036810;
             } else {
-                D_8004BCD0[entIndex].sprite = D_80036EE8;
+                D_8004BCD0[entIndex].sprite = D_80036A58;
             }
         } else if ((D_8004C6DC / 4) & 1) {
-            D_8004BCD0[entIndex].sprite = D_80035EF0;
+            D_8004BCD0[entIndex].sprite = D_80036380;
         } else {
-            D_8004BCD0[entIndex].sprite = D_80036138;
+            D_8004BCD0[entIndex].sprite = D_800365C8;
         }
-        floorY = arcadeCheckPlayerCollision((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
-        arcadeCheckStageLadders((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
-        switch (D_8004BCD0[entIndex].state) {
-        case 2:
-            if (arcadeRand() < arcadeMinFloat(gArcadeLevel, 5.0f) * 60.0f + 256.0f) {
-                bias = D_8004BCD0[entIndex].x < D_8004BCD0[gArcadePlayerIndex].x;
-                bias += ((D_8004BCD0[gArcadePlayerIndex].facing & 2) * 3) / 2;
-                D_8004BCD0[entIndex].facing = (arcadeRand() + bias * 0xFB8) - 0x1F70 >= 0x4001;
-            }
-            if (arcadeCheckPlayerCollision((s32)(D_8004BCD0[entIndex].x + D_8004BCD0[entIndex].vx * 8.0f), (s32)D_8004BCD0[entIndex].y) - D_8004BCD0[entIndex].y > 5.0f) {
-                if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the facing load a candidate (a0)
-                D_8004BCD0[entIndex].facing = D_8004BCD0[entIndex].facing == 0;
-            } else {
-                D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
-            }
-            D_8004BCD0[entIndex].vx = (D_8004BCD0[entIndex].facing - 0.5) * (arcadeMinFloat(gArcadeLevel, 5.0f) / 15.0 + 1.0);
-            bias = (s32)((D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y) * arcadeMinFloat(gArcadeLevel, 5.0f) * 3.0f);
-            if (D_8004BCD0[entIndex].y < D_8004C6E8 && arcadeRand() < 0x400 - bias) {
-                D_8004BCD0[entIndex].state = 5;
-                D_8004BCD0[entIndex].vx = 0.0f;
-                D_8004BCD0[entIndex].y += 1.0f;
-                D_8004BCD0[entIndex].vy = 2.0 * (arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
-                D_8004BCD0[entIndex].x = D_8004C6E0;
-            } else if (D_8004C6E4 < D_8004BCD0[entIndex].y && arcadeRand() < bias + 0x400) {
-                D_8004BCD0[entIndex].state = 6;
-                D_8004BCD0[entIndex].vx = 0.0f;
-                D_8004BCD0[entIndex].y -= 1.0f;
-                D_8004BCD0[entIndex].vy = -(arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
-                D_8004BCD0[entIndex].x = D_8004C6E0;
-            } else if (floorY - D_8004BCD0[entIndex].y < 3.0f) {
-                D_8004BCD0[entIndex].y = floorY;
-            } else {
-                if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the facing load a candidate
-                D_8004BCD0[entIndex].facing = D_8004BCD0[entIndex].facing == 0;
-            }
-            break;
-        case 3:
+    } else if (D_8004C710 != 0) {
+        if ((D_8004C6DC / 4) & 1) {
+            D_8004BCD0[entIndex].sprite = D_80036CA0;
+        } else {
+            D_8004BCD0[entIndex].sprite = D_80036EE8;
+        }
+    } else if ((D_8004C6DC / 4) & 1) {
+        D_8004BCD0[entIndex].sprite = D_80035EF0;
+    } else {
+        D_8004BCD0[entIndex].sprite = D_80036138;
+    }
+    floorY = arcadeCheckPlayerCollision((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
+    arcadeCheckStageLadders((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
+    switch (D_8004BCD0[entIndex].state) {
+    case 2:
+        if (arcadeRand() < arcadeMinFloat(gArcadeLevel, 5.0f) * 60.0f + 256.0f) {
+            bias = D_8004BCD0[entIndex].x < D_8004BCD0[gArcadePlayerIndex].x;
+            bias += ((D_8004BCD0[gArcadePlayerIndex].facing & 2) * 3) / 2;
+            D_8004BCD0[entIndex].facing = (arcadeRand() + bias * 0xFB8) - 0x1F70 >= 0x4001;
+        }
+        if (arcadeCheckPlayerCollision((s32)(D_8004BCD0[entIndex].x + D_8004BCD0[entIndex].vx * 8.0f), (s32)D_8004BCD0[entIndex].y) - D_8004BCD0[entIndex].y > 5.0f) {
+            D_8004BCD0[entIndex].facing = !D_8004BCD0[entIndex].facing;
+        } else {
             D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
-            D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
-            D_8004BCD0[entIndex].vy += 0.06;
-            if (floorY < D_8004BCD0[entIndex].y && D_8004BCD0[entIndex].y - floorY < 3.0f) {
-                D_8004BCD0[entIndex].y = floorY;
-                D_8004BCD0[entIndex].vy = -D_8004BCD0[entIndex].vy / 3.0f;
-                if (D_8004BCD0[entIndex].vy > -0.2) {
-                    D_8004BCD0[entIndex].state = 2;
-                }
-            }
-            break;
-        case 5:
-            D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
-            if (D_8004C6E8 - 1 < D_8004BCD0[entIndex].y) {
-                D_8004BCD0[entIndex].y = floorY;
-                D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
-                D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
+        }
+        D_8004BCD0[entIndex].vx = (D_8004BCD0[entIndex].facing - 0.5) * (arcadeMinFloat(gArcadeLevel, 5.0f) / 15.0 + 1.0);
+        bias = (s32)((D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y) * arcadeMinFloat(gArcadeLevel, 5.0f) * 3.0f);
+        if (D_8004BCD0[entIndex].y < D_8004C6E8 && arcadeRand() < 0x400 - bias) {
+            D_8004BCD0[entIndex].state = 5;
+            D_8004BCD0[entIndex].vx = 0.0f;
+            D_8004BCD0[entIndex].y += 1.0f;
+            D_8004BCD0[entIndex].vy = 2.0 * (arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
+            D_8004BCD0[entIndex].x = D_8004C6E0;
+        } else if (D_8004BCD0[entIndex].y > D_8004C6E4 && arcadeRand() < bias + 0x400) {
+            D_8004BCD0[entIndex].state = 6;
+            D_8004BCD0[entIndex].vx = 0.0f;
+            D_8004BCD0[entIndex].y -= 1.0f;
+            D_8004BCD0[entIndex].vy = -(arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
+            D_8004BCD0[entIndex].x = D_8004C6E0;
+        } else if (floorY - D_8004BCD0[entIndex].y < 3.0f) {
+            D_8004BCD0[entIndex].y = floorY;
+        } else {
+            D_8004BCD0[entIndex].facing = !D_8004BCD0[entIndex].facing;
+        }
+        break;
+    case 3:
+        D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
+        D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
+        D_8004BCD0[entIndex].vy += 0.06;
+        if (D_8004BCD0[entIndex].y > floorY && D_8004BCD0[entIndex].y - floorY < 3.0f) {
+            D_8004BCD0[entIndex].y = floorY;
+            D_8004BCD0[entIndex].vy = -D_8004BCD0[entIndex].vy / 3.0f;
+            if (D_8004BCD0[entIndex].vy > -0.2) {
                 D_8004BCD0[entIndex].state = 2;
             }
-            break;
-        case 6:
-            D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
-            if (D_8004BCD0[entIndex].y < D_8004C6E4 + 1) {
-                D_8004BCD0[entIndex].y = floorY;
-                D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
-                D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
-                D_8004BCD0[entIndex].state = 2;
-            }
-            break;
         }
-        if (270.0f < D_8004BCD0[entIndex].x) {
-            D_8004BCD0[entIndex].facing = 0;
-            D_8004BCD0[entIndex].vx = D_8004BCD0[entIndex].facing - 0.5;
-        } else if (D_8004BCD0[entIndex].x < 50.0f) {
-            D_8004BCD0[entIndex].facing = 1;
-            D_8004BCD0[entIndex].vx = D_8004BCD0[entIndex].facing - 0.5;
+        break;
+    case 5:
+        D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
+        if (D_8004BCD0[entIndex].y > D_8004C6E8 - 1) {
+            D_8004BCD0[entIndex].y = floorY;
+            D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
+            D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
+            D_8004BCD0[entIndex].state = 2;
         }
-        if (D_8004BCD0[entIndex].x - D_8004BCD0[gArcadePlayerIndex].x < 8.0f && D_8004BCD0[gArcadePlayerIndex].x - D_8004BCD0[entIndex].x < 8.0f) {
-            if (D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y < 3.0f && D_8004BCD0[gArcadePlayerIndex].y - D_8004BCD0[entIndex].y < 8.0f) {
-                arcadeKillPlayer();
-            }
+        break;
+    case 6:
+        D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
+        if (D_8004BCD0[entIndex].y < D_8004C6E4 + 1) {
+            D_8004BCD0[entIndex].y = floorY;
+            D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
+            D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
+            D_8004BCD0[entIndex].state = 2;
+        }
+        break;
+    }
+    if (D_8004BCD0[entIndex].x > 270.0f) {
+        D_8004BCD0[entIndex].facing = 0;
+        D_8004BCD0[entIndex].vx = D_8004BCD0[entIndex].facing - 0.5;
+    } else if (D_8004BCD0[entIndex].x < 50.0f) {
+        D_8004BCD0[entIndex].facing = 1;
+        D_8004BCD0[entIndex].vx = D_8004BCD0[entIndex].facing - 0.5;
+    }
+    if (D_8004BCD0[entIndex].x - D_8004BCD0[gArcadePlayerIndex].x < 8.0f && D_8004BCD0[gArcadePlayerIndex].x - D_8004BCD0[entIndex].x < 8.0f) {
+        if (D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y < 3.0f && D_8004BCD0[gArcadePlayerIndex].y - D_8004BCD0[entIndex].y < 8.0f) {
+            arcadeKillPlayer();
         }
     }
 }
