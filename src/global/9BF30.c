@@ -39,7 +39,7 @@ extern PlayerStruct *gPlayerSlots;
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     ProjectileState *sub;
     f32 modelMtx[4][4];
-    f32 stepMtx[4][4];
+    f32 tmpMtx[4][4];
     s16 i;
     s16 stepAngle;
     s32 texIndex;
@@ -106,10 +106,10 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
         gDPLoadTextureBlock(glist++, gSpriteRingTextures[texIndex], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
         guScaleF(modelMtx, spriteScale, spriteScale, spriteScale);
-        matrixMakeRotationY(stepMtx, (gPlayerSlots->camYawInt * 360) / 4096);
-        guMtxCatF(modelMtx, stepMtx, modelMtx);
-        guTranslateF(stepMtx, actor->x + offsetX, actor->y, actor->z + offsetZ);
-        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        matrixMakeRotationY(tmpMtx, (gPlayerSlots->camYawInt * 360) / 4096);
+        guMtxCatF(modelMtx, tmpMtx, modelMtx);
+        guTranslateF(tmpMtx, actor->x + offsetX, actor->y, actor->z + offsetZ);
+        guMtxCatF(modelMtx, tmpMtx, modelMtx);
         guMtxF2L(modelMtx, &sub->matrices[i * 2 + gGfxBufferIndex]);
         gSPMatrix(glist++, &sub->matrices[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
         gSPVertex(glist++, osVirtualToPhysical(gSpriteRingQuadVtx), 4, 0);
