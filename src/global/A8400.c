@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "resqueue.h"
+#include "sched.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/112080.h"
@@ -152,16 +153,7 @@ Gfx *textBoxRenderTail(Gfx *dl, ResQueueActorState *anim, s32 frame) {
     return dl;
 }
 
-typedef struct ScreenBounds {
-    /* 0x000 */ u8 pad0[0x270];
-    /* 0x270 */ s16 scissorUlx;
-    /* 0x272 */ s16 scissorUly;
-    /* 0x274 */ s16 scissorLrx;
-    /* 0x276 */ s16 scissorLry;
-    /* 0x278 */ u8 pad278[0x2F0 - 0x278];
-} ScreenBounds;
-
-extern ScreenBounds *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern u8 gGfxBufferIndex;
 extern Gfx D_1000118;
@@ -216,8 +208,8 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     guMtxCatF(mtx, tmp, mtx);
     guMtxF2L(mtx, (Mtx *) (state->mtxBuf + (gGfxBufferIndex << 6)));
     WRITE_GFX(dl++, 0xE7000000, 0);
-    WRITE_GFX(dl++, ((s32) ((f32) gPlayerSlots->scissorUly * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) gPlayerSlots->scissorUlx * 4.0f) & 0xFFF) << 12),
-              ((s32) ((f32) gPlayerSlots->scissorLry * 4.0f) & 0xFFF) | (((s32) ((f32) gPlayerSlots->scissorLrx * 4.0f) & 0xFFF) << 12));
+    WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots->rect[0] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots->rect[1] * 4.0f) & 0xFFF),
+              (((s32) ((f32) gPlayerSlots->rect[2] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots->rect[3] * 4.0f) & 0xFFF));
     dl = textBoxRenderTail(dl, state, half);
     alpha = (state->openProgress * 150.0f * 2 > 150.0f) ? 150.0f : state->openProgress * 150.0f * 2;
     dl = renderTextureSprite(dl, (s32) (state->mtxBuf + (gGfxBufferIndex << 6)), (u8) alpha, half);
@@ -238,8 +230,8 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     }
     WRITE_GFX(dl++, 0xE7000000, 0);
     if (state->textAlpha != 0) {
-        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorUlx * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorUly * 4.0f) & 0xFFF),
-                  (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorLrx * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorLry * 4.0f) & 0xFFF));
+        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[0] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[1] * 4.0f) & 0xFFF),
+                  (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[2] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[3] * 4.0f) & 0xFFF));
     }
     state->animFrame = state->animFrame + 1;
     state->animFrame = state->animFrame % 16;
@@ -369,10 +361,10 @@ void textBoxUpdateRows(Actor *actor) {
     state->boxTop = actor->y - (state->openProgress * 79.799995f) * 0.5;
     state->boxRight = actor->x + (state->openProgress * 136.8f) * 0.5;
     state->boxBottom = actor->y + (state->openProgress * 79.799995f) * 0.5;
-    state->boxLeft = (gPlayerSlots->scissorUlx < state->boxLeft) ? state->boxLeft : gPlayerSlots->scissorUlx;
-    state->boxTop = (gPlayerSlots->scissorUly < state->boxTop) ? state->boxTop : gPlayerSlots->scissorUly;
-    state->boxRight = (state->boxRight < gPlayerSlots->scissorLrx) ? state->boxRight : gPlayerSlots->scissorLrx;
-    state->boxBottom = (state->boxBottom < gPlayerSlots->scissorLry) ? state->boxBottom : gPlayerSlots->scissorLry;
+    state->boxLeft = (gPlayerSlots->rect[0] < state->boxLeft) ? state->boxLeft : gPlayerSlots->rect[0];
+    state->boxTop = (gPlayerSlots->rect[1] < state->boxTop) ? state->boxTop : gPlayerSlots->rect[1];
+    state->boxRight = (state->boxRight < gPlayerSlots->rect[2]) ? state->boxRight : gPlayerSlots->rect[2];
+    state->boxBottom = (state->boxBottom < gPlayerSlots->rect[3]) ? state->boxBottom : gPlayerSlots->rect[3];
     acc = state->scrollY;
     i = 0;
     while ((state->rowState >= i) && (node != NULL) && (stop == 0)) {
@@ -416,20 +408,9 @@ void textBoxUpdateRows(Actor *actor) {
     }
 }
 
-typedef struct MapBounds {
-    /* 0x000 */ u8 pad0[0x270];
-    /* 0x270 */ s16 scissorUlx;
-    /* 0x272 */ s16 scissorUly;
-    /* 0x274 */ s16 scissorLrx;
-    /* 0x276 */ s16 scissorLry;
-} MapBounds;
-
-extern struct ScreenBounds *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s16 gScreenWidth;
 
-
-#define SPRITE_BOUNDS ((MapBounds *) ((u8 *) gPlayerSlots + (gCurrentPlayerIndex * 0x2F0)))
 #define CLAMP_TO_BOUNDS(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
 
 void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
@@ -450,8 +431,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     case 0xDA:
     case 0x100:
         sub->anchorFixed = 1;
-        sub->anchorX = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorLrx;
-        sub->anchorY = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorLry;
+        sub->anchorX = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[2];
+        sub->anchorY = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[3];
         break;
     case 0xFE:
         node = ((ScriptedActor *)sub->key)->scriptState;
@@ -507,8 +488,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     }
     if ((sub->key->animState == NULL) && (sub->anchorFixed == 0)) {
         sub->anchorFixed = 1;
-        sub->anchorX = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorUlx;
-        sub->anchorY = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorUly;
+        sub->anchorX = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[0];
+        sub->anchorY = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[1];
     }
     if (sub->anchorFixed == 0) {
         if (nodeIndex == 0) {
@@ -522,8 +503,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
             screenX = sub->anchorX;
             screenY = sub->anchorY;
         }
-        screenX = CLAMP_TO_BOUNDS(screenX, (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorUlx - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorLrx + 0x64));
-        screenY = CLAMP_TO_BOUNDS(screenY, (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorUly - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorLry + 0x64));
+        screenX = CLAMP_TO_BOUNDS(screenX, (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[0] - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[2] + 0x64));
+        screenY = CLAMP_TO_BOUNDS(screenY, (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[1] - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[3] + 0x64));
         sub->anchorX = screenX;
         sub->anchorY = screenY;
     }
@@ -537,10 +518,10 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     if (screenY > 60.7999992370605469) {
         screenY = screenY - 60.7999992370605469;
     }
-    screenX = (f32) CLAMP_TO_BOUNDS((f64) screenX, (f64) gPlayerSlots[gCurrentPlayerIndex].scissorUlx + 91.1999969482421875 + 5.0,
-                           (f64) gPlayerSlots[gCurrentPlayerIndex].scissorLrx - 96.1999969482421875);
-    screenY = (f32) CLAMP_TO_BOUNDS((f64) screenY, (f64) gPlayerSlots[gCurrentPlayerIndex].scissorUly + 60.7999992370605469 + 5.0,
-                           (f64) gPlayerSlots[gCurrentPlayerIndex].scissorLry - 65.7999992370605469);
+    screenX = (f32) CLAMP_TO_BOUNDS((f64) screenX, (f64) gPlayerSlots[gCurrentPlayerIndex].rect[0] + 91.1999969482421875 + 5.0,
+                           (f64) gPlayerSlots[gCurrentPlayerIndex].rect[2] - 96.1999969482421875);
+    screenY = (f32) CLAMP_TO_BOUNDS((f64) screenY, (f64) gPlayerSlots[gCurrentPlayerIndex].rect[1] + 60.7999992370605469 + 5.0,
+                           (f64) gPlayerSlots[gCurrentPlayerIndex].rect[3] - 65.7999992370605469);
     sub->targetX = ((screenX - sub->targetX) * step) + sub->targetX;
     sub->targetY = ((screenY - sub->targetY) * step) + sub->targetY;
     actor->x = (((sub->targetX - sub->anchorX) * sub->openProgress) + sub->anchorX);
