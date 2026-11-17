@@ -40,7 +40,7 @@ int _sprintf(void *buf, const void *fmt, ...) { // buf/fmt: game u8 buffers and 
 
 
 
-#define PUTC(ch) do { count++; *buf++ = (ch); } while (0) // FAKE: do-while(0) blocks split the zero-pad loop / sign arms (stand in for dead tests 2829ec, u8169d); used for char-literal stores only (all 35 sites: 94)
+#define PUTC(ch) do { count++; *buf++ = (ch); } while (0) // FAKE: do-while(0) blocks split the zero-pad loop / sign arms / hundreds digit (stand in for dead tests 2829ec, u8169d, 7dcd26#2); used for char-literal stores and the hundreds exponent digit only (all 35 char-literal sites: 94)
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     const unsigned char *f;
@@ -387,11 +387,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     *buf++ = conv;
                     if (exp < 0) { exp = -exp; PUTC('-'); } else { PUTC('+'); } // LAYOUT: one-line if/else (multi-line costs 2: the else .loc); both statement orders of the then-arm match
                     if (exp >= 100) {
-                        d = exp / 100 + '0';
-                        *buf = d;
-                        count++;
-                        buf++;
-                        if (d) {} // FAKE
+                        PUTC(exp / 100 + '0');
                     }
                     *buf++ = exp / 10 % 10 + '0';
                     count += 2;
