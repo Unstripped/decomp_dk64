@@ -1071,7 +1071,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     s32 pressed;
 
     step = state->scrollTargetY - state->scrollY;
-    if (step >= 0x15) {
+    if (step > 0x14) {
         step = 0x14;
     }
     if (step < -0x14) {
@@ -1144,12 +1144,12 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     if (D_807ECD09 & (1 << i)) {
                         if (D_807ECD10[i].stick_x < -0x28) {
                             bits = 4;
-                        } else if (D_807ECD10[i].stick_x >= 0x29) {
+                        } else if (D_807ECD10[i].stick_x > 0x28) {
                             bits = 8;
                         }
                         if (D_807ECD10[i].stick_y < -0x28) {
                             bits |= 0x20;
-                        } else if (D_807ECD10[i].stick_y >= 0x29) {
+                        } else if (D_807ECD10[i].stick_y > 0x28) {
                             bits |= 0x10;
                         }
                         edge = BUTTONS_PRESSED(bits, D_8003385C[i]);
