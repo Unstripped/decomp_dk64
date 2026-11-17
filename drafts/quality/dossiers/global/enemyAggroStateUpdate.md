@@ -54,11 +54,20 @@
     - unk36 value local: `int`/`s32` declared last gives the field-first `beq a0,v0`, but the frame grows 88 -> 96 and the value sits in a0 (150). `u32`/`u8` declared last: `beq v0,a0` (150). `s16`/`u16`/`short` in the 72(sp) gap or `u8`/`s8`/`char` in the 76(sp) gap: 94 (`beq v0,a0`, value in a0).
     - ret `u8` followed by `u8 pad1[3]` keeps every frame slot: 5. The beq is field-first (`beq t5,a0`), but the call result is re-masked (`andi a0,v0,0xff`, `slti at,a0,7`).
   - sweep on the copy: 0 hits. Review: no edits.
+- 2026-11-17 HackenemyAggroStateUpdate4, opus-5-5:high:
+  - **97a9f3:** uopt trace (plain): `uequ{1181|0}{1521|0}` where 1521 = `ucvt{61}` of `ucvt{319}` (the u8 field widened twice). In case 0x10 the compare is `uneq{61}{1217}` with 1217 = `ucvt(type)`: both sides isops, so the field comes first there with no code on type's side. In 0x23 ret is a plain var, and Q0343 puts the var first.
+    - Parameter reuse for ret: `aggroDist` 53 (`beq v1,t5`, still var-first; P vars are 906+16*offset), `chaseScriptId` 237.
+    - `(*gBehaviourWorkState).unk36` (Q0488 `(*st).f` lever), either side: 1. With ret s32/int: 36 (ret moves to v1 via `move v1,v0`). With ret u8/u16: 22.
+    - `register u32 ret` 1. `unsigned long ret` 1. `!(ret != unk36)` 1. `(ret == unk36) ? 1 : 0` 64.
+    - Value local `cur = unk36; if (ret == cur)` (or `cur == ret`), s32 or u8, in pad0's place / first / last / after ret: 94-126.
+  - **627052:** angle wrap `if (ang > 0x800) { ang = 0x1000 - ang; }` (also `>=`, and `& 0xFFF` on the result) at the guard line: full=0. It is still a dead use, though: the store is dead, and the target never branches on ang. It would swap one dead construct for another, so it was not adopted. The same wrap right after the ang computation: 201.
+  - sweep on the copy: 0 hits. Review: no edits.
 
 ## Untried ideas
 - uopt_trace done: in the plain form, uequ{1181|0}{1521|0} numbers ret (1181) before unk36 (1521); the ^ 0 form wraps ret in a uxor isop numbered after the field. isvar hashes follow 1501 + 16*offset (-20vreg -> 1181), so no in-frame declaration position puts ret after the field. A source-level way to put a codeless isop on ret's side is still missing; every 32-bit no-op cvt folds.
 - 97a9f3: ret u8 with `u8 pad1[3]` (slots kept) is 5 lines away: only the `andi a0,v0,0xff` re-mask remains. A way to make uopt trust the u8 call result (no re-mask at the compare and the slti) is untried.
-- 627052: no codeless natural use of ang after `type = ret` found; only dead constructs match.
+- 627052: no codeless natural use of ang after `type = ret` found; only dead constructs match (incl. a dead angle-wrap store, 2026-11-17).
+- 97a9f3: a narrow (u8/u16) value that holds the unmasked v0 would give a codeless `ucvt` on ret's side, as `type` does in case 0x10. But the target's slti/beq use unmasked v0, and IDO re-masks narrow call results, so no such declaration is known.
 
 ## Evidence
 - 0x2ed8 `subu t2,v1,v0` / 0x2ee8 `subu t2,v0,v1`: ang = |moveYaw - unk8| is computed.
