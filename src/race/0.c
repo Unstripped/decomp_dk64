@@ -152,7 +152,7 @@ typedef struct RaceCoinRacerActor {
 
 
 extern Actor *gPrimaryPlayerActor;
-extern s32 D_8002FB94[];
+extern s32 raceResultCamPathIds[];
 
 
 f32 sqrtf(f32);
@@ -447,7 +447,7 @@ void raceOpponentBehaviourUpdate(void) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
             if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
-                pathId = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)];
+                pathId = raceResultCamPathIds[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)];
                 camStartPath(gCurrentActor, pathId, 1);
                 currentActorClearFlag();
             } else {
