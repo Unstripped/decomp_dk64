@@ -2634,16 +2634,16 @@ extern s16 D_80753A88[];
 extern f32 D_80753AE0[];
 
 void playerStateSurfaceTreadWater(void) {
-    f32 t;
+    f32 target;
 
     gActivePlayerState->unk24++;
     gActivePlayerState->airAccel = D_80753AFC[gCurrentCharacterIndex];
     switch (gCurrentActor->unk155) {
         case 0:
             playerInputUpdate(0x4C);
-            t = D_80753A5C[gCurrentCharacterIndex];
-            gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, t, gActivePlayerState->slideSpeed);
-            if (t <= gCurrentActor->speedY) {
+            target = D_80753A5C[gCurrentCharacterIndex];
+            gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, target, gActivePlayerState->slideSpeed);
+            if (target <= gCurrentActor->speedY) {
                 if (gCurrentActor->speedXZ != 0.0f || gActivePlayerState->actionTimer != 0) {
                     gCurrentActor->unk155 = 3;
                 } else {
@@ -2660,11 +2660,11 @@ void playerStateSurfaceTreadWater(void) {
             if (gActivePlayerState->actionTimer == 0) {
                 gCurrentActor->unk155 = 3;
             }
-            t = gActivePlayerState->actionTimer / 7.5 + 1.0;
-            if (gCurrentActor->sub4->unk48 < t) {
-                scriptSetActorRampTarget(gCurrentActor, t, 0.0f);
+            target = gActivePlayerState->actionTimer / 7.5 + 1.0;
+            if (gCurrentActor->sub4->unk48 < target) {
+                scriptSetActorRampTarget(gCurrentActor, target, 0.0f);
             } else {
-                scriptSetActorRampTarget(gCurrentActor, t, 15.0f);
+                scriptSetActorRampTarget(gCurrentActor, target, 15.0f);
             }
             effectSpawnAuraBurst(2);
             if (gCurrentActor->waterY < D_807538C8[gCurrentCharacterIndex] + gCurrentActor->y) {
