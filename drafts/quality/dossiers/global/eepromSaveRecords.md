@@ -1,67 +1,27 @@
 # eepromSaveRecords (global, src/global/104F0.c)
 ## Sites
-- 77df56 (other): FIXED 2026-11-14. The laundered `q` was standing in for a volatile read. The poll pointer is now `volatile u8 *contReadPending = gContReadPending;` with `while (*contReadPending != 0) sleepMilliseconds(1.0f);`. The volatile load is not folded (lui/addiu t2 + lbu t3,0(t2) at 0x1dcc-0x1dd4), and the loop reloads the pointer from its home 92(sp) into s0 (0x1de8).
-- 6b7e71 (dead-if `if (a) {}`): lowers the priority of the &D_807ECEA0 lda web (uopt bit 179) below the signed -8 web (bit 181). Target colouring order: 180 (-64) s3, 181 (-8) s4, 179 (&D_807ECEA0) s7.
-- 575291 (dead-store `offset = 0`): FIXED 2026-11-16d. The dead store is replaced by a real redefinition `offset = sector << 3;` (the byte offset the EEPROM write starts at: in arm 1 sector = offset / 8, in arm 0 sector = 0) placed between `b = ...` and the CRC store and consumed as the memcpy size `0x800 - offset`. It kills offset the same way, so b stays the s2 variable. The position matters: after the CRC store 66, after bzero or just before memcpy 125.
-- 081ad7 (dead-if `if (D_807ECEA0) {}`): the same 179/181 lever as 6b7e71. It also decides whether the D_807467C4 or the D_807467E4 lda web gets s7.
-- a1ca65 (dead-if, unsigned -64 use after the calls): stretches the U -64 web of the recordsOnly == 0 arm across calls, so that web stays uncoloured (li at,-64 at 0x1c64/0x1c88).
-- 3c3a54 (dead-if `if ((u32)sector) {}`, class 1, kept): a direct read of u16 sector. Without it the variable loses its register (home sh 4210(sp)). With it the variable is s1 and its widening s4 (`move s4,s1` at 0x1dc8).
+- 6b7e71 dead-if: `if (a) {}` keeps the narrowed CRC source index as a variable, supplies the extra 8-byte frame word, and puts the -8 web in s4 ahead of the `&D_807ECEA0` web in s7.
+- 081ad7 dead-if: `if (D_807ECEA0) {}` supplies a post-bzero block that preserves the same s4/s7 colouring order.
+- a1ca65 dead-if: the unsigned -64 use after calls keeps the arm-0 mask web uncoloured, preserving `li at,-64` at 0x1c64/0x1c88.
+- 3c3a54 dead-if: the direct u16 `sector` read keeps the variable in s1 and its widening in s4 across the controller poll.
+
 ## Attempts
-- rounds 5/13 (opus:low), Rev13A/Rev16H, 2026-11-14 first pass (opus:high): see history.
-- 2026-11-14 U HackeepromSaveRecords anthropic/claude-opus-5-5:high:
-  - poll pointer as volatile u8 * (while, while bare, if/do-while) -> 0 (kept; fdiff 0)
-  - void * / s8 * / u32 * poll pointers -> 39; direct poll on the global with no pointer -> 224 (the lda web is coloured into s0 and the 92(sp) home disappears)
-  - offset reused for the CRC result (offset = crc; store) -> 66; b before a -> 66; separate u32/s32 crc local -> 129; offset = strlen(...) used in bzero -> 137
-  - CRC loop respellings without if (a): &workingData[a], workingData + a, one-statement height, *(u32 *)(workingData + b * 4), (u16)(height - 4), CRC via offset -> all 179
-  - extern volatile s8 D_807467C4 (as F600.c declares it): 081ad7 removal -> 68; extern volatile s8 gMainThreadHalted -> 46
-  - arm 0 with 0xFFFFFFC0/0xFFFFFFF8 -> 118; (u32) start -> 118; arm 0 as one expression -> 104
-  - memcpy size: sizeof(u64) / 8U / sizeof(workingData) -> 83; (u32)sector << 3 -> 52
-  - reconstruct (volatile base, every dead if removed, CRC through offset) -> 118; without 081ad7, a1ca65 and 575291 only -> 158
-- 2026-11-15 U HackeepromSaveRecords2 anthropic/claude-opus-5-5:high:
-  - sweep on the base copy: 0 hits (3c3a54 classify kept class 1).
-  - same-TU data defined in the copy (D_807467C0 = D_80757020, D_807467C4/CC/E0/E4, gEepromCurrentSlot, D_807467E8 and the function-pointer table D_807467D0 = {eepromReadAllSectors, eepromSaveRecordsAll, eepromSaveRecordsOffset, eepromValidateSaveSlots}; Q0552 hypothesis), at the top of the file or in place of the externs: every single removal scores the same as without the data (6b7e71 179, 575291 125, 081ad7 46, a1ca65 118, 3c3a54 117); the all-removed function text is byte-identical with and without the data. The function has no switch `jr`, so the as1 address-taken CFG edge of Q0552 cannot arise, and uopt colouring does not see the data.
-  - 575291 respellings that redefine offset in place instead of the dead store: `offset = (u16)(((offset + 0x40) / 4) - 1)` as the index 83; `offset = ...; b = offset` 84; `b = offset = ...` 84; `offset += 0x40; b = offset / 4 - 1` 117; `offset += 0x40; offset /= 4; b = offset - 1` 113; `b = offset + 0x40; b = b / 4 - 1` 138; a separate `size = sizeof(workingData)` local for the 0x800 terms of bzero/memcpy 129; `offset = 0x800` set just before bzero 66. Only the permuter form (offset = 0x800 at the dead-store point, a constant-holding kill) is 0: a hack swap.
-  - uopt -zdbug:5 with all four dead ifs removed: the &D_807ECEA0 lda web (cand 179; uses bb1, bb7 loop, bb10 arm 0, bb11 arm 1, bb15 bzero) and the signed -8 web (cand 181; bb1 x2, bb7, bb11, bb15) have the same 15-block range and tie at adjsave 2.6. The tie goes to the lower candidate number, and 179 is numbered first because its lda is the first leaf of the sprintf expression (constants are numbered in ucode first-appearance order: 176 &gContReadPending, 177 const 2, 178 &D_807EDEAC, 179 &D_807ECEA0, 180 -64, 181 -8, 182 &sEepromSlotBuffer). With `if (a) {}` and `if (D_807ECEA0) {}`, 179 drops to 2.333 (its range runs one block past bzero) and 181 (2.6) wins s4 as in the target.
-  - 6b7e71: `a = height * i` and `b = ((height * (i + 1)) / 4) - 1` -> 179 (no change). `sector = 0` moved to the end of arm 0: neutral with all tags (0), 179/46/118 with 6b7e71/081ad7/3c3a54 removed.
-  - 081ad7: a named `s16 *modelCount = D_807ECEA0;` local for every D_807ECEA0[0] read -> 74 with both dead ifs, 202 without them, 202 without if (a) only, 74 without if (D_807ECEA0) only.
-- 2026-11-15 U HackeepromSaveRecords3 anthropic/claude-opus-5-5:high (base 53ceee82, after f6b761ee):
-  - sweep on the copy: 0 hits (3c3a54 classify kept class 1).
-  - 575291 real kills of offset feeding the CRC source: `offset = a` -> 66, `offset &= 0xFFFF` (a dropped) -> 66, `offset = (u16)offset` (a dropped) -> 66, `offset = (s32)a` with `workingData + offset` -> 66. Each one keeps b in s2. But the u16 narrowing of a sinks below the b chain (andi t8 instead of andi v1 at 0x1cfc), and the CRC source becomes `addu a0,s5,t8`. b before a without a kill -> 125. variants scan on the 575291-removed copy: best is b as s32/u32 at 100.
-  - 6b7e71+081ad7 removed (179): the sprintf masks written mask-first (`~0x3F & x`, `~7 & x`), one at a time or all four together -> 179 unchanged, so operand order does not renumber the candidates. A height local ahead of the sprintf -> 83: &D_807ECEA0 still gets s4 and -8 gets s7, and the 92(sp) home moves to 84(sp). The same with all tags kept -> 206. With only 6b7e71 removed -> 83. With only 081ad7 removed -> 238.
-  - CRC loop as `i = 0; do {} while (i < 4)` (Q0767): 52 with every tag kept, and also 52 with 081ad7 removed (the dead read becomes inert, but the s4/s7 swap and a latch reorder at 0x1c54 remain). With both dead ifs removed -> 182. With all five removed -> 188.
-  - a1ca65 removed with the j write loop as do-while -> 118 (no change).
-  - 3c3a54 removed: byte-offset memcpy (`D_807ED6A8 + sector * 8`, ...) -> 115; `idx = sector` hoisted out of the for header -> 117; do-while j loop -> 117. The byte-offset memcpy with every tag kept -> 45 (the (u64 *) views stay).
-  - reconstruct on the current file (all five removed): 187. b as s32 -> 176. Arm 0 as one signed expression -> 170; both together -> 171. A tail that mirrors the loop (`height = 0x40`, b and the CRC size from height) -> 187.
-  - kept: the two redundant `(s32)` casts in arm 0 were dropped (`offset = ((offset & ~7U) * 4) + 0x3F; offset &= ~0x3FU;`): fdiff 0.
-- 2026-11-16 U HackeepromSaveRecords4 anthropic/claude-opus-5-5:high (base a543051e):
-  - sweep on the copy: 0 hits (70 checks).
-  - 3c3a54 removed, `idx = sector;` hoisted ahead of the poll loop (for init emptied) -> 4: s1/s4 exact; only the idx narrowing `andi s2,s1,0xffff` is emitted at the assignment (poll-entry block) instead of the 0x1e38 beqz delay slot. Ahead of the halted check -> 8; inside the else -> 117; ahead of memcpy or osWritebackDCacheAll -> 52; memcpy through idx -> 52; `0x800 - sector * 8` -> 117; sector as the write-loop variable -> 68. variants scan on the 4/8 copies: no zero.
-  - a1ca65: arm 0 in signed step form -> 94 with and without the tag; arm 0 as one signed expression -> 96; one unsigned expression -> 0 with the tag (equivalent spelling), 104 without. Without the tag the U -64 web is block-local and held in v1 (li v1,-64). variants scan without the tag: height u16 -> 44 (extra andi in the CRC loop).
-  - 575291: loop-shaped tail (`height = 0x40`, b and CRC size from height) with the other four tags kept -> 125; b from a -> 118.
-  - 6b7e71/081ad7: early return `if (D_807EDEAC != 2) return;` -> 0 / 179 / 46 / 179 (all, -6b7e71, -081ad7, both); poll pointer init inside the if -> 14 / 192 (both removed); as declaration initializer -> 0 / 179. Height local ahead of the sprintf (both removed, 83) + CRC do-while -> 89, + `sector = 0` at arm-0 end -> 83, + poll init in the if -> 96. variants scan without 6b7e71: `a` as s32 68.
-- 2026-11-16 U HackeepromSaveRecords5 anthropic/claude-opus-5-5:high (base 6fe2a3af):
-  - 6b7e71: removal also shrinks the frame 4216 -> 4208 (contReadPending home 92 -> 84, workingData/savedData sp+2144/96 -> 2136/88). An unused `s32 pad` (any of u16/u8/u8[8]/s32[2]) declared after contReadPending restores frame and every sp offset (179 -> 173); before it 175, first 177. Dead `if (j)/(sector)/(idx)/(offset)` ahead of b's def also give 4216; `if (b)/(height)/(i)` do not.
-  - 575291: b defined at the end of both arms -> 125 (same as removal). b from the reloaded record-end expression (eepromValidateSaveSlots tail form; the ilod blocks copy propagation) -> 107: b stays before the call in s2, but PRE reuses only arm 1's expression and inserts a recomputation into arm 0's step form; a's andi sinks. a also from the expression -> 110; with the tag kept -> 113.
-  - 081ad7 with that b form: 143 (575291 removed) / 149 (kept). a1ca65: arm-0 chain in a block-scoped `s32 size` or `u32 size` -> 93 with the tag, 111 without. 3c3a54: block-scoped idx in the else arm -> 117.
-  - reconstruct (sibling-mirroring: every CRC index/length from the reloaded size expression, natural bzero, frame pad, no dead ifs/stores) -> 185; original bzero spelling 194.
-- 2026-11-16 U HackeepromSaveRecords6 anthropic/claude-opus-5-5:high (base 9bc29318):
-  - 575291 fixed (see Sites). Each other removal on the new copy alone: 6b7e71 179, 081ad7 46, a1ca65 118, 3c3a54 117; all four 172.
-  - 6b7e71 (uopt -zdbug:6): the dead read keeps `a` a variable (`uadd{a}{workingData}`) instead of copy-propagating `cvtl(cvt(i*height))` into the CRC argument. That renumbers the b candidates (ucvtl at 37 vs 45) and flips the s7/s4 colouring. CRC loop with no height local (every height term the inline has_ilod expression): 54 without the tag, 2 with it (only `multu t3,s0` operand order remains, either operand order); `u8 *data = a + workingData` pointer local 177; `u16 len` local 177 (a declared slot moves the arrays by 4, not the spill-area word); `sector = 0` at the top of arm 0 189, ahead of the loop 148 (sector spilled to `sh 4202(sp)`).
-  - 081ad7: no-height-local loop + `if (a)` 48; `_sprintf(&sEepromSlotBuffer[...])` 1 with every tag, 47 / 180 with 081ad7 / 6b7e71 removed.
-  - 3c3a54: write-loop init `idx = offset >> 3` 26, `offset / 8` 29 (narrowing recomputed from offset at 0x1e2c; sector/strlen swap s0/s1); memcpy on byte offsets through offset 115; size `sizeof(sEepromImage) - offset` 83; `(u32)offset` size 83; `(u32)sector` indexes 117.
-  - reconstruct: all four tags removed 172; + no-height-local CRC loop 163; + `s32 pad` after contReadPending 157; pad alone 166.
+- Earlier attempts through HackeepromSaveRecords6: volatile controller poll fixed; dead `offset = 0` replaced by real `offset = sector << 3`; same-TU data, loop forms, width changes, pointer/size locals, arm rewrites, frame pads, permuter runs, and sibling-style reconstructions did not retire the four remaining sites. See the tracked dossier/history for the complete matrix.
+- 2026-11-17 cleanup HackeepromSaveRecords7 anthropic/claude-opus-5-5: re-scored after `gContReadPending` became a shared scalar. Individual removals: 6b7e71 full/text 179/164; 081ad7 46/30; a1ca65 118/118; 3c3a54 117/125.
+- 2026-11-17 cleanup HackeepromSaveRecords7: 6b7e71 removed with every CRC-height term as an inline has-ilod global expression plus `s32 pad` after `contReadPending` -> 48/32; s4/s7 still swap.
+- 2026-11-17 cleanup HackeepromSaveRecords7: moved real `offset = sector << 3` to replace 081ad7's post-bzero block -> 138/123. Moved it after `osWritebackDCacheAll` with a1ca65 removed and 081ad7 retained -> 124/124.
+- 2026-11-17 cleanup HackeepromSaveRecords7: refined `offset = sector`, used `offset << 3` in memcpy, and used `offset` as the post-poll write-loop initializer with 3c3a54 removed -> 36/36; sector is s0 rather than target s1 and the post-poll narrowing reads s0.
+- 2026-11-17 cleanup HackeepromSaveRecords7: hack-free reconstruction combining inline has-ilod CRC-height reads, frame pad, refined offset, and offset loop init -> 156/149/8.
+
 ## Untried ideas
-- (575291 resolved by the real `offset = sector << 3` redefinition, 2026-11-16d.)
-- 6b7e71: a real second use of `a` in the CRC loop body (not b from a, which changes the second multu) that keeps `a` a variable the way the dead read does (trace: the read blocks copy propagation of a into the CRC argument). (2026-11-16d HackeepromSaveRecords6)
-- 3c3a54: offset now holds `cvt(sector) << 3` (the same cvt candidate as the loop-entry test `ules{cvt(sector)}{256}`). A second real use of offset or cvt(sector) after the poll loop that emits no code may give that candidate the priority the dead read does. (2026-11-16d HackeepromSaveRecords6)
-- A natural extra block or use that lowers the adjsave of the &D_807ECEA0 web (bit 179) below that of the -8 web (bit 181), or a source change that numbers -8 before &D_807ECEA0. Operand order inside the sprintf argument cannot do it: cfe/ugen canonicalise the commutative `and`. The -8 has to appear in an earlier statement. The hack-free webs tie exactly at 2.6, so any epsilon in 181's favour is enough. Nothing in the target after bzero reads D_807ECEA0. Early return and poll-init placement are neutral. (uopt trace)
-- 3c3a54: a real use of sector between memcpy and the poll loop that does not narrow it. `idx = sector` there fixes s1/s4 (4 lines) but emits the narrowing early; the target narrows in the for-init delay slot (0x1e38), so the original has the for init plus some other sector read in the poll-entry block. (2026-11-16 HackeepromSaveRecords4)
-- 6b7e71: the frame evidence says the original owns one more 8-byte home/spill-area word than the hack-free body (below contReadPending). Look for a real variable whose live range uopt splits (giving it a home that ends up unused) rather than a block steer; with the pad in place only the 179/181 colouring and the loop's multu order remain (173). (2026-11-16 HackeepromSaveRecords5)
+- 6b7e71: a target-semantic second use of `a` that still emits the target's independent second `multu`; all known `b`-from-`a` forms change that multiply.
+- 081ad7: a real post-bzero control-flow/store block other than the position-sensitive write-start offset redefinition.
+- a1ca65: a natural post-call computation that genuinely uses an unsigned 0x3f alignment mask while still reducing to the target's two `sector << 3` operations.
+- 3c3a54: a real post-poll direct use of u16 `sector` that preserves the target's late `andi s2,s1,0xffff`; the natural refined-offset role gets close but changes the source register.
+
 ## Evidence
-- 0x1ad8-0x1af4: &gContReadPending is stored at 92(sp) in the entry block (pointer local home). 0x1dcc-0x1dd4: unfolded volatile first poll load. 0x1de8: `lw s0,92(sp)` loop reload.
-- 0x1d54: `li s2,2048` the 0x800 constant of bzero/memcpy is coloured into s2 after the final CRC (b's s2 is dead after the store at 0x1d30).
-- 0x1db0/0x1db4: two separate `sll ...,s1,3` for the memcpy addresses and the size (sector << 3 is not CSE'd).
-- eepromThreadMain (104F0.c) dispatches D_807467D0[] = {eepromReadAllSectors, eepromSaveRecordsAll, eepromSaveRecordsOffset, eepromValidateSaveSlots} (asm/global/data/14A1F0.data.s:2351). This data (and D_807467C0 = D_80757020 = "7.2", the first 104F0 .rodata string) belongs to the 104F0 TU, but the [0x14A1F0, data] segment is still unsplit asm; defining it in C does not change eepromSaveRecords.
-- controllerUpdate/controllerGetReadData (F600.c) clear gContReadPending on the main thread and test D_807467C4.
-- uopt -zdbug:6: bits 180/181/179 = -64 / -8 / &D_807ECEA0 webs (s3/s4/s7 in the target).
-- Frame: target 4216 vs 4208 for every body without `if (a) {}`; the extra word sits below contReadPending's home (an unused pad declared after contReadPending reproduces the layout exactly).
+- Target frame is 4216; `contReadPending` home is 92(sp), `workingData`/`savedData` are sp+2144/sp+96.
+- 0x1b28/0x1b38: target `&D_807ECEA0` is s7 and -8 is s4. Removal of either 6b7e71 or 081ad7 reverses them.
+- 0x1c64/0x1c88: target reloads unsigned -64 through `at`; removing a1ca65 colours that mask web.
+- 0x1db0/0x1db4: target separately executes the two `sector << 3` operations for memcpy addresses/size.
+- 0x1dc8: target widens sector with `move s4,s1`; after the poll the write-loop init narrows with `andi s2,s1,0xffff`.
