@@ -8,6 +8,8 @@
 - **fa96af -> c4e347 (u32)off steer** (OPEN): `off = (s16)((u32)off + offsetX * 4)`; without `(u32)` the addu at 0x1364 becomes `addu t8,t7,s0` (full=1).
 - **b371d1 dead-if** (OPEN): `list` is homed at 0x13C(sp) (`sw v0,0x13c(sp)` at 0x126c, `lw a0,0x13c(sp)` at 0x1278). Without it, list goes to $s0 (`move s0,v0`) (Q0585).
 - **498f25 dead-if** (EXHAUSTED, class 1): the dead `D_80750530` test keeps $t2 coloured by uopt (case-2 table address at 0x1408/0x1cec/0x1d30/0x1e44) (Q0583).
+- **cd26dc dead initializer** (copy-only key, kept; pre-existing, now tagged per lead ruling 2026-11-17): `f32 fadeInput0 = 0.0f;` is never read, but its first appearance orders fadeInput0 ahead of fadeInput4 so uopt colours unk0 $f2 / unk4 $f12 in cases 2/3 (Q0584); removing it gives 14.
+- **ORIG (not a site)**: case-0 `i = j;` (line 697): the target stores the string index to i's own home 0x158(sp) (`sh` at 0x1858/0x186c/0x1894); a dedicated local gives 228.
 - FIXED earlier: fc512f, 4cca45, 744852, 1c9898.
 
 ## Attempts
@@ -53,11 +55,23 @@
   - Re-scores (variants.py try): a97e00 plain `it->entries[j]` 272; 766e68 plain `off * 4 + (s32)(...)` 99 (sll t3 at 0x1324, every later ring register one behind), trunc-first 3; a87eed plain 311, function-scope s16 dy 51, ang reuse 6; c4e347 plain 1 (addu t8,t7,s0 at 0x1364). Consolidated copy (define + declaration deleted) 2; declaration alone deleted (implicit declaration) 463.
   - New, all nohit: direct float->s16 `(s16)(fa * flyX)` plain 349 / trunc-first 319 / with (u16) 276; x read inlined into the sum (no `off = x` statement, Q0510 no-copy-prop idea from 68EA0) (s32) 303, (s16) 289; `(s16)(fa * flyY)` 308; y read inlined into one whole sum 325 (with (u16) 230); x and y both inlined 402; `offsetX << 2` 1; `off += offsetX * 4` without the store narrowing 307.
   - reconstruct re-scored: history best natural body 12 on the consolidated copy, 10 on the steered copy (hud lw a0 vs v1 at 0x12d8/0x12ec, both mul.s flipped at 0x131c/0x1328, sll t5/mfc1 t4, addu t8,t7,s0 at 0x1364); without the b371d1 test 17; plain-order x 108.
+- **2026-11-17 2026-11-17: cleanup HackhudPauseMenuRender11 HackhudPauseMenuRender11 anthropic/claude-opus-5-5:high** (base 468537da; sweep 0 hits):
+  - Kept change: six redundant float->int `(s32)` casts dropped (case-0 `y`, `alpha`, case-1 `yy`/`y0`, both hudDrawCountPair y arguments): fdiff 0, uninit 0, 0 cfe warnings. Casts 18 -> 12.
+  - 766e68 FIFO accounting (ringfifo sim on as1probe keep): after `lb $24` (style) the queue is [$11 $12 $13 $25 $14 $15 $24]. Target needs x*4 in $12 and the flyX mfc1 in $13; mfc1 follows trunc.w.s at once and the scratch takes the front, so mfc1 lands in $25 and needs exactly four dead allocations ($14 $15 $24 $11) before the addu: the (s64) pair + (s16) chain. Plain 99.
+  - a87eed: at the flyY trunc the queue is [$24 $11 $12 ...]; one extra allocation is needed (dead def on $24 before the trunc, or the (u16) after mfc1); both leave the same queue. Expression statement `(it->entries + j)->offsetY;` is dropped by cfe (311 = plain); `(s32)(s64)(s32)` 323.
+  - c4e347: `4 * offsetX`, `<< 2`, commuted, `* 4L` all 1; `off += ...` 307; `(s16)(offsetX * 4)` 317; `offsetX * 4U` 0 (unsigned sum = the (u32) mechanism, still a suffix steer, not kept).
+  - b371d1: `heapFreeDeferred(list = heapAlloc(0x1F40));` 5 without the test (same as removal), 0 with it.
+  - cfa137: block-scoped `s16 count` in the `worldIndex != 8` block 135; inline argument 98.
+  - 6bd641/01af71 consolidated copy on the cast-cleaned body: full=2 (li a3,2 at 0x1638/0x16b8).
+  - reconstruct: single-statement x/y with it->entries[j] 481 (429 dead ifs kept), with (it->entries + j) 470 (406), statement sequence hacks dropped 355 (310).
+  - Review probes: case-0 `i = j` string index -> dedicated `s16 k` 228 / `s32 k` 220 (the target stores to i's home 0x158(sp)): tagged `// ORIG`. `f32 fadeInput0 = 0.0f` initializer removed 14 (Q0584): tagged `// FAKE` (lead ruling), copy-only key cd26dc.
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
 - A natural source for the t3 -> t4 ring advance before the x trunc that also keeps `A + (s32)(f)` order: every named-temp form tried flips mul.s or loses the ring (Q0374, Q0966).
 - Making list live through loop 1 with a use that emits no code (Q0585); none found in the target. Only an empty conditional fits: 0x13C(sp) is read only at 0x1278 and no s-register but $s7 is live over 0x126c-0x1294, so a real later read (lw 0x13c(sp)) or competitor-based fix is excluded (2026-11-17 census).
+- A natural ugen dead def on $24 between the `y *= 4` chain and the flyY trunc.w.s (a87eed), surviving cfe (expression statements are dropped) (Q0583).
+- A plain-C source of an unsigned `off + offsetX * 4` sum (c4e347): `4U` and `(u32)off` both give 0; a u32 `off` breaks the case-2 signed slide compares (HackhudPauseMenuRender5).
 
 ## Evidence
 - Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0x160 (`addiu s0,sp,352` at 0x1920); 0xA8 is a case-0 f32 spill (`swc1 $f6,0xA8(sp)` at 0x14b0, `lwc1 $f18` at 0x15d4).
@@ -67,6 +81,8 @@
 - ugen (as1probe dis) for the x statement in the matching body: off*4 mul, (u16) and, l.s, `mul.s $f8,$f0,$f6`, `trunc.w.s $f10,$f8,$13`, mfc1, s64 moves/sra, `addu $16,$12,$13`; trunc-first form: `trunc.w.s $f10,$f8,$11`, mfc1, mul, `addu $16,$12,$13` with the operands reversed.
 - sPauseTextLists[0] = heapAlloc(0x1E0); sPauseTextLists[1] = sPauseTextLists[0] + 10 entries (hudPauseMenuUpdate).
 - 0x13C(sp) (list) appears only at 0x126c (`sw v0,316(sp)`) and 0x1278 (`lw a0,316(sp)`); every later read of a homed local is a real `lw` (tab 0x144 at 0x16e4, hubWorld 0x138 at 0x1810, ret 0x140 at 0x1fd0).
+- Case-0 menu loop stores the string index to i's home: `sh s3,344(sp)` 0x1858, `sh t6,344(sp)` (4) 0x186c, `sh t5,344(sp)` (5) 0x1894, `lh t7,344(sp)` 0x1898 for sPauseMenuStrings[i] - the same slot loop 1 reads at 0x12a8.
+- Case-1 count: `lui s3` 0x1be0, `addu s3,s3,t8` 0x1c5c, `lh s3,66(s3)` 0x1c64 - the address is built in j's register s3.
 
 ## Lead ruling (Lead5, 2026-11-15)
 f38e4a -> a97e00: the (u8 *) byte-offset pun is retired by the HudTextList retype, but `(it->entries + j)->f` is chosen for codegen (it->entries[j] 272), so it stays tagged per the Q0816 precedent (pun retired, tag kept).
