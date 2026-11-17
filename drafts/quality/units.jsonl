@@ -896,3 +896,4 @@
 {"type": "unit", "t": "2026-11-17T14:18:30Z", "unit": "2026-11-17: cleanup Polishglobal11BC10", "commit": "190df9cbe3e5dfc2bb7908caa37ce5c7cc79c662"}
 {"type": "unit", "t": "2026-11-17T14:23:46Z", "unit": "2026-11-17: cleanup HackraceOpponentBehaviourUpdate6", "commit": "bd7cb78590c65e6ae4e4cb95076ee564c16c4e1c"}
 {"type": "unit", "t": "2026-11-17T14:24:34Z", "unit": "2026-11-17: cleanup HackmodelEmittersUpdate3", "commit": "50f48d7a61a6446638e34c284f54fd88918d9364"}
+{"type": "unit", "t": "2026-11-17T14:25:16Z", "unit": "2026-11-17: cleanup HackprojectileRenderSpriteRing3", "commit": "5946c9dcbe783ed3572e4ed6165b5b2ffe4aa335"}
