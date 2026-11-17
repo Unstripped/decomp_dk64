@@ -607,9 +607,9 @@ void effectInterpolationUpdate(EffectNode *effect, s8 *isDone) {
     effect->y = result[1];
     effect->z = result[2];
     effect->interp->progress += effect->interp->increment;
-    effect->interp->increment = (f32)((f64)((EffectInterpolationState *)effect->allocation)->increment + 0.001);
-    effect->scaleX = (f32)((f64)effect->scaleX * 0.975);
-    effect->scaleY = (f32)((f64)effect->scaleY * 0.975);
+    effect->interp->increment += 0.001;
+    effect->scaleX *= 0.975;
+    effect->scaleY *= 0.975;
     effect->interp->angle = effect->interp->angle + effect->interp->angleIncrement;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
     guRotateF(rotMtx, effect->interp->angle, 0.0f, 0.0f, 1.0f);
@@ -817,32 +817,31 @@ typedef struct {
 } SpiralDriftState;
 
 void effectSpiralDriftMatrixUpdate(EffectNode *effect, s8 *isDone) {
-    SpiralDriftState *newState;
+    f32 angle;
     f32 offsetX;
     f32 offsetZ;
     EffectMatrix mtx;
     EffectMatrix rotMtx;
 
     if (effect->allocation == NULL) {
-        newState = heapAlloc(8);
-        effect->allocation = newState;
-        offsetZ = effect->speed * 2; // FAKE: the start angle is converted through the offsetZ local (a dedicated local or a direct store changes the function)
-        newState->angle = (f32) offsetZ;
+        effect->allocation = heapAlloc(8);
+        angle = effect->speed * 2;
+        ((SpiralDriftState *) effect->allocation)->angle = angle;
         ((SpiralDriftState *) effect->allocation)->rotation = 0.0f;
         effect->alpha = 0U;
     }
-    if ((s32) effect->alpha >= 0xDD) {
+    if (effect->alpha >= 0xDD) {
         effect->alpha = 0xFFU;
     } else {
         effect->alpha += 0x14;
     }
-    offsetX = (f32) ((f64) sinApprox(((SpiralDriftState *) effect->allocation)->angle * 0.017453292f) * 2.5);
-    offsetZ = (f32) ((f64) cosApprox(((SpiralDriftState *) effect->allocation)->angle * 0.017453292f) * 2.5);
-    effect->x = (f32) (effect->x + offsetX);
-    effect->y = (f32) ((f64) effect->y + 3.5);
-    effect->z = (f32) (effect->z + offsetZ);
-    ((SpiralDriftState *) effect->allocation)->angle = (f32) ((f64) ((SpiralDriftState *) effect->allocation)->angle + 8.0);
-    ((SpiralDriftState *) effect->allocation)->rotation = (f32) ((f64) ((SpiralDriftState *) effect->allocation)->rotation + 7.3);
+    offsetX = sinApprox(((SpiralDriftState *) effect->allocation)->angle * 0.017453292f) * 2.5;
+    offsetZ = cosApprox(((SpiralDriftState *) effect->allocation)->angle * 0.017453292f) * 2.5;
+    effect->x += offsetX;
+    effect->y += 3.5;
+    effect->z += offsetZ;
+    ((SpiralDriftState *) effect->allocation)->angle += 8.0;
+    ((SpiralDriftState *) effect->allocation)->rotation += 7.3;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
     guRotateF(rotMtx, ((SpiralDriftState *) effect->allocation)->rotation, 0.0f, 0.0f, 1.0f);
     guMtxCatF(mtx, rotMtx, mtx);
@@ -1184,13 +1183,12 @@ typedef struct RadialSprayMotion {
 void effectRadialSprayUpdate(EffectNode *effect, s8 *isDone) {
     f32 pad80[4][4];
     f32 pad40[4][4];
-    f32 pad3C;
     f32 angleDeg;
+    f32 offsetX;
     f32 offsetZ;
     f32 groundY;
     s16 pad2E;
     s16 mode;
-    s32 pad28;
     f32 angleRad;
 
     if (effect->allocation == NULL) {
@@ -1201,11 +1199,11 @@ void effectRadialSprayUpdate(EffectNode *effect, s8 *isDone) {
         } else {
             effect->sprayMotion->velocityY = (f32) (((f64) (f32) ((randomLcgNext() / 10000U) % 100U) / 10.0) - 2.5);
         }
-        angleDeg = (f32) ((effect->speed & 0xFFFF) * 30);
+        angleDeg = (effect->speed & 0xFFFF) * 30;
         angleRad = angleDeg * 0.017453292f;
-        angleDeg = (f32) ((f64) sinApprox(angleRad) * 2.5); // FAKE: angleDeg reused for the X velocity (a separate local changes the function)
-        offsetZ = (f32) ((f64) cosApprox(angleRad) * 2.5);
-        effect->sprayMotion->velocityX = angleDeg;
+        offsetX = sinApprox(angleRad) * 2.5;
+        offsetZ = cosApprox(angleRad) * 2.5;
+        effect->sprayMotion->velocityX = offsetX;
         effect->sprayMotion->velocityZ = offsetZ;
         if (mode != 1) {
             if (mode == 2) {
@@ -1224,9 +1222,9 @@ void effectRadialSprayUpdate(EffectNode *effect, s8 *isDone) {
         }
     }
     if (effect->param >= 9) {
-        effect->sprayMotion->velocityY = (f32) ((f64) effect->sprayMotion->velocityY + -0.63);
-        effect->sprayMotion->velocityX = (f32) ((f64) effect->sprayMotion->velocityX * 0.9);
-        effect->sprayMotion->velocityZ = (f32) ((f64) effect->sprayMotion->velocityZ * 0.9);
+        effect->sprayMotion->velocityY += -0.63;
+        effect->sprayMotion->velocityX *= 0.9;
+        effect->sprayMotion->velocityZ *= 0.9;
     }
     if (effect->param >= ((effect->speed >> 24) & 0xFF)) {
         if (effect->alpha >= 0x3C) {
@@ -1405,15 +1403,13 @@ void effectFadeRatioStepUpdate(EffectNode *effect, s8 *isDone) {
 
 void effectPuffExpandFadeUpdate(EffectNode *effect, s8 *isDone) {
     f32 scale;
-    f32 divisor;
     s16 timer;
 
-    divisor = 4.0f; // FAKE: value-named constant local (the literal 4.0f changes the function)
     timer = effect->param;
-    if (timer >= 5) {
+    if (timer > 4) {
         timer = 4;
     }
-    scale = (f32)((f64)((f32)timer / divisor) * 3.0);
+    scale = (f32)timer / 4 * 3.0;
     effect->scaleX = scale;
     effect->scaleY = scale;
 }
