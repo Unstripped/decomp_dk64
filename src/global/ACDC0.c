@@ -759,7 +759,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (slide == 0) {
                         fc += fd * 400.0;
                     }
-                    j = tab->kong[hud->kong].goldenBananas[sPauseLevelOrder[hud->worldIndex[i]]];
+                    j = tab->kong[hud->kong].goldenBananas[sPauseLevelOrder[hud->worldIndex[i]]]; // FAKE: reuses the loop index j for the golden-banana count; a dedicated s16 local or the read inlined into hudDrawCountPair fails fdiff
                     dl = hudDrawCountPair(0x2A8, (s32)(slide + fc), j, 5, dl, 0, 0.8f);
                 }
             }
