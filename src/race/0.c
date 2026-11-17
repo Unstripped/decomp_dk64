@@ -46,10 +46,12 @@ void raceOpponentFollowWaypoints(void) {
     f32 curSpeed;
     f32 oscSpeed;
     ZoneEntry *zone;
-    f32 tmp;
+    f32 heightAdjust;
     u8 routeRowIdx;
     RaceRouteEvent *routeRows;
     f32 friction;
+    f32 dist;
+    f32 heading;
     s16 yawDiff;
 
     routeRowIdx = gBehaviourWorkState->routeRow;
@@ -59,11 +61,13 @@ void raceOpponentFollowWaypoints(void) {
         routeRows = D_8002FB70;
     }
     curSpeed = gCurrentActor->speedXZ;
-    oscSpeed = mathSinF((s16)(gCurrentActor->floorSlopeFactor * 11.4)) * 20.0f;
+    oscSpeed = mathSinF(gCurrentActor->floorSlopeFactor * 11.4) * 20.0f;
     zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex];
     vx = gCurrentActor->x - zone->x;
     vz = gCurrentActor->z - zone->z;
-    if (sqrtf(vz * vz + vx * vx) < (zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex])->radius) { // FAKE: zone re-taken inside the radius test (same entry); reusing zone, a refresh before the if, or direct entries[] accesses all change the code
+    dist = sqrtf(vz * vz + vx * vx);
+    zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex];
+    if (dist < zone->radius) {
         if ((zone->y < gCurrentActor->y ? gCurrentActor->y - zone->y : -(gCurrentActor->y - zone->y)) < 80.0f && gBehaviourWorkState->waypointIndex < D_807FDCA0->entryCount - 1) {
             if (routeRows[routeRowIdx].waypoint == gBehaviourWorkState->waypointIndex) {
                 gCurrentActor->accelY = routeRows[routeRowIdx].gravity;
@@ -79,15 +83,15 @@ void raceOpponentFollowWaypoints(void) {
     }
     zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex];
     speedDelta = (zone->height - gCurrentActor->speedXZ / 10.0f) * 0.8;
-    tmp = (gCurrentActor->y - gActivePlayerActor->y) * 0.25;
-    if (tmp > 6.0f) {
-        tmp = 6.0f;
+    heightAdjust = (gCurrentActor->y - gActivePlayerActor->y) * 0.25;
+    if (heightAdjust > 6.0f) {
+        heightAdjust = 6.0f;
     }
-    if (tmp < -6.0f) {
-        tmp = -6.0f;
+    if (heightAdjust < -6.0f) {
+        heightAdjust = -6.0f;
     }
-    speedDelta += tmp;
-    yawDiff = (s32)(mathAtan2(-vx, -vz) * 4096.0 / 6.2831854820251465);
+    speedDelta += heightAdjust;
+    yawDiff = mathAtan2(-vx, -vz) * 4096.0 / 6.2831854820251465;
     yawDiff -= gCurrentActor->moveYaw;
     if (yawDiff >= 0x800) {
         yawDiff -= 4096.0;
@@ -107,13 +111,13 @@ void raceOpponentFollowWaypoints(void) {
     vx += mathCosF(gCurrentActor->moveYaw) * turnDelta;
     vz -= mathSinF(gCurrentActor->moveYaw) * turnDelta;
     curSpeed = sqrtf(vx * vx + vz * vz);
-    tmp = mathAtan2(vx, vz); // FAKE: tmp (the clamped height offset) reused for the new heading; its own f32 local, or moveYaw assigned from mathAtan2 directly, changes the code
+    heading = mathAtan2(vx, vz);
     if (gCurrentActor->accelY != -20.0f && gCurrentActor->accelY != -360.0f) {
         gCurrentActor->speedXZ = D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].height * 10.0;
     } else {
         gCurrentActor->speedXZ = curSpeed;
     }
-    gCurrentActor->moveYaw = tmp * 4096.0 / 6.2831854820251465;
+    gCurrentActor->moveYaw = heading * 4096.0 / 6.2831854820251465;
     if (gCurrentActor->contactFlags & 1) {
         friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ) / 15000.0;
         gCurrentActor->speedXZ -= friction;
