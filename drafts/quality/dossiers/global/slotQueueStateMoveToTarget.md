@@ -53,8 +53,16 @@
 - 2026-11-16 U HackslotQueueStateFadeIn2 (anthropic/claude-opus-5-5:high), 34e891 (plain removal re-measured: 13):
   - removal asm: v (lw v1) and shown (lhu a2) are still hoisted above the null test and shared with the NULL path (join 0x2958 does its own lhu t4,0(v1)); only the deref *v is never hoisted, so a source read of *v before the test is required.
   - shown before target 14; call before the target/shown reads 48; top reached as a ternary 13; swapped final compare 13; single final return 24; `if (value == NULL) {} else` 13; value re-assigned before the final compare 14.
+- 2026-11-17 U HackslotQueueStateMoveToTarget2 (anthropic/claude-opus-5-5:high), 34e891 (plain removal re-measured: 13):
+  - pre-test `reached = *v == shown` with the final compare moved inside the non-null arm (NULL path keeps the pre-test value): 38 (the xor is computed before the branch).
+  - join-variable family: a variable read before the null test, re-read at the end of the non-null arm after the shown store, and compared at the join (`reached = X == shown`) reproduces the target's instruction shape exactly (NULL path into the shared xor at 0x295c); only colouring differs:
+    - X = `target` (target loaded before the test, call arg target): 8 (target loaded straight into s0, a1 = move a1,s0). Call arg *v instead: 9. target and shown both before the test, both reloaded, call arg target/shown: 10; same with shown first and call args *v / the field: 12.
+    - X = new `s32 cur` replacing the `value` pointer local; arm `target = *v`, call arg cur: 5 (best natural). uopt trace: cur (var -16vreg) takes a1 (4) and the separate cvt(*v) expression candidate takes a3 (6), so the pre-test load goes to a3 and `move a1,a3` fills the beqz delay slot; `move s1,a2` rises above the branch.
+    - same with `target = cur`: 8 (copy propagation folds target into cur, which then takes s0). call arg *v, target *v: 10 (now the expression takes a1 and cur a3). u32 cur: same as s32; u16/s16 cur: 13-51. `shown` before target: 6. call arg `shown` var: 53. call before target/shown: 47. cur declared in any position / at block scope: 5-10. variants scan of the 5 body: nothing below 5.
+    - the gap is structural: the target has ONE allocation candidate (the PRE expression temp, a1) spanning the pre-test load, the call arg, the NULL edge and the join; any named variable adds a second candidate holding the same value, so one of them lands outside a1.
+  - permuter, 900 s, 80k iterations, base 339 (the cur body): best 50, which needs `while (new_var = node != 0)` plus a redundant `cur = *v` re-read inside the arm; without the while hack that body scores 13.
 ## Untried ideas
-- 34e891: none left in natural C: every spelling that puts the *value load before the null test without a dead construct assigns it to a variable, and every assigned variable either moves the s0 copy above the branch or keeps a live range that changes allocation.
+- 34e891: none left in natural C. A source read of *v before the null test is required (Q1075), and the target keeps that value in one PRE expression temp (a1) through the call arg, the NULL edge and the join compare. Every spelling that gives the read a real use names a variable, which becomes a second allocation candidate for the same value (best 5: the join-variable `cur` body above).
 ## Evidence
 - frame 0x58
 - slot*0x30 spilled at 0x30(sp)
