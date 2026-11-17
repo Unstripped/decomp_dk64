@@ -1,26 +1,33 @@
-# bonusControllerUpdate
+# bonusControllerUpdate (bonus, src/bonus/0.c)
 
 ## Sites
 - bonus:80024158:other:31a06c (FIXED 2026-11-15): `pv = &challengeType; if (*pv == 3)` replaced by `if (challengeType == 3)` plus an untagged unused `s32 pad44;` declared after `sfxId`
-- bonus:80024158:goto:uef380 (kept, Q0591): `goto tail;` from case 15 into the case 14 -> 0/4/13 textTableGetString(0x1A, 2, 1) block
-- bonus:80024158:goto:u4da95 (kept, Q0591): `goto render;` from the case 0 chain into the case 2 render block
-- bonus:80024158:goto:u4da95#2 (kept, Q0591): `goto render;` from cases 7/8 into the same render block
+- bonus:80024158:goto:uef380 goto (kept, Q0591): `goto tail;` from case 15 (block 0x314-0x35c) back into the case 14 -> 0/4/13 block; its only codegen is `b 0x2f8` at 0x35c with `li a0,26` (0x2f4) in the delay slot
+- bonus:80024158:goto:u4da95 goto (kept, Q0591): `goto render;` from the case 0 chain into the case 2 render block; `beq v1,v0,0x94c` at 0x7f8 and `b 0x94c` at 0x824/0x82c
+- bonus:80024158:goto:u4da95#2 goto (kept, Q0591): `goto render;` from cases 7/8 into the same render block; `b 0x950` at 0x83c with `lhu t4,0(s0)` (0x94c) in the delay slot
 
 ## Attempts
 - 2026-11-14 HackSentinelSwitchChains opus:high: switch (challengeType) {case 0: case 1: case 2: case 0x10:} for the first test: 53 lines with pv kept, 65 with pv removed (pv removal alone: 12)
 - 2026-11-15 HackbonusControllerUpdate2 opus:high: pv removed -> 12 lines, all the spill temp at sp+0x3c instead of sp+0x38 (frame 0x78 and challengeType sp+0x6F unchanged on the current body); pv replaced by unused `s32 pad44` after sfxId -> fdiff 0 (fixed)
 - 2026-11-15 HackbonusControllerUpdate2 opus:high: uef380 case 15 prework hoisted before the switch as `if (challengeType == 15) {...}` with case 15 joining the 0/4/13 labels -> fdiff 1 (kept)
 - 2026-11-15 HackbonusControllerUpdate2 opus:high: u4da95 render block duplicated into the case 0 arm only -> fdiff 1, text +32; u4da95#2 duplicated into the 7/8 arm only -> fdiff 1, text +32 (kept)
-
 - 2026-11-16 HackbonusControllerUpdate3 opus:high: uef380 case 15 added to the 0/4/13 labels with its prework under if (challengeType == 15) inside the tail -> full=114 text=129 (kept)
 - 2026-11-16 HackbonusControllerUpdate3 opus:high: u4da95#2 cases 7/8 fall through into case 5 with challengeType guards on the 5/6/2 arms -> full=469 text=436 (kept)
+- 2026-11-17 2026-11-17: cleanup HackbonusControllerUpdate4 HackbonusControllerUpdate4 claude-opus-5-5: uef380 `for (;;) { tail; break; case 15: prework }` (Duff loop, the back edge is the b 0x2f8) -> full=0, rejected: a case label inside a loop that never iterates is a steer (goto kept)
+- 2026-11-17 2026-11-17: cleanup HackbonusControllerUpdate4 HackbonusControllerUpdate4 claude-opus-5-5: u4da95 + u4da95#2 as nested `if (0) { case 7: case 8: ...; if (0) { case 5 .. case 2 } }` after case 0 -> full=0, two dead ifs for two gotos (Q0953, kept)
+- 2026-11-17 2026-11-17: cleanup HackbonusControllerUpdate4 HackbonusControllerUpdate4 claude-opus-5-5: u4da95 + u4da95#2 as ONE `do { case 15: ... case 0: ...; break; case 7: case 8: ...; break; case 5 .. case 2 } while (0);` before the render -> full=0, a 2-for-1 Duff steer; not applied (ladder: goto swapped for an empty do-while is nohit; not plausible original code). Lead may rule otherwise: body in .scratch/HackbonusControllerUpdate4/v/e4_render_dowhile_break.c
+- 2026-11-17 2026-11-17: cleanup HackbonusControllerUpdate4 HackbonusControllerUpdate4 claude-opus-5-5: render after the switch inside `do { switch {...; case 9/10/12/16: func_80724A20(); continue; default: continue;} render } while (0)` -> full=14 text=12: the 9/10/12/16 jal func_80724A20 (0x978) moves ahead of the render block 0x94c-0x970 and the selector loads into v0 instead of t6 at 0x78c (kept)
+- 2026-11-17 2026-11-17: cleanup HackbonusControllerUpdate4 HackbonusControllerUpdate4 claude-opus-5-5: review removed the m2c-derived `endOnTrigger = 1;` (m2c `a2v = 1` in 73549bfa) at the head of loop case 2 -> fdiff 0 (codegen-neutral); each of the five pads removed alone -> pad5C/pad58 16 lines, pad50/pad4C/pad44 12 lines (all kept)
 
 ## Untried ideas
-- none: the three gotos are Q0591 shared tails (single jal per tail in the target). Block order is fixed by the single jump tables (.rodata+0x10, +0x98): uef380 is a backward jump (b 0x2f8 from 0x35c), and the render block can follow only one of its three entries; the remaining spellings (case labels inside if (0) blocks, do-while(0) + break, flags) only trade one steer for another
+- none for the gotos: every structured spelling without a goto that matches (for(;;) Duff loop for uef380; if (0) case blocks or one do-while(0) around cases 15..2 for the render gotos) places case labels inside a loop or dead if. Forms with no case label inside a block (flags, tail duplication, hoisted prework, render after the switch) all fail on block order (jump tables .rodata+0x10, +0x98) or add a second jal
 
 ## Evidence
 - the first case-0 test is a real || chain in source order: lbu v0,111(sp) at 0xb20, beq v0,1 at 0xb2c, beqz v0 at 0xb34, beq v0,2 at 0xb3c, bne v0,0x10 at 0xb44; a switch changes that compare structure
 - uopt -l 5 local offsets (frame 0x78): i -2, counter -8, challengeType -9 (isvar M, not a vreg with pv), targetCount -10, messageText -16, hasMessage -17, triggerKind -18, endOnTrigger -19, msgBuf -24, msgBufCount -36, sfxId -48, pv/pad44 -52, cfe ternary temps -56/-60; spilltemps start below at -64 (sp+0x38)
 - without the -52 word the cfe temps and the spill temp move up 4 (spill sp+0x3c); challengeType is reloaded from sp+0x6F at every use either way (lbu at 0x28c, 0x488, 0x78c, 0x9cc, 0x9d8, 0xa8c, 0xaa8, 0xab4, 0xb20)
 - uef380: single jal textTableGetString at 0x2fc (block 0x2f4-0x30c); case 15's block 0x314-0x35c ends `b 0x2f8` (delay slot li a0,0x1a)
+- first switch jtbl .rodata+0x10: 0/4/13 -> 0x2f4, 14 -> 0x2b0, 15 -> 0x314, 1/10/12/16 -> 0x364, 3 -> 0x36c, 5 -> 0x37c, 2/6/7/8/11 -> 0x384, 9 -> 0x3ac, default 0x3f8
 - u4da95/#2: single jal renderCallbacksRegister at 0x968 in the block at 0x94c/0x950; entered by the case 2 fall-through, beq/b 0x94c from the case 0 chain (0x7f8, 0x824, 0x82c) and b 0x950 from cases 7/8 (0x83c)
+- second switch jtbl .rodata+0x98: 15 -> 0x7b0, 4/11/13/14 -> 0x7b8, 0 -> 0x7d0, 7/8 -> 0x834, 5 -> 0x844, 6 -> 0x89c, 2 -> 0x8b4, 9/10/12/16 -> 0x978 (after the render block and its b 0x984), 1/3/default -> 0x980
+- loop case 2 (0x5e0-0x6b8): endOnTrigger lives in a2, spilled to sp+0x65 around slotQueueGetValue (sb 0x5ec, lbu 0x5fc); `li a2,1` at 0x610 is the third textTableGetString argument hoisted above the countLeft >= 2 branch, not an endOnTrigger store
