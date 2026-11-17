@@ -948,3 +948,4 @@
 {"type": "unit", "t": "2026-11-17T16:49:06Z", "unit": "2026-11-17: cleanup Polishrace6650", "commit": "7f91c060d3f88fcdc0bad652a6d40c811f42bf47"}
 {"type": "unit", "t": "2026-11-17T16:51:27Z", "unit": "2026-11-17: cleanup HackplayerStateWaypointAimUpdate4", "commit": "32604aaf80b4eaa5d95f0cd40b55fb259a267e83"}
 {"type": "unit", "t": "2026-11-17T16:52:15Z", "unit": "2026-11-17: cleanup Polishrace0", "commit": "82f0782447e0c257a258840806091f10ba226781"}
+{"type": "unit", "t": "2026-11-17T16:53:17Z", "unit": "2026-11-17: cleanup HackcamFloorSnap3", "commit": "10a790417a1ca42535e2d9a759aa96ffbfe43fc5"}
