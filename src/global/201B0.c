@@ -374,7 +374,7 @@ void camSortFloorHits(void) {
 #define CAM_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define CAM_MAX(a, b) (((a) < (b)) ? (b) : (a))
 
-u8 camFloorSnap(Actor *camActor, CamState *camState, f32 targetDist, f32 *outHeight, f32 stepFactor, u8 snapMode) {
+u8 camFloorSnap(Actor *camActor, CamState *camState, f32 posX, f32 *outHeight, f32 posZ, u8 snapMode) {
     Actor *floorActor = camState->followActor;
     f32 floorY;
     f32 ceilY;
@@ -396,7 +396,7 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 targetDist, f32 *outHei
     floorY = 32767.0f;
     camState->unkFA = 0;
     cnt = 0;
-    if (collisionCheckActorFloor(camActor, targetDist, floorY, stepFactor, &floorY)) {
+    if (collisionCheckActorFloor(camActor, posX, floorY, posZ, &floorY)) {
         camSortFloorHits();
         if (sCamFloorHitCount == 1 || *outHeight < sCamFloorHits[0].height) {
             flags = sCamFloorHits[0].flags;
