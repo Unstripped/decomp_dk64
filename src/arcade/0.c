@@ -267,7 +267,7 @@ s32 arcadeCountEntitiesByType(s32 type) {
     return count;
 }
 extern s32 D_8004A78C[];
-extern s32 D_8004A790;
+s32 D_8004A790 = 0;
 extern s32 D_8004C6D8;
 
 void arcadeDispatchState(Gfx **glistp) {
@@ -310,7 +310,7 @@ void arcadeDispatchState(Gfx **glistp) {
 typedef struct ArcadeBlankInitial {
     u8 letter;
 } ArcadeBlankInitial;
-extern ArcadeBlankInitial D_8004A794;
+ArcadeBlankInitial D_8004A794 = { ' ' };
 void arcadeInsertHighScore(s32 rank) {
     s32 i;
     s32 j;
@@ -661,7 +661,20 @@ extern TextureDescriptor D_8004BBC0[];
 typedef struct ArcadeTitleBitmap {
     s32 words[12];
 } ArcadeTitleBitmap;
-extern ArcadeTitleBitmap D_8004A798;
+ArcadeTitleBitmap D_8004A798 = { {
+    0x019D2975,
+    0x0155AA45,
+    0x0155EE77,
+    0x01556A42,
+    0x019D2972,
+    0x00000000,
+    0x00000000,
+    0x0035E938,
+    0x003DAD60,
+    0x0039AF6C,
+    0x0035AB64,
+    0x0035E938,
+} };
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
 extern u8 gGfxBufferIndex;
@@ -1077,7 +1090,29 @@ typedef struct ArcadeLift {
 } ArcadeLift;
 ArcadeLift D_8004BC88[6];
 extern u8 D_80032F40[];
-extern ArcadeGirderSpan D_8004A7C8[];
+ArcadeGirderSpan D_8004A7C8[] = {
+    { 0x0B, 0x11, 0x37 },
+    { 0x00, 0x1C, 0xF7 },
+    { 0x00, 0x15, 0x57 },
+    { 0x00, 0x03, 0xE7 },
+    { 0x00, 0x03, 0xBF },
+    { 0x00, 0x03, 0x87 },
+    { 0x0F, 0x12, 0xE7 },
+    { 0x13, 0x15, 0xDF },
+    { 0x16, 0x18, 0xD7 },
+    { 0x19, 0x1C, 0xCF },
+    { 0x08, 0x0B, 0xCF },
+    { 0x07, 0x0B, 0x87 },
+    { 0x1A, 0x1C, 0xB7 },
+    { 0x17, 0x19, 0xAF },
+    { 0x14, 0x16, 0xA7 },
+    { 0x11, 0x13, 0x9F },
+    { 0x10, 0x13, 0x7F },
+    { 0x17, 0x1C, 0x8F },
+    { 0x1A, 0x1C, 0x67 },
+    { 0x17, 0x19, 0x6F },
+    { 0x14, 0x16, 0x77 },
+};
 void arcadeDrawStage3Background(Gfx **glistp) {
     s32 i;
     s32 j;
@@ -1240,7 +1275,9 @@ void arcadeSpawnStage1Entities(void) {
 typedef struct ArcadePosTable {
     u8 b[16];
 } ArcadePosTable;
-extern ArcadePosTable D_8004A81C;
+ArcadePosTable D_8004A81C = { {
+    0x6C, 0xD0, 0xD4, 0xD0, 0x6C, 0xAA, 0xD4, 0xAA, 0x6C, 0x84, 0xD4, 0x84, 0x6C, 0x5D, 0xD4, 0x5D,
+} };
 extern ArcadeEntity D_8004A578;
 extern ArcadeEntity D_8004A618;
 extern ArcadeEntity D_8004A658;
@@ -3829,7 +3866,7 @@ void arcadeSpawnStage2Enemies(void) {
     }
 }
 
-extern u8 D_8004A82C[5][3];
+u8 D_8004A82C[5][3] = { "1ST", "2ND", "3RD", "4TH", "5TH" };
 extern u8 D_8004BCEC;
 
 void arcadeDrawNameRegistration(Gfx **glistp) {
@@ -3905,7 +3942,6 @@ void arcadeSetStageTextColor(s8 stageIndex) {
     }
 }
 
-extern s32 D_8004A83C;
 extern u8 D_8003DA90[];
 extern TextureDescriptor D_8004BBF0[];
 
@@ -3913,6 +3949,7 @@ void arcadeDrawHud(Gfx **glistp) {
     s32 i;
     Gfx *g;
     u8 buf[0x50];
+    static s32 sFrameCount = 0;
 
     g = *glistp;
     gDPSetScissor(g++, G_SC_NON_INTERLACE, 0, 0, 320, 240);
@@ -3923,8 +3960,6 @@ void arcadeDrawHud(Gfx **glistp) {
     dlInitTextureDescriptor(&D_8004BBF0[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&g, &D_8004BBF0[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    if (D_8004A83C == 0) { // FAKE: empty guard steers regalloc
-    }
     for (i = 0; i < D_8004C71C; i++) {
         dlAppendTextureRectangle(&g, i * 0x20 + 0x360, 0x4C);
     }
@@ -4069,6 +4104,6 @@ void arcadeDrawHud(Gfx **glistp) {
         }
     }
     *glistp = g;
-    D_8004A83C++;
+    sFrameCount++;
 }
 
