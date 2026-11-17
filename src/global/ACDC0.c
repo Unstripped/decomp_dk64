@@ -165,9 +165,10 @@ void hudPauseMenuUpdate(void) {
     s32 flag;
     s32 moved;
     s32 buttons;
-    s32 x;
+    s8 x;
+    s8 stickY;
     s32 hubWorld;
-    s32 stickY;
+    s32 step;
 
     hud = gCurrentActor->customState;
     i = gCurrentMap; // FAKE: switch selector reuses i (a1, move a1,v0 at 0xb8); a separate local grows frame 0x58->0x60
@@ -411,18 +412,18 @@ void hudPauseMenuUpdate(void) {
                 hudPauseMenuSlidePage(hud, moved, buttons);
                 break;
             case 3:
-                diff = i = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->carouselAngle); // FAKE: step reuses i (a1, move a1,v1 at 0xc88); a separate local grows frame 0x58->0x60
+                diff = step = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->carouselAngle);
                 flag = D_807FC83A / 10; // FAKE: step limit reuses flag (a0, move a0,t5 at 0xc94); a separate local grows frame 0x58->0x60
                 if (diff > 0) {
                     if (flag < diff) {
-                        i = flag;
+                        step = flag;
                     }
-                    hud->carouselAngle += i;
+                    hud->carouselAngle += step;
                 } else if (diff < 0) {
                     if (diff < -flag) {
-                        i = -flag;
+                        step = -flag;
                     }
-                    hud->carouselAngle += i;
+                    hud->carouselAngle += step;
                 } else {
                     flag = 0;
                     x = gCurrentContPad->stick_x;
@@ -456,7 +457,7 @@ void hudPauseMenuUpdate(void) {
                     diff = flag;
                 }
                 diff = flag - diff;
-                hud->carouselProgress = (f32)diff / (f32)((f32)flag * 0.9);
+                hud->carouselProgress = diff / (f32)((f32)flag * 0.9);
                 if (hud->carouselProgress > 1.0f && D_807FC80D != sPauseCarouselIndex) {
                     sPauseCarouselIndex = D_807FC80D;
                 }
