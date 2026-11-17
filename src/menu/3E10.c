@@ -1053,8 +1053,6 @@ extern u8 gActivePlayerCount;
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[];
 
-#define BUTTONS_PRESSED(cur, prev) (((cur) ^ (prev)) & (cur))
-
 void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
     s32 step;

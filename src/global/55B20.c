@@ -2484,7 +2484,7 @@ void mapFrustumPlaneIntersectEdge(f32 *a, f32 *b, s32 planeIdx, f32 *out) {
     f64 s;
     f64 dist;
 
-    dist = (((gFrustumPlanes[planeIdx].a * a[0]) + (gFrustumPlanes[planeIdx].b * a[1])) + (gFrustumPlanes[planeIdx].c * a[2])) + gFrustumPlanes[planeIdx].d;
+    dist = PLANE_DIST(gFrustumPlanes[planeIdx], a[0], a[1], a[2]);
     bx = b[0];
     s = dist / (((gFrustumPlanes[planeIdx].a * (a[0] - bx)) + (gFrustumPlanes[planeIdx].b * (a[1] - b[1]))) + (gFrustumPlanes[planeIdx].c * (a[2] - b[2])));
     out[0] = a[0] + ((bx - a[0]) * s);

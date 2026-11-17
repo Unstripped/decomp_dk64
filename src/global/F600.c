@@ -184,7 +184,7 @@ void controllerUpdate(void) {
         controllerCompactPads(D_807ECDE8);
     }
     sum = 0;
-    gButtonsPressed = (gContPadCur.button ^ gContPadPrev.button) & gContPadCur.button;
+    gButtonsPressed = BUTTONS_PRESSED(gContPadCur.button, gContPadPrev.button);
     p = (u32 *)heapTickDeferredFrees;
     end = (u32 *)heapCodeEnd;
     while (p < end) {
@@ -209,7 +209,7 @@ void controllerUpdate(void) {
             pad = &D_807ECD10[padIdx];
             pressedOut = &CtrlAPressed[padIdx];
             curButtons = pad->button;
-            buttons = curButtons; pressed = (CtrlAHeld[padIdx] ^ curButtons) & curButtons; CtrlAHeld[padIdx] = pad->button; // LAYOUT: one line lets as1 put move a3,a2 after sh a2,0(t0) in the bnez delay slot
+            buttons = curButtons; pressed = BUTTONS_PRESSED(curButtons, CtrlAHeld[padIdx]); CtrlAHeld[padIdx] = pad->button; // LAYOUT: one line lets as1 put move a3,a2 after sh a2,0(t0) in the bnez delay slot
             if (D_807463B8 == 0 && (gScreenRenderFlags & 0x11)) {
                 pad->button &= 0x1000;
                 pad->stick_x = 0;

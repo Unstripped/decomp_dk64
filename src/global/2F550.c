@@ -122,9 +122,6 @@ void frustumCornersTransformByInverse(Mtx *mtx) {
     }
 }
 
-// Signed distance of point (x, y, z) from a PlanePoly's plane equation.
-#define PLANE_DIST(plane, x, y, z) ((((plane).a * (x) + (plane).b * (y)) + (plane).c * (z)) + (plane).d)
-
 void frustumOrientPolyNormals(f32 eyeX, f32 eyeY, f32 eyeZ, PlanePoly *planes, f32 *corners) {
     s32 i;
     f32 xs[5];

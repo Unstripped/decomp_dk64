@@ -33,6 +33,9 @@ extern u32 gGameFrameCounter; // advances like gFrameCounter except while gGloba
 extern OSContPad gContPadCur;
 extern OSContPad gContPadPrev;
 
+// Buttons newly pressed this frame: set in cur and clear in prev.
+#define BUTTONS_PRESSED(cur, prev) (((cur) ^ (prev)) & (cur))
+
 // RDP output buffer allocated by loadOverlay (15050) and handed to every gfx task (schedSubmitGfxTask, 14CF0).
 extern u8 *gRdpOutputBuffer;
 extern s32 gRdpOutputBufferSize;

@@ -32,6 +32,10 @@ typedef struct PlanePoly {
     /* 0x38 */ f64 d;
 } PlanePoly; // size = 0x40
 
+// Signed distance of point (x, y, z) from the plane equation of a PlanePoly; pass the plane as an lvalue
+// (`*poly`, `planes[i]`): `(*p).f` keeps the add tree order where `p->f` lets uopt reassociate (Q1130).
+#define PLANE_DIST(plane, x, y, z) ((((plane).a * (x) + (plane).b * (y)) + (plane).c * (z)) + (plane).d)
+
 // Per-frame matrices and sub display list (D_80767CE8[2], gGfxCurrentFrameBuffer); 0x11B0 bytes.
 typedef struct FrameMatrices {
     /* 0x000 */ Mtx perspective;
