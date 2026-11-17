@@ -342,7 +342,7 @@ Gfx *renderHitCounterHUD(Gfx *glist, CsCountdown *countdown) {
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(glist++, 0xFA000000, 0xFFFFFF96);
     _sprintf(leftStr, "%d", (s32)countdown->left);
-    glist = textDrawStringVtx(textDrawStringVtx(glist, 3, 0x424, 0x50, leftStr, 1), 1, 0x50, 0x50, "HIT", 1);
+    glist = textDrawStringVtx(textDrawStringVtx(glist, 3, 0x424, 0x50, leftStr, 1), 1, 0x50, 0x50, (const u8 *)"HIT", 1);
     _sprintf(firedStr, "%d", (s32)countdown->fired);
     return textDrawStringVtx(glist, 3, 0x50, 0xB0, firedStr, 1);
 }
