@@ -1,8 +1,8 @@
 # playerUpdateCommon (global, src/global/CEAE0.c)
 
 ## Sites
-- global:806CA5F8:dead-if:c17942 dead-if (was 8ce181, `if (gCurrentActor && gCurrentActor) {}` until 2026-11-17): `if (gCurrentActor) {}` before the first statement. Its ilod makes the gCurrentActor load {817|0} candidate bit 0, ahead of the attacker var {800|0}. That keeps the gActivePlayerActor pointer web coloured into v1 at 0xf14-0xf2c; removing it gives s0 (adjsave tie order, Q0199). One read is enough.
-- global:806CA5F8:other:81cda0 other: `(u32)attackerIndex != gActivePlayerState->playerIndex`. The cast makes the local a ucvt isop numbered after the field's, so the compare at 0xe54 is `beq t2,v0`; without it the compare is `beq v0,t2` (Q0715). A (u32) on the field side instead gives the same code: any unsigned compare does.
+- global:806CA5F8:dead-if:c17942 dead-if (was 8ce181, `if (gCurrentActor && gCurrentActor) {}` until 2026-11-17): `if (gCurrentActor) {}` before the first statement. Its ilod makes the gCurrentActor load {817|0} candidate bit 0, ahead of the attacker var {800|0}. That keeps `&screenX` (addiu s0,sp,0x70 at 0x135c, a3 for both camProjectToScreen calls) in s0 and the gActivePlayerActor pointer in v1 at 0xf14-0x13d8; removing it gives s0 to gActivePlayerActor (adjsave tie order, Q0199). One read is enough.
+- (fixed 2026-11-17 HackplayerUpdateCommon4) global:806CA5F8:other:81cda0: was `(u32)attackerIndex != gActivePlayerState->playerIndex` on an s8 block local. The local was an isvar, numbered before the playerIndex ilod, so the compare at 0xe54 was `beq v0,t2` without the cast (Q0715, Q0474). With no local (attackerPlayerIndex read directly in the test and the gPlayerSlots index) the plain `attackerPlayerIndex != playerIndex` gives the target `beq t2,v0`.
 - global:806CA5F8:other:318197 other (was 8b0fd9, a cast on all three addresses until 2026-11-17): `&((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX` on the first argument only; headY/headZ are plain. The identity cast builds uadd(load, idx*size). Cast-free spellings build uadd(idx*size, load) and rotate the t7/t8/t0 scratch ring from 0x12d0 (Q0717). Only the first address needs it.
 - (removed 2026-11-17) global:806CA5F8:goto:u933fb / u36185 / u72d9b / u72d9b#2: the heavyImpact dispatch is now `switch (heavyImpact) { default: ...; case 1: ...; case 2: ... }`.
 
@@ -67,12 +67,23 @@
     - attackerIndex assigned in the test (`(attackerIndex = ...) >= 0`): 1 plain, 0 with the cast.
     - A u32 bitfield playerIndex is ruled out: CC800/201B0 store it with a byte store.
   - Reconstruct: natural body (all three removed) 62; with the assignment-in-test local 62.
+- 2026-11-17 cleanup HackplayerUpdateCommon4 (anthropic/claude-opus-5-5), fdiff OK:
+  - 81cda0 fixed: the s8 attackerIndex local was dropped. With direct field reads, `attackerPlayerIndex != playerIndex` gives 0 and `playerIndex != attackerPlayerIndex` gives 1.
+  - c17942, measured on the direct-field body (removal 24):
+    - Every single declaration moved to every other slot on the removal copy (196 bodies): best 25.
+    - `attacker->flags` instead of `gCurrentActor->flags` in the D_807463B8 then-arm (test removed): 5. attacker is coloured a2 until the 0x9f4 call, and the entry `sw s0,0x64(sp)` is lost. Both arms: 6. Plus `attacker->customState`: 12. Mixing names in one if/else is a steer swap, so it was not adopted.
+    - variants scan on the removal copy: no zero.
+  - 318197:
+    - `(gPlayerSlots + 0)[i]` gives 0, so any non-leaf base works (no-op arithmetic, so not adopted).
+    - Spellings that give 37: `i[gPlayerSlots]`, `&(&gPlayerSlots[i])->headX`, a whole-argument `(f32 *)`, and a block-local `PlayerStruct *slot = &gPlayerSlots[i]` or `= gPlayerSlots + i`.
+    - `f32 *head` passed as head, head + 1, head + 2: 41. A `(s32)` index: 177.
+    - The plain prevFov copy at 0x8a8 already gives load-first `addu v0,t4,t6`, so the order depends on context (the 3-argument CSE), not only on cfe's subscript tree.
+  - Bounds tests respelled subject-first (`gCurrentActor->x > D_807F5FE8`, `->z > D_807F5FEA`). Both orders match.
 
 ## Untried ideas
-- A field-type change for PlayerState.attackerPlayerIndex/playerIndex was ruled out: playerIndex is already u8 (stored as a byte in CC800/201B0), and the s8 side needs the `>= 0` test.
-- 81cda0: a natural unsigned operand would fix it (a field-side (u32) matches too). Nothing on either side is unsigned int in the known types.
-- c17942: one natural statement that reads gCurrentActor once in a test before `attacker = gCurrentActor` and emits no code would fix it. No such statement is known yet.
-- 318197: only the first address (headX) needs a non-leaf base. A natural spelling of just that argument would fix it.
+- A field-type change for PlayerState.attackerPlayerIndex/playerIndex was ruled out: playerIndex is already u8 (stored as a byte in CC800/201B0).
+- c17942: one natural statement that reads gCurrentActor once in a test before `attacker = gCurrentActor` and emits no code would fix it. Another option is a natural change that raises the `&screenX` candidate (sp+0x70) above the gActivePlayerActor ilod. Neither is known yet. Declaration order is ruled out.
+- 318197: only the first address (headX) needs a non-leaf base. A natural non-leaf expression for gPlayerSlots, such as a struct member in another view, would fix it. None exists in the known types.
 
 ## Evidence
 - 0xe54: target `beq t2,v0` (field operand first).
