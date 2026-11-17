@@ -31,6 +31,8 @@
 - same: orbit arm moved last (after case 5 and the default) with `if (p->type == 16) { look; goto look_set; } break;`, so its not-16 path falls out into calc_look -> 1071 (layout: the target has the orbit arm first at 0x7ee0).
 - same: on the default-after-orbit copy, orbit `else { break; }` -> 518 (unthreaded `b 0x88f4`).
 - same: case 0x59 label dropped and folded into default as `if (target->state == 0x59) { if (!(gGlobalCutsceneFlags & 2)) {...; break;} } else zoom = ...;` -> 611 (adds li at,0x59 + bne, the 0x59 table entry changes).
+- 2026-11-17 U HackcamComputeEyeFocus7 anthropic/claude-opus-5-5: u57554/u2f108/u2f108#2 together: a `u8 lookDone` assigned in every path-switch arm (0 in 1/2/3/17/5 and orbit not-16, 1 in orbit-16, case 4 and default; no initialiser), every arm ending in `break`, calc_look under `if (!lookDone) {...}` (or `if (lookDone) {} else if`) -> full 533, shape 26 (both spellings).
+- same: u71b9c: case 0x59 as `if (!(gGlobalCutsceneFlags & 2)) { ...; break; }` falling into the default, with the zoom under a nested `switch (target->state) { case 0x59: break; default: zoom = ...; }` -> 67 (shape 9); `zoom = (target->state == 0x59) ? zoom : cam->unkA0 / 3.0;` -> 142; `if (target->state != 0x59 || !(gGlobalCutsceneFlags & 2)) zoom = ...;` -> 74.
 
 ## Untried ideas
 - None left that is natural C for the remaining 4 gotos: u57554 (only the else-goto form is threaded; its label block is also a type reload block), u2f108/u2f108#2 (the default and case 4 must skip the calc_look block that follows case 5; only one arm can fall into the default), u71b9c (one check_target block, duplicates, flags and a folded default add code).
