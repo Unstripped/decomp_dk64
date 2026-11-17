@@ -955,3 +955,4 @@
 {"type": "unit", "t": "2026-11-17T17:02:07Z", "unit": "2026-11-17: cleanup CleanupLead7", "commit": "5d9d70ddc3bb347ca060d1aeef90d230fd9d3dac"}
 {"type": "unit", "t": "2026-11-17T19:38:18Z", "unit": "2026-11-17: cleanup HackcamComputeEyeFocus8", "commit": "9c8bb0fd820b05409ec0ccfd1fb27be1826abc96"}
 {"type": "unit", "t": "2026-11-17T19:39:10Z", "unit": "2026-11-17: cleanup HackraceOpponentFollowWaypoints", "commit": "06eb7b12f8de280181cf4dea654a1bb4499657ab"}
+{"type": "unit", "t": "2026-11-17T19:39:44Z", "unit": "2026-11-17: cleanup HackenemyGridStateStep5", "commit": "ef9d96959feb7c29012467806ad91d73c9d585b3"}
