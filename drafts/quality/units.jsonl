@@ -979,3 +979,4 @@
 {"type": "unit", "t": "2026-11-17T23:18:22Z", "unit": "2026-11-17: cleanup HackhudPauseMenuIconUpdate", "commit": "8fea3591e67f6e1abc841b51d71ae119152c573c"}
 {"type": "unit", "t": "2026-11-17T23:20:32Z", "unit": "2026-11-17: cleanup HackplayerStateSurfaceTreadWater3", "commit": "526148d138f6812c061a92668c07026f9b2f2046"}
 {"type": "unit", "t": "2026-11-17T23:21:34Z", "unit": "2026-11-17: cleanup HackactorBoneChainSwingUpdate7", "commit": "63618aa301476e2832c27dee4bb59adc71c33cae"}
+{"type": "unit", "t": "2026-11-17T23:22:24Z", "unit": "2026-11-17: cleanup HackmodelEmitterSpawnScaledParticle4", "commit": "8b852546aad1c9a4370c8a9b0951894d7655eeb6"}
