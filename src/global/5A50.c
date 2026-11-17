@@ -92,7 +92,7 @@ void audioInit(void) {
         D_8076BF38[i] = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, D_807452B0[i]);
         player = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, 0x8C);
         gSeqPlayers[i] = player;
-        if (D_8076BF38[i] == NULL || (arg = player, player == NULL)) { // FAKE: comma re-assign steers player/gSeqPlayers[i] reload
+        if (D_8076BF38[i] == NULL || (arg = player) == NULL) {
             arg = gSeqPlayers[i];
         }
         n_alCSPlayerNew(arg, &seqp);
