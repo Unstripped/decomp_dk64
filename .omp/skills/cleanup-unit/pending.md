@@ -16,11 +16,16 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - jetpac/4FC0 `extern JetpacPlayerActor jetpacPlayer` (4FC0.c:44): JetpacState raises its cfe 1 -> 2 (round-34 measurement; 3480 and 1A60 already use JetpacState).
 - jetpac/1A60 jetpacUpdatePlayerMovement volatile 1d4065 / 1d4065#2: blocked. Director REJECTED `volatile s32 flying` in jetpac.h JetpacPlayerActor: it only moves a codegen-only volatile into a shared header and hides it. Both sites stay tagged `blocked` (HackjetpacUpdatePlayerMovement, 2026-11-14; evidence .scratch/HackjetpacUpdatePlayerMovement/).
 - 36880 views on `ModelSlot.unk20` (model.h:109 `void *`, ModelKindObj users) are blocked on the model.h H1/H2 regeneration (clashes with file-local ModelSlot typedefs); the MODEL_TRANSFORM_SLOT0/SLOT views are gone (0bc29f13). actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
-- Optional (types queue, ACTIONABLE): HeapBlock u64 view (heap.h) so 15050's 14 `*(u64 *)blk = 0` / `((u64 *)q)[i]` puns, now `// ORIG:`
-  (HackloadOverlay, merge b4eccb1b: target 64-bit pair stores/copies), become typed 64-bit accesses; fdiff each, keep the ORIG
-  comments' offsets.
-- 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked; 1332B0.c:11 `extern void *gPlayerSlots`, 172-185). Every other file declares `PlayerStruct *gPlayerSlots` (13b5f3b8) except A8400 (ScreenBounds view, next entry).
-- PlayerStruct 0x270 s16 bounds carve (ACTIONABLE): actor.h has no scissorUlx..Lry fields; A8400's ScreenBounds (A8400.c:165-174) and MapBounds (447-455, SPRITE_BOUNDS) views read them. Round-16 list still open: playerStateQueueCallback arity (F56F0 14204c, race/6650 8cc620), n_alSndpPostEvent.
+- HeapBlock u64 view for 15050's 14 `// ORIG:` 64-bit pair puns: MEASURED AND DECLINED (TypesOwner9 batch_9 part J, 2026-11-17): an
+  anonymous union with `u64 dwords[2]` fdiffs but gains no hack site (the 14 lines are already ORIG), raises HeapBlock's alignment 4 -> 8
+  (clint TYPES LAYOUT BAD), defeats `--header-carve` and reopened 15 functions with 0 carried. Not to be retried without a new form.
+- 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked; 1332B0.c:11 `extern void *gPlayerSlots`, 172-185). Every other file declares `PlayerStruct *gPlayerSlots` (13b5f3b8; A8400 since 26db89ed).
+- PlayerStruct 0x270 bounds: CLOSED (TypesOwner9 batch_9 part I, 26db89ed): A8400's ScreenBounds/MapBounds views and SPRITE_BOUNDS retired
+  for `PlayerStruct.rect[0..3]` (sched.h). HELD: renaming `rect[4]` to scissor fields flips textBoxRender's `|` chain order back (constant-index
+  array reads vs named fields schedule differently, Q1082). Round-16 list still open: playerStateQueueCallback arity (F56F0 14204c, race/6650 8cc620), n_alSndpPostEvent.
+- cutscene.h `CsState` / `CsStateFull` describe the same 0xA4 object (Polishglobal42630, b264b7a5): one merged type would retire the casts in
+  csStateUpdate (csCmdExec call) and csCondEval (gCsCondTable handlers, 478F0 etc. take `CsState *`). CsState lacks unk51/unk52 (inside
+  pad51[0xB]); CsStateFull lacks the unk44/unk48 union and differs in s8/u8 signedness at 0x4F/0x50/0x60/0x67/0x6E-0x71. Types item.
 - 1025E0 `func_806FDAB8`: RESOLVED on the caller side (HackbonusTargetGameUpdate 0a7cfd1f: pass the just-stored `game->counterTextId`, Q1139); the owner keeps its s16 parameter.
 - gCamActor: one `extern struct Actor *gCamActor` in actor.h (OwnerCamActorExtern e13ffda6; boss/8520 and B100 retyped from `void *` with cfe unchanged; the last file-local copies dropped in 7748c62b). gFrameCounter/gGlobalPauseFlags single shared type.
 - ACDC0 renderRotatedSprite proto-steer 6bd641/01af71 kept (HackConsolidateBoss0ACDC0, ledger 9ca52aed): the owner's s32 siz only changes CSE of the literal 2 (li a3,2 -> move a3,s8 at 0x1638/0x16B8). That is register-only evidence, not ORIG. boss/0 ea31b7 is ORIG (70242923).
