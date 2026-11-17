@@ -9,6 +9,8 @@ race:80024690:other:5c6e36: `value = gCurrentActor->y` reused the f32 `value` as
 race:80024690:other:f88a4d: `stateValue` reused for the D_8002FB94 path id. FIXED: case 5 switches on `controller->unk35` directly (case 1 stores `controller->unk35 + 1`), so the local only holds the path id and is renamed `pathId`.
 race:80024690:other:26120e (copy-only key): case-10 `selector = gCurrentActor->unk155` shared the u32 selector with the raceStatus-0 switch. FIXED 2026-11-16: case 10 is `switch (gCurrentActor->unk155)`.
 
+race:80024690:other:e903f1 other: `switch (controller->unk35)` re-read while the u8 `phase` local held the same value (cfe switch temp $v0, load $v1, phase $a0). FIXED 2026-11-17 (HackraceOpponentBehaviourUpdate6): the `phase` local is gone; the end test reads `controller->unk35 < 3`.
+
 ## Attempts
 2026-11-14 HackraceOpponentBehaviourUpdate openai-codex/gpt-5.6-sol: removed each/both dead tests -> same 14-line v0/v1 swap at target 0xc0c-0xc50.
 2026-11-14 HackraceOpponentBehaviourUpdate openai-codex/gpt-5.6-sol: switch forms tried: direct controller->unk35; phase; phaseCopy; chained and sequential assignments; switch assignment expressions; s32/u32/u16/s16/u8 selector and phase widths; declaration orders; case-0 increment through phase or phaseCopy. Best natural forms were 4 lines (copy scheduling only) or 10-14 lines (v0/v1); none zero.
@@ -27,10 +29,15 @@ race:80024690:other:26120e (copy-only key): case-10 `selector = gCurrentActor->u
 2026-11-15 HackraceOpponentBehaviourUpdate4 anthropic/claude-opus-5-5:high: fully natural body (both selector steers and phaseCopy removed) differs from the target only by a $v0/$v1 swap in the three inner switches (19 lines); 123-variant recipe scan of it best 19; status 1/3/4 as single-case switch(unk35) and default arms on the inner switches 19 (do not raise the shared temp). Angle: angU-only 356; `angU = ...; ang16 = angU;` 0; s32/u32 temp in angU's place (beside/replacing pad) above 46.
 2026-11-16 HackraceOpponentBehaviourUpdate5 anthropic/claude-opus-5-5:high: both selector steers removed, fdiff 0. Status 0 without any phase local and the end test on `controller->unk35 < 3` already gives the right v1/v0 dispatch (10 lines: PRE keeps the value in v1, no a0 copy). With `phase = unk35; switch (unk35)`: s32 phase 19-29 (v0/v1 swap), u32 4 (sltiu), u8/u16 with `phase = ++unk35` or `unk35++; phase = unk35` in case 0 -> case 10 and status 0 exact, status 5 4 lines (v0 jump-table load). Status-5 heads: switch(phase) 3 (move a0), own u32 selector 1 (extra move v0,v1). `unk35++` in status-5 case 1 -> 0. Final: every counter increment written x++ / x-- (state, routeRow, unk2E, unk155, unk35; neutral except s0 case 0 and s5 case 1).
 
+2026-11-17 HackraceOpponentBehaviourUpdate6 anthropic/claude-opus-5-5: e903f1 under Q0944's 2026-11-16d correction: phase u8/s8/u16/s16/s32/u32 x status-0 switch (unk35 | phase) x status-5 head (switch (unk35) | phase = unk35; switch (phase) | switch (phase = unk35)): u32 phase with switch (phase) 17 (phase and selector coalesce in $v0, sltiu at,v0,3), +status-5 on phase 18; u8/u16 switch (phase) 13/16; s32 17/18; s8/s16 150+. Only the base (switch on the re-read) was 0.
+2026-11-17 HackraceOpponentBehaviourUpdate6 anthropic/claude-opus-5-5: e903f1 fixed: no phase local at all, end test `if (controller->unk35 < 3)` (also `<= 2`, `3 >`, pre-increment in case 0): fdiff 0. The 10-line no-phase measurement of 2026-11-16 predates the x++ arms; with status-0 case 0 as `= x + 1` it is 14 now.
+2026-11-17 HackraceOpponentBehaviourUpdate6 anthropic/claude-opus-5-5: review: `dist` reused for the vertical waypoint distance -> dedicated `f32 dy` after `dist`: 0 (declaration slots 12-17 match; slots 1-11 5-84 lines). `ZoneEntry *pad` -> `s32 pad` 0; removing pad 86.
+
 ## Untried ideas
-none: the function is hack-free (0 sites).
+none: the function is hack-free (0 sites, 0 FAKE).
 
 ## Evidence
+0x129c-0x134c (status 0), final copy: lbu v1,53 (unk35 uilod); move a0,v1 at 0x12a0 and move v0,v1 in the beqz delay slot at 0x12a8 (cfe switch temp); a0 carries the field value to the end test: addiu a0,v1,1 (0x12dc, case 0 x++), andi a0,t8,0xff (0x1310, case-1 store forwarded), lbu a0,53 (0x1348, case 2 reload); slti at,a0,3 at 0x134c (signed, so a u32 phase is ruled out without a cast). All of it comes from the field and its stores; no user local.
 0xd10-0xd48: target mfc1 $t3; sh $t3,0x66(sp); addu $t4,$t3,$t3; later lh $a1,0x66(sp). uopt ucode: the chain forwards cvt s32(cvtl u16(cvt u32(cvt s32 f64))) as one candidate and ugen folds the cvtl into the trunc; a single u16 home var keeps cvt u32 X and re-applies cvtl u16 at each use (andi). A single s16 creates sign extension.
 0xc0c-0xc24 (object 0x129c-0x12b4): target lbu $v1,0x35(controller); move $a0,$v1; beqz $v1; delay-slot move $v0,$v1; cases 1/2 compare $v0. ugen emits move a0 (phase) then move v0 (selector) and as1 puts the second in the delay slot. uopt level 5: selector (shared with case 10) adjsave 2.67 > load expression 2.0 > phase 1.25.
 0xc4c: case 0 increments from the original $v1 value; case arms after calls reload `unk35` before assigning phase.
