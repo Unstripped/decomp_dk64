@@ -212,7 +212,6 @@ extern u16 D_80744700[];
 extern u8 gCurrentWorldId;
 extern s32 D_8076A0AC;
 extern Actor *gActivePlayerActor;
-extern u16 D_807ECD48;
 extern u16 D_8076A0A6;
 extern u8 D_80750190;
 
@@ -379,7 +378,7 @@ void actorCutsceneDispatchEvents(void) {
             break;
         case 0x1C:
             if (D_80744700 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            D_8076A0A6 = D_807ECD48;
+            D_8076A0A6 = D_807ECD48[0];
             break;
         case 0x1A:
             ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x80000000;

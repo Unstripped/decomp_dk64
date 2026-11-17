@@ -378,12 +378,11 @@ void menuCheckCutsceneTransition(s32 *map, s32 *exit) {
 }
 
 
-extern u16 D_807ECD48;
 void menuUpdateTitleOrTransition(void) {
     s32 map;
     s32 exit;
 
-    if ((D_80755334 >= 0x5A) && (D_807ECD48 & 0x1000)) {
+    if ((D_80755334 >= 0x5A) && (D_807ECD48[0] & 0x1000)) {
         menuReturnToTitle();
     } else if (gMenuStateTimer == 0) {
         if (gMenuTransitionCounter >= 3) {
@@ -437,7 +436,7 @@ void menuStartSelectedBonusStage(void) {
 }
 
 void menuHandleBonusStageTransition(void) {
-    if ((gMenuStateTimer == 0) || ((D_80755334 >= 0xA) && (D_807ECD48 & 0x1000))) {
+    if ((gMenuStateTimer == 0) || ((D_80755334 >= 0xA) && (D_807ECD48[0] & 0x1000))) {
         menuStartSelectedBonusStage();
     }
 }
@@ -450,7 +449,7 @@ void menuHandleDemoModeTransition(void) {
         if (D_80755334 < 0x5A) {
             return;
         }
-        if ((D_807ECD48 & 0x1000) == 0) {
+        if ((D_807ECD48[0] & 0x1000) == 0) {
             return;
         }
     }

@@ -120,7 +120,6 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
 }
 
 extern OSContPad D_807ECD10[];
-extern u16 D_807ECD48[];
 extern u32 D_8074458C[];
 extern f32 gGfxFarClip;
 extern u8 D_80750AD0;

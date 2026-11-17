@@ -496,7 +496,6 @@ void menuInitAdventureFileSelect(Actor *actor, s32 unused) {
 extern u8 D_80033818;
 extern u16 D_8003381C[];
 extern s8 D_807563B4;
-extern u16 D_807ECD48[];
 
 void menuCheckCheatCodeSequence(void) {
     u16 *pressed;

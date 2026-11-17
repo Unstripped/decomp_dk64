@@ -34,6 +34,8 @@ extern OSContPad gContPadCur;
 extern OSContPad gContPadPrev;
 // Set while a controller read started by controllerStartRead (F600.c) is pending; the EEPROM thread polls it.
 extern u8 gContReadPending;
+// Per-pad buttons newly pressed this frame, written by controllerUpdate (F600.c, its CtrlAPressed); single player uses [0].
+extern u16 D_807ECD48[];
 
 // Buttons newly pressed this frame: set in cur and clear in prev.
 #define BUTTONS_PRESSED(cur, prev) (((cur) ^ (prev)) & (cur))
