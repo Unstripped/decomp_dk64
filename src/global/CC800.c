@@ -123,7 +123,6 @@ extern OSContPad D_807ECD10[];
 extern u32 D_8074458C[];
 extern f32 gGfxFarClip;
 extern u8 D_80750AD0;
-extern s32 gGlobalOverlayFlags;
 extern u32 gGlobalCutsceneFlags;
 extern u16 D_807FD570;
 

@@ -36,8 +36,6 @@ extern PlayerStruct *gPlayerSlots;
 extern RaceCurvePoint D_8002FC70[];
 extern RaceVec3f D_8002FCA0;
 
-extern s32 gGlobalOverlayFlags;
-
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void actorInitFromSpawnPoint(void *, void *);
 

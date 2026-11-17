@@ -890,8 +890,6 @@ void playerUpdateFallTimer(void) {
     }
 }
 
-extern s32 gGlobalOverlayFlags;
-
 void playerUpdateFallAndStepSounds(void) {
     f32 scale = gCurrentActor->sub4->scaleY / 0.15;
 

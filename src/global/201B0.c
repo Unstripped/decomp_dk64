@@ -194,7 +194,6 @@ extern u8 sHudDisabled;
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;

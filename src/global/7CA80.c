@@ -179,7 +179,6 @@ s32 func_80678014(s32 type) {
 
 extern u16 *D_8074E218[];
 extern u16 D_8074DA58[];
-extern u32 gGlobalOverlayFlags;
 extern u16 D_80748D4A;
 extern u16 D_807FBB3E;
 

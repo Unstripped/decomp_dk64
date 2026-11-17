@@ -206,8 +206,6 @@ void playerClearCarriedItemState(void) {
 }
 
 
-extern s32 gGlobalOverlayFlags;
-
 void playerCheckAndClearCarriedItem(void) {
     if (gActivePlayerState->unkC8 != -1 && (flagGet(0x179, 0) == 0 || gCurrentActor->floorSlopeFactor != 0.0f || (gGlobalOverlayFlags & 0x800000) || slotQueueGetValue(5, gActivePlayerState->playerIndex) == 0)) {
         playerClearCarriedItemState();

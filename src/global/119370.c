@@ -258,8 +258,6 @@ EffectNode *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) 
     return effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
-extern s32 gGlobalOverlayFlags;
-
 EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags) {
     EffectNode *effect;
     EffectGridNode *node;

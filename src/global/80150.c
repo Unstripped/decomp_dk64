@@ -590,7 +590,6 @@ typedef struct ThrowableBarrelState {
 } ThrowableBarrelState;
 
 
-extern s32 gGlobalOverlayFlags;
 extern s16 gCurrentCharacterIndex;
 extern s8 D_80029FA0;
 extern u8 D_8071FC40;

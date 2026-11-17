@@ -26,6 +26,7 @@ typedef struct Vec3f {
 } Vec3f;
 
 extern u32 gGlobalPauseFlags;
+extern u32 gGlobalOverlayFlags; // per-map overlay/mode flag bits (3C10 copies overlayFlags from the map table entry)
 extern u32 gFrameCounter;
 extern u32 gGameFrameCounter; // advances like gFrameCounter except while gGlobalPauseFlags & 2 (450.c)
 

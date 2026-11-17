@@ -143,7 +143,6 @@ extern OSContPad *gCurrentContPad;
 extern u8 gSaveIconTimer;
 extern s32 D_8076A098;
 extern u8 gCurrentWorldId;
-extern s32 gGlobalOverlayFlags;
 extern f32 D_807FC7FC;
 extern s8 D_80750580;
 extern s16 D_807505A4[];

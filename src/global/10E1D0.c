@@ -37,7 +37,6 @@ extern u8 gGfxBufferIndex;
 extern u8 gGameMode;
 extern u8 D_807444F4;
 extern ALBank *D_8076D1F8;
-extern s32 gGlobalOverlayFlags;
 extern u8 D_807FD9BC;
 extern u8 D_807FD9BD;
 extern union { f32 f; s32 bits; } sTransitionSoundPitch; // sound pitch, posted as raw event bits

@@ -72,7 +72,6 @@ extern u8 gScreenRenderFlags;
 extern s8 D_8076A0B2;
 extern u8 *D_807F6010;
 extern Actor *gPrimaryPlayerActor;
-extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 extern u16 gLevelCollectibleCounts[];
 extern f32 gScreenFadeRate;

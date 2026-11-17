@@ -160,7 +160,6 @@ void menuTransitionToCreditsOrMap28(s32 toCredits) {
     gBannerTextStepIndex = -2;
 }
 
-extern s32 gGlobalOverlayFlags;
 extern u8 gPlayerCount;
 void func_80026D40(void *);
 

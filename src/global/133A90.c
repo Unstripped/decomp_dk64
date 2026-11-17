@@ -188,7 +188,6 @@ void proxPathRemoveOwner(s32 id) {
 }
 
 extern u8 gPlayerCount;
-extern u32 gGlobalOverlayFlags;
 
 void proxPathUpdateAllPlayers(void) {
     u8 i;

@@ -130,7 +130,6 @@ extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
 extern u16 D_807F9456;
-extern s32 gGlobalOverlayFlags;
 extern s16 D_807FD720;
 extern s16 D_807FD722;
 extern s16 D_807FD724;

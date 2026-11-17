@@ -666,7 +666,6 @@ void behaviourUpdateContactAndState(s32 scriptId) {
 }
 
 extern u8 gPlayerCount;
-extern u32 gGlobalOverlayFlags;
 
 u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
     PlayerState *playerState = gBehaviourTargetActor->customState;

@@ -30,7 +30,6 @@ typedef struct SfxTableEntry {
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern s32 gGlobalOverlayFlags;
 extern u32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
 extern SfxTableEntry gActorSpawnSfxTable[];

@@ -1839,7 +1839,6 @@ extern s16 D_807F6BF0[];
 
 extern u8 D_807F5FEC;
 extern void *D_807F5DEC;
-extern s32 gGlobalOverlayFlags;
 extern u8 D_807F6009;
 extern void *D_807F600C;
 extern struct RenderEntry *D_807F5FFC;

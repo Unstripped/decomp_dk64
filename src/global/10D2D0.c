@@ -80,8 +80,6 @@ Gfx *healthHudDraw(Gfx *glist, PlayerInventory *stats, KongInventory *kong, Play
 }
 
 
-extern s32 gGlobalOverlayFlags;
-
 void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
     if (gGlobalOverlayFlags & 0x800) {
         hudInit->unk6 = 0x20;

@@ -123,7 +123,6 @@ void actorCursorSteer(BC3B0Cursor *c, f32 tx, f32 ty) {
     c->y = MIN(MAX(c->y + c->vy, 0.0f), gScreenHeight);
 }
 
-extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
 void actorUpdateLockOnCursor(void) {

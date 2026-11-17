@@ -267,8 +267,6 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
 
 
 
-extern s32 gGlobalOverlayFlags;
-
 
 void func_806BE8BC(void) {
     u8 flagF8Set;

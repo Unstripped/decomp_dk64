@@ -304,7 +304,6 @@ void func_8068EF54(void) {
 
 
 extern s16 D_8075033C;
-extern u32 gGlobalOverlayFlags;
 void func_8002F490(void *);
 
 
@@ -744,7 +743,6 @@ typedef struct ProjectileState {
     /* 0x1C */ Actor *target; // homing target
     /* 0x20 */ u8 groundFrames; // consecutive frames on the floor
 } ProjectileState;
-extern u32 gGlobalOverlayFlags;
 void func_800268C0(s32);
 
 void projectileSteerTowardTarget(collisionMask, proj, trailEffect, straight)

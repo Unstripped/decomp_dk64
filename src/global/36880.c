@@ -521,7 +521,6 @@ s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     return slotId;
 }
 
-extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
 

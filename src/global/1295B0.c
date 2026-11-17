@@ -926,7 +926,6 @@ void spawnNodeSelectEntry(SpawnNode *node) {
 
 
 extern s16 gCurrentLevelIndex;
-extern s32 gGlobalOverlayFlags;
 
 void spawnNodesUpdate(void) {
     s16 i;

@@ -459,7 +459,6 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
 
 
 extern Mtx D_20000C0;
-extern s32 gGlobalOverlayFlags;
 
 
 // The owner's component (Actor.customState) as actorDrawAnimatedEffect reads it: a byte pointer at 0x34.

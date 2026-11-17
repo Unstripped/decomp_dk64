@@ -1983,8 +1983,6 @@ void playerInputToggleActiveState(Actor *actor) {
     }
 }
 
-extern s32 gGlobalOverlayFlags;
-
 u8 playerInputCanFireWeapon(void) {
     s32 ok;
 
