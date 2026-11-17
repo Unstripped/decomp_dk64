@@ -151,9 +151,9 @@ extern s8 sPauseCarouselKong;
 extern s16 D_807FC802;
 extern f32 sPauseCarouselTimer;
 extern s8 sPauseCarouselIndex;
-extern s8 D_807FC80D;
-extern s16 D_807FC83A;
-extern s8 D_807FC83C;
+extern s8 sPauseCarouselTarget;
+extern s16 sPauseCarouselSpacing;
+extern s8 sPauseCarouselCount;
 extern s8 sPauseExitRequested;
 
 
@@ -229,7 +229,7 @@ void hudPauseMenuUpdate(void) {
         D_807FC802 = 0;
         sPauseCarouselTimer = 0.0f;
         D_807FC808 = 0.0f;
-        D_807FC80D = sPauseCarouselIndex = 0;
+        sPauseCarouselTarget = sPauseCarouselIndex = 0;
         sPauseTextLists[0] = heapAlloc(sizeof(HudTextList) * 2);
         sPauseTextLists[1] = sPauseTextLists[0] + 1;
         sPauseTextCounts[0] = 0;
@@ -244,7 +244,7 @@ void hudPauseMenuUpdate(void) {
     if (hud->fade == 0.0f && sPauseExitRequested == 0) {
         moved = hud->worldIndex[hud->buffer] != hud->worldIndex[1 - hud->buffer];
         buttons = *gPlayerSlots->heldButtonsPtr;
-        if (moved == 0 && hud->carouselProgress == 0.0f && sPauseCarouselIndex == D_807FC80D) {
+        if (moved == 0 && hud->carouselProgress == 0.0f && sPauseCarouselIndex == sPauseCarouselTarget) {
             if (buttons & 0x5000) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 if (hud->page == 0 && hud->menuRow == 3) {
@@ -412,8 +412,8 @@ void hudPauseMenuUpdate(void) {
                 hudPauseMenuSlidePage(hud, moved, buttons);
                 break;
             case 3:
-                diff = step = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->carouselAngle);
-                flag = D_807FC83A / 10; // FAKE: step limit reuses flag (a0, move a0,t5 at 0xc94); a separate local grows frame 0x58->0x60
+                diff = step = -mathAngleSignedDistance(sPauseCarouselTarget * sPauseCarouselSpacing, hud->carouselAngle);
+                flag = sPauseCarouselSpacing / 10; // FAKE: step limit reuses flag (a0, move a0,t5 at 0xc94); a separate local grows frame 0x58->0x60
                 if (diff > 0) {
                     if (flag < diff) {
                         step = flag;
@@ -428,24 +428,24 @@ void hudPauseMenuUpdate(void) {
                     flag = 0;
                     x = gCurrentContPad->stick_x;
                     if (x < -0x28) {
-                        D_807FC80D += 1;
-                        if (D_807FC80D >= D_807FC83C) {
-                            D_807FC80D = 0;
+                        sPauseCarouselTarget += 1;
+                        if (sPauseCarouselTarget >= sPauseCarouselCount) {
+                            sPauseCarouselTarget = 0;
                         }
                         flag = 1;
                     } else if (x >= 0x29) {
-                        D_807FC80D -= 1;
-                        if (D_807FC80D < 0) {
-                            D_807FC80D = D_807FC83C - 1;
+                        sPauseCarouselTarget -= 1;
+                        if (sPauseCarouselTarget < 0) {
+                            sPauseCarouselTarget = sPauseCarouselCount - 1;
                         }
                         flag = 1;
                     }
-                    if (flag != 0 && D_807FC80D != sPauseCarouselIndex) {
+                    if (flag != 0 && sPauseCarouselTarget != sPauseCarouselIndex) {
                         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
                 }
                 hud->carouselAngle &= 0xFFF;
-                flag = D_807FC83A >> 1; // FAKE: half span reuses flag (a0, move a0,t9 at 0xdc0); a separate local grows frame 0x58->0x60
+                flag = sPauseCarouselSpacing >> 1; // FAKE: half span reuses flag (a0, move a0,t9 at 0xdc0); a separate local grows frame 0x58->0x60
                 if (diff < 0) {
                     diff = -diff;
                 }
@@ -458,8 +458,8 @@ void hudPauseMenuUpdate(void) {
                 }
                 diff = flag - diff;
                 hud->carouselProgress = diff / (f32)((f32)flag * 0.9);
-                if (hud->carouselProgress > 1.0f && D_807FC80D != sPauseCarouselIndex) {
-                    sPauseCarouselIndex = D_807FC80D;
+                if (hud->carouselProgress > 1.0f && sPauseCarouselTarget != sPauseCarouselIndex) {
+                    sPauseCarouselIndex = sPauseCarouselTarget;
                 }
                 break;
         }
@@ -855,9 +855,9 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
 
 extern s8 sPauseCarouselKong;
 extern f32 sPauseCarouselTimer;
-extern s8 D_807FC80D;
-extern s16 D_807FC83A;
-extern s8 D_807FC83C;
+extern s8 sPauseCarouselTarget;
+extern s16 sPauseCarouselSpacing;
+extern s8 sPauseCarouselCount;
 extern void *gKongIconSprites[];
 extern s16 D_807505A4[];
 extern s32 D_80720C34;
@@ -906,7 +906,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     idx = sPauseLevelOrder[idx];
     if (refresh == 0) {
         sPauseCarouselKong = iconObj->kong;
-        D_807FC80D = sPauseCarouselIndex;
+        sPauseCarouselTarget = sPauseCarouselIndex;
         iconObj->carouselAngle = 0;
         iconObj->carouselProgress = 0.0f;
         sPauseCarouselTimer = 0.0f;
@@ -1089,13 +1089,13 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         }
         break;
     case 3:
-        D_807FC83C = 0;
+        sPauseCarouselCount = 0;
         for (i = 0; i < 8; i++) {
             if (gPauseCollectibleCounts[i] > 0) {
-                D_807FC83C++;
+                sPauseCarouselCount++;
             }
         }
-        D_807FC83A = 0x1000 / D_807FC83C;
+        sPauseCarouselSpacing = 0x1000 / sPauseCarouselCount;
         x = 0;
         cnt = 0;
         for (i = 0; i < 8; i++) {
@@ -1108,12 +1108,12 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
                     kind = 8;
                 }
                 hudPauseMenuSpawnIcon(iconObj, (s32)sTotalsPageIcons[i], x, 0, f, 2, kind);
-                x += D_807FC83A;
+                x += sPauseCarouselSpacing;
                 sPauseCollectibleSlots[cnt] = i;
                 cnt++;
             }
         }
-        iconObj->carouselAngle = D_807FC83A * sPauseCarouselIndex;
+        iconObj->carouselAngle = sPauseCarouselSpacing * sPauseCarouselIndex;
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
         break;
     }
