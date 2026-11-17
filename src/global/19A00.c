@@ -285,8 +285,6 @@ void actorScriptStartByIndex(Actor *actor, s32 slot) {
     actorScriptStart(actor, gActorScriptIndexTable[index]);
 }
 
-extern u8 *gActorScriptAsset;
-
 void actorScriptStart(Actor *actor, s32 scriptId) {
     ActorSub4 *state;
     u8 *base;
@@ -304,7 +302,7 @@ void actorScriptStart(Actor *actor, s32 scriptId) {
         return;
     }
     state->animId = scriptId;
-    base = gActorScriptAsset;
+    base = (u8 *)gActorScriptAsset;
     state->scriptStart = base + ((s32 *)base)[scriptId];
     state->scriptPc = state->scriptStart;
     sScriptPc = state->scriptStart;

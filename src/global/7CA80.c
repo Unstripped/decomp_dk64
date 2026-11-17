@@ -90,15 +90,7 @@ static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
 
-typedef struct ActorAssetHeader {
-    s32 pad0;
-    s32 soundTableOffset;
-    s32 animTableOffset;
-    s32 indexTableOffset;
-} ActorAssetHeader;
-
 extern u16 D_807FBB30;
-extern ActorAssetHeader *gActorScriptAsset;
 extern void *gActorScriptIndexTable;
 extern void *gActorScriptAnimTable;
 extern void *gActorScriptSoundTable;

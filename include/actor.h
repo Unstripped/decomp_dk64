@@ -111,6 +111,17 @@ typedef struct ActorSub4 {
     /* 0x8C */ f32 scriptTimer;
 } ActorSub4; // size = 0x90
 
+// Head of the actor script asset (asset table 0xD, loaded by actorInit in 7CA80): byte offsets from the asset start
+// of its sound, animation and index tables. actorScriptStart (19A00) reads script offsets as s32 words from the
+// same start.
+typedef struct ActorAssetHeader {
+    /* 0x0 */ s32 pad0;
+    /* 0x4 */ s32 soundTableOffset;
+    /* 0x8 */ s32 animTableOffset;
+    /* 0xC */ s32 indexTableOffset;
+} ActorAssetHeader; // size = 0x10
+extern ActorAssetHeader *gActorScriptAsset;
+
 typedef struct ModelNode {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;
