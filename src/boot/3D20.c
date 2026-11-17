@@ -40,7 +40,7 @@ int _sprintf(void *buf, const void *fmt, ...) { // buf/fmt: game u8 buffers and 
 
 
 
-#define PUTC(ch) do { count++; *buf++ = (ch); } while (0) // FAKE: do-while(0) blocks split the zero-pad loop / sign arms / hundreds digit (stand in for dead tests 2829ec, u8169d, 7dcd26#2); used for char-literal stores and the hundreds exponent digit only (all 35 char-literal sites: 94)
+#define PUTC(ch) do { count++; *buf++ = (ch); } while (0) // FAKE: do-while(0) blocks; alone they steer the numeric zero pad, the exponent-sign else arm and the hundreds digit, together the e/f-arm uses lower elen below the `||` temp (elen a1, temp a0). Used for every count++/store pair except the fraction digits
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     const unsigned char *f;
@@ -66,7 +66,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     unsigned char nbuf[0x80];
     unsigned char *end;
     double fv;
-    unsigned short lg;
+    unsigned char lg;
     double scale;
     double fscale;
     union {
@@ -77,9 +77,8 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     int exp;
     double rnd;
     int c;
-    int i2;
     int *q1;
-    int pad[4];
+    int pad[5];
     double tmp;
     double etmp;
     double ernd;
@@ -92,8 +91,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     while (*f != 0) {
         if (*f != '%') {
             while (*f != '%' && *f != 0) {
-                count++;
-                *buf++ = *f++;
+                PUTC(*f++);
             }
         } else {
             c = *++f;
@@ -278,16 +276,14 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         PUTC(' ');
                     }
                     if (alt && base == 16) {
-                        *buf++ = '0';
-                        count += 2;
-                        *buf++ = conv;
+                        PUTC('0');
+                        PUTC(conv);
                     }
                     if (!minus && padChar == '0') {
                         for (; width-- > 0;) PUTC('0'); // LAYOUT: for header joined with the store so as1 schedules the loop test above count++/sb (split: 2)
                     }
                     while (np <= end) {
-                        count++;
-                        *buf++ = *np++;
+                        PUTC(*np++);
                     }
                     if (minus) {
                         for (; width-- > 0;) PUTC(' ');
@@ -333,17 +329,14 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     for (d = prec; d > 0; d--) {
                         ernd /= 10.0;
                     }
-                    value.d = value.d + ernd;
+                    value.d += ernd;
                     if (scale * 10.0 <= value.d) {
                         scale *= 10.0;
                         exp++;
                     }
                     elen = (fneg2 || plus || space) + (prec > 0 || alt) + prec + (exp >= 100) + 5;
                     if (!minus && padChar == ' ') {
-                        for (; elen < width--;) {
-                            count++;
-                            *buf++ = padChar;
-                        }
+                        for (; elen < width--;) PUTC(padChar);
                     }
                     if (fneg2) {
                         PUTC('-');
@@ -353,21 +346,14 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         PUTC(' ');
                     }
                     if (!minus && padChar == '0') {
-                        d = width; // FAKE
-                        for (; elen < width--;) {
-                            if (padChar == 0) {}  // FAKE: steers e-arm colouring
-                            count++;
-                            *buf++ = padChar;
-                        }
-                        if (d) {} // FAKE
+                        for (; elen < width--;) PUTC(padChar);
                     }
                     d = '0';
                     while (scale <= value.d) {
                         d++;
                         value.d -= scale;
                     }
-                    count++;
-                    *buf++ = d;
+                    PUTC(d);
                     scale /= 10.0;
                     if (prec > 0 || alt) {
                         PUTC('.');
@@ -383,15 +369,13 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         *buf++ = d;
                         scale /= 10.0;
                     }
-                    count++;
-                    *buf++ = conv;
+                    PUTC(conv);
                     if (exp < 0) { exp = -exp; PUTC('-'); } else { PUTC('+'); } // LAYOUT: one-line if/else (multi-line costs 2: the else .loc); both statement orders of the then-arm match
                     if (exp >= 100) {
                         PUTC(exp / 100 + '0');
                     }
-                    *buf++ = exp / 10 % 10 + '0';
-                    count += 2;
-                    *buf++ = exp % 10 + '0';
+                    PUTC(exp / 10 % 10 + '0');
+                    PUTC(exp % 10 + '0');
                     if (minus) {
                         for (; elen < width--;) PUTC(' ');
                     }
@@ -406,7 +390,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     if (prec < 0) {
                         prec = 6;
                     }
-                    for (i2 = 0; i2 < prec; i2++) {
+                    for (d = 0; d < prec; d++) {
                         rnd /= 10.0;
                     }
                     if (sh) {
@@ -419,19 +403,16 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         fv = -fv;
                     }
                     fv += rnd * 0.5;
-                    i2 = 1;
+                    d = 1;
                     fscale = 1.0;
                     while (tmp <= fv) {
                         fscale = tmp;
                         tmp *= 10.0;
-                        i2++;
+                        d++;
                     }
-                    elen = (fneg || plus || space) + (prec > 0 || alt) + i2 + prec;
+                    elen = (fneg || plus || space) + (prec > 0 || alt) + d + prec;
                     if (!minus && padChar == ' ') {
-                        for (; elen < width--;) {
-                            count++;
-                            *buf++ = padChar;
-                        }
+                        for (; elen < width--;) PUTC(padChar);
                     }
                     if (fneg) {
                         PUTC('-');
@@ -441,10 +422,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         PUTC(' ');
                     }
                     if (!minus && padChar == '0') {
-                        for (; elen < width--;) {
-                            count++;
-                            *buf++ = padChar;
-                        }
+                        for (; elen < width--;) PUTC(padChar);
                     }
                     do {
                         d = '0';
@@ -452,8 +430,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             d++;
                             fv -= fscale;
                         }
-                        count++;
-                        *buf++ = d;
+                        PUTC(d);
                         fscale /= 10.0;
                     } while (fscale >= 1.0);
                     if (prec > 0 || alt) {
@@ -478,12 +455,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     uv = va_arg(ap, int);
                     if (!minus) {
                         while (--width > 0) {
-                            count++;
-                            *buf++ = padChar;
+                            PUTC(padChar);
                         }
                     }
-                    count++;
-                    *buf++ = uv;
+                    PUTC(uv);
                     if (minus) {
                         while (--width > 0) {
                             PUTC(' ');
@@ -511,8 +486,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         for (; width-- > 0;) PUTC(' ');
                     }
                     for (; len-- > 0;) {
-                        count++;
-                        *buf++ = *p++;
+                        PUTC(*p++);
                     }
                     if (minus) {
                         for (; width-- > 0;) PUTC(' ');
@@ -535,8 +509,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         }
                         s = sNilString;
                         while (*s != 0) {
-                            count++;
-                            *buf++ = *s;
+                            PUTC(*s);
                             s++;
                         }
                         if (minus) {
