@@ -4143,6 +4143,7 @@ gAmbientIndoors = 0x80770DC9;
 gContReadPending = 0x807ECD08;
 gControllerConnectedMask = 0x807ECD09;
 gControllerPads = 0x807ECD10;
+gPadPressedButtons = 0x807ECD48;
 gContPadCur = 0x807ECD58;
 gContPadPrev = 0x807ECD60;
 gButtonsPressed = 0x807ECD66;
