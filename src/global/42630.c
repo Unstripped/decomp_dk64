@@ -6,7 +6,6 @@
 #include "model.h"
 #define PROTO_SKIP_hudSpawnCountdownTimer // ORIG: hides the 3-parameter prototype; the target passes a fourth argument (a3 = &D_807F61F0 at 0x2600/0x2604 into jal 0x261c), see the declaration in front of csCmdExec
 #define PROTO_SKIP_modelAnimEntrySetUnkC // ORIG: hides the (s16, s16, s16) prototype; the target passes h without call-site narrowing into jal 0x29e0, see the declaration in front of csCmdExec
-#define PROTO_SKIP_sfxSlotAllocateSource // ORIG: hides the u8 range/exclusive prototype; the target passes a2/a3 unmasked into jal 0x306c and 0x3144, see the declaration in front of csCmdExec
 #define PROTO_SKIP_effectSetDepth // ORIG: hides the u8 prototype; the target loads li a0,1 at 0x51cc, see the s8 declaration below
 #include "proto/global/10130.h"
 #include "proto/global/104F0.h"
@@ -1058,7 +1057,6 @@ extern u32 gGlobalCutsceneFlags;
 
 void hudSpawnCountdownTimer(s32, s32, u8, void *); // ORIG: a3 = &D_807F61F0 loaded at 0x2600/0x2604 and live into jal 0x261c (a 3-argument call puts the address in t0 instead); owner A7710 homes only a0-a2 (0x8-0x10) and never reads a3
 void modelAnimEntrySetUnkC(); // ORIG: case 0x4C passes h in a2 as computed (sll/sra at 0x29cc/0x29d0) into jal 0x29e0; the shared (s16, s16, s16) prototype re-narrows a2 before the call; owner 54150 narrows a0 itself (sll/sra at 0x15c0) and an s32 owner does not fdiff
-u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8); // ORIG: a2/a3 passed unmasked (move a2,t5 at 0x2ffc and move a3,t9 at 0x3028 into jal 0x306c; 0x30cc/0x30f8 into jal 0x3144); the shared u8 prototype adds andi a2,..,0xff before each jal; owner 7130 masks exclusive itself (andi t7,a3,0xff at 0x2c28) and an s32 owner does not fdiff
 
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // FAKE: address-taken csId keeps sel at sp+0xB3 (Q0174)
@@ -1079,9 +1077,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     s16 idx;
     PlayerState *playerState;
     Actor *actor;
+    u8 b;
     s32 map;
-    s32 b;
-    s32 c;
+    u8 c;
     s32 exit;
     s16 flag;
     struct EffectGridAsset *asset;
@@ -1472,9 +1470,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0xE:
         pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
-        c = cmd->c;
-        c &= 0xFF; // FAKE: redundant mask keeps the in-place andi copy (Q0186)
-        c &= 0x7F;
+        c = cmd->c & 0x7F;
         if (pitch == 0) {
             pitch = 0x7F;
         }
@@ -1482,19 +1478,15 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             vol = 0xFF;
         }
         i = cmd->b & 1;
-        b = cmd->b;
         if (cs->unk10[i] < 0) {
-            if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
-            b &= 2;
+            b = cmd->b & 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pitch / 127.0, 0);
         }
         break;
     case 0x7D:
         pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
-        c = cmd->c;
-        c &= 0xFF; // FAKE: redundant mask keeps the in-place andi copy (Q0186)
-        c &= 0x7F;
+        c = cmd->c & 0x7F;
         if (pitch == 0) {
             pitch = 0x7F;
         }
@@ -1502,19 +1494,15 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             vol = 0xFF;
         }
         i = cmd->b & 1;
-        b = cmd->b;
         if (cs->unk10[i] < 0) {
-            if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
-            b &= 2;
+            b = cmd->b & 2;
             cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pitch / 127.0, D_80748094);
         }
         break;
     case 0xF:
         pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
-        c = cmd->c;
-        c &= 0xFF; // FAKE: redundant mask keeps the in-place andi copy (Q0186)
-        c &= 0x7F;
+        c = cmd->c & 0x7F;
         if (pitch == 0) {
             pitch = 0x7F;
         }
@@ -1527,8 +1515,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x7E:
         pitch7 = (cmd->b / 128) & 0xFF;
         vol7 = (cmd->c / 128) & 0xFF;
-        c = cmd->c;
-        range = c & 0x7F;
+        range = cmd->c & 0x7F;
         if (pitch7 == 0) {
             pitch7 = 0x7F;
         }
