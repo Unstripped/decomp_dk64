@@ -240,10 +240,11 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
     f32 vy;
     s32 btnA;
     s32 btnZLR;
-    s32 pad;
+    JetpacActor *actor = (JetpacActor *)player; // FAKE: distinct base pointer defeats flying reload CSE (uopt treats stores through actor as aliasing player->flying)
     s32 btnLeft;
     s32 btnRight;
     s32 idx;
+    s32 edge;
     s32 flying;
     s32 fire;
 
@@ -261,38 +262,38 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
     }
     if (btnA != 0 && (player->flying == 0 || btnZLR == 0)) {
         jetpacSetFlying(player, 1);
-        player->vy -= 0.2f;
+        actor->vy -= 0.2f;
         flying = player->flying;
     } else if ((flying = player->flying) != 0) {
         if (btnZLR != 0) {
-            player->vy = 0.0f;
-            flying = (*(volatile s32 *)&player->flying); // FAKE: volatile reload of player->flying after the vy store; a plain read is CSEd with the else-if test load and also drops the vx-arm reloads
+            actor->vy = 0.0f;
+            flying = player->flying;
         } else {
-            player->vy += 0.2;
-            flying = (*(volatile s32 *)&player->flying); // FAKE: volatile reload of player->flying after the vy store; a plain read is CSEd with the else-if test load and also drops the vx-arm reloads
+            actor->vy += 0.2;
+            flying = player->flying;
         }
     }
     if (btnLeft != 0) {
-        player->vx -= 0.33333334f;
-        if (player->flip == 0 && player->vx <= 0.0f) {
-            player->flip = 1;
+        actor->vx -= 0.33333334f;
+        if (actor->flip == 0 && actor->vx <= 0.0f) {
+            actor->flip = 1;
             jetpacSetFlying(player, player->flying);
         }
-        flying = player->flying; // FAKE: re-reads of player->flying after the vx updates (also the 3 arms below); dropping them costs 12 words
+        flying = player->flying; // FAKE: re-reads of player->flying after each actor update (also both flying arms above and the 3 arms below); dropping all six costs 14 words, the four of this chain 12
     } else if (btnRight != 0) {
-        player->vx += 0.33333334f;
-        if (player->flip != 0 && player->vx >= 0.0f) {
-            player->flip = 0;
+        actor->vx += 0.33333334f;
+        if (actor->flip != 0 && actor->vx >= 0.0f) {
+            actor->flip = 0;
             jetpacSetFlying(player, player->flying);
         }
         flying = player->flying;
     } else {
-        vx = player->vx;
+        vx = actor->vx;
         if (vx > 0.0f) {
-            player->vx = vx - 0.16666667f;
+            actor->vx = vx - 0.16666667f;
             flying = player->flying;
         } else if (vx < 0.0f) {
-            player->vx = vx + 0.16666667f;
+            actor->vx = vx + 0.16666667f;
             flying = player->flying;
         }
     }
@@ -303,69 +304,69 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
         mx = 1.0f;
         my = 0.0f;
     }
-    vx = player->vx;
-    player->vx = (vx < -mx) ? -mx : ((mx < vx) ? mx : vx);
-    vy = player->vy;
-    player->vy = (vy < -my) ? -my : ((my < vy) ? my : vy);
-    if (player->vx < 0.1 && player->vx > -0.1) {
-        player->vx = 0.0f;
+    vx = actor->vx;
+    actor->vx = (vx < -mx) ? -mx : ((mx < vx) ? mx : vx);
+    vy = actor->vy;
+    actor->vy = (vy < -my) ? -my : ((my < vy) ? my : vy);
+    if (actor->vx < 0.1 && actor->vx > -0.1) {
+        actor->vx = 0.0f;
     }
-    if (player->vy < 0.1 && player->vy > -0.1) {
-        player->vy = 0.0f;
+    if (actor->vy < 0.1 && actor->vy > -0.1) {
+        actor->vy = 0.0f;
     }
-    vx = player->vx;
+    vx = actor->vx;
     if (player->flying != 0) {
-        idx = jetpacCheckLedgeCollision(player->boxX1 + player->x + vx, player->boxY1 + player->y + player->vy,
-                                        player->boxX2 + player->x + vx, player->boxY2 + player->y + player->vy, 1);
+        idx = jetpacCheckLedgeCollision(actor->boxX1 + actor->x + vx, actor->boxY1 + actor->y + actor->vy,
+                                        actor->boxX2 + actor->x + vx, actor->boxY2 + actor->y + actor->vy, 1);
         if (idx >= 0) {
-            if (jetpacGame.ledges[idx].boxY2 <= player->boxY1 + player->y) {
-                player->vy *= -0.4f;
-                if ((player->vy > 0.0f ? player->vy : -player->vy) <= 0.15f) {
-                    player->vy = 0.0f;
+            if (jetpacGame.ledges[idx].boxY2 <= actor->boxY1 + actor->y) {
+                actor->vy *= -0.4f;
+                if ((actor->vy > 0.0f ? actor->vy : -actor->vy) <= 0.15f) {
+                    actor->vy = 0.0f;
                 }
-            } else if (player->boxY2 + player->y <= jetpacGame.ledges[idx].boxY1) {
+            } else if (actor->boxY2 + actor->y <= jetpacGame.ledges[idx].boxY1) {
                 player->ledge = idx;
-                player->vy = 0.0f;
+                actor->vy = 0.0f;
                 jetpacSetFlying(player, 0);
-                player->y = jetpacGame.ledges[idx].y - 24.0f;
+                actor->y = jetpacGame.ledges[idx].y - 24.0f;
             } else {
-                player->vx *= -0.5f;
+                actor->vx *= -0.5f;
             }
         }
     } else {
-        idx = jetpacCheckLedgeEdge(player->ledge, player->boxX1 + player->x + vx, player->boxX2 + player->x + vx);
-        switch (idx) {
+        edge = jetpacCheckLedgeEdge(player->ledge, actor->boxX1 + actor->x + vx, actor->boxX2 + actor->x + vx);
+        switch (edge) {
         case -2:
         case 2:
             jetpacSetFlying(player, 1);
-            player->vy = -0.5f;
+            actor->vy = -0.5f;
             break;
         case -1:
         case 1:
-            if (player->flip == 0 && btnLeft == 0) {
-                player->vx = 1.0f;
+            if (actor->flip == 0 && btnLeft == 0) {
+                actor->vx = 1.0f;
             } else if (btnRight == 0) {
-                player->vx = -1.0f;
+                actor->vx = -1.0f;
             }
             break;
         }
     }
-    player->x += player->vx;
-    if (player->x + player->boxX2 > 256.0f) {
-        player->x -= 256.0f;
+    actor->x += actor->vx;
+    if (actor->x + actor->boxX2 > 256.0f) {
+        actor->x -= 256.0f;
     }
-    if (player->x + player->boxX1 < 0.0f) {
-        player->x += 256.0f;
+    if (actor->x + actor->boxX1 < 0.0f) {
+        actor->x += 256.0f;
     }
-    player->y += player->vy;
-    if (player->y < 18.0f) {
-        player->y = 18.0f;
-        player->vy = 0;
+    actor->y += actor->vy;
+    if (actor->y < 18.0f) {
+        actor->y = 18.0f;
+        actor->vy = 0;
     }
-    if (player->y > 168.0f) {
-        player->y = 168.0f;
+    if (actor->y > 168.0f) {
+        actor->y = 168.0f;
     }
-    if (jetpacIsOverRocket(player->x) != 0 && pData->unkC == 8 && player->y > 152.0f) {
+    if (jetpacIsOverRocket(actor->x) != 0 && pData->unkC == 8 && actor->y > 152.0f) {
         jetpacSetState(4);
     }
 }
