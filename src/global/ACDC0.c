@@ -661,9 +661,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
                 if (pips > 0) {
                     s32 m;
-                    off = pips - 1;
-                    if (off < 3) {
-                        m = off;
+                    if (pips - 1 < 3) {
+                        m = pips - 1;
                     } else {
                         m = 3;
                     }
