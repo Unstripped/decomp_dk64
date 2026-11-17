@@ -957,3 +957,4 @@
 {"type": "unit", "t": "2026-11-17T19:39:10Z", "unit": "2026-11-17: cleanup HackraceOpponentFollowWaypoints", "commit": "06eb7b12f8de280181cf4dea654a1bb4499657ab"}
 {"type": "unit", "t": "2026-11-17T19:39:44Z", "unit": "2026-11-17: cleanup HackenemyGridStateStep5", "commit": "ef9d96959feb7c29012467806ad91d73c9d585b3"}
 {"type": "unit", "t": "2026-11-17T19:40:21Z", "unit": "2026-11-17: cleanup HackcsCmdExec8", "commit": "d440261dd77d1a3bf40b696ba37d26cfff0b7268"}
+{"type": "unit", "t": "2026-11-17T19:43:02Z", "unit": "2026-11-17: cleanup Hackvsprintf11", "commit": "13dc7afc7d9c9ab0eecfc71a43d1c49059504943"}
