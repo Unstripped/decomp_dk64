@@ -157,22 +157,16 @@ void modelEmitterSpawnJitterParticle(s16 entryIdx) {
 
 void modelEmitterSpawnScaledParticle(s16 entryIdx) {
     f32 scaleFactor;
-    s32 randZ;
-    s32 randY;
-    s32 randX;
 
     if (randomNonNegative() % 10000 % 10 == 0) {
         scaleFactor = gModelEmitters[entryIdx].scale / 25.0;
         effectSetDepth(1);
         effectSetMode(2);
         effectSetFlags(4);
-        randX = randomNonNegative();
-        randY = randomNonNegative();
-        randZ = randomNonNegative();
         effectCreateAtPosition(&D_80720A7C, 0.4f,
-            (randX % 10000 % 300 / 20.0 - 7.5) * scaleFactor + (gModelEmitters + entryIdx)->x,  // FAKE: (gModelEmitters + entryIdx)-> spelling (vs [entryIdx].) keeps the lh/cvt.d.w order around the div.d
-            randY % 10000 % 600 / 20.0 * scaleFactor + (gModelEmitters + entryIdx)->y,  // FAKE: (gModelEmitters + entryIdx)-> spelling (vs [entryIdx].) keeps the lh/cvt.d.w order around the div.d
-            (randZ % 10000 % 300 / 20.0 - 7.5) * scaleFactor + (gModelEmitters + entryIdx)->z);  // FAKE: (gModelEmitters + entryIdx)-> spelling (vs [entryIdx].) keeps the lh/cvt.d.w order around the div.d
+            gModelEmitters[entryIdx].x + (randomNonNegative() % 10000 % 300 / 20.0 - 7.5) * scaleFactor,
+            gModelEmitters[entryIdx].y + randomNonNegative() % 10000 % 600 / 20.0 * scaleFactor,
+            gModelEmitters[entryIdx].z + (randomNonNegative() % 10000 % 300 / 20.0 - 7.5) * scaleFactor);
     }
 }
 
