@@ -1,18 +1,26 @@
 #include "common.h"
 #include "actor.h"
 #include "text.h"
+#include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
 #include "proto/global/35000.h"
 #include "proto/global/3C10.h"
 #include "proto/global/42630.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/E4090.h"
+#include "proto/global/EFDC0.h"
 #include "proto/global/FCCD0.h"
 #include "proto/race/0.h"
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
-struct RaceCoinConfig;
-struct RaceParticipant;
-s16 sfxPlayFromActorWithAltitudeCheck(struct Actor *, s16, u8, s16, u8);
 
 
 typedef struct RaceRouteEvent { // per-route event row: applied when the racer reaches its waypoint (zone entry)
@@ -29,7 +37,6 @@ extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
 extern RaceRouteEvent D_8002FB10[];
 extern RaceRouteEvent D_8002FB70[];
-void actorScriptStart(void *, s32);
 
 void raceOpponentFollowWaypoints(void) {
     f32 speedDelta;
@@ -79,17 +86,17 @@ void raceOpponentFollowWaypoints(void) {
     if (tmp < -6.0f) {
         tmp = -6.0f;
     }
-    speedDelta = speedDelta + tmp;
+    speedDelta += tmp;
     yawDiff = (s32)(mathAtan2(-vx, -vz) * 4096.0 / 6.2831854820251465);
-    yawDiff = yawDiff - gCurrentActor->moveYaw;
+    yawDiff -= gCurrentActor->moveYaw;
     if (yawDiff >= 0x800) {
-        yawDiff = yawDiff - 4096.0;
+        yawDiff -= 4096.0;
     }
     if (yawDiff < -0x800) {
-        yawDiff = yawDiff + 4096.0;
+        yawDiff += 4096.0;
     }
     turnDelta = (gCurrentActor->speedXZ * yawDiff) / 10000.0;
-    vx = mathSinF(gCurrentActor->moveYaw) * curSpeed;
+    vx = mathSinF(gCurrentActor->moveYaw) * curSpeed; // FAKE: vx/vz (the waypoint offset) reused for the velocity; separate dx/dz offset locals grow .text by 0x50
     vz = mathCosF(gCurrentActor->moveYaw) * curSpeed;
     if (gCurrentActor->contactFlags & 1) {
         vx += mathSinF(gCurrentActor->floorSlopeYaw) * oscSpeed;
@@ -100,7 +107,7 @@ void raceOpponentFollowWaypoints(void) {
     vx += mathCosF(gCurrentActor->moveYaw) * turnDelta;
     vz -= mathSinF(gCurrentActor->moveYaw) * turnDelta;
     curSpeed = sqrtf(vx * vx + vz * vz);
-    tmp = mathAtan2(vx, vz);
+    tmp = mathAtan2(vx, vz); // FAKE: tmp (the clamped height offset) reused for the new heading; its own f32 local, or moveYaw assigned from mathAtan2 directly, changes the code
     if (gCurrentActor->accelY != -20.0f && gCurrentActor->accelY != -360.0f) {
         gCurrentActor->speedXZ = D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].height * 10.0;
     } else {
@@ -148,23 +155,7 @@ extern Actor *gPrimaryPlayerActor;
 extern s32 D_8002FB94[];
 
 
-void actorApplyGravity(void);
-void actorApplyVelocity(void *);
-void actorApproachTargetSpeed(u16);
-void actorSetTargetSpeed(void *, s32);
-void actorStepPhysics(void *, s16, s16);
-void camResumePath(void);
-u16 camStartPath(void *, s16, u8);
-void currentActorClearFlag(void);
-s32 currentActorTestClearFlag(void);
 f32 sqrtf(f32);
-void actorUpdateFloorContactAndTilt(void *, f32);
-void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
-s32 playerIsDamageOrKnockbackState(void);
-void hudSpawnTextScreen(u8);
-void mathAngleStepToward(s16 *, s16, s16);
-s32 playerStateQueueCallback(s16, void *, u8);
-void sfxStopSlotSound(Actor *, u8);
 
 void raceOpponentBehaviourUpdate(void) {
     f32 dx;
@@ -180,7 +171,7 @@ void raceOpponentBehaviourUpdate(void) {
     RaceRouteEvent *routeRows;
     s32 flag;
     s32 callbackId;
-    f32 value;
+    f32 yawDiff;
     f32 dist;
     f32 dy;
     u16 angU;
@@ -331,34 +322,34 @@ void raceOpponentBehaviourUpdate(void) {
             gBehaviourWorkState->unk2E = 0x14;
         }
         if (gBehaviourWorkState->waypointIndex == routeRows[gBehaviourWorkState->routeRow].waypoint && routeRows[gBehaviourWorkState->routeRow].action == 1) {
-            value = gCurrentActor->moveYaw - gCurrentActor->yaw;
-            if (value > 2048.0f) {
-                value -= 4096.0f;
+            yawDiff = gCurrentActor->moveYaw - gCurrentActor->yaw;
+            if (yawDiff > 2048.0f) {
+                yawDiff -= 4096.0f;
             }
-            if (value < -2048.0f) {
-                value += 4096.0f;
+            if (yawDiff < -2048.0f) {
+                yawDiff += 4096.0f;
             }
-            if (value > 50.0f) {
-                value = 50.0f;
+            if (yawDiff > 50.0f) {
+                yawDiff = 50.0f;
             }
-            if (value < -50.0f) {
-                value = -50.0f;
+            if (yawDiff < -50.0f) {
+                yawDiff = -50.0f;
             }
-            gBehaviourWorkState->timer = gBehaviourWorkState->timer + value;
-            gBehaviourWorkState->timer = gBehaviourWorkState->timer - gBehaviourWorkState->timer * 0.3;
+            gBehaviourWorkState->timer += yawDiff;
+            gBehaviourWorkState->timer -= gBehaviourWorkState->timer * 0.3;
         } else {
             if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
                 actorScriptStart(gCurrentActor, 0x285);
                 gCurrentActor->accelY = -20.0f;
             }
-            value = gCurrentActor->moveYaw - gCurrentActor->floorSlopeYaw;
-            if (value > 2048.0f) {
-                value -= 4096.0f;
+            yawDiff = gCurrentActor->moveYaw - gCurrentActor->floorSlopeYaw;
+            if (yawDiff > 2048.0f) {
+                yawDiff -= 4096.0f;
             }
-            if (value < -2048.0f) {
-                value += 4096.0f;
+            if (yawDiff < -2048.0f) {
+                yawDiff += 4096.0f;
             }
-            gBehaviourWorkState->timer = gBehaviourWorkState->timer + (value * gCurrentActor->speedXZ) / 8000.0;
+            gBehaviourWorkState->timer += (yawDiff * gCurrentActor->speedXZ) / 8000.0;
             if (gBehaviourWorkState->timer > 500) {
                 gBehaviourWorkState->timer = 500;
             }
