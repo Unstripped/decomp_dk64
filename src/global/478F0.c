@@ -2144,7 +2144,7 @@ void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdSetParam49(CsState *cs, s16 csId, s16 b, s16 c) {
-    cs->unk14[0] = (u8)cs->unk44[2];
+    cs->unk14[0] = cs->unk48[1];
 }
 
 extern s16 gCsModelIds[];
@@ -2401,7 +2401,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
     p = cs->data;
     for (row = 0; row < 6 && !found; row++) {
         for (col = 0; col < 2 && !found; col++) {
-            if (D_8074822C[row][col] == (u8)cs->unk44[2]) {
+            if (D_8074822C[row][col] == cs->unk48[1]) {
                 found = 1;
             }
         }
@@ -3478,11 +3478,11 @@ void csCmdAnimProgressFromHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (b != 0) {
         if (cur >= 0.999 && ratio >= 0.999) {
-            ((u8 *)cs)[0x48] = 0x14;
+            cs->unk48[0] = 0x14;
         }
     } else {
         if (cur <= 0.001 && ratio <= 0.001) {
-            ((u8 *)cs)[0x48] = 0x14;
+            cs->unk48[0] = 0x14;
         }
     }
     modelAnimEntrySetTime(csId, 1, anim, cur);

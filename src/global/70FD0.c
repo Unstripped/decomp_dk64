@@ -1421,7 +1421,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
     u8 result;
     ModelNode *node;
     DynamicBuffer *buf;
-    CsStateFull *hit;
+    CsState *hit;
     s32 i;
     ActorSub140 *sub;
     u8 savedFlags;
@@ -1617,7 +1617,7 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
     s16 actorYaw;
     s32 inArc;
     s32 kind;
-    CsStateFull *sub;
+    CsState *sub;
     s16 yawDiff;
     f32 posX;
     f32 posY;
@@ -1794,7 +1794,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
     s32 ret;
     ModelNode *node;
     f32 inv;
-    CsStateFull *hit;
+    CsState *hit;
 
     {
         u8 kind;
@@ -2406,7 +2406,7 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
     u8 result;
     s32 i;
     DynamicBuffer *buf;
-    CsStateFull *hitInfo;
+    CsState *hitInfo;
 
     result = 0;
     D_807FB5FD = 0;

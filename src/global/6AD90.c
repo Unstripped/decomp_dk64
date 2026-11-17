@@ -1262,7 +1262,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     f64 val;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
-    CsStateFull *csState;
+    CsState *csState;
     f32 padB[6];
     f32 hitY;
     u8 hit;

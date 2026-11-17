@@ -113,7 +113,7 @@ typedef struct ModelSlot {
     /* 0x70 */ struct ModelPosNode *unk70;
     /* 0x74 */ struct ModelPosNode *unk74;
     /* 0x78 */ ModelData *unk78;
-    /* 0x7C */ struct CsStateFull *unk7C; // per-model cutscene state (csStateInit)
+    /* 0x7C */ struct CsState *unk7C; // per-model cutscene state (csStateInit)
     /* 0x80 */ u8 pad80[4];
     /* 0x84 */ s16 modelType;
     /* 0x86 */ s16 unk86;

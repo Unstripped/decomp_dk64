@@ -269,12 +269,12 @@ void csScriptLoad(s16 *scriptData) {
 }
 
 
-void csStateFree(CsStateFull *loadState) {
+void csStateFree(CsState *loadState) {
     CsNode *node;
     CsNode *next;
 
-    if (loadState->unk0 != NULL) {
-        heapFree(loadState->unk0);
+    if (loadState->data != NULL) {
+        heapFree(loadState->data);
     }
     node = loadState->unkA0;
     while (node != NULL) {
@@ -285,16 +285,16 @@ void csStateFree(CsStateFull *loadState) {
     heapFree(loadState);
 }
 
-void csStateInit(CsStateFull *cs) {
+void csStateInit(CsState *cs) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
         cs->unk14[i] = 1.0f;
     }
-    cs->unk10 = -1;
-    cs->unk12 = -1;
+    cs->unk10[0] = -1;
+    cs->unk10[1] = -1;
     cs->unk38 = -1;
-    cs->unk0 = 0;
+    cs->data = 0;
     cs->unk40[0] = 0;
     cs->unk40[1] = 0;
     cs->unk44[0] = 0;
@@ -356,7 +356,7 @@ void csModelStateSetVars(s32 modelIndex, u8 *varsData) {
     }
 }
 
-void csStateTickTimers(CsStateFull *cs) {
+void csStateTickTimers(CsState *cs) {
     u8 i;
 
     for (i = 0; i < 2; i++) {
@@ -393,7 +393,7 @@ extern f32 D_807F690C;
 extern f32 D_807F6910;
 extern f32 D_807F6914;
 
-void csStateUpdate(CsStateFull *cs, s16 csId) {
+void csStateUpdate(CsState *cs, s16 csId) {
     CsNode *node;
     s32 i;
     s32 j;
@@ -426,7 +426,7 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
             }
             if (ok) {
                 for (j = 0; j < node->unk2A; j++) {
-                    csCmdExec(&node->unk2C[j], (CsState *)cs, csId);
+                    csCmdExec(&node->unk2C[j], cs, csId);
                 }
             }
             node = node->unk4C;
@@ -451,7 +451,7 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
 }
 
 
-void csStateEndUpdate(CsStateFull *cs) {
+void csStateEndUpdate(CsState *cs) {
     Actor *actor;
 
     cs->unk34 = gCsRotY - D_807F620C;
@@ -479,7 +479,7 @@ void csStateEndUpdate(CsStateFull *cs) {
 }
 
 
-void csUpdateStepAndInterpolation(CsStateFull *cs) {
+void csUpdateStepAndInterpolation(CsState *cs) {
     s16 a;
     s16 b;
 
@@ -501,7 +501,7 @@ void csUpdateStepAndInterpolation(CsStateFull *cs) {
     }
 }
 
-void csStateIntegrateMotion(CsStateFull *cs) {
+void csStateIntegrateMotion(CsState *cs) {
     switch (cs->unk50) {
         case 0:
             break;
@@ -592,7 +592,7 @@ extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
 
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
 
-u8 csCondEval(CsCond *cond, CsStateFull *cs, s16 csId) {
+u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     u8 neg;
     u8 ret;
     s16 type;
@@ -926,7 +926,7 @@ u8 csCondEval(CsCond *cond, CsStateFull *cs, s16 csId) {
         ret = csSpawnNodeNearPos(cond->arg[0], cond->arg[1], cond->arg[2]);
         break;
     case 0x6:
-        ret = gCsCondTable[cond->arg[0]]((CsState *)cs, csId, cond->arg[1], cond->arg[2]);
+        ret = gCsCondTable[cond->arg[0]](cs, csId, cond->arg[1], cond->arg[2]);
         break;
     case 0xF:
         ret = pathPlaybackIsActive(cs->unk38);
@@ -1824,7 +1824,7 @@ s32 csModelStateTrySetByte(s16 modelIndex, s16 val, s16 byteOffset) {
 }
 
 void csSetObjectTrackParam(void *obj, s16 b, s16 c) {
-    CsStateFull *o = obj;
+    CsState *o = obj;
 
     o->unk54 = b;
     switch (b & 0xFF) {

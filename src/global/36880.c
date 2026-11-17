@@ -1593,11 +1593,11 @@ u8 isId;
     hashTableRemove(entryId);
     proxPathRemoveOwner(entryId);
     if (gModelSlots[slot].unk7C != NULL) {
-        if (gModelSlots[slot].unk7C->unk10 != -1) {
-            sfxSlotFreeSource(gModelSlots[slot].unk7C->unk10);
+        if (gModelSlots[slot].unk7C->unk10[0] != -1) {
+            sfxSlotFreeSource(gModelSlots[slot].unk7C->unk10[0]);
         }
-        if (gModelSlots[slot].unk7C->unk12 != -1) {
-            sfxSlotFreeSource(gModelSlots[slot].unk7C->unk12);
+        if (gModelSlots[slot].unk7C->unk10[1] != -1) {
+            sfxSlotFreeSource(gModelSlots[slot].unk7C->unk10[1]);
         }
     }
     if (slot + 1 != gModelSlotCount) {
@@ -2396,7 +2396,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
     u8 sel;
     ModelData *animBuffers;
     f32 scale;
-    CsStateFull *model;
+    CsState *model;
     s32 pad;
     u8 red;
     u8 green;
@@ -3504,7 +3504,7 @@ extern s16 D_807F60B0[];
 extern u8 D_807F7140;
 
 void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
-    CsStateFull *obj;
+    CsState *obj;
     u8 allow;
     s32 pad1;
     s32 pad2;
@@ -3520,7 +3520,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     f32 *pz;
     f32 best;
 
-    if (0) { csStateTickTimers((CsStateFull *)&idx); csStateTickTimers((CsStateFull *)&slots); } allow = 1; if (entry->unk24 == 1) { idx = hashTableLookup(entry->unk1E); slots = gModelSlots; obj = slots[idx].unk7C; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&slots so both get stack homes; the one-line layout keeps as1 line order
+    if (0) { csStateTickTimers((CsState *)&idx); csStateTickTimers((CsState *)&slots); } allow = 1; if (entry->unk24 == 1) { idx = hashTableLookup(entry->unk1E); slots = gModelSlots; obj = slots[idx].unk7C; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&slots so both get stack homes; the one-line layout keeps as1 line order
             switch (obj->unk54) {
             case 2:
                 allow = 0;
@@ -3581,7 +3581,7 @@ void modelPendingEntriesProcess(void) {
     u8 found;
     s32 i;
     s32 slot;
-    struct CsStateFull *obj;
+    struct CsState *obj;
     u8 any;
     s32 j;
 
@@ -3766,7 +3766,7 @@ void modelRecordFindAndSet(u8 *records, s32 count, s16 id, s16 value) {
     }
 }
 
-// The CsStateFull fields modelSlotsApplyRecords keeps across a restored record.
+// The CsState fields modelSlotsApplyRecords keeps across a restored record.
 typedef struct ModelSlotStateSnapshot {
     /* 0x00 */ void *heapBlock;
     /* 0x04 */ u8 pad4[0xC];
@@ -3793,9 +3793,9 @@ void modelSlotsApplyRecords(u8 *records, s32 count) {
         idx = hashTableLookup(id);
         memcpy(&snap, gModelSlots[idx].unk7C, 0x9C);
         memcpy(gModelSlots[idx].unk7C, records + 0xCC, 0x9C);
-        gModelSlots[idx].unk7C->unk0 = snap.heapBlock;
-        gModelSlots[idx].unk7C->unk10 = snap.unk10;
-        gModelSlots[idx].unk7C->unk12 = snap.unk12;
+        gModelSlots[idx].unk7C->data = snap.heapBlock;
+        gModelSlots[idx].unk7C->unk10[0] = snap.unk10;
+        gModelSlots[idx].unk7C->unk10[1] = snap.unk12;
         gModelSlots[idx].unk7C->unk94 = snap.actor;
         gModelSlots[idx].unk7C->unk48[0] = gModelSlots[idx].unk7C->unk4B[0];
         gModelSlots[idx].unk7C->unk48[1] = gModelSlots[idx].unk7C->unk4B[1];
@@ -3835,7 +3835,7 @@ void modelSlotClearFlags(s32 csId, u8 flags) {
 
 s32 func_8063C2A8(s16 id) {
     s16 idx = hashTableLookup(id);
-    CsStateFull *sub = gModelSlots[idx].unk7C;
+    CsState *sub = gModelSlots[idx].unk7C;
 
     if (sub != NULL) {
         if (sub->unk60 == 1 && sub->unk64 == 0) {

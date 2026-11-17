@@ -1217,7 +1217,7 @@ void sfxUpdateSourceGroups(void) {
                 sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, 0xFF, 0x50, 0.5f);
                 dist[j] = D_80770DE4;
                 sfxSlotFreeSource(gSfxVoiceSources[i][j]);
-                gModelSlots[slot].unk7C->unk12 = -1;
+                gModelSlots[slot].unk7C->unk10[1] = -1;
             }
             if (D_80770DE8 > 32767.0f) {
                 D_80770DE8 = 32767.0f;
@@ -1385,7 +1385,7 @@ void sfxUpdateSourceGroups(void) {
                             }
                             if (D_80770BC0[i] == 40.0f) {
                                 sfxSlotFreeSource(gSfxVoiceSources[i][0]);
-                                gModelSlots[slot].unk7C->unk10 = -1;
+                                gModelSlots[slot].unk7C->unk10[0] = -1;
                             }
                             break;
                         case 0x11F:
@@ -1413,7 +1413,7 @@ void sfxUpdateSourceGroups(void) {
                                 if (D_80770BC0[i] == 110.0f) {
                                     if (gSfxSourceModelSlot[gSfxVoiceSources[i][0]] != -1) {
                                         sfxSlotFreeSource(gSfxVoiceSources[i][0]);
-                                        gModelSlots[slot].unk7C->unk10 = -1;
+                                        gModelSlots[slot].unk7C->unk10[0] = -1;
                                     } else {
                                         sfxStopSlotSound(actor, 0);
                                         sfxStopChannel(0x3B, 0);

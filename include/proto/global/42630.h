@@ -31,31 +31,31 @@ void csTimerQueueFire(s16);
 void csScriptLoad(s16 *);
 #endif
 #ifndef PROTO_SKIP_csStateFree
-void csStateFree(CsStateFull *);
+void csStateFree(CsState *);
 #endif
 #ifndef PROTO_SKIP_csStateInit
-void csStateInit(struct CsStateFull *);
+void csStateInit(CsState *);
 #endif
 #ifndef PROTO_SKIP_csModelStateSetVars
 void csModelStateSetVars(s32, u8 *);
 #endif
 #ifndef PROTO_SKIP_csStateTickTimers
-void csStateTickTimers(struct CsStateFull *);
+void csStateTickTimers(CsState *);
 #endif
 #ifndef PROTO_SKIP_csStateUpdate
-void csStateUpdate(struct CsStateFull *, s16);
+void csStateUpdate(CsState *, s16);
 #endif
 #ifndef PROTO_SKIP_csStateEndUpdate
-void csStateEndUpdate(struct CsStateFull *);
+void csStateEndUpdate(CsState *);
 #endif
 #ifndef PROTO_SKIP_csUpdateStepAndInterpolation
-void csUpdateStepAndInterpolation(struct CsStateFull *);
+void csUpdateStepAndInterpolation(CsState *);
 #endif
 #ifndef PROTO_SKIP_csStateIntegrateMotion
-void csStateIntegrateMotion(struct CsStateFull *);
+void csStateIntegrateMotion(CsState *);
 #endif
 #ifndef PROTO_SKIP_csCondEval
-u8 csCondEval(CsCond *, CsStateFull *, s16);
+u8 csCondEval(CsCond *, CsState *, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdExec
 void csCmdExec(CsCmd *, CsState *, s16);
