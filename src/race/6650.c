@@ -270,11 +270,11 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     f32 waypointThreshold;
     f32 dx;
     f32 dz;
-    f32 targetVel;
+    f32 targetThrottle;
     f32 zoneDist;
     RaceParticipant *managerData;
     RaceRoute *route;
-    f32 targetSpeed;
+    f32 gapToTarget;
     ZoneEntry *waypoint;
     u8 idx;
     Actor *manager;
@@ -282,7 +282,7 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     manager = racerState->actor;
     managerData = manager->customState;
     route = raceGetRoute(managerData->route);
-    targetSpeed = raceGetPathDistanceBetweenTrackers(route, racerState, target->participant);
+    gapToTarget = raceGetPathDistanceBetweenTrackers(route, racerState, target->participant);
     idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
     waypoint = &D_807FDCA0->entries[idx];
     dx = waypoint->x - gCurrentActor->x;
@@ -290,7 +290,7 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     distToWaypoint = sqrtf((dx * dx) + (dz * dz));
     if (distToWaypoint < D_807FDCA0->entries[idx].radius) {
         gBehaviourWorkState->waypointIndex++;
-        gBehaviourWorkState->waypointIndex = gBehaviourWorkState->waypointIndex % gBehaviourExtraState->pathCount;
+        gBehaviourWorkState->waypointIndex %= gBehaviourExtraState->pathCount;
     }
     angle = mathAngleDiscrete(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
     angle = mathAngleSignedDistance(angle, gCurrentActor->yaw);
@@ -306,9 +306,9 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
         if (target->curveMode != 0 && raceGetProgressPercent(route, racerState, managerData) > 0.75) {
             raceSetPiecewiseCurveMode(target, 0, D_8002FC70, &D_8002FCA0);
         }
-        targetVel = raceEvaluateCurveTargetSpeed(target, targetSpeed, D_8002FC70, &D_8002FCA0);
+        targetThrottle = raceEvaluateCurveTargetSpeed(target, gapToTarget, D_8002FC70, &D_8002FCA0);
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 650.0f) ? gCurrentActor->speedXZ : 650.0f;
-        racerState->throttle = targetVel;
+        racerState->throttle = targetThrottle;
     }
 }
 
