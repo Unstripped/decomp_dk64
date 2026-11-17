@@ -1,7 +1,7 @@
 # hudPauseMenuRender (global, src/global/ACDC0.c)
 
 ## Sites
-- **6bd641/01af71 proto-steer** (kept; not this unit's): a local `renderRotatedSprite` declaration with a u8 `siz` keeps the constant-2 web in $s8, so case 0 passes `move a3,s8`. The shared 90D80 prototype gives `li a3,2` at 0x1638/0x16b8. Owner 90D80 is blocked (pending.md round 29).
+- **6bd641/01af71 proto-steer** (kept; fix requested 2026-11-17e): the target materialises the case-0 4th argument itself (`li a3,2` at 0x1638/0x16b8) instead of reusing the int constant-2 web in $s8; the local u8-`siz` declaration reproduces that (an unsigned-typed argument constant is its own uopt candidate), the shared 90D80 s32 prototype gives `move a3,s8` there (earlier entries had the two columns swapped). u8/u16/u32 `siz` all match; the owner takes u32 unchanged, so the fix is the owner retype `siz` s32 -> u32 (`.scratch/HackhudPauseMenuIconUpdate/header-request.md`).
 - **f38e4a byte-offset entry** (FIXED 2026-11-15): `sPauseTextLists` is `HudTextList *[2]` (`HudTextList { HudTextEntry entries[10]; }`, the 0x1E0 buffer split at +10 entries); `(it->entries + j)->f` gives base-first `addu v0,s2,t7` at 0x12f8 for all eight loop-1 reads. `it->entries[j]`/`&it->entries[j]` stay index-first (272).
 - **e1b0a2 -> 766e68 s64 pair** (OPEN): `(u16)(off * 4) + (s16)(s64)(s32)(fa * flyX)`. The (u16) mask on off*4 is a deleted no-op that moves off*4 from the ring front t3 to t4 (Q0374); with the s64 conversion the trunc result lands t5. Target: `sll t4,s0,2` (0x1324), `mfc1 t5,$f10` (0x1344), `addu s0,t4,t5` (0x134c), `mul.s $f8,$f0,$f6` (0x131c).
 - **5ed6ef -> a87eed (u16) y steer** (OPEN): `y += (u16)(s32)(fa * flyY)` with s16 `y`; without the `(u16)` the flyY mfc1 lands t3 not t4 at 0x1350 (116-358).
@@ -79,6 +79,10 @@
   - b371d1: list as `u32` (casts at the two calls) or `void *`, no test: 5 each (unchanged).
   - reconstruct: every steer dropped on the pips-cleaned copy 355 (it->entries[j]) / 357 ((it->entries + j)) / 358 (case-2/3 fade through fa); same loop with both dead tests kept 321.
   - Review casts: `(s16)((s16)(fc - y0) + slide)` outer 115 / inner 258, `y0 -= (s16)(...)` 486, `y0 + (s16)fe` 408: all semantic.
+- **2026-11-17 2026-11-17: cleanup HackhudPauseMenuIconUpdate HackhudPauseMenuIconUpdate anthropic/claude-opus-5-5** (base 5b3ec13e = ab5ab438 body; re-diagnose of 6bd641/01af71 only, body not edited):
+  - Consolidated copy (define + local declaration deleted, shared s32 siz): only 0x1638/0x16b8 differ, copy `move a3,s8` vs target `li a3,2` (score 400).
+  - Local-declaration `siz` census: u8 (current) / u16 / u32 fdiff 0; s8 / s16 3240; s32 = consolidated.
+  - Owner-side u32: 90D80 stand-in (PROTO_SKIP + u32 declaration) whole object OK; clean patched 90D80.c against a shadow include/ with the u32 header OK; every other caller file (bonus/2690, global/103AB0, 109660, 10D2D0, 117190, 80150, A2F10, BC3B0, menu/3E10, multiplayer/0, race/7BD0) under a u32 stand-in fdiff 0, cfe warnings 0 -> 0; ACDC0 with both steer lines deleted against the shadow header: objdiff OK. Delivered as a header request (patch + bundle), pair stays FAKE until it lands.
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
@@ -90,8 +94,8 @@
 
 ## Evidence
 - Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0x160 (`addiu s0,sp,352` at 0x1920); 0xA8 is a case-0 f32 spill (`swc1 $f6,0xA8(sp)` at 0x14b0, `lwc1 $f18` at 0x15d4).
-- The constant-2 web in $s8 (`li s8,2` at 0x12a0) feeds the loop-1 `style == 2` bnel (0x1300), the switch `case 2` beq (0x1404) and, under the u8 local prototype, both case-0 renderRotatedSprite 4th args.
-- The $s8 constant 2 is also the case-0 `j == 2` (bne s3,s8 at 0x180c) and `i == 2` (bne t8,s8 at 0x187c) compare operand. Owner renderRotatedSprite (90D80 0x528) applies `siz &= ~0xC000` as `lui at,0xffff; ori at,0x3fff; and t6,a3,at` (0x52c-0x53c): siz is 32-bit in the definition, so the shared prototype cannot become u8/u16.
+- The constant-2 web in $s8 (`li s8,2` at 0x12a0) feeds the loop-1 `style == 2` bnel (0x1300), the switch `case 2` beq (0x1404), the case-0 `j == 2` (bne s3,s8 at 0x180c) and `i == 2` (bne t8,s8 at 0x187c) compares; the case-0 renderRotatedSprite 4th args are a separate `li a3,2` (0x1638/0x16b8), which an unsigned (u8/u16/u32) `siz` prototype reproduces and the s32 one turns into `move a3,s8`.
+- Owner renderRotatedSprite (90D80 0x528) applies `siz &= ~0xC000` as `lui at,0xffff; ori at,0x3fff; and t6,a3,at` (0x52c-0x53c): siz is 32-bit in the definition, so the shared prototype cannot become u8/u16; u32 compiles the owner identically (whole object OK, 2026-11-17e).
 - Loop 1: `li s5,24` (0x12a4) + `multu s3,s5` (0x12e8), entry address `addu v0,s2,t7` (0x12f8) shared by all eight reads; s4 = &sPauseTextCounts[i] (0x12c4), s6 = hud + i*2 (0x12e4).
 - ugen (as1probe dis) for the x statement in the matching body: off*4 mul, (u16) and, l.s, `mul.s $f8,$f0,$f6`, `trunc.w.s $f10,$f8,$13`, mfc1, s64 moves/sra, `addu $16,$12,$13`; trunc-first form: `trunc.w.s $f10,$f8,$11`, mfc1, mul, `addu $16,$12,$13` with the operands reversed.
 - sPauseTextLists[0] = heapAlloc(0x1E0); sPauseTextLists[1] = sPauseTextLists[0] + 10 entries (hudPauseMenuUpdate).

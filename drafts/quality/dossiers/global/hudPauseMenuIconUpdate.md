@@ -1,10 +1,15 @@
 # hudPauseMenuIconUpdate (global, src/global/ACDC0.c)
 ## Sites
-global:806AC07C:other:37222f other: s16 five = 5 used for the compare and subtract on the kong index (KEPT)
+global:806AC07C:other:fe48fd other (was 37222f): `kongCount = 5;` value-named constant local feeding `if (i >= kongCount) i -= kongCount;` (case 10, slot index -> kong row). FIXED 2026-11-17e: `s32 kongCount = sizeof(sPauseKongColors) / sizeof(sPauseKongColors[0]);` (table-length local, Q0780), fdiff 0.
 ## Attempts
 2026-11-10..12 (low, medium): literal 5 (90), pad (30), permutes
 2026-11-14 HackhudPauseMenuUpdate opus-5-5:high: %=5 (115), > 4 (90), ?: (90), range switch (122), i s16/u32 (127/94); same local renamed kongCount (0, not applied: needs a ruling)
+2026-11-15 PolishglobalCarve56 opus-5-5:high: tagged FAKE (value-named constant local)
+2026-11-17 2026-11-17: cleanup HackhudPauseMenuIconUpdate HackhudPauseMenuIconUpdate opus-5-5: literal re-measured (90; with s16 pad 30); dedicated per-role `kong` index local for the colour/unlock reads: `kong = i; if (kong >= 5) kong -= 5;` 115 (s32, last) / 103 (s16), `if (i >= 5) kong = i - 5; else kong = i;` 9, `kong = (i >= 5) ? i - 5 : i;` 9, `kong = i; if (i >= 5) kong = i - 5;` 115, each at 4 declaration positions (best: last/after i); slot as the copy (`kong = (s32)item->startX; i = kong;` / `i = kong = ...`) 30 at 9 positions, `kong = i = ...` 115; table-length local `kongCount = sizeof(T) / sizeof(T[0])` for T = sPauseKongColors or sPauseKongUnlocked, s16 or s32, at the declaration or at the use: 0 (applied: s32, sPauseKongColors, at the declaration). variants.py scan on the fixed body: cosmetic zeros only. Review: `(s32)item->kind` / `(s32)item->startX` drop-outs 0 (kept: f32->s32 truncations), LAYOUT one-line `if (sc < -8.0)` split 3 (still needed).
 ## Untried ideas
-decision owed: is an s16 kongCount = 5 used for both the bound and the subtraction an accepted real-quantity local
+none for fe48fd (fixed).
 ## Evidence
-literal 5 shrinks the frame 0x58 -> 0x50 and moves the sp+0x54 reloads.
+- Frame 0x58: homes src 0x54 (`sw t6,84(sp)` at 0x3fd4), item 0x50, t 0x4c, sc 0x48, bounceStep 0x40 (`swc1 $f6,64(sp)` at 0x4028); spill temps 0x24/0x30. The literal shrinks the frame to 0x50 (one scalar home fewer, Q0408/Q0879).
+- Case 10 (0x4894-0x4950): `trunc.w.s`/`mfc1 v0` = slot i (0x48a0/0x48b0), `sll v1,v0,2` (0x48bc) feeds the three carousel arrays (addu a0/a1/a2 at 0x48c0-0x48cc), `slti at,v0,5` (0x48e8), `addiu v0,v0,-5` in place (0x490c), then `addu t3,t3,v0` (0x4910) for sPauseKongUnlocked and a fresh `sll t4,v0,2; addu v1,t4,t5` (0x4918/0x491c) for sPauseKongColors.
+- Literal `i -= 5`: uopt strength-reduces the v1 = i<<2 web across the literal decrement (`addiu v1,v1,-0x14` inserted after 0x490c, `addu v0,v1,t4` instead of sll/addu) and the join reloads renumber (`lw t0,0x54(sp)` at 0x4950 -> t7, `lw t2,0x40(sp)` -> t1). A variable decrement (uopt-propagated constant, Q0764) is not an IV update, so no SR; a copy `kong = i` is copy-propagated before SR (SR returns), a separately assigned `kong` interferes with i in the arm block (Chow block-granular ranges) and takes v1 with `move v1,v0` + `b`.
+- Data: sPauseKongColors .data 0x6c, 0x14 bytes = 5 rows of u8[4], next label sPauseLevelOrder at 0x80; hudPauseMenuBuildPage spawns kind-10 icons at slots i and i + 5 for i < 5; hudPauseMenuRender fills off = j + i * 5.
