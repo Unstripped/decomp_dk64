@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "text.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -1386,8 +1387,6 @@ void actorScriptedUpdate(void) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-
-extern s16 gTextNumberArg;
 
 void func_806C3A8C(void) {
     s32 dist;

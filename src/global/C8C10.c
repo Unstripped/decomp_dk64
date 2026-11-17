@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
+#include "text.h"
 #include "proto/global/104F0.h"
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
@@ -148,8 +149,6 @@ void actorRestoreMapMusic(void) {
         sfxAllocateChannel(sfx, 1.0f);
     }
 }
-
-extern s16 gTextNumberArg;
 
 
 void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {

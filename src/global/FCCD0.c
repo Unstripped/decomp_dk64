@@ -162,7 +162,6 @@ void slotQueueUpdateGoldenBananaTotal(u8 player) {
 
 extern s16 D_80744544;
 extern u16 D_80750AC4;
-extern u16 gTextNumberArg;
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
  * screen position (func_806F8004). */

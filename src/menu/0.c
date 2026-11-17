@@ -114,7 +114,6 @@ typedef struct MenuRenderActor {
     /* 0x180 */ MenuState *menuState;
 } MenuRenderActor;
 extern Actor *gCurrentActor;
-extern s16 gTextNumberArg;
 
 
 void menuMainStateStep(MenuState *menu, s32 playVoice) {

@@ -45,4 +45,8 @@ typedef struct TextObject {
     /* 0x1C */ s16 id;
 } TextObject; // size = 0x20
 
+// Number printed into the current text string (`%d` in textLayoutAppendRows), set by shops, menus and race intros.
+// race/52B0.c keeps its own s16 extern: there a u16 store of 10 shares the constant with an index multiply.
+extern u16 gTextNumberArg;
+
 #endif

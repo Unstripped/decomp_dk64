@@ -184,7 +184,6 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
 }
 
 
-extern u16 gTextNumberArg;
 extern u8 D_807FCC4C;
 
 typedef struct {

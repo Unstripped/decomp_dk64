@@ -455,7 +455,6 @@ ResParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
 }
 
 extern void *D_8074E778[];
-extern u16 gTextNumberArg;
 
 void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) {
     s32 pad;
