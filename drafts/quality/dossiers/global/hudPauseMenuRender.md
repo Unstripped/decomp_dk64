@@ -45,11 +45,15 @@
   - 766e68 (x/y census): x and y computed whole inside the textDrawStringVtx arguments (no off/y locals; 4 x-forms x 4 y-forms x 2 entry spellings x inline or via an s32 local), 64 bodies: best 386 (variants.py try).
   - reconstruct: Rev6 natural body (shared s32 prototype, `(it->entries + j)` reads, `off = (s32)(fa * flyX) + off * 4`, `y *= 4; delta = fa * flyY; y += delta;`, `off = (s16)(off + offsetX * 4)`, no u16/u32/s64, no dead list test, d4f3b3 kept): delta through the existing `ang` (Q1098) 17, the same as a new `s16 dy` 17; 12 each with the b371d1 test kept. Residue: mul.s $f8/$f18 operands swapped (0x131c/0x1328), sll t4 vs t5 at 0x1324, mfc1 t5 vs t4 at 0x1344, addu t8,s0,t7 order at 0x1364, li a3,2 at 0x1638/0x16b8. Whole-sum Q1099-ordered bodies (`y = y * 4 + (s32)(fa * flyY)`, all hacks dropped) 312-368.
   - b371d1: permuter 900 s (-j 2, ~19.9k iterations) on the b371d1-removed copy of this base (625): best 625.
+- **2026-11-17 U HackhudPauseMenuRender9 anthropic/claude-opus-5-5** (base fc3d6f26; no C changed; sweep 0 hits):
+  - b371d1 re-scored after the TypesOwner batch_8 F declaration move: removal 5 (unchanged); variants.py scan of the removal copy (120 variants) best 5.
+  - uopt -zdbug:5/6 census of list (cand 19, M -100): without the test its range is bb2 (def) + bb3 (2 uses), adjsave 1.5, forbidden only [1 3 21], assigned reg 14 ($s0). With the test the range adds bb16 (piece 669, adjsave 0) and bb4 (piece 670, regs 14-22 forbidden), so the bb2 piece is not coloured (home store) and bb3 piece 666 (adjsave 1.0) gets reg 3 ($a0).
+  - One guard for b371d1 + d4f3b3 (net -1 FAKE): `if (list == NULL) {}` replacing d4f3b3 after gSPEndDisplayList 108, before it 356; `list == NULL || sPauseKongUnlocked == 0` (either order) or `&&` at the function end 108; the two-term guard at the b371d1 position with d4f3b3 deleted 347 (= deleting d4f3b3 alone), `sPauseKongUnlocked == 0 && list == NULL` there 352. d4f3b3 needs its own block after gSPEndDisplayList and list must not stay live into the switch arms (Q0585 placement).
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
 - A natural source for the t3 -> t4 ring advance before the x trunc that also keeps `A + (s32)(f)` order: every named-temp form tried flips mul.s or loses the ring (Q0374, Q0966).
-- Making list live through loop 1 with a use that emits no code (Q0585); none found in the target.
+- Making list live through loop 1 with a use that emits no code (Q0585); none found in the target. Only an empty conditional fits: 0x13C(sp) is read only at 0x1278 and no s-register but $s7 is live over 0x126c-0x1294, so a real later read (lw 0x13c(sp)) or competitor-based fix is excluded (2026-11-17 census).
 
 ## Evidence
 - Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0x160 (`addiu s0,sp,352` at 0x1920); 0xA8 is a case-0 f32 spill (`swc1 $f6,0xA8(sp)` at 0x14b0, `lwc1 $f18` at 0x15d4).
@@ -58,6 +62,7 @@
 - Loop 1: `li s5,24` (0x12a4) + `multu s3,s5` (0x12e8), entry address `addu v0,s2,t7` (0x12f8) shared by all eight reads; s4 = &sPauseTextCounts[i] (0x12c4), s6 = hud + i*2 (0x12e4).
 - ugen (as1probe dis) for the x statement in the matching body: off*4 mul, (u16) and, l.s, `mul.s $f8,$f0,$f6`, `trunc.w.s $f10,$f8,$13`, mfc1, s64 moves/sra, `addu $16,$12,$13`; trunc-first form: `trunc.w.s $f10,$f8,$11`, mfc1, mul, `addu $16,$12,$13` with the operands reversed.
 - sPauseTextLists[0] = heapAlloc(0x1E0); sPauseTextLists[1] = sPauseTextLists[0] + 10 entries (hudPauseMenuUpdate).
+- 0x13C(sp) (list) appears only at 0x126c (`sw v0,316(sp)`) and 0x1278 (`lw a0,316(sp)`); every later read of a homed local is a real `lw` (tab 0x144 at 0x16e4, hubWorld 0x138 at 0x1810, ret 0x140 at 0x1fd0).
 
 ## Lead ruling (Lead5, 2026-11-15)
 f38e4a -> a97e00: the (u8 *) byte-offset pun is retired by the HudTextList retype, but `(it->entries + j)->f` is chosen for codegen (it->entries[j] 272), so it stays tagged per the Q0816 precedent (pun retired, tag kept).
