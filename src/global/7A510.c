@@ -35,7 +35,6 @@ extern CollisionTableSlot D_8074C604[];
 
 
 void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
-    CollisionInteractionEntry *entry;
     s32 done;
     Actor *attacker;
     CollisionInteractionEntry *interactions;
@@ -68,23 +67,22 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                 }
             } else {
                 while (!done) {
-                    entry = &interactions[0] + i;  // FAKE: &p[0] + i keeps the base-first addu s1,a0,t1 at 0x110; &interactions[i] / interactions + i give t1,a0 (Q0606)
-                    if ((entry->targetMask & targetActor->interactionType) && (entry->attackerMask & attacker->interactionType)) {
-                        if (entry->filter != NULL) {
-                            entryAllowed = entry->filter(targetActor, attacker, node);
+                    if ((interactions[i].targetMask & targetActor->interactionType) && (interactions[i].attackerMask & attacker->interactionType)) {
+                        if (interactions[i].filter != NULL) {
+                            entryAllowed = interactions[i].filter(targetActor, attacker, node);
                         } else {
                             entryAllowed = 1;
                         }
                         if (entryAllowed) {
-                            hitPhase = entry->phase;
+                            hitPhase = interactions[i].phase;
                             curPhase = gActorGlobalState.bossFightPhase;
                             if (curPhase < hitPhase) {
                                 gActorGlobalState.targetActor = attacker;
-                                gActorGlobalState.bossFightPhase = (interactions + i)->phase;  // FAKE: re-reads phase through interactions + i (base-first add) instead of entry->phase or interactions[i].phase, keeping the entry induction in $s1 (Q0589)
+                                gActorGlobalState.bossFightPhase = interactions[i].phase;
                             }
                             if (gActorGlobalState.unk201 < 0xF) {
                                 gActorGlobalState.unk204[gActorGlobalState.unk201] = attacker;
-                                gActorGlobalState.unk244[gActorGlobalState.unk201] = entry->event;
+                                gActorGlobalState.unk244[gActorGlobalState.unk201] = interactions[i].event;
                                 gActorGlobalState.unk201++;
                                 if (attacker->collisionFlags & 1) {
                                     playerState = attacker->customState;
@@ -103,12 +101,12 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                                     }
                                 }
                             }
-                            if (entry->chain == 0 || entry->chain == 2) {
+                            if (interactions[i].chain == 0 || interactions[i].chain == 2) {
                                 done = 1;
                             }
                         }
                     }
-                    if (entry->chain == 0) {
+                    if (interactions[i].chain == 0) {
                         done = 1;
                     }
                     i++;
