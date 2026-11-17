@@ -115,6 +115,15 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
     on that body: no zero.
   permuter 900 s from the new body with both dead ifs removed (base 487, 6280 iterations): best 450 only
     inserts `if (!gCurrentActor) {}` in the tilt else-arm, nohit.
+2026-11-16 HackvehicleUpdateMotion6 opus:high (copy unchanged, fdiff 0; sweep 47 checks 0 hits):
+  review nohit: fresh top-to-bottom read, body unchanged, FAKE 2 kept (6c8d63, 9b1ca1). No site retry: the
+    stale causes (Q1066 bare truth tests, Q1114 int literal 2) are already in this body and Motion5's rungs
+    were measured on it. Target re-read: kongState a0 / constant 2 v1 live with no call from 0x12cc to
+    0x1434; onGround lbu t5,70(sp) is hoisted to 0x1428 above the inWater branch; the dead use must reach
+    the 0x148c/0x14b0 clamp-join block feeding `move a0,s0` for actorStepPhysics. Natural respellings
+    considered (inWater && kongState == 2 chain, jump-clear after the arms, != 2 drag ternary) are either
+    behaviour/shape changes or already covered by variants scans.
+  gGlobalOverlayFlags: per-file extern (s32 in 22 files, u32 in 5, twice in 936B0.c at 307/747).
 
 ## Untried ideas
 - 6c8d63: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap

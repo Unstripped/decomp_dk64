@@ -876,3 +876,5 @@
 {"type": "unit", "t": "2026-11-17T04:40:37Z", "unit": "2026-11-16d: cleanup HackcamPathCommandDispatch2", "commit": "509fb25b42cad5bb5116ac8bd9e1ecefa24162ac"}
 {"type": "unit", "t": "2026-11-17T04:40:42Z", "unit": "2026-11-16d: cleanup HackrenderModelAnimatedSlot2", "commit": "9832c79bebb61697408883634a1d4a8811a7a3f6"}
 {"type": "unit", "t": "2026-11-17T04:41:05Z", "unit": "2026-11-16d: cleanup Polishmenu3E10b", "commit": "2633de34352c8fc034024f4d1a2a2495958dd14f"}
+{"type": "unit", "t": "2026-11-17T04:41:34Z", "unit": "2026-11-16: cleanup Polishrace6650b (orphaned Lead-d result, model unknown)", "commit": "2d80041ce4e14adfe5f67f42d8fd6d225f61ab49"}
+{"type": "unit", "t": "2026-11-17T04:41:38Z", "unit": "2026-11-16: cleanup HackvehicleUpdateMotion6 (orphaned Lead-d result, model unknown)", "commit": "2d80041ce4e14adfe5f67f42d8fd6d225f61ab49"}
