@@ -40,6 +40,11 @@
   - 766e68: x delta through ang/alpha (`ang = fa * flyX` or `ang = off * 4`, with or without the casts) 278-446; x carried in slotBase 66 / cnt 377. On the ang-delta body: natural `(s32)(fa * flyX) + off * 4` + plain `(s16)(off + offsetX * 4)` 10, `off *= 4; off += ...` 17.
   - c4e347: final x through ang (308) or alpha (164) passed to textDrawStringVtx; offset terms inlined into the call arguments 354-403. On the ang-delta body dropping only the (u32) costs 1 (7).
   - a97e00: mixed spellings: style read indexed + seven member-access 9; style member-access + seven indexed 281.
+- **2026-11-16d U HackhudPauseMenuRender8 anthropic/claude-opus-5-5** (base 9bc29318; no C changed; sweep 0 hits):
+  - 6bd641/01af71: consolidated copy (no PROTO_SKIP, no local declaration, shared s32 siz) with the 4th argument spelled `2U`, `2L` or `sizeof(u16)` at both case-0 calls: fdiff 400 each, identical to plain `2` (`li a3,2` at 0x1638/0x16b8 vs target `move a3,s8`): cfe folds unsigned/long/size_t literal conversions like narrow casts (Q0999). Owner retype excluded: renderRotatedSprite (90D80 0x528) masks siz with `lui at,0xffff; ori at,0x3fff; and t6,a3,at` (0x52c-0x53c), a 32-bit siz; u8/u16 would give `andi`, so only a caller-side declaration can be narrow.
+  - 766e68 (x/y census): x and y computed whole inside the textDrawStringVtx arguments (no off/y locals; 4 x-forms x 4 y-forms x 2 entry spellings x inline or via an s32 local), 64 bodies: best 386 (variants.py try).
+  - reconstruct: Rev6 natural body (shared s32 prototype, `(it->entries + j)` reads, `off = (s32)(fa * flyX) + off * 4`, `y *= 4; delta = fa * flyY; y += delta;`, `off = (s16)(off + offsetX * 4)`, no u16/u32/s64, no dead list test, d4f3b3 kept): delta through the existing `ang` (Q1098) 17, the same as a new `s16 dy` 17; 12 each with the b371d1 test kept. Residue: mul.s $f8/$f18 operands swapped (0x131c/0x1328), sll t4 vs t5 at 0x1324, mfc1 t5 vs t4 at 0x1344, addu t8,s0,t7 order at 0x1364, li a3,2 at 0x1638/0x16b8. Whole-sum Q1099-ordered bodies (`y = y * 4 + (s32)(fa * flyY)`, all hacks dropped) 312-368.
+  - b371d1: permuter 900 s (-j 2, ~19.9k iterations) on the b371d1-removed copy of this base (625): best 625.
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
@@ -49,6 +54,7 @@
 ## Evidence
 - Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0x160 (`addiu s0,sp,352` at 0x1920); 0xA8 is a case-0 f32 spill (`swc1 $f6,0xA8(sp)` at 0x14b0, `lwc1 $f18` at 0x15d4).
 - The constant-2 web in $s8 (`li s8,2` at 0x12a0) feeds the loop-1 `style == 2` bnel (0x1300), the switch `case 2` beq (0x1404) and, under the u8 local prototype, both case-0 renderRotatedSprite 4th args.
+- The $s8 constant 2 is also the case-0 `j == 2` (bne s3,s8 at 0x180c) and `i == 2` (bne t8,s8 at 0x187c) compare operand. Owner renderRotatedSprite (90D80 0x528) applies `siz &= ~0xC000` as `lui at,0xffff; ori at,0x3fff; and t6,a3,at` (0x52c-0x53c): siz is 32-bit in the definition, so the shared prototype cannot become u8/u16.
 - Loop 1: `li s5,24` (0x12a4) + `multu s3,s5` (0x12e8), entry address `addu v0,s2,t7` (0x12f8) shared by all eight reads; s4 = &sPauseTextCounts[i] (0x12c4), s6 = hud + i*2 (0x12e4).
 - ugen (as1probe dis) for the x statement in the matching body: off*4 mul, (u16) and, l.s, `mul.s $f8,$f0,$f6`, `trunc.w.s $f10,$f8,$13`, mfc1, s64 moves/sra, `addu $16,$12,$13`; trunc-first form: `trunc.w.s $f10,$f8,$11`, mfc1, mul, `addu $16,$12,$13` with the operands reversed.
 - sPauseTextLists[0] = heapAlloc(0x1E0); sPauseTextLists[1] = sPauseTextLists[0] + 10 entries (hudPauseMenuUpdate).
