@@ -111,34 +111,34 @@ u8 bossPickWaypointStep(BossScriptState *scriptState, BossWaypointState *waypoin
     return val;
 }
 
-void bossSetAnimationByWaypoint(u8 *waypointIndices) {
+void bossSetAnimationByWaypoint(BossWaypointState *waypoints) {
     s32 animId;
 
     animId = gCurrentActor->sub4->animId;
-    if (animId != 0x223 && waypointIndices[3] == waypointIndices[1]) {
+    if (animId != 0x223 && waypoints->next == waypoints->playerNearest) {
         actorScriptStart(gCurrentActor, 0x223);
         actorScriptExecute(gCurrentActor);
         return;
     }
-    if (animId != 0x224 && waypointIndices[3] != waypointIndices[1]) {
+    if (animId != 0x224 && waypoints->next != waypoints->playerNearest) {
         actorScriptStart(gCurrentActor, 0x224);
         actorScriptExecute(gCurrentActor);
     }
 }
 
 
-void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
+void bossInterpolateWaypoints(BossWaypointState *waypoints, f32 progress) {
     f64 val;
     f32 factor;
 
-    val = (f64)(gCurrentActor->sub4->model->frame * progress);
+    val = gCurrentActor->sub4->model->frame * progress;
 
-    factor = (f32)(1.0 + (f64)mathSinF((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
+    factor = 1.0 + mathSinF((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f);
 
-    gCurrentActor->x = (f32)D_807FDCA0->entries[waypointPair[1]].x + (f32)(D_807FDCA0->entries[waypointPair[0]].x - D_807FDCA0->entries[waypointPair[1]].x) * factor;
-    gCurrentActor->z = (f32)D_807FDCA0->entries[waypointPair[1]].z + (f32)(D_807FDCA0->entries[waypointPair[0]].z - D_807FDCA0->entries[waypointPair[1]].z) * factor;
+    gCurrentActor->x = D_807FDCA0->entries[waypoints->next].x + (D_807FDCA0->entries[waypoints->current].x - D_807FDCA0->entries[waypoints->next].x) * factor;
+    gCurrentActor->z = D_807FDCA0->entries[waypoints->next].z + (D_807FDCA0->entries[waypoints->current].z - D_807FDCA0->entries[waypoints->next].z) * factor;
 
-    gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->entries[waypointPair[1]].x, D_807FDCA0->entries[waypointPair[1]].z, D_807FDCA0->entries[waypointPair[0]].x, D_807FDCA0->entries[waypointPair[0]].z), 10.0f);
+    gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->entries[waypoints->next].x, D_807FDCA0->entries[waypoints->next].z, D_807FDCA0->entries[waypoints->current].x, D_807FDCA0->entries[waypoints->current].z), 10.0f);
 }
 
 void bossSpawnPuffDebris(void) {
@@ -156,8 +156,8 @@ void csModelStateSetFirstByte(s16, u8); // ORIG: target sign-extends the model i
 extern u8 D_80035BDC[];
 extern u8 D_80035BE4[];
 
-void bossSetRandomObjectPair(pairArray, stateByte)
-u8 *pairArray;
+void bossSetRandomObjectPair(waypoints, stateByte)
+BossWaypointState *waypoints;
 u8 stateByte;
 {
     u8 idx;
@@ -165,39 +165,39 @@ u8 stateByte;
     if (stateByte) {
         do {
             idx = (randomNonNegative() >> 15) % 8;
-        } while (pairArray[0] + 0x10 == (val = D_80035BDC[idx]) ||
-                  pairArray[3] + 0x10 == D_80035BDC[idx] ||
-                  pairArray[3] + 0x0F == D_80035BDC[idx] ||
-                  pairArray[3] + 0x11 == D_80035BDC[idx] ||
-                  pairArray[3] + 0x0C == D_80035BDC[idx] ||
-                  pairArray[3] + 0x14 == D_80035BDC[idx]);
-        pairArray[4] = val;
+        } while (waypoints->current + 0x10 == (val = D_80035BDC[idx]) ||
+                  waypoints->playerNearest + 0x10 == D_80035BDC[idx] ||
+                  waypoints->playerNearest + 0x0F == D_80035BDC[idx] ||
+                  waypoints->playerNearest + 0x11 == D_80035BDC[idx] ||
+                  waypoints->playerNearest + 0x0C == D_80035BDC[idx] ||
+                  waypoints->playerNearest + 0x14 == D_80035BDC[idx]);
+        waypoints->objectA = val;
         do {
             idx = (randomNonNegative() >> 15) % 8;
-        } while (pairArray[0] + 0x10 == (val = D_80035BE4[idx]) ||
-                  pairArray[3] + 0x10 == D_80035BE4[idx] ||
-                  pairArray[3] + 0x0F == D_80035BE4[idx] ||
-                  pairArray[3] + 0x11 == D_80035BE4[idx] ||
-                  pairArray[3] + 0x0C == D_80035BE4[idx] ||
-                  pairArray[3] + 0x14 == D_80035BE4[idx]);
-        pairArray[5] = val;
+        } while (waypoints->current + 0x10 == (val = D_80035BE4[idx]) ||
+                  waypoints->playerNearest + 0x10 == D_80035BE4[idx] ||
+                  waypoints->playerNearest + 0x0F == D_80035BE4[idx] ||
+                  waypoints->playerNearest + 0x11 == D_80035BE4[idx] ||
+                  waypoints->playerNearest + 0x0C == D_80035BE4[idx] ||
+                  waypoints->playerNearest + 0x14 == D_80035BE4[idx]);
+        waypoints->objectB = val;
     }
 
-    if (pairArray[4] != 0) {
-        csModelStateSetFirstByte(pairArray[4], stateByte);
+    if (waypoints->objectA != 0) {
+        csModelStateSetFirstByte(waypoints->objectA, stateByte);
     }
-    if (pairArray[5] != 0) {
-        csModelStateSetFirstByte(pairArray[5], stateByte);
+    if (waypoints->objectB != 0) {
+        csModelStateSetFirstByte(waypoints->objectB, stateByte);
     }
     if (stateByte == 0) {
-        pairArray[4] = 0;
-        pairArray[5] = 0;
+        waypoints->objectA = 0;
+        waypoints->objectB = 0;
     }
 }
 
-void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
+void bossSpawnObjectAtWaypoint(BossWaypointState *waypoints) {
     projectileGetTargetCoords(gCurrentActor, 1);
-    projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, D_807FDCA0->entries[waypointIndex[3]].x, D_807FDCA0->entries[waypointIndex[3]].y, D_807FDCA0->entries[waypointIndex[3]].z, 1200.0f, gCurrentActor);
+    projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, D_807FDCA0->entries[waypoints->playerNearest].x, D_807FDCA0->entries[waypoints->playerNearest].y, D_807FDCA0->entries[waypoints->playerNearest].z, 1200.0f, gCurrentActor);
 }
 
 s32 bossCheckPlayerBelow(BossScriptState *scriptState, u8 *scriptOpcodes) {
@@ -249,7 +249,7 @@ void bossMainStep(void) {
     u8 *tbl;
     u8 playerAbove;
     u8 pad2[3];
-    u8 flag7F;
+    u8 debrisSfx;
     u8 pad1;
     u8 nextIdx;
     u8 red;
@@ -273,7 +273,7 @@ void bossMainStep(void) {
     } else {
         playerAbove = 0;
     }
-    flag7F = 0;
+    debrisSfx = 0;
     behaviourFrameBegin();
     actorUpdatePrevContactFlags(gCurrentActor);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -377,7 +377,7 @@ void bossMainStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             effectSpawnBoneDebris(4, 1);
-            flag7F = 1;
+            debrisSfx = 1;
             actorApplyGravity();
             actorApplyVelocityCustom(gCurrentActor, 0.0f, gCurrentActor->speedY);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
@@ -404,13 +404,13 @@ void bossMainStep(void) {
         case 4:
             actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-            bossInterpolateWaypoints((u8 *)waypoints, 0.025f);
+            bossInterpolateWaypoints(waypoints, 0.025f);
             if (gCurrentActor->sub4->model->frame >= 40.0f) {
                 gCurrentActor->contactFlags |= 1;
             } else {
                 gCurrentActor->contactFlags = 0;
                 effectSpawnBoneDebris(4, 1);
-                flag7F = 1;
+                debrisSfx = 1;
             }
             break;
         case 5:
@@ -442,7 +442,7 @@ void bossMainStep(void) {
             if (gCurrentActor->sub4->scaleY < gBehaviourWorkState->scale) {
                 actorSetUniformScale(gCurrentActor, gCurrentActor->sub4->scaleY * 1.01);
                 bossSpawnPuffDebris();
-                flag7F = 1;
+                debrisSfx = 1;
             } else {
                 actorScriptStart(gCurrentActor, 0x227);
                 gCurrentActor->unk155++;
@@ -491,7 +491,7 @@ void bossMainStep(void) {
         case 0:
             scriptState->unk18[0] = tbl[scriptState->scriptPos++];
             scriptState->unk18[1] = scriptState->unk18[0];
-            bossSetAnimationByWaypoint((u8 *)waypoints);
+            bossSetAnimationByWaypoint(waypoints);
             waypoints->next = bossPickWaypointStep(scriptState, waypoints);
             gCurrentActor->unk155 = 1;
             gCurrentActor->contactFlags |= 1;
@@ -502,7 +502,7 @@ void bossMainStep(void) {
         case 2:
             actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-            bossInterpolateWaypoints((u8 *)waypoints, gCurrentActor->sub4->animId == 0x223 ? 0.02173913f : 0.041666664f);
+            bossInterpolateWaypoints(waypoints, gCurrentActor->sub4->animId == 0x223 ? 0.02173913f : 0.041666664f);
             if (gCurrentActor->sub4->animId == 0x223) {
                 v = 0x35;
             } else {
@@ -513,7 +513,7 @@ void bossMainStep(void) {
             } else {
                 gCurrentActor->contactFlags = 0;
                 effectSpawnBoneDebris(4, 1);
-                flag7F = 1;
+                debrisSfx = 1;
             }
             break;
         case 3:
@@ -525,7 +525,7 @@ void bossMainStep(void) {
             if (scriptState->unk18[0] != 0) {
                 waypoints->next = bossPickWaypointStep(scriptState, waypoints);
                 scriptState->unk18[0]--;
-                bossSetAnimationByWaypoint((u8 *)waypoints);
+                bossSetAnimationByWaypoint(waypoints);
                 gCurrentActor->unk155 = 1;
             } else {
                 gCurrentActor->state = tbl[scriptState->scriptPos];
@@ -567,7 +567,7 @@ void bossMainStep(void) {
             case 3:
                 if (gCurrentActor->state == 0x25) {
                     effectSpawnBoneDebris(3, 1);
-                    flag7F = 1;
+                    debrisSfx = 1;
                 } else {
                     actorGetNodePos(gCurrentActor, 1, &boneX, &boneY, &boneZ);
                     boneX += (randomNonNegative() >> 15) % 100 - 0x32;
@@ -586,7 +586,7 @@ void bossMainStep(void) {
                     projectileAimAndSpawn(0x3B, 1, 1.2f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + 5.0f, gPrimaryPlayerActor->z, 900.0f, gCurrentActor);
                 } else {
                     waypoints->next = bossPickWaypointStep(scriptState, waypoints);
-                    bossSpawnObjectAtWaypoint((u8 *)waypoints);
+                    bossSpawnObjectAtWaypoint(waypoints);
                 }
                 gCurrentActor->unk155 = 5;
                 break;
@@ -605,7 +605,7 @@ void bossMainStep(void) {
                     if (gPrimaryPlayerActor->state == 0x33) {
                         gBehaviourWorkState->timer = scriptState->unk18[1];
                     } else {
-                        gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
+                        gBehaviourWorkState->timer--;
                     }
                 } else {
                     gCurrentActor->unk155 = 2;
@@ -677,12 +677,12 @@ void bossMainStep(void) {
         case 2:
             effectSpawnBoneDebris(2, 1);
             effectSpawnBoneDebris(3, 1);
-            flag7F = 1;
+            debrisSfx = 1;
             break;
         case 3:
             effectSpawnBoneDebrisScaled(2, (randomNonNegative() >> 15) % 0x7FFF % 6 + 5, 0x28);
             effectSpawnBoneDebrisScaled(3, (randomNonNegative() >> 15) % 0x7FFF % 6 + 5, 0x28);
-            flag7F = 1;
+            debrisSfx = 1;
             break;
         case 4:
             bossAdjustHealth(scriptState->unk8[0]);
@@ -703,7 +703,7 @@ void bossMainStep(void) {
             break;
         case 1:
             if (gBehaviourWorkState->timer != 0) {
-                gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
+                gBehaviourWorkState->timer--;
             } else {
                 scriptState->scriptPos = scriptState->loopPos;
                 gCurrentActor->state = tbl[scriptState->scriptPos];
@@ -743,20 +743,16 @@ void bossMainStep(void) {
         case 5:
             if (camIsCutsceneActive() == 0) {
                 bossSetRandomObjectPair(waypoints, 0);
-                i = 0;
-                do {
+                for (i = 0; i < 0x10; i++) {
                     if (i != waypoints->current) {
                         csModelStateSetFirstByte(i, 0x28);
                     }
-                    i++;
-                } while (i < 0x10);
+                }
                 bossSpawnParticleRing(0x8A, D_807FDCA0->entries[waypoints->current].x, D_807FDCA0->entries[waypoints->current].y, D_807FDCA0->entries[waypoints->current].z, 0x5DC, 1);
                 gCurrentActor->state = 0x40;
-                i = 0;
-                do {
+                for (i = 0; i < 7; i++) {
                     volumeTriggerSetEnabled(i, 0);
-                    i++;
-                } while (i < 7);
+                }
             }
             break;
         }
@@ -765,7 +761,7 @@ void bossMainStep(void) {
         bossScriptStep(tbl, 0, 0.0f);
         break;
     }
-    if (flag7F != 0) {
+    if (debrisSfx != 0) {
         if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x135, 0x4B, 1, 0, 0xB4, 1.0f, 0);
         }

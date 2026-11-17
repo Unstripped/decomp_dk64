@@ -8,10 +8,10 @@ struct BossWaypointState;
 u8 bossPickWaypointStep(BossScriptState *, struct BossWaypointState *);
 #endif
 #ifndef PROTO_SKIP_bossSetAnimationByWaypoint
-void bossSetAnimationByWaypoint(u8 *);
+void bossSetAnimationByWaypoint(struct BossWaypointState *);
 #endif
 #ifndef PROTO_SKIP_bossInterpolateWaypoints
-void bossInterpolateWaypoints(u8 *, f32);
+void bossInterpolateWaypoints(struct BossWaypointState *, f32);
 #endif
 #ifndef PROTO_SKIP_bossSpawnPuffDebris
 void bossSpawnPuffDebris(void);
@@ -20,7 +20,7 @@ void bossSpawnPuffDebris(void);
 void bossSetRandomObjectPair();
 #endif
 #ifndef PROTO_SKIP_bossSpawnObjectAtWaypoint
-void bossSpawnObjectAtWaypoint(u8 *);
+void bossSpawnObjectAtWaypoint(struct BossWaypointState *);
 #endif
 #ifndef PROTO_SKIP_bossCheckPlayerBelow
 s32 bossCheckPlayerBelow(BossScriptState *, u8 *);
