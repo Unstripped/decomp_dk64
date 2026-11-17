@@ -484,8 +484,6 @@ DlOpInfo D_8074685C[27] = {
 extern char D_80757184[];
 extern char D_80757188[];
 char *D_80746A0C[2] = { D_80757184, D_80757188 };
-extern u32 gRdpOutputBuffer;
-extern u32 gRdpOutputBufferSize;
 
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
@@ -554,13 +552,13 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         page = sPageAddr[0];
         cur = page;
         while (done == 0 && line < 15) {
-            off = (u32)cur - gRdpOutputBuffer;
+            off = (u8 *)cur - gRdpOutputBuffer;
             if (line < 14) {
                 sNextPageMode = mode;
                 sNextPageAddr = cur;
             }
             op = (*cur >> 24) & 0xFF;
-            if (gRdpOutputBuffer + gRdpOutputBufferSize < (u32)cur) {
+            if (gRdpOutputBuffer + gRdpOutputBufferSize < (u8 *)cur) {
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {

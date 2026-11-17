@@ -28,12 +28,10 @@ extern u8 gHiResScale;
 extern s32 gFramebuffers[];
 extern s32 D_80744474;
 extern u16 *gGfxDepthBuffer;
-extern u8 *gRdpOutputBuffer;
 extern s32 D_807F0974;
 extern s32 D_807F0978;
 extern s32 D_807F097C;
 extern s32 D_807F0980;
-extern s32 gRdpOutputBufferSize;
 extern s32 gHeapUnused5A60;
 
 

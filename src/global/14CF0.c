@@ -23,8 +23,6 @@ void func_8060FFF0(void) {
 
 extern s8 gMainThreadHalted;
 extern u8 gGfxBufferIndex;
-extern u32 gRdpOutputBuffer;
-extern u32 gRdpOutputBufferSize;
 extern TaskNode gGfxTaskNodes[][2];
 extern void *gFramebuffers[];
 extern u8 D_805FB000[];

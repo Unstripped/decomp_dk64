@@ -33,4 +33,8 @@ extern u32 gGameFrameCounter; // advances like gFrameCounter except while gGloba
 extern OSContPad gContPadCur;
 extern OSContPad gContPadPrev;
 
+// RDP output buffer allocated by loadOverlay (15050) and handed to every gfx task (schedSubmitGfxTask, 14CF0).
+extern u8 *gRdpOutputBuffer;
+extern s32 gRdpOutputBufferSize;
+
 #endif
