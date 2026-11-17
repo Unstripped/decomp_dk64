@@ -613,6 +613,7 @@ u8 csCondEval(CsCond *cond, CsStateFull *cs, s16 csId) {
     PlayerState *playerState;
     u32 mask;
     Actor *b;
+    s32 value;
 
     if (cond->op & 0x8000) {
         neg = 1;
@@ -757,8 +758,8 @@ u8 csCondEval(CsCond *cond, CsStateFull *cs, s16 csId) {
         }
         break;
     case 0x1C:
-        h = modelAnimEntryGetUnkC(csId, cond->arg[0]); // FAKE: reuses the actor-loop index h for the entry value; a dedicated local takes a stack slot (frame 0x78 -> 0x80)
-        if ((cond->arg[1] == 0 && h < cond->arg[2]) || (cond->arg[1] == 1 && cond->arg[2] < h)) {
+        value = modelAnimEntryGetUnkC(csId, cond->arg[0]);
+        if ((cond->arg[1] == 0 && value < cond->arg[2]) || (cond->arg[1] == 1 && cond->arg[2] < value)) {
             ret = 1;
         } else {
             ret = 0;
@@ -958,9 +959,8 @@ u8 csCondEval(CsCond *cond, CsStateFull *cs, s16 csId) {
                 a = p->actor;
                 if (cond->arg[0] == a->state) {
                     if (cond->arg[1] != 0) {
-                        s32 arg = cond->arg[1];
-
-                        if (a->unk155 == arg) {
+                        value = cond->arg[1];
+                        if (a->unk155 == value) {
                             ret = 1;
                         }
                     } else {
