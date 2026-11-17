@@ -493,7 +493,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     static u32 *sDumpBase = NULL;
     static u32 *sNextPageAddr = NULL;
     static s16 sPrevButtons = 0;
-    static u32 *sPageAddr = NULL;
+    static u32 *sPageAddr[1] = { NULL };  // FAKE: one-element array makes each read an ilod of &sPageAddr, so the page copy below keeps the 0x1018 load in $v0 (lui v0) before s5 (Q0545)
     static s32 sPageMode = 0;
     static s32 sNextPageMode = 0;
     static s8 sAutoPageCount = 4;
@@ -512,7 +512,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     u32 done;
     char buf[36];
     s32 i;
-    s32 pad;
+    u32 *page;
     s32 ret;
 
     done = 0;
@@ -528,12 +528,12 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         }
         if ((buttons & D_JPAD) && !(sPrevButtons & D_JPAD) && sNextPageAddr != NULL) {
             sPageMode = sNextPageMode;
-            sPageAddr = sNextPageAddr;
+            sPageAddr[0] = sNextPageAddr;
         }
         if ((buttons & U_JPAD) && !(sPrevButtons & U_JPAD)) {
             start = (u32 *)gRdpOutputBuffer;
             sPageMode = 0;
-            sPageAddr = start;
+            sPageAddr[0] = start;
         }
         if ((buttons & R_TRIG) && !(sPrevButtons & R_TRIG)) {
             ret = 1;
@@ -543,7 +543,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         sPageMode = 0;
         start = (u32 *)gRdpOutputBuffer;
         sDumpBase = start;
-        sPageAddr = start;
+        sPageAddr[0] = start;
         sPrevButtons = 0;
         sNextPageAddr = NULL;
     }
@@ -551,8 +551,8 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         faultFontInit(gFramebuffers[p], 0, 1);
         line = 0;
         mode = sPageMode;
-        cur = (u32 *)*(u32 *)&sPageAddr;  // FAKE: u32 ilod through &sPageAddr, first of the two loads the dead read below pairs with (Q0545)
-        if (*(u32 *)&sPageAddr) {}  // FAKE: second ilod of sPageAddr makes uopt keep the load in a CSE temp ($v0), so as1 expands it via lui $v0 and moves it to s5
+        page = sPageAddr[0];
+        cur = page;
         while (done == 0 && line < 15) {
             off = (u32)cur - gRdpOutputBuffer;
             if (line < 14) {
