@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -93,7 +92,6 @@ extern s8 gPausingPlayer;
 extern PlayerStruct *gPlayerSlots;
 extern s8 gMpWinnerIndex;
 
-Gfx *renderRotatedSprite(Gfx *, u16, s32, u8, u8, u8, s16, s16, f32, f32, s32, f32); // FAKE: callee prototype steer
 f32 sqrtf(f32);
 
 extern char D_8075AA80[], D_8075AA88[], D_8075AA90[], D_8075AA94[], D_8075AA9C[], D_8075AAA4[], D_8075AAAC[];

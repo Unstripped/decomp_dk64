@@ -154,7 +154,7 @@ extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 
-Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
+Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, u32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
     void *tex;
     s16 tileSize;
     u16 bpp;

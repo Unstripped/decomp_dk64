@@ -29,7 +29,7 @@ void renderCallbacksRegister(void *, void *, u8);
 Gfx *renderRotatedQuad(Gfx *, s32, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_renderRotatedSprite
-Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, u16, s32, u32, u8, u8, s16, s16, f32, f32, s32, f32);
 #endif
 #ifndef PROTO_SKIP_renderScrollingBackdropQuad
 Gfx *renderScrollingBackdropQuad(Gfx *, f32 *);
