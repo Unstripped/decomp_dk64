@@ -1466,39 +1466,31 @@ Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
     f32 textX;
     f32 textY1;
     f32 textY2;
-    u8 *q;
-    s16 y;
+    u8 *player;
+    s16 scaledY1;
     s16 scaledY2;
     u8 strBuf[200];
-    s32 sel;
+    s32 isWinner;
 
     state = actor->customState;
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     menuComputeElementPosition(state, 160.0f, 45.0f, &textX, &textY1, 2, 0, 1.8f);
     menuComputeElementPosition(state, 160.0f, 185.0f, &textX, &textY2, 2, 0, 1.8f);
-    y = (s32)(textY1 * 4.0);
-    scaledY2 = (s32)(textY2 * 4.0);
+    scaledY1 = textY1 * 4.0;
+    scaledY2 = textY2 * 4.0;
     step = 0x11D / D_80033878;
     x = step * 2 + 0x46;
     step *= 4;
-    q = D_80033F20;
-    i = 0;
-    if (D_80033878 > 0) {
-        do {
-            _sprintf(strBuf, "P %d", *q + 1);
-            dl = hudDrawScaledText(dl, x, y, 0.6f, strBuf);
-            sel = i == gMpWinnerIndex;
-            dl = hudDrawScaledText(dl, x, (s16)(y + 0x30), 0.6f, D_80033F28[0x1D + sel]);
-            _sprintf(strBuf, "%d", D_80744524[*q]);
-            dl = hudDrawScaledText(dl, x, scaledY2, 0.6f, strBuf);
-            i += 1;
-            q += 1;
-            dl = dl; // FAKE: no-op self-assignment steers as1 order of q++ vs dl move
-            x += step;
-        } while (i < D_80033878);
-        if (i) {} // FAKE: dead if keeps loop counter live after the loop (as1 order)
+    for (i = 0, player = D_80033F20; i < D_80033878; i++, player++) {
+        _sprintf(strBuf, "P %d", *player + 1);
+        dl = hudDrawScaledText(dl, x, scaledY1, 0.6f, strBuf);
+        isWinner = i == gMpWinnerIndex;
+        dl = hudDrawScaledText(dl, x, scaledY1 + 0x30, 0.6f, D_80033F28[0x1D + isWinner]);
+        _sprintf(strBuf, "%d", D_80744524[*player]);
+        dl = hudDrawScaledText(dl, x, scaledY2, 0.6f, strBuf);
+        x += step;
     }
-    return hudDrawScaledText(dl, 0x280, (s16)(scaledY2 - 0x50), 0.6f, D_80033F28[0x1F]);
+    return hudDrawScaledText(dl, 0x280, scaledY2 - 0x50, 0.6f, D_80033F28[0x1F]);
 }
 
 
