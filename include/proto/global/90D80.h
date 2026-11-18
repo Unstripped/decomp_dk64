@@ -26,7 +26,7 @@ void renderCallbacksDisableForActor(Actor *);
 void renderCallbacksRegister(void *, void *, u8);
 #endif
 #ifndef PROTO_SKIP_renderRotatedQuad
-Gfx *renderRotatedQuad(Gfx *, s32, s16, s16, s16);
+Gfx *renderRotatedQuad(Gfx *, void *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_renderRotatedSprite
 Gfx *renderRotatedSprite(Gfx *, u16, s32, u32, u8, u8, s16, s16, f32, f32, s32, f32);
@@ -35,7 +35,7 @@ Gfx *renderRotatedSprite(Gfx *, u16, s32, u32, u8, u8, s16, s16, f32, f32, s32, 
 Gfx *renderScrollingBackdropQuad(Gfx *, f32 *);
 #endif
 #ifndef PROTO_SKIP_renderBonusTargetMarker
-Gfx *renderBonusTargetMarker(Gfx *, s32);
+Gfx *renderBonusTargetMarker(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_renderHitCounterHUD
 Gfx *renderHitCounterHUD(Gfx *, struct CsCountdown *);
