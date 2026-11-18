@@ -177,20 +177,19 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
         return;
     }
 
-    do {
+    while ((i < 4) && !found) {
         if ((gBillboardCache[i].lastUsedFrame != -1) && (assetId == gBillboardCache[i].assetId)) {
             found = TRUE;
         } else {
             i++;
         }
-    } while ((i < 4) && !found);
+    }
 
     if (!found) {
         i = 0;
         found = FALSE;
-        if ((u32)gBillboardCache[i].lastUsedFrame == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
         while ((i < 4) && !found) {
-            if ((u32)gBillboardCache[i].lastUsedFrame == 0xFFFFFFFF) { // FAKE: unsigned spelling of the -1 sentinel steers the compare
+            if (gBillboardCache[i].lastUsedFrame == -1) {
                 found = TRUE;
             } else {
                 i++;
@@ -203,7 +202,7 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
         gBillboardCache[i].texture = assetLoad(7, assetId, 0, 0);
         gBillboardCache[i].assetId = assetId;
     }
-    gBillboardCache[i * 1].lastUsedFrame = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+    gBillboardCache[i].lastUsedFrame = gFrameCounter;
     gBillboardQueue[gBillboardQueueCount].cacheIndex = i;
     gBillboardQueue[gBillboardQueueCount].alpha = alpha;
     if (actor->renderFlags & 0x40) {
