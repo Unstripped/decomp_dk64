@@ -1,8 +1,9 @@
 # mapBspPlaneDistanceCheck (global, src/global/2F550.c)
 ## Sites
 global:8062EBB8:other:3a0961 other: byte-offset corner reads `*(f32 *)((u8 *)D_807F5E20 + i * 12)` (+4, +8) and the `< sViewPlane` loop bound. FIXED 2026-11-18: file-scope `extern f32 D_807F5E20[4][3];`, `D_807F5E20[i][k]` reads, `while (i < 4)`.
-global:8062EBB8:dead-if:5d2f3f dead-if: `if (dot && dot) {}` after sqrtf. Needed only because the 4b7f43 guard adds a use of dx; with 4b7f43 removed it changes nothing (both removed 16 = dx guard removed 16; dot guard alone removed 35: dot (M-72) split, part $f24).
-global:8062EBB8:dead-if:4b7f43 dead-if: `if (dx) {}` after dz. Class 1 block split (sweep says class 2: it only tries int locals): with BOTH guards removed one no-code split after dz or after d (`if (1) {}`, `if (0) {}`, `while (0) {}`, `switch (i) {}`) scores 3 = the reloc-only bound diff; a guard on any live local (dx, dy, dz, d, nx, x, dot) adds a use and needs the dot guard back (35-54).
+global:8062EBB8:dead-if:5d2f3f dead-if (FIXED 2026-11-18, lead quick win 3c67d642): `if (dot && dot) {}` after sqrtf only repaired the extra dx use the 4b7f43 guard added (both removed 16; dot guard alone removed 35: dot (M-72) split, part $f24).
+global:8062EBB8:dead-if:4b7f43 dead-if (FIXED 2026-11-18, lead quick win 3c67d642): `if (dx) {}` after dz, a class 1 block split. With BOTH guards removed, one no-code split after dz or after d (`if (1) {}`, `if (0) {}`, `while (0) {}`, `switch (i) {}`) scores 3, the reloc-only bound diff. A guard on any live local (dx, dy, dz, d, nx, x, dot) adds a use and needs the dot guard back (35-54).
+global:8062EBB8:dead-if:aa1df8 dead-if (since 3c67d642, director compound ruling turn 80): the single tagged `if (1) {}` after dz that replaces both. It is still a steer: no natural C gives that label (see Attempts 2026-11-18).
 ## Attempts
 2026-11-09 CleanD5E10 opus:low: both guards plus byte-offset removed: blocks 26/18, D_807F5E20[i * 3] addu order.
 2026-11-10 Rev10E opus:xhigh: uopt_trace per site; permute best 30 (aliasing node local + if (!node)); reconstruct corner pointer walk 5211.
