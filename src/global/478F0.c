@@ -540,10 +540,10 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
                 if (dist < 2200.0f) {
                     if (gAmbientIndoors != 0) {
                         if (D_80770DD4 < 600.0f) {
-                            sfxPlayOnFreeSlot(0x9C, (s32)(((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - D_80770DD4)) / 1000.0), D_80770DCC, 0.8f, 0x1E, (u32)D_80770DD0);
+                            sfxPlayOnFreeSlot(0x9C, ((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - D_80770DD4)) / 1000.0, D_80770DCC, 0.8f, 0x1E, D_80770DD0);
                         }
                     } else {
-                        sfxPlayWithRandomPan(0x9C, (u32)(fade * 60.0f), 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
+                        sfxPlayWithRandomPan(0x9C, fade * 60.0f, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
                     }
                 }
                 f->red = 1.0f;
@@ -677,7 +677,7 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 y;
 
     if ((randomLcgNext() / 10000U) % 10U == 0) {
-        idx = (randomLcgNext() / 10000U) % (u32)c;
+        idx = (randomLcgNext() / 10000U) % c;
         y = gMinecartTrackPoints[b][idx].y;
         if (collisionCheckGroundAtPoint(gMinecartTrackPoints[b][idx].x, gMinecartTrackPoints[b][idx].z, &y)) {
             effectSetSpeed(y + 2.0);
@@ -954,7 +954,6 @@ s32 D_8074810C = 0x50;
 s32 D_80748110 = 0x28;
 s32 D_80748114 = 3;
 f32 D_80748118 = 80.0f;
-f32 sqrtf(f32);
 
 void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 start;
@@ -1034,7 +1033,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
             } else {
                 t = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
                 u = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
-                actorListSpawnNodeEntry(0x5C, gPrimaryPlayerActor->x + t, gPrimaryPlayerActor->y + (f32)D_80748100, gPrimaryPlayerActor->z + u, 0, D_80748104, 0, vec);
+                actorListSpawnNodeEntry(0x5C, gPrimaryPlayerActor->x + t, gPrimaryPlayerActor->y + D_80748100, gPrimaryPlayerActor->z + u, 0, D_80748104, 0, vec);
             }
             if (p->flag14) {
                 p->delay = D_80748114;
@@ -1144,7 +1143,7 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     while (hit == 0 && start != *p) {
         pl = gPlayerSlots;
-        v = *p + gMinecartTrackPoints[0];
+        v = *p + gMinecartTrackPoints[0]; // FAKE: index-first sum puts the track base in t1/t2 and the *p * 12 mflo in t3 (0x3c54-0x3c70); base-first or &[0][*p] gives mflo t1, base t2/t3 (pre-existing, now tagged)
         dz = pl->camZ - v->z;
         dx = pl->camX - v->x;
         dy = pl->camY - v->y;
@@ -1155,7 +1154,7 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetSpeed(0);
             effectSetCallback(effectLightGrowShrinkUpdate);
             effectSetMaxDistance(0x320);
-            v = *p + gMinecartTrackPoints[0];
+            v = *p + gMinecartTrackPoints[0]; // FAKE: index-first sum keeps *p in t6, the track base in t4/t5 and mflo t7 (0x3ce8-0x3d00); base-first or &[0][*p] gives *p t4, base t6/t7, mflo t5 (pre-existing, now tagged)
             effectCreateAtPosition(D_80720BC4, 2.5f, v->x, v->y, v->z);
         } else {
             (*p)++;
@@ -1194,11 +1193,11 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     f64 d1;
 
     for (i = 0; i < D_80748148; i++) {
-        d0 = (u32)randomLcgNext() / 1000 % 100;
+        d0 = randomLcgNext() / 1000 % 100;
         fx = d0 - 50.0;
-        d1 = (u32)randomLcgNext() / 1000 % 100;
+        d1 = randomLcgNext() / 1000 % 100;
         fy = d1 - 50.0;
-        d0 = (u32)randomLcgNext() / 1000 % 100;
+        d0 = randomLcgNext() / 1000 % 100;
         fz = d0 - 50.0;
         effectSetAngle(i);
         effectSetDepth(1);
@@ -1220,9 +1219,9 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         effectCreateAtPosition(sEffectSparkConfig, D_80748144, gCsPosX, gCsPosY + D_8074814C, gCsPosZ);
     }
     for (i = 0; i != 0x1130; i += 0x190) {
-        vec[0] = (f32)((s32)(randomNonNegative() >> 0xF) % D_8074812C) + D_80748120;
+        vec[0] = (randomNonNegative() >> 0xF) % D_8074812C + D_80748120;
         vec[1] = i;
-        vec[2] = (f32)((s32)(randomNonNegative() >> 0xF) % D_80748130) + D_80748124;
+        vec[2] = (randomNonNegative() >> 0xF) % D_80748130 + D_80748124;
         actorListSpawnNodeEntry(0x5A, gCsPosX, gCsPosY + D_8074811C, gCsPosZ, 0, D_80748128, 0, vec);
     }
 }
@@ -2730,7 +2729,7 @@ void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     if (c != 0) {
         for (i = 0; i < gMapChunkCount; i++) {
-            lightSetColor(D_80748280[0], D_80748280[1], D_80748280[2], (s16)i);
+            lightSetColor(D_80748280[0], D_80748280[1], D_80748280[2], i);
         }
     } else {
         lightGetColor(&r, &g, &bl, 0);
@@ -2762,7 +2761,7 @@ void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
             }
         }
         for (i = 0; i < gMapChunkCount; i++) {
-            lightSetColor(r, g, bl, (s16)i);
+            lightSetColor(r, g, bl, i);
         }
     }
 }
@@ -3259,9 +3258,9 @@ void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         gCsPosY = pts[prev].y;
     }
-    tr->pts[D_807482B0].x = gCsPosX;
-    tr->pts[D_807482B0].y = gCsPosY;
-    tr->pts[D_807482B0].z = gCsPosZ;
+    pts[D_807482B0].x = gCsPosX;
+    pts[D_807482B0].y = gCsPosY;
+    pts[D_807482B0].z = gCsPosZ;
     idx = D_807482B0 + 1;
     if (idx == 30) {
         idx = 0;
@@ -3277,7 +3276,7 @@ void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
         if (anim != tr->anim[i]) {
             tr->anim[i] = anim;
             if (anim == 0) {
-                sfxPlayFromTargetSlot(csId, (s16)snd, 0xFF, 0x7F, 3, 0x46, 0.3f);
+                sfxPlayFromTargetSlot(csId, snd, 0xFF, 0x7F, 3, 0x46, 0.3f);
             }
         }
         snd = 0x14;
@@ -3474,12 +3473,12 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
     if (p->lastBeat != (anim & 2)) {
-        sfxPlayFromTargetSlot(csId, 0x1DF, 0xFF, (u8)(frame * 0.25 + 5.0), 0, 0x50, 0.3f);
+        sfxPlayFromTargetSlot(csId, 0x1DF, 0xFF, frame * 0.25 + 5.0, 0, 0x50, 0.3f);
         p->lastBeat = anim & 2;
     }
     p->ambientTimer--;
     if (p->ambientTimer <= 0) {
-        sfxPlayOnFreeSlot((s16)(0x34E + ((randomNonNegative() >> 15) % 100 >= 0x33)), 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
+        sfxPlayOnFreeSlot(0x34E + ((randomNonNegative() >> 15) % 100 >= 0x33), 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
         p->ambientTimer = (randomNonNegative() >> 15) % 30 + 0x3C;
     }
 }
@@ -3736,39 +3735,28 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
     }
 }
 
-typedef struct { u8 b[4]; } CsPat4;
-CsPat4 D_807482DC = { { 4, 3, 2, 1 } };
-
 void csCmdSeqMatchPattern4(CsState *cs, s16 csId, s16 val, s16 c) {
-    CsPat4 pat = D_807482DC;
+    u8 pat[4] = { 4, 3, 2, 1 };
 
-    csSeqMatch(cs, csId, val, pat.b, 4, 5, 0x14);
+    csSeqMatch(cs, csId, val, pat, 4, 5, 0x14);
 }
-
-typedef struct { u8 b[5]; } CsPat5;
-CsPat5 D_807482E0 = { { 2, 3, 1, 1, 2 } };
 
 void csCmdSeqMatchPattern5(CsState *cs, s16 csId, s16 val, s16 c) {
-    CsPat5 pat = D_807482E0;
+    u8 pat[5] = { 2, 3, 1, 1, 2 };
 
-    csSeqMatch(cs, csId, val, pat.b, 5, 4, 0x14);
+    csSeqMatch(cs, csId, val, pat, 5, 4, 0x14);
 }
-
-typedef struct { u8 b[3]; } CsPat3;
-CsPat3 D_807482E8 = { { 3, 4, 1 } };
 
 void csCmdSeqMatchPattern3(CsState *cs, s16 csId, s16 val, s16 c) {
-    CsPat3 pat = D_807482E8;
+    u8 pat[3] = { 3, 4, 1 };
 
-    csSeqMatch(cs, csId, val, pat.b, 3, 7, 0x14);
+    csSeqMatch(cs, csId, val, pat, 3, 7, 0x14);
 }
 
-CsPat4 D_807482EC = { { 3, 2, 1, 0 } };
-
 void csCmdSeqMatchPattern4B(CsState *cs, s16 csId, s16 val, s16 c) {
-    CsPat4 pat = D_807482EC;
+    u8 pat[4] = { 3, 2, 1, 0 };
 
-    csSeqMatch(cs, csId, val, pat.b, 3, 7, 0x14);
+    csSeqMatch(cs, csId, val, pat, 3, 7, 0x14);
 }
 
 void csCmdRandomizeCutsceneTimer(CsState *cs, s16 csId, s16 b, s16 c) {
