@@ -141,11 +141,7 @@ void healthApplyPendingDelta(s32 playerIndex, PlayerStruct *hudState, PlayerInve
 }
 
 
-Gfx *healthHudUpdateDraw(glist, playerIndex, hudState)
-Gfx *glist;
-s16 playerIndex;
-PlayerStruct *hudState;
-{
+Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *hudState) {
     s32 idx;
     f32 angle;
     PlayerInventory *inv;
@@ -233,25 +229,17 @@ extern s8 D_80744504;
 
 Gfx *healthHudDrawAll(Gfx *glist) {
     s16 playerIndex;
-    s32 slotOffset;
     u16 flags;
-    s32 playerSlot;
+    PlayerStruct *slot;
 
-    playerIndex = 0;
-    if ((s32)gPlayerCount > 0) {
-        do {
-            slotOffset = playerIndex * 0x2F0;
-            playerSlot = (s32)gPlayerSlots + slotOffset;
-            if (((PlayerStruct *)playerSlot)->active != 0) {
-                flags = ((PlayerStruct *)playerSlot)->unk2E2;
-                if (!(flags & 0x20) && (((((PlayerStruct *)playerSlot)->unk2E4 != 0 || flags != 0) &&
-                                           D_80744504 == 0) ||
-                                          flags & 0x10)) {
-                    glist = healthHudUpdateDraw(glist, (s16)(playerIndex + 0), (slotOffset ^ 0) + (s32)gPlayerSlots, (s32)gPlayerSlots); // FAKE: extra argument to the K&R callee (removing it breaks the match)
-                }
+    for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
+        slot = (PlayerStruct *)((s32)gPlayerSlots + playerIndex * 0x2F0); // FAKE: integer-address slot for base-first addu (typed forms CSE with the call argument)
+        if (slot->active) {
+            flags = slot->unk2E2;
+            if (!(flags & 0x20) && (((slot->unk2E4 || flags) && !D_80744504) || (flags & 0x10))) {
+                glist = healthHudUpdateDraw(glist, playerIndex, &gPlayerSlots[playerIndex]);
             }
-            playerIndex += 1;
-        } while (playerIndex < (s32)gPlayerCount);
+        }
     }
     return glist;
 }
