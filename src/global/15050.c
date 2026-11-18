@@ -715,23 +715,17 @@ void heapTickDeferredFrees(void) {
     s32 flag = 0;
     s32 notExpected = 0x3791DFFF;
     s32 addrBias = 0x4BFFD668;
-    DeferredFree *entry;
-    s32 count;
 
     heapTickDeferredFreesHook(notExpected, addrBias);
     if (~notExpected != *(s32 *)(addrBias + 0x54002C80)) {
         flag = 1;
     }
-    count = gHeapDeferredFreeCount;
-    if (gHeapDeferredFreeCount && gHeapDeferredFreeCount) {}  // FAKE: second count read keeps count in a0 (v1 without it)
-    while (i < count) {
-        entry = &gHeapDeferredFrees[i];
-        if (--entry->delay == 0 && flag == 0) {
-            heapFreeToPool(entry->ptr);
+    while (i < gHeapDeferredFreeCount) {
+        if (--gHeapDeferredFrees[i].delay == 0 && flag == 0) {
+            heapFreeToPool(gHeapDeferredFrees[i].ptr);
             gHeapDeferredFreeCount--;
-            count = gHeapDeferredFreeCount;
-            entry->ptr = gHeapDeferredFrees[count].ptr;
-            entry->delay = gHeapDeferredFrees[count].delay;
+            gHeapDeferredFrees[i].ptr = gHeapDeferredFrees[gHeapDeferredFreeCount].ptr;
+            gHeapDeferredFrees[i].delay = gHeapDeferredFrees[gHeapDeferredFreeCount].delay;
         } else {
             i++;
         }
