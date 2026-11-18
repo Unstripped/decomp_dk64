@@ -82,7 +82,7 @@ f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RacePathState *
     cur = &base[cursor->waypoint];
     mathPickCloserTargetPoint3D(actor->x, actor->y, actor->z, cur, p1, p1, p2, &out.x, &out.y, &out.z);
     d2 = RB_SQ(cur->x - p1->x) + RB_SQ(cur->y - p1->y) + RB_SQ(cur->z - p1->z);
-    return sqrtf((e2 = RB_SQ(cur->z - out.z) + (RB_SQ(cur->x - out.x) + RB_SQ(cur->y - out.y))) / d2); // FAKE: dead store to e2; dropping it changes the sqrt operand codegen
+    return sqrtf((e2 = RB_SQ(cur->z - out.z) + (RB_SQ(cur->x - out.x) + RB_SQ(cur->y - out.y))) / d2); // ORIG: target stores e2 to its home 76(sp) at 0x1b0 and reloads at 0x1b4
 }
 
 f32 raceGetPathDistance(s32 pathLength, u16 laneIndex, u16 waypointIndex) {
