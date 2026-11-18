@@ -1,9 +1,9 @@
 # playerUpdateCommon (global, src/global/CEAE0.c)
 
 ## Sites
-- global:806CA5F8:dead-if:c17942 dead-if (was 8ce181, `if (gCurrentActor && gCurrentActor) {}` until 2026-11-17): `if (gCurrentActor) {}` before the first statement. Its ilod makes the gCurrentActor load {817|0} candidate bit 0, ahead of the attacker var {800|0}. That keeps `&screenX` (addiu s0,sp,0x70 at 0x135c, a3 for both camProjectToScreen calls) in s0 and the gActivePlayerActor pointer in v1 at 0xf14-0x13d8; removing it gives s0 to gActivePlayerActor (adjsave tie order, Q0199). One read is enough.
+- global:806CA5F8:dead-if:c17942 dead-if (was 8ce181, `if (gCurrentActor && gCurrentActor) {}` until 2026-11-17): `if (gCurrentActor) {}` before the first statement. It adds a block (bb 0: 1 use, 1 load, plus an empty default bb) to the gCurrentActor ilod candidate {817|0}, so its adjsave is 5.267 instead of 5.571. The gActivePlayerActor ilod {779|0} (bit 174, bbs 87/134/135) has 5.5 either way. With the test, 174 is coloured first and takes v1 while s0 is still unused; 817 then takes s0. Without it, 817 goes first into s0, and 174 joins the used s0 (0xf14, 0x1320, 0x1390). `&screenX` (sp+112, cand 479) then loses s0 (addiu s0,sp,0x70 at 0x135c, move a3,s0 at 0x1368/0x13b8). The lever is adjsave, not bit numbering (2026-11-18).
 - (fixed 2026-11-17 HackplayerUpdateCommon4) global:806CA5F8:other:81cda0: was `(u32)attackerIndex != gActivePlayerState->playerIndex` on an s8 block local. The local was an isvar, numbered before the playerIndex ilod, so the compare at 0xe54 was `beq v0,t2` without the cast (Q0715, Q0474). With no local (attackerPlayerIndex read directly in the test and the gPlayerSlots index) the plain `attackerPlayerIndex != playerIndex` gives the target `beq t2,v0`.
-- global:806CA5F8:other:318197 other (was 8b0fd9, a cast on all three addresses until 2026-11-17): `&((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX` on the first argument only; headY/headZ are plain. The identity cast builds uadd(load, idx*size). Cast-free spellings build uadd(idx*size, load) and rotate the t7/t8/t0 scratch ring from 0x12d0 (Q0717). Only the first address needs it.
+- global:806CA5F8:other:318197 other (was 8b0fd9, a cast on all three addresses until 2026-11-17): `&((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX` on the first argument only; headY/headZ are plain. cfe sets the operand order. Plain `&p[i].f` with a leaf pointer variable emits `lod idx; ldc 752; mpy; lod p; add`; the cast (any non-leaf base AST) emits `lod p` first. The three addresses are one CSE, which keeps the first argument's order: base-first `addu v0,t7,t0` at 0x12f4. Index-first rotates the t7/t8/t0 scratch ring from 0x12d0 (Q0717, full=37). Only the first address needs it.
 - (removed 2026-11-17) global:806CA5F8:goto:u933fb / u36185 / u72d9b / u72d9b#2: the heavyImpact dispatch is now `switch (heavyImpact) { default: ...; case 1: ...; case 2: ... }`.
 
 ## Attempts
@@ -79,11 +79,22 @@
     - `f32 *head` passed as head, head + 1, head + 2: 41. A `(s32)` index: 177.
     - The plain prevFov copy at 0x8a8 already gives load-first `addu v0,t4,t6`, so the order depends on context (the 3-argument CSE), not only on cfe's subscript tree.
   - Bounds tests respelled subject-first (`gCurrentActor->x > D_807F5FE8`, `->z > D_807F5FEA`). Both orders match.
+- 2026-11-18 cleanup CleanplayerUpdateCommonb (anthropic/claude-opus-5-5), body unchanged (fdiff OK):
+  - fresh sweep: 0 hits.
+  - c17942, uopt_trace -l 5/-l 6 on the base and removal copies:
+    - Base: {817|0} adjsave 5.267 over 37 live bbs. The colouring order is 174 (v1), then 0 (s0).
+    - Removal: {817|0} is bit 2 with adjsave 5.571 over 36 bbs. The order is 2 (s0), then 174 (s0). Candidate 479 (&screenX) is then split and not coloured.
+    - {779|0} (gActivePlayerActor, bit 174) has adjsave 5.5 in both, from 8 uses and 3 loads in bbs 87/134/135.
+    - So the test only has to push 817 below 5.5. A fix needs a code-neutral natural change that lowers 817 by about 1.3% (one use fewer or one more bb in its range) or lifts 779 above 5.571.
+    - Natural tries on the removal copy: `if (!D_807463B8)` 24; the scale test as nested ifs 24; eyeHeight as a ternary 558; `D_807463B8 != 0` with the arms swapped 31.
+    - Re-measured: state assignment first 26 (`sw s0,100(sp)` drops below the D_807463B8 load, and 174 still gets s0). `attacker->customState` 27 (`move a2,s0`, then `sw a2,100(sp)` after the playerCheckQueueDropCallback call).
+  - 318197, cfe ucode (`as1probe.py ucode --cfe`) of the base and cast-removed copies: the only difference is where `lod gPlayerSlots` sits in the first argument's address tree. The headY/headZ arguments are index-first in both copies. The CSE keeps the first occurrence's order.
+  - playerStartPickupApproach (same file): a2dc63 retired by a lead ruling (Q0814 precedent).
 
 ## Untried ideas
 - A field-type change for PlayerState.attackerPlayerIndex/playerIndex was ruled out: playerIndex is already u8 (stored as a byte in CC800/201B0).
-- c17942: one natural statement that reads gCurrentActor once in a test before `attacker = gCurrentActor` and emits no code would fix it. Another option is a natural change that raises the `&screenX` candidate (sp+0x70) above the gActivePlayerActor ilod. Neither is known yet. Declaration order is ruled out.
-- 318197: only the first address (headX) needs a non-leaf base. A natural non-leaf expression for gPlayerSlots, such as a struct member in another view, would fix it. None exists in the known types.
+- c17942: a natural, code-neutral change that lowers the {817|0} gCurrentActor ilod adjsave below 5.5, or lifts {779|0} gActivePlayerActor above 5.571. No code-neutral respelling found so far changes either use count. Declaration order, statement order, D_807463B8 test forms and attacker reads are ruled out.
+- 318197: only the first address (headX) needs a non-leaf base AST. A natural non-leaf expression for gPlayerSlots, such as a struct member in another view, would fix it. None exists: gPlayerSlots is a pointer global loaded by `lw` from its own symbol at 0x12dc.
 
 ## Evidence
 - 0xe54: target `beq t2,v0` (field operand first).
@@ -91,3 +102,5 @@
 - 0x12d0-0x12ec: gCurrentPlayerIndex/gPlayerSlots in t8/t7 ring order (target) vs rotated (cast removed).
 - Frame 0x78. Referenced homes are sp+112/108 (screenX/Y), 104-107 (u8 impacts), 100 (attacker), 92/88/84 (node), 76/72 (proj). sp+116, 96, 80 and the area below 72 are never addressed, so their locals (dist/fx/flags/snd) are register-only.
 - 0x10bc/0x10c4: `cvt.s.w` then `cvt.d.s` for effectTimer (the (f32) cast is real).
+- 0x12d4/0x12dc/0x12f4: idx `lbu t8`, base `lw t7`, product t0, `addu v0,t7,t0`. 0x1304/0x1308/0x130c: the three address arguments at +700/+692/+696 from one v0.
+- 0x135c `addiu s0,sp,0x70`; 0x1368 and 0x13b8 `move a3,s0` (&screenX in s0 for both camProjectToScreen calls). 0xf14, 0x1320 and 0x1390: `lui v1` for gActivePlayerActor.
