@@ -205,7 +205,8 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
     s32 vecsOff;
     s32 portalsOff;
     s32 relocsOff;
-    u8 buf[0xE30];
+    s32 entryOff;
+    u8 buf[0xE2C];
     s32 count;
     s32 k;
     s32 size;
@@ -313,13 +314,13 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
             p += 8;
             gMapChunks[n].litVtx[0] = NULL;
             gMapChunks[n].litVtx[1] = NULL;
-            size = n * 12; // FAKE: byte offset of the chunk's MapChunkCollEntry used through (u8 *) sums below (indexing ((MapChunkCollEntry *)... + n) changes the codegen)
-            gMapChunks[n].collStart = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->offset + ((s32)data + off));
-            gMapChunks[n].collEnd = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))[1].offset + ((s32)data + off));
-            gMapChunks[n].minX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->minX;
-            gMapChunks[n].minZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->minZ;
-            gMapChunks[n].maxX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->maxX;
-            gMapChunks[n].maxZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->maxZ;
+            entryOff = n * sizeof(MapChunkCollEntry);
+            gMapChunks[n].collStart = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->offset + ((s32)data + off));
+            gMapChunks[n].collEnd = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))[1].offset + ((s32)data + off));
+            gMapChunks[n].minX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->minX;
+            gMapChunks[n].minZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->minZ;
+            gMapChunks[n].maxX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->maxX;
+            gMapChunks[n].maxZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->maxZ;
             gMapChunks[n].lastSeenFrame = -1;
             if (count != 0) {
                 gMapChunks[n].cells = heapAlloc(count * 0x24);
@@ -334,7 +335,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
         for (k = 0; k < gMapPortalSlotCount / 2; k++) {
             mapGridTriangleBuildPlane(k, &gMapGridTrianglePlanes[k]);
         }
-        if (gMapChunks) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (gMapChunks) {}  // FAKE: stretches the lda gMapChunks web over the plane loop so the chunk record pointer p takes s2 before it
         k = 0;
         do {
             gMapChunkEnabled[k] = 1;
@@ -2000,7 +2001,7 @@ Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
     s32 found;
 
     gfx = p;
-    if (p == 0) {} // FAKE: rs
+    if (p == 0) {} // FAKE: no-code uopt block boundary before the first packet (if (1) {} matches too); keeps layer uncoloured
     gDPPipeSync(gfx++);
     if (gMapChunks[chunk].kind != 2) {
         switch (layer) {
@@ -2019,7 +2020,7 @@ Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
         }
     } else {
         for (i = 0; i < gMapChunks[chunk].cellCount; i++) {
-            gfx = (Gfx *)((u32)gfx | 0); // FAKE: extra gfx reference (raises its colouring priority above the packet pointers)
+            gfx = (Gfx *)((u32)gfx | 0); // FAKE: uopt folds the | 0 but keeps the u32 cvt, a loop def of gfx that colours it s0 above the packet pointers
             if (gMapChunks[chunk].cells[i].dl[layer] == -1) {
                 continue;
             }
@@ -2031,7 +2032,7 @@ Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
                     node++;
                 }
             } while (found == 0);
-            if (*(u32 *)&gMapCells == 0) {} // FAKE: integer-typed ghost keeps the bound in t1 without coloring the node pointer load
+            if (*(u32 *)&gMapCells == 0) {} // FAKE: dead read of an integer global (its load takes a2, layer stays on the stack, -1 goes to s8)
             if (node->visible == 0) {
                 continue;
             }
