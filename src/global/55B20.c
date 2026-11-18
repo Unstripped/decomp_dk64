@@ -886,19 +886,23 @@ void mapCellFindAtPoint(f32 x, f32 y, f32 z, s16 chunk, s16 parent, s16 *outCell
     i = 0;
     if (gMapCellCount > 0) {
         do {
-            if ((chunk == gMapCells[i].chunk) && (parent == gMapCells[i].parent)) {
+            if (chunk != gMapCells[i].chunk) {
+                continue;
+            } else if (parent != gMapCells[i].parent) {
+                continue;
+            } else {
                 id = gMapCells[i].id;
-                if (id) {} // FAKE: raises the adjsave of id so the table address is not hoisted into a saved register
-                box = gMapCellBoxes;
-                box += id;
-                if (box && box) {} // FAKE: keeps the box live range apart from the hoisted cell table address
-                if (((f32)box->minX <= x) && (x <= (f32)box->maxX) && ((f32)box->minY <= y) && (y <= (f32)box->maxY) && ((f32)box->minZ <= z) && (z <= (f32)box->maxZ)) {
-                    *outCell = id;
-                    mapCellFindAtPoint(x, y, z, chunk, id, outCell);
-                }
             }
-            i++;
-        } while (i < gMapCellCount);
+            box = gMapCellBoxes;
+            box += id;
+            if (!((box->minX <= x) && (x <= box->maxX))) {
+                continue;
+            }
+            if ((box->minY <= y) && (y <= box->maxY) && (box->minZ <= z) && (z <= box->maxZ)) {
+                *outCell = id;
+                mapCellFindAtPoint(x, y, z, chunk, id, outCell);
+            }
+        } while (++i < gMapCellCount);
     }
 }
 
