@@ -341,7 +341,7 @@ void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
                 D_807F7EF4 = gChunkLightB[chunkIdx];
                 if (gGlobalPauseFlags & 0x10) {
                     vtxBuffer = node->meshVtx[gGfxBufferIndex];
-                    lightApplyToVertices(vtxBuffer, vtxBuffer + node->vtxCount, 1, gLightCandidates, lights, gMapChunks[chunkIdx].lightMode == 1);
+                    lightApplyToVertices((s32)vtxBuffer, (s32)(vtxBuffer + node->vtxCount), 1, gLightCandidates, lights, gMapChunks[chunkIdx].lightMode == 1);
                 }
                 node->flags |= 2;
             }

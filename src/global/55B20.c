@@ -1512,10 +1512,9 @@ void mapTriggerApplyZones(f32 x, f32 y, f32 z) {
     u8 idx;
 
     done = 0;
-    i = 0;
-    while (i < D_807F7058) {
+    for (i = 0; i < D_807F7058; i++) {
         idx = D_807F7048[i];
-        if (gMapZones[idx] != 0) {
+        if (gMapZones[idx] != NULL) {
             zone = gMapZones[idx];
             if (!done) {
                 if (zone->enterCount != 0) {
@@ -1530,7 +1529,7 @@ void mapTriggerApplyZones(f32 x, f32 y, f32 z) {
                     }
                 } else {
                     val = zone->exitCells;
-                    if (!zone->enterCount) {} // FAKE: re-test of the count reorders the register candidates of the loop
+                    if (!zone->enterCount) {} // FAKE: dead re-test of the u8 count makes uopt colour its load to $v1 (never emitted), ending ugen's v1 == zone copy so val is built from s2 at 0x3cb0
                     for (j = 0; j < zone->exitCount; j++) {
                         mapCellSetFlag(*val, 0);
                         val++;
@@ -1538,7 +1537,6 @@ void mapTriggerApplyZones(f32 x, f32 y, f32 z) {
                 }
             }
         }
-        i++;
     }
 }
 
@@ -1750,7 +1748,7 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                         D_807F7EEC = gChunkLightR[i];
                                         D_807F7EF0 = gChunkLightG[i];
                                         D_807F7EF4 = gChunkLightB[i];
-                                        lightApplyToVertices(cellVtx, cellVtx + gMapCells[k].vtxCount[j], 1, gLightCandidates, lightCount, gMapChunks[i].lightMode == 1);
+                                        lightApplyToVertices((s32)cellVtx, (s32)(cellVtx + gMapCells[k].vtxCount[j]), 1, gLightCandidates, lightCount, gMapChunks[i].lightMode == 1);
                                     }
                                 }
                             }
@@ -1770,7 +1768,7 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                 D_807F7EF0 = gChunkLightG[i];
                 D_807F7EF4 = gChunkLightB[i];
                 if (gGlobalPauseFlags & 0x10) {
-                    lightApplyToVertices((Vtx *)(s32)gMapChunks[i].litVtx[gGfxBufferIndex], (Vtx *)((u8 *)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize), 1, gLightCandidates, lightCount, gMapChunks[i].lightMode == 1);  // FAKE: integer round trip on the first argument loads litVtx into v0 and copies it to a0 (move a0,v0 at 0x4c0c); a plain pointer loads a0 directly
+                    lightApplyToVertices((s32)gMapChunks[i].litVtx[gGfxBufferIndex], (s32)((u8 *)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize), 1, gLightCandidates, lightCount, gMapChunks[i].lightMode == 1);
                 }
             }
             gMapChunks[i].curVtx = gMapChunks[i].litVtx[gGfxBufferIndex];

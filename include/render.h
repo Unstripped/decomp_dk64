@@ -247,9 +247,10 @@ typedef struct LightTrigger {
 
 extern LightTrigger gLightCandidates[];
 
-// Lights the vertices [start, end) (step `stride` vertices) with lights[0..lightCount); useVertexColor scales by the
-// vertex colour bytes. The owner (asm/global/61690.s, 0x8065C990) is handwritten asm and has no C or generated proto.
-void lightApplyToVertices(Vtx *start, Vtx *end, s32 stride, LightTrigger *lights, s32 lightCount, s32 useVertexColor);
+// Lights the vertices at the addresses [start, end) (step `stride` vertices) with lights[0..lightCount);
+// useVertexColor scales by the vertex colour bytes. The owner (asm/global/61690.s, 0x8065C990) is handwritten
+// asm and has no C or generated proto: it compares start/end with a signed `slt` and steps by stride << 4 bytes.
+void lightApplyToVertices(s32 start, s32 end, s32 stride, LightTrigger *lights, s32 lightCount, s32 useVertexColor);
 
 // One lens-flare source queued by lensFlareAddSource (D_807FD808): world position and RGB colour.
 typedef struct LensFlarePoint {
