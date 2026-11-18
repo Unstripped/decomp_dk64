@@ -1030,3 +1030,4 @@
 {"type": "unit", "t": "2026-11-18T05:07:06Z", "unit": "2026-11-17: cleanup CleanactorBannerTextRender", "commit": "2fb07947200bf0929eba637bf477c8dfe7c8d20b"}
 {"type": "unit", "t": "2026-11-18T05:08:48Z", "unit": "2026-11-17: cleanup CleanraceApplyPositionOffset", "commit": "b84f4e2d99e52962555a2ff240b52c565696d136"}
 {"type": "unit", "t": "2026-11-18T05:10:39Z", "unit": "2026-11-17: cleanup CleanbehaviourFairyInitPlayerScale", "commit": "edfff10e9ba7c594aa4b12e3a625f7cbdd3c1b37"}
+{"type": "unit", "t": "2026-11-18T05:15:09Z", "unit": "2026-11-17: cleanup CleanzoneCheckActorInside", "commit": "5fb2feeecc270d9f68b3bfe92ebd8f2dfb736f2c"}
