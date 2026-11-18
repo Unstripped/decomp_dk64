@@ -42,6 +42,26 @@ SEGMENTS = [
     ("menu", "menu.elf", "menu.map"),
 ]
 
+# Code stream of each segment: (file under bin/segments/ or the boot ROM image,
+# VRAM of that file's byte 0). Boot is the ROM itself (valid from file offset 0x1050).
+SEGMENT_STREAMS = {
+    "boot": ("baserom.us.z64", 0x7FFFF400),
+    "global": ("bin/segments/global.bin", 0x805FB300),
+    **{
+        name: (f"bin/segments/ovl{n:02d}.bin", 0x80024000)
+        for n, name in enumerate(
+            ["multiplayer", "minecart", "bonus", "race", "critter", "boss", "arcade", "jetpac", "menu"], 2)
+    },
+}
+
+
+def segment_paths(build_dir: Path, seg: str) -> tuple[Path, Path]:
+    """(ELF, map) of a segment name from SEGMENTS."""
+    for name, elf, map_name in SEGMENTS:
+        if name == seg:
+            return build_dir / elf, build_dir / map_name
+    raise KeyError(seg)
+
 
 def get_unmatched_in_c(c_path: Path) -> set[str]:
     """Return function names still included via GLOBAL_ASM or INCLUDE_ASM in a C file."""
