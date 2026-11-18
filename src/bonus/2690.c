@@ -1996,14 +1996,14 @@ void bonusSearchlightSeekGameUpdate(void) {
     }
     lightSetColor(subExt->lightLevel, subExt->lightLevel, subExt->lightLevel, -1);
     switch (gCurrentActor->state) {
-        case 0: {
+        case 0:
             sinYaw = mathSinF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             velX = subExt->velX;
             velZ = subExt->velZ;
-            z = gCurrentContPad->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x in a register; a role-named stickX local (any declaration slot, incl. the spare trailing words) or an inline temp is 10-187 lines off: stickX takes $f16 instead of $f2 (Q0739; pre-existing, tagged)
+            z = gCurrentContPad->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x: its 5-block web scores 4.5 over the velX error var's 4.0 and takes $f2 (mul.s at 0x5e18); an honest stickX local scores 3.0 in bb43 and ranks below that var (Q1049, Q0739; pre-existing, tagged)
             stickY = gCurrentContPad->stick_y * 0.06f;
-            velX = ((z * cosYaw) - (stickY * sinYaw)) - velX; // FAKE: velX (the velX pre-read, $f14) also holds the x velocity error ($f12, sub.s at 0x5e48); an inline error term like the velZ line is 101 lines, an accelX local 88-99 (pre-existing, now tagged)
+            velX = ((z * cosYaw) - (stickY * sinYaw)) - velX; // FAKE: velX (the velX pre-read) also holds the x velocity error ($f12, sub.s at 0x5e48): its counted pre-read def + use score 4.0 over the subExt->velX load ($f14, 3.0); an honest error local scores 2.0 and takes $f18 (Q1049; pre-existing, now tagged)
             subExt->velX = subExt->velX + velX * 0.155f;
             subExt->velZ = subExt->velZ + ((z * sinYaw + stickY * cosYaw) - velZ) * 0.25f;
             subExt->offsetX = subExt->offsetX + subExt->velX;
@@ -2027,7 +2027,6 @@ void bonusSearchlightSeekGameUpdate(void) {
                 subExt->fireCooldown = 0x1E;
             }
             break;
-        }
         case 3:
             if (gGameMode != 1) {
                 gCurrentActor->state = 4;
