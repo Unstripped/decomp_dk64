@@ -1989,15 +1989,15 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 ex;
     f32 ez;
     f32 negCos;
-    f32 xs;
+    f32 startX;
     f32 px;
-    f32 zo;
+    f32 startY;
     f32 py;
-    f32 xo;
+    f32 startZ;
     f32 pz;
     void (*cb)(EffectNode *, u8 *);
 
-    if (&xs == 0 || &px == 0 || &zo == 0 || &py == 0 || &xo == 0 || &pz == 0) {} // FAKE: address-taken: keeps the six floats in their declaration-order stack homes
+    if (&startX == 0 || &px == 0 || &startY == 0 || &py == 0 || &startZ == 0 || &pz == 0) {} // FAKE: address-taken: keeps the six floats in their declaration-order stack homes
     ang = gCsRotY * 4096.0f / 360.0f;
     if (c == 2) {
         effectSetDepth(0);
@@ -2027,9 +2027,9 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     ez = p->unk228 * 50.0 + pz;
     for (i = 0; i != 4; i++) {
         t = mathCosF(ang) * 100.0;
-        xs = t * negCos + ex;
-        xo = t * sinA + ez;
-        zo = mathSinF(ang) * 100.0 + py;
+        startX = t * negCos + ex;
+        startZ = t * sinA + ez;
+        startY = mathSinF(ang) * 100.0 + py;
         ang += 0x400;
         effectSetDuration(-1);
         effectSetDepth(0);
@@ -2038,12 +2038,12 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         q = obj->allocation = heapAlloc(0x28);
         q->frames = (randomNonNegative() >> 15) % 5 + 10;
         q->t = 0.0f;
-        q->x = xs;
-        q->y = zo;
-        q->z = xo;
-        q->dx = px - xs;
-        q->dy = py - zo;
-        q->dz = pz - xo;
+        q->x = startX;
+        q->y = startY;
+        q->z = startZ;
+        q->dx = px - startX;
+        q->dy = py - startY;
+        q->dz = pz - startZ;
         q->t2 = 0.0f;
         if (flag != 0) {
             q->rate = 0.09090909f;
