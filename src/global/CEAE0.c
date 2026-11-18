@@ -264,7 +264,7 @@ extern s32 D_8076A090;
 extern s32 D_8076A094;
 extern s32 D_8076A098;
 extern s32 gCurrentMap;
-extern u8 D_80770561;
+extern u8 D_80770560[4];
 extern u8 D_807463B8;
 extern s16 D_807F5FE4;
 extern s16 D_807F5FE6;
@@ -349,7 +349,7 @@ void playerUpdateCommon(s32 mode) {
     playerUpdateScaleAndPhysics();
     playerCheckAndClearCarriedItem();
     playerUpdateSlopeSlidePhysics();
-    if (D_80770561 == 0x6B && gCurrentActor->state != 0x6E) {
+    if (D_80770560[1] == 0x6B && gCurrentActor->state != 0x6E) {
         sfxStopChannel(0x6B, 0);
     }
     if (gActivePlayerState->unkCA != 0) {

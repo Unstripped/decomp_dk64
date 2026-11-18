@@ -473,7 +473,7 @@ typedef struct CsFlicker {
 
 extern u8 gGameMode;
 f32 D_807480DC = 900.0f;
-extern u8 D_8077058C;
+extern u8 D_8077058C[];
 extern u8 gAmbientIndoors;
 extern f32 D_80770DCC;
 extern f32 D_80770DD0;
@@ -529,7 +529,7 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
         if (gPlayerSlots->unk290 == 0xE || (gPlayerSlots->unk290 == 0xB && dist < D_807480DC)) {
             func_80711410(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
         } else {
-            D_8077058C = 0;
+            D_8077058C[0] = 0;
         }
         if ((randomNonNegative() >> 15) % 50 == 15) {
             f->timer = 0x28;
