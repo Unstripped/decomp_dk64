@@ -682,36 +682,36 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
     Gfx *dl;
     s32 y;
     Vtx *vtx;
-    s32 u;
-    s32 v;
-    u32 ustep;
+    s32 posX;
+    s32 posY;
+    u32 stepX;
     s16 xa;
     s32 uls;
-    s32 vb;
+    s32 bottom;
     f32 thf;
     s32 x;
     s32 lrs;
     f32 xf;
     u32 xs;
-    s32 ua;
+    s32 right;
     u32 ys;
-    s32 rowT;
+    s32 top;
     s32 lrt;
     u32 xe;
     s32 ult;
     u32 ye;
     u8 flag;
-    s32 colS;
+    s32 left;
     f32 yf;
     u32 tw;
     f32 twf;
     u32 th;
-    u32 vstep;
+    u32 stepY;
 
-    ustep = texScale * tileW;
+    stepX = texScale * tileW;
     dl = *gfx;
     flag = 1;
-    vstep = texScale * tileH;
+    stepY = texScale * tileH;
     xs = x0 * 32.0f;
     xe = x1 * 32.0f;
     ye = y1 * 32.0f;
@@ -727,14 +727,14 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
     vtx = heapAlloc(((xe - xs) / tw + 1) * ((ye - ys) / th + 1) * (4 * sizeof(Vtx)));
     heapFreeDeferred(vtx);
     gDPPipeSync(dl++);
-    for (y = ys, v = texScale * t0; y < ye; y += th, v += vstep) {
-        u = texScale * s0;
-        rowT = v; // FAKE: redundant copy of v steers register allocation
-        for (x = xs; x < xe; x += tw, u += ustep) {
-            colS = u; // FAKE: redundant copy of u steers register allocation
+    for (y = ys, posY = texScale * t0; y < ye; y += th, posY += stepY) {
+        posX = texScale * s0;
+        top = posY;
+        for (x = xs; x < xe; x += tw, posX += stepX) {
+            left = posX;
             uls = ((x >> 5) - 1) > 0 ? ((x >> 5) - 1) : 0;
             xf = (f32)x - 16.0;
-            ua = (s16)(u + ustep);
+            right = (s16)(posX + stepX);
             lrs = (((x >> 5) + tileW) < ((xe >> 5) - 1) ? ((x >> 5) + tileW) : ((xe >> 5) - 1));
             ult = ((y >> 5) - 1) > 0 ? ((y >> 5) - 1) : 0;
             lrt = ((((y >> 5) + tileH) < ((ye >> 5) - 1)) ? ((y >> 5) + tileH) : ((ye >> 5) - 1));
@@ -750,7 +750,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
             yf = (f32)y - 16.0;
             twf = tileW << 5;
             thf = tileH << 5;
-            vb = (s16)(v + vstep);
+            bottom = (s16)(posY + stepY);
             if (edgeFade) {
                 if (x == xs && edgeFade == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -759,9 +759,9 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
                 }
             }
             if (vtxCallback != NULL) {
-                vtxCallback(u, v, vtx);
+                vtxCallback(left, top, vtx);
             }
-            vtxSetPosTex(vtx++, colS, rowT, xf, yf, flag);
+            vtxSetPosTex(vtx++, left, top, xf, yf, flag);
             if (edgeFade) {
                 if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -770,10 +770,10 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
                 }
             }
             if (vtxCallback != NULL) {
-                vtxCallback(ua, v, vtx);
+                vtxCallback(right, top, vtx);
             }
             xa = xf + twf;
-            vtxSetPosTex(vtx++, ua, rowT, xa, yf, flag);
+            vtxSetPosTex(vtx++, right, top, xa, yf, flag);
             if (edgeFade) {
                 if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -782,9 +782,9 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
                 }
             }
             if (vtxCallback != NULL) {
-                vtxCallback(ua, vb, vtx);
+                vtxCallback(right, bottom, vtx);
             }
-            vtxSetPosTex(vtx++, ua, vb, xa, yf + thf, flag);
+            vtxSetPosTex(vtx++, right, bottom, xa, yf + thf, flag);
             if (edgeFade) {
                 if (x == xs && edgeFade == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -793,9 +793,9 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
                 }
             }
             if (vtxCallback != NULL) {
-                vtxCallback(u, vb, vtx);
+                vtxCallback(left, bottom, vtx);
             }
-            vtxSetPosTex(vtx++, colS, vb, xf, yf + thf, flag);
+            vtxSetPosTex(vtx++, left, bottom, xf, yf + thf, flag);
             gSPVertex(dl++, osVirtualToPhysical(vtx - 4), 4, 0);
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);
