@@ -1043,3 +1043,4 @@
 {"type": "unit", "t": "2026-11-18T05:53:10Z", "unit": "2026-11-17: cleanup CleanminecartUpdateObstacleType3", "commit": "0ce1bb40f2d28e12ed8589c07dcfef4e9301454d"}
 {"type": "unit", "t": "2026-11-18T05:56:14Z", "unit": "2026-11-17: cleanup CleancollisionTransformPointByActorMtx", "commit": "b775e5ba36202413fea115f36cc34c068493b389"}
 {"type": "unit", "t": "2026-11-18T05:59:18Z", "unit": "2026-11-17: cleanup CleanmenuDrawBlinkingPromptText", "commit": "ecc98153d7d892bce0353403c9e30c27d39521aa"}
+{"type": "unit", "t": "2026-11-18T06:01:58Z", "unit": "2026-11-17: cleanup CleanbehaviourFlyPatrolWithCallback", "commit": "3362c88df374cec826adaf3ead99b43d5a56b8a9"}
