@@ -1000,3 +1000,4 @@
 {"type": "unit", "t": "2026-11-18T00:46:47Z", "unit": "2026-11-17: cleanup HackbossMadJackStep3", "commit": "d7790c6016cdd084d977de8923e05dcb975489c7"}
 {"type": "unit", "t": "2026-11-18T00:47:42Z", "unit": "2026-11-17: cleanup HacktextDrawStringVtx6", "commit": "26754927338f6e5b10fa917d1ef41dafd091feb8"}
 {"type": "unit", "t": "2026-11-18T00:50:17Z", "unit": "2026-11-17: cleanup HackbonusSearchlightSeekGameUpdate8", "commit": "ed65331ecc047596528fde36550209cadba46a90"}
+{"type": "unit", "t": "2026-11-18T00:51:21Z", "unit": "2026-11-17: cleanup HackvehicleUpdateMotion9", "commit": "dd98f7bb1c1a2ef08f18575baf93e96692e7ba95"}

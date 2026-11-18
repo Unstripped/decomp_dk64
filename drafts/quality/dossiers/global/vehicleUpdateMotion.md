@@ -149,18 +149,26 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
     as `drag += throttle != 0.0f ? 30.0f : 3.0f` 219, kongState assignment moved after onGround 61 / after
     tiltPitch 51, tiltRoll = 0 before pl 47.
   review nohit: fresh top-to-bottom read at 08f85115, body unchanged, FAKE 2 kept.
+- 2026-11-17 U HackvehicleUpdateMotion9 anthropic/claude-opus-5-5 (copy unchanged apart from the two FAKE comments, fdiff 0; sweep 47 checks 0 hits; uopt -l5 on c5578e18):
+  6c8d63 diagnose nohit (fresh, the old diagnose was stale): waterY is ONE FP candidate (cand 24 {895|0}) over the
+    buoyancy pair (compare bb 48, use bb 49) and the late floor-snap pair (bb 70/71), numerator 12 (4 uses, 2 reload
+    blocks): 12/4 = 3.0 without the guard ties the abs-block speedY candidate (cand 216 {895|12}, 15/5 over bb 49..53)
+    and wins on number -> $f0; the guard adds bb 49/50 -> 12/6 = 2.0 and speedY colours first. Removal 20. Late arm
+    written speedY = accelY before y = waterY: 9 rows (the speedY store forces a waterY reload, the late region leaves
+    cand 24, the buoyancy and early code then match; only the late arm differs): the late-region reuse (swc1 $f2,0x80
+    at 0x1500) is what ties the numerator. Force as `15.0f + depth * 3.0f` 33, `3.0f * depth + 15.0f` 21, register u8 inWater 20.
+  9b1ca1 diagnose nohit: pieces with the guard 10 (bb 0..5), 319 (bb 8..14,18, -0.33), 323 (bb 44..66, 0.2857 -> a0),
+    331 (bb 6,7,15..17,19..43, -0.22); without it bb 6..58 is 2 uses - 2 reloads = 0, dropped unsplit (Q1179): 45. Dead-use
+    position probe BEFORE the turnScale select (tail guard removed): after velZ 97, after the thrust adds 50, after moveYaw
+    45, after turnRate 9, before speedGain 7 and after the heading mask 7 (kongState coloured v1, constant 2 in a0: the
+    alias order). register s32 kongState 45; register on kongState/inWater/onGround with both guards removed 65.
+  review nohit; FAKE comments rewritten in register terms.
 
 ## Untried ideas
-- 6c8d63: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap
-  arm); no natural statement found that does that (the permuter finds only empty ifs there).
-- 9b1ca1: needs kongState's value as a register candidate defined at 0x12cc (a load of 0x58(sp) feeding 0x12ec and
-  0x1434) that is coloured AFTER the constant 2 (v1): a narrow alias gives everything but that order (3). Untried:
-  natural code that lowers that candidate's priority below the constant-2 piece without the dead use, or an s32
-  form that uopt does not copy-propagate (Q0510 lists has_ilod, is_incr, countvars >= 10, availability).
-  Any alias is a redundant-alias steer under the merge rulings, so the alias route cannot retire the tag. Untried
-  (2026-11-17): a natural shape that leaves kongState's bb 44..58 range with ONE reload block (bb 6, the
-  velX/velZ block after the init join bb 5, or bb 19, after the motion-arm join bb 18) without changing the
-  0xd7c-0x12cc code.
+- 6c8d63: a natural construct adding a block between a waterY compare and its use (bb 48->49 or bb 70->71) with no
+  code, or one more speedY use in bb 49..53 with unchanged code; the late-arm reuse of waterY must stay (store-order probe).
+- 9b1ca1: one more kongState use AFTER the bb 58 compare (0x1434) with no code; earlier positions colour kongState before
+  the constant 2 (v1/a0 swapped). Aliases stay redundant-alias steers.
 
 ## Evidence
 0xdf8-0xe1c: `move t1,zero; c.le.s; bc1fl; sb t1,71(sp); li t1,1; sb t1,71(sp)` then `andi t3,t2,1; sb t3,70(sp)`.
@@ -173,3 +181,5 @@ uopt table at base 6fe2a3af: fl[3]/fl[2] were `isvar M 58 -25/-26` without `vreg
 0x12cc (u8 alias body): `lbu v1,0x5b(sp)`, 0x12e0/0x12e8 `li a0,2`, all else equal (full 3); cand 195 = ucvt{194 ucvtl{kongState}}.
 uopt -l5 at 08f85115 (removal copy): kongState piece 321 `live bb 19/6 needreglod`, `44 1`, `58 1 deadout`, adjsave
 0.00000000e+00, no split; base piece 323 `44 1 needreglod`, `58 1`, `66 1 deadout`, adjsave 2.857e-01, a0 (uopt 3).
+uopt -l5 at c5578e18: waterY cand 24 live bb 48, 49..50, 51, 72, 73 (with guard, adjsave 2.0, $f2) vs 48, 49, 70, 71
+(without, 3.0, $f0); speedY cand 217/216 adjsave 3.0 both ways.

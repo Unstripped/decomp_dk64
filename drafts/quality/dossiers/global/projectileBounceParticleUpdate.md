@@ -1,11 +1,11 @@
 # projectileBounceParticleUpdate (global, src/global/936B0.c)
 
 ## Sites
-global:806919E0:other:9121f0 other: line 1172 `dx = dx * dx; // FAKE: dx/dy reused as the running sum ...` in the
-`unkEC == 0` camera-distance test. Steers ugen's block-local FP registers: one variable {dx, dx², sum} in $f0 and
-one {dy, dz} in $f2 (target 0x35cc-0x3604). Register-only reuse: neither value ever touches its home (dx/dy homes are
-never stored; the only FP homes in the frame are scale at 100(sp) and the spill at 72(sp)), so the own-home ORIG rule
-does not apply and the tag stays.
+- global:806919E0:other:9121f0 other: FIXED 2026-11-17 (HackvehicleUpdateMotion9). The camera-distance test is now one
+  squared-distance accumulator refined in place plus a per-axis scratch delta:
+  `dist = x - camX; dist = dist * dist; d = y - camY; dist = dist + d * d; d = z - camZ; dist = dist + d * d;`.
+  dist holds {x delta, x^2, sum} in $f0 and d holds {y delta, z delta} in $f2, exactly the target's two block-local FP
+  variables (0x35cc-0x3604); frame 0x78 unchanged. Whole-object fdiff 0.
 
 ## Attempts
 2026-11-14 PolishGlobal936B0Names opus:high: dz local (block or function scope), inline sum: 35 rows (frame +8, reordered sum).
@@ -27,10 +27,12 @@ does not apply and the tag stays.
   scheduled early: 8 rows. So {dy, dz} must be one variable and {dx, sum} one variable; both are reuses.
 - 3-iteration loop over `(&x)[i]`: not unrolled, 132 rows.
 - permuter (900 s, -j 2, hack-free weights) from the natural three-local block form: see ledger.
+- 2026-11-17 U HackvehicleUpdateMotion9 anthropic/claude-opus-5-5: accumulator shape with names dist/d (no dx reused as the sum): `dist = dist + d * d` 0, `dist = d * d + dist` 0,
+  `dist *= dist` 0, initialised declarations `f32 dist = x delta; f32 d = y delta;` 0, `dist += d * d` 2 rows (add.s $f0,$f0,$f16 /
+  $f0,$f0,$f6 at 0x3600/0x3604: the compound form keeps the accumulator first, Q0313). Applied the sequential `dist = dist + d * d` form.
 
 ## Untried ideas
-- none natural left: the target needs exactly two block-local FP variables with the sum sharing the x-delta's
-  register (Q0318 assign-back keeps the result in the variable's register).
+- none: the site is fixed.
 
 ## Evidence
 target 0x35cc sub.s $f0 (dx); 0x35d8 sub.s $f2 (dy); 0x35dc mul.s $f0,$f0,$f0; 0x35e8 mul.s $f16,$f2,$f2;
