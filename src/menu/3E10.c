@@ -531,7 +531,7 @@ void menuHandleConfirmationInput(Actor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
 }
 
-extern s8 D_80033804;
+extern s8 D_80033804[];
 extern s32 D_8003380C;
 extern s32 D_80033810;
 extern s32 D_80033814;
@@ -543,7 +543,7 @@ Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     s16 textX;
     s16 textY;
     MenuScreenState *state = actor->customState;
-    s8 *iconFlag = &D_80033804;
+    s8 *iconFlag = D_80033804;
     s32 i = 0;
     f32 iconScale = 3.0f;
     f32 scale;
@@ -616,21 +616,18 @@ extern u8 D_80720CF0;
 extern u8 D_80720D14;
 extern u8 D_80720C34;
 extern void *gKongIconSprites[];
-extern s16 D_807505B2;
+extern s16 D_807505B2[];
 extern u32 D_80750AB0;
-extern s8 D_80033804;
-extern s8 D_80033805;
 extern s32 D_8003380C;
 extern s32 D_80033810;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 
-extern s8 D_80033809;
 void menuInitFileSummary(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
     KongInventory *row = gPlayerInventoryTable[0].kong;
-    s8 *p;
-    s16 *q;
+    s16 *flagIds;
+    s32 pad;
     u32 expected;
     u8 flag;
     u32 ioVal;
@@ -643,16 +640,13 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_8072052C, 0x76, 0x91, 0.6f, 2, 9);
     D_80033F4C = 1600.0f;
     eepromLoadPlayerData(D_80033F48, 0);
-    D_80033804 = 1;
-    q = &D_807505B2; p = &D_80033805; i = (s32)&D_80033809; // FAKE: loop counter i holds the end address (s32); an s8 *end local swaps s1/s2 between q and the end (as1 group kept on one line)
-    do {
-        flag = flagGet(q[-1], 0);
-        q++;
-        *p++ = flag;
-    } while (p < (s8 *)i);
-    for (p = &D_80033805 - 1, i = 0; i != 5; i++) {
-        menuSpawnUiElementEffect(state, *p != 0 ? gKongIconSprites[i] : &D_807211D0, i, i, 0.8f, 2, 0xF);
-        p++;
+    D_80033804[0] = 1;
+    for (i = 1, flagIds = D_807505B2; i < 5; i++, flagIds++) {
+        flag = flagGet(flagIds[-1], 0);
+        D_80033804[i] = flag;
+    }
+    for (i = 0; i < 5; i++) {
+        menuSpawnUiElementEffect(state, D_80033804[i] != 0 ? gKongIconSprites[i] : &D_807211D0, i, i, 0.8f, 2, 0xF);
     }
     osPiReadIo(menuDecodePiAddressConstant(0xAFFE1464), &ioVal);
     expected = menuDecodePiAddressConstant(0x0107183B);
@@ -660,8 +654,8 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
         *(u32 *)actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
-    for (k = 0; k != 5; k++) {
-        for (j = 0; j != 8; j++) {
+    for (k = 0; k < 5; k++) {
+        for (j = 0; j < 8; j++) {
             D_8003380C += row->goldenBananas[j];
         }
         row++;
@@ -3226,7 +3220,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             elemActor->scaleY = D_80033F98[idx];
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
-            if (*(&D_80033804 + idx) == 0) {
+            if (D_80033804[idx] == 0) {
                 elemActor->red = (D_800337DC + idx)->r; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
                 elemActor->green = (D_800337DC + idx)->g; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
                 elemActor->blue = (D_800337DC + idx)->b; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
