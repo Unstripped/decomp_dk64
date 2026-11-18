@@ -128,7 +128,7 @@ extern PlayerStruct *gPlayerSlots;
 extern f32 gScreenFadeRate;
 
 void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
-void csModelStateSetFirstByte(); // ORIG: target passes the s32 b unconverted (lw a0,68(sp) at 0x1374, jal at 0x1380, no sll/sra; the shared (s16, s16) prototype adds sll a0,v0,0x10 / sra t2,a0,0x10): the original TU had no prototype for csModelStateSetFirstByte in scope
+void csModelStateSetFirstByte(s32, s16); // ORIG: the original TU declared an int-width first and an s16 second parameter: call 2 passes the s32 b unconverted (lw a0,68(sp) at 0x1374, jal at 0x1380; the shared (s16, s16) prototype adds sll a0,v0,0x10 / sra t2,a0,0x10), while each call narrows its second argument on its own (lh a1,58(sp) at 0x1370/0x1384/0x139c, lh a1,70(sp) at 0x13b8); explicit (s16) casts under an unprototyped declaration share one narrowing spilled to 0x48
 
 void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     s16 params[4];
@@ -144,7 +144,9 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     s32 c;
     s32 d;
     s16 idx;
-    s16 node;
+    s16 chunk;
+    s16 slot;
+    s16 firstByte;
     u32 hi;
     ScriptedActorState *comp;
 
@@ -159,9 +161,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     params[2] = c;
     d = (s16)(params23 & 0xFFFF);
     params[3] = d;
-    if ((u32)d < 0U) { // FAKE: unreachable call precolors d, keeping its item spilled
-        sfxSetMode(d);
-    }
+    firstByte = d;
     switch (cmd & 0xFF) {
         case 0x45:
             spawnNodesSetActorStateByFlag(2, 0x40);
@@ -250,12 +250,12 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             csSendActorMessagePayload(a, b);
             return;
         case 0x27:
-            node = a;
+            chunk = a;
             idx = b;
-            mapChunkEffectSetFlag(node, idx, 0, (u8)c);
-            mapChunkEffectSetFlag(node, idx, 1, (u8)c);
-            mapChunkEffectSetFlag(node, idx, 2, (u8)c);
-            mapChunkEffectSetFlag(node, idx, 3, (u8)c);
+            mapChunkEffectSetFlag(chunk, idx, 0, (u8)c);
+            mapChunkEffectSetFlag(chunk, idx, 1, (u8)c);
+            mapChunkEffectSetFlag(chunk, idx, 2, (u8)c);
+            mapChunkEffectSetFlag(chunk, idx, 3, (u8)c);
             return;
         case 0x8:
             camSetPath(a);
@@ -384,7 +384,8 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             }
             zoneEntryGetPosition(b, c, &actor->x, &actor->y, &actor->z);
             actorAppendMoveTarget2D(0, actor, actor->x, actor->z, 2, 1);
-            actor->yaw = actor->moveYaw = (d << 12) / 360;
+            actor->moveYaw = (d << 12) / 360;
+            actor->yaw = (d << 12) / 360;
             actor->peakY = actor->y;
             actorUpdateModelMatrix(actor, 0);
             actorCheckWorldBounds(actor);
@@ -404,8 +405,8 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             }
             return;
         case 0x19:
-            node = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;
-            n_alSndpStop(D_807F5D70[node]);
+            slot = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;
+            n_alSndpStop(D_807F5D70[slot]);
             return;
         case 0x1A:
             n_alSndpStop(gSfxFreeSlotHandles[D_807F5D7C]);
@@ -459,16 +460,16 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             actor->yaw = mathAngleBetweenPoints2D(posX, posZ, actor->x, actor->z);
             return;
         case 0x2F:
-            csModelStateSetFirstByte((s16)a, (s16)(u16)d); // FAKE: prevents sharing this narrowing across calls
+            csModelStateSetFirstByte((s16)a, firstByte);
             if (b != 0) {
-                csModelStateSetFirstByte(b, (s16)d);
+                csModelStateSetFirstByte(b, firstByte);
             }
             if (c != 0) {
-                csModelStateSetFirstByte((s16)c, (s16)d);
+                csModelStateSetFirstByte((s16)c, firstByte);
             }
             break;
         case 0x15:
-            csModelStateSetFirstByte((s16)a, (s16)b);
+            csModelStateSetFirstByte((s16)a, b);
             return;
         case 0x17:
             sfxAllocateChannel(a, b != 0 ? (f64)b / 255.0 : 1.0);
