@@ -205,14 +205,14 @@ Every function matches; the code segments' static data still comes from splat as
 - [x] **C. Rodata pragmas (2026-11-18)** — every rodata `GLOBAL_ASM` include is C (`grep -rn GLOBAL_ASM src` prints nothing): pilots 13980/3E10 inline, then three private-copy agents (boss scripts `const u8`, global strings/tables, `const SpawnEntry gSpawnEntryTable[113]`, aggregate-copy blobs typed by their copying local). Natural sizes match: IDO 4-aligns .rodata aggregates (Q1468); a const scalar goes to .data, so `D_8075A740` is `const u16[4]` (Q1469). `bossInitScriptData`, `bossRoundFrame` take `const u8 *`; the interior label `D_8075E5C2` has no users.
 - [x] **D1. minecart** `data` 0x4B90 (2026-11-18): 0.c owns 0x80028B90-0x80028C60, including 25F0's `gMinecartJunctionTable` below 0's own table.
 - [x] **D2. race** `data` 0xBB10 (2026-11-18): seven TU subsegments (0, 1770, 36B0, 52B0, 6650, 7BD0, A960).
-- [ ] **D3. critter** `data` 0x57F0.
-- [ ] **D4. boss** `data` 0x118B0.
+- [x] **D3. critter** `data` 0x57F0 (2026-11-18): TUs 0 (Vtx, GBI-macro display lists, zone rows), 3340, 5110; `D_80029F88` is an unreferenced button-sequence table.
+- [x] **D4. boss** `data` 0x118B0 (2026-11-18): eight TU subsegments; phase-script tables `const u8 *`; `sPufftossPhaseScripts` folded into `sPufftossStateScripts[1]`; `D_80035A70` unreferenced bytes in 9C60.
 - [ ] **D5. menu** `data` 0xEF50.
 - [ ] **E. global multi-TU blobs** — one unit each, in order: 0x1492E0, 0x14B040, 0x14B740, 0x14C450, 0x14C9E0, 0x155300, 0x1553C0, 0x159DC0, 0x15A380, 0x157AF0, 0x14CFF0 (33 KB, ~25 TUs, may span sessions).
 - [ ] **F1. arcade** `data` 0xE220 (bitmap pool 0x80032220–0x8004A308 as includes, descriptors as C).
 - [ ] **F2. jetpac** `data` 0x7090, 0x9D38 (392-byte pixel objects as includes).
-- [ ] **G. boot game data** `E8B0_data` → `main`, `1630` (`sNoExpPakImageGz` include), `1CC0`, `30E0`, `3630`.
-- [ ] **H. boot libultra data** — `io/vitbl`, `vimodes/vimodepallan1`, `vimodempallan1`, `vimodentsclan1`, `os/thread` (0x20 C + exceptasm's 0x30 registered).
+- [x] **G. boot game data (2026-11-18)** `E8B0_data` → `main` (0x8000DCB0-0x8000DE80), `1630` (16-aligned at 0x8000DE80; `sNoExpPakImageGz` is a 0xE81-byte `data_inc` include), `1CC0` (gzip tables), `30E0`, `3630`.
+- [x] **H. boot libultra data (2026-11-18)** — `io/vitbl.c`, three `vimodes/*.c` and `os/thread.c`'s data verbatim from ultralib; exceptasm's 0x30 at 0x80010100 registered; `gu/sinf_nan.c` defines `__libm_qnan_f` as a const union (ultralib's is assembly; the mirrored headers stay untouched), its registry key removed.
 - **Done when:** `grep -rn GLOBAL_ASM src` prints only pragmas listed blocked here; every asm `data`/`rodata` subsegment in `dk64*.yaml` is registered in `handwritten_asm.json` or listed blocked; the README Data line reads 100.00% (or 100% minus the blocked bytes listed here).
 
 ## Dependencies
