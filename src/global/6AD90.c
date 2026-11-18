@@ -1112,7 +1112,7 @@ void actorClearBufferReferences(s32 cell) {
 s32 collisionCheckTriangleWindingS16(CollisionStaticTri *tri) {
     f32 v1[3];
     f32 v0[3];
-    f32 cross[1]; // FAKE: one-element array keeps the cross product in memory (swc1 to sp+4 before the c.le.d)
+    f32 cross[1]; // ORIG: the target stores the cross product to its own stack word below v0 (swc1 $f10,4(sp) at 0x293c, never reloaded: cvt.d.s at 0x2938 converts the register copy); a coloured scalar drops the store
 
     v1[0] = tri->x[2] - tri->x[0];
     v1[2] = tri->z[2] - tri->z[0];
@@ -1460,7 +1460,7 @@ void collisionStoreTriangleNormalAnglesF32(Actor *actor, CollisionTriF *tri, u8 
 s32 collisionCheckTriangleWindingF32(CollisionTriF *tri) {
     f32 v1[3];
     f32 v0[3];
-    f32 cross[1]; // FAKE: one-element array keeps the cross product in memory (swc1 to sp+4 before the c.le.d)
+    f32 cross[1]; // ORIG: the target stores the cross product to its own stack word below v0 (swc1 $f4,4(sp) at 0x3910, never reloaded: cvt.d.s at 0x390c converts the register copy); a coloured scalar drops the store
 
     v1[0] = tri->x[2] - tri->x[0];
     v1[2] = tri->z[2] - tri->z[0];
@@ -1929,7 +1929,7 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *tri, f32 x, f32 z) 
 s32 collisionCheckBoxTriangleWinding(CollisionBoxTri *tri) {
     f32 v1[3];
     f32 v0[3];
-    f32 cross[1]; // FAKE: one-element array keeps the cross product in memory (swc1 to sp+4 before the c.le.d)
+    f32 cross[1]; // ORIG: the target stores the cross product to its own stack word below v0 (swc1 $f4,4(sp) at 0x4bf0, never reloaded: cvt.d.s at 0x4bec converts the register copy); a coloured scalar drops the store
 
     v1[0] = tri->x2 - tri->x0;
     v1[2] = tri->z2 - tri->z0;
