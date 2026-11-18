@@ -1,13 +1,19 @@
 # menuInitFileSummary (menu, src/menu/3E10.c)
 ## Sites
-menu:800297B8:other:5ee4ba other: signed `i` holds the one-past byte address, then is reused as the icon-loop counter so p/i outrank q in allocation.
+menu:800297B8:other:5ee4ba other (FIXED 2026-11-17 CleanmenuInitFileSummary): signed `i` used to hold the one-past byte address (`i = (s32)&D_80033809`) and then served as the icon-loop counter, so p/i outranked q in allocation. Replaced by an array view of D_80033804; no hack site is left in the function.
 ## Attempts
 - Previous rounds: direct bound, typed `s8 *end`, declaration permutations, uopt traces, and long permutes failed (see supplied history and Q0515).
-- 2026-11-15 HackmenuHandleHighScoreNameEntryInput openai-codex/gpt-5.6-sol:high: typed end pointer, end-derived second-loop cursor, typed four-byte flag array, and typed one-byte flag rows -> fdiff exit 1; q/end remain swapped.
+- 2026-11-15 HackmenuHandleHighScoreNameEntryInput openai-codex/gpt-5.6-sol:high: typed end pointer, end-derived second-loop cursor, typed four-byte flag array, and typed one-byte flag rows -> fdiff exit 1; q and end stay swapped.
+- 2026-11-17 CleanmenuInitFileSummary anthropic/claude-opus-5-5: the session lever (a plain two-variable pointer `for`) -> refuted. `for (p = &D_80033805, q = &D_807505B2; p < &D_80033809; p++, q++)` in all 8 init/increment orders, with and without the flag local, keeps an entry guard: uopt cannot fold a compare between two symbols (full 95-98). An `s8 *end` local also grows the frame by 8 (full 99-102). The bound `&D_80033805 + 4` folds the guard, but the variable q still beats the end constant, giving q=s1/end=s2 (q first full 8, p first 16, end local 12-21).
+- 2026-11-17 same unit: an i-indexed table read `(&D_807505B2)[i - 1]` with explicit p -> registers right, but the la of explicit p comes before the strength-reduction init of q (full 8; as1probe `swap 97,98` gives text 0). `(&D_80033805)[i]` on a scalar extern is not strength-reduced, so there is no LFTR and the loop keeps `slti`.
+- 2026-11-17 same unit: arrays with a 0-based loop 1 (`D_80033805[i]`) -> LFTR gives sltu p<end. With loop 2 written `D_80033805[i - 1]`, the two loops share one SR candidate and the registers are right, but loop 2's base is D_80033805 with `lb -1` instead of D_80033804 with `lb 0` (text 1). With loop 2 written `D_80033804[i]`, the loops have separate candidates and s0/s1 swap in both loops (full 22-24).
+- 2026-11-17 same unit, FIX: `extern s8 D_80033804[];` (file-wide, director-approved), `D_80033804[0] = 1; for (i = 1, flagIds = D_807505B2; i < 5; i++, flagIds++) { flag = flagGet(flagIds[-1], 0); D_80033804[i] = flag; } for (i = 0; i < 5; i++) ... D_80033804[i] ...` -> fdiff --reloc-ok exit 0 (RELOC-EQUIV OK); FAKE 1 -> 0.
 ## Untried ideas
-None in natural typed-pointer C. Q0515 documents why coordinated reuse of p and integer i is the matching allocation constraint.
+None for this function. Cross-file (global/ACDC0.c hudPauseMenuRefreshTotals, untested): the same shape could retire `D_80750531` as `for (i = 1, q = D_807505B2; i < 5; i++, q++) sPauseKongUnlocked[i] = flagGet(q[-1], 0);`. Q0955's failed 1-based version indexed the s16 table, which moves its base to +2. The ACDC0 target compares with `bne`, not `sltu`, so measure it before relying on it.
 ## Evidence
-- Target text 0x1a94-0x1aac assigns q to s2, p to s0, and the end address to s1.
-- A typed end form assigns q to s1 and end to s2; typed flag rows and cursor declaration order leave the same allocation.
-- Reusing end in the second-loop initialization still gives end=s2/q=s1 and relocates the cursor expression without improving text.
-- Relevant guidance: Q0515, Q0542, Q0726 and guide ido-menu-file-summary#1.
+- Target text 0x1a94-0x1aac: lui s2 (flag table D_807505B2), lui s0 (D_80033805), lui s1 (D_80033809), sb D_80033804, then addiu s1, s0, s2. Loop at 0x1ab0-0x1acc: `lh a0,-2(s2)`, `addiu s0,s0,1`, `sltu at,s0,s1`, `addiu s2,s2,2`, `sb v0,-1(s0)`. Loop 2 at 0x1ad0-0x1b40: s0 = D_80033805-1 (lb 0(s0)), counter s1, s5 = 5.
+- Level-5 uopt trace (fix shape): the shared SR candidate D_80033804+i has adjsave 24.0 and the loop-2 counter has 20.67. With separate candidates, the loop-1 SR has 20.5 < 20.67, so the counter takes s0 (the swap).
+- SR and LFTR inits go at the end of the loop preheader, after user statements. The explicit flagIds pointer (user code) therefore emits first, then the SR base, then the LFTR end, which is the target's lui order q, p, end.
+- Raw words, expected vs copy: only the LO16 addends at 0x1aa4/0x1aa8/0x1aec differ (D_80033809+0 / D_80033805+0 / D_80033805-1 vs D_80033804+5 / +1 / +0, the same addresses). .data/.rodata/.bss are identical.
+- The untagged `s32 pad` is needed: without it ioVal leaves sp+0x64 (full 4).
+- Relevant guidance: Q0515, Q0900, Q0830, Q0955, Q0417, Q0582, Q0630, Q0741, Q0978, Q0726 and guide ido-menu-file-summary#1.
