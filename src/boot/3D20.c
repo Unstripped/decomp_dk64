@@ -40,7 +40,7 @@ int _sprintf(void *buf, const void *fmt, ...) { // buf/fmt: game u8 buffers and 
 
 
 
-#define PUTC(ch) do { count++; *buf++ = (ch); } while (0) // FAKE: do-while(0) blocks; alone they steer the numeric zero pad, the exponent-sign else arm and the hundreds digit, together the e/f-arm uses lower elen below the `||` temp (elen a1, temp a0). Used for every count++/store pair except the fraction digits
+#define PUTC(ch) do { count++; *buf++ = (ch); } while (0)
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     const unsigned char *f;
@@ -360,14 +360,13 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     while (prec > 0) {
                         d = '0';
-                        count++;
-                        prec--;
                         while (scale <= value.d) {
                             d++;
                             value.d -= scale;
                         }
-                        *buf++ = d;
+                        PUTC(d);
                         scale /= 10.0;
+                        prec--;
                     }
                     PUTC(conv);
                     if (exp < 0) { exp = -exp; PUTC('-'); } else { PUTC('+'); } // LAYOUT: one-line if/else (multi-line costs 2: the else .loc); both statement orders of the then-arm match
@@ -438,14 +437,13 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     while (prec > 0) {
                         d = '0';
-                        count++;
-                        prec--;
                         while (fscale <= fv) {
                             d++;
                             fv -= fscale;
                         }
-                        *buf++ = d;
+                        PUTC(d);
                         fscale /= 10.0;
+                        prec--;
                     }
                     if (minus) {
                         for (; elen < width--;) PUTC(' ');
