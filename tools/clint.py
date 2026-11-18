@@ -40,7 +40,8 @@ import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CLANG_ARGS = ["-std=gnu89", "-target", "mips-linux-gnu", "-fsigned-char", "-nostdinc", "-Iinclude", "-Iinclude/PR",
+CLANG_ARGS = ["-std=gnu89", "-target", "mips-linux-gnu", "-fsigned-char", "-nostdinc", "-Iinclude", "-Iassets/inc",
+              "-Iinclude/PR",
               "-Iinclude/libultra", "-Iinclude/compiler/ido", "-D_LANGUAGE_C", "-D_FINALROM", "-DF3DEX_GBI_2",
               "-DTARGET_N64", "-D_MIPS_SZLONG=32", "-DBUILD_VERSION=VERSION_J",
               # IDO's type builtins (compiler/ido/stdarg.h va_arg); clang has neither. classof is

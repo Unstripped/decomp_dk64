@@ -87,7 +87,7 @@ ASFLAGS := -EB -march=vr4300 -mabi=32 -mgp32 -mfp32 -I include
 OPT_FLAGS := -O2
 MIPSBIT   := -mips2
 CFLAGS    := -c -Wab,-r4300_mul -non_shared -G 0 -Xcpluscomm -signed -woff 649,654,838,807 \
-             -I include -D_FINALROM -DF3DEX_GBI_2 -DTARGET_N64 -D_MIPS_SZLONG=32
+             -I include -I assets/inc -D_FINALROM -DF3DEX_GBI_2 -DTARGET_N64 -D_MIPS_SZLONG=32
 ifeq ($(NON_MATCHING),1)
 CFLAGS    += -DNON_MATCHING
 endif
@@ -189,6 +189,7 @@ split: bin/segments/global.bin $(OVERLAY_BINS)
 	$(SPLAT) $(SPLAT_YAML)
 	$(SPLAT) $(GLOBAL_SPLAT_YAML)
 	$(foreach ovl,$(OVERLAYS),$(SPLAT) dk64.$(ovl).$(VERSION).yaml &&) true
+	$(PYTHON) tools/data_inc.py gen
 
 OVERLAY_TEXT_BINS := $(OVERLAYS:%=$(BUILD_DIR)/%.text.bin)
 OVERLAY_DATA_BINS := $(OVERLAYS:%=$(BUILD_DIR)/%.data.bin)

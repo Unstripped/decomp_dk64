@@ -169,7 +169,7 @@ def rev_side_headers(rev, path):
 
 
 def export_tree(rev, tree):
-    """REV's include/ under TREE, plus TREE/asm linking to the checkout's (generated, not in git)."""
+    """REV's include/ under TREE, plus TREE/asm and TREE/assets linking to the checkout's (generated, not in git)."""
     os.makedirs(tree, exist_ok=True)
     arc = subprocess.Popen(["git", "archive", rev, "include"], cwd=ROOT, stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
@@ -178,7 +178,8 @@ def export_tree(rev, tree):
     err = arc.stderr.read().decode("utf-8", "replace")
     if arc.wait() or tar.returncode:
         raise CompileError(None, f"git archive {rev} include failed: {err}{tar.stderr}", rev)
-    os.symlink(os.path.relpath(os.path.join(ROOT, "asm"), tree), os.path.join(tree, "asm"))
+    for generated in ("asm", "assets"):
+        os.symlink(os.path.relpath(os.path.join(ROOT, generated), tree), os.path.join(tree, generated))
 
 
 

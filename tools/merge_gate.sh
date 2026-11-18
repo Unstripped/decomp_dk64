@@ -93,7 +93,7 @@ stage_copy tools/cwarn.py "$gate/tools/cwarn.py" || exit 1
 [ -e "$gate/baserom.us.z64" ] || cp -c baserom.us.z64 "$gate/" 2>/dev/null || cp baserom.us.z64 "$gate/" || exit 1
 glog=$gate/.scratch/gate.log
 mkdir -p "$gate/.scratch"
-stamp() { (cd "$gate" && cat dk64*.yaml symbol_addrs*.txt undefined_syms*.txt | shasum | cut -c1-40); }
+stamp() { (cd "$gate" && cat dk64*.yaml symbol_addrs*.txt undefined_syms*.txt data_inc.us.txt | shasum | cut -c1-40); }
 split_if_needed() {
   want=$(stamp)
   if [ ! -d "$gate/asm" ] || [ "$(cat "$gate/.scratch/split.stamp" 2>/dev/null)" != "$want" ]; then
