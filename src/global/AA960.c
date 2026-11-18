@@ -110,16 +110,6 @@ void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 
     actorListSpawnNodeEntry(actorType, x, y, z, 0, scale, extraParam, &config);
 }
 
-// customState of the drop-and-bounce pickups (actorDropBounceExpireUpdate).
-typedef struct DropBounceState {
-    /* 0x0 */ u8 bounceCount;
-    /* 0x1 */ u8 collectable;
-    /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ EffectNode *sprite;
-    /* 0x8 */ u16 expireTimer;
-    /* 0xA */ s16 flagId;
-} DropBounceState;
-
 void effectSpawnAttachedSprite(DropBounceState *state, void *spriteAsset, f32 scale) {
     if (gGlobalCutsceneFlags & 0x10) {
         scale *= 2.0f;

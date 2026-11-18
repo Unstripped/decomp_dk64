@@ -1142,18 +1142,6 @@ f32 func_806F7378(u32 actorType) {
 }
 
 
-// customState of the drop-and-bounce pickups; same record as AA960.c's (actorDropBounceExpireUpdate sets
-// collectable on landing and flagId from the spawn data; flagTempRegister takes it as the flag id).
-typedef struct DropBounceState {
-    /* 0x0 */ u8 bounceCount;
-    /* 0x1 */ u8 collectable;
-    /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ EffectNode *sprite;
-    /* 0x8 */ u16 expireTimer;
-    /* 0xA */ s16 flagId;
-} DropBounceState;
-
-
 void gridCollectActorsInRange(u8 playerIndex) {
     Actor *player;
     s32 i;

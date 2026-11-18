@@ -520,6 +520,18 @@ typedef struct PulseState {
     /* 0x2 */ s16 yawSway; // +-0x8C on a sharp turn, added to yaw and decayed by 1% per frame
 } PulseState;
 
+// customState of the drop-and-bounce pickups: actorDropBounceExpireUpdate (AA960) counts the bounces, sets
+// collectable on landing and flagId from the spawn data; gridCollectActorsInRange (F9450) passes flagId to
+// flagTempRegister. sprite is the attached EffectNode (effectSpawnAttachedSprite).
+typedef struct DropBounceState {
+    /* 0x0 */ u8 bounceCount;
+    /* 0x1 */ u8 collectable;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ struct EffectNode *sprite;
+    /* 0x8 */ u16 expireTimer;
+    /* 0xA */ s16 flagId;
+} DropBounceState; // size = 0xC
+
 // Third component (Actor 0x17C) of the scripted actors (C4620.c behaviours; cutscene commands 0x33, 0x34
 // and 0x3C address it in camPathCommandDispatch, 2C910.c).
 typedef struct ScriptedActorState {

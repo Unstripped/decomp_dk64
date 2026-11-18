@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_AA960_H
 #include "common.h"
 #include "actor.h"
-struct DropBounceState;
 #ifndef PROTO_SKIP_sfxSpawnTableNodes
 void sfxSpawnTableNodes(Actor *);
 #endif
