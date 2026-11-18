@@ -12,7 +12,8 @@
 extern u16 gModelCacheCount;
 extern PlayerState *gActivePlayerState;
 
-extern u8 gDefaultModelBone[];
+u8 D_80746B60 = 0;
+u8 gDefaultModelBone[0x1C] = { 0xFF };
 
 
 AnimInitData *controllerAnimStateLoadAsset(actor, assetId, cullSwap)
@@ -649,7 +650,6 @@ AnimClip *controllerAnimCacheGetOrLoad(s32 id) {
 }
 
 extern u32 gFrameDelta;
-extern u8 D_80746B60;
 
 void controllerStepMotionWindows(Actor *actor) {
     ActorSub4 *anim;

@@ -228,7 +228,9 @@ segments:
       - [0x14B510, .data, 131B0] # gRumblePaused, D_80746814 (unreferenced), gRumbleResetPending (0x80746810-0x80746820)
       - [0x14B520, .data, 13980] # D_80746820..D_80746A2C (0x80746820-0x80746A30); 131B0's own data is gRumblePaused/gRumbleResetPending (0x80746810-0x80746820)
       - [0x14B730, .data, 15050] # sHeapReclaimFlag, sHeapReclaimMatrixFlag (sHeapFlags = its low byte) (0x80746A30-0x80746A40)
-      - [0x14B740, data]
+      - [0x14B740, .data, 166A0] # sRandomSeed (0x80746A40-0x80746A44 + 12-byte TU pad)
+      - [0x14B750, .data, 16A20] # D_80746A50[61], D_80746ACC[64], D_80746B4C[5] fixed-point interpolation tables (0x80746A50-0x80746B56 + 10-byte TU pad)
+      - [0x14B860, .data, 17B90] # D_80746B60 (also written by 117190), gDefaultModelBone (0x80746B60-0x80746B80)
       - [0x14B880, .data, 19A00] # sScriptEffectSprites..sCharacterBehaviorMap (0x80746B80-0x80746E1E) + 2-byte TU pad; 16-aligned after 17B90's D_80746B64; sScriptOpcodeTable's .word scriptOpPlaySoundAndShake makes its entry label address-taken (Q0552)
       - [0x14BB20, data]
       - [0x14C3A0, .data, 201B0]

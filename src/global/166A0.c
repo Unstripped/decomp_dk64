@@ -2,7 +2,7 @@
 #include "proto/global/16550.h"
 #include "proto/global/166A0.h"
 
-extern u32 sRandomSeed;
+u32 sRandomSeed = 0x3407C7A5;
 
 u32 randomLcgNext(void) {
     u64 seed = sRandomSeed;
