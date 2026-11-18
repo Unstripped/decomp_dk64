@@ -44,7 +44,7 @@ segments:
     bss_size: 0x1B50
     subsegments:
       - [0x0, c, 0]
-      - [0xE220, data, 0]
+      - [0xE220, .data, E220] # data-only TU: defining the pool in 0.c reorders 0.c's .bss (IDO orders .bss by symbol id); 0x8004A790 is 16-aligned and 0.c's .data start. Sprite pixels D_80032220..D_80049348 (data_inc.us.txt includes), tables/templates/state D_8004A308..D_8004A78C
       - [0x26790, .data, 0] # D_8004A790..D_8004A82C defined in C + arcadeDrawHud's function-local static (0x8004A83C); 16-aligned start, 0xB0 bytes up to .rodata
       - [0x26840, .rodata, 0]
       - { start: 0x26C00, type: bss, vram: 0x8004AC00 }

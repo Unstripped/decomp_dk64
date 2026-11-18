@@ -1,5 +1,6 @@
 #include "common.h"
 #include "render.h"
+#include "arcade.h"
 #include "proto/arcade/0.h"
 #include "proto/boot/3D20.h"
 #include "proto/boot/6690.h"
@@ -13,23 +14,6 @@
 #include "proto/global/3C10.h"
 #include "proto/global/450.h"
 #include "proto/global/F600.h"
-
-typedef struct ArcadeEntity {
-    f32 x;
-    f32 y;
-    f32 vx;
-    f32 vy;
-    f32 animTimer;
-    void *sprite;
-    u8 type;
-    u8 state;
-    u8 facing; // bit0: texture S flip (barrels: set = rolling left, vx = 1 - 2 * facing); bit1: player last moved right
-    u8 flipY; // texture T flip (arcadeRenderEntity)
-    u8 param; // per-type: rank, spawn index, timer or flag bits
-    u8 param2; // per-type: jump start y, linked entity index, name-entry cursor
-    u8 width; // sprite texture width (arcadeRenderEntity)
-    u8 height; // sprite texture height
-} ArcadeEntity;
 
 extern ArcadeEntity D_8004BCD0[];
 
@@ -384,7 +368,7 @@ void arcadeAttractLoop(Gfx **glistp) {
     *glistp = glist;
 }
 extern ArcadeEntity D_8004A538;
-extern u8 D_800424D0[];
+extern u16 D_800424D0[];
 void arcadeInitTitleScreen(void) {
     ArcadeEntity *e;
     s32 idx;
@@ -647,9 +631,9 @@ void arcadeDemoLoop(Gfx **glistp) {
     *glistp = glist;
 }
 
-extern u8 D_80032B48[];
-extern u8 D_80032B90[];
-extern u8 D_80032BD8[];
+extern u16 D_80032B48[];
+extern u16 D_80032B90[];
+extern u16 D_80032BD8[];
 extern TextureDescriptor D_8004BB30[];
 extern TextureDescriptor D_8004BB60[];
 extern TextureDescriptor D_8004BB90[];
@@ -658,8 +642,8 @@ extern u8 D_8004C719;
 extern u8 D_8004C71A;
 extern u8 gGfxBufferIndex;
 extern TextureDescriptor D_8004BB00[];
-extern u8 D_80032C20[];
-extern u8 D_80032DF8[];
+extern u16 D_80032C20[];
+extern u16 D_80032DF8[];
 void arcadeDrawBackground(Gfx **glistp) {
     Gfx *glist;
 
@@ -888,7 +872,7 @@ void arcadeDrawTitleText(Gfx **glistp) {
     *glistp = glist;
 }
 
-extern u8 D_80034568[];
+extern u16 D_80034568[];
 void arcadeDrawStage1Background(Gfx **glistp) {
     s32 i;
     Gfx *glist;
@@ -968,7 +952,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     *glistp = glist;
 }
 
-extern u8 D_80032F18[];
+extern u16 D_80032F18[];
 extern TextureDescriptor D_8004BC50[];
 void arcadeDrawStage2Background(Gfx **glistp) {
     s32 i;
@@ -1080,7 +1064,7 @@ typedef struct ArcadeLift {
     f32 vy;
 } ArcadeLift;
 ArcadeLift gArcadeLifts[6];
-extern u8 D_80032F40[];
+extern u16 D_80032F40[];
 ArcadeGirderSpan gArcadeStage3Girders[] = {
     { 0x0B, 0x11, 0x37 },
     { 0x00, 0x1C, 0xF7 },
@@ -1154,9 +1138,9 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     *glistp = glist;
 }
 
-extern u8 D_80032CA8[];
-extern u8 D_80032D50[];
-extern u8 D_800342B8[];
+extern u16 D_80032CA8[];
+extern u16 D_80032D50[];
+extern u16 D_800342B8[];
 extern TextureDescriptor D_8004BC20[];
 void arcadeDrawStage4Background(Gfx **glistp) {
     s32 i;
@@ -1265,9 +1249,9 @@ void arcadeSpawnStage1Entities(void) {
 extern ArcadeEntity D_8004A578;
 extern ArcadeEntity D_8004A618;
 extern ArcadeEntity D_8004A658;
-extern u8 D_800335D8[];
-extern u8 D_80038FE8[];
-extern u8 D_800391F0[];
+extern u16 D_800335D8[];
+extern u16 D_80038FE8[];
+extern u16 D_800391F0[];
 void arcadeSpawnStage2Entities(void) {
     s32 bit;
     s32 idx;
@@ -1337,18 +1321,18 @@ extern u8 gGfxBufferIndex;
 
 extern f32 D_8004BCF4;
 
-extern u8 D_80034610[];
-extern u8 D_80034818[];
-extern u8 D_80034A20[];
-extern u8 D_80034C28[];
-extern u8 D_80034E30[];
-extern u8 D_80035038[];
-extern u8 D_80035240[];
-extern u8 D_80035448[];
-extern u8 D_80035650[];
-extern u8 D_80035898[];
-extern u8 D_80035AE0[];
-extern u8 D_80035CE8[];
+extern u16 D_80034610[];
+extern u16 D_80034818[];
+extern u16 D_80034A20[];
+extern u16 D_80034C28[];
+extern u16 D_80034E30[];
+extern u16 D_80035038[];
+extern u16 D_80035240[];
+extern u16 D_80035448[];
+extern u16 D_80035650[];
+extern u16 D_80035898[];
+extern u16 D_80035AE0[];
+extern u16 D_80035CE8[];
 
 
 extern u8 D_8004A788[];
@@ -1446,7 +1430,7 @@ extern ArcadeEntity D_8004A678;
 extern ArcadeEntity D_8004A5B8;
 extern ArcadeEntity D_8004A3F8;
 extern ArcadeEntity D_8004A498;
-extern u8 D_80033C48[];
+extern u16 D_80033C48[];
 void arcadeSpawnStage4Entities(void) {
     s32 idx;
 
@@ -2088,24 +2072,24 @@ s32 arcadeAbs(s32 val) {
     return -val;
 }
 
-extern u8 D_8003B180[];
-extern u8 D_8003B3C8[];
-extern u8 D_8003B610[];
-extern u8 D_8003B858[];
-extern u8 D_8003BAA0[];
-extern u8 D_8003BCE8[];
-extern u8 D_8003BF30[];
-extern u8 D_8003C178[];
-extern u8 D_8003C3C0[];
-extern u8 D_8003C608[];
-extern u8 D_8003C850[];
-extern u8 D_8003CA98[];
-extern u8 D_8003CCE0[];
-extern u8 D_8003CF28[];
-extern u8 D_8003D170[];
-extern u8 D_8003D3B8[];
-extern u8 D_8003D600[];
-extern u8 D_8003D848[];
+extern u16 D_8003B180[];
+extern u16 D_8003B3C8[];
+extern u16 D_8003B610[];
+extern u16 D_8003B858[];
+extern u16 D_8003BAA0[];
+extern u16 D_8003BCE8[];
+extern u16 D_8003BF30[];
+extern u16 D_8003C178[];
+extern u16 D_8003C3C0[];
+extern u16 D_8003C608[];
+extern u16 D_8003C850[];
+extern u16 D_8003CA98[];
+extern u16 D_8003CCE0[];
+extern u16 D_8003CF28[];
+extern u16 D_8003D170[];
+extern u16 D_8003D3B8[];
+extern u16 D_8003D600[];
+extern u16 D_8003D848[];
 
 void arcadeUpdatePlayerAnimation(s32 entIndex) {
     s32 frame;
@@ -2236,9 +2220,9 @@ extern s32 D_8004C700;
 extern s32 D_8004C704;
 extern struct GfSndState *D_80770DFC;
 extern ArcadeEntity D_8004A5F8;
-extern u8 D_800383B8[];
-extern u8 D_800385C0[];
-extern u8 D_8003B180[];
+extern u16 D_800383B8[];
+extern u16 D_800385C0[];
+extern u16 D_8003B180[];
 void arcadeUpdatePlayerEntity(s32 entIndex) {
     union {
         f32 f;
@@ -2684,35 +2668,35 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
 }
 
 extern s8 D_8004A768;
-extern u8 D_80037B98[];
-extern u8 D_80037DA0[];
-extern u8 D_80037FA8[];
-extern u8 D_8003E438[];
-extern u8 D_800383B8[];
-extern u8 D_800385C0[];
-extern u8 D_800387C8[];
-extern u8 D_80039D18[];
-extern u8 D_80039F60[];
-extern u8 D_8003A1A8[];
-extern u8 D_8003A3F0[];
-extern u8 D_8003AE58[];
-extern u8 D_800389D0[];
-extern u8 D_8003DB18[];
-extern u8 D_8003DD60[];
-extern u8 D_80038BD8[];
-extern u8 D_8003E680[];
-extern u8 D_8003E868[];
+extern u16 D_80037B98[];
+extern u16 D_80037DA0[];
+extern u16 D_80037FA8[];
+extern u16 D_8003E438[];
+extern u16 D_800383B8[];
+extern u16 D_800385C0[];
+extern u16 D_800387C8[];
+extern u16 D_80039D18[];
+extern u16 D_80039F60[];
+extern u16 D_8003A1A8[];
+extern u16 D_8003A3F0[];
+extern u16 D_8003AE58[];
+extern u16 D_800389D0[];
+extern u16 D_8003DB18[];
+extern u16 D_8003DD60[];
+extern u16 D_80038BD8[];
+extern u16 D_8003E680[];
+extern u16 D_8003E868[];
 extern ArcadeEntity D_8004A5F8;
 extern s32 D_8004A318[];
 
-extern u8 D_80035EF0[];
-extern u8 D_80036138[];
-extern u8 D_80036380[];
-extern u8 D_800365C8[];
-extern u8 D_80036810[];
-extern u8 D_80036A58[];
-extern u8 D_80036CA0[];
-extern u8 D_80036EE8[];
+extern u16 D_80035EF0[];
+extern u16 D_80036138[];
+extern u16 D_80036380[];
+extern u16 D_800365C8[];
+extern u16 D_80036810[];
+extern u16 D_80036A58[];
+extern u16 D_80036CA0[];
+extern u16 D_80036EE8[];
 void arcadeUpdateBouncingBarrel(s32 entIndex) {
     s32 floorY;
     s32 bias;
@@ -2826,8 +2810,8 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
     }
 }
 
-extern u8 D_80037788[];
-extern u8 D_80037990[];
+extern u16 D_80037788[];
+extern u16 D_80037990[];
 
 void arcadeUpdateSpringEntity(s32 entIndex) {
     s32 sw;
@@ -2871,10 +2855,10 @@ void arcadeUpdateSpringEntity(s32 entIndex) {
     }
 }
 
-extern u8 D_80032228[];
-extern u8 D_80032470[];
-extern u8 D_800326B8[];
-extern u8 D_80032900[];
+extern u16 D_80032228[];
+extern u16 D_80032470[];
+extern u16 D_800326B8[];
+extern u16 D_80032900[];
 
 void arcadeUpdateOilDrumEntity(s32 entIndex) {
     s32 n;
@@ -3062,10 +3046,10 @@ void arcadeUpdateConveyorPulleys(s32 entIndex) {
         }
     }
 }
-extern u8 D_80041508[];
-extern u8 D_80040540[];
-extern u8 D_80044460[];
-extern u8 D_80045428[];
+extern u16 D_80041508[];
+extern u16 D_80040540[];
+extern u16 D_80044460[];
+extern u16 D_80045428[];
 
 void arcadeUpdateDonkeyKongIntro(s32 entIndex) {
     if (D_8004C6DC == 0x3C) {
@@ -3113,9 +3097,9 @@ void arcadeUpdateDonkeyKongIntro(s32 entIndex) {
     }
 }
 
-extern u8 D_8003E9F0[];
-extern u8 D_80043498[];
-extern u8 D_800463F0[];
+extern u16 D_8003E9F0[];
+extern u16 D_80043498[];
+extern u16 D_800463F0[];
 extern ArcadeEntity D_8004A3B8;
 void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
     s32 idx;
@@ -3268,9 +3252,9 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
     }
 }
 
-extern u8 D_800473B8[];
-extern u8 D_80048380[];
-extern u8 D_80049348[];
+extern u16 D_800473B8[];
+extern u16 D_80048380[];
+extern u16 D_80049348[];
 extern ArcadeEntity D_8004A6F8;
 
 void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
@@ -3471,10 +3455,10 @@ void arcadeUpdateCollectibleItem(s32 entIndex) {
     }
 }
 
-extern u8 D_800393F8[];
-extern u8 D_80039640[];
-extern u8 D_80039888[];
-extern u8 D_80039AD0[];
+extern u16 D_800393F8[];
+extern u16 D_80039640[];
+extern u16 D_80039888[];
+extern u16 D_80039AD0[];
 
 void arcadeUpdateHammerEntity(u8 entIndex) {
     s32 i;
@@ -3934,7 +3918,7 @@ void arcadeSetStageTextColor(s8 stageIndex) {
     }
 }
 
-extern u8 D_8003DA90[];
+extern u16 D_8003DA90[];
 extern TextureDescriptor D_8004BBF0[];
 
 void arcadeDrawHud(Gfx **glistp) {
