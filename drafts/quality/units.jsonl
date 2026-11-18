@@ -1053,3 +1053,4 @@
 {"type": "unit", "t": "2026-11-18T06:28:00Z", "unit": "2026-11-17: cleanup CleancamFloorSnap", "commit": "01b91175206971c8dc6ec6fbbe3ff43e1393827c"}
 {"type": "unit", "t": "2026-11-18T06:33:43Z", "unit": "2026-11-17: cleanup CleanschedHandleRetrace", "commit": "fa0b530b3ff105e2b91d3ad143ad7945a298414e"}
 {"type": "unit", "t": "2026-11-18T06:43:23Z", "unit": "2026-11-17: cleanup CleanenemyGridStateStep", "commit": "226cabaec85b5a4c035b225e53f3b2a9873b2ae3"}
+{"type": "unit", "t": "2026-11-18T06:47:15Z", "unit": "2026-11-17: cleanup CleanbossScriptStep", "commit": "5945a20345de9820e8a6d197f27b7dca598e0b1d"}
