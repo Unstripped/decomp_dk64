@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_54150_H
 #include "common.h"
 #include "model.h"
+struct ModelBKey;
 struct ModelBTrack;
 #ifndef PROTO_SKIP_modelSlotAllocAnimBuffers
 void modelSlotAllocAnimBuffers(ModelData **, ModelAssetHeader *);
@@ -29,7 +30,7 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *);
 void modelAnimEntryQueueMatrixCopies(ModelData *, ModelAnimEntry *);
 #endif
 #ifndef PROTO_SKIP_modelAnimEntryBuildKeyMatrix
-void modelAnimEntryBuildKeyMatrix(u8, f32, struct ModelBTrack *, u8 *, u8);
+void modelAnimEntryBuildKeyMatrix(u8, f32, struct ModelBTrack *, struct ModelBKey *, u8);
 #endif
 #ifndef PROTO_SKIP_modelAnimEntryAdvance
 void modelAnimEntryAdvance(ModelAnimEntry *);
@@ -38,10 +39,10 @@ void modelAnimEntryAdvance(ModelAnimEntry *);
 void mtxCopyQueueReset(void);
 #endif
 #ifndef PROTO_SKIP_mtxCopyQueuePush
-void mtxCopyQueuePush(ModelData *, s32, s32);
+void mtxCopyQueuePush(ModelData *, void *, void *);
 #endif
 #ifndef PROTO_SKIP_mtxCopyQueueCancelDest
-void mtxCopyQueueCancelDest(s32);
+void mtxCopyQueueCancelDest(void *);
 #endif
 #ifndef PROTO_SKIP_mtxCopyQueueCancelGroup
 void mtxCopyQueueCancelGroup(ModelData *);

@@ -9,70 +9,69 @@
 #include "proto/global/54150.h"
 #include "proto/global/5E020.h"
 
-void modelSlotAllocAnimBuffers(ModelData **outModel, ModelAssetHeader *animAsset) {
-    u8 *p2;
-    u32 n;
-    u8 *p1;
-    u8 *src;
-    u32 size;
-    ModelData *m;
-    u32 i;
+void modelSlotAllocAnimBuffers(ModelData **outAnim, ModelAssetHeader *asset) {
+    Mtx *mtx1;
+    u32 frameSize;
+    Mtx *mtx0;
+    u8 *data;
+    u32 dataSize;
+    ModelData *anim;
+    u32 mtxCount;
+    u8 *nodeTable;
+    s32 j;
+    ModelAnimEntry *entry;
 
-    if (animAsset->unk64 != animAsset->unk68) {
-        m = heapAlloc(0xD0);
-        *outModel = m;
-        n = *(u32 *)(animAsset->unk68 + (u8 *)animAsset);
-        m->frames[0] = heapAlloc(n);
-        m->frames[1] = heapAlloc(n);
-        src = animAsset->unk68 + (u8 *)animAsset;
-        size = *(u32 *)(src + 4);
-        memcpy(m->frames[0], src + 8, size);
-        memcpy(m->frames[1], src + 8, size);
-        i = (n - size) >> 6;
-        p1 = m->frames[0] + size;
-        p2 = m->frames[1] + size;
-        for (; i != 0; i--) {
-            guMtxIdent((Mtx *)p1);
-            guMtxIdent((Mtx *)p2);
-            p1 += 0x40;
-            p2 += 0x40;
+    if (asset->unk64 != asset->unk68) {
+        anim = heapAlloc(sizeof(ModelData));
+        *outAnim = anim;
+        frameSize = *(u32 *)(asset->unk68 + (u8 *)asset);
+        anim->frames[0] = heapAlloc(frameSize);
+        anim->frames[1] = heapAlloc(frameSize);
+        data = asset->unk68 + (u8 *)asset;
+        dataSize = *(u32 *)(data + 4);
+        memcpy(anim->frames[0], data + 8, dataSize);
+        memcpy(anim->frames[1], data + 8, dataSize);
+        mtxCount = (frameSize - dataSize) / sizeof(Mtx);
+        mtx0 = (Mtx *)(anim->frames[0] + dataSize);
+        mtx1 = (Mtx *)(anim->frames[1] + dataSize);
+        for (; mtxCount != 0; mtxCount--) {
+            guMtxIdent(mtx0);
+            guMtxIdent(mtx1);
+            mtx0++;
+            mtx1++;
         }
-        {
-            u8 *q = animAsset->unk64 + (u8 *)animAsset;
-            s32 j;
-
-            for (j = 0; j < 10; j++) {
-                ModelAnimEntry *v = &m->entries[j];
-                v->unk0 = (ModelAnimNodeHeader *)(q + *(u32 *)(q + j * 4));
-                v->unk4 = 0.0f;
-                v->unk8 = 0;
-                v->unkA = 0;
-                v->unkE = 0;
-                v->unkF = 0;
-                v->unk10 = 0;
-                v->keyIndex = 0;
-                v->unkC = 1;
-                v->unk12 = 0;
-                v->unk13 = 0;
-            }
+        nodeTable = asset->unk64 + (u8 *)asset;
+        for (j = 0; j < 10; j++) {
+            entry = &anim->entries[j];
+            entry->unk0 = (ModelAnimNodeHeader *)(nodeTable + ((u32 *)nodeTable)[j]);
+            entry->unk4 = 0.0f;
+            entry->unk8 = 0;
+            entry->unkA = 0;
+            entry->unkE = 0;
+            entry->unkF = 0;
+            entry->unk10 = 0;
+            entry->keyIndex = 0;
+            entry->unkC = 1;
+            entry->unk12 = 0;
+            entry->unk13 = 0;
         }
     } else {
-        *outModel = NULL;
+        *outAnim = NULL;
     }
 }
 
 extern ModelSlot *gModelSlots;
 
 u32 modelSlotDataSize(s16 slot) {
-    ModelAssetHeader *p = gModelSlots[slot].unk24;
+    ModelAssetHeader *asset = gModelSlots[slot].unk24;
 
-    return *(u32 *)(p->unk68 + (u8 *)p);
+    return *(u32 *)(asset->unk68 + (u8 *)asset);
 }
 
 void modelSlotCopyData(u8 *src, s16 slot) {
-    ModelAssetHeader *obj;
-    ModelData *dst;
-    s32 n;
+    ModelAssetHeader *asset;
+    ModelData *anim;
+    u32 size;
     f32 x;
     f32 y;
     f32 z;
@@ -82,11 +81,11 @@ void modelSlotCopyData(u8 *src, s16 slot) {
     f32 scale;
     f32 yOffset;
 
-    obj = gModelSlots[slot].unk24;
-    dst = gModelSlots[slot].unk78;
-    n = *(s32 *)(obj->unk68 + (u8 *)obj);
-    memcpy(dst->frames[0], src, n);
-    memcpy(dst->frames[1], src, n);
+    asset = gModelSlots[slot].unk24;
+    anim = gModelSlots[slot].unk78;
+    size = *(u32 *)(asset->unk68 + (u8 *)asset);
+    memcpy(anim->frames[0], src, size);
+    memcpy(anim->frames[1], src, size);
     modelSlotGetTransformVectors(slot, &x, &y, &z, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);
     modelSlotTransformBoundsAndNodes(slot, x, y, z, rotX, rotY, rotZ, scale, yOffset, 0, 0, 0, 0, 1);
 }
@@ -101,8 +100,8 @@ void modelSlotFree(ModelData *anim) {
     }
 }
 
-extern u32 D_807F6BE0;
-extern u32 D_807F6BE4;
+extern u8 *D_807F6BE0;
+extern u8 *D_807F6BE4;
 extern ModelData *D_807F6BE8;
 extern u8 gModelAnimChanged;
 extern u8 gGfxBufferIndex;
@@ -114,10 +113,10 @@ u8 modelSlotStepAnimations(s16 modelId) {
     group = gModelSlots[hashTableLookup(modelId)].unk78;
     gModelAnimChanged = 0;
     if (group != NULL) {
-        D_807F6BE0 = (u32)group->frames[gGfxBufferIndex];
-        D_807F6BE4 = (u32)group->frames[gGfxBufferIndex ^ 1];
+        D_807F6BE0 = group->frames[gGfxBufferIndex];
+        D_807F6BE4 = group->frames[gGfxBufferIndex ^ 1];
         D_807F6BE8 = group;
-        for (i = 0; i != 10; i++) {
+        for (i = 0; i < 10; i++) {
             if (group->entries[i].unkE == 1) {
                 modelAnimEntryStep(&group->entries[i]);
                 gModelAnimChanged = 1;
@@ -134,22 +133,25 @@ void modelAnimEntryStep(ModelAnimEntry *entry) {
     modelAnimEntryBuildNodeMatrices(entry);
 }
 
+// Head of one matrix record of an animation node; node->keyCount ModelBKeys follow it.
+// Both offsets are relative to the animation frame buffers (ModelData.frames).
 typedef struct ModelBTrack {
-    u8 *unk0;
-    u8 *unk4;
+    /* 0x00 */ u32 mtxOffset; // the node's output Mtx
+    /* 0x04 */ u32 mtxPairOffset; // two f32 4x4 matrices composed before and after the key transform
 } ModelBTrack;
 
+// One key of a matrix record: scale, rotation (degrees), translation.
 typedef struct ModelBKey {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
-} ModelBKey; /* 0x24 */
+    /* 0x00 */ f32 scaleX;
+    /* 0x04 */ f32 scaleY;
+    /* 0x08 */ f32 scaleZ;
+    /* 0x0C */ f32 rotX;
+    /* 0x10 */ f32 rotY;
+    /* 0x14 */ f32 rotZ;
+    /* 0x18 */ f32 posX;
+    /* 0x1C */ f32 posY;
+    /* 0x20 */ f32 posZ;
+} ModelBKey; // size = 0x24
 
 
 void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
@@ -157,27 +159,27 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
     s16 stride;
     s32 i;
     u8 *p;
-    u32 srcBase;
-    u32 dstBase;
-    u32 dst;
-    u32 src;
+    u8 *srcBase;
+    u8 *dstBase;
+    u8 *dst;
+    u8 *src;
+    ModelBTrack *track;
 
     node = entry->unk0;
-    stride = node->keyCount * 0x24 + 8;
+    stride = node->keyCount * sizeof(ModelBKey) + sizeof(ModelBTrack);
     srcBase = D_807F6BE0;
     dstBase = D_807F6BE4;
-    i = 0;
     p = (u8 *)(node + 1);
-    while (i < node->matrixCount) {
-        modelAnimEntryBuildKeyMatrix(entry->keyIndex, entry->unk4, (ModelBTrack *)p, p + 8, entry->unk13);
-        dst = *(u32 *)p + dstBase;
+    for (i = 0; i < node->matrixCount; i++) {
+        track = (ModelBTrack *)p;
+        modelAnimEntryBuildKeyMatrix(entry->keyIndex, entry->unk4, track, (ModelBKey *)(track + 1), entry->unk13);
+        dst = dstBase + track->mtxOffset;
         if (entry->unkE == 0) {
-            src = *(u32 *)p + srcBase;
+            src = srcBase + track->mtxOffset;
             mtxCopyQueuePush(D_807F6BE8, src, dst);
         } else {
             mtxCopyQueueCancelDest(dst);
         }
-        i++;
         p += stride;
     }
 }
@@ -187,29 +189,31 @@ void modelAnimEntryQueueMatrixCopies(ModelData *group, ModelAnimEntry *entry) {
     s16 stride;
     s32 i;
     u8 *p;
-    u32 srcBase;
-    u32 dstBase;
-    u32 dst;
+    u8 *srcBase;
+    u8 *dstBase;
+    u8 *dst;
+    ModelBTrack *track;
 
     node = entry->unk0;
     p = (u8 *)(entry->unk0 + 1);
-    stride = node->keyCount * 0x24 + 8;
-    srcBase = D_807F6BE0 = (u32)group->frames[gGfxBufferIndex ^ 1];
-    dstBase = D_807F6BE4 = (u32)group->frames[gGfxBufferIndex];
+    stride = node->keyCount * sizeof(ModelBKey) + sizeof(ModelBTrack);
+    srcBase = D_807F6BE0 = group->frames[gGfxBufferIndex ^ 1];
+    dstBase = D_807F6BE4 = group->frames[gGfxBufferIndex];
     for (i = 0; i < node->matrixCount; i++) {
-        dst = *(u32 *)p + dstBase;
-        mtxCopyQueuePush(group, *(u32 *)p + srcBase, dst);
+        track = (ModelBTrack *)p;
+        dst = dstBase + track->mtxOffset;
+        mtxCopyQueuePush(group, srcBase + track->mtxOffset, dst);
         p += stride;
     }
 }
 
 
-void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, u8 *keys, u8 scaleMode)
+void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, ModelBKey *keys, u8 scaleMode)
 {
-    u32 off;
-    f32 x;
-    f32 y;
-    f32 z;
+    u8 *frame;
+    f32 rx;
+    f32 ry;
+    f32 rz;
     f32 tx;
     f32 ty;
     f32 tz;
@@ -221,57 +225,57 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, u8 *keys, u
     f32 next2;
     f32 prev2;
     s32 pad[3];
-    float work[4][4];
-    float mtx[4][4];
+    f32 work[4][4];
+    f32 mtx[4][4];
 
-    off = D_807F6BE0;
-    next = ((ModelBKey *)keys)[key + 1].unkC;
-    prev = ((ModelBKey *)keys)[key].unkC;
-    x = next - prev;
-    if (-180.0 > x) {
-        x += 360.0;
-    } else if (180.0 < x) {
-        x -= 360.0;
+    frame = D_807F6BE0;
+    next = keys[key + 1].rotX;
+    prev = keys[key].rotX;
+    rx = next - prev;
+    if (rx < -180.0) {
+        rx += 360.0;
+    } else if (rx > 180.0) {
+        rx -= 360.0;
     }
-    x *= t;
-    x += prev;
-    next = ((ModelBKey *)keys)[key + 1].unk10;
-    prev = ((ModelBKey *)keys)[key].unk10;
-    y = next - prev;
-    if (y < -180.0) {
-        y += 360.0;
-    } else if (y > 180.0) {
-        y -= 360.0;
+    rx *= t;
+    rx += prev;
+    next = keys[key + 1].rotY;
+    prev = keys[key].rotY;
+    ry = next - prev;
+    if (ry < -180.0) {
+        ry += 360.0;
+    } else if (ry > 180.0) {
+        ry -= 360.0;
     }
-    y *= t;
-    y += prev;
-    next = ((ModelBKey *)keys)[key + 1].unk14;
-    prev = ((ModelBKey *)keys)[key].unk14;
-    z = next - prev;
-    if (z < -180.0) {
-        z += 360.0;
-    } else if (180.0 < z) {
-        z -= 360.0;
+    ry *= t;
+    ry += prev;
+    next = keys[key + 1].rotZ;
+    prev = keys[key].rotZ;
+    rz = next - prev;
+    if (rz < -180.0) {
+        rz += 360.0;
+    } else if (rz > 180.0) {
+        rz -= 360.0;
     }
-    z *= t;
-    z += prev;
-    tx = ((ModelBKey *)keys)[key + 1].unk18 - ((ModelBKey *)keys)[key].unk18;
+    rz *= t;
+    rz += prev;
+    tx = keys[key + 1].posX - keys[key].posX;
     tx *= t;
-    tx += ((ModelBKey *)keys)[key].unk18;
-    ty = ((ModelBKey *)keys)[key + 1].unk1C - ((ModelBKey *)keys)[key].unk1C;
+    tx += keys[key].posX;
+    ty = keys[key + 1].posY - keys[key].posY;
     ty *= t;
-    ty += ((ModelBKey *)keys)[key].unk1C;
-    tz = ((ModelBKey *)keys)[key + 1].unk20 - ((ModelBKey *)keys)[key].unk20;
+    ty += keys[key].posY;
+    tz = keys[key + 1].posZ - keys[key].posZ;
     tz *= t;
-    tz += ((ModelBKey *)keys)[key].unk20;
-    next2 = ((ModelBKey *)keys)[key + 1].unk0;
-    prev2 = ((ModelBKey *)keys)[key].unk0;
+    tz += keys[key].posZ;
+    next2 = keys[key + 1].scaleX;
+    prev2 = keys[key].scaleX;
     sx = (next2 - prev2) * t + prev2;
-    next2 = ((ModelBKey *)keys)[key + 1].unk4;
-    prev2 = ((ModelBKey *)keys)[key].unk4;
+    next2 = keys[key + 1].scaleY;
+    prev2 = keys[key].scaleY;
     sy = (next2 - prev2) * t + prev2;
-    next2 = ((ModelBKey *)keys)[key + 1].unk8;
-    prev2 = ((ModelBKey *)keys)[key].unk8;
+    next2 = keys[key + 1].scaleZ;
+    prev2 = keys[key].scaleZ;
     sz = (next2 - prev2) * t + prev2;
     switch (scaleMode & 0xF) {
     case 0:
@@ -286,13 +290,13 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, u8 *keys, u
         tz *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 4:
-        x *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        rx *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 5:
-        y *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        ry *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 6:
-        z *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        rz *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 7:
         sx *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
@@ -301,23 +305,23 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, u8 *keys, u
         sy *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 9:
-        sz = ((next2 - prev2) * t + prev2) * (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        sz = ((next2 - prev2) * t + prev2) * (f32)((scaleMode >> 4 & 0xF) * 0.125); // FAKE: recomputes the sz lerp instead of `sz *=` (Q0560): the target builds sz in $f2 at 0x958 and stores it to 0xd8(sp) in the delay slot at 0x960; `sz *=` builds it in $f18 and reloads 0xd8(sp) at 0xb90
         break;
     }
-    memcpy(work, track->unk4 + off, 0x40);
+    memcpy(work, frame + track->mtxPairOffset, sizeof(work));
     guScaleF(mtx, sx, sy, sz);
     guMtxCatF(work, mtx, work);
-    matrixMakeRotationZ(mtx, z);
+    matrixMakeRotationZ(mtx, rz);
     guMtxCatF(work, mtx, work);
-    matrixMakeRotationY(mtx, y);
+    matrixMakeRotationY(mtx, ry);
     guMtxCatF(work, mtx, work);
-    matrixMakeRotationX(mtx, x);
+    matrixMakeRotationX(mtx, rx);
     guMtxCatF(work, mtx, work);
     guTranslateF(mtx, tx, ty, tz);
     guMtxCatF(work, mtx, work);
-    memcpy(mtx, track->unk4 + 0x40 + off, 0x40);
+    memcpy(mtx, frame + track->mtxPairOffset + sizeof(mtx), sizeof(mtx));
     guMtxCatF(work, mtx, work);
-    guMtxF2L(work, (Mtx *)(off + track->unk0));
+    guMtxF2L(work, (Mtx *)(frame + track->mtxOffset));
 }
 
 extern u32 gFrameDelta;
@@ -331,22 +335,22 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
     s32 loops;
 
     node = entry->unk0;
-    rate = (f32)((f64)((f32)(node->times[entry->keyIndex + 1] - node->times[entry->keyIndex]) * entry->unk4 + (f32)(u32)node->times[entry->keyIndex]) / 300.0);
-    step = (f32)entry->unkC * rate;
+    rate = ((node->times[entry->keyIndex + 1] - node->times[entry->keyIndex]) * entry->unk4 + node->times[entry->keyIndex]) / 300.0;
+    step = entry->unkC * rate;
     if (gFrameDelta < 4) {
         limit = gFrameDelta;
     } else {
         limit = 4;
     }
     if (entry->unk12 & 1) {
-        step = (f64)step * ((f64)limit * 0.5);
+        step *= limit * 0.5;
     }
     switch (entry->unkF) {
     case 0:
         entry->unk4 += step;
         whole = entry->unk4;
         entry->keyIndex += whole;
-        entry->unk4 -= (f32)whole;
+        entry->unk4 -= whole;
         if (entry->keyIndex < node->keyCount - 1) {
             return;
         }
@@ -379,7 +383,7 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
         if (entry->unk4 < 0.0) {
             whole = (s32)entry->unk4 - 1;
             entry->keyIndex += whole;
-            entry->unk4 -= (f32)whole;
+            entry->unk4 -= whole;
         }
         if (entry->keyIndex < 0) {
             entry->unk8 += (-entry->keyIndex) / node->keyCount + 1;
@@ -400,7 +404,7 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
                     break;
                 case 1:
                     loops = (-entry->keyIndex) / node->keyCount + 1;
-                    if (loops) {
+                    if (loops != 0) {
                         entry->unkF = 0;
                         entry->keyIndex = 0;
                         entry->unk4 = 0.0f;
@@ -417,8 +421,8 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
 // One deferred 4x4 matrix copy (mtxCopyQueueFlush runs it when its gfx buffer comes round).
 typedef struct MtxCopyRequest {
     /* 0x00 */ ModelData *group;
-    /* 0x04 */ s32 src;
-    /* 0x08 */ s32 dst;
+    /* 0x04 */ void *src;
+    /* 0x08 */ void *dst;
     /* 0x0C */ u8 bufferIndex;
     /* 0x0D */ u8 padD[3];
 } MtxCopyRequest;
@@ -433,7 +437,7 @@ void mtxCopyQueueReset(void) {
     }
 }
 
-void mtxCopyQueuePush(ModelData *group, s32 src, s32 dst) {
+void mtxCopyQueuePush(ModelData *group, void *src, void *dst) {
     s32 found;
     s32 i;
 
@@ -458,7 +462,7 @@ void mtxCopyQueuePush(ModelData *group, s32 src, s32 dst) {
 }
 
 
-void mtxCopyQueueCancelDest(s32 dst) {
+void mtxCopyQueueCancelDest(void *dst) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
         if (gMtxCopyQueue[i].group != NULL && gMtxCopyQueue[i].dst == dst) {
@@ -483,28 +487,26 @@ void mtxCopyQueueFlush(ModelData *group) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
         if (gMtxCopyQueue[i].group == group && gMtxCopyQueue[i].bufferIndex == gGfxBufferIndex) {
-            memcpy((void *)gMtxCopyQueue[i].dst, (void *)gMtxCopyQueue[i].src, 0x40);
+            memcpy(gMtxCopyQueue[i].dst, gMtxCopyQueue[i].src, sizeof(Mtx));
             gMtxCopyQueue[i].group = NULL;
             gModelAnimChanged = 1;
         }
     }
 }
 
-void modelAnimEntrySetUnk13(s16 modelId, s16 index, u8 base, f32 scale) {
+void modelAnimEntrySetUnk13(s16 modelId, s16 index, u8 channel, f32 scale) {
     ModelData *group;
     ModelAnimEntry *entry;
-    u32 value;
-    s32 level;
+    u8 level;
 
     group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
         entry = &group->entries[index];
-        value = (u32)(8.0f * scale);
-        level = value & 0xFF;
-        if ((u8)value >= 0x10) {
-            level = 0xF;
+        level = 8.0f * scale;
+        if (level >= 16) {
+            level = 15;
         }
-        entry->unk13 = (level << 4) + base;
+        entry->unk13 = (level << 4) + channel;
     }
 }
 
@@ -625,22 +627,18 @@ void modelAnimEntrySetUnk12(s16 modelId, s16 index, s16 value) {
 
 u8 modelAnimEntryIsActive(s16 modelId, s16 index) {
     ModelData *group;
-    s32 flag;
-    u8 result;
+    s32 active;
 
-    result = 0;
     group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        flag = 0;
         if (group->entries[index].unkE == 1) {
-            flag = 1;
+            active = 1;
         } else {
-            flag = 0;
+            active = 0;
         }
-        return flag;
-    } else {
-        return result;
+        return active;
     }
+    return 0;
 }
 
 void modelAnimEntryGetState(s16 modelId, s16 index, s16 *outKey, f32 *outTime, u8 *outState) {
