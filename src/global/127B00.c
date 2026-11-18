@@ -247,7 +247,6 @@ void pathPlaybackAdvance(s32 slot) {
     s32 quot;
     s32 loops;
     s32 whole;
-    s32 overshoot;
     s32 span;
 
     if (slot != -1 && gPathPlaybacks[slot] != NULL && (pb = gPathPlaybacks[slot])->active != 0) {
@@ -313,8 +312,7 @@ void pathPlaybackAdvance(s32 slot) {
                 pb->t -= whole;
             }
             if (pb->pointIndex < 0) {
-                overshoot = -pb->pointIndex;
-                quot = overshoot / pb->path.count;
+                quot = -pb->pointIndex / pb->path.count;
                 pb->loopCount += quot + 1;
                 if (pb->loopCount >= pb->loopLimit && pb->loopLimit != -1) {
                     pb->pointIndex = 0;
@@ -326,8 +324,7 @@ void pathPlaybackAdvance(s32 slot) {
                 } else {
                     switch (pb->loopMode) {
                     case 0:
-                        pb->pointIndex = overshoot % (pb->path.count - 1);
-                        if (pb && pb) {}  // FAKE: block split, pointIndex reread joins its a3 web (move a3,t8)
+                        pb->pointIndex = -pb->pointIndex % (pb->path.count - 1);
                         if (pb->pointIndex != 0) {
                             pb->pointIndex = pb->path.count - pb->pointIndex - 1;
                         }
