@@ -612,6 +612,6 @@ s32 effectSpritePoolFadeOut(void) {
         D_807FDA28 = 0;
         return 1;
     }
-    // FAKE: no final return; fall-through path (pool->count == 0 && D_807FDA1C == 6) returns pool (D_807550E0) in v0 implicitly
+    // ORIG: no final return; when pool->count == 0 && D_807FDA1C == 6 the target branches past li v0,1 (0x2efc) to the epilogue (beq t0,at,0x2f00 at 0x2e64; jr ra at 0x2f18) with no $v0 write, so it returns pool from lw v0,%lo(D_807550E0)(v0) at 0x2d4c
 }
 
