@@ -20,6 +20,14 @@
 #include "proto/global/936B0.h"
 #include "proto/global/CEAE0.h"
 
+extern const u8 D_80036160[9];
+extern const u8 D_8003616C[12];
+extern const u8 D_80036178[15];
+extern const u8 D_80036188[17];
+extern const u8 D_8003619C[20];
+
+const u8 *gMadJackPhaseScripts[5] = { D_80036160, D_8003616C, D_80036178, D_80036188, D_8003619C };
+
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
@@ -46,14 +54,13 @@ typedef struct BossMadJackActor {
     BossScriptState *scriptState;
 } BossMadJackActor;
 
-extern u8 *gMadJackPhaseScripts[];
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 
 void bossMadJackStep(void) {
     BossScriptState *scriptState;
     s32 turnSpeed;
-    u8 *scriptOpcodes;
+    const u8 *scriptOpcodes;
     s16 targetAngle;
     s16 angleOffset;
     f32 targetX;

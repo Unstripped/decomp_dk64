@@ -15,13 +15,18 @@
 #include "proto/global/7130.h"
 #include "proto/global/936B0.h"
 
+extern const u8 D_80036660[24];
+extern const u8 D_80036678[14];
+extern const u8 D_80036688[17];
+extern const u8 D_8003669C[14];
+
+const u8 *D_80035A50[4] = { D_80036660, D_80036678, D_80036688, D_8003669C };
+
 // K. Rool (DK phase) actor: component 2 (0x178) is the script state.
 typedef struct BossKRoolDkActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ BossScriptState *scriptState;
 } BossKRoolDkActor;
-
-extern u8 *D_80035A50[];
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -31,7 +36,7 @@ extern PlayerState *gActivePlayerState;
 void bossKRoolDkStep(void) {
     BossScriptState *scriptState;
     s32 pad40;
-    u8 *scriptOpcodes;
+    const u8 *scriptOpcodes;
 
     scriptState = ((BossKRoolDkActor *)gCurrentActor)->scriptState;
     scriptOpcodes = D_80035A50[scriptState->phase];

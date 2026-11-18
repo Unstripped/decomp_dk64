@@ -26,6 +26,28 @@
 #include "proto/global/FCCD0.h"
 #include "proto/global/7130.h"
 
+typedef struct {
+    u8 map;
+    u8 unk1;
+    s16 flag;
+    u8 stage;
+    u8 unk5;
+} BossB_Struct_800359D0;
+
+s16 D_800359A0[5] = { 4, 3, 6, 20, 4 };
+s16 D_800359AC[5] = { 45, 45, 45, 45, 45 };
+s16 D_800359B8[5] = { 4, 3, 6, 3, 4 };
+s16 D_800359C4[5] = { 11, 11, 11, 11, 11 };
+BossB_Struct_800359D0 D_800359D0[8] = {
+    { 0x08, 0, 0x68, 0, 20 },
+    { 0x53, 0, 0x69, 0, 20 },
+    { 0x6F, 0, 0x6B, 0, 20 },
+    { 0x9A, 0, 0x6A, 0, 20 },
+    { 0xC4, 0, 0x6D, 11, 0 },
+    { 0xC5, 0, 0x67, 11, 20 },
+    { 0xC7, 0, 0x6C, 3, 1 },
+    { 0 },
+};
 
 void bossInitScriptData(const u8 *data) {
     s16 i;
@@ -407,10 +429,6 @@ typedef struct BossSoundState {
 } BossSoundState;
 
 extern Actor *gActivePlayerActor;
-extern s16 D_800359A0[];
-extern s16 D_800359AC[];
-extern s16 D_800359B8[];
-extern s16 D_800359C4[];
 extern u8 D_8071FE08[];
 extern ALBank *gSfxBank;
 extern SchedStruct gScheduler;
@@ -613,17 +631,6 @@ u8 enable;
         actorClearNodeFlag(gCurrentActor, 3);
     }
 }
-
-typedef struct {
-    u8 map;
-    u8 unk1;
-    s16 flag;
-    u8 stage;
-    u8 unk5;
-} BossB_Struct_800359D0;
-
-extern BossB_Struct_800359D0 D_800359D0[];
-
 
 void bossUpdateStageState(s16 *outStage) {
     s16 i = 0;

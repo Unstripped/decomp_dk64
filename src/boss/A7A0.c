@@ -16,6 +16,11 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/EFDC0.h"
 
+extern const u8 D_80036840[14];
+extern const u8 D_80036850[5];
+
+const u8 *bossKRoolLankyPhaseScripts[4] = { D_80036840, D_80036850, D_80036850, D_80036850 };
+
 // K. Rool (Lanky phase) actor: component 1 (0x174) is gBehaviourWorkState, component 2 the script state.
 typedef struct BossKRoolLankyActor {
     /* 0x000 */ Actor base;
@@ -24,7 +29,6 @@ typedef struct BossKRoolLankyActor {
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern u8 *bossKRoolLankyPhaseScripts[];
 
 void bossResetMinions(Actor *excludeActor) {
     s16 i;
@@ -94,7 +98,7 @@ void bossKRoolLankyRunTowardPlayer(void) {
 
 void bossKRoolLankyStep(void) {
     BossScriptState *scriptState;
-    u8 *scriptOpcodes;
+    const u8 *scriptOpcodes;
 
     scriptState = ((BossKRoolLankyActor *)gCurrentActor)->scriptState;
     scriptOpcodes = bossKRoolLankyPhaseScripts[scriptState->phase];

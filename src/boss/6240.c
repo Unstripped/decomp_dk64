@@ -29,6 +29,21 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/FCCD0.h"
 
+extern const u8 D_800362FC[12];
+extern const u8 D_80036308[18];
+extern const u8 D_8003631C[23];
+extern const u8 D_80036334[12];
+extern const u8 D_80036340[19];
+extern const u8 D_80036354[52];
+extern const u8 D_80036388[20];
+extern const u8 D_8003639C[6];
+
+// Per-phase scripts: row 0 in map 0xC5, row 1 elsewhere (the phase advance in bossPufftossStep always reads row 1).
+const u8 *sPufftossStateScripts[2][5] = {
+    { D_800362FC, D_80036308, D_8003631C, NULL, NULL },
+    { D_80036334, D_80036340, D_80036354, D_80036388, D_8003639C },
+};
+
 typedef struct PufftossSwingState {
     char pad[4];
     u8 swingTimer;
@@ -148,8 +163,6 @@ void bossClampPosition(Zone *zone) {
 }
 
 
-extern u8 *sPufftossStateScripts[][5];
-extern u8 *sPufftossPhaseScripts[];
 extern const u8 sPufftossScriptData[];
 extern u8 D_8071FB34[];
 extern f32 gDefaultActorGravity;
@@ -165,7 +178,7 @@ extern PlayerState *gActivePlayerState;
 void bossPufftossStep(void) {
     BossScriptState *state;
     PufftossSwingState *swing;
-    u8 *scriptData;
+    const u8 *scriptData;
     f32 prevY;
     u8 checkFloor;
     u8 updateY;
@@ -228,7 +241,7 @@ void bossPufftossStep(void) {
             gBehaviourWorkState->targetY = -0x2BC;
             state->scriptPos = 0;
             state->phase++;
-            scriptData = sPufftossPhaseScripts[state->phase];
+            scriptData = sPufftossStateScripts[1][state->phase];
             if ((state->phase == 3) && (gCurrentMap == 0xC5)) {
                 camStartPath(gCurrentActor, 8, 1);
             } else {

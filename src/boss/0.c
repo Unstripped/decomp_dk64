@@ -28,8 +28,55 @@ typedef struct BossSmokeBones {
     u8 bones[6];
 } BossSmokeBones;
 
+// Stowed pose of one armadillo piece (sArmydilloPiecePoses[arena mode][piece]): bone offset and bone scale.
+// bossPieceStep moves a piece from it to offset 0, scale 1 and back.
+typedef struct BossPiecePose {
+    s8 x;
+    s8 y;
+    s8 z;
+    u8 pad3;
+    f32 scaleX;
+    f32 scaleY;
+    f32 scaleZ;
+} BossPiecePose;
+
+extern const u8 D_80035C00[18];
+extern const u8 D_80035C14[19];
+extern const u8 D_80035C28[19];
+extern const u8 D_80035C3C[6];
+extern const u8 D_80035C44[21];
+extern const u8 D_80035C5C[26];
+extern const u8 D_80035C78[25];
+extern const u8 D_80035C94[34];
+
+const u8 *sArmydilloPhaseScripts[2][5] = {
+    { D_80035C00, D_80035C14, D_80035C28, D_80035C3C, NULL },
+    { D_80035C44, D_80035C5C, D_80035C78, D_80035C94, NULL },
+};
+u8 sArmydilloPieceBones[5] = { 0x2E, 0x2F, 0x31, 0x32, 0x30 };
+BossPiecePose sArmydilloPiecePoses[2][5] = {
+    {
+        { -100, 0, 0, 0, 0.25f, 0.25f, 0.25f },
+        { 100, 0, 0, 0, 0.25f, 0.25f, 0.25f },
+        { -100, 0, 0, 0, 0.25f, 0.25f, 0.25f },
+        { 100, 0, 0, 0, 0.25f, 0.25f, 0.25f },
+        { 0, -128, 0, 0, 0.15f, 0.15f, 0.15f },
+    },
+    {
+        { 0, 0, 0, 0, 1.0f, 1.0f, 1.0f },
+        { 0, 0, 0, 0, 1.0f, 1.0f, 1.0f },
+        { -100, 0, 0, 0, 0.25f, 0.25f, 0.25f },
+        { 100, 0, 0, 0, 0.25f, 0.25f, 0.25f },
+        { 0, -128, 0, 0, 0.15f, 0.15f, 0.15f },
+    },
+};
+u8 D_80035980[3] = { 0x00, 0x01, 0xFF };
+u8 sArmydilloCannonPieceList[3] = { 0x02, 0x03, 0xFF };
+u8 D_80035988[2] = { 0x04, 0xFF };
+BossSmokeBones sArmydilloSmokeBones = { { 0x09, 0x0A, 0x0E, 0x12, 0x15, 0x16 } };
+u8 D_80035994[8] = { 0x29, 0x26, 0x27, 0x28, 0x2A, 0x2B, 0x2C, 0x2D };
+
 extern Actor *gCurrentActor;
-extern BossSmokeBones sArmydilloSmokeBones;
 extern u8 sEffectSparkConfig[];
 
 
@@ -52,22 +99,7 @@ void bossArmydilloSpawnSmoke(void) {
     }
 }
 
-// Stowed pose of one armadillo piece (sArmydilloPiecePoses[arena mode][piece]): bone offset and bone scale.
-// bossPieceStep moves a piece from it to offset 0, scale 1 and back.
-typedef struct BossPiecePose {
-    s8 x;
-    s8 y;
-    s8 z;
-    u8 pad3;
-    f32 scaleX;
-    f32 scaleY;
-    f32 scaleZ;
-} BossPiecePose;
-
 extern s32 gCurrentMap;
-extern u8 sArmydilloPieceBones[5];
-extern BossPiecePose sArmydilloPiecePoses[][5];
-extern u8 D_80035994[8];
 
 void bossArmydilloInitArena(void) {
     s32 pad[4];
@@ -383,7 +415,7 @@ void bossArmydilloAimTowardTarget(void) {
     }
 }
 
-void bossArmydilloOpenCannons(void *state, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
+void bossArmydilloOpenCannons(void *state, BossPieceAnim *pieceData, const u8 *script, u8 *pieceList) {
     u8 i;
     u8 done;
 
@@ -412,7 +444,7 @@ void bossArmydilloOpenCannons(void *state, BossPieceAnim *pieceData, u8 *script,
     }
 }
 
-void bossPieceListStep(void *state, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
+void bossPieceListStep(void *state, BossPieceAnim *pieceData, const u8 *script, u8 *pieceList) {
     u8 i;
     u8 done;
 
@@ -479,10 +511,6 @@ typedef struct BossArmydilloActor {
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 
-extern u8 *sArmydilloPhaseScripts[][5];
-extern u8 D_80035980[];
-extern u8 sArmydilloCannonPieceList[];
-extern u8 D_80035988[];
 extern const u8 D_80035CB8[];
 extern const u8 D_80035CC0[];
 extern u8 gGameMode;
@@ -500,7 +528,7 @@ u8 patrolPathStep(u8, u8);
 void bossArmydilloStep(void) {
     s32 pad_top[1];
     BossPieceAnim *pieceAnim;
-    u8 *scriptData;
+    const u8 *scriptData;
     s32 pad_mid;
     u8 cannonBone;
     u8 playSfx;

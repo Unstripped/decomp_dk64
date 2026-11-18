@@ -16,6 +16,14 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/936B0.h"
 
+extern const u8 D_80036750[23];
+extern const u8 D_80036768[9];
+extern const u8 D_80036774[9];
+extern const u8 D_80036780[9];
+
+const u8 *D_80035A60[4] = { D_80036750, D_80036768, D_80036774, D_80036780 };
+u8 D_80035A70[6] = { 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F }; // unreferenced
+
 // K. Rool (Diddy phase) actor: component 1 (0x174) is gBehaviourWorkState, component 2 the script state.
 typedef struct BossKRoolDiddyActor {
     /* 0x000 */ Actor base;
@@ -26,7 +34,6 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
 extern Actor *gPrimaryPlayerActor;
-extern u8 *D_80035A60[];
 
 void bossAttachActor(void) {
     BossScriptState *scriptState = ((BossKRoolDiddyActor *)gCurrentActor)->scriptState;
@@ -61,7 +68,7 @@ void bossDespawnEntities(void) {
 
 void bossKRoolDiddyStep(void) {
     BossScriptState *scriptState;
-    u8 *scriptOpcodes;
+    const u8 *scriptOpcodes;
     s32 pad34;
     f32 projectileScale;
 

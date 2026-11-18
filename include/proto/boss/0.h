@@ -25,10 +25,10 @@ u8 bossPieceStep(struct BossPieceAnim *, u8, f32, f32, f32);
 void bossArmydilloAimTowardTarget(void);
 #endif
 #ifndef PROTO_SKIP_bossArmydilloOpenCannons
-void bossArmydilloOpenCannons(void *, struct BossPieceAnim *, u8 *, u8 *);
+void bossArmydilloOpenCannons(void *, struct BossPieceAnim *, const u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossPieceListStep
-void bossPieceListStep(void *, struct BossPieceAnim *, u8 *, u8 *);
+void bossPieceListStep(void *, struct BossPieceAnim *, const u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossArmydilloHideCannons
 void bossArmydilloHideCannons(void);

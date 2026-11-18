@@ -14,6 +14,16 @@
 #include "proto/global/FCCD0.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
+extern const u8 D_800368C0[34];
+extern const u8 D_800368E4[20];
+extern const u8 D_800368F8[21];
+extern const u8 D_80036910[64];
+extern const u8 D_80036950[24];
+extern const u8 D_80036968[24];
+
+const u8 *gDogadonPhaseScripts[5] = { D_800368C0, D_800368E4, D_800368F8, D_80036910, D_800368C0 };
+const u8 *gKRoolTinyPhaseScripts[4] = { D_80036950, D_80036968, D_80036950, D_80036968 };
+
 // K. Rool (Tiny phase) actor: component 2 (0x178) is the script state, component 3 (0x17C) the
 // array of the three actors spawned by bossKRoolTinySpawnMinion (group members 1-3; the leader is member 0).
 typedef struct BossKRoolTinyActor {
@@ -41,7 +51,6 @@ typedef struct BossDogadonActor {
     /* 0x178 */ BossScriptState *scriptState;
 } BossDogadonActor;
 
-extern u8 *gDogadonPhaseScripts[];
 extern PlayerStruct *gPlayerSlots;
 
 
@@ -66,7 +75,7 @@ void behaviourUpdateShadowAlpha(void);
 
 void bossDogadonStep(void) {
     BossScriptState *scriptState;
-    u8 *scriptOpcodes;
+    const u8 *scriptOpcodes;
     s32 pad[2];
     f32 offsetSin;
 
@@ -358,7 +367,6 @@ s32 modelId;
 #define KROOL_TINY_ACTOR ((BossKRoolTinyActor *)gCurrentActor)
 
 extern PlayerState *gActivePlayerState;
-extern u8 *gKRoolTinyPhaseScripts[];
 
 void actorScriptStartByIndex(void *, s32);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
@@ -367,7 +375,7 @@ void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *
 void bossKRoolTinyStep(void) {
     BossScriptState *scriptState;
     Actor **minions;
-    u8 *scriptOpcodes;
+    const u8 *scriptOpcodes;
     f32 dummyY;
 
     scriptState = KROOL_TINY_ACTOR->scriptState;

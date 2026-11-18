@@ -82,7 +82,6 @@ sArmydilloCannonPieceList = 0x80035984;
 sArmydilloSmokeBones = 0x8003598C;
 gMadJackPhaseScripts = 0x80035A00;
 sPufftossStateScripts = 0x80035A20;
-sPufftossPhaseScripts = 0x80035A34;
 bossKRoolLankyPhaseScripts = 0x80035A80;
 gDogadonPhaseScripts = 0x80035A90;
 gKRoolTinyPhaseScripts = 0x80035AA4;
