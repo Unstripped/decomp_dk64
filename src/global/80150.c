@@ -2586,10 +2586,10 @@ void tagBarrelOrbitKongs(TagBarrelData *arg) {
     u8 u;
     Actor *kong;
 
-    blend = (f32)(u32)arg->timer / 20.0f;
+    blend = (u32)arg->timer / 20.0f;
     baseYaw = gCurrentActor->yaw;
-    baseYaw = (s16)(s32)(baseYaw + (819.2 * arg->selected)) & 0xFFF;
-    baseYaw = (s16)(s32)(baseYaw - (819.2 * blend) * arg->direction) & 0xFFF;
+    baseYaw = (s16)(baseYaw + (819.2 * arg->selected)) & 0xFFF;
+    baseYaw = (s16)(baseYaw - (819.2 * blend) * arg->direction) & 0xFFF;
     u = ((u8)(s32)(baseYaw & 0x7FFF) & 0xFFF); // FAKE: dead narrowing chain burns ugen ring temps (loop-start register ring)
     u = ((u8)((s16)(u & 0xFFF) & 0xFFFF) & 0x7FFF); // FAKE: ring temps
     u = (s32)(((u8)(u & 0xFFFF) & 0xFF) & 0x7FFF); // FAKE: ring temps
@@ -2605,10 +2605,10 @@ void tagBarrelOrbitKongs(TagBarrelData *arg) {
         } else if (i == arg->previous) {
             glow = blend;
         } else {
-            glow = 0;
+            glow = 0.0f;
         }
-        glow = (f64)glow - 0.6;
-        glow = (f64)glow * 2.5;
+        glow -= 0.6;
+        glow *= 2.5;
         if (glow < 0) {
             glow = 0.0f;
         } else {
@@ -2619,7 +2619,7 @@ void tagBarrelOrbitKongs(TagBarrelData *arg) {
             }
             glow = clamped;
         }
-        kong->unk15F = (u32)((12.0f * glow) + 3.0f);
+        kong->unk15F = (12.0f * glow) + 3.0f;
     }
 }
 
