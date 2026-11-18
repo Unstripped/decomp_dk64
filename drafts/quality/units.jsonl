@@ -1095,3 +1095,4 @@
 {"type": "unit", "t": "2026-11-18T09:37:14Z", "unit": "2026-11-17: cleanup CleanmatrixCacheLookup", "commit": "c9b062b880786e294e453202b037e40a5d72cd36"}
 {"type": "unit", "t": "2026-11-18T09:39:41Z", "unit": "2026-11-17: cleanup CleaneffectSpritePoolFadeOut", "commit": "3353dd3823c5ec69306a1fe35894835e39cafe34"}
 {"type": "unit", "t": "2026-11-18T09:41:14Z", "unit": "2026-11-17: cleanup CleanactorSagWaveUpdate", "commit": "f8b40ab395f6d5283add233132f7bb1a65d5772e"}
+{"type": "unit", "t": "2026-11-18T09:41:42Z", "unit": "2026-11-17: cleanup CleanactorSetBoxEnableById", "commit": "6b75a9bb0d0dff8ae09902c16cb590af9d42c5cf"}
