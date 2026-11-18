@@ -11,7 +11,22 @@ typedef struct {
     s16 mappedAction;
 } MapActionEntry;
 
-extern MapActionEntry gMapActionRemapTable[];
+MapActionEntry gMapActionRemapTable[14] = {
+    { 1, 0, 0, 0 },
+    { 1, 1, 0, 3 },
+    { 1, 2, 0, 5 },
+    { 1, 3, 0, 6 },
+    { 1, 4, 0, 7 },
+    { 1, 5, 0, 4 },
+    { 1, 6, 0, 0xA },
+    { 1, 7, 0, 8 },
+    { 1, 8, 0, 0x19 },
+    { 1, 9, 0, 1 },
+    { 1, 10, 0, 2 },
+    { 1, 11, 0, 0x1A },
+    { 1, 12, 0, 0x1A },
+    { 1, 13, 0, 0x3B0 },
+};
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern PlayerState *gActivePlayerState;

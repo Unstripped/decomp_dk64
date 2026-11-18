@@ -23,6 +23,13 @@ typedef struct PositionRecord {
     KongInventory inventory;
 } PositionRecord;
 
+s16 D_807463A0 = 0;
+s32 D_807463A4 = 0; // unreferenced
+InputRecord *D_807463A8 = NULL;
+s16 D_807463AC = 0;
+s16 D_807463B0 = 0;
+u16 D_807463B4 = 0;
+s8 D_807463B8 = 0;
 
 void func_8060B430(Actor *target, PositionRecord *record) {
     target->x = record->x;
@@ -32,8 +39,6 @@ void func_8060B430(Actor *target, PositionRecord *record) {
     memcpy(&gPlayerInventoryTable[0].kong[record->kongIndex], &record->inventory, sizeof(KongInventory));
 }
 
-extern s16 D_807463B0;
-extern s8 D_807463B8;
 extern PositionRecord D_807ECE20;
 
 s16 func_8060B49C(Actor *target, s32 unused) {
@@ -42,8 +47,6 @@ s16 func_8060B49C(Actor *target, s32 unused) {
     return D_807463B0;
 }
 
-extern s16 D_807463AC;
-extern u16 D_807463B4;
 extern u16 *D_807ECE94;
 extern InputRecord *D_807ECE98;
 
@@ -69,8 +72,6 @@ void func_8060B55C(s16 *outDuration) {
     }
 }
 
-extern s16 D_807463A0;
-extern InputRecord *D_807463A8;
 extern u16 *D_807ECE90;
 
 
