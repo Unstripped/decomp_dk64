@@ -46,7 +46,7 @@ s32 actorFlyTowardPosition(BehaviourWorkState *, u8);
 void actorSpawnPeriodicBoneEffect(void);
 #endif
 #ifndef PROTO_SKIP_behaviourFlyPatrolWithCallback
-void behaviourFlyPatrolWithCallback(void (*)(), u16, u16, s16);
+void behaviourFlyPatrolWithCallback(void (*)(void), u16, u16, s16);
 #endif
 #ifndef PROTO_SKIP_behaviourFlyPatrolState
 void behaviourFlyPatrolState(void);

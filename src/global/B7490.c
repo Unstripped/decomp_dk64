@@ -35,7 +35,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
-extern u8 D_8072073C[];
+extern EffectGridAsset D_8072073C;
 extern s16 D_80750340;
 
 
@@ -320,11 +320,11 @@ void actorSwellBurstUpdate(void) {
             rangeSq = 0.0f;
             scaleMultiplier = 0.4f;
         } else {
-            rangeSq = rangeSq * 0.75;
+            rangeSq *= 0.75;
             scaleMultiplier = 0.7f;
         }
     }
-    rangeSq = rangeSq * rangeSq;
+    rangeSq *= rangeSq;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->renderFlags |= 4;
@@ -367,7 +367,7 @@ void actorSwellBurstUpdate(void) {
                             effectSetSpeed(i + 0x0B020000);
                             effectSetCallback(effectRadialSprayUpdate);
                             effectSetMode(1);
-                            effectCreateAtPosition(D_8072073C, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                            effectCreateAtPosition(&D_8072073C, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                         }
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3D, 0xFF, 0x7F, 0);
                         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
@@ -524,7 +524,7 @@ typedef struct FlyPatrolComponent {
     /* 0x00 */ s16 hoverHeight; // above the spawn node's y; seeded from SpawnNode unkA
 } FlyPatrolComponent;
 
-void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
+void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 animId2, s16 sfxId) {
     FlyPatrolComponent *patrol;
     s16 targetX;
     s16 targetZ;
@@ -681,7 +681,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
         case 3:
             if (gCurrentActor->unk155 == 0) {
                 actorScriptStart(gCurrentActor, animId1);
-                gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                gCurrentActor->unk155++;
             }
             actorMoveWithinZone(action, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0xE1, 0.0f);
             if (gCurrentActor->y < targetHeight) {
@@ -802,7 +802,7 @@ void behaviourEnemyFlyIdle(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x30C, 0x30B, 0x30D);
-        gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
+        gCurrentActor->flags &= 0xFFFF7FFF;
     }
     if (gCurrentMap == 0xA6) {
         inWaterFlag = gActivePlayerState->stateFlags & 0x40;
@@ -815,7 +815,7 @@ void behaviourEnemyFlyIdle(void) {
         }
         alphaDelta = gBehaviourWorkState->timer;
         if (alphaDelta != 0) {
-            gCurrentActor->alpha = gCurrentActor->alpha + alphaDelta;
+            gCurrentActor->alpha += alphaDelta;
             if (gCurrentActor->alpha >= 0x100) {
                 gCurrentActor->alpha = 0xFF;
                 gBehaviourWorkState->timer = 0;
@@ -865,14 +865,16 @@ void behaviourEnemyFlySwoop(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct B7490St178 {
+// Second component (Actor 0x178) of the behaviourEnemyFlyReturn actor type: the point it flies toward,
+// re-picked around zone entry 1 or taken from the player while it chases.
+typedef struct FlyWanderState {
     /* 0x00 */ f32 targetX;
     /* 0x04 */ f32 targetY;
     /* 0x08 */ f32 targetZ;
     /* 0x0C */ f32 homeY;
     /* 0x10 */ s16 retargetTimer;
     /* 0x12 */ s16 chaseTimer;
-} B7490St178;
+} FlyWanderState;
 
 extern u16 D_80744508;
 
@@ -883,7 +885,7 @@ void behaviourEnemyFlyReturn(void) {
     f32 zoneZ;
     f32 dist;
     s16 angle;
-    B7490St178 *state;
+    FlyWanderState *state;
 
     state = B7490A->typeState;
     behaviourFrameBegin();
@@ -895,8 +897,8 @@ void behaviourEnemyFlyReturn(void) {
         sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0x16, 0xFF, 0x7F, 0x1E);
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->flags = gBehaviourAnimState->flags | 0x20;
-        gBehaviourAnimState->flags = gBehaviourAnimState->flags & 0xFFF7;
+        gBehaviourAnimState->flags |= 0x20;
+        gBehaviourAnimState->flags &= 0xFFF7;
         gCurrentActor->speedXZ = 40.0f;
         gCurrentActor->state = 0x23;
         gCurrentActor->unk155 = 0;
@@ -918,8 +920,8 @@ void behaviourEnemyFlyReturn(void) {
             state->targetZ = gPrimaryPlayerActor->z;
             state->chaseTimer = (randomLcgNext() & 0xFF) + 0x78;
         case 0x23:
-            gCurrentActor->yaw = gCurrentActor->yaw - (mathAngleSignedDistance(mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, state->targetX, state->targetZ) + 0x800, gCurrentActor->yaw) >> 4);
-            state->retargetTimer = state->retargetTimer - 1;
+            gCurrentActor->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, state->targetX, state->targetZ) + 0x800, gCurrentActor->yaw) >> 4;
+            state->retargetTimer--;
             if (state->retargetTimer <= 0) {
                 zoneEntryGetPosition(1, 0, &zoneX, &zoneY, &zoneZ);
                 state->retargetTimer = (randomLcgNext() & 0x3F) + 0xF;
@@ -932,13 +934,13 @@ void behaviourEnemyFlyReturn(void) {
                 gCurrentActor->state = 0x23;
             }
             if (gCurrentActor->state == 0x23) {
-                state->chaseTimer = state->chaseTimer - 1;
+                state->chaseTimer--;
                 if (state->chaseTimer <= 0) {
                     state->retargetTimer = 0x3C;
                     gCurrentActor->state = 0x26;
                 }
             }
-            zoneY = (state->targetY - gCurrentActor->y) * 0.0625;
+            zoneY = (state->targetY - gCurrentActor->y) * 0.0625; // ORIG: zoneY's home (sp+100, a3 into zoneEntryGetPosition at 0x2fb0) also holds the clamped climb step (swc1 at 0x311c/0x313c/0x3164, lwc1 at 0x31a0)
             if (zoneY > 8.0) {
                 zoneY = 8.0f;
             }
@@ -946,20 +948,20 @@ void behaviourEnemyFlyReturn(void) {
                 zoneY = -8.0f;
             }
             gCurrentActor->x += mathSinF(gCurrentActor->yaw) * 8.0;
-            gCurrentActor->y = gCurrentActor->y + zoneY;
+            gCurrentActor->y += zoneY;
             gCurrentActor->z += mathCosF(gCurrentActor->yaw) * 8.0;
             break;
         case 0x37:
-            gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
-            gCurrentActor->alpha = gCurrentActor->alpha - 8;
-            gCurrentActor->y = gCurrentActor->y - 10.0;
+            gCurrentActor->flags &= 0xFFFF7FFF;
+            gCurrentActor->alpha -= 8;
+            gCurrentActor->y -= 10.0;
             if (gCurrentActor->alpha < 0) {
                 gCurrentActor->alpha = 0;
                 gCurrentActor->state = 0x40;
                 gCurrentActor->unk155 = 0;
                 gCurrentActor->unk144 = 1;
                 if (gCurrentMap == 0xA7) {
-                    D_80744508 = D_80744508 + 1;
+                    D_80744508++;
                     if ((D_80744508 == 5) && (flagGet(0x15F, 0) == 0)) {
                         csModelStateSetFirstByte(4, 0xA);
                     }
