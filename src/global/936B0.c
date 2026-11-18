@@ -229,7 +229,7 @@ void func_8068EF54(void) {
             }
         }
         if (playerState->unk1A2 != 0 || (camIsCutsceneActive() && gFrameCounter % 5 == 0)) {
-            ratio = (0, owner->speedY > 0.0 ? owner->speedY : 0.0);  // FAKE: comma steers FP candidate order
+            ratio = (0, owner->speedY > 0.0 ? owner->speedY : 0.0);  // FAKE: comma routes the select through the shared f64 ternary temp (M-208 adjsave 4.67 over udiv 3.33): sparkScale $f2, lightAdd 0.0 in $f16 at 0x920
             if (gFrameCounter & 1) {
                 effectSpawnActorBone(owner, 1, (f32)(ratio / 150.0 * 0.12) + 0.3);
             } else {
@@ -414,7 +414,7 @@ u8 tilt;
     vehicle->heading = vehicle->heading & 0xFFF;
     if (applyBuoyancy) {
         if (gCurrentActor->y < gCurrentActor->waterY) {
-            if (inWater) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (inWater) {}  // FAKE: block split in the waterY live range (adjsave 12/6 below speedY 15/5): waterY $f2 at 0x1370/0x14e8, speedY $f0 at 0x13b8
             gCurrentActor->speedY = gCurrentActor->speedY + ((gCurrentActor->waterY - gCurrentActor->y) * 3.0f + 15.0f);
             if ((gCurrentActor->speedY > 0.0f ? gCurrentActor->speedY : -gCurrentActor->speedY) > 20.0f) {
                 gCurrentActor->speedY = gCurrentActor->speedY - gCurrentActor->speedY / 12.0f;
@@ -437,7 +437,7 @@ u8 tilt;
     if (gCurrentActor->speedY < gCurrentActor->terminalSpeedY) {
         gCurrentActor->speedY = gCurrentActor->terminalSpeedY;
     }
-    if (kongState == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (kongState == 0) {}  // FAKE: dead use keeps the kongState piece bb 44..66 positive (Q1179): a0 from 0x12cc to 0x1434 beside the constant 2 in v1
     actorStepPhysics(gCurrentActor, gCurrentActor->yaw, vehicle->heading);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
@@ -772,7 +772,7 @@ u8 straight;
     f32 steps;
 
     homing = proj->customState;
-    if (!((f64)proj->speedXZ < 0.1)) {
+    if (!(proj->speedXZ < 0.1)) {
         if (trailEffect != 0) {
             ownerState = proj->parentActor->customState;
             camState = ownerState->camActor->customState;
@@ -782,7 +782,7 @@ u8 straight;
                 effectCreateAtPosition(trailEffect, homing->scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
-        if (projectileFindHomingTarget(collisionMask, (void **)&target, proj, 0, (u32)straight, straight == 0, &targetX, &targetY, &targetZ) != 0) { // FAKE: (u32) cast on the u8 formal (with !straight below) keeps the arg byte uncoloured, reloaded lbu from its home at 0x2434
+        if (projectileFindHomingTarget(collisionMask, &target, proj, 0, straight, straight == 0, &targetX, &targetY, &targetZ) != 0) {
             targetYaw = mathAngleBetweenPoints2D(targetX, targetZ, proj->x, proj->z);
             yawStep = mathAngleDistance(targetYaw, proj->moveYaw) / 10;
             yawPlus = (proj->moveYaw + yawStep) & 0xFFF;
@@ -805,7 +805,7 @@ u8 straight;
                 }
                 steps = dist / (proj->speedXZ * 0.025f);
                 if (target != NULL) {
-                    heightOffset = (f64)target->eyeHeight * 0.5;
+                    heightOffset = target->eyeHeight * 0.5;
                 } else {
                     heightOffset = 0.0f;
                 }
@@ -823,17 +823,7 @@ u8 straight;
 extern ModelSlot *gModelSlots;
 extern s32 gModelSlotCount;
 
-s32 projectileFindHomingTarget(collisionMask, outTarget, proj, useAim, levelOnly, includeModels, outX, outY, outZ)
-u16 collisionMask;
-void **outTarget;
-Actor *proj;
-u8 useAim;
-u8 levelOnly;
-u8 includeModels;
-f32 *outX;
-f32 *outY;
-f32 *outZ;
-{
+s32 projectileFindHomingTarget(u16 collisionMask, Actor **outTarget, Actor *proj, u8 useAim, u8 levelOnly, u8 includeModels, f32 *outX, f32 *outY, f32 *outZ) {
     s32 padTop[2];
     s32 ret;
     s32 i;
@@ -1147,13 +1137,16 @@ void projectileBounceParticleUpdate(void *effectCfg) {
         }
     }
     if (gCurrentActor->unkEC == 0) {
-        f32 dx = gCurrentActor->x - gPlayerSlots->camX;
-        f32 dy = gCurrentActor->y - gPlayerSlots->camY;
-        dx = dx * dx; // FAKE: dx/dy reused as the running sum; a separate dz local adds 8 bytes to the frame and reorders the sum (35 rows)
-        dx = dy * dy + dx;
-        dy = gCurrentActor->z - gPlayerSlots->camZ;
-        dx = dy * dy + dx;
-        if (dx < 20000.0f) {
+        f32 dist;
+        f32 d;
+
+        dist = gCurrentActor->x - gPlayerSlots->camX;
+        dist = dist * dist;
+        d = gCurrentActor->y - gPlayerSlots->camY;
+        dist = dist + d * d;
+        d = gCurrentActor->z - gPlayerSlots->camZ;
+        dist = dist + d * d;
+        if (dist < 20000.0f) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x128, 0xFF, 0x7F, 0);
             gCurrentActor->unkEC++;
         }

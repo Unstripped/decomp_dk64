@@ -59,10 +59,10 @@ Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
 
 Gfx *playerViewDrawCrosshair(Gfx *gfx, Actor *actor) {
     u8 player;
-    s32 target;
-    s32 targetX;
-    s32 targetY;
-    s32 targetZ;
+    Actor *target;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
     Gfx *dl;
 
     player = ((PlayerState *)actor->customState)->playerIndex;
@@ -132,11 +132,11 @@ Gfx *playerViewDrawPhotoResult(Gfx *dl, Actor *actor) {
 
 Gfx *playerViewDrawScopeCrosshair(Gfx *dl, Actor *actor) {
     u8 player;
-    s32 target;
+    Actor *target;
     s32 targetKind;
-    s32 targetX;
-    s32 targetY;
-    s32 targetZ;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
 
     targetKind = 2;
     player = ((PlayerState *)actor->customState)->playerIndex;

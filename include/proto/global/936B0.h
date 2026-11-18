@@ -75,7 +75,7 @@ void projectileAimFromActorAndSpawn(s16, s16, f32, Actor *, s32, f32, Actor *);
 void projectileSteerTowardTarget();
 #endif
 #ifndef PROTO_SKIP_projectileFindHomingTarget
-s32 projectileFindHomingTarget();
+s32 projectileFindHomingTarget(u16, Actor **, Actor *, u8, u8, u8, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_actorSpawnSparkleBurst
 void actorSpawnSparkleBurst(void);
