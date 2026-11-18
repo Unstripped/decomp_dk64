@@ -673,17 +673,16 @@ extern Actor *gActivePlayerActor;
 extern CritterZone *critterPlayerZone;
 
 void critterUpdateZoneProximity(CritterObj *obj) {
-    PlayerStruct *m;
     f32 lim;
     f32 fv0;
     f32 dist;
     s16 half;
     s32 f;
 
-    lim = (f32)(obj->homeZone->shape.nearDistSq + 0x1DE84);
+    lim = obj->homeZone->shape.nearDistSq + 0x1DE84;
     if (obj->homeZone->frame != gGfxBufferIndex) {
         half = (obj->homeZone->shape.height + obj->homeZone->shape.extraHeight) >> 1;
-        dist = ((f32)obj->homeZone->x - gActivePlayerActor->x) * ((f32)obj->homeZone->x - gActivePlayerActor->x) + ((f32)obj->homeZone->z - gActivePlayerActor->z) * ((f32)obj->homeZone->z - gActivePlayerActor->z);
+        dist = (obj->homeZone->x - gActivePlayerActor->x) * (obj->homeZone->x - gActivePlayerActor->x) + (obj->homeZone->z - gActivePlayerActor->z) * (obj->homeZone->z - gActivePlayerActor->z);
         fv0 = 0.0f;
         f = critterPlayerZone->y < obj->homeZone->y + half;
         if (f) {
@@ -692,14 +691,15 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         f = (u8)f != 0; // ORIG: the target narrows the in-height flag and re-tests it (andi t5,a3,0xff; sltu a3,zero,t5 at 0x20cc)
         if (f) {
             f = 0;
-            if (dist < (f32)obj->homeZone->shape.nearDistSq) {
+            if (dist < obj->homeZone->shape.nearDistSq) {
                 f = 1;
             }
         }
         obj->homeZone->near = f;
         obj->homeZone->frame = gGfxBufferIndex;
-        m = &gPlayerSlots[0] + gCurrentPlayerIndex; // FAKE: &array[0] + i keeps the stride-view addu order (target addu v1,t9,t4 = base,offset at 0x2144); &gPlayerSlots[i] / gPlayerSlots + i give offset,base and re-colour 28 lines (Q0606)
-        dist = ((f32)obj->homeZone->z - m->camZ) * ((f32)obj->homeZone->z - m->camZ) + (((f32)obj->homeZone->x - m->camX) * ((f32)obj->homeZone->x - m->camX) + ((f32)obj->homeZone->y - m->camY) * ((f32)obj->homeZone->y - m->camY));
+        dist = (obj->homeZone->x - gPlayerSlots[gCurrentPlayerIndex].camX) * (obj->homeZone->x - gPlayerSlots[gCurrentPlayerIndex].camX) +
+               (obj->homeZone->y - gPlayerSlots[gCurrentPlayerIndex].camY) * (obj->homeZone->y - gPlayerSlots[gCurrentPlayerIndex].camY) +
+               (obj->homeZone->z - gPlayerSlots[gCurrentPlayerIndex].camZ) * (obj->homeZone->z - gPlayerSlots[gCurrentPlayerIndex].camZ);
         obj->homeZone->distSq = dist;
         if (dist < lim) {
             fv0 = (lim - dist) * 0.000051020408f;
