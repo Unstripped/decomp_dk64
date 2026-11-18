@@ -10,7 +10,7 @@
     - every player routine, including jetpacInitPlayer, uses `JetpacPlayerActor *` throughout;
     - JetpacPlayerActor only shares JetpacActor's first 0x30 bytes, so the field split is a prefix overlap, not a split of field ownership.
   - Net function FAKE goes from 3 to 2.
-- **jetpac:80026318:other:ba285d** (line 243 at ebe7357c): `JetpacActor *actor = (JetpacActor *)player; // FAKE: distinct base pointer defeats flying reload CSE`. Q0820: uopt keys load candidates by base variable, so stores through `actor` end the availability of `player->flying`. Stays FAKE (HackjetpacUpdatePlayerMovement7, 2026-11-17): the second variable can only hold a0, so every form of it respells `player`.
+- **jetpac:80026318:other:ba285d** (line 243 at 87ed9ed8): `JetpacActor *actor = (JetpacActor *)player; // FAKE: distinct base pointer defeats flying reload CSE`. Q0820/Q1218: uopt keys load candidates by base variable, so stores through `actor` end the availability of `player->flying`. Stays FAKE (HackjetpacUpdatePlayerMovement7, 2026-11-17; CleanjetpacUpdatePlayerMovement, 2026-11-17f): the second variable can only hold a0, so every form of it respells `player`. Any single-base body needs at least two block splits or non-candidate loads (Q1217), so the one tagged variable is the minimum tag count.
 - **jetpac:80026318:other:b4a3d4** (line 283 in the copy, also 271/274 and 290/295/298): the `flying = player->flying` refreshes after each actor update. In the target they are 0x9c4/0x9e0, 0xa30/0xa40, 0xa8c/0xa9c and 0xac8/0xaf8. Retagged `// ORIG:` by the lead (7d27004b, 2026-11-17e) with one `lw v0,48(s0)` per refresh.
 
 ## Attempts
@@ -151,9 +151,33 @@ Review: variants.py scan (119 variants). Only the comparison mirrors are zero; `
 
 Result: no change, so fake stays 1 (ba285d). The only remaining non-candidate routes are volatile, a pun, a field pointer and a second variable. The target offers nothing but a0 for a second variable to hold.
 
+**2026-11-17f U CleanjetpacUpdatePlayerMovement CleanjetpacUpdatePlayerMovement anthropic/claude-opus-5-5 (re-measure after Q1217/Q1218).**
+
+Base 87ed9ed8. 1A60.c, jetpac.h and proto/jetpac are unchanged since ebe7357c. Copy unchanged: fdiff OK, clint uninit 0, cwarn total 0. Sweep: 0 checks, plain and recipe nohit.
+
+The Q1217/Q1218 levers were measured on Family Z, with every access through `player` (variants.py try, full=):
+- **Family Z** (else-if test-assign, `flying = player->flying;` at the 0x9f0 join, refreshes in the btnLeft/btnRight/vx>0/vx<0 arms, final `if (flying != 0)`): 2. Only 0xac8/0xaf8 are missing. This is the same result as unit 5; it is the reference for the next two probes.
+- **Q1217, minimal block-split set:** `goto Ln; Ln:` before only the two vx-arm refreshes: **0**. Under Family Z, two splits are enough. On the plain ORIG body, unit 6 needed four.
+- **Q1218, minimal second-base set:** `JetpacActor *actor = (JetpacActor *)player;` used only for the two vx-arm stores (`actor->vx = vx -/+ 0.16666667f`): **0**. Not applied: it is the same FAKE local, with no drop in tag count. It is a less consistent view than the lead's field-ownership split, and it deletes the flying-arm refreshes the b4a3d4 ORIG comment names.
+- `variants.py scan` of the Family Z body: 120 variants, best 2. No zero.
+
+Why no single-base natural C exists (Q1217 model plus the target load map):
+- **Flying arms.** 0x9c4/0x9e0 sit in blocks whose only predecessor chain is the else-if test load (0x9ac, delay copies 0x96c/0x984), and the only store in those blocks is f32 (`swc1 12(s0)`). An explicit read there is therefore always merged. The loads must be PRE insertions of a read anticipated at 0x9f0, which can only be a straight-line read between the chains, because the btnLeft arm stores vx first.
+- **The 0x9f0 read makes flying available at the vx>0/vx<0 block starts.** The path 0x9f0→0xa4c→0xaa8→0xac0/0xadc has no store, and the in-block `swc1 8(s0)` (0xad0/0xb00) is f32. Explicit vx-arm refreshes are therefore merged. 0xac8/0xaf8 must then be PRE insertions of a final expression read `if (player->flying)`, as line 307's `vx = actor->vx` is PRE'd into `lwc1 $f16,8(s0)` at 0xa48/0xaa4/0xad8/0xb04.
+- **The 0x9f0 read then needs a consumer of its own.** In the target, the 0x9f0 value is read only by `beqz v0` at 0xb0c on the vx==0 path; v0's next use is the return value after the jal at 0xc94. The other candidates all reload:
+  - the call arguments (`lw a1,48(s0)` at 0xa3c/0xa98, after `sw 24(s0)` at 0xa34/0xa90; a local there gives `move a1,v0`, 5);
+  - line 318 (`lw t1,48(s0)` at 0xc18; a local there spills to 40(sp), 4).
+  So the two-join-read family has no natural consumer, and its local is dead (87).
+- **A zero-code block split** in the vx arms needs a referenced label. Each arm is one block (0xac4-0xad8 ending `b b08`, 0xaf4-0xb04 falling through), and every structured-C join there adds a branch.
+- **Conclusion:** a single-base body costs at least two hacks (two labels, two puns or two volatiles), and the tagged second variable costs one.
+- **Review:** nohit, fake=1/0. The btnA-arm refresh (line 266, 0x99c after the jal at 0x988) is load-bearing: without it, flying reaches the final test uninitialised on the btnA path. `pData` is computed at the top and spilled (`sw t0,84(sp)` at 0x910), as in the target.
+
 ## Untried ideas
-- Whether a shared-type redesign of jetpac.h is justified: a common 0x30-byte head embedded in both JetpacActor and JetpacPlayerActor, used through `&player->head`. That would be a second pointer with type evidence, not a cast. It is a TypesOwner/director decision. Without it, a `&player->head` local is still a respelling of `player`.
-- A natural consumer for a join read at 0x9f0 with a final `if (player->flying)` (the two-join-read family). It would give the per-arm loads through PRE without the second-chain refreshes. With the actor/player split, PRE still needs the join read to be live.
+- Whether a shared-type redesign of jetpac.h is justified: a common 0x30-byte head embedded in both JetpacActor and JetpacPlayerActor. This is a TypesOwner/director decision.
+  - The natural `player->head.x` spelling keeps one base variable, so it is plain-like (Q1218).
+  - Only a sub-object pointer local used for every head access (`head = &player->head`) would match. That would turn ba285d into a typed per-role pointer only if the lead rules such a local ordinary C.
+  - It touches every head-field access of JetpacPlayerActor in jetpac.
+- Closed by CleanjetpacUpdatePlayerMovement (2026-11-17f): a natural consumer for a 0x9f0 join read. In the target, v0 from 0x9f0 is read only by `beqz v0` at 0xb0c (see Attempts).
 
 ## Evidence
 **Target 0x968-0xaf8:**
