@@ -1123,3 +1123,4 @@
 {"type": "unit", "t": "2026-11-18T11:03:49Z", "unit": "2026-11-17: cleanup CleangfxDrawTexturedTileGrid", "commit": "218115415e5f2ead5ab7c6d47707f1d75dc5a57c"}
 {"type": "unit", "t": "2026-11-18T11:05:13Z", "unit": "2026-11-17: cleanup CleanmpDrawScoreGlyphs", "commit": "0f5ef348ff674f868fb5541cffa33b47623f176d"}
 {"type": "unit", "t": "2026-11-18T11:12:33Z", "unit": "2026-11-17: cleanup CleanactorMoveWithinZone", "commit": "9717916816676505d2570fb333f93aa915cc1976"}
+{"type": "unit", "t": "2026-11-18T11:14:56Z", "unit": "2026-11-17: cleanup CleanplayerInputHandleAButtonJump", "commit": "549442c4dcf98574a7444243488db811893ce5cd"}
