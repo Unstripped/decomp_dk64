@@ -1086,3 +1086,4 @@
 {"type": "unit", "t": "2026-11-18T09:11:16Z", "unit": "2026-11-17: cleanup CleanactorTriggerRampWithSfx", "commit": "3eb30fb0829d7064257231aaf6b4cffb509b0563"}
 {"type": "unit", "t": "2026-11-18T09:14:18Z", "unit": "2026-11-17: cleanup CleancsCmdCameraLookAtMatrixUpdate", "commit": "fa08d9fbdb96723bc3841887aa24d2d8a8c46dff"}
 {"type": "unit", "t": "2026-11-18T09:16:15Z", "unit": "2026-11-17: cleanup CleanbillboardRenderQueued", "commit": "aed4a9ff189d56d91c439cb3754e1e58c46167a7"}
+{"type": "unit", "t": "2026-11-18T09:19:09Z", "unit": "2026-11-17: cleanup CleanplayerWeaponSpawnProjectile", "commit": "1d4b145ab6321d19b640e1aad359e6d40e4d422e"}
