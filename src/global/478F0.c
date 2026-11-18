@@ -2559,7 +2559,6 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
                 modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
                 sfxPlayAtPositionPooled(x, y, z, 0x1AE, 0xFF, 0x7F, 0x14, 0x50, 0.7f, 0);
             }
-            if (cs) {} // FAKE: a use of cs here swaps the csId/constant-1 priorities ($s4/$s5)
             if (p->ent[i].timer != 0) {
                 p->ent[i].timer--;
             }
@@ -2577,8 +2576,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
             if (csId == pl->cutsceneId) {
                 bestD = 100000.0f;
                 best = -1;
-                i = 0;
-                do {
+                for (i = 0; i < 9; i++) {
                     modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
                     x = gPrimaryPlayerActor->x - x;
                     z = gPrimaryPlayerActor->z - z;
@@ -2587,8 +2585,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
                         best = i;
                         bestD = d;
                     }
-                    i++;
-                } while (i != 9);
+                }
                 if (best >= 0) {
                     e = &p->ent[best];
                     e->state++;
