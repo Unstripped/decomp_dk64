@@ -688,14 +688,12 @@ void eepromSaveRecords(s32 recordsOnly) {
         offset = sector << 3;
         ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, 0x3C);
         bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
-        if (D_807ECEA0) {}  // FAKE: adds the post-bzero block to the range of the &D_807ECEA0 candidate so the -8 constant wins the exact adjsave tie (Q0900): s4 = -8, s7 = &D_807ECEA0 at 0x1b28/0x1b38
         osWritebackDCacheAll();
-        if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
         memcpy(&((u64 *)sEepromImage)[sector], &((u64 *)workingData)[sector], 0x800 - offset);
         while (*contReadPending != 0) {
             sleepMilliseconds(1.0f);
         }
-        if ((u32)sector) {}  // FAKE: direct read of sector raises the priority of the variable above its widening (var s1, widening s4)
+        if (D_807ECEA0 & ~0x3FU) {}  // FAKE: one dead read of D_807ECEA0 through the unsigned 64-byte mask after the calls: a use of &D_807ECEA0 past bzero so -8 wins the exact adjsave tie (s4 = -8, s7 = &D_807ECEA0 at 0x1b28/0x1b38, Q0900), an unsigned -64 use that keeps the arm-0 masks uncoloured (li at,-64 at 0x1c64/0x1c88, Q0555) and a block before the halted test that keeps sector s1 above its widening s4 (move s4,s1 at 0x1dc8, Q1213)
         if (gMainThreadHalted != 0) {
             gEepromWriteInProgress = 0;
         } else {
