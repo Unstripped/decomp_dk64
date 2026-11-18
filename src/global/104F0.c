@@ -13,7 +13,7 @@
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 
-s16 D_807ECEA0[4];
+s16 D_807ECEA0; // every access is lh/sh at displacement 0; IDO 8-aligns the 0x800-byte buffer after it
 u8 sEepromSlotBuffer[0x800];
 u8 sEepromImage[0x800];
 u8 gEepromSectorSlot[4];
@@ -24,9 +24,9 @@ extern u8 gEepromCurrentSlot;
 void eepromInitModelCount(void) {
     s32 i;
 
-    D_807ECEA0[0] = 0;
+    D_807ECEA0 = 0;
     for (i = 0; i != 8; i++) {
-        D_807ECEA0[0] += modelTypeCountGet(i);
+        D_807ECEA0 += modelTypeCountGet(i);
     }
 }
 
@@ -99,9 +99,9 @@ void eepromCopySlot(void) {
     original = eepromGetSectorForSlot(gEepromCurrentSlot);
     replacement = eepromGetSectorForSlot(3);
     if (((menuIsTransitionType6() != 0) || (menuIsTransitionType7Or9() != 0)) && (original != replacement)) {
-        src = &sEepromSlotBuffer[(((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * original];
-        dst = &sEepromSlotBuffer[(((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * replacement];
-        memcpy(dst, src, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
+        src = &sEepromSlotBuffer[(((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * original];
+        dst = &sEepromSlotBuffer[(((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * replacement];
+        memcpy(dst, src, ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
         gEepromSectorSlot[replacement] ^= gEepromSectorSlot[original];
         gEepromSectorSlot[original] ^= gEepromSectorSlot[replacement];
         gEepromSectorSlot[replacement] ^= gEepromSectorSlot[original];
@@ -178,7 +178,7 @@ unsigned char bitCount;
 }
 
 void eepromGetKongFieldOffset(s32 field, u8 index, u8 subIndex, u16 *offset, u8 *width) {
-    *offset = D_807ECEA0[0] + *offset + (index * 0xA1) + 0x320;
+    *offset = D_807ECEA0 + *offset + (index * 0xA1) + 0x320;
     *width = 0;
     switch (field) {
     case 11:
@@ -226,7 +226,7 @@ void eepromGetKongFieldOffset(s32 field, u8 index, u8 subIndex, u16 *offset, u8 
 }
 
 void eepromGetSaveDataSectionOffset(s32 field, u8 index, u16 *offset, u8 *width) {
-    *offset = D_807ECEA0[0] + *offset + 0x645;
+    *offset = D_807ECEA0 + *offset + 0x645;
     *width = 0;
     switch (field) {
     case 15:
@@ -257,7 +257,7 @@ void eepromGetSaveDataSectionOffset(s32 field, u8 index, u16 *offset, u8 *width)
 }
 
 void eepromGetGlobalFieldOffset(s32 field, u8 index, u16 *offset, u8 *width) {
-    *offset = (((((((D_807ECEA0[0] + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;
+    *offset = (((((((D_807ECEA0 + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;
     *width = 0;
     switch (field) {
     case 32: if (*width == 0) *width = 1; *offset += 3;
@@ -299,7 +299,7 @@ unsigned char sector;
 {
     u16 base;
     base = sector;
-    base *= ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
+    base *= ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7);
     *offset = base;
     if (field >= 0x11) {
         eepromGetGlobalFieldOffset(field, subIndex, offset, width);
@@ -393,7 +393,7 @@ int save;
 
     slotId = slot;
     sector = eepromGetSectorForSlot(slotId);
-    size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
+    size = ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
     dst += sector * size;
     gEepromCurrentSlot = slotId;
     bzero(dst, size);
@@ -504,11 +504,11 @@ void eepromValidateSaveSlots(void) {
     }
     for (i = 0; i < 4; i++) {
         ok = 1;
-        off = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
+        off = ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
         data = off + sEepromImage;
-        idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (j = i + 1)) / 4) - 1;  // FAKE: dead embedded store to j (pre-existing, now tagged) puts i + 1 first in multu s2,t9 at 0x14b4 (Q0519); plain i + 1 in either operand order gives multu t9,s2
+        idx = (((i + 1) * ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8)) / 4) - 1;
         stored = ((u32 *)sEepromImage)[idx];
-        len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
+        len = ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
         crc = eepromCalculateCrc32(data, len);
         if (stored != crc) {
             ok = 0;
@@ -560,8 +560,8 @@ void eepromValidateSaveSlots(void) {
         gEepromSectorSlot[i] = sectorOrder[i];
     }
     globalOk = 1;
-    off = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
-    idx = (((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
+    off = ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
+    idx = (((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
     stored = ((u32 *)sEepromImage)[idx];
     crc = eepromCalculateCrc32(sEepromImage + off, 0x3C);
     if (stored != crc) {
@@ -629,7 +629,7 @@ void eepromReadAllSectors(void) {
     gEepromWriteInProgress = 0;
     D_807467CC = 1;
     if (failed == 0) {
-        failed = _strcasecmp(sEepromImage + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        failed = _strcasecmp(sEepromImage + ((((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
     }
     if (failed != 0) {
         eepromResetAllSlots();
@@ -657,29 +657,29 @@ void eepromSaveRecords(s32 recordsOnly) {
     volatile u8 *contReadPending; // controller-read-pending flag; this runs on eepromThreadMain while the main thread (controllerUpdate) clears it
     contReadPending = &gContReadPending;
     if (D_807EDEAC == 2) {
-        _sprintf(sEepromSlotBuffer + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        _sprintf(((((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8) + sEepromSlotBuffer, D_807467C0);
         memcpy(workingData, sEepromSlotBuffer, 0x800);
         memcpy(savedData, sEepromImage, 0x800);
         if (recordsOnly == 0) {
             eepromCopySlot();
             for (i = 0; i < 4; i++) {
-                height = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
+                height = ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7);
                 height /= 8;
 
                 a = i * height;
-                if (a) {}  // FAKE: live range / colouring of the narrowed index temp
+                if (a) {}  // FAKE: keeps the narrowed index a a v1 variable (mflo v1; andi t4,v1,0xffff; move v1,t4 at 0x1c08-0x1c10) instead of folding it into the CRC call (Q1165)
                 b = (((i + 1) * height) / 4) - 1;
                 ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, height - 4);
             }
             sector = 0;
-            offset = D_807ECEA0[0];
+            offset = D_807ECEA0;
             offset += 0x6B7;
             offset = (offset & ~0x3FU) + 0x27;
             offset = ((offset & ~7U) * 4) + 0x3F;
             offset &= ~0x3FU;
             offset /= 8;
         } else {
-            offset = (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F);
+            offset = (((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F);
             offset /= 8;
             sector = offset / 8;
         }
@@ -687,8 +687,8 @@ void eepromSaveRecords(s32 recordsOnly) {
         b = ((offset + 0x40) / 4) - 1;
         offset = sector << 3;
         ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, 0x3C);
-        bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
-        if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt)
+        bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
+        if (D_807ECEA0) {}  // FAKE: adds the post-bzero block to the range of the &D_807ECEA0 candidate so the -8 constant wins the exact adjsave tie (Q0900): s4 = -8, s7 = &D_807ECEA0 at 0x1b28/0x1b38
         osWritebackDCacheAll();
         if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
         memcpy(&((u64 *)sEepromImage)[sector], &((u64 *)workingData)[sector], 0x800 - offset);
@@ -886,14 +886,14 @@ u8 *eepromGetSectionBuffer(u8 section) {
     case 0:
         if ((menuIsTransitionType3Or4() != 0) || (gPlayerCount >= 2)) {
             flagsClearAllBank2();
-            bzero(D_807EDEB0, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
+            bzero(D_807EDEB0, ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
             result = D_807EDEB0;
         } else {
-            result = sEepromSlotBuffer + ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * eepromGetSectorForSlot(gEepromCurrentSlot));
+            result = sEepromSlotBuffer + ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * eepromGetSectorForSlot(gEepromCurrentSlot));
         }
         break;
     case 1:
-        result = ((s32) (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8) + sEepromSlotBuffer;
+        result = ((s32) (((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8) + sEepromSlotBuffer;
         break;
     }
     return result;
