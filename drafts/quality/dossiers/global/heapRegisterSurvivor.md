@@ -35,8 +35,14 @@
   - `if (1) { ... }` kept with one-line b: 9
   - variants.py scan on the plain body: one variant (the mirrored compare), 6
   - tools/permute.py run (hack-free weights) from the plain one-line body, 900 s, base 131: best 0, but all 23 zero outputs insert an empty dead test after the b load (`if (b && b) {}`, `if (!b) {}`, `if (handle) {}`, `if (!handle) {}`), some with copy temps: steer swaps (.scratch/CleanheapRegisterSurvivor/zeros_hr.txt)
+- 2026-11-18 cleanup CleanheapReleasePoolb anthropic/claude-opus-5-5 (variants.py try, full=):
+  - `register` on the handle parameter and/or b: 6 one-line, 11 two-line (cfe drops the storage class; identical objects)
+  - count incremented before the list store, list index `gHeapSurvivorCount - 1`: 11 one-line, 14 two-line (the reload after the store is forwarded, so &gHeapSurvivorCount keeps 2 refs)
+  - list store before the tag store: 30
+  - two-line plain removal diff: b takes v0 and the count load v1 as well as the handle/&count swap (11); only the one-line form leaves the single handle/&count tie
 ## Untried ideas
 - A natural second block between the *handle load and the tag store. Nothing in the target asm shows one (straight-line code up to the 0x20 test).
+- Raising &gHeapSurvivorCount above 2.0 needs a third real ref; every count read after the increment is forwarded from the stored value in the same block, so a third ref needs a store that may alias it between two reads (the tag store through b does, but the target reads the count once, after it).
 ## Evidence
 - target 0x1258-0x12c0:
   - `lw v1,0(a0)` and `move a1,a0` at 0x1260/0x1264
@@ -45,3 +51,4 @@
   - a dead `addiu v1,v1,-16` (b) at 0x1280
 - caller 3C10.c passes one argument (`move a0,s0` in the jal delay slot at 0xc04/0xc2c)
 - traces: .scratch/HackloadOverlay2/tr5_hr_keep.txt and tr5_hr_oneline.txt; .scratch/CleanheapRegisterSurvivor/t/tr_hr_plain5.txt, tr_hr_keep5.txt, tr_hr_plain6.txt
+- 2026-11-18 traces .scratch/CleanheapReleasePoolb/hr/tr5_one.txt (one-line, no block) and tr5_keep.txt: registers 1..4 = v0 v1 a0 a1. One-line: count load {1073} 3.0 v0, b {813} 2.0 v1, handle {282} 2.0 live bb 0 only a0 (forbidden v0 v1), &count {1130} const bit 18 2.0 a1 (forbidden v0 v1 a0). Kept: handle live in bb 0 and 1, 1.0, coloured last (a1); &count 2.0 a0.
