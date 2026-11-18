@@ -1039,3 +1039,4 @@
 {"type": "unit", "t": "2026-11-18T05:39:52Z", "unit": "2026-11-17: cleanup Cleanfunc_806B13B4", "commit": "0d6d7b6d06b779af8fdb441296ca58733e17ca1b"}
 {"type": "unit", "t": "2026-11-18T05:42:37Z", "unit": "2026-11-17: cleanup CleanraceOpponentFollowWaypoints", "commit": "75a1c1479d7e1be931d47ca3dd764b9e41772c2a"}
 {"type": "unit", "t": "2026-11-18T05:45:40Z", "unit": "2026-11-17: cleanup CleaneffectWaterInitNodes", "commit": "fb6c7a2cd04f5b94074f378344dd01387cca8861"}
+{"type": "unit", "t": "2026-11-18T05:47:54Z", "unit": "2026-11-17: cleanup CleanjetpacStateGameplay", "commit": "41a12cde85e78eb77db82fe20afc5dd72260d1d1"}
