@@ -1,0 +1,25 @@
+# heapReleasePool (global, src/global/15050.c)
+## Sites
+- global:80610E84:dead-if:2b720f (base, removed 2026-11-17f): `if (start && start) {}` gave start (cand 3, var -12vreg) two extra refs, adjsave 0.600 -> 0.833, above the bs ucvt (0.800), so start took a3 and bs t0. Replaced by 66ebf4.
+- global:80610E84:dead-if:bb273a (base, removed 2026-11-17f): `if (tailEnd == 0) {}` gave the copy-propagated sum uadd(uadd(bs,tail),32) a second use, so it is a candidate (adjsave 1.5) coloured a0 (0xbc4/0xbc8). Replaced by 66ebf4.
+- global:80610E84:dead-if:5aefb1 (base, fixed 2026-11-17f): `if (gHeapPools[idx].owner) {}` kept the return-0 block (0xc84 move v0,zero) from being hoisted into the entry block. Real cause: the success path (jal heapSortPools 0xc6c) falls through to the shared `return 0` (if/else with `return idx` in the else).
+- global:80610E84:dead-if:66ebf4 (copy-only, kept): `if (tailEnd == (s32)start) {}` after the tailEnd sum: one dead test does both jobs: tailEnd sum is a 2-use candidate (a0, 1.5) and start gets one ref in block 13, adjsave 0.600 -> 0.800, tying the bs ucvt (0.800); the tie goes to the lower candidate number (start 3), so start a3, bs t0.
+## Attempts
+- 2026-11-10 round 6 Clean15050 opus:low: uopt_trace, permuter (hacks only), coupled removal 745.
+- 2026-11-12 round 19 CleanGlobal15050 opus:low: single removals (35/280/465), nat.c permuter 600 s no zero, reconstruct (u8 * sums, start inside idx != 0, u32 bs) 745/925/1925/750.
+- 2026-11-12 round 24 CleanGlobal15050b opus: permuter best 280 via new dead tests; owner void * -> s32 * (views fixed); HeapPool *pool + early returns 51 lines.
+- 2026-11-13 round 36 CleanGlobal15050 opus:xhigh: level-5 traces, permuter zeros only add dead tests, reconstructs N1/N2/N3 92-118 lines; x/y -> tailEnd/poolEnd.
+- 2026-11-17f CleanheapReleasePool anthropic/claude-opus-5-5: 5aefb1 block cuts (`if (0)`, `goto l; l:`, `while (0)`, `for (;;) break`, `if (1)`, `if (idx)`, `if (count)`, `if (start)`) all 4 lines (no cut survives to code motion); dead loads that survive (size, freeList, gHeapPools[0].owner) 0, already-available ones (start, gHeapPoolCount) and a plain global (gHeapBlockPoolCount) 4; `else { ok = 0; }` 4; separate `return 0` for count < 2 5; `if (idx == 0) return 0;` 7; both early returns 10; `&&`-merged tests 11; `return 0` after the count block 4 -> FIX: success path falls into the shared `return 0` (if/else, `return idx` in the else): fdiff 0.
+- 2026-11-17f: 2b720f/bb273a: variants.py scan of every single and joint removal: no zero; bs width (s32/u32/s16/...) 7; re-reads of start/blockSize at the compare/decrement 53-59 (a separate load candidate plus a copy); poolEnd/tailEnd spellings (one statement, swapped compare, poolEnd first, no poolEnd local, poolEnd in place, tailEnd -= poolEnd) 43-51; u8 * tailEnd/poolEnd 56; compound dead tests: `tailEnd == (s32)start`, `start == (u8 *)tailEnd`, `tailEnd < (s32)start`, `tailEnd == 0 || start` 0, `tailEnd && start && start` 3, `start && tailEnd` 44, `tailEnd - (s32)start` 33 -> kept `if (tailEnd == (s32)start) {}` as ONE tagged site (FAKE 3 -> 1).
+- 2026-11-17f review: m2c `if (blk) do {} while (blk)` -> `while (blk != NULL)` (fdiff 0); `count` local dropped for `gHeapPoolCount >= 2` / `gHeapPoolCount--` (fdiff 0; the load is the t1 candidate either way).
+- 2026-11-17f permute perm_all (hack-free weights, -j 2, 900 s) from the fall-through-return body with both colouring tests removed: base 280, best 35 re-inserts `if (tailEnd) {}`; 55/85/95 reuse count as the sum or tailEnd as count (unrelated reuse, semantics broken); 65 constant local `poolEnd = 0x20`; 70/95 pointer aliases; no zero.
+- 2026-11-17f also tried: inverted `if (bs == 0) ok = 0; else ...` 5/48/11; `s32 start` integer local 0/44/7 (same as u8 *). Fallback if the compound test is refused: the base pair `if (start && start) {}` at the idx block + `if (tailEnd == 0) {}` on the final body scores 0 (.scratch/CleanheapReleasePool/b/fallback_two_tests.c).
+## Untried ideas
+- A real construct that references start and the tailEnd sum once more without code (none known: dead stores and self-assignments vanish before the candidate table, Q0469).
+- Lowering the bs ucvt below 0.6 instead of raising start: needs fewer refs or more blocks in bs's range; the decrement test at 0xbfc must stay on t0.
+## Evidence
+- Entry: `lw a3,4(a1)` in the beqz a0 delay slot at 0xb68: start is read before the idx test.
+- 0xb74 `bnezl at,0xc88` + `move v0,zero`; 0xc74 `b 0xc88` + `move v0,zero`; 0xc84 `move v0,zero`: three as1 steals from one return-0 block reached by idx == 0, count < 2 and the success path.
+- 0xbc4 `addu a0,t0,v1` / 0xbc8 `addiu a0,a0,32` (tailEnd sum in a0), 0xbcc `addu v0,t5,a3` (poolEnd var v0), 0xbd0 `beq a0,v0`.
+- idx is not coloured: home store `sw a0,24(sp)` at 0xb50, `lw v0,24(sp)` at 0xc80 for `return idx`.
+- Level-5 traces (.scratch/CleanheapReleasePool/t/nc*.l5.txt): final copy start a3 0.800, bs ucvt t0 0.800, tailEnd sum a0 1.500; `tailEnd == 0` only: bs ucvt a3, start t0 0.600 (7 lines); no test: tailEnd sum no candidate, bs ucvt a0 (44 lines).

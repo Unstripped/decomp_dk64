@@ -1059,3 +1059,4 @@
 {"type": "unit", "t": "2026-11-18T07:08:24Z", "unit": "2026-11-17: cleanup CleanupLead17f", "commit": "b8151caf53655727775ffea783e1546e1c4b3dde"}
 {"type": "unit", "t": "2026-11-18T07:11:42Z", "unit": "2026-11-17: cleanup CleancsCmdHubWorldItemsAdjust", "commit": "2d6d6d0ece5983cc5cbafcfd24e347e867c44d3c"}
 {"type": "unit", "t": "2026-11-18T07:17:45Z", "unit": "2026-11-17: cleanup CleanmapChunkEmitLayerDisplayLists", "commit": "7fa4937ddb31f6c3b45f185f11fd45100a98a3c0"}
+{"type": "unit", "t": "2026-11-18T07:25:57Z", "unit": "2026-11-17: cleanup CleanheapReleasePool", "commit": "0a8db74ebceb5b10e3d2bcb1fe6da8ccb3ab0b2f"}
