@@ -133,10 +133,6 @@ void modelEmittersUpdate(void) {
 }
 
 void modelEmitterSpawnJitterParticle(s16 entryIdx) {
-    ActorProximityEntry *entry;
-    s32 randX;
-    s32 randZ;
-
     if (randomNonNegative() % 10000 % 12 == 0) {
         effectSetDepth(1);
         effectSetMode(7);
@@ -145,13 +141,10 @@ void modelEmitterSpawnJitterParticle(s16 entryIdx) {
         effectSetColor(255, 200, 200, 200);
         effectSetScale(0.2f, 0.1f);
         effectSetFlags(4);
-        randX = randomNonNegative();
-        randZ = randomNonNegative();
-        entry = (ActorProximityEntry *)((u8 *)gModelEmitters + entryIdx * sizeof(ActorProximityEntry));  // FAKE: byte-offset entry address (vs &gModelEmitters[entryIdx]) picks t1/t2 for the *12 index temps
         effectCreateAtPosition(&D_807213D0, 0.0f,
-            randX % 10000 % 100 / 20.0 + entry->x - 2.5,
-            entry->y + 4.0,
-            randZ % 10000 % 100 / 20.0 + entry->z - 2.5);
+            gModelEmitters[entryIdx].x + randomNonNegative() % 10000 % 100 / 20.0 - 2.5,
+            gModelEmitters[entryIdx].y + 4.0,
+            gModelEmitters[entryIdx].z + randomNonNegative() % 10000 % 100 / 20.0 - 2.5);
     }
 }
 
