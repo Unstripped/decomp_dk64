@@ -44,7 +44,67 @@ typedef struct EffectSpritePoolHeader {
     EffectSpriteParticle *entries;
 } EffectSpritePoolHeader;
 
-extern EffectSpritePoolHeader *gEffectSpritePool;
+typedef struct EffectSpriteTextureSetup {
+    u8 count;
+    u8 type;
+    u8 pad2[2];
+    u16 *images;
+    u8 format;
+    u8 texSize;
+    u8 width;
+    u8 height;
+    Vtx *vertices;
+    u8 (*update)(EffectSpriteParticle *particle);
+} EffectSpriteTextureSetup;
+
+extern EffectSpritePoolHeader D_807FD9E0;
+
+EffectSpritePoolHeader *gEffectSpritePool = &D_807FD9E0;
+Vtx D_807550E8[4] = {
+    {{{ -8, -16, -10 }, 0, { 0, 1984 }, { 0, 0, 0, 0 } }},
+    {{{ 7, -16, -10 }, 0, { 960, 1984 }, { 0, 0, 0, 0 } }},
+    {{{ 7, 15, -10 }, 0, { 960, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -8, 15, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+Vtx D_80755128[4] = {
+    {{{ -32, -32, -10 }, 0, { 0, 4032 }, { 0, 0, 0, 0 } }},
+    {{{ 31, -32, -10 }, 0, { 4032, 4032 }, { 0, 0, 0, 0 } }},
+    {{{ 31, 31, -10 }, 0, { 4032, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -32, 31, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+Vtx D_80755168[4] = {
+    {{{ -22, -22, -10 }, 0, { 0, 2752 }, { 0, 0, 0, 0 } }},
+    {{{ 21, -22, -10 }, 0, { 2752, 2752 }, { 0, 0, 0, 0 } }},
+    {{{ 21, 21, -10 }, 0, { 2752, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -22, 21, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+Vtx D_807551A8[4] = {
+    {{{ -16, -16, -10 }, 0, { 0, 1984 }, { 0, 0, 0, 0 } }},
+    {{{ 15, -16, -10 }, 0, { 1984, 1984 }, { 0, 0, 0, 0 } }},
+    {{{ 15, 15, -10 }, 0, { 1984, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -16, 15, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+Vtx D_807551E8[4] = {
+    {{{ -16, -8, -10 }, 0, { 0, 960 }, { 0, 0, 0, 0 } }},
+    {{{ 15, -8, -10 }, 0, { 1984, 960 }, { 0, 0, 0, 0 } }},
+    {{{ 15, 7, -10 }, 0, { 1984, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -16, 7, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+u16 D_80755228[10] = { 0x173D, 0x173E, 0x173F, 0x1740, 0x1741, 0x1742, 0x1743, 0x1744, 0x1745, 0x1746 };
+u16 D_8075523C[2] = { 0x143B, 0 };
+u16 D_80755240[2] = { 0x52C, 0 };
+u16 D_80755244[8] = { 0x3BB, 0x3BC, 0x3BD, 0x3BE, 0x3BF, 0x3C0, 0x3C1, 0x3C2 };
+u16 D_80755254[2] = { 0x173B, 0 };
+u16 D_80755258[6] = { 0x1735, 0x1736, 0x1737, 0x1738, 0x1739, 0x173A };
+EffectSpriteTextureSetup gEffectSpriteTextureSetups[6] = {
+    { 1, 1, { 0, 0 }, D_8075523C, 3, 1, 16, 32, D_807550E8, func_8070FCCC },
+    { 1, 1, { 0, 0 }, D_80755240, 3, 1, 64, 64, D_80755128, func_80710174 },
+    { 8, 0, { 0, 0 }, D_80755244, 0, 2, 44, 44, D_80755168, func_8071006C },
+    { 1, 1, { 0, 0 }, D_80755254, 3, 1, 64, 64, D_80755128, func_807102AC },
+    { 10, 1, { 0, 0 }, D_80755228, 0, 2, 32, 32, D_807551A8, func_807103E0 },
+    { 6, 1, { 0, 0 }, D_80755258, 0, 3, 32, 16, D_807551E8, func_807103E0 },
+};
+
 extern PlayerStruct *gPlayerSlots;
 
 extern u8 D_807FDA1A;
@@ -64,21 +124,6 @@ void effectSpritePoolReset(void) {
     gEffectSpritePoolLoaded = 0;
 }
 
-
-typedef struct EffectSpriteTextureSetup {
-    u8 count;
-    u8 type;
-    u8 pad2[2];
-    u16 *images;
-    u8 format;
-    u8 texSize;
-    u8 width;
-    u8 height;
-    Vtx *vertices;
-    u8 (*update)(EffectSpriteParticle *particle);
-} EffectSpriteTextureSetup;
-
-extern EffectSpriteTextureSetup gEffectSpriteTextureSetups[];
 extern void *gEffectSpriteTextures[];
 extern u8 D_807FDA18;
 extern u8 D_807FDA19;

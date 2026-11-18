@@ -68,7 +68,6 @@ void actorConfigApplyAnimFrameByType(Actor *actor, s32 actorType, s32 frame) {
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
-extern s32 gMultiplayerOverrideAnimFrames[];
 
 
 void actorProximityUpdate(void) {
@@ -93,7 +92,7 @@ void actorProximityUpdate(void) {
                 case 0:
                     if (gPlayerCount >= 2) {
                         playerState = actor->customState;
-                        frame = gMultiplayerOverrideAnimFrames[playerState->playerIndex];
+                        frame = gMpSettings.playerControllerSlots[playerState->playerIndex];
                         if (frame >= 0) {
                             actorConfigApplyAnimFrame(actor, cfgIndex, frame);
                         }

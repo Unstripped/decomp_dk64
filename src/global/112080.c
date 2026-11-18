@@ -95,9 +95,10 @@ typedef struct ResQueueLink {
     /* 0x0C */ struct ResQueueLink *next;
 } ResQueueLink;
 
-extern ResNode *sResNodeListHead;
-extern ResQueueLink *sResQueueHead;
-extern u8 sResQueueValue;
+ResNode *sResNodeListHead = NULL;
+ResQueueLink *sResQueueHead = NULL;
+u8 sLanguageIndex = 0;
+u8 sResQueueValue = 0;
 
 void streamReadBytes(s32 size, void *dst, u8 **src) {
     memcpy(dst, *src, size);

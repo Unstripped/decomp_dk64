@@ -29,14 +29,43 @@ extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 extern u32 gGlobalCutsceneFlags;
-extern u8 gMenuCurrentMode;
-extern u8 gMenuTargetMode;
-
-extern s8 D_8075536C;
-extern s32 D_80755338;
-extern s32 D_8075533C;
-extern s8 gMenuTransitionFlag;
 extern s8 gBannerTextStepIndex;
+
+// Bonus countdown started by menuTimerInit; remaining is in seconds, index the next gMenuBonusTimerThresholds threshold.
+typedef struct MenuBonusTimer {
+    u64 time;
+    s32 remaining;
+    s32 duration;
+    u8 active;
+    u8 index;
+} MenuBonusTimer;
+
+typedef struct {
+    s32 ids[2];
+} TextIdPair;
+
+s8 D_807552E0 = 0;
+MpSettings gMpSettings = { 0, 0, 0, 3, { 0, 0, 0, 0 }, 0 };
+u16 gControllerButtonMask = 0;
+u8 gControllerStickXMask = 0;
+u8 gControllerStickYMask = 0;
+u8 gMenuCurrentMode = 0;
+u8 gMenuTargetMode = 0;
+u16 gMenuStateTimer = 0;
+u32 gMenuDemoOverlayFrames = 0;
+u8 gMenuDemoActive = 0;
+u8 gMenuDemoIndex = 0;
+u8 gMenuTransitionCounter = 0;
+s8 gMenuTransitionFlag = 0;
+s32 D_80755334 = 0;
+s32 D_80755338 = 1;
+s32 D_8075533C = 0;
+MenuBonusTimer gMenuBonusTimer = { 0 };
+u16 gMenuBonusTimerThresholds[10] = { 1800, 1200, 900, 600, 300, 180, 120, 60, 30, 10 };
+s8 D_8075536C = 0;
+TextIdPair gMenuPromptTextIds = { { 3, 2 } };
+u8 gGameOverText[12] = "GAME OVER";
+s32 D_80755384[3] = { 0x6D, 0xBE, 0xC0 };
 
 void menuTransitionWithState(s32 map, s32 exit, u8 mode) {
     mapRequestTransition(map, exit);
@@ -61,18 +90,6 @@ void menuTransitionToMap(s32 map, s32 exit) {
 s32 menuCalculateBonusDuration(void) {
     return flagCountRange(0x1FD, 0x28, 0) + 0xA;
 }
-
-// Bonus countdown started by menuTimerInit; remaining is in seconds, index the next gMenuBonusTimerThresholds threshold.
-typedef struct MenuBonusTimer {
-    u64 time;
-    s32 remaining;
-    s32 duration;
-    u8 active;
-    u8 index;
-} MenuBonusTimer;
-
-extern MenuBonusTimer gMenuBonusTimer;
-extern u16 gMenuBonusTimerThresholds[];
 
 void menuTimerInit(void) {
     u32 i;
@@ -202,10 +219,6 @@ void playerRefillHealth(Actor *player, s32 playerIndex) {
     mapExecuteDeathTransition(playerIndex);
 }
 
-extern u16 gControllerButtonMask;
-extern u8 gControllerStickXMask;
-extern u8 gControllerStickYMask;
-
 void controllerFilterInput(OSContPad *pads) {
     s32 i;
 
@@ -216,14 +229,10 @@ void controllerFilterInput(OSContPad *pads) {
         pads[i].button &= gControllerButtonMask;
     }
 }
-extern u8 gMenuDemoActive;
-
 
 extern u64 gPauseTimeTotal;
 extern u64 gPauseStartTime;
 extern s8 D_80746B60;
-extern u32 gMenuDemoOverlayFrames;
-
 
 void menuSeedRandom(void) {
     u64 elapsed;
@@ -250,9 +259,7 @@ void menuSeedRandom(void) {
     }
 }
 
-extern u8 gMenuDemoIndex;
 extern u8 gActivePlayerCount;
-extern u16 gMenuStateTimer;
 extern u16 gButtonsPressed;
 
 // Attract-mode demo: an input recording replayed in mode 3, cycled by gMenuDemoIndex.
@@ -274,8 +281,6 @@ void menuSetupDemoPlayback(void) {
 
 extern u8 D_807467CC;
 extern u8 gCurrentWorldId;
-extern u8 gMenuTransitionCounter;
-extern s32 D_80755334;
 extern Mtx D_807FDAC0;
 
 void menuCheckMapTransitionOnLoad(void) {
@@ -515,13 +520,7 @@ Gfx *menuDrawDemoCaption(Gfx *dl, u8 alpha) {
     return textDrawStringVtx(dl, 1, xFixed, y * 4.0f, str, 4);
 }
 
-
-typedef struct {
-    s32 ids[2];
-} TextIdPair;
-
 extern u8 gHiResScale;
-extern TextIdPair gMenuPromptTextIds;
 extern u8 gControllerConnectedMask;
 
 Gfx *menuDrawBlinkingPromptText(Gfx *dl) {
@@ -603,8 +602,6 @@ Gfx *menuGameOverGfxInit(Gfx *dl) {
     gSPMatrix(dl++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     return dl;
 }
-
-extern u8 gGameOverText[];
 
 Gfx *menuDrawGameOverText(Gfx *dl) {
     s16 remaining;
@@ -731,8 +728,6 @@ void menuTransitionToMapIfUnlocked(s32 map, s32 exit, s32 gate) {
     menuTransitionRequest(0x28, 0, 1);
 }
 
-extern s8 D_807552E0;
-
 Gfx *screenStateTickAndDraw(Gfx *dl) {
     char buffer[40];
 
@@ -785,7 +780,6 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     return dl;
 }
 
-extern s32 D_80755384[];
 extern s8 gSplitScreenMode;
 
 s32 menuIsTransitionType3Or4(void) {

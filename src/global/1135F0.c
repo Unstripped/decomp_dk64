@@ -2,7 +2,7 @@
 #include "render.h"
 #include "proto/global/1135F0.h"
 
-extern TextureDescriptor *gCurrentTexture;
+TextureDescriptor *gCurrentTexture = NULL;
 extern s16 gTextureScaleS;
 extern s16 gTextureScaleT;
 extern u8 gTextureFlipS;

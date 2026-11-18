@@ -257,8 +257,12 @@ segments:
       - [0x157AF0, data]
       - [0x1599E0, .data, 109660] # D_80754CE0..sBgScrollY (0x80754CE0-0x80754F80): gfx background/sky data, defined in src/global/109660.c; sBgScrollX/Y (0x80754F70/F74) are gfxBuildScrollingBackground's function-local statics, after the file-scope data
       - [0x159C80, .data, 10E1D0] # D_80754F80..D_807550A8 (0x80754F80-0x807550B8 + 8-byte TU pad): mesh texture table, an unreferenced end-DL Gfx at 0x80754FC0, transition data; 0x807550A4 is transitionSetAudioVolume's function-local static sGroupVolScaled
-      - [0x159DC0, data]
-      - [0x15A350, .data, 11BC10] # D_80755650[18], D_80755674, D_80755678, D_8075567C (effectCircleRiseFadeUpdate's static s8 + 3-byte pad): the TU's data tail, 16-aligned at the end of the D_80755390 handler table; 126260's data starts at 0x80755680
+      - [0x159DC0, .data, 112080] # sResNodeListHead, sResQueueHead, sLanguageIndex, sResQueueValue (0x807550C0-0x807550CD + 3-byte TU pad); 104F0 also reads sLanguageIndex
+      - [0x159DD0, .data, 1135F0] # gCurrentTexture (0x807550D0-0x807550D4 + 12-byte TU pad)
+      - [0x159DE0, .data, 114270] # gEffectSpritePool (+4-byte Vtx alignment), D_807550E8..D_807551E8 Vtx[4], image-id arrays D_80755228..D_80755258, gEffectSpriteTextureSetups[6] (0x807550E0-0x807552DC + 4-byte TU pad); the image arrays were reached only through the setups' unrelocated words; the setups' update callbacks are 114270 functions
+      - [0x159FE0, .data, 117190] # D_807552E0, gMpSettings..D_80755384[3] (0x807552E0-0x80755390, no pad): menu/multiplayer state; D_807552E8/D_807552EC/D_807552F0/gMultiplayerOverrideAnimFrames were split labels inside gMpSettings (folded to .gameMode/.limit/.playerControllerSlots in 478F0/8F050), D_80755348/D_80755350 inside gMenuBonusTimer
+      - [0x15A090, .data, 119370] # gEffectGridAssets[176] (0x80755390-0x80755650, no pad): read only by A8400/112080 (earlier in text); between 117190's data and 11BC10's, given to the effect-grid unit 119370 (tentative: 117190 or 11BC10 would be layout-neutral too); entries point into the 124780 blob, 46 at an offset from the enclosing label
+      - [0x15A350, .data, 11BC10] # D_80755650[18], D_80755674, D_80755678, D_8075567C (effectCircleRiseFadeUpdate's static s8 + 3-byte pad): the TU's data, 16-aligned after 119370's gEffectGridAssets; 126260's data starts at 0x80755680
       - [0x15A380, data]
       - [0x15B290, .rodata, 450] # playerViewsBuildMatrices's doubles, func_805FD088's +-20000.0f, 255.0, 0.5493331552f, 4-byte TU pad
       - [0x15B2E0, .rodata, 3C10] # D_807565E0/D_80756630 byte tables, then func_805FF9AC's double 255.0, 8-byte TU pad

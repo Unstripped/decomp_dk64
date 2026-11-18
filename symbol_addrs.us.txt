@@ -4206,7 +4206,6 @@ gCurrentTexture = 0x807550D0;
 gEffectSpritePool = 0x807550E0;
 gEffectSpriteTextureSetups = 0x80755264;
 gMpSettings = 0x807552E4;
-gMultiplayerOverrideAnimFrames = 0x807552F4;
 gMenuDemoOverlayFrames = 0x80755320;
 gMenuBonusTimer = 0x80755340;
 gMenuBonusTimerThresholds = 0x80755358;

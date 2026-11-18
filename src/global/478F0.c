@@ -2897,13 +2897,9 @@ s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
     return 0;
 }
 
-extern s32 D_807552E8;
-
 u8 csCondTransitionState5(CsState *cs, s16 csId, s16 b, s16 c) {
-    return D_807552E8 == 5;
+    return gMpSettings.gameMode == 5;
 }
-
-extern s32 D_807552F0;
 
 #define LERP(a, b, t) ((a) + ((b) - (a)) * (t))
 
@@ -2915,7 +2911,7 @@ s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (slotQueueGetValue(1, idx)) {
         slotQueueAddValue(7, idx, 1);
-        q = (f32)slotQueueGetValue(7, idx) / (f32)D_807552F0;
+        q = (f32)slotQueueGetValue(7, idx) / (f32)gMpSettings.limit;
         q = LERP(0.5f, 1.0f, q); // sfx pitch rises from 0.5 to 1.0 with the deposit count
         sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
         return 1;
