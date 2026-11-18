@@ -1,16 +1,24 @@
 # throwableBarrelUpdate (global, src/global/80150.c)
 ## Sites
-global:8067C71C:goto:ubf033 goto: `goto block_despawn;` ends case 0x95 of the inner actorType switch (case 8) with a jump into the 0x85/default tail; kept (goto-hand kept, Q0591).
+global:8067C71C:goto:ubf033 goto: `goto block_despawn;` ends case 0x95 of the inner actorType switch (case 8) with a jump into the 0x85/default tail; kept (goto-hand kept, Q0591): it is the `b 0x2054` at 0x2038 (swc1 floorY in its delay slot) that skips the 0x85 body 0x2040-0x2050.
 ## Attempts
 2026-11-15 HackthrowableBarrelUpdate HackthrowableBarrelUpdate anthropic/claude-opus-5-5:high: despawn flag local set FALSE in case 0x1A, tail under `if (despawn)` -> variants try full=9 (li v1,1 before the dispatch, sw v1,96(sp) spill across actorSpawn, lw v1 + beqzl before the tail)
 2026-11-15 HackthrowableBarrelUpdate HackthrowableBarrelUpdate anthropic/claude-opus-5-5:high: default arm holding an inner `switch (actorType)` (0x95 break / 0x85) then the tail -> full=21 (with or without the last break)
 2026-11-15 HackthrowableBarrelUpdate HackthrowableBarrelUpdate anthropic/claude-opus-5-5:high: `if (actorType == 0x1A) {...} else { inner switch; tail }` -> full=21 (with or without the last break)
 2026-11-17 HackthrowableBarrelUpdate2 anthropic/claude-opus-5-5 (after b603f25c): case 0x95/0x85/default labels merged into one arm holding `if (actorType == 0x95) {...} else if (actorType == 0x85) D_80029FA0--;` before the tail -> full=21 shape=9; default-arm inner switch re-measured 21 shape=12.
 (history: duplicated tail +4 insns/16 bytes; folding 0x95 into default via an actorType test 1005)
+2026-11-17 2026-11-17: cleanup CleanthrowableBarrelUpdate CleanthrowableBarrelUpdate anthropic/claude-opus-5-5: levers of session 2026-11-17f, scored with variants.py try on the base body (structure only; on the final body every form that adds a local is +19: frame 248 -> 256, mtx/rot at sp+188/124, because `accel` now takes the last free frame word):
+- BDEE0 block motion (Q0800): default-last layout, 0x95 body after `default:` ending in a backward `goto block_despawn` -> full=47 (0x85 body + tail emitted at 0x1fe8 right after the 0x1A arm, 0x95 body last; uopt never moves it up because its only predecessor is the conditional `beq v0,at` at 0x1f64, not an unconditional jump).
+- Duff `case 0x95: ...; if (0) { case 0x85: D_80029FA0--; } default: tail` -> full=0 (Q1209: same `b 0x2054` as the goto; a dead-if hack, not kept).
+- 8F4B0 guarded test (Q0953 ext.): 0x95 falling into `case 0x85: if (gCurrentActor->actorType == 0x85) D--;` -> full=141 (dispatch value loaded into v1 + `move v0,v1`, reload `lw t9,0(s2); lw v1,88(t9)` + `li at,133; bne` at the test, t ring shifted for the rest of the function: D-- `lb t9/addiu t2` -> `t2/t3`, case 9 t3..t9 -> t4..t2; as1 also moves `li t8,9999` 0x12f0, `li t3,2` 0x14bc, `li t8,3` 0x153c into delay slots); `!= 0x95` test -> 141; plain-local selector `type` with `if (type == 0x85)` -> 25 (type in s0 across the dispatch: `beq s0,at` x3, gSpawnedActor base moves s0 -> a0).
+- B5EC0 switch-value copy (Q0875/Q0944): plain local selector `type` with merged default arm re-testing type -> 12 (bnel v0,26 + `li at,149; bne v0,at` at the 0x95 head + `li at,133; bne v0,at` at the 0x85 head: re-tests read the dispatch copy in v0, no reload, but IDO never threads them, Q1156); same with explicit `case 0x95: case 0x85: default:` -> 12 (register constant `li v1,133`, beql/b with `li at,149` in three delay slots); default-arm inner `switch (type)` -> 12; `if (type == 0x1A) {...} else { switch (type); tail }` -> 12; tail after the switch under `if (type != 0x1A)` -> 152 (copy spilled `sw t3,96(sp)` across the 0x1A/0x95 calls).
+- permuter, hack-free weights, -j 2, 900 s from the 9-line despawn-flag body: base 715, best 200 = the 0x1A `break` moved above `despawn = 0` (a dead store: 0x1A would run the despawn tail, behaviour change); the four 625 outputs narrow `despawn` to u16/u8/s16/s8 after `yaw` (u8 form still 9: li v1,1, sb/lbu v1,105(sp) across actorSpawn, beqzl v1). nohit.
 ## Untried ideas
-none that keep one sorted compare chain: every structured spelling either adds the flag web or a second dispatch.
+none that keep one sorted compare chain with three distinct targets: the target dispatches 0x95 -> 0x1ff0, 0x85 -> 0x2040 and default -> 0x2054 directly, with no re-test anywhere, so C needs three distinct label points and an unconditional jump from 0x2038 over the 0x85 body; the only C jumps that do that are goto, Duff placement (dead if) or a then-arm end (needs a test IDO would keep, Q1156).
 ## Evidence
-0x1f48-0x1f6c: one compare chain li at,26/beq; li at,133/beq 0x2040; li at,149/beq 0x1ff0; b 0x2054 (default).
+0x1f48-0x1f6c: one compare chain li at,26/beq; li at,133/beq 0x2040; li at,149/beq 0x1ff0; b 0x2054 (default), `li a0,222` (actorSpawn arg) hoisted into the last beq delay slot.
 0x1ff0-0x203c: case 0x95 body ends `b 0x2054` (swc1 floorY in the delay slot).
-0x2040-0x2050: case 0x85 `D_80029FA0--` falls through into 0x2054.
-0x2054-0x2060: the single shared tail jal tagBarrelDespawnEffects; jal actorDespawn; then lw s0 + b 0x2198.
+0x2040-0x2050: case 0x85 `D_80029FA0--` (lb t9 / addiu t2 / sb t2) falls through into 0x2054.
+0x2054-0x2060: the single shared tail jal tagBarrelDespawnEffects; jal actorDespawn; then lw s0 at 0x2064 + b 0x2198 at 0x2068 (the cutscene path 0x1f3c and the 0x1A arm 0x1fe8 branch to 0x2068 with lw s0 in their delay slots).
+Block motion (BDEE0 rule): 0x1ff0 and 0x2040 have one predecessor each, a conditional beq of the chain, and 0x2054 has three (b 0x1f6c, b 0x2038, fall-through 0x2050): none is a motion candidate, so the emitted order is the source order 0x1A, 0x95, 0x85, tail.
+Review 2026-11-17: `bob` (sine bob) was reused for the float-velocity step in case 5; a dedicated `f32 accel` matches (fdiff 0, frame unchanged); `0.0 - accel` is real (`-accel` scores 234).
