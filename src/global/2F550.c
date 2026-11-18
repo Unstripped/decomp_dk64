@@ -1498,15 +1498,15 @@ s32 mapGetSoundEmitters(LevelSoundEmitter **outEmitters) {
 }
 
 void displayListResolveTextureImages(Gfx *cmd, Gfx *end) {
-    u32 w;
+    u32 opcode;
 
     for (; cmd != end; cmd++) {
-        w = cmd->words.w0;
-        if ((w >> 24) == (0, 0xFD)) { // FAKE: comma-wrapped G_SETTIMG constant orders the compare (bnel t6,s2); the empty statement below colours end before the constant ($s1/$s2) (Q0434)
-            if (((cmd->words.w1 << 4) >> 28) == 0) {
-                cmd->words.w1 = (u32)assetLoad(0x19, cmd->words.w1, 1, 0); // the command word now holds the loaded address
-            }
-            ;
+        opcode = cmd->words.w0 >> 24;
+        if (opcode != G_SETTIMG) {
+            continue;
+        }
+        if (SEGMENT_NUMBER(cmd->words.w1) == 0) {
+            cmd->words.w1 = (u32)assetLoad(0x19, cmd->words.w1, 1, 0); // the command word now holds the loaded address
         }
     }
 }
