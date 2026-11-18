@@ -1085,3 +1085,4 @@
 {"type": "unit", "t": "2026-11-18T09:07:25Z", "unit": "2026-11-17: cleanup CleanbonusSearchlightSeekGameUpdate", "commit": "c682ce186da376d1cc12c4a7861aa2375d5a3f8a"}
 {"type": "unit", "t": "2026-11-18T09:11:16Z", "unit": "2026-11-17: cleanup CleanactorTriggerRampWithSfx", "commit": "3eb30fb0829d7064257231aaf6b4cffb509b0563"}
 {"type": "unit", "t": "2026-11-18T09:14:18Z", "unit": "2026-11-17: cleanup CleancsCmdCameraLookAtMatrixUpdate", "commit": "fa08d9fbdb96723bc3841887aa24d2d8a8c46dff"}
+{"type": "unit", "t": "2026-11-18T09:16:15Z", "unit": "2026-11-17: cleanup CleanbillboardRenderQueued", "commit": "aed4a9ff189d56d91c439cb3754e1e58c46167a7"}
