@@ -2180,21 +2180,19 @@ u8 func_80636A8C(s32 type) {
 }
 
 void modelSlotReplaceSegment6Commands(ModelSlot *slot) {
-    u32 head;
-    ModelType1ObjAddrs *seg;
-    u32 mid;
-    u32 count;
     u32 start;
+    ModelType1ObjAddrs *seg;
+    u32 head;
+    u32 tail;
 
     seg = slot->unk20;
-    mid = seg->displayListB;
-    head = seg->displayListA;
-    start = head; // FAKE: alias of head; start takes a0 ahead of seg, so seg lands in a2 and count in a3
-    count = seg->segmentData - mid;
-    head = (mid - head) >> 3;
-    count >>= 3;
+    tail = seg->segmentData - seg->displayListB;
+    start = seg->displayListA;
+    head = seg->displayListB - start;
+    head >>= 3;
+    tail >>= 3;
     renderReplaceSegment6Commands((Gfx *)start, (Gfx *)start + head);
-    renderReplaceSegment6Commands((Gfx *)seg->displayListB, (Gfx *)seg->displayListB + count);
+    renderReplaceSegment6Commands((Gfx *)seg->displayListB, (Gfx *)seg->displayListB + tail);
 }
 
 void dlFreeSegmentCommandTextures(DisplayListCmd *start, DisplayListCmd *end, u8 restore) {
@@ -2224,38 +2222,36 @@ void dlFreeSegmentCommandTextures(DisplayListCmd *start, DisplayListCmd *end, u8
 extern s16 D_80747D74;
 
 void modelSlotsStepSegmentCommands(void) {
-    u32 mid;
+    u32 start;
     ModelType1ObjAddrs *seg;
     u32 head;
-    u32 count;
-    u8 flag;
-    ModelAssetHeader *obj;
-    u32 start;
+    u32 tail;
+    u8 restore;
+    ModelAssetHeader *asset;
 
     if (gModelSlotCount != 0) {
         D_80747D74++;
         if (D_80747D74 >= gModelSlotCount) {
             D_80747D74 = 0;
         }
-        obj = gModelSlots[D_80747D74].unk24;
-        if (obj->unk0 & 0x10) {
-            if ((gModelSlots[D_80747D74].unk8C & 0x20) && gFrameCounter != obj->unk8) {
+        asset = gModelSlots[D_80747D74].unk24;
+        if (asset->unk0 & 0x10) {
+            if ((gModelSlots[D_80747D74].unk8C & 0x20) && gFrameCounter != asset->unk8) {
                 gModelSlots[D_80747D74].unk8C &= ~0x20;
-                obj->unk3C--;
-                if (obj->unk3C != 0) {
-                    flag = 0;
+                asset->unk3C--;
+                if (asset->unk3C != 0) {
+                    restore = 0;
                 } else {
-                    flag = 1;
+                    restore = 1;
                 }
                 seg = gModelSlots[D_80747D74].unk20;
-                mid = seg->displayListB;
-                head = seg->displayListA;
-                start = head; // FAKE: redundant copy; head holds the address, then the count (one local, two webs), reproducing the target t-register numbering (separate start/head locals shift every temp by one)
-                count = seg->segmentData - mid;
-                head = (mid - head) >> 3;
-                count >>= 3;
-                dlFreeSegmentCommandTextures((DisplayListCmd *)start, (DisplayListCmd *)start + head, flag);
-                dlFreeSegmentCommandTextures((DisplayListCmd *)seg->displayListB, (DisplayListCmd *)seg->displayListB + count, flag);
+                tail = seg->segmentData - seg->displayListB;
+                start = seg->displayListA;
+                head = seg->displayListB - start;
+                head >>= 3;
+                tail >>= 3;
+                dlFreeSegmentCommandTextures((DisplayListCmd *)start, (DisplayListCmd *)start + head, restore);
+                dlFreeSegmentCommandTextures((DisplayListCmd *)seg->displayListB, (DisplayListCmd *)seg->displayListB + tail, restore);
             }
         }
     }
