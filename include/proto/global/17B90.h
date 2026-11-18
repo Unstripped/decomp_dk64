@@ -5,7 +5,7 @@
 #include "actor.h"
 struct ControllerSubNode;
 #ifndef PROTO_SKIP_controllerAnimStateLoadAsset
-void *controllerAnimStateLoadAsset();
+AnimInitData *controllerAnimStateLoadAsset();
 #endif
 #ifndef PROTO_SKIP_gfxSwapGeometryModeCullBits
 void gfxSwapGeometryModeCullBits(Gfx *, void *);
@@ -41,7 +41,7 @@ void controllerAnimFree(Actor *);
 void controllerAnimFreeSub(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheFree
-int controllerAnimCacheFree(Actor *, AnimSlot *);
+void controllerAnimCacheFree(Actor *, AnimSlot *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimScaleInterpolate
 void controllerAnimScaleInterpolate(Actor *, s8);
@@ -65,7 +65,7 @@ void controllerAnimSetFromTable(Actor *, u16, f32, u8);
 void controllerAnimSetDirect(Actor *, u16, f32, u8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheGetOrLoad
-void *controllerAnimCacheGetOrLoad(s32);
+AnimClip *controllerAnimCacheGetOrLoad(s32);
 #endif
 #ifndef PROTO_SKIP_controllerStepMotionWindows
 void controllerStepMotionWindows(Actor *);

@@ -15,8 +15,8 @@ extern PlayerState *gActivePlayerState;
 extern u8 D_80746B64[];
 
 
-void *controllerAnimStateLoadAsset(controller, assetId, cullSwap)
-void *controller;
+AnimInitData *controllerAnimStateLoadAsset(actor, assetId, cullSwap)
+Actor *actor;
 s32 assetId;
 unsigned char cullSwap;
 {
@@ -27,11 +27,12 @@ unsigned char cullSwap;
     for (i = 0; i < D_807FBB30; i++) {
         if (assetId == D_807FB630[i].assetId && D_807FB630[i].cullSwap == cullSwap) {
             D_807FB630[i].refCount++;
-            animListInit(controller, D_807FB630[i].asset);
+            animListInit(actor, D_807FB630[i].asset);
             return D_807FB630[i].asset;
         }
     }
 
+    // The original tests the clip cache's count here, not D_807FBB30.
     if (gAnimClipCacheCount >= 0x20) {
         return D_807FB630[0].asset;
     }
@@ -64,7 +65,7 @@ unsigned char cullSwap;
     controllerBuildSubcommandList(*asset->displayLists, asset->displayLists, &asset->segmentNodes);
     renderReplaceSegment6Commands(*asset->displayLists, asset->displayLists);
     controllerCommandRelocateAssets(*asset->displayLists, asset->displayLists);
-    animListInit(controller, asset);
+    animListInit(actor, asset);
 
     if (cullSwap & 1) {
         gfxSwapGeometryModeCullBits(*asset->displayLists, asset->displayLists);
@@ -84,16 +85,16 @@ void gfxSwapGeometryModeCullBits(Gfx *cmdStart, void *cmdEnd) {
         w0 = cmdStart->words.w0;
         w1 = cmdStart->words.w1;
         if (command == G_GEOMETRYMODE) {
-            if (w1 == 0) {
+            if (w1 == 0) { // gSPClearGeometryMode: w0 holds ~bits; the rewrites below also set the opcode byte to 0xFF (~clear)
                 clear = ~w0 & 0xFFFFFF;
                 if ((clear & G_CULL_BOTH) == G_CULL_FRONT) {
                     clear |= G_CULL_BACK;
                     clear &= ~G_CULL_FRONT;
-                    cmdStart->words.w0 = ~clear | 0xD9000000;
+                    cmdStart->words.w0 = ~clear | (G_GEOMETRYMODE << 24);
                 } else if ((clear & G_CULL_BOTH) == G_CULL_BACK) {
                     clear |= G_CULL_FRONT;
                     clear &= ~G_CULL_BACK;
-                    cmdStart->words.w0 = ~clear | 0xD9000000;
+                    cmdStart->words.w0 = ~clear | (G_GEOMETRYMODE << 24);
                 }
             } else if ((w1 & G_CULL_BOTH) == G_CULL_FRONT) {
                 cmdStart->words.w1 |= G_CULL_BACK;
@@ -138,21 +139,21 @@ void controllerBuildSubcommandList(Gfx *cmdStart, void *cmdEnd, ControllerSubNod
     Gfx *curr;
     Gfx *search;
     ControllerSubNode *node;
-    u32 id;
+    u32 segment;
     s32 found;
     u32 op;
-    u32 sub;
+    u32 push;
 
     for (curr = cmdStart; curr != cmdEnd; curr++) {
         op = curr->words.w0 >> 24;
-        sub = (curr->words.w0 >> 16) & 0xFF;
-        if ((op == 0xDE) && (sub == 1)) {
-            id = (curr->words.w1 << 4) >> 28;
+        push = (curr->words.w0 >> 16) & 0xFF;
+        if ((op == G_DL) && (push == G_DL_NOPUSH)) {
+            segment = (curr->words.w1 << 4) >> 28;
             search = cmdStart;
             found = 0;
             while (!found && (search != cmdEnd)) {
                 op = search->words.w0 >> 24;
-                if ((op == 0) && (id == search->words.w1)) {
+                if ((op == G_NOOP) && (segment == search->words.w1)) {
                     found = 1;
                 } else {
                     search++;
@@ -161,7 +162,7 @@ void controllerBuildSubcommandList(Gfx *cmdStart, void *cmdEnd, ControllerSubNod
             node = heapAlloc(sizeof(ControllerSubNode));
             *pNodeList = node;
             pNodeList = &node->next;
-            node->segment = id;
+            node->segment = segment;
             node->partDl = curr + 1;
             node->skipDl = search;
         }
@@ -180,31 +181,28 @@ void controllerSetCommand(Actor *actor, s32 commandIndex, Gfx *command) {
     commands = ((AnimInitData *)actor->animState)->displayLists[0];
     destination = commands + commandIndex;
     if ((command->words.w0 != destination->words.w0) || (command->words.w1 != destination->words.w1)) {
-        memcpy(destination, command, 8);
+        memcpy(destination, command, sizeof(Gfx));
     }
 }
 
 void controllerCommandRelocateAssets(Gfx *cmdStart, void *cmdEnd) {
     u32 op;
 
-    if (cmdStart != cmdEnd) {
-        do {
-            op = cmdStart->words.w0 >> 0x18;
-            if (op == 0xFD) {
-                if (((cmdStart->words.w1 * 0x10) >> 0x1C) == 0) {
-                    cmdStart->words.w1 = (u32)assetLoad(0x19, cmdStart->words.w1, 0, 0);
-                }
+    for (; cmdStart != cmdEnd; cmdStart++) {
+        op = cmdStart->words.w0 >> 24;
+        if (op == G_SETTIMG) {
+            if (((cmdStart->words.w1 << 4) >> 28) == 0) {
+                cmdStart->words.w1 = (u32)assetLoad(0x19, cmdStart->words.w1, 0, 0);
             }
-            cmdStart++;
-        } while (cmdStart != cmdEnd);
+        }
     }
 }
 
 s32 controllerLookupStateByHash(Actor *actor) {
-    void *state = actor->animState;
+    void *model = actor->animState;
     s32 i;
     for (i = D_807FBB30; i >= 0; i--) {
-        if (state == D_807FB630[i].asset) {
+        if (model == D_807FB630[i].asset) {
             break;
         }
     }
@@ -214,29 +212,36 @@ s32 controllerLookupStateByHash(Actor *actor) {
     return 0;
 }
 
+// The block controllerAnimInit allocates for an actor's animation state; two arrays of
+// boneCount bone matrices (one per gfx buffer) follow it.
+typedef struct AnimStateBlock {
+    /* 0x00 */ ActorSub4 anim;
+    /* 0x90 */ AnimSlot slots[4];
+} AnimStateBlock; // size = 0x170
+
 s32 controllerAnimInit(Actor *actor, u16 assetId) {
-    AnimInitData *resource;
+    AnimInitData *model;
     s32 i;
-    void *alloc;
+    AnimStateBlock *block;
     ActorSub4 *anim;
-    resource = controllerAnimStateLoadAsset(actor, assetId, 0);
-    if (resource != NULL) {
-        actor->animState = resource;
+    model = controllerAnimStateLoadAsset(actor, assetId, 0);
+    if (model != NULL) {
+        actor->animState = model;
         actor->overrideModel = NULL;
         actor->stateModel = NULL;
 
-        alloc = heapAlloc((resource->boneCount << 7) + 0x170);
-        actor->sub4 = alloc;
-        actor->sub4->model = (AnimSlot *)((u8 *)alloc + 0x90);
-        actor->sub4->layer = (AnimSlot *)((u8 *)alloc + 0xC8);
-        actor->sub4->blendFrom = (AnimSlot *)((u8 *)alloc + 0x100);
-        actor->sub4->blendFromLayer = (AnimSlot *)((u8 *)alloc + 0x138);
-        actor->sub4->boneMtx[0] = (Mtx *)((u8 *)alloc + 0x170);
-        actor->sub4->boneMtx[1] = (Mtx *)((u8 *)actor->sub4->boneMtx[0] + (resource->boneCount << 6));
+        block = heapAlloc(sizeof(AnimStateBlock) + model->boneCount * (2 * sizeof(Mtx)));
+        actor->sub4 = &block->anim;
+        actor->sub4->model = &block->slots[0];
+        actor->sub4->layer = &block->slots[1];
+        actor->sub4->blendFrom = &block->slots[2];
+        actor->sub4->blendFromLayer = &block->slots[3];
+        actor->sub4->boneMtx[0] = (Mtx *)(block + 1);
+        actor->sub4->boneMtx[1] = actor->sub4->boneMtx[0] + model->boneCount;
 
-        for (i = 0; i < resource->boneCount; i++) {
-            guMtxIdent((Mtx *)((u8 *)actor->sub4->boneMtx[0] + (i << 6)));
-            guMtxIdent((Mtx *)((u8 *)actor->sub4->boneMtx[1] + (i << 6)));
+        for (i = 0; i < model->boneCount; i++) {
+            guMtxIdent(&actor->sub4->boneMtx[0][i]);
+            guMtxIdent(&actor->sub4->boneMtx[1][i]);
         }
 
         guMtxIdentF(actor->modelMtx);
@@ -284,9 +289,9 @@ s32 controllerAnimInit(Actor *actor, u16 assetId) {
 }
 
 void controllerAnimFree(Actor *actor) {
-    void *rotations;
-    void *scales;
-    void *offsets;
+    BoneRotation *rotations;
+    BoneVector *scales;
+    BoneVector *offsets;
 
     controllerAnimFreeSub(actor, 0);
     controllerAnimFreeSub(actor, 1);
@@ -311,32 +316,30 @@ void controllerAnimFree(Actor *actor) {
     heapFreeDeferred(actor->sub4);
 }
 
-
-
-void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
-    AnimInitData *sub;
+void controllerAnimFreeSub(Actor *actor, u8 modelIndex) {
+    AnimInitData *model;
     Gfx *cmd;
-    void **cmdList;
-    u32 val;
+    void **dlEnd;
+    u32 op;
     s32 i;
-    switch (slotIndex) {
+    switch (modelIndex) {
     case 0:
-        sub = controller->animState;
-        controller->animState = NULL;
+        model = actor->animState;
+        actor->animState = NULL;
         break;
     case 1:
-        sub = controller->overrideModel;
-        controller->overrideModel = NULL;
+        model = actor->overrideModel;
+        actor->overrideModel = NULL;
         break;
     case 2:
-        sub = controller->stateModel;
-        controller->stateModel = NULL;
+        model = actor->stateModel;
+        actor->stateModel = NULL;
         break;
     }
 
-    if (sub != NULL) {
+    if (model != NULL) {
         for (i = 0; i < 32; i++) {
-            if (D_807FB630[i].asset == sub) {
+            if (D_807FB630[i].asset == model) {
                 break;
             }
         }
@@ -344,17 +347,17 @@ void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
             return;
         }
         if (--D_807FB630[i].refCount == 0) {
-            cmd = sub->displayLists[0];
-            cmdList = sub->displayLists;
-            if (cmd != (Gfx *)cmdList) {
+            cmd = model->displayLists[0];
+            dlEnd = model->displayLists;
+            if (cmd != (Gfx *)dlEnd) {
                 do {
-                    val = cmd->words.w0 >> 24;
-                    if (val == 0xFD) {
-                        if (cmd->words.w1 >= 0x80000000 && cmd->words.w1 < 0xA0000000) {
+                    op = cmd->words.w0 >> 24;
+                    if (op == G_SETTIMG) {
+                        if (IS_KSEG0(cmd->words.w1)) {
                             assetFreeBuffer((void *)cmd->words.w1, 0x270, 0x15);
                         }
                     }
-                } while (++cmd != (Gfx *)cmdList);
+                } while (++cmd != (Gfx *)dlEnd);
             }
 
             D_807FBB30--;
@@ -368,21 +371,21 @@ void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
             D_807FB630[D_807FBB30].cullSwap = 0;
             D_807FB630[D_807FBB30].refCount = 0;
 
-            assetFreeBuffer((void *)sub, 0x281, 0x15);
+            assetFreeBuffer(model, 0x281, 0x15);
         }
     }
 }
 
-int controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
-    void *asset;
+void controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
+    AnimClip *clip;
     s32 i;
     s32 count;
 
-    asset = slot->clip;
-    if (asset != NULL) {
+    clip = slot->clip;
+    if (clip != NULL) {
         count = gAnimClipCacheCount;
         for (i = 0; i + 1 <= count; i++) { // LAYOUT: plain `i < count` is rewritten to a bne latch by uopt's LFTR
-            if (asset == gAnimClipCache[i].asset) {
+            if (clip == gAnimClipCache[i].asset) {
                 if (--gAnimClipCache[i].refCount == 0) {
                     assetFreeBuffer(gAnimClipCache[i].asset, 0x298, 0x15);
                     gAnimClipCacheCount--;
@@ -404,25 +407,25 @@ int controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
 }
 
 void controllerAnimScaleInterpolate(Actor *actor, s8 offset) {
-    f32 temp;
-    s16 count = (s32)((actor->sub4->model->lastFrame - actor->sub4->model->firstFrame) + 1.0f);
-    s16 span = (s32)((actor->sub4->blendFrom->lastFrame - actor->sub4->blendFrom->firstFrame) + 1.0f);
-    temp = (actor->sub4->blendFrom->frame * (f32)count) / (f32)span;
-    temp += (f32)offset;
-    controllerApplyMotionWindow(actor, actor->sub4->model, temp);
+    f32 frame;
+    s16 modelFrames = (s32)((actor->sub4->model->lastFrame - actor->sub4->model->firstFrame) + 1.0f);
+    s16 blendFrames = (s32)((actor->sub4->blendFrom->lastFrame - actor->sub4->blendFrom->firstFrame) + 1.0f);
+    frame = actor->sub4->blendFrom->frame * modelFrames / blendFrames;
+    frame += offset;
+    controllerApplyMotionWindow(actor, actor->sub4->model, frame);
 }
 
 extern u16 *gActorScriptAnimTable;
 
 void controllerAnimSetStateRemap(Actor *actor, s16 animIndex, f32 animSpeed, f32 blend) {
-    s16 flag;
+    s16 keepLayer;
     s32 tableIndex;
     if (animIndex >= 0) {
-        flag = animIndex & 0x4000;
-        animIndex -= flag;
+        keepLayer = animIndex & 0x4000;
+        animIndex -= keepLayer;
         gActivePlayerState->unk4E = animIndex;
         tableIndex = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
-        animIndex = gActorScriptAnimTable[tableIndex] + flag;
+        animIndex = gActorScriptAnimTable[tableIndex] + keepLayer;
     } else {
         gActivePlayerState->unk4E = animIndex;
     }
@@ -431,14 +434,14 @@ void controllerAnimSetStateRemap(Actor *actor, s16 animIndex, f32 animSpeed, f32
 
 
 void controllerAnimSetStateRemapDirect(Actor *actor, s16 animIndex, f32 animSpeed, f32 blend) {
-    s16 flag;
+    s16 keepLayer;
     s32 tableIndex;
     if (animIndex >= 0) {
-        flag = animIndex & 0x4000;
-        animIndex -= flag;
+        keepLayer = animIndex & 0x4000;
+        animIndex -= keepLayer;
         gActivePlayerState->unk4E = animIndex;
         tableIndex = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
-        animIndex = gActorScriptAnimTable[tableIndex] + flag;
+        animIndex = gActorScriptAnimTable[tableIndex] + keepLayer;
     } else {
         gActivePlayerState->unk4E = animIndex;
     }
@@ -446,11 +449,11 @@ void controllerAnimSetStateRemapDirect(Actor *actor, s16 animIndex, f32 animSpee
 }
 
 void controllerAnimSetStateIfChanged(Actor *actor, s16 animId, f32 animSpeed, f32 blend) {
-    AnimSlot *state;
+    AnimSlot *slot;
 
-    state = actor->sub4->model;
-    if (animId == state->animId) {
-        state->speed = state->clip->speed;
+    slot = actor->sub4->model;
+    if (animId == slot->animId) {
+        slot->speed = slot->clip->speed;
         return;
     }
     controllerAnimSetState(actor, animId, animSpeed, blend);
@@ -459,44 +462,44 @@ void controllerAnimSetStateIfChanged(Actor *actor, s16 animId, f32 animSpeed, f3
 void controllerAnimSetState(Actor *actor, s16 animId, f32 animSpeed, f32 blend) {
     void *pad;
     ActorSub4 *anim;
-    AnimSlot *slot0;
-    AnimSlot *slot4;
-    AnimSlot *slot8;
-    AnimSlot *slotC;
-    AnimClip *resource;
-    f32 animTimer;
-    u8 slotFlags;
+    AnimSlot *oldModel;
+    AnimSlot *oldLayer;
+    AnimSlot *newModel;
+    AnimSlot *newLayer;
+    AnimClip *clip;
+    f32 speed;
+    u8 oldLayerWeight;
 
     anim = actor->sub4;
-    slot0 = anim->model;
-    slot8 = anim->blendFrom;
-    slot4 = anim->layer;
-    slotC = anim->blendFromLayer;
+    oldModel = anim->model;
+    newModel = anim->blendFrom;
+    oldLayer = anim->layer;
+    newLayer = anim->blendFromLayer;
 
-    if (slot8->clip != NULL) {
-        controllerAnimCacheFree(actor, slot8);
+    if (newModel->clip != NULL) {
+        controllerAnimCacheFree(actor, newModel);
     }
-    if (slotC->clip != NULL) {
-        controllerAnimCacheFree(actor, slotC);
+    if (newLayer->clip != NULL) {
+        controllerAnimCacheFree(actor, newLayer);
     }
 
     if ((animId & 0x4000) == 0x4000) {
         animId -= 0x4000;
-        if (slot4->clip != NULL) {
-            slotC->clip = controllerAnimCacheGetOrLoad(slot4->animId);
-            slotC->frame = slot4->frame;
-            slotC->frameFrac = slot4->frameFrac;
-            slotC->frameIndex = slot4->frameIndex;
-            slotC->nextFrameIndex = slot4->nextFrameIndex;
-            slotC->animId = slot4->animId;
-            slotC->flags = slot4->flags;
-            slotC->firstFrame = slot4->firstFrame;
-            slotC->lastFrame = slot4->lastFrame;
-            slotC->speedRampDuration = slot4->speedRampDuration;
-            slotC->speed = slot4->speed;
-            slotC->speedTo = slot4->speedTo;
-            slotC->speedFrom = slot4->speedFrom;
-            slotC->speedRampTime = slot4->speedRampTime;
+        if (oldLayer->clip != NULL) {
+            newLayer->clip = controllerAnimCacheGetOrLoad(oldLayer->animId);
+            newLayer->frame = oldLayer->frame;
+            newLayer->frameFrac = oldLayer->frameFrac;
+            newLayer->frameIndex = oldLayer->frameIndex;
+            newLayer->nextFrameIndex = oldLayer->nextFrameIndex;
+            newLayer->animId = oldLayer->animId;
+            newLayer->flags = oldLayer->flags;
+            newLayer->firstFrame = oldLayer->firstFrame;
+            newLayer->lastFrame = oldLayer->lastFrame;
+            newLayer->speedRampDuration = oldLayer->speedRampDuration;
+            newLayer->speed = oldLayer->speed;
+            newLayer->speedTo = oldLayer->speedTo;
+            newLayer->speedFrom = oldLayer->speedFrom;
+            newLayer->speedRampTime = oldLayer->speedRampTime;
             anim->blendFromLayerWeight = anim->layerWeight;
         } else {
             anim->blendFromLayerWeight = 0;
@@ -504,11 +507,11 @@ void controllerAnimSetState(Actor *actor, s16 animId, f32 animSpeed, f32 blend) 
     }
 
     if (blend > 0.0f) {
-        animTimer = anim->unk48;
-        if (animTimer > (f32)0) {
-            anim->blendTime = animTimer;
+        speed = anim->unk48;
+        if (speed > 0) {
+            anim->blendTime = speed;
         } else {
-            anim->blendTime = -animTimer;
+            anim->blendTime = -speed;
         }
         if (anim->blendTime < blend) {
             anim->blendDuration = blend;
@@ -517,50 +520,50 @@ void controllerAnimSetState(Actor *actor, s16 animId, f32 animSpeed, f32 blend) 
         }
         anim->blendWeight = (anim->blendDuration - anim->blendTime) / anim->blendDuration;
     } else {
-        if (slot0->clip != NULL) {
-            controllerAnimCacheFree(actor, slot0);
+        if (oldModel->clip != NULL) {
+            controllerAnimCacheFree(actor, oldModel);
         }
-        if (slot4->clip != NULL) {
-            controllerAnimCacheFree(actor, slot4);
+        if (oldLayer->clip != NULL) {
+            controllerAnimCacheFree(actor, oldLayer);
         }
     }
 
-    resource = controllerAnimCacheGetOrLoad(animId);
-    if (resource != NULL) {
-        slot8->clip = resource;
-        slot8->animId = animId;
-        slot8->flags = resource->flags;
-        slot8->firstFrame = 0.0f;
-        slot8->lastFrame = (f32)(resource->frameCount - 1);
-        slot8->speedRampDuration = 0.0f;
-        slot8->speed = resource->speed;
-        slot8->speedTo = resource->speed;
-        slot8->speedFrom = resource->speed;
-        slot8->speedRampTime = 0.0f;
+    clip = controllerAnimCacheGetOrLoad(animId);
+    if (clip != NULL) {
+        newModel->clip = clip;
+        newModel->animId = animId;
+        newModel->flags = clip->flags;
+        newModel->firstFrame = 0.0f;
+        newModel->lastFrame = clip->frameCount - 1;
+        newModel->speedRampDuration = 0.0f;
+        newModel->speed = clip->speed;
+        newModel->speedTo = clip->speed;
+        newModel->speedFrom = clip->speed;
+        newModel->speedRampTime = 0.0f;
     } else {
-        slot8->clip = NULL;
-        slot8->animId = -1;
-        slot8->flags = 0;
-        slot8->firstFrame = 0.0f;
-        slot8->lastFrame = 0.0;
-        slot8->speedRampDuration = 0.0f;
-        slot8->speed = 0.0f;
-        slot8->speedTo = 0.0f;
-        slot8->speedFrom = 0.0f;
-        slot8->speedRampTime = 0.0f;
+        newModel->clip = NULL;
+        newModel->animId = -1;
+        newModel->flags = 0;
+        newModel->firstFrame = 0.0f;
+        newModel->lastFrame = 0.0;
+        newModel->speedRampDuration = 0.0f;
+        newModel->speed = 0.0f;
+        newModel->speedTo = 0.0f;
+        newModel->speedFrom = 0.0f;
+        newModel->speedRampTime = 0.0f;
     }
 
     anim->scriptWaitFlags = 0;
     anim->loopCount = 0;
     anim->waitFrame = 0.0;
-    anim->blendFrom = slot0;
-    slotFlags = anim->layerWeight;
-    anim->blendFromLayer = slot4;
-    anim->model = slot8;
-    anim->layer = slotC;
+    anim->blendFrom = oldModel;
+    oldLayerWeight = anim->layerWeight;
+    anim->blendFromLayer = oldLayer;
+    anim->model = newModel;
+    anim->layer = newLayer;
     anim->layerWeight = anim->blendFromLayerWeight;
-    anim->blendFromLayerWeight = slotFlags;
-    controllerApplyMotionWindow(actor, slot8, animSpeed);
+    anim->blendFromLayerWeight = oldLayerWeight;
+    controllerApplyMotionWindow(actor, newModel, animSpeed);
 }
 
 void controllerAnimSetFromTable(Actor *actor, u16 animIndex, f32 animSpeed, u8 flags) {
@@ -572,23 +575,23 @@ void controllerAnimSetFromTable(Actor *actor, u16 animIndex, f32 animSpeed, u8 f
 
 void controllerAnimSetDirect(Actor *actor, u16 animId, f32 animSpeed, u8 flags) {
     AnimSlot *slot;
-    AnimClip *resource;
+    AnimClip *clip;
 
     slot = actor->sub4->layer;
     if (slot->clip != NULL) {
         controllerAnimCacheFree(actor, slot);
     }
-    resource = controllerAnimCacheGetOrLoad(animId);
-    if (resource != NULL) {
-        slot->clip = resource;
+    clip = controllerAnimCacheGetOrLoad(animId);
+    if (clip != NULL) {
+        slot->clip = clip;
         slot->animId = animId;
-        slot->flags = resource->flags;
+        slot->flags = clip->flags;
         slot->firstFrame = 0.0f;
-        slot->lastFrame = (f32)(resource->frameCount - 1);
+        slot->lastFrame = clip->frameCount - 1;
         slot->speedRampDuration = 0.0f;
-        slot->speed = resource->speed;
-        slot->speedTo = resource->speed;
-        slot->speedFrom = resource->speed;
+        slot->speed = clip->speed;
+        slot->speedTo = clip->speed;
+        slot->speedFrom = clip->speed;
         slot->speedRampTime = 0.0f;
         actor->sub4->layerWeight = 0;
         actor->sub4->layerWeightTarget = 0xFF;
@@ -608,12 +611,12 @@ void controllerAnimSetDirect(Actor *actor, u16 animId, f32 animSpeed, u8 flags) 
     controllerApplyMotionWindow(actor, slot, animSpeed);
 }
 
-void *controllerAnimCacheGetOrLoad(s32 id) {
+AnimClip *controllerAnimCacheGetOrLoad(s32 id) {
     AnimCacheEntry *entry;
     u32 i;
-    AnimClip *asset;
+    AnimClip *clip;
     s32 count;
-    s32 bound;
+    s32 slot;
 
     if (id < 0) {
         return NULL;
@@ -636,113 +639,112 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
         return NULL;
     }
 
-    asset = assetLoad(0xB, id, 1, 1);
-    asset->unk6 += 6;
-    bound = gAnimClipCacheCount;
-    entry = &gAnimClipCache[bound];
-    entry->asset = asset;
+    clip = assetLoad(0xB, id, 1, 1);
+    clip->unk6 += 6;
+    slot = gAnimClipCacheCount;
+    entry = &gAnimClipCache[slot];
+    entry->asset = clip;
     entry->refCount++;
-    gAnimClipCacheCount = bound + 1;
+    gAnimClipCacheCount = slot + 1;
     entry->id = id;
-    return asset;
+    return clip;
 }
 
 extern u32 gFrameDelta;
 extern u8 D_80746B60;
 
-void controllerStepMotionWindows(Actor *owner) {
-    ActorSub4 *core;
-    AnimSlot *win0;
-    AnimSlot *win4;
-    AnimSlot *unk8;
-    AnimSlot *unkC;
-    f32 pos;
+void controllerStepMotionWindows(Actor *actor) {
+    ActorSub4 *anim;
+    AnimSlot *model;
+    AnimSlot *layer;
+    AnimSlot *blendFrom;
+    AnimSlot *blendFromLayer;
+    f32 frame;
     f32 rate;
     f32 step;
 
-    core = owner->sub4;
-    win0 = core->model;
-    win4 = core->layer;
-    unk8 = core->blendFrom;
-    unkC = core->blendFromLayer;
-    pos = win0->frame;
-    if (core->motionFlags & 1) {
-        rate = (f32) ((f64) (u32) gFrameDelta * 0.5);
+    anim = actor->sub4;
+    model = anim->model;
+    layer = anim->layer;
+    blendFrom = anim->blendFrom;
+    blendFromLayer = anim->blendFromLayer;
+    frame = model->frame;
+    if (anim->motionFlags & 1) {
+        rate = gFrameDelta * 0.5;
     } else {
         rate = 1.0f;
     }
-    core->motionFlags &= ~1;
+    anim->motionFlags &= ~1;
     if (D_80746B60 == 0) {
-        core->motionFlags |= (core->model->flags & 1);
+        anim->motionFlags |= (anim->model->flags & 1);
     }
-    if (core->speedRampDuration > 0.0f) {
-        core->speedRampTime += rate;
-        if (core->speedRampTime < core->speedRampDuration) {
-            core->unk48 = core->speedFrom + (((core->speedTo - core->speedFrom) * core->speedRampTime) / core->speedRampDuration);
+    if (anim->speedRampDuration > 0.0f) {
+        anim->speedRampTime += rate;
+        if (anim->speedRampTime < anim->speedRampDuration) {
+            anim->unk48 = anim->speedFrom + (((anim->speedTo - anim->speedFrom) * anim->speedRampTime) / anim->speedRampDuration);
         } else {
-            core->speedRampDuration = 0.0f;
-            core->unk48 = core->speedTo;
+            anim->speedRampDuration = 0.0f;
+            anim->unk48 = anim->speedTo;
         }
     }
-    step = core->unk48 * rate;
-    if (win0->speedRampDuration > 0.0f) {
-        win0->speedRampTime += (step > 0) ? step : -step;
-        if (win0->speedRampTime < win0->speedRampDuration) {
-            win0->speed = win0->speedFrom + (((win0->speedTo - win0->speedFrom) * win0->speedRampTime) / win0->speedRampDuration);
+    step = anim->unk48 * rate;
+    if (model->speedRampDuration > 0.0f) {
+        model->speedRampTime += (step > 0) ? step : -step;
+        if (model->speedRampTime < model->speedRampDuration) {
+            model->speed = model->speedFrom + (((model->speedTo - model->speedFrom) * model->speedRampTime) / model->speedRampDuration);
         } else {
-            win0->speedRampDuration = 0.0f;
-            win0->speed = win0->speedTo;
+            model->speedRampDuration = 0.0f;
+            model->speed = model->speedTo;
         }
     }
-    if (win4->speedRampDuration > 0.0f) {
-        win4->speedRampTime += (step > 0) ? step : -step;
-        if (win4->speedRampTime < win4->speedRampDuration) {
-            win4->speed = win4->speedFrom + (((win4->speedTo - win4->speedFrom) * win4->speedRampTime) / win4->speedRampDuration);
+    if (layer->speedRampDuration > 0.0f) {
+        layer->speedRampTime += (step > 0) ? step : -step;
+        if (layer->speedRampTime < layer->speedRampDuration) {
+            layer->speed = layer->speedFrom + (((layer->speedTo - layer->speedFrom) * layer->speedRampTime) / layer->speedRampDuration);
         } else {
-            win4->speedRampDuration = 0.0f;
-            win4->speed = win4->speedTo;
+            layer->speedRampDuration = 0.0f;
+            layer->speed = layer->speedTo;
         }
     }
-    if (unk8->clip != NULL) {
-        core->blendTime += (step > 0) ? step : -step;
-        if (core->blendTime < core->blendDuration) {
-            core->blendWeight = (core->blendDuration - core->blendTime) / core->blendDuration;
+    if (blendFrom->clip != NULL) {
+        anim->blendTime += (step > 0) ? step : -step;
+        if (anim->blendTime < anim->blendDuration) {
+            anim->blendWeight = (anim->blendDuration - anim->blendTime) / anim->blendDuration;
         } else {
-            controllerAnimCacheFree(owner, unk8);
-            controllerAnimCacheFree(owner, unkC);
-            core->scriptWaitFlags &= ~0x10;
+            controllerAnimCacheFree(actor, blendFrom);
+            controllerAnimCacheFree(actor, blendFromLayer);
+            anim->scriptWaitFlags &= ~0x10;
         }
-        pos += ((step * win0->speed) / 2) * (1.0f - core->blendWeight);
+        frame += ((step * model->speed) / 2) * (1.0f - anim->blendWeight);
     } else {
-        pos += step * win0->speed;
+        frame += step * model->speed;
     }
-    controllerApplyMotionWindow(owner, win0, pos);
-    if (win4->clip != NULL) {
-        if (core->layerWeight < core->layerWeightTarget) {
-            core->layerWeight += core->layerWeightStep;
-            if (core->layerWeight > core->layerWeightTarget) {
-                core->layerWeight = core->layerWeightTarget;
+    controllerApplyMotionWindow(actor, model, frame);
+    if (layer->clip != NULL) {
+        if (anim->layerWeight < anim->layerWeightTarget) {
+            anim->layerWeight += anim->layerWeightStep;
+            if (anim->layerWeight > anim->layerWeightTarget) {
+                anim->layerWeight = anim->layerWeightTarget;
             }
-        } else if (core->layerWeight > core->layerWeightTarget) {
-            core->layerWeight -= core->layerWeightStep;
-            if (core->layerWeight < core->layerWeightTarget) {
-                core->layerWeight = core->layerWeightTarget;
+        } else if (anim->layerWeight > anim->layerWeightTarget) {
+            anim->layerWeight -= anim->layerWeightStep;
+            if (anim->layerWeight < anim->layerWeightTarget) {
+                anim->layerWeight = anim->layerWeightTarget;
             }
         }
-        pos = win4->frame + win4->speed;
-        controllerApplyMotionWindow(owner, win4, pos);
-        if ((win4->speed == 0) && (win4->flags & 0x10)) {
-            core->layerWeightTarget = 0;
-            if (core->layerWeight == 0) {
-                controllerAnimCacheFree(owner, win4);
+        frame = layer->frame + layer->speed;
+        controllerApplyMotionWindow(actor, layer, frame);
+        if ((layer->speed == 0) && (layer->flags & 0x10)) {
+            anim->layerWeightTarget = 0;
+            if (anim->layerWeight == 0) {
+                controllerAnimCacheFree(actor, layer);
             }
         }
     }
-    actorScriptExecute(owner);
+    actorScriptExecute(actor);
 }
 
 void controllerApplyMotionWindow(Actor *actor, AnimSlot *slot, f32 frame) {
-    s8 notJump;
     f32 diff;
     f32 waitFrame;
     f32 prevFrame;
@@ -750,14 +752,13 @@ void controllerApplyMotionWindow(Actor *actor, AnimSlot *slot, f32 frame) {
     f32 lastFrame;
     s16 frameIndex;
     s32 loopCount;
-    s32 span;
+    s32 pad;
     AnimSlot *watched;
     s32 wrapped;
     s32 bounced;
     s32 waitFlags;
     u16 flags;
     ActorSub4 *anim;
-
 
     anim = actor->sub4;
     flags = slot->flags;
@@ -771,21 +772,20 @@ void controllerApplyMotionWindow(Actor *actor, AnimSlot *slot, f32 frame) {
         watched = anim->model;
     }
     if (flags & 8) {
-        diff = frame - (f32) slot->jumpFrom;
+        diff = frame - slot->jumpFrom;
         if (diff > 0) {
             slot->frameFrac = diff;
         } else {
             slot->frameFrac = -diff;
         }
-        if ((f64) slot->frameFrac < 1.0) {
+        if (slot->frameFrac < 1.0) {
             slot->frame = frame;
             slot->frameIndex = slot->jumpFrom;
             slot->nextFrameIndex = slot->jumpTo;
             return;
         }
-        frame += (f32) ((slot->jumpTo - slot->jumpFrom) - (s32) diff);
-        notJump = ~8;
-        slot->flags = slot->flags & notJump;
+        frame += (slot->jumpTo - slot->jumpFrom) - (s32)diff;
+        slot->flags &= ~8;
         if (slot == watched) {
             anim->scriptWaitFlags &= ~0x20;
         }
@@ -810,7 +810,7 @@ void controllerApplyMotionWindow(Actor *actor, AnimSlot *slot, f32 frame) {
             }
         }
     } else if (flags & 2) {
-        if (((f64) lastFrame + 1.0) <= (f64) frame) {
+        if (lastFrame + 1.0 <= frame) {
             wrapped = 1;
             frame -= (1.0f + lastFrame) - firstFrame;
         } else if (frame < firstFrame) {
@@ -842,19 +842,28 @@ void controllerApplyMotionWindow(Actor *actor, AnimSlot *slot, f32 frame) {
                     anim->loopCount = loopCount - 1;
                     waitFlags = anim->scriptWaitFlags;
                 } else {
-                    waitFlags = (anim->scriptWaitFlags &= ~2);
+                    anim->scriptWaitFlags &= ~2;
+                    waitFlags = anim->scriptWaitFlags;
                 }
             }
             if (waitFlags & 8) {
                 waitFrame = anim->waitFrame;
                 prevFrame = slot->frame;
                 if (frame == waitFrame) {
-                    if (prevFrame != waitFrame) anim->scriptWaitFlags = waitFlags & ~8;
+                    if (prevFrame != waitFrame) {
+                        anim->scriptWaitFlags = waitFlags & ~8;
+                    }
                 } else if (waitFrame < frame) {
-                    if ((prevFrame < waitFrame) && (wrapped == 0)) anim->scriptWaitFlags = waitFlags & ~8;
-                    else if ((waitFrame < prevFrame) && (wrapped != 0)) anim->scriptWaitFlags = waitFlags & ~8;
-                } else if ((waitFrame < prevFrame) && (wrapped == 0)) anim->scriptWaitFlags = waitFlags & ~8;
-                else if ((prevFrame < waitFrame) && (wrapped != 0)) anim->scriptWaitFlags = waitFlags & ~8;
+                    if ((prevFrame < waitFrame) && (wrapped == 0)) {
+                        anim->scriptWaitFlags = waitFlags & ~8;
+                    } else if ((waitFrame < prevFrame) && (wrapped != 0)) {
+                        anim->scriptWaitFlags = waitFlags & ~8;
+                    }
+                } else if ((waitFrame < prevFrame) && (wrapped == 0)) {
+                    anim->scriptWaitFlags = waitFlags & ~8;
+                } else if ((prevFrame < waitFrame) && (wrapped != 0)) {
+                    anim->scriptWaitFlags = waitFlags & ~8;
+                }
             }
         }
     }
@@ -862,8 +871,8 @@ void controllerApplyMotionWindow(Actor *actor, AnimSlot *slot, f32 frame) {
     slot->frameIndex = (s16) frame;
     frameIndex = slot->frameIndex;
     slot->nextFrameIndex = frameIndex + 1;
-    slot->frameFrac = frame - (f32) frameIndex;
-    if (lastFrame < (f32) slot->nextFrameIndex) {
+    slot->frameFrac = frame - frameIndex;
+    if (lastFrame < slot->nextFrameIndex) {
         if (flags & 2) {
             slot->nextFrameIndex = (s16) firstFrame;
             return;
@@ -878,7 +887,7 @@ f32 actorGetAnimProgress(Actor *actor) {
 }
 
 extern u8 gGfxBufferIndex;
-void func_806195D0(f32, f32);
+void func_806195D0(Actor *);
 void actorCheckWorldBounds(Actor *actor) {
     f32 x = actor->x;
     if (x >= -8192.0f) {
@@ -887,7 +896,7 @@ void actorCheckWorldBounds(Actor *actor) {
             f32 z = actor->z;
             if ((z >= -8192.0f) && (x <= 8192.0f) && (y <= 8192.0f) && (z <= 8192.0f)) {
                 actor->boneMtx = actor->sub4->boneMtx[gGfxBufferIndex];
-                func_806195D0(z, 8192.0f);
+                func_806195D0(actor);
                 actorTouchSub140Timestamp(actor);
                 actor->flags |= 0x200;
             }
@@ -896,40 +905,38 @@ void actorCheckWorldBounds(Actor *actor) {
 }
 
 Gfx *renderActorDisplayList(Gfx *gdl, Actor *actor) {
-    AnimInitData *display = actor->animState;
+    AnimInitData *model = actor->animState;
     s32 i;
 
     if (actor->overrideModel != NULL) {
-        display = actor->overrideModel;
+        model = actor->overrideModel;
     }
     if (actor->stateModel != NULL) {
-        display = actor->stateModel;
+        model = actor->stateModel;
     }
     gdl = animSetSegments(gdl, actor);
-    gdl = renderEmitSegmentNodes(gdl, actor, display);
+    gdl = renderEmitSegmentNodes(gdl, actor, model);
     gSPSegment(gdl++, 4, osVirtualToPhysical(actor->boneMtx));
-    gSPSegment(gdl++, 3, osVirtualToPhysical(display->unk0));
-    for (i = 0; i < display->displayListCount; i++) {
-        gSPDisplayList(gdl++, display->displayLists[i]);
+    gSPSegment(gdl++, 3, osVirtualToPhysical(model->unk0));
+    for (i = 0; i < model->displayListCount; i++) {
+        gSPDisplayList(gdl++, model->displayLists[i]);
     }
     return gdl;
 }
 
-Gfx *renderEmitSegmentNodes(Gfx *gdl, Actor *actor, AnimInitData *group) {
+Gfx *renderEmitSegmentNodes(Gfx *gdl, Actor *actor, AnimInitData *model) {
     u16 flags = actor->segmentFlags;
-    ControllerSubNode *node = group->segmentNodes;
+    ControllerSubNode *node = model->segmentNodes;
     s32 shift;
 
-    if (node != NULL) {
-        do {
-            shift = (node->segment - 7) & 0xFF;
-            if ((flags >> shift) & 1) {
-                gSPSegment(gdl++, node->segment, osVirtualToPhysical(node->partDl));
-            } else {
-                gSPSegment(gdl++, node->segment, osVirtualToPhysical(node->skipDl));
-            }
-            node = node->next;
-        } while (node != NULL);
+    while (node != NULL) {
+        shift = (node->segment - 7) & 0xFF;
+        if ((flags >> shift) & 1) {
+            gSPSegment(gdl++, node->segment, osVirtualToPhysical(node->partDl));
+        } else {
+            gSPSegment(gdl++, node->segment, osVirtualToPhysical(node->skipDl));
+        }
+        node = node->next;
     }
     return gdl;
 }
