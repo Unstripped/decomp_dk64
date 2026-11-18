@@ -43,6 +43,14 @@
     - `angle = 0` used as the lower bound in `index >= angle`: 3 outputs.
     - index reused for the table value, with the bound test re-reading `recoilTimer - 0x14`: 1 output.
     - Result: nohit.
+- 2026-11-18 "2026-11-18: cleanup CleanplayerWeaponCalculateTrajectory22" CleanplayerWeaponCalculateTrajectory22 opus (variants.py try full=):
+  - `u32 index` with a `(s32)index >= 0` sign test and `index < 7`: 10.
+  - Nested `if (index >= 0) { if ((u32)index < 7U) ... }`: 10.
+  - variants scan on the literal body: 10, no zero.
+  - uopt -l6 literal: index {621} cand 0 -> reg 1 ($v0), angle {589} cand 11 -> reg 2 ($v1), &gActivePlayerState cand 42 -> reg 3 (a0).
+    - Base: angle cand 0 -> $v0, index cand 3 -> $v1. All are "assigned (unconstrained)" (first-fit in candidate order).
+  - A PlayerState pointer local was not tried here: the target re-reads gActivePlayerState at 0xdc0 and 0xe0c (`lw t2/t6,0(a0)`), so one local for all reads would drop those loads.
+    - On the siblings (single read) it gives the target colouring but `lw v0` for `lw t6`: 41.
 ## Untried ideas
 - If the lead rules a habitual declaration zero-initialiser (`u16 angle = 0;`) ordinary C, it fixes this site and both siblings (4, 22) with one uniform form (measured 0/0/0). Otherwise it is a dead-store steer, the same count as `angle = 7U`.
 - If the lead accepts the angle = sizeof reuse (Q0214) as natural, the 7-entry size stays unprovable from the data (Q0838: every .data object is 4-aligned, so 7 entries plus pad equals 8 entries byte for byte).

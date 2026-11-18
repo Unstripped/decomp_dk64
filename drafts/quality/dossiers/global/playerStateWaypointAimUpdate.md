@@ -42,6 +42,16 @@ Result: fdiff 0, 10 FAKE + 1 PROTO -> 1 FAKE + 1 ORIG.
 - permuter (900 s, -j 2, base 15) on the single-guard body: best=0 three times, each only adding a second dead
   guard in the gGameMode == 0 arm (`!idx && !idx && !idx` or `if (!eq) {}`): no natural hint.
 Result: no change (fdiff 0, 1 FAKE + 1 ORIG).
+2026-11-18 "2026-11-18: cleanup CleanplayerWeaponCalculateTrajectory22" CleanplayerWeaponCalculateTrajectory22 opus
+(variants.py try full=):
+- guard-free uopt -l5/-l6: eq {1597} cand 60 adjsave 2.0 (bb3 only, firstisstr), gWaypointIndex load {536} cand 64
+  1.5 (bb3 + bb10), &gWaypointIndex const {52} cand 218 0.5 (bb3 + bb10); all constrained, priority order puts
+  60 (reg 1, $v0) before 64 (reg 2, $v1). With the guard, 64 colours before 40 and 60 (reg 1), 60 gets reg 2.
+  A natural target order needs eq below 1.5 (def and use in two blocks) or the load above 2.0.
+- eq hoisted above `if (close)` (two-block eq range): 16; the lh/lw loads move before the beqzl t2 at 0x3524.
+- no eq, `if (gWaypointIndex + 2 != count)` with the advance arm first: 42 (block order inverted).
+- pointer local `s16 *index = &gWaypointIndex;` for both the read and `(*index)++`: 75.
+Result: no change.
 
 ## Untried ideas
 - a real (code-free) then-arm use of gWaypointIndex to replace the 8092af guard; none found.
