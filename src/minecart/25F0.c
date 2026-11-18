@@ -635,12 +635,11 @@ void minecartUpdateObstacleType3(void) {
             cart->pointIndex = 1;
             gCurrentActor->speedXZ = 0.0f;
             gCurrentActor->state++;
-            goto case_1;
         } else {
             actorUpdateModelMatrix(gCurrentActor, 0);
-            return;
+            break;
         }
-case_1:
+        /* fallthrough */
     case 1:
         if (mathAngleDistance(mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z), gCurrentActor->yaw) >= 0x201 &&
             (gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) < 22500.0f) {
@@ -657,14 +656,14 @@ case_1:
         if (gPrimaryPlayerActor->state == 0x70 || cart->pointIndex == 0x90) {
             gCurrentActor->state++;
         }
-        return;
+        break;
     case 2:
         tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->state = 0x40;
         actorUpdateModelMatrix(gCurrentActor, 0);
-        return;
+        break;
     default:
         actorUpdateModelMatrix(gCurrentActor, 0);
-        return;
+        break;
     }
 }
