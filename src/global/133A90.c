@@ -595,8 +595,7 @@ void proxPathFollowerStep(Actor **pActor) {
 
 
 void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path, u8 segmentIndex, f32 t) {
-    f32 one; // FAKE: value-named 1.0f local keeps one $f register for the guRotateF axes and unk148 stores
-    f32 pad1[20];
+    f32 pad1[21];
     f32 p2[3];
     f32 p1[3];
     f32 p0[3];
@@ -622,7 +621,7 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     idx = segmentIndex;
     a = t - 0.1;
     if (a < 0.0) {
-        a = a + 1.0;
+        a += 1.0;
         idx--;
         if (idx < 0) {
             a = 0.0f;
@@ -630,21 +629,20 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
         }
     }
     proxPathInterpolatePosition(idx, a, path, &p0[0], &p0[1], &p0[2]);
-    one = 1.0f;
     b = t + 0.1;
     idx2 = segmentIndex;
     if (b > 1.0) {
-        b = b - 1.0;
+        b -= 1.0;
         idx2++;
         if (idx2 == path->segmentCount) {
             idx2 = path->segmentCount - 1;
-            b = 1.0f;
+            b = 1.0;
         }
     }
     proxPathInterpolatePosition(idx2, b, path, &p1[0], &p1[1], &p1[2]);
     proxPathInterpolatePosition(segmentIndex, t, path, &p2[0], &p2[1], &p2[2]);
     savedScale = state->unk148;
-    state->unk148 = one;
+    state->unk148 = 1.0;
     actor->x = (p2[0] - state->unk13C) * state->unk148 + state->unk13C;
     actor->y = (p2[1] - state->unk140) * state->unk148 + state->unk140;
     actor->z = (p2[2] - state->unk144) * state->unk148 + state->unk144;
@@ -653,13 +651,13 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     guTranslateF(modelF, 0.0f, state->unk148 * -80.0f, 0.0f);
     guScaleF(stepF, actor->sub4->scaleX, actor->sub4->scaleY, actor->sub4->scaleZ);
     guMtxCatF(modelF, stepF, modelF);
-    guRotateF(stepF, actor->yaw / 4095.0 * 360.0, 0.0f, one, 0.0f);
+    guRotateF(stepF, actor->yaw / 4095.0 * 360.0, 0.0f, 1.0, 0.0f);
     guMtxCatF(modelF, stepF, modelF);
-    guRotateF(stepF, -90.0f, one, 0.0f, 0.0f);
+    guRotateF(stepF, -90.0f, 1.0, 0.0f, 0.0f);
     guMtxCatF(modelF, stepF, modelF);
     guAlignF(stepF, yaw, p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
     guMtxCatF(modelF, stepF, modelF);
-    guRotateF(yawRotF, actor->yaw / 4095.0 * 360.0, 0.0f, one, 0.0f);
+    guRotateF(yawRotF, actor->yaw / 4095.0 * 360.0, 0.0f, 1.0, 0.0f);
     yaw = path->segments[segmentIndex].param6 + (path->segments[segmentIndex].param7 - path->segments[segmentIndex].param6) * t;
     guMtxXFMF(yawRotF, 0.0f, 0.0f, -yaw * state->unk148, &ox, &oy, &oz);
     guTranslateF(stepF, ox, oy, oz);
@@ -669,14 +667,14 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     guMtxCatF(modelF, stepF, actor->modelMtx);
     state->unk148 = savedScale;
     if (savedScale < 1.0) {
-        guMtxF2L((f32 (*)[4])state->unk15C, &prevMtx);
+        guMtxF2L(state->unk15C, &prevMtx);
         guMtxF2L(actor->modelMtx, &curMtx);
         mtxLerpL(&prevMtx, &curMtx, 1.0 - state->unk148, &blendMtx);
         guMtxL2F(actor->modelMtx, &blendMtx);
     }
     state->unk148 += 0.1;
     if (state->unk148 > 1.0) {
-        state->unk148 = one;
+        state->unk148 = 1.0;
     }
     state->pathYawMin = (s16)(path->segments[segmentIndex].minAngle + (path->segments[segmentIndex].maxAngle - path->segments[segmentIndex].minAngle) * t);
     state->pathYawMax = (s16)(path->segments[segmentIndex].angleB + (path->segments[segmentIndex].angleC - path->segments[segmentIndex].angleB) * t);

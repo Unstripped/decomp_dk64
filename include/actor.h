@@ -887,7 +887,7 @@ typedef struct PlayerState {
     /* 0x154 */ s16 unk154;
     /* 0x156 */ u8 pad156[2];
     /* 0x158 */ Actor *unk158;
-    /* 0x15C */ u8 unk15C[0x40];
+    /* 0x15C */ f32 unk15C[4][4];
     /* 0x19C */ s16 pathYawMin;
     /* 0x19E */ s16 pathYawMax;
     /* 0x1A0 */ u16 unk1A0;
