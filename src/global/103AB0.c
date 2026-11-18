@@ -416,7 +416,7 @@ u16 zbufferReadDepth(s16 x, s16 y) {
 }
 
 extern s16 D_807FD800;
-extern s16 D_807FD802;
+extern s16 gPhotoSubjectDepthDist;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
 
@@ -459,7 +459,7 @@ void func_80700BF4(void) {
         }
     }
     D_807FD800 = blocked;
-    D_807FD802 = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
+    gPhotoSubjectDepthDist = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].active != 0) {
             state = gPlayerSlots[i].actor->customState;

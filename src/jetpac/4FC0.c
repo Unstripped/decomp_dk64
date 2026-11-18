@@ -14,13 +14,13 @@ extern JetpacSprite D_8002E8C0;
 extern JetpacSprite D_8002E8D8;
 extern JetpacSprite D_8002E830;
 extern JetpacSprite D_8002E8A8;
-extern s32 D_8002BA6C;
+extern s32 jetpacBlinkPhase;
 extern JetpacSprite D_8002E878;
 extern f32 D_8002F054;
 extern s32 D_8002F078;
-extern JetpacActor D_8002E964;
-extern JetpacActor D_8002E914;
-extern s32 D_8002E8F0;
+extern JetpacActor jetpacActorClearTemplate;
+extern JetpacActor jetpacActorSpawnTemplate;
+extern s32 jetpacSpawnTimer;
 extern u8 D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3;
 extern u8 D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC;
 
@@ -102,7 +102,7 @@ void jetpacDrawActor(JetpacActor *actor) {
 JetpacActor *jetpacAllocActor(void) {
     s32 pad;
     JetpacActor *actor = jetpacFindFreeActor();
-    JetpacActor templateActor = D_8002E914;
+    JetpacActor templateActor = jetpacActorSpawnTemplate;
 
     if (actor == NULL) {
         return NULL;
@@ -129,7 +129,7 @@ JetpacActor *jetpacAllocActor(void) {
     return actor;
 }
 
-extern void (*D_8002E8F4[])(JetpacActor *);
+extern void (*jetpacActorInitTable[])(JetpacActor *);
 
 void jetpacSpawnActor(void) {
     s32 pad[2];
@@ -140,7 +140,7 @@ void jetpacSpawnActor(void) {
 
     playerData = &jetpacGame.players[jetpacGame.activePlayer];
     stage = playerData->stage;
-    init = D_8002E8F4[stage % 8];
+    init = jetpacActorInitTable[stage % 8];
     actor = jetpacAllocActor();
     if (actor != NULL) {
         init(actor);
@@ -363,7 +363,7 @@ void jetpacActorInitFighter(JetpacActor *actor) {
         actor->flip = 1;
     }
     actor->vx = 0.0f;
-    if (D_8002BA6C != 0) {
+    if (jetpacBlinkPhase != 0) {
         actor->vy = -0.8f;
     } else {
         actor->vy = 0.8f;
@@ -386,7 +386,7 @@ void jetpacActorUpdateFighter(JetpacActor *actor) {
             if (actor->lifetime == 0) {
                 jetpacActorExplode(actor);
             }
-        } else if (D_8002BA6C != 0 && actor->y < 32.0f) {
+        } else if (jetpacBlinkPhase != 0 && actor->y < 32.0f) {
             jetpacActorExplode(actor);
         }
 
@@ -401,7 +401,7 @@ void jetpacActorUpdateFighter(JetpacActor *actor) {
 
         if (actor->timer != 0) {
             actor->timer--;
-            if (D_8002BA6C != 0) {
+            if (jetpacBlinkPhase != 0) {
                 actor->vy = -0.8f;
             } else {
                 actor->vy = 0.8f;
@@ -628,7 +628,7 @@ void jetpacInitActors(void) {
     JetpacActor defaultActor;
     JetpacActor *actor;
 
-    defaultActor = D_8002E964;
+    defaultActor = jetpacActorClearTemplate;
     actor = jetpacGame.actors;
     for (i = 0; i < 6; i++) {
         *actor++ = defaultActor;
@@ -637,7 +637,7 @@ void jetpacInitActors(void) {
     for (i = 0; i < 3; i++) {
         jetpacSpawnActor();
     }
-    D_8002E8F0 = jetpacRandFloat() * 180.0f;
+    jetpacSpawnTimer = jetpacRandFloat() * 180.0f;
 }
 
 void jetpacUpdateActors(void) {
@@ -646,8 +646,8 @@ void jetpacUpdateActors(void) {
     s32 i;
 
     if (jetpacIsSpawnDelay() == 0) {
-        if (D_8002E8F0 > 0) {
-            D_8002E8F0--;
+        if (jetpacSpawnTimer > 0) {
+            jetpacSpawnTimer--;
         }
         for (i = 0; i < 6; i++, actor++) {
             if (actor->state > 0 && actor->update != NULL) {
@@ -661,16 +661,16 @@ void jetpacUpdateActors(void) {
                 activeCount++;
             }
         }
-        if (activeCount < 3 && D_8002E8F0 >= 6) {
-            D_8002E8F0 = jetpacRandFloat() * 5.0f;
+        if (activeCount < 3 && jetpacSpawnTimer >= 6) {
+            jetpacSpawnTimer = jetpacRandFloat() * 5.0f;
         }
-        if (D_8002E8F0 == 0 && jetpacGame.gameState == 2) {
+        if (jetpacSpawnTimer == 0 && jetpacGame.gameState == 2) {
             jetpacSpawnActor();
             activeCount++;
             if (activeCount < 3) {
-                D_8002E8F0 = jetpacRandFloat() * 5.0f;
+                jetpacSpawnTimer = jetpacRandFloat() * 5.0f;
             } else {
-                D_8002E8F0 = jetpacRandFloat() * 180.0f;
+                jetpacSpawnTimer = jetpacRandFloat() * 180.0f;
             }
         }
     }

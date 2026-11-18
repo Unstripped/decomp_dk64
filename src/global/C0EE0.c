@@ -47,7 +47,7 @@ typedef struct EnemyGridActor {
 } EnemyGridActor;
 
 extern s8 D_80750650;
-extern s8 D_807FC8C0[16];
+extern s8 gEnemyGridCells[16];
 
 void enemyGridStateStep(void) {
     f32 roll;
@@ -76,7 +76,7 @@ void enemyGridStateStep(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         st->step = 0.0f;
-        func_806BD0CC();
+        enemyGridReset();
         gCurrentActor->alpha = 0x80;
         gCurrentActor->flags &= ~0x8000;
         st->homeX = gCurrentActor->x;
@@ -164,11 +164,11 @@ void enemyGridStateStep(void) {
             if (gCurrentActor->parentActor != NULL && gCurrentActor->parentActor->state == 5) {
                 ones = 0;
                 zeros = 0;
-                for (j = 0; &D_807FC8C0[j] < &D_807FC8C0[16]; j++) { // FAKE: pointer-compare bound keeps sltu+bnezl (j < 16 gives bnel v1,a0)
-                    if (D_807FC8C0[j] == 1) {
+                for (j = 0; &gEnemyGridCells[j] < &gEnemyGridCells[16]; j++) { // FAKE: pointer-compare bound keeps sltu+bnezl (j < 16 gives bnel v1,a0)
+                    if (gEnemyGridCells[j] == 1) {
                         ones++;
                     }
-                    if (D_807FC8C0[j] == 0) {
+                    if (gEnemyGridCells[j] == 0) {
                         zeros++;
                     }
                 }
@@ -196,7 +196,7 @@ void enemyGridStateStep(void) {
                 best = 4;
                 n = 0;
                 for (i = 0; i < 16; i++) {
-                    if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
+                    if (gEnemyGridCells[i] == 0 || gEnemyGridCells[i] == -1) {
                         col = i & 3;
                         row = i >> 2;
                         dx = (s16)(col - st->gridX);
@@ -272,7 +272,7 @@ void enemyGridStateStep(void) {
         break;
     case 8:
         if (currentActorTestClearFlag() != 0) {
-            func_806BD0CC();
+            enemyGridReset();
             if (flagGet(0x10F, 0) == 0) {
                 csModelStateSetFirstByte(0x10, 0xA);
             }
@@ -297,7 +297,7 @@ void enemyGridStateStep(void) {
         if (currentActorTestClearFlag() != 0) {
             sfxStopChannel(0x57, 1);
             sfxAllocateChannel(0x67, 1.0f);
-            func_806BD0CC();
+            enemyGridReset();
             st->subState = 0;
             st->state = 2;
         }
@@ -374,22 +374,22 @@ Gfx *func_806BCF98(Gfx *dl, Actor *actor) {
     return textDrawStringVtx(dl, 1, 0x208, 0x12C, sNoLabel, 1);
 }
 
-void func_806BD094(s16 idx, s8 val) {
+void enemyGridCellSet(s16 idx, s8 val) {
     if (idx >= 0 && idx < 0x10) {
-        D_807FC8C0[idx] = val;
+        gEnemyGridCells[idx] = val;
     }
 }
 
-void func_806BD0CC(void) {
+void enemyGridReset(void) {
     s32 i;
 
     flagSet(0x30, 0, 2);
     for (i = 0; i < 0x10; i++) {
-        D_807FC8C0[i] = -1;
+        gEnemyGridCells[i] = -1;
         csModelStateSetFirstByte(i, 0);
     }
-    D_807FC8C0[5] = 0;
-    D_807FC8C0[6] = 1;
-    D_807FC8C0[9] = 1;
-    D_807FC8C0[0xA] = 0;
+    gEnemyGridCells[5] = 0;
+    gEnemyGridCells[6] = 1;
+    gEnemyGridCells[9] = 1;
+    gEnemyGridCells[0xA] = 0;
 }

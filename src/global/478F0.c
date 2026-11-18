@@ -359,7 +359,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 void csCmdSpawnEffectsAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 i;
@@ -369,7 +369,7 @@ void csCmdSpawnEffectsAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDuration(1);
         effectSetCallback(effectBurstParticleUpdate);
         effectSetAngle(i / 7);
-        effectCreateAtPosition(D_8074E880[i % 3], 1.4f, gCsPosX, gCsPosY, gCsPosZ);
+        effectCreateAtPosition(gPuffSprites[i % 3], 1.4f, gCsPosX, gCsPosY, gCsPosZ);
     }
 }
 
@@ -473,7 +473,7 @@ typedef struct CsFlicker {
 
 extern u8 gGameMode;
 f32 D_807480DC = 900.0f;
-extern u8 D_8077058C[];
+extern u8 gEffectSpritePoolAlpha[];
 extern u8 gAmbientIndoors;
 extern f32 D_80770DCC;
 extern f32 D_80770DD0;
@@ -529,7 +529,7 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
         if (gPlayerSlots->unk290 == 0xE || (gPlayerSlots->unk290 == 0xB && dist < D_807480DC)) {
             func_80711410(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
         } else {
-            D_8077058C[0] = 0;
+            gEffectSpritePoolAlpha[0] = 0;
         }
         if ((randomNonNegative() >> 15) % 50 == 15) {
             f->timer = 0x28;
@@ -642,7 +642,7 @@ void csCmdSpawnRandomEffectAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetDuration(-1);
     effectSetCallback(effectTimerCountdownAlphaUpdate);
     effectSetSpeed(0x50);
-    effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.5f, gCsPosX, gCsPosY, gCsPosZ);
+    effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 15) % 1000 % 3], 0.5f, gCsPosX, gCsPosY, gCsPosZ);
 }
 
 extern u8 D_80720A7C[];
@@ -943,7 +943,7 @@ typedef struct CsPointHitState {
 } CsPointHitState;
 
 
-f32 D_807480F0 = 700.0f;
+f32 gCsTrackPointProximityRadius = 700.0f;
 s32 D_807480F4 = 0x320;
 s32 D_807480F8 = 0xA;
 s32 D_807480FC = 0x14;
@@ -999,7 +999,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         while (!hit && start != p->idx) {
             if (sqrtf((gPlayerSlots->camX - gMinecartTrackPoints[0][p->idx].x) * (gPlayerSlots->camX - gMinecartTrackPoints[0][p->idx].x) + (gPlayerSlots->camY - gMinecartTrackPoints[0][p->idx].y) * (gPlayerSlots->camY - gMinecartTrackPoints[0][p->idx].y) +
-                      (gPlayerSlots->camZ - gMinecartTrackPoints[0][p->idx].z) * (gPlayerSlots->camZ - gMinecartTrackPoints[0][p->idx].z)) < D_807480F0) {
+                      (gPlayerSlots->camZ - gMinecartTrackPoints[0][p->idx].z) * (gPlayerSlots->camZ - gMinecartTrackPoints[0][p->idx].z)) < gCsTrackPointProximityRadius) {
                 effectSetDepth(1);
                 effectSetMode(3);
                 effectSetSpeed(0);
@@ -1145,7 +1145,7 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
         dz = pl->camZ - gMinecartTrackPoints[0][*p].z;
         dx = pl->camX - gMinecartTrackPoints[0][*p].x;
         dy = pl->camY - gMinecartTrackPoints[0][*p].y;
-        if (sqrtf(dz * dz + (dx * dx + dy * dy)) < D_807480F0) {
+        if (sqrtf(dz * dz + (dx * dx + dy * dy)) < gCsTrackPointProximityRadius) {
             hit = 1;
             effectSetDepth(1);
             effectSetMode(3);
@@ -2034,7 +2034,7 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDuration(-1);
         effectSetDepth(0);
         effectSetCallback(cb);
-        obj = effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
+        obj = effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
         q = obj->allocation = heapAlloc(0x28);
         q->frames = (randomNonNegative() >> 15) % 5 + 10;
         q->t = 0.0f;
@@ -2212,7 +2212,7 @@ void csCmdSetModelSlotByte5F(CsState *cs, s16 csId, s16 b, s16 c) {
     csModelStateTrySetByte(0x5F, gModelSlots[hashTableLookup(csId)].csModelId, 1);
 }
 
-extern u64 D_807445B0;
+extern u64 gLastPauseDuration;
 extern u64 osGetTime(void);
 
 void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2228,7 +2228,7 @@ void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
         t->fired = 0;
     }
     t = cs->data;
-    t->last += D_807445B0;
+    t->last += gLastPauseDuration;
     elapsed = (osGetTime() - t->last) * 64;
     t->left = t->duration - elapsed / 3000 / 1000000;
     if (t->fired == 0 && (u64)t->left < (u64)(s64)c) {
@@ -2338,7 +2338,7 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
         cs->unk10[0] = sfxSlotAllocateSource(csId, 0x12F, 0, 1, 0xFF, 1.0f, 0);
     }
     t = cs->data;
-    t->last += D_807445B0;
+    t->last += gLastPauseDuration;
     for (i = 0; i != 9; i++) {
         if (t->ent[i].active != 0) {
             count++;
@@ -2480,7 +2480,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_806BD094(gModelSlots[hashTableLookup(csId)].csModelId, b);
+    enemyGridCellSet(gModelSlots[hashTableLookup(csId)].csModelId, b);
 }
 
 s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3030,7 +3030,7 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern s16 gSfxSourceVoice[];
-extern f32 D_80770B68[];
+extern f32 gSfxVoicePitch[];
 
 void csCmdPlayAnimSlotB(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
@@ -3041,7 +3041,7 @@ void csCmdPlayAnimSlotB(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->unk10[0] >= 0) {
         modelAnimEntryGetState(csId, b, &anim, &animT, &animFlag);
         slot = gSfxSourceVoice[cs->unk10[0]];
-        D_80770B68[slot] = mathSinF((s16)(((f32)anim + animT) * 2048.0 - 1024.0)) * 0.3 + 1.3;
+        gSfxVoicePitch[slot] = mathSinF((s16)(((f32)anim + animT) * 2048.0 - 1024.0)) * 0.3 + 1.3;
         D_80770BC0[slot] = 1.0f;
     }
 }
@@ -3055,7 +3055,7 @@ void csCmdPlayAnimSlot1(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->unk10[0] >= 0) {
         modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
         slot = gSfxSourceVoice[cs->unk10[0]];
-        D_80770B68[slot] = mathSinF((s16)((anim << 11) / 27)) + 0.3;
+        gSfxVoicePitch[slot] = mathSinF((s16)((anim << 11) / 27)) + 0.3;
         D_80770BC0[slot] = 2.0f;
     }
 }

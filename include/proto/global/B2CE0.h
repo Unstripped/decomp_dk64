@@ -2,43 +2,43 @@
 #ifndef PROTO_GLOBAL_B2CE0_H
 #define PROTO_GLOBAL_B2CE0_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_806ADFE0
-void func_806ADFE0(void);
+#ifndef PROTO_SKIP_behaviourTumbleDebrisUpdate
+void behaviourTumbleDebrisUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorSpawnChildAtNode
 void actorSpawnChildAtNode(s32, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806AE394
-void func_806AE394(f32, f32);
+#ifndef PROTO_SKIP_behaviourSearchlightScan
+void behaviourSearchlightScan(f32, f32);
 #endif
-#ifndef PROTO_SKIP_func_806AE588
-void func_806AE588(void);
+#ifndef PROTO_SKIP_behaviourMeleePatrolEnemyUpdate
+void behaviourMeleePatrolEnemyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806AEE08
-void func_806AEE08(void);
+#ifndef PROTO_SKIP_behaviourTryStartShot
+void behaviourTryStartShot(void);
 #endif
-#ifndef PROTO_SKIP_func_806AEE84
-void func_806AEE84(void);
+#ifndef PROTO_SKIP_behaviourProjectileEnemyUpdate
+void behaviourProjectileEnemyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806AF688
-void func_806AF688(void);
+#ifndef PROTO_SKIP_behaviourSearchlightGuardUpdate
+void behaviourSearchlightGuardUpdate(void);
 #endif
 #ifndef PROTO_SKIP_effectSpawnActorParticleBurst
 void effectSpawnActorParticleBurst(u8);
 #endif
-#ifndef PROTO_SKIP_func_806AFB58
-void func_806AFB58(void);
+#ifndef PROTO_SKIP_behaviourArmoredEnemyUpdate
+void behaviourArmoredEnemyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B02EC
-void func_806B02EC(void);
+#ifndef PROTO_SKIP_behaviourSimplePatrolEnemyUpdate
+void behaviourSimplePatrolEnemyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B0354
-void func_806B0354(void);
+#ifndef PROTO_SKIP_behaviourAmbushEnemyUpdate
+void behaviourAmbushEnemyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B0770
-s32 func_806B0770(void);
+#ifndef PROTO_SKIP_behaviourDetectNearbyExplosive
+s32 behaviourDetectNearbyExplosive(void);
 #endif
-#ifndef PROTO_SKIP_func_806B0848
-void func_806B0848(void);
+#ifndef PROTO_SKIP_behaviourExplosiveAwareEnemyUpdate
+void behaviourExplosiveAwareEnemyUpdate(void);
 #endif
 #endif

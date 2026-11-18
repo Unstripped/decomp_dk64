@@ -685,13 +685,13 @@ void throwableBarrelUpdate(void) {
         gCurrentActor->unk144 = 2;
         state->pitch = 360.0f;
         state->spin = 0.0f;
-        func_8066E6C8(gCurrentActor, 0, 1);
-        func_8066E6C8(gCurrentActor, 1, 0);
+        actorSetTriangleEnableById(gCurrentActor, 0, 1);
+        actorSetTriangleEnableById(gCurrentActor, 1, 0);
         gCurrentActor->flags2 |= 1;
         break;
     case 1:
-        func_8066E6C8(gCurrentActor, 0, 0);
-        func_8066E6C8(gCurrentActor, 1, 0);
+        actorSetTriangleEnableById(gCurrentActor, 0, 0);
+        actorSetTriangleEnableById(gCurrentActor, 1, 0);
         holderState = state->holder->customState;
         state->pitch = holderState->holdPitch;
         if (state->pitch < 0.0) {
@@ -701,8 +701,8 @@ void throwableBarrelUpdate(void) {
         gCurrentActor->flags2 &= ~1;
         break;
     case 2:
-        func_8066E6C8(gCurrentActor, 0, 1);
-        func_8066E6C8(gCurrentActor, 1, 0);
+        actorSetTriangleEnableById(gCurrentActor, 0, 1);
+        actorSetTriangleEnableById(gCurrentActor, 1, 0);
         if (--state->settleTimer == 0) {
             gCurrentActor->state = 0;
         } else if (actorHasActiveMovementFlags(gCurrentActor)) {
@@ -717,8 +717,8 @@ void throwableBarrelUpdate(void) {
         gCurrentActor->flags2 |= 1;
         break;
     case 3:
-        func_8066E6C8(gCurrentActor, 0, 1);
-        func_8066E6C8(gCurrentActor, 1, 1);
+        actorSetTriangleEnableById(gCurrentActor, 0, 1);
+        actorSetTriangleEnableById(gCurrentActor, 1, 1);
         gCurrentActor->speedY += gCarryGravity;
         if (gCurrentActor->speedY < gCarryMinFallSpeed) {
             gCurrentActor->speedY = gCarryMinFallSpeed;
@@ -736,8 +736,8 @@ void throwableBarrelUpdate(void) {
         gCurrentActor->state = 8;
         break;
     case 5:
-        func_8066E6C8(gCurrentActor, 0, 1);
-        func_8066E6C8(gCurrentActor, 1, 1);
+        actorSetTriangleEnableById(gCurrentActor, 0, 1);
+        actorSetTriangleEnableById(gCurrentActor, 1, 1);
         state->floatPitch -= 3.0;
         if (state->floatPitch < 270.0) {
             state->floatPitch = 270.0f;
@@ -2454,9 +2454,9 @@ void cannonUpdate(void) {
             renderCallbacksRegister(playerViewDrawCrosshair, gPrimaryPlayerActor, 3);
             renderCallbacksRegister(func_806FEF7C, gPrimaryPlayerActor, 3);
         }
-        func_8066E6C8(gCurrentActor, 0, 0);
+        actorSetTriangleEnableById(gCurrentActor, 0, 0);
     } else {
-        func_8066E6C8(gCurrentActor, 0, 1);
+        actorSetTriangleEnableById(gCurrentActor, 0, 1);
     }
     if (sub->active != 0) {
         renderCallbacksRegister(renderRemainingShotsHUD, sub, 3);

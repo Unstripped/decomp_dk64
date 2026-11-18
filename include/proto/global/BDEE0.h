@@ -18,8 +18,8 @@ s32 actorBuildNodeAlignedMatrix(u8, u8, f32, f32, f32);
 #ifndef PROTO_SKIP_behaviourArmadilloInitRollState
 void behaviourArmadilloInitRollState(void);
 #endif
-#ifndef PROTO_SKIP_behaviourArmadilloAimAndShoot
-s32 behaviourArmadilloAimAndShoot(u8, s16);
+#ifndef PROTO_SKIP_behaviourAttachToZoneOccupant
+s32 behaviourAttachToZoneOccupant(u8, s16);
 #endif
 #ifndef PROTO_SKIP_behaviourArmadilloMoveTowardTarget
 void behaviourArmadilloMoveTowardTarget(f32);
@@ -27,8 +27,8 @@ void behaviourArmadilloMoveTowardTarget(f32);
 #ifndef PROTO_SKIP_behaviourArmadilloStepPatrol
 void behaviourArmadilloStepPatrol(void);
 #endif
-#ifndef PROTO_SKIP_func_806BA93C
-void func_806BA93C();
+#ifndef PROTO_SKIP_behaviourRockingWalk
+void behaviourRockingWalk();
 #endif
 #ifndef PROTO_SKIP_behaviourFairyUpdate
 void behaviourFairyUpdate(void);

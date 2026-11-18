@@ -5,8 +5,8 @@
 #include "render.h"
 struct AnimTable;
 struct MeshBlob;
-#ifndef PROTO_SKIP_func_807094D0
-void func_807094D0();
+#ifndef PROTO_SKIP_transitionStart
+void transitionStart();
 #endif
 #ifndef PROTO_SKIP_fbBuildTileTable
 void fbBuildTileTable(s32, s32);

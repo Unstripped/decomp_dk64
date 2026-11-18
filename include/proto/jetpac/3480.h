@@ -3,8 +3,8 @@
 #define PROTO_JETPAC_3480_H
 #include "common.h"
 #include "jetpac.h"
-#ifndef PROTO_SKIP_jetpacRandSpawnX
-s32 jetpacRandSpawnX(void);
+#ifndef PROTO_SKIP_jetpacRandBonusDelay
+s32 jetpacRandBonusDelay(void);
 #endif
 #ifndef PROTO_SKIP_jetpacRandItemX
 s32 jetpacRandItemX(void);

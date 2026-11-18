@@ -531,7 +531,7 @@ void menuHandleConfirmationInput(Actor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
 }
 
-extern s8 D_80033804[];
+extern s8 sMenuKongUnlocked[];
 extern s32 D_8003380C;
 extern s32 D_80033810;
 extern s32 D_80033814;
@@ -543,7 +543,7 @@ Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     s16 textX;
     s16 textY;
     MenuScreenState *state = actor->customState;
-    s8 *iconFlag = D_80033804;
+    s8 *iconFlag = sMenuKongUnlocked;
     s32 i = 0;
     f32 iconScale = 3.0f;
     f32 scale;
@@ -617,7 +617,7 @@ extern u8 D_80720D14;
 extern u8 D_80720C34;
 extern void *gKongIconSprites[];
 extern s16 D_807505B2[];
-extern u32 D_80750AB0;
+extern u32 gPlayTimeBaseSeconds;
 extern s32 D_8003380C;
 extern s32 D_80033810;
 extern f32 D_80033F4C;
@@ -640,13 +640,13 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_8072052C, 0x76, 0x91, 0.6f, 2, 9);
     D_80033F4C = 1600.0f;
     eepromLoadPlayerData(D_80033F48, 0);
-    D_80033804[0] = 1;
+    sMenuKongUnlocked[0] = 1;
     for (i = 1, flagIds = D_807505B2; i < 5; i++, flagIds++) {
         flag = flagGet(flagIds[-1], 0);
-        D_80033804[i] = flag;
+        sMenuKongUnlocked[i] = flag;
     }
     for (i = 0; i < 5; i++) {
-        menuSpawnUiElementEffect(state, D_80033804[i] != 0 ? gKongIconSprites[i] : &D_807211D0, i, i, 0.8f, 2, 0xF);
+        menuSpawnUiElementEffect(state, sMenuKongUnlocked[i] != 0 ? gKongIconSprites[i] : &D_807211D0, i, i, 0.8f, 2, 0xF);
     }
     osPiReadIo(menuDecodePiAddressConstant(0xAFFE1464), &ioVal);
     expected = menuDecodePiAddressConstant(0x0107183B);
@@ -660,7 +660,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
         }
         row++;
     }
-    D_80033814 = D_80750AB0 / 60;
+    D_80033814 = gPlayTimeBaseSeconds / 60;
     D_80033810 = D_80033814 / 60;
     D_80033814 -= D_80033810 * 60;
     D_80033F51 = menuCalculateGamePercentage();
@@ -1092,15 +1092,15 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     if (!(gMenuPlayerCharacterSel[j] & 0x80)) {
                         gPlayerCharacterId[j] = gMenuPlayerCharacterSel[j];
                         mask |= bits;
-                        D_807552E4.playerControllerSlots[gActivePlayerCount] = D_8076A100[j];
+                        gMpSettings.playerControllerSlots[gActivePlayerCount] = D_8076A100[j];
                         gActivePlayerCount++;
                     }
                 }
                 controllerSetActiveMask(mask);
-                D_807552E4.unk0 = D_8003382C[D_8076A104];
-                D_807552E4.gameMode = D_80033834[D_8074451C];
-                D_807552E4.limit = D_80744520;
-                D_807552E4.mapIndex = D_80744538;
+                gMpSettings.unk0 = D_8003382C[D_8076A104];
+                gMpSettings.gameMode = D_80033834[D_8074451C];
+                gMpSettings.limit = D_80744520;
+                gMpSettings.mapIndex = D_80744538;
                 D_80750ABC = D_8003384C[D_80744534];
                 sMenuMatchStarting = 1;
                 D_80744514 = 2;
@@ -2519,17 +2519,17 @@ Gfx *menuDrawScrollSelector(Gfx *dl, MenuScreenState *state, u8 **strTable, s32 
     return dl;
 }
 
-extern f32 D_80033F68[];
-extern f32 D_80033F80[];
-extern f32 D_80033F98[];
+extern f32 sMenuElementX[];
+extern f32 sMenuElementY[];
+extern f32 sMenuElementScale[];
 
 Gfx *menuSetElementCoordinates(Gfx *dl, s32 elemIdx, f32 posX, f32 posY, f32 scale) {
     elemIdx &= 0x7F;
     posX *= 4.0f;
     posY *= 4.0f;
-    D_80033F68[elemIdx] = posX - 32.0;
-    D_80033F80[elemIdx] = posY - 100.0;
-    D_80033F98[elemIdx] = scale * 1.333;
+    sMenuElementX[elemIdx] = posX - 32.0;
+    sMenuElementY[elemIdx] = posY - 100.0;
+    sMenuElementScale[elemIdx] = scale * 1.333;
     return dl;
 }
 
@@ -3012,7 +3012,7 @@ typedef struct MenuUiRgba {
     u8 a;
 } MenuUiRgba;
 
-extern MenuUiRgba D_800337DC[];
+extern MenuUiRgba sMenuKongColors[];
 
 void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
     MenuScreenState *state = elemActor->data;
@@ -3214,16 +3214,16 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
         }
         case 15: {
             idx = (s32)target->spawnX;
-            elemActor->x = D_80033F68[idx];
-            elemActor->y = D_80033F80[idx];
-            elemActor->scaleX = D_80033F98[idx];
-            elemActor->scaleY = D_80033F98[idx];
-            D_80033F68[idx] = -200.0f;
-            D_80033F80[idx] = -200.0f;
-            if (D_80033804[idx] == 0) {
-                elemActor->red = (D_800337DC + idx)->r; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; D_800337DC[idx].f shares the 0x9688 sll and loses it (Q0776)
-                elemActor->green = (D_800337DC + idx)->g; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; D_800337DC[idx].f shares the 0x9688 sll and loses it (Q0776)
-                elemActor->blue = (D_800337DC + idx)->b; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; D_800337DC[idx].f shares the 0x9688 sll and loses it (Q0776)
+            elemActor->x = sMenuElementX[idx];
+            elemActor->y = sMenuElementY[idx];
+            elemActor->scaleX = sMenuElementScale[idx];
+            elemActor->scaleY = sMenuElementScale[idx];
+            sMenuElementX[idx] = -200.0f;
+            sMenuElementY[idx] = -200.0f;
+            if (sMenuKongUnlocked[idx] == 0) {
+                elemActor->red = (sMenuKongColors + idx)->r; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; sMenuKongColors[idx].f shares the 0x9688 sll and loses it (Q0776)
+                elemActor->green = (sMenuKongColors + idx)->g; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; sMenuKongColors[idx].f shares the 0x9688 sll and loses it (Q0776)
+                elemActor->blue = (sMenuKongColors + idx)->b; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; sMenuKongColors[idx].f shares the 0x9688 sll and loses it (Q0776)
             }
             break;
         }

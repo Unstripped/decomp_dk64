@@ -63,7 +63,7 @@ f32 func_806FDA8C(s16 resourceId) {
     return gfxResourceFindById(resourceId)->timer;
 }
 
-void func_806FDAB8(s16 resourceId, f32 timer) {
+void gfxResourceSetTimer(s16 resourceId, f32 timer) {
     gfxResourceFindById(resourceId)->timer = timer;
 }
 

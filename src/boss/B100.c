@@ -162,7 +162,7 @@ void bossDogadonStep(void) {
             gCurrentActor->unk155++;
             break;
         case 2:
-            gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->entries->x, D_807FDCA0->entries->z, gCurrentActor->x, gCurrentActor->z), 10.0f);
+            gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(gBehaviourZone->entries->x, gBehaviourZone->entries->z, gCurrentActor->x, gCurrentActor->z), 10.0f);
             break;
         case 3:
             if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
@@ -409,7 +409,7 @@ void bossKRoolTinyStep(void) {
     }
     scriptOpcodes = gKRoolTinyPhaseScripts[scriptState->phase];
     if (gCurrentActor->state) {
-        ZoneEntry *p = D_807FDCA0->entries;
+        ZoneEntry *p = gBehaviourZone->entries;
         camClosestPointOnSegment(gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, &gPrimaryPlayerActor->x, &dummyY, &gPrimaryPlayerActor->z);
         gPrimaryPlayerActor->yaw = 0xFD2;
         gActivePlayerState->targetSpeed = 150.0f;
@@ -445,7 +445,7 @@ void bossKRoolTinyStep(void) {
         }
         break;
     case 0:
-        func_80724A20();
+        volumeTriggerApplyActorState();
         break;
     case 1:
         bossActorGroupCommand(gCurrentActor, 0xF, 0x410, 0);

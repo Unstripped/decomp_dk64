@@ -114,7 +114,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     return gfx;
 }
 
-extern u64 D_807445B0;
+extern u64 gLastPauseDuration;
 extern u64 gCamPathTimeDelta;
 extern s32 gCurrentMap;
 
@@ -141,7 +141,7 @@ void hudCountdownTimerUpdate(void) {
         gCurrentActor->state = 2;
         gCurrentActor->unk155 = 1;
     }
-    timer->startTime += D_807445B0;
+    timer->startTime += gLastPauseDuration;
     if (gCurrentActor->unk15F == 0xB) {
         timer->startTime += gCamPathTimeDelta;
     }
@@ -152,7 +152,7 @@ void hudCountdownTimerUpdate(void) {
     }
     nextBeepAngle = (s32)((func_806FDA8C(timer->textId) - 1.5707964f) / 3.1415927f) * 3.1415927f + 3.1415927f + 1.5707964f;
     angle = usec / 10000.0 / 100.0 * 3.1415927410125732 + 1.5707963705062866;
-    func_806FDAB8(timer->textId, 0.0f);
+    gfxResourceSetTimer(timer->textId, 0.0f);
     secsLeft = timer->totalSecs - timer->elapsedSecs;
     switch (gCurrentActor->state) {
     case 1:
@@ -163,7 +163,7 @@ void hudCountdownTimerUpdate(void) {
                 gCurrentActor->alpha += 3;
             }
         }
-        func_806FDAB8(timer->textId, 1.5707964f);
+        gfxResourceSetTimer(timer->textId, 1.5707964f);
         gCurrentActor->yawSpeed = 0;
         break;
     case 4:
@@ -179,7 +179,7 @@ void hudCountdownTimerUpdate(void) {
         }
         secsLeft = timer->totalSecs - timer->elapsedSecs;
         if (secsLeft >= 0) {
-            func_806FDAB8(timer->textId, angle < 0.0f ? 0.0f : angle);
+            gfxResourceSetTimer(timer->textId, angle < 0.0f ? 0.0f : angle);
             gCurrentActor->splineT = angle < 0.0f ? 0.0f : angle;
             if (nextBeepAngle <= angle) {
                 if (timer->elapsedSecs >= timer->totalSecs
@@ -257,7 +257,7 @@ void hudCountdownTimerUpdate(void) {
         }
         gCurrentActor->yawSpeed = 0;
         if (secsLeft <= 0 && secsLeft >= -2) {
-            func_806FDAB8(timer->textId, ((randomNonNegative() >> 15) % 180) / 180.0 * 3.1415927410125732 + 1.5707963705062866);
+            gfxResourceSetTimer(timer->textId, ((randomNonNegative() >> 15) % 180) / 180.0 * 3.1415927410125732 + 1.5707963705062866);
         }
         break;
     }

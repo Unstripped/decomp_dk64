@@ -252,7 +252,7 @@ void func_806C498C(void) {
 }
 
 
-void func_806C49D0(void) {
+void actorPerMapCarrierUpdate(void) {
     behaviourFrameBegin();
     switch (gCurrentMap) {
         case 0x26:
@@ -349,14 +349,14 @@ u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
 }
 
 
-void func_806C4E8C(void) {
+void targetGameHideCounter(void) {
     slotQueueSetDisplayMode(5, 0, 0);
 }
 
 
-void func_806C4EB4(void) {
+void targetGameEndRound(void) {
     csModelStateSetFirstByte(0x2C, 0xB);
-    func_806C4E8C();
+    targetGameHideCounter();
 }
 
 
@@ -370,7 +370,7 @@ void actorStartRewardCutscene(u8 subAction, u8 succeeded) {
     gCurrentActor->movePitch = 0;
 }
 
-void func_806C4F5C(void) {
+void actorTargetGameHostUpdate(void) {
     s32 pad;
     s16 *cooldownPtr;
     f32 dx;
@@ -456,7 +456,7 @@ void func_806C4F5C(void) {
                 gCurrentActor->movePitch++;
             } else if (camIsCutsceneActive() == 0) {
                 if (gCurrentActor->yawSpeed == 0) {
-                    func_806C4EB4();
+                    targetGameEndRound();
                     hudSpawnTextScreen(3);
                     gCurrentActor->state = 0x2A;
                     gCurrentActor->unk155 = 0;
@@ -468,14 +468,14 @@ void func_806C4F5C(void) {
                 gBehaviourWorkState->unk2E++;
                 if (gBehaviourWorkState->unk2E >= 0x83) {
                     gBehaviourAnimState->flags &= ~4;
-                    func_806C4EB4();
+                    targetGameEndRound();
                     gCurrentActor->state = 0x3C;
                 }
             }
             behaviourUpdateShadowAlpha();
             break;
         case 0x2A:
-            func_80724A20();
+            volumeTriggerApplyActorState();
             break;
         case 0x30:
             gCurrentActor->yaw = 0xA82;
@@ -502,10 +502,10 @@ void func_806C4F5C(void) {
     currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
-void func_806C55D8(void) {
+void actorBehaviourNoop(void) {
 }
 
-void func_806C55E0(void) {
+void actorGatedTargetGameHostUpdate(void) {
     s32 pad;
     s16 *cooldownPtr;
     f32 dx;
@@ -527,7 +527,7 @@ void func_806C55E0(void) {
     switch (gCurrentActor->state) {
         case 0x1E:
             effectSpawnSmoke(1);
-            func_80724A20();
+            volumeTriggerApplyActorState();
             break;
         case 0x27:
             switch (gCurrentActor->unk155) {
@@ -596,7 +596,7 @@ void func_806C55E0(void) {
                     gCurrentActor->roll = 0;
                     if (!(gCurrentActor->flags & 0x2000000)) {
                         camResumePath();
-                        func_806C4E8C();
+                        targetGameHideCounter();
                         if (gCurrentActor->sub4->animId == 0x35A && gPrimaryPlayerActor->state == 0x63) {
                             hudSpawnTextScreen(4);
                             gCurrentActor->unk155 = 3;
@@ -613,7 +613,7 @@ void func_806C55E0(void) {
                     gCurrentActor->state = 0x3C;
                     break;
                 case 3:
-                    func_80724A20();
+                    volumeTriggerApplyActorState();
                     break;
             }
             break;
@@ -675,11 +675,11 @@ typedef struct CutsceneRestoreState {
 
 extern s16 gCurrentLevelIndex;
 extern s32 D_8071FB08;
-extern s16 D_807FD802;
+extern s16 gPhotoSubjectDepthDist;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
 
-void func_806C5C20(void) {
+void actorPhotoSubjectUpdate(void) {
     f32 screenX;
     f32 screenY;
     f32 dist;
@@ -708,7 +708,7 @@ void func_806C5C20(void) {
         dz = gPlayerSlots->camZ - gCurrentActor->z;
         dx = gPlayerSlots->camX - gCurrentActor->x;
         dist = sqrtf(dz * dz + dx * dx) - gPlayerSlots->nearClip;
-        if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < D_807FD802) {
+        if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < gPhotoSubjectDepthDist) {
             if (gActivePlayerState->unk1EC != 1) {
                 if (behaviourIsTargetWithinAngle(0x1388) != 0) {
                     actorScriptStart(gCurrentActor, 0x2B6);
@@ -785,7 +785,7 @@ void cutsceneRestoreUpdate(void) {
 }
 
 
-void func_806C61C8(void) {
+void actorPresentBeforePlayerUpdate(void) {
     f32 frontX;
     f32 frontZ;
 

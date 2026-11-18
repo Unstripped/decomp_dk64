@@ -161,7 +161,7 @@ void slotQueueUpdateGoldenBananaTotal(u8 player) {
 
 
 extern s16 D_80744544;
-extern u16 D_80750AC4;
+extern u16 gMinigameCoinCount;
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
  * screen position (func_806F8004). */
@@ -276,7 +276,7 @@ void slotQueueInit(s32 reset) {
                     func_806F8004(-19.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 11:
-                    base[j].value = &D_80750AC4;
+                    base[j].value = &gMinigameCoinCount;
                     base[j].x = 0x122; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -563,7 +563,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
                     total = kongInv->coloredBananas[world] + kongInv->bananasDelivered[world];
                     if ((total >= 0x4B) && ((total - delta) < 0x4B)) {
                         flagSet(flagGridIndex(0x225, world, gPlayerCharacterId[player]), 1, 0);
-                        func_80687C48();
+                        effectShowBananaMedalIcon();
                     }
                     if ((total == 0x64) && ((total - delta) < 0x64)) {
                         sfxAllocateChannel(0xAC, 1.0f);

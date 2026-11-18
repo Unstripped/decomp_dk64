@@ -955,7 +955,7 @@ void playerStateFallDamageCrouch(void) {
 }
 
 void playerApplyImpactRumble(s32 inputId) {
-    func_80685210(0.5f, 0x64, 5);
+    effectSpawnSpeedDustAtBone(0.5f, 0x64, 5);
     gCurrentActor->unkF8 = 0x12C;
     if ((gCurrentActor->y - gCurrentActor->floorY) > 5.0f) {
         if (gCurrentActor->accelY == -260.0f) {
@@ -1050,7 +1050,7 @@ void playerStateSlideFall(void) {
 }
 
 void playerStateSlideBrake(void) {
-    func_80685210(0.5f, 0x64, 5);
+    effectSpawnSpeedDustAtBone(0.5f, 0x64, 5);
     playerInputUpdate(0x3C);
     playerApplyFullPhysics();
     if (gCurrentActor->speedXZ == 0.0f && gCurrentActor->floorSlopeFactor == 0.0f) {
@@ -1060,7 +1060,7 @@ void playerStateSlideBrake(void) {
 }
 
 void playerStateSlideReverse(void) {
-    func_80685210(0.5f, 0x64, 5);
+    effectSpawnSpeedDustAtBone(0.5f, 0x64, 5);
     playerInputUpdate(0x3B);
     playerApplyFullPhysics();
     if (gCurrentActor->speedXZ == 0.0f && gCurrentActor->floorSlopeFactor == 0.0f) {
@@ -1547,7 +1547,7 @@ extern s32 D_80750FCC;
 extern s32 D_80750FD0;
 extern u8 D_80750FD4;
 extern f32 D_80750FD8;
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 extern f32 D_8075352C[];
 
 void playerStateSlopeSlide(void) {
@@ -1571,7 +1571,7 @@ void playerStateSlopeSlide(void) {
             effectSetSpeed(D_80750FC4);
             effectSetCallback(&effectSinkBySpeedUpdate);
             effectSetDepth(1);
-            effectCreateAtPosition(D_8074E880[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + nodeX, y * scale + nodeY, z * scale + nodeZ);
+            effectCreateAtPosition(gPuffSprites[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + nodeX, y * scale + nodeY, z * scale + nodeZ);
         }
     }
     switch (gCurrentActor->unk155) {

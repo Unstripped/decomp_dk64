@@ -95,20 +95,20 @@ AudioSynthesizerConfig D_807452D0 = { {
 
 // .bss 0x8076D4C0-0x80770560
 SchedClient D_8076D4C0;
-AudioContext D_8076D4D0;
-OSThread D_8076D4E8;
-OSMesgQueue D_8076D698;
+AudioContext sAudioMgr;
+OSThread sAudioThread;
+OSMesgQueue sAudioFrameMsgQ;
 OSMesg D_8076D6B0[8];
 OSMesgQueue D_8076D6D0;
 OSMesg D_8076D6E8[8];
-AudioAlState D_8076D708;
-AudioDmaNode D_8076FE68[40];
-AudioDmaContext D_80770188;
-s32 D_80770194;
+AudioAlState sAudioAlGlobals;
+AudioDmaNode sAudioDmaBuffers[40];
+AudioDmaContext sAudioDmaState;
+s32 sAudioMinFrameSize;
 s32 D_80770198;
-s32 D_8077019C;
-s32 D_807701A0;
-AudioAlState *D_807701A4;
+s32 sAudioMaxFrameSize;
+s32 sAudioMaxCmdCount;
+AudioAlState *sAudioAlGlobalsPtr;
 OSIoMesg D_807701A8[32];
 OSMesgQueue D_807704A8;
 OSMesg D_807704C0[32];
@@ -124,49 +124,49 @@ void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfi
 
     initArgs->dmaNew = audioDmaNew;
     initArgs->outputRate = sAudioFreq;
-    D_80770194 = 0x228;
-    D_8077019C = 0x398;
+    sAudioMinFrameSize = 0x228;
+    sAudioMaxFrameSize = 0x398;
     synConfig = D_807452D0;
     initArgs->params[0] = synConfig.fxParams[0];
     initArgs->params[1] = synConfig.fxParams[1];
-    n_alInit(&D_8076D708.globals, initArgs);
-    D_807701A4 = &D_8076D708;
+    n_alInit(&sAudioAlGlobals.globals, initArgs);
+    sAudioAlGlobalsPtr = &sAudioAlGlobals;
 
-    D_8076FE68[0].prev = NULL;
-    D_8076FE68[0].next = NULL;
+    sAudioDmaBuffers[0].prev = NULL;
+    sAudioDmaBuffers[0].next = NULL;
 
     for (i = 0; i < 39; i++) {
-        alLink((ALLink *)&D_8076FE68[i + 1], (ALLink *)&D_8076FE68[i]);
-        D_8076FE68[i].ptr = alHeapAlloc(initArgs->heap, 1, 0x800);
+        alLink((ALLink *)&sAudioDmaBuffers[i + 1], (ALLink *)&sAudioDmaBuffers[i]);
+        sAudioDmaBuffers[i].ptr = alHeapAlloc(initArgs->heap, 1, 0x800);
     }
-    D_8076FE68[i].ptr = alHeapAlloc(initArgs->heap, 1, 0x800);
+    sAudioDmaBuffers[i].ptr = alHeapAlloc(initArgs->heap, 1, 0x800);
 
     for (i = 0; i < 2; i++) {
-        D_8076D4D0.cmdBuffers[i] = alHeapAlloc(initArgs->heap, 1, taskConfig->cmdCount * sizeof(Acmd));
+        sAudioMgr.cmdBuffers[i] = alHeapAlloc(initArgs->heap, 1, taskConfig->cmdCount * sizeof(Acmd));
     }
 
-    D_807701A0 = taskConfig->cmdCount;
+    sAudioMaxCmdCount = taskConfig->cmdCount;
     for (i = 0; i < 3; i++) {
-        D_8076D4D0.tasks[i] = alHeapAlloc(initArgs->heap, 1, sizeof(AudioTask));
-        D_8076D4D0.tasks[i]->msgBuf = 2;
-        D_8076D4D0.tasks[i]->self = D_8076D4D0.tasks[i];
-        D_8076D4D0.tasks[i]->sampleBuffer = alHeapAlloc(initArgs->heap, 1, D_8077019C * 4);
+        sAudioMgr.tasks[i] = alHeapAlloc(initArgs->heap, 1, sizeof(AudioTask));
+        sAudioMgr.tasks[i]->msgBuf = 2;
+        sAudioMgr.tasks[i]->self = sAudioMgr.tasks[i];
+        sAudioMgr.tasks[i]->sampleBuffer = alHeapAlloc(initArgs->heap, 1, sAudioMaxFrameSize * 4);
     }
     osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
-    osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
+    osCreateMesgQueue(&sAudioFrameMsgQ, D_8076D6B0, 8);
     osCreateMesgQueue(&D_807704A8, D_807704C0, 0x20);
 
-    osCreateThread(&D_8076D4E8, 4, audioThreadMain, NULL, D_8076FE68, threadPriority);
+    osCreateThread(&sAudioThread, 4, audioThreadMain, NULL, sAudioDmaBuffers, threadPriority);
 }
 
 void audioThreadStart(void) {
     D_807452CC = 1;
-    osStartThread(&D_8076D4E8);
+    osStartThread(&sAudioThread);
 }
 
 void audioThreadStop(s32 unused) {
     if (D_807452CC != 0) {
-        osStopThread(&D_8076D4E8);
+        osStopThread(&sAudioThread);
     }
 }
 
@@ -181,18 +181,18 @@ void audioThreadMain(void *arg) {
     done = 0;
     prevAiTask = NULL;
     first = 1;
-    schedAddClient(&gScheduler, &D_8076D4C0, &D_8076D698, 2, 2);
-    osSendMesg(&D_8076D698, (OSMesg)5, OS_MESG_NOBLOCK);
+    schedAddClient(&gScheduler, &D_8076D4C0, &sAudioFrameMsgQ, 2, 2);
+    osSendMesg(&sAudioFrameMsgQ, (OSMesg)5, OS_MESG_NOBLOCK);
     numBuffers = 3;
     do {
-        osRecvMesg(&D_8076D698, &receivedMsg, OS_MESG_BLOCK);
+        osRecvMesg(&sAudioFrameMsgQ, &receivedMsg, OS_MESG_BLOCK);
         switch ((s32)receivedMsg) {
         case 5:
             if (gScheduler.audioListHead != NULL) {
                 osSendMesg(&gScheduler.interruptQ, (OSMesg)0x29E, OS_MESG_BLOCK);
             }
-            audioBuildTask(D_8076D4D0.tasks[D_807452C0 % numBuffers], prevAiTask);
-            prevAiTask = D_8076D4D0.tasks[(D_807452C0 + 1) % numBuffers];
+            audioBuildTask(sAudioMgr.tasks[D_807452C0 % numBuffers], prevAiTask);
+            prevAiTask = sAudioMgr.tasks[(D_807452C0 + 1) % numBuffers];
             if (!first) {
                 osRecvMesg(&D_8076D6D0, &receivedMsg, OS_MESG_BLOCK);
                 audioCheckAiLength(prevAiTask);
@@ -205,7 +205,7 @@ void audioThreadMain(void *arg) {
             break;
         }
     } while (!done);
-    n_alClose(&D_8076D708.globals);
+    n_alClose(&sAudioAlGlobals.globals);
 }
 
 extern u8 D_805FB000[];
@@ -230,10 +230,10 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
         osAiSetNextBuffer(prevTask->sampleBuffer, prevTask->sampleCount * 4);
     }
     if ((aiLen < 0x5C) && (sAudioFrameHoldCount == 0)) {
-        task->sampleCount = D_8077019C;
+        task->sampleCount = sAudioMaxFrameSize;
         sAudioFrameHoldCount = 2;
     } else if ((aiLen >= 0x115) && (sAudioFrameHoldCount == 0)) {
-        task->sampleCount = D_80770194;
+        task->sampleCount = sAudioMinFrameSize;
         sAudioFrameHoldCount = 2;
     } else {
         task->sampleCount = 0x2E0;
@@ -242,7 +242,7 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
         }
     }
 
-    cmdEnd = n_alAudioFrame(D_8076D4D0.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
+    cmdEnd = n_alAudioFrame(sAudioMgr.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
     if (cmdCount == 0) {
         return 0;
     }
@@ -252,8 +252,8 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
     task->msg = (OSMesg)&task->msgBuf;
     task->flags = 1;
     task->client = &D_8076D4C0;
-    task->task.t.data_ptr = (u64 *)D_8076D4D0.cmdBuffers[D_807452C8];
-    task->task.t.data_size = (cmdEnd - (Acmd *)D_8076D4D0.cmdBuffers[D_807452C8]) * sizeof(Acmd);
+    task->task.t.data_ptr = (u64 *)sAudioMgr.cmdBuffers[D_807452C8];
+    task->task.t.data_size = (cmdEnd - (Acmd *)sAudioMgr.cmdBuffers[D_807452C8]) * sizeof(Acmd);
     task->task.t.type = M_AUDTASK;
     task->task.t.ucode_boot = (u64 *)D_805FB000;
     task->task.t.ucode_boot_size = D_805FB0D0 - D_805FB000;
@@ -287,7 +287,7 @@ s32 audioDmaCallback(u32 addr, s32 len, void *state) {
     s32 end;
 
     last = NULL;
-    node = D_80770188.firstUsed;
+    node = sAudioDmaState.firstUsed;
     while (node != NULL) {
         end = node->startAddr + 0x800;
         if (addr < node->startAddr) {
@@ -302,23 +302,23 @@ s32 audioDmaCallback(u32 addr, s32 len, void *state) {
         node = node->next;
     }
 
-    node = D_80770188.firstFree;
+    node = sAudioDmaState.firstFree;
     if (node == NULL) {
-        return osVirtualToPhysical(D_80770188.firstUsed);
+        return osVirtualToPhysical(sAudioDmaState.firstUsed);
     }
 
-    D_80770188.firstFree = node->next;
+    sAudioDmaState.firstFree = node->next;
     alUnlink((ALLink *)node);
     if (last != NULL) {
         alLink((ALLink *)node, (ALLink *)last);
-    } else if (D_80770188.firstUsed != NULL) {
-        last = D_80770188.firstUsed;
-        D_80770188.firstUsed = node;
+    } else if (sAudioDmaState.firstUsed != NULL) {
+        last = sAudioDmaState.firstUsed;
+        sAudioDmaState.firstUsed = node;
         node->next = last;
         node->prev = NULL;
         last->prev = node;
     } else {
-        D_80770188.firstUsed = node;
+        sAudioDmaState.firstUsed = node;
         node->next = NULL;
         node->prev = NULL;
     }
@@ -335,12 +335,12 @@ s32 audioDmaCallback(u32 addr, s32 len, void *state) {
 
 
 void *audioDmaNew(AudioDmaContext **outContext) {
-    if (D_80770188.initialized == 0) {
-        D_80770188.firstUsed = NULL;
-        D_80770188.firstFree = &D_8076FE68[0];
-        D_80770188.initialized = 1;
+    if (sAudioDmaState.initialized == 0) {
+        sAudioDmaState.firstUsed = NULL;
+        sAudioDmaState.firstFree = &sAudioDmaBuffers[0];
+        sAudioDmaState.initialized = 1;
     }
-    *outContext = &D_80770188;
+    *outContext = &sAudioDmaState;
     return audioDmaCallback;
 }
 
@@ -356,17 +356,17 @@ void audioDmaFrameUpdate(void) {
     for (i = 0; i < D_807452C4; i++) {
         osRecvMesg(&D_807704A8, &msg, OS_MESG_NOBLOCK);
     }
-    for (node = D_80770188.firstUsed; node != NULL; node = next) {
+    for (node = sAudioDmaState.firstUsed; node != NULL; node = next) {
         next = node->next;
         if ((node->lastFrame + 1) < D_807452C0) {
-            if (node == D_80770188.firstUsed) {
-                D_80770188.firstUsed = node->next;
+            if (node == sAudioDmaState.firstUsed) {
+                sAudioDmaState.firstUsed = node->next;
             }
             alUnlink((ALLink *)node);
-            if (D_80770188.firstFree != NULL) {
-                alLink((ALLink *)node, (ALLink *)D_80770188.firstFree);
+            if (sAudioDmaState.firstFree != NULL) {
+                alLink((ALLink *)node, (ALLink *)sAudioDmaState.firstFree);
             } else {
-                D_80770188.firstFree = node;
+                sAudioDmaState.firstFree = node;
                 node->next = NULL;
                 node->prev = NULL;
             }

@@ -515,7 +515,7 @@ void func_806BF218(void) {
                     if (flagGet(0xFD, 0)) {
                         other = gCurrentActor->parentActor;
                         if (((FlagGatedSpawnData *)other->spawnData)->shownWhenFlagSet == 0) {
-                            func_8068A2FC(other);
+                            actorHideAndDisable(other);
                         } else {
                             actorScriptStart(gCurrentActor, 0x3A8);
                             actorScriptStart(gCurrentActor->parentActor, 0x3AA);
@@ -525,7 +525,7 @@ void func_806BF218(void) {
                     } else {
                         other = gCurrentActor->parentActor;
                         if (((FlagGatedSpawnData *)other->spawnData)->shownWhenFlagSet == 1) {
-                            func_8068A2FC(other);
+                            actorHideAndDisable(other);
                         } else if (other->state == 1) {
                             actorScriptStart(gCurrentActor, 0x3A9);
                             actorScriptStart(gCurrentActor->parentActor, 0x3AB);
@@ -634,7 +634,7 @@ void func_806BF218(void) {
                                 break;
                             case 1:
                                 camResumePath();
-                                func_8068A2FC(gCurrentActor->parentActor);
+                                actorHideAndDisable(gCurrentActor->parentActor);
                                 spawn[0] = 1;
                                 spawn[1] = 1;
                                 spawn[2] = 0;

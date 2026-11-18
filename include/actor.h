@@ -1067,8 +1067,8 @@ typedef struct KongCharacterEntry {
 
 extern const KongCharacterEntry gKongCharacterTable[];
 
-// One loaded animation-asset cache slot (controllerAnimStateLoadAsset/controllerAnimFreeSub, 17B90);
-// D_807FB630[32] spans .bss 0x807FB630..0x807FB7B0 (D_807FB634 is the [0].asset split label).
+// One loaded animation-asset cache slot (controllerAnimStateLoadAsset/controllerAnimFreeModel, 17B90);
+// gModelCache[32] spans .bss 0x807FB630..0x807FB7B0 (D_807FB634 is the [0].asset split label).
 typedef struct ControllerStateEntry {
     /* 0x00 */ u16 assetId;
     /* 0x02 */ u16 refCount;
@@ -1076,7 +1076,7 @@ typedef struct ControllerStateEntry {
     /* 0x08 */ u8 cullSwap;
     /* 0x09 */ u8 pad9[3];
 } ControllerStateEntry; // size = 0xC
-extern ControllerStateEntry D_807FB630[32];
+extern ControllerStateEntry gModelCache[32];
 
 // One animation-clip cache slot (actorInit 7CA80; controllerAnimCacheGetOrLoad/controllerAnimCacheFree, 17B90);
 // gAnimClipCache[32] spans .bss 0x807FB7B0..0x807FB930, gAnimClipCacheCount counts the used slots (packed from 0).
@@ -1254,7 +1254,7 @@ extern Actor *gBehaviourTargetActor;
 extern SpawnNode *gBehaviourAnimState;
 extern SpawnNode *gBehaviourExtraState;
 extern SpawnEntry gSpawnEntryTable[];
-extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
+extern Zone *gBehaviourZone; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
 extern ZoneTable *gZoneTable;
 extern SpawnNodeList *gSpawnNodeList;
 extern ActorGlobalState gActorGlobalState;
@@ -1285,7 +1285,7 @@ typedef struct MpSettings {
     s32 mapIndex;
 } MpSettings; /* size 0x24 */
 
-extern MpSettings D_807552E4;
+extern MpSettings gMpSettings;
 
 // Per-player pad record (gPlayerPadState at 0x807FD610).
 typedef struct PadInputState {

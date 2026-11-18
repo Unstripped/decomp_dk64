@@ -347,7 +347,7 @@ void racePlayTireScreechSfx(void) {
 }
 
 extern s16 gSfxSourceVoice[];
-extern f32 D_80770B68[];
+extern f32 gSfxVoicePitch[];
 extern f32 D_80770BC0[];
 
 void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
@@ -355,11 +355,11 @@ void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
 
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
     gCurrentActor->unk74 = 1.0f;
-    D_80770B68[idx] = (f64)(moveSpeed * 0.05f) + 1.0;
+    gSfxVoicePitch[idx] = (f64)(moveSpeed * 0.05f) + 1.0;
     D_80770BC0[idx] = 1.0f;
 }
 
-extern s32 D_8002FC0C[];
+extern s32 raceCarResultCamPathIds[];
 
 void raceOpponentCarBehaviorUpdate(void) {
     s32 pad70[2];
@@ -460,7 +460,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     } else if (state->raceStatus == 4) {
         if (state->unk35 == 0) {
             if (flagGet(0x8B, 0) == 0) {
-                pathId = D_8002FC0C[raceCheckLapCompletionThreshold(state, aux->participant, 0xA)];
+                pathId = raceCarResultCamPathIds[raceCheckLapCompletionThreshold(state, aux->participant, 0xA)];
                 camStartPath(gCurrentActor, pathId, 1);
                 currentActorClearFlag();
             } else {

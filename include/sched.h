@@ -67,7 +67,7 @@ typedef struct {
 struct Actor;
 
 // Player struct array (stride 0x2F0) pointed to by gPlayerSlots
-// Health HUD state block (PlayerStruct.healthHud, hudDrawItemWithAlpha in 10D2D0.c).
+// Health HUD state block (PlayerStruct.healthHud, healthHudReset in 10D2D0.c).
 typedef struct HealthHudInit {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ s16 unk4;
@@ -140,7 +140,7 @@ typedef struct {
     /* 0x2D4 */ f32 bgRotX;
     /* 0x2D8 */ f32 bgRotY;
     union {
-        /* 0x2DC */ HealthHudInit healthHud; // health HUD state (hudDrawItemWithAlpha, 10D2D0.c)
+        /* 0x2DC */ HealthHudInit healthHud; // health HUD state (healthHudReset, 10D2D0.c)
         struct {
             /* 0x2DC */ f32 unk2DC;
             /* 0x2E0 */ u16 unk2E0; // health HUD flash phase (sinApprox * 65535)

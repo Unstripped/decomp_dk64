@@ -16,8 +16,8 @@ extern s32 osGetIntMask(s32 arg0);
 
 // 13980's .data (0x80746820-0x80746A30), definition order = address order: function-local
 // statics take their function's place (schedMain's sFirstAdvanceSkipped is 0x80746848)
-s32 D_80746820 = 2;
-s32 D_80746824 = 1;
+s32 gSchedSwapRetrace = 2;
+s32 gSchedPrevSwapRetrace = 1;
 u8 D_80746828 = 1;
 s16 D_8074682C = 1000;
 s8 D_80746830 = 1;
@@ -35,18 +35,18 @@ u64 D_807F04C8;
 u64 D_807F04D0;
 u32 D_807F04D8;
 u32 D_807F04DC;
-TaskNode *D_807F04E0;
+TaskNode *gSchedPendingSwapTask;
 u32 D_807F04E4;
 u32 D_807F04E8;
 u32 D_807F04EC;
 u32 D_807F04F0;
 u32 D_807F04F4;
-u64 D_807F04F8;
+u64 gSchedRetraceTime;
 u64 D_807F0500;
 u64 D_807F0508;
 u64 D_807F0510;
 u16 D_807F0518[20];
-OSTimer D_807F0540;
+OSTimer gSchedAudioTimer;
 
 void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retraceCount) {
     SchedConfig config;
@@ -54,7 +54,7 @@ void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retra
     config = D_80746838;
     sc->audioListTail = (TaskNode *)&sc->audioListHead;
     sc->gfxListTail = (TaskNode *)&sc->gfxListHead;
-    D_807F04E0 = NULL;
+    gSchedPendingSwapTask = NULL;
     osCreateMesgQueue(&sc->interruptQ, sc->intMsgs, 16);
     osCreateMesgQueue(&sc->cmdQ, sc->cmdMsgs, 16);
     osSetEventMesg(OS_EVENT_SP, &sc->interruptQ, (OSMesg)0x29B);
@@ -173,7 +173,7 @@ void schedMain(void *arg) {
             schedHandleRDP(sc);
             break;
         case 0x29F:
-            if (osSendMesg(D_807F0540.mq, D_807F0540.msg, OS_MESG_BLOCK) == -1) {  // ORIG: target compares the result at 0x4f0/0x4f4 (li at,-1; bnel v0,at), both arms rejoin the loop head
+            if (osSendMesg(gSchedAudioTimer.mq, gSchedAudioTimer.msg, OS_MESG_BLOCK) == -1) {  // ORIG: target compares the result at 0x4f0/0x4f4 (li at,-1; bnel v0,at), both arms rejoin the loop head
             }
             break;
         case 0x2A0:
@@ -186,7 +186,7 @@ void schedMain(void *arg) {
     }
 }
 
-u32 D_8074684C[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 };
+u32 sViModeIndexByTvType[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 };
 
 void schedHandleNewTask(SchedStruct *sc, TaskNode *task) {
     schedAppendTask(sc, task);
@@ -218,14 +218,14 @@ void schedHandleRetrace(SchedStruct *sc) {
 
     sc->retraceCount++;
     sc->unk280++;
-    D_807F04F8 = osGetTime();
+    gSchedRetraceTime = osGetTime();
     if (D_80744510 != 0) {
         if (D_80744510 == 1) {
             if (sViModeDelay == 0) {
                 osViBlack(1);
             }
             if (sViModeDelay == 60) {
-                osViSetMode(&osViModeTable[D_8074684C[osTvType]]);
+                osViSetMode(&osViModeTable[sViModeIndexByTvType[osTvType]]);
                 osViSetSpecialFeatures(OS_VI_GAMMA_OFF | OS_VI_DITHER_FILTER_ON);
                 osViBlack(0);
                 D_80744510 = 2;
@@ -234,19 +234,19 @@ void schedHandleRetrace(SchedStruct *sc) {
         }
         osViSwapBuffer((void *)gFramebuffers[0]);
     }
-    if (D_807F04E0 != NULL) {
+    if (gSchedPendingSwapTask != NULL) {
         if (gScreenRenderFlags & 2) {
             gScreenRenderFlags ^= 2;
             osViBlack(0);
         }
-        osViSwapBuffer(D_807F04E0->framebuffer);
-        D_80746824 = D_80746820;
-        D_80746820 = sc->retraceCount + 1;
+        osViSwapBuffer(gSchedPendingSwapTask->framebuffer);
+        gSchedPrevSwapRetrace = gSchedSwapRetrace;
+        gSchedSwapRetrace = sc->retraceCount + 1;
         osDpSetStatus(DPC_SET_FREEZE);
-        if (D_807F04E0->msgQ != NULL) {
-            schedSendMesgTimed(D_807F04E0->msgQ, D_807F04E0->msg, OS_MESG_NOBLOCK);
+        if (gSchedPendingSwapTask->msgQ != NULL) {
+            schedSendMesgTimed(gSchedPendingSwapTask->msgQ, gSchedPendingSwapTask->msg, OS_MESG_NOBLOCK);
         }
-        D_807F04E0 = NULL;
+        gSchedPendingSwapTask = NULL;
     } else {
         fb = osViGetCurrentFramebuffer();
         if (osViGetNextFramebuffer() == fb) {
@@ -269,7 +269,7 @@ void schedHandleRetrace(SchedStruct *sc) {
     }
     if (sc->audioListHead != NULL) {
         if ((sc->retraceCount & 1) == 0) {
-            osSetTimer(&D_807F0540, 0x445C0, 0, sc->audioListHead->client->msgQ, (OSMesg)5);
+            osSetTimer(&gSchedAudioTimer, 0x445C0, 0, sc->audioListHead->client->msgQ, (OSMesg)5);
         }
     }
     for (client = sc->clientList; client != NULL; client = client->next) {
@@ -323,18 +323,18 @@ void schedHandleRDP(SchedStruct *sc) {
         cond = 1;
     }
 
-    if (cond || D_80746820 != sc->retraceCount) {
-        D_807F04E0 = NULL;
+    if (cond || gSchedSwapRetrace != sc->retraceCount) {
+        gSchedPendingSwapTask = NULL;
         if (gScreenRenderFlags & 2) {
             gScreenRenderFlags ^= 2;
             osViBlack(0);
         }
         osViSwapBuffer(task->framebuffer);
-        D_80746824 = D_80746820;
-        D_80746820 = sc->retraceCount + 1;
+        gSchedPrevSwapRetrace = gSchedSwapRetrace;
+        gSchedSwapRetrace = sc->retraceCount + 1;
         osDpSetStatus(DPC_SET_FREEZE);
     } else {
-        D_807F04E0 = task;
+        gSchedPendingSwapTask = task;
     }
 
     D_807F04E4 = (osGetTime() - sc->unk288) / 0x1E91;
@@ -361,7 +361,7 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
             }
         }
         if (task->msgQ != NULL) {
-            if (D_807F04E0 == NULL || type != M_GFXTASK) {
+            if (gSchedPendingSwapTask == NULL || type != M_GFXTASK) {
                 if (task->flags & 0x40) {
                     schedSendMesgTimed(task->msgQ, task->msg, OS_MESG_NOBLOCK);
                 } else {
@@ -409,7 +409,7 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
         task = sc->gfxListHead;
         if (D_80746828 != 0) {
             sc->unk290 = osGetTime();
-            D_807F04F0 = (osGetTime() - D_807F04F8) / 0x1E91;
+            D_807F04F0 = (osGetTime() - gSchedRetraceTime) / 0x1E91;
             D_80746828 = 0;
         }
     }

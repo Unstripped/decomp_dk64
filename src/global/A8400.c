@@ -431,7 +431,7 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *state, f32 step) {
         break;
     default:
         if (state->key->animState != NULL) {
-            switch (controllerLookupStateByHash(state->key)) {
+            switch (controllerLookupModelAssetId(state->key)) {
             case 0x11:
             case 0x12:
             case 0x1D:

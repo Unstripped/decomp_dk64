@@ -113,7 +113,7 @@ void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     }
 }
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 void bossSpawnSparkles(void) {
     f32 sparkX;
@@ -134,7 +134,7 @@ void bossSpawnSparkles(void) {
         effectSetMode(2);
         effectSetCallback(effectPuffRiseUpdate);
         effectSetDepth(1);
-        effectCreateAtActorBone(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.5f, gCurrentActor, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
+        effectCreateAtActorBone(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], 1.5f, gCurrentActor, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
     }
 }
 
@@ -155,7 +155,7 @@ extern u8 D_8071FB34[];
 extern f32 gDefaultActorGravity;
 extern f32 D_807502FC;
 extern s32 gCurrentMap;
-extern ALBank *D_8076D1F8;
+extern ALBank *gSfxBank;
 
 extern Actor *gSpawnedActor;
 extern PlayerStruct *gPlayerSlots;
@@ -255,7 +255,7 @@ void bossPufftossStep(void) {
         if (state->sndHandle != 0) {
             n_alSndpStop(state->sndHandle);
         }
-        n_alSndpPlay(D_8076D1F8, sndId, 0x7FFF, 0x3F, 1.0f, 0, &state->sndHandle);
+        n_alSndpPlay(gSfxBank, sndId, 0x7FFF, 0x3F, 1.0f, 0, &state->sndHandle);
     } else if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (actorTableContains(gActorGlobalState.targetActor) != 0) && (gActorGlobalState.targetActor->collisionFlags == 1)) {
         playerSetSizeMode(gPrimaryPlayerActor, 2);
         bossPufftossNotifyLaser(1);
@@ -287,7 +287,7 @@ void bossPufftossStep(void) {
         gCurrentActor->interactionType = 4;
         actorMoveWithinZone(0x45, 606.0f, 566.0f, 0x292, 0.0f);
         if (gCurrentActor->unk155 == 1) {
-            bossClampPosition(&D_807FDCA0[1]);
+            bossClampPosition(&gBehaviourZone[1]);
         }
         if ((gCurrentActor->unk155 == 0) && (gPrimaryPlayerActor->state == 0x42)) {
             gCurrentActor->unk155 = 1;
@@ -325,10 +325,10 @@ void bossPufftossStep(void) {
         checkFloor = 0;
         updateY = 0;
         gCurrentActor->interactionType = 4;
-        bossClampPosition(&D_807FDCA0[1]);
+        bossClampPosition(&gBehaviourZone[1]);
         if ((gCurrentActor->unk155 == 0) && (currentActorTestClearFlag() != 0)) {
             gCurrentActor->unk155++;
-            bossSpawnParticleRing(0xEC, D_807FDCA0->entries[16].x, D_807FDCA0->entries[16].y + 0x14, D_807FDCA0->entries[16].z, 0x5DC, 4);
+            bossSpawnParticleRing(0xEC, gBehaviourZone->entries[16].x, gBehaviourZone->entries[16].y + 0x14, gBehaviourZone->entries[16].z, 0x5DC, 4);
         }
         break;
     case 0x27:
@@ -562,7 +562,7 @@ void bossPufftossStep(void) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
             if ((gCurrentMap == 0xC5) && (state->phase == 3) && (currentActorTestClearFlag() != 0)) {
-                bossSpawnParticleRing(0x4A, D_807FDCA0->entries[16].x, D_807FDCA0->entries[16].y + 0x14, D_807FDCA0->entries[16].z, 0x5DC, 4);
+                bossSpawnParticleRing(0x4A, gBehaviourZone->entries[16].x, gBehaviourZone->entries[16].y + 0x14, gBehaviourZone->entries[16].z, 0x5DC, 4);
             }
             break;
         case 3:

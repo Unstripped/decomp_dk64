@@ -26,7 +26,7 @@ extern s32 sSeqRomOffsets;
 
 extern ALHeap D_8076D1E8;
 extern u8 D_80770F50[];
-extern ALBank *D_8076D1F8;
+extern ALBank *gSfxBank;
 extern ALBank *D_8076D1FC;
 extern u16 D_8076BF30[];
 extern void *D_8076BF38[];
@@ -80,7 +80,7 @@ void audioInit(void) {
     bankB = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
     dmaReadAssetDecompress(gSegmentTable[16].romStart, bankB, &len, 0xD, 0, 2, 0);
     alBnkfNew(bankB, (u8 *)gSegmentTable[17].romStart);
-    D_8076D1F8 = bankB->bankArray[0];
+    gSfxBank = bankB->bankArray[0];
     seqp.maxVoices = 0x2C;
     seqp.maxEvents = 0x40;
     seqp.debugFlags = 0;

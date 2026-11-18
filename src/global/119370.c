@@ -728,7 +728,7 @@ f32 distance3D(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
 #define EFFECT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Actor *gPrimaryPlayerActor;
-extern u8 D_807F6009;
+extern u8 gRenderSetupKind;
 extern void *D_807F600C;
 extern u8 gCurrentPlayerIndex;
 extern s16 gScreenWidth;
@@ -801,7 +801,7 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     gSPMatrix(glist++, osVirtualToPhysical(&effect->matrices[gCurrentPlayerIndex][gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
     for (i = 0; i < effect->frameCount; i++) {
-        if (D_807F6009 != 5 || D_807F600C != effect->frames[i]) {
+        if (gRenderSetupKind != 5 || D_807F600C != effect->frames[i]) {
             gDPPipeSync(glist++);
             switch (effect->grid->size) {
                 case 0:
@@ -834,6 +834,6 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     }
     gDPPipeSync(glist++);
     gSPEndDisplayList(glist++);
-    D_807F6009 = 5;
+    gRenderSetupKind = 5;
     return inGlist;
 }

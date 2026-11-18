@@ -26,15 +26,15 @@ s16 gBossSideAimOffsetX[4] = { 0, -0x4B, 0, 0x4B };
 s16 gBossSideAimOffsetZ[4] = { -0x4B, 0, 0x4B, 0 };
 s8 gBossFollowerRaisedMask = -1;
 s16 gBossFollowerPitch = 0;
-s8 D_80035B30[4] = { 7, 3, 1, 0 };
-s8 D_80035B34 = 0;
+s8 gBossRaisedMaskSteps[4] = { 7, 3, 1, 0 };
+s8 gBossRaisedMaskStep = 0;
 u8 D_80035B38 = 0xFF;
 f32 gBossSpawnerSpinFrame = 0.0f;
-s8 D_80035B40 = 0;
-s8 D_80035B44[5] = { 2, 3, 4, 0, 1 };
-s16 D_80035B4C[5] = { 2, 3, 4, 5, 6 };
-u8 D_80035B58[5] = { 2, 1, 3, 4, 0 };
-s16 D_80035B60[4] = { 0xDC, 0xDD, 0xDE, 0xDF };
+s8 gBossSpawnerPrevBounceDir = 0;
+s8 gBossKongOrder[5] = { 2, 3, 4, 0, 1 };
+s16 gBossKongActorTypes[5] = { 2, 3, 4, 5, 6 };
+u8 gBossKongSegmentFlags[5] = { 2, 1, 3, 4, 0 };
+s16 gBossFollowerSpawnIds[4] = { 0xDC, 0xDD, 0xDE, 0xDF };
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -63,7 +63,7 @@ typedef struct BossSpawnerState {
 } BossSpawnerState;
 
 extern Actor *gSpawnedActor;
-extern s8 D_80036DC0;
+extern s8 gBossKongsFreed;
 extern f32 gBossFollowerPlayerDistSq;
 
 void bossSpawnerUpdate(void) {
@@ -92,7 +92,7 @@ void bossSpawnerUpdate(void) {
     hitPlayer = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         gBossFollowerRaisedMask = 0xF;
-        D_80035B34 = 0;
+        gBossRaisedMaskStep = 0;
         gBossSpawnerSpinFrame = 0.0f;
         state->aggroTimer = 0x1E;
         state->introTimer = 1;
@@ -102,7 +102,7 @@ void bossSpawnerUpdate(void) {
         state->phase = 0;
         sBounceLimit = 5;
         for (i = 0; i != 8; i++) {
-            if (actorSpawn(0xA6, D_80035B60[i >> 1]) != 0) {
+            if (actorSpawn(0xA6, gBossFollowerSpawnIds[i >> 1]) != 0) {
                 link = gSpawnedActor->customState;
                 link->parent = gCurrentActor;
                 link->slot = i >> 1;
@@ -115,7 +115,7 @@ void bossSpawnerUpdate(void) {
             }
         }
         gBossFollowerPlayerDistSq = 160000.0f;
-        D_80036DC0 = 0;
+        gBossKongsFreed = 0;
         if (gPrimaryPlayerActor != NULL) {
             gPrimaryPlayerActor->state = 0x77;
             gPrimaryPlayerActor->unk155 = 0;
@@ -136,13 +136,13 @@ void bossSpawnerUpdate(void) {
         gPrimaryPlayerActor->flags &= ~4;
         gPrimaryPlayerActor->unk144 = 1;
         if (gActorGlobalState.volumeTriggerQueueCount != 0) {
-            cutsceneId = D_80035B44[D_80036DC0];
+            cutsceneId = gBossKongOrder[gBossKongsFreed];
             gCurrentActor->segmentFlags = 0;
-            for (i = 4; D_80036DC0 < i; i--) {
-                actorSetSegmentFlag(gCurrentActor, D_80035B58[D_80035B44[i]]);
+            for (i = 4; gBossKongsFreed < i; i--) {
+                actorSetSegmentFlag(gCurrentActor, gBossKongSegmentFlags[gBossKongOrder[i]]);
             }
-            D_80036DC0++;
-            cutsceneId = D_80035B4C[cutsceneId];
+            gBossKongsFreed++;
+            cutsceneId = gBossKongActorTypes[cutsceneId];
             playerSetKongByActorType(cutsceneId);
             playerKongStopAudioChannels(gPrimaryPlayerActor, cutsceneId);
             gPrimaryPlayerActor->state = 0xC;
@@ -157,7 +157,7 @@ void bossSpawnerUpdate(void) {
         x = gPrimaryPlayerActor->x - gCurrentActor->x;
         z = gPrimaryPlayerActor->z - gCurrentActor->z;
         if (x > 700.0 || x < -700.0 || z > 700.0 || z < -700.0) {
-            if (D_80036DC0 < 5) {
+            if (gBossKongsFreed < 5) {
                 gCurrentActor->state = 0;
                 camStartPath(0, 2, 1);
             } else {
@@ -225,7 +225,7 @@ void bossSpawnerUpdate(void) {
                 state->repeatCount = 0;
             }
         }
-        if (bounceDir != 0 && D_80035B40 == 0) {
+        if (bounceDir != 0 && gBossSpawnerPrevBounceDir == 0) {
             spawnParticle = 1;
             gBossFollowerPitch = 0;
         }
@@ -282,7 +282,7 @@ void bossSpawnerUpdate(void) {
                 state->repeatCount = 0;
             }
         }
-        if (bounceDir != 0 && D_80035B40 == 0) {
+        if (bounceDir != 0 && gBossSpawnerPrevBounceDir == 0) {
             spawnParticle = 1;
         }
         break;
@@ -305,8 +305,8 @@ void bossSpawnerUpdate(void) {
             if (state->stepTimer == 0x3F) {
                 gBossSpawnerSpinFrame = 0.0f;
                 gBossFollowerPitch = 0;
-                gBossFollowerRaisedMask = D_80035B30[D_80035B34];
-                D_80035B34 += 1;
+                gBossFollowerRaisedMask = gBossRaisedMaskSteps[gBossRaisedMaskStep];
+                gBossRaisedMaskStep += 1;
                 state->subState = 5;
             }
         }
@@ -428,7 +428,7 @@ void bossSpawnerUpdate(void) {
         lightSetColor(0.5f, 0.5f, 0.5f, -1);
         weatherTriggerLightningFlash();
     }
-    D_80035B40 = bounceDir;
+    gBossSpawnerPrevBounceDir = bounceDir;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

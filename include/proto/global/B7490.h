@@ -3,17 +3,17 @@
 #define PROTO_GLOBAL_B7490_H
 #include "common.h"
 #include "actor.h"
-#ifndef PROTO_SKIP_func_806B2790
-void func_806B2790(void);
+#ifndef PROTO_SKIP_behaviourSwimLungeUpdate
+void behaviourSwimLungeUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorEmptyStub
 void actorEmptyStub(void);
 #endif
-#ifndef PROTO_SKIP_func_806B2D64
-void func_806B2D64(void);
+#ifndef PROTO_SKIP_behaviourSwimShooterUpdate
+void behaviourSwimShooterUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B3420
-void func_806B3420(void);
+#ifndef PROTO_SKIP_behaviourTimedScriptCycleUpdate
+void behaviourTimedScriptCycleUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorSwellBurstUpdate
 void actorSwellBurstUpdate(void);
@@ -24,8 +24,8 @@ void projectileSpawnFromActorNode(u8);
 #ifndef PROTO_SKIP_projectileAimAtTargetFromActor
 void projectileAimAtTargetFromActor(void);
 #endif
-#ifndef PROTO_SKIP_func_806B3D18
-void func_806B3D18(void);
+#ifndef PROTO_SKIP_projectileSpawnScriptedInRange
+void projectileSpawnScriptedInRange(void);
 #endif
 #ifndef PROTO_SKIP_projectileSpawnWithTimer
 void projectileSpawnWithTimer(void);
@@ -36,8 +36,8 @@ void projectileAimAndSpawnWithTimer(void);
 #ifndef PROTO_SKIP_behaviourCheckZoneReachAndSpawn
 void behaviourCheckZoneReachAndSpawn(void);
 #endif
-#ifndef PROTO_SKIP_func_806B3F3C
-void func_806B3F3C(void);
+#ifndef PROTO_SKIP_behaviourRandomZoneWander
+void behaviourRandomZoneWander(void);
 #endif
 #ifndef PROTO_SKIP_actorFlyTowardPosition
 s32 actorFlyTowardPosition(BehaviourWorkState *, u8);

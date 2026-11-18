@@ -14,15 +14,15 @@
 
 
 extern RenderEntry *D_807F5FF0;
-extern RenderEntry *D_807F5FF4;
+extern RenderEntry *gRenderListPending;
 extern RenderEntry *D_807F5FF8;
-extern RenderEntry *D_807F5FFC;
+extern RenderEntry *gRenderListSorted;
 
 void renderEntryListsReset(void) {
     D_807F5FF0 = NULL;
-    D_807F5FF4 = NULL;
+    gRenderListPending = NULL;
     D_807F5FF8 = NULL;
-    D_807F5FFC = NULL;
+    gRenderListSorted = NULL;
 }
 
 s32 renderEntryIsTranslucent(u8 renderType, void *object) {
@@ -51,8 +51,8 @@ s32 renderEntryIsTranslucent(u8 renderType, void *object) {
 
 
 void renderEntryListFreeTranslucent(void) {
-    renderEntryListFree(D_807F5FF4);
-    D_807F5FF4 = NULL;
+    renderEntryListFree(gRenderListPending);
+    gRenderListPending = NULL;
 }
 
 
@@ -68,13 +68,13 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, void *targetId, 
         list = D_807F5FF0;
     }
     if (listIndex == 2) {
-        list = D_807F5FF4;
+        list = gRenderListPending;
     }
     if (listIndex == 3) {
         list = D_807F5FF8;
     }
     if (listIndex == 4) {
-        list = D_807F5FFC;
+        list = gRenderListSorted;
     }
     head = list;
     if (list != NULL) {
@@ -122,13 +122,13 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, void *targetId, 
         D_807F5FF0 = head;
     }
     if (listIndex == 2) {
-        D_807F5FF4 = head;
+        gRenderListPending = head;
     }
     if (listIndex == 3) {
         D_807F5FF8 = head;
     }
     if (listIndex == 4) {
-        D_807F5FFC = head;
+        gRenderListSorted = head;
     }
     return head;
 }
@@ -145,13 +145,13 @@ RenderEntry *renderEntryRemove(RenderEntry *list, void *targetId, u8 listIndex, 
         list = D_807F5FF0;
     }
     if (listIndex == 2) {
-        list = D_807F5FF4;
+        list = gRenderListPending;
     }
     if (listIndex == 3) {
         list = D_807F5FF8;
     }
     if (listIndex == 4) {
-        list = D_807F5FFC;
+        list = gRenderListSorted;
     }
     head = list;
     if (list != NULL) {
@@ -180,13 +180,13 @@ RenderEntry *renderEntryRemove(RenderEntry *list, void *targetId, u8 listIndex, 
         D_807F5FF0 = head;
     }
     if (listIndex == 2) {
-        D_807F5FF4 = head;
+        gRenderListPending = head;
     }
     if (listIndex == 3) {
         D_807F5FF8 = head;
     }
     if (listIndex == 4) {
-        D_807F5FFC = head;
+        gRenderListSorted = head;
     }
     return head;
 }
@@ -243,13 +243,13 @@ void renderEntrySetDistanceOverride(RenderEntry *list, void *targetId, u8 listIn
         list = D_807F5FF0;
     }
     if (listIndex == 2) {
-        list = D_807F5FF4;
+        list = gRenderListPending;
     }
     if (listIndex == 3) {
         list = D_807F5FF8;
     }
     if (listIndex == 4) {
-        list = D_807F5FFC;
+        list = gRenderListSorted;
     }
     if (list != NULL) {
         do {
@@ -357,7 +357,7 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *list, f32 camX, f32 camY
 }
 
 extern FrameMatrices *gGfxCurrentFrameBuffer;
-extern u8 D_807F6009;
+extern u8 gRenderSetupKind;
 extern Mtx D_2000180;
 
 
@@ -385,11 +385,11 @@ Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f3
             case 0:
                 glist = renderActorEntryBuildDisplayList(gGfxCurrentFrameBuffer, model, glist, playerIndex);
                 gSPMatrix(glist++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                D_807F6009 = 0;
+                gRenderSetupKind = 0;
                 break;
             case 1:
                 glist = renderModelAnimatedSlot(model, glist, list->unk4, list->unk8, list->unkC, 1, layer, playerIndex);
-                D_807F6009 = 1;
+                gRenderSetupKind = 1;
                 break;
             case 2:
                 glist = renderModelQuadGfx(model, glist, camX, camY, camZ, 1, layer, playerIndex);

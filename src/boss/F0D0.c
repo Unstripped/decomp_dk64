@@ -31,13 +31,13 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 typedef struct {
     u8 b[4];
 } BossWaypointPick;
 extern BossWaypointPick D_80035B80;
 
-// Waypoint component of the boss actor (Actor+0x17C): indices into the 16 D_807FDCA0 pillar entries.
+// Waypoint component of the boss actor (Actor+0x17C): indices into the 16 gBehaviourZone pillar entries.
 typedef struct BossWaypointState {
     /* 0x00 */ u8 current;
     /* 0x01 */ u8 next; // bossPickWaypointStep result; bossInterpolateWaypoints moves current -> next
@@ -61,7 +61,7 @@ u8 bossPickWaypointStep(BossScriptState *scriptState, BossWaypointState *waypoin
     min_dist = 0x98967F;
     start_val = val;
     for (i = 0; i < 16; i++) {
-        dists[i] = (D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) * (D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) + (D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z) * (D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z);
+        dists[i] = (gBehaviourZone->entries[i].x - gPrimaryPlayerActor->x) * (gBehaviourZone->entries[i].x - gPrimaryPlayerActor->x) + (gBehaviourZone->entries[i].z - gPrimaryPlayerActor->z) * (gBehaviourZone->entries[i].z - gPrimaryPlayerActor->z);
         if (dists[i] < min_dist) {
             min_dist = dists[i];
             waypoints->playerNearest = i;
@@ -135,10 +135,10 @@ void bossInterpolateWaypoints(BossWaypointState *waypoints, f32 progress) {
 
     factor = 1.0 + mathSinF((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f);
 
-    gCurrentActor->x = D_807FDCA0->entries[waypoints->next].x + (D_807FDCA0->entries[waypoints->current].x - D_807FDCA0->entries[waypoints->next].x) * factor;
-    gCurrentActor->z = D_807FDCA0->entries[waypoints->next].z + (D_807FDCA0->entries[waypoints->current].z - D_807FDCA0->entries[waypoints->next].z) * factor;
+    gCurrentActor->x = gBehaviourZone->entries[waypoints->next].x + (gBehaviourZone->entries[waypoints->current].x - gBehaviourZone->entries[waypoints->next].x) * factor;
+    gCurrentActor->z = gBehaviourZone->entries[waypoints->next].z + (gBehaviourZone->entries[waypoints->current].z - gBehaviourZone->entries[waypoints->next].z) * factor;
 
-    gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->entries[waypoints->next].x, D_807FDCA0->entries[waypoints->next].z, D_807FDCA0->entries[waypoints->current].x, D_807FDCA0->entries[waypoints->current].z), 10.0f);
+    gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(gBehaviourZone->entries[waypoints->next].x, gBehaviourZone->entries[waypoints->next].z, gBehaviourZone->entries[waypoints->current].x, gBehaviourZone->entries[waypoints->current].z), 10.0f);
 }
 
 void bossSpawnPuffDebris(void) {
@@ -149,7 +149,7 @@ void bossSpawnPuffDebris(void) {
     effectSetCallback(effectPuffRiseUpdate);
     effectSetDepth(1);
     effectSetSpeed(1);
-    effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
 }
 
 void csModelStateSetFirstByte(s16, u8); // ORIG: target sign-extends the model index (sll a0,v0,0x10 / sra t0,a0,0x10 at 0x824-0x828) but passes stateByte as a plain lbu a1,39(sp) at 0x81c (the shared (s16, s16) prototype adds sll/sra of a1 there): the original TU declared an unsigned narrow second parameter
@@ -197,7 +197,7 @@ u8 stateByte;
 
 void bossSpawnObjectAtWaypoint(BossWaypointState *waypoints) {
     projectileGetTargetCoords(gCurrentActor, 1);
-    projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, D_807FDCA0->entries[waypoints->playerNearest].x, D_807FDCA0->entries[waypoints->playerNearest].y, D_807FDCA0->entries[waypoints->playerNearest].z, 1200.0f, gCurrentActor);
+    projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, gBehaviourZone->entries[waypoints->playerNearest].x, gBehaviourZone->entries[waypoints->playerNearest].y, gBehaviourZone->entries[waypoints->playerNearest].z, 1200.0f, gCurrentActor);
 }
 
 s32 bossCheckPlayerBelow(BossScriptState *scriptState, u8 *scriptOpcodes) {
@@ -318,11 +318,11 @@ void bossMainStep(void) {
             }
             if (idx != waypoints->playerNearest) {
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].y - 0x32, D_807FDCA0->entries[idx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, red, green, 0xFF);
+                lightAdd(gBehaviourZone->entries[idx].x, gBehaviourZone->entries[idx].y - 0x32, gBehaviourZone->entries[idx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, red, green, 0xFF);
             }
             if (nextIdx != waypoints->playerNearest) {
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[nextIdx].x, D_807FDCA0->entries[nextIdx].y - 0x32, D_807FDCA0->entries[nextIdx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, red, green, 0xFF);
+                lightAdd(gBehaviourZone->entries[nextIdx].x, gBehaviourZone->entries[nextIdx].y - 0x32, gBehaviourZone->entries[nextIdx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, red, green, 0xFF);
             }
         }
     }
@@ -350,7 +350,7 @@ void bossMainStep(void) {
                 sx = gBossWaypointIsSpecial[i] != 0 ? 0.27 : 1.0;
                 sy = gBossWaypointIsSpecial[i] != 0 ? 0.62 : 1.0;
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, gBossWaypointLightFade[i] * sx, gBossWaypointLightFade[i] * sy, gBossWaypointLightFade[i]);
+                lightAdd(gBehaviourZone->entries[i].x, gBehaviourZone->entries[i].y - 0x28A, gBehaviourZone->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, gBossWaypointLightFade[i] * sx, gBossWaypointLightFade[i] * sy, gBossWaypointLightFade[i]);
                 gBossWaypointLightFade[i] -= 0x19;
             }
         }
@@ -365,7 +365,7 @@ void bossMainStep(void) {
     case 0x1F:
         bright = mathSinF(gFrameCounter * 0x7D) * 100.0f + 155.0f;
         lightSetRadius(0x1388);
-        lightAdd(D_807FDCA0->entries[5].x, D_807FDCA0->entries[5].y - 0x28A, D_807FDCA0->entries[5].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, bright, bright, bright);
+        lightAdd(gBehaviourZone->entries[5].x, gBehaviourZone->entries[5].y - 0x28A, gBehaviourZone->entries[5].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, bright, bright, bright);
         if (currentActorTestClearFlag() != 0) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
             gCurrentActor->state = 0x20;
@@ -456,7 +456,7 @@ void bossMainStep(void) {
             }
             break;
         case 13:
-            camSetSecondTarget(gCamActor, D_807FDCA0->entries[17].x, D_807FDCA0->entries[17].z);
+            camSetSecondTarget(gCamActor, gBehaviourZone->entries[17].x, gBehaviourZone->entries[17].z);
             scriptState->phase = 0;
             scriptState->scriptPos = 0;
             gCurrentActor->state = tbl[scriptState->scriptPos];
@@ -540,7 +540,7 @@ void bossMainStep(void) {
         actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
         if (bossCheckPlayerBelow(scriptState, tbl) != 0) {
             bossSetRandomObjectPair(waypoints, 0);
-        } else if (func_80724A20() == 0) {
+        } else if (volumeTriggerApplyActorState() == 0) {
             switch (gCurrentActor->unk155) {
             case 0:
                 bossSetRandomObjectPair(waypoints, 0xA);
@@ -748,7 +748,7 @@ void bossMainStep(void) {
                         csModelStateSetFirstByte(i, 0x28);
                     }
                 }
-                bossSpawnParticleRing(0x8A, D_807FDCA0->entries[waypoints->current].x, D_807FDCA0->entries[waypoints->current].y, D_807FDCA0->entries[waypoints->current].z, 0x5DC, 1);
+                bossSpawnParticleRing(0x8A, gBehaviourZone->entries[waypoints->current].x, gBehaviourZone->entries[waypoints->current].y, gBehaviourZone->entries[waypoints->current].z, 0x5DC, 1);
                 gCurrentActor->state = 0x40;
                 for (i = 0; i < 7; i++) {
                     volumeTriggerSetEnabled(i, 0);

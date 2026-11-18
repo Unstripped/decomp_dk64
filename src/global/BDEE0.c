@@ -27,7 +27,7 @@ extern Actor *gPrimaryPlayerActor;
 
 // Actor view whose second component (0x178) is an s16 block: [0] roll phase (behaviourArmadilloPatrol counts it
 // down as a timer), [1] side, [3]/[4] x/z saved on entering state 0x15 (behaviourArmadilloPatrol,
-// behaviourArmadilloAimAndShoot, behaviourArmadilloMoveTowardTarget).
+// behaviourAttachToZoneOccupant, behaviourArmadilloMoveTowardTarget).
 typedef struct ArmadilloActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ s16 *rollState;
@@ -36,7 +36,7 @@ typedef struct ArmadilloActor {
 #define ARMADILLO_ACTOR ((ArmadilloActor *)gCurrentActor)
 
 extern s16 gSfxSourceVoice[];
-extern f32 D_80770B68[];
+extern f32 gSfxVoicePitch[];
 extern f32 D_80770BC0[];
 
 
@@ -211,7 +211,7 @@ void behaviourArmadilloPatrol(void) {
             f64 t = (gCurrentActor->speedXZ * 0.6) / 40.0;
             u8 voice = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
 
-            D_80770B68[voice] = (t < 0.0 ? 0.0 : t) + 0.4;
+            gSfxVoicePitch[voice] = (t < 0.0 ? 0.0 : t) + 0.4;
             D_80770BC0[voice] = 1.0f;
         }
     } else {
@@ -238,7 +238,7 @@ void behaviourArmadilloUpdateMatrix(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
     s32 pad;
@@ -259,7 +259,7 @@ void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
     randSprite = randomNonNegative();
     randScale = randomNonNegative();
     randX = randomNonNegative();
-    effectCreateAtPosition(D_8074E880[((randSprite >> 15) % 1000) % 3], ((randScale >> 15) % 256) * 0.001953125 + 0.5, ((randX >> 15) % 6) + (gCurrentActor->x - 3.0f), gCurrentActor->y + yOffset, ((randomNonNegative() >> 15) % 6) + (gCurrentActor->z - 3.0f));
+    effectCreateAtPosition(gPuffSprites[((randSprite >> 15) % 1000) % 3], ((randScale >> 15) % 256) * 0.001953125 + 0.5, ((randX >> 15) % 6) + (gCurrentActor->x - 3.0f), gCurrentActor->y + yOffset, ((randomNonNegative() >> 15) % 6) + (gCurrentActor->z - 3.0f));
 }
 
 extern u8 D_80750628[];
@@ -276,7 +276,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
     if (node) {
         f32 ang;
 
-        actorGetNodePos(D_807FDCA0->occupant, node, &nodeX, &nodeY, &nodeZ);
+        actorGetNodePos(gBehaviourZone->occupant, node, &nodeX, &nodeY, &nodeZ);
         mathNudgeCoords(x, z, &nodeX, &nodeZ);
         ang = mathAtan2(nodeX - x, nodeZ - z);
         guTranslateF(modelMtx, 0.0f, -yOffset, 0.0f);
@@ -315,7 +315,7 @@ extern PlayerStruct *gPlayerSlots;
 
 extern u8 D_8071FB34[];
 
-s32 behaviourArmadilloAimAndShoot(u8 yOffset, s16 animId) {
+s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
     s16 *rollState;
     Actor *tgt;
     f32 nodeX;
@@ -325,8 +325,8 @@ s32 behaviourArmadilloAimAndShoot(u8 yOffset, s16 animId) {
     s32 anim;
 
     rollState = ARMADILLO_ACTOR->rollState;
-    tgt = D_807FDCA0->occupant;
-    if (tgt != NULL && tgt->state == 0x23 && D_807FDCA0->unk20 < 10) {
+    tgt = gBehaviourZone->occupant;
+    if (tgt != NULL && tgt->state == 0x23 && gBehaviourZone->unk20 < 10) {
         if (gCurrentActor->state != 0x15 && gCurrentActor->state != 0x17) {
             gCurrentActor->collisionFlags = 0x80;
             gCurrentActor->state = 0x15;
@@ -385,7 +385,7 @@ s32 behaviourArmadilloAimAndShoot(u8 yOffset, s16 animId) {
                 }
             }
         }
-        D_807FDCA0->unk20 = D_807FDCA0->unk20 + 1;
+        gBehaviourZone->unk20 = gBehaviourZone->unk20 + 1;
         actorGetNodePos(tgt, node, &nodeX, &nodeY, &nodeZ);
         if (gBehaviourWorkState->flags & 0x80) {
             if (!(gBehaviourWorkState->prevFlags & 0x80)) {
@@ -482,21 +482,21 @@ void behaviourArmadilloStepPatrol(void) {
     }
 }
 
-// Second component (0x178) of the rocking idle (func_806BA93C): the s16 block ArmadilloActor.rollState indexes.
+// Second component (0x178) of the rocking idle (behaviourRockingWalk): the s16 block ArmadilloActor.rollState indexes.
 typedef struct RockTiltState {
     /* 0x0 */ s16 rollPhase;
     /* 0x2 */ s16 side;
     /* 0x4 */ u16 tilt;
 } RockTiltState;
 
-// Actor view whose second component is a RockTiltState (func_806BA93C).
+// Actor view whose second component is a RockTiltState (behaviourRockingWalk).
 typedef struct RockingActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ RockTiltState *rock;
 } RockingActor;
 #define ROCKING_ACTOR ((RockingActor *)gCurrentActor)
 
-void func_806BA93C(sideOffset, rollAmount, pivotZ)
+void behaviourRockingWalk(sideOffset, rollAmount, pivotZ)
 u8 sideOffset;
 u8 rollAmount;
 u8 pivotZ;
@@ -510,7 +510,7 @@ u8 pivotZ;
     s16 yawOffset;
 
     rock = ROCKING_ACTOR->rock;
-    if (gBehaviourExtraState->unkA && behaviourArmadilloAimAndShoot(0x64, 0)) {
+    if (gBehaviourExtraState->unkA && behaviourAttachToZoneOccupant(0x64, 0)) {
         return;
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
@@ -668,7 +668,7 @@ void behaviourFairyInitPlayerScale(void) {
             gCurrentActor->state = 0x40;
             break;
     }
-    D_807FDCA0->unk20 = 0;
+    gBehaviourZone->unk20 = 0;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -724,7 +724,7 @@ typedef struct FairySpawnOrder {
 extern PlayerState *gActivePlayerState;
 extern s32 gGlobalCutsceneFlags;
 
-extern FairySpawnOrder D_80750638;
+extern FairySpawnOrder gFairySpawnOrder;
 
 void behaviourFairyWanderUpdate(void) {
     s16 i;
@@ -811,7 +811,7 @@ void behaviourFairyWanderUpdate(void) {
         if (spawnNodeHasActor(0x2B) == 0 && spawnNodeHasActor(0x2C) == 0) {
             csSendActorMessagePayload(0x11, 1);
             spawnNodeSpawnById(0x2D, mathSinF(gCurrentActor->yaw) * 80.0f + gCurrentActor->x, gCurrentActor->y, mathCosF(gCurrentActor->yaw) * 80.0f + gCurrentActor->z, gCurrentActor->yaw, 0, 0);
-            D_807FDCA0->occupant = gSpawnedActor;
+            gBehaviourZone->occupant = gSpawnedActor;
             camStartPath(gCurrentActor, 0x1F, 1);
             gCurrentActor->state++;
             gBehaviourWorkState->timer = 0x1E;
@@ -822,13 +822,13 @@ void behaviourFairyWanderUpdate(void) {
         if (gBehaviourWorkState->timer != 0) {
             gBehaviourWorkState->timer--;
         } else {
-            order = D_80750638;
+            order = gFairySpawnOrder;
             step = 0xA - gCurrentActor->unk155;
             if (gCurrentActor->unk155 == 0xA) {
                 behaviourFairyPlaySound();
             }
             if (gCurrentActor->unk155) {
-                actorSpawnJitteredChild(order.nodeOffset[gCurrentActor->unk155--] + 0x22, step * 8 + 0x64, step * 20 + 0xFA, D_807FDCA0->occupant);
+                actorSpawnJitteredChild(order.nodeOffset[gCurrentActor->unk155--] + 0x22, step * 8 + 0x64, step * 20 + 0xFA, gBehaviourZone->occupant);
             } else {
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->unk144 = 1;
@@ -879,7 +879,7 @@ void behaviourFairyWanderUpdate(void) {
 
 void behaviourFairyIdle1(void) {
     behaviourFairyUpdate();
-    if (gBehaviourExtraState->unkA == 0 || behaviourArmadilloAimAndShoot(0, 0x446) == 0) {
+    if (gBehaviourExtraState->unkA == 0 || behaviourAttachToZoneOccupant(0, 0x446) == 0) {
         actorPatrolFollowerUpdate(0x2ED, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -887,7 +887,7 @@ void behaviourFairyIdle1(void) {
 
 void behaviourFairyIdle2(void) {
     behaviourFairyUpdate();
-    if (gBehaviourExtraState->unkA == 0 || behaviourArmadilloAimAndShoot(0x32, 0x44E) == 0) {
+    if (gBehaviourExtraState->unkA == 0 || behaviourAttachToZoneOccupant(0x32, 0x44E) == 0) {
         actorPatrolFollowerUpdate(0x2EC, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -895,7 +895,7 @@ void behaviourFairyIdle2(void) {
 
 void behaviourFairyIdle3(void) {
     behaviourFairyUpdate();
-    if (gBehaviourExtraState->unkA == 0 || behaviourArmadilloAimAndShoot(0x14, 0x44A) == 0) {
+    if (gBehaviourExtraState->unkA == 0 || behaviourAttachToZoneOccupant(0x14, 0x44A) == 0) {
         actorPatrolFollowerUpdate(0x2EE, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -904,5 +904,5 @@ void behaviourFairyIdle3(void) {
 
 void behaviourFairyIdle4(void) {
     behaviourFairyUpdate();
-    func_806BA93C(0x24, 0x14, 0x1E);
+    behaviourRockingWalk(0x24, 0x14, 0x1E);
 }

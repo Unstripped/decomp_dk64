@@ -18,8 +18,8 @@ void gridSetNodeBounds(u8, f32, f32, f32, f32);
 #ifndef PROTO_SKIP_gridAppendPositionNode
 void gridAppendPositionNode(u8, f32, f32, f32, f32);
 #endif
-#ifndef PROTO_SKIP_gridIsSpecialActorType
-s32 gridIsSpecialActorType(s16);
+#ifndef PROTO_SKIP_gridTypeEntryIndex
+s32 gridTypeEntryIndex(s16);
 #endif
 #ifndef PROTO_SKIP_gridCoordsToIndex
 s32 gridCoordsToIndex(f32, f32);
@@ -39,8 +39,8 @@ void gridFreeAllActiveNodes(void);
 #ifndef PROTO_SKIP_gridActiveNodeCreate
 struct GridActiveNode *gridActiveNodeCreate(struct GridNode *);
 #endif
-#ifndef PROTO_SKIP_gridAdjustActorCollisionType
-s32 gridAdjustActorCollisionType(s32, s32, u8);
+#ifndef PROTO_SKIP_gridResolveQueueSlot
+s32 gridResolveQueueSlot(s32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_cutsceneStartFlag16CPath
 void cutsceneStartFlag16CPath(void);
@@ -48,11 +48,11 @@ void cutsceneStartFlag16CPath(void);
 #ifndef PROTO_SKIP_gridCollectItem
 void gridCollectItem(u8, s32, u8);
 #endif
-#ifndef PROTO_SKIP_func_806F58A0
-void func_806F58A0(u8, s16, Actor *);
+#ifndef PROTO_SKIP_gridSpawnBunchItems
+void gridSpawnBunchItems(u8, s16, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806F5A48
-void func_806F5A48(u8, s16, Actor *, u16);
+#ifndef PROTO_SKIP_gridSpawnAmmoCrateItems
+void gridSpawnAmmoCrateItems(u8, s16, Actor *, u16);
 #endif
 #ifndef PROTO_SKIP_actorTypeIsRespawnPickup
 s32 actorTypeIsRespawnPickup(s32);
@@ -72,8 +72,8 @@ s32 delayedSpawnQueueContains(s32, s32, s16, s16, s16);
 #ifndef PROTO_SKIP_delayedSpawnQueueAddActor
 void delayedSpawnQueueAddActor(s32, s32, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806F5FA0
-void func_806F5FA0(s16, s16, s16);
+#ifndef PROTO_SKIP_delayedSpawnQueueAddRandomEffectPickup
+void delayedSpawnQueueAddRandomEffectPickup(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_delayedSpawnQueueAddModel
 void delayedSpawnQueueAddModel(s32, s16, s16, s16, s32);
@@ -108,8 +108,8 @@ s32 listContainsS16(s16);
 #ifndef PROTO_SKIP_effectSpawnRandomSpread
 void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
 #endif
-#ifndef PROTO_SKIP_func_806F7378
-f32 func_806F7378(u32);
+#ifndef PROTO_SKIP_pickupModelYOffset
+f32 pickupModelYOffset(u32);
 #endif
 #ifndef PROTO_SKIP_gridCollectActorsInRange
 void gridCollectActorsInRange(u8);

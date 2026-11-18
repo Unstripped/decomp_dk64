@@ -7,7 +7,7 @@
 #include "proto/global/7AF60.h"
 #include "proto/global/CEAE0.h"
 
-extern u8 D_807F6902;
+extern u8 gCsInvulnerable;
 extern u8 gPlayerCount;
 extern PlayerStruct *gPlayerSlots;
 extern u8 D_807FBBA9;
@@ -17,10 +17,10 @@ void actorCheckPlayerSmallerThanAttacker(Actor *actor, Actor *attacker, ActorCol
 }
 
 u8 actorTargetIsVulnerable(Actor *actor, Actor *target, ActorCollisionList *list) {
-    return playerCanCollideWithActor(target) && D_807F6902 == 0;
+    return playerCanCollideWithActor(target) && gCsInvulnerable == 0;
 }
 
-u8 func_806762C0(Actor *actor, Actor *target, ActorCollisionList *list) {
+u8 actorListHasId2TargetVulnerable(Actor *actor, Actor *target, ActorCollisionList *list) {
     return func_806767E0(actor, target, list) && actorTargetIsVulnerable(actor, target, list);
 }
 
@@ -75,11 +75,11 @@ u8 actorIsTargetBelowNode(Actor *actor, Actor *target, ActorCollisionList *list)
     return (target->distToFloor < 10.0f) && (target->y < y);
 }
 
-u8 func_80676690(Actor *actor, Actor *target, ActorCollisionList *list) {
+u8 actorListHasId1FacingTarget(Actor *actor, Actor *target, ActorCollisionList *list) {
     return actorListContainsId(list, 1) && actorIsFacingTarget(actor, target, list);
 }
 
-u8 func_806766E0(Actor *actor, Actor *target, ActorCollisionList *list) {
+u8 actorListHasId2FacingTarget(Actor *actor, Actor *target, ActorCollisionList *list) {
     return actorListContainsId(list, 2) && actorIsFacingTarget(actor, target, list);
 }
 
@@ -206,7 +206,7 @@ u8 playerIsGiantGroundedAgainstEnemy(Actor *actor, Actor *target, ActorCollision
     return playerIsGiantAgainstEnemy(actor, target, list) && (actor->contactFlags & 1);
 }
 
-u8 func_80676B70(Actor *actor, Actor *target, ActorCollisionList *list) {
+u8 playerIsGiantLandingOnEnemy(Actor *actor, Actor *target, ActorCollisionList *list) {
     return playerIsGiantAgainstEnemy(actor, target, list) && (actorIsTargetFallingFromAbove(target, actor, list) || mpIsMatchType(0));
 }
 

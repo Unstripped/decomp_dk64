@@ -27,8 +27,8 @@ void gfxSubmitFrame(void);
 #ifndef PROTO_SKIP_pauseStateUpdate
 s32 pauseStateUpdate(void);
 #endif
-#ifndef PROTO_SKIP_gfxSetupFrameViewports
-s32 gfxSetupFrameViewports(void);
+#ifndef PROTO_SKIP_playTimeGetSeconds
+s32 playTimeGetSeconds(void);
 #endif
 #ifndef PROTO_SKIP_hudCanRender
 u8 hudCanRender(void);

@@ -2543,7 +2543,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
 
 #define WRITE_GFX_PAIR(a, b) { Gfx *_g = (Gfx *)(gfx++); _g->words.w0 = (a); _g->words.w1 = (b); }
 
-extern u8 D_807F6009;
+extern u8 gRenderSetupKind;
 extern void *D_807F600C;
 extern s32 D_807F5FD8;
 
@@ -2693,7 +2693,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         case 0:
             WRITE_GFX_PAIR(0xFC1197FF, 0xFFFFFE38);
             gSPTexture(gfx++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
-            if (D_807F6009 != 2 || texA != (s32)D_807F600C) {
+            if (gRenderSetupKind != 2 || texA != (s32)D_807F600C) {
                 switch (obj->texSize) {
                 case 0:
                     gDPLoadTextureBlock_4b(gfx++, texA + 0x80000000, obj->texFormat, obj->texWidth, obj->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
@@ -2750,7 +2750,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         gSPVertex(gfx++, osVirtualToPhysical(obj->verts + vtxOffset), 4, 0);
         gSP2Triangles(gfx++, 0, 1, 2, 0, 0, 2, 3, 0);
         vtxOffset += 4;
-        D_807F6009 = 2;
+        gRenderSetupKind = 2;
     }
     gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
     gDPPipeSync(gfx++);
@@ -3616,7 +3616,7 @@ typedef struct ModelSlotSerializedOut {
 } ModelSlotSerializedOut; /* 0x30 */
 
 
-extern u8 *D_807F6010;
+extern u8 *gSavedMapModelData;
 extern u8 gCsVarsDirty[];
 
 
@@ -3628,8 +3628,8 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     u8 *dst;
 
     count = 0;
-    if (D_807F6010 != NULL) {
-        heapFree(D_807F6010);
+    if (gSavedMapModelData != NULL) {
+        heapFree(gSavedMapModelData);
     }
     size = gModelSlotCount * sizeof(ModelSlotSerializedOut) + sizeof(s32);
     size += sizeof(s32);
@@ -3640,9 +3640,9 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
         }
     }
     size += actorListGetSerializedSize();
-    D_807F6010 = heapAlloc(size);
-    *(s32 *)D_807F6010 = gModelSlotCount;
-    out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
+    gSavedMapModelData = heapAlloc(size);
+    *(s32 *)gSavedMapModelData = gModelSlotCount;
+    out = (ModelSlotSerializedOut *)(gSavedMapModelData + 4);
     for (i = 0; i < gModelSlotCount; i++, out++) {
         out->x = gModelSlots[i].x;
         out->y = gModelSlots[i].y;
@@ -3676,7 +3676,7 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
         }
     }
     actorListSerialize((s32 *)dst);
-    *bufOut = D_807F6010;
+    *bufOut = gSavedMapModelData;
     *sizeOut = size;
 }
 

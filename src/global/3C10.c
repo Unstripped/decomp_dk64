@@ -70,7 +70,7 @@ extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;
 extern s8 D_8076A0B2;
-extern u8 *D_807F6010;
+extern u8 *gSavedMapModelData;
 extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalCutsceneFlags;
 extern u16 gLevelCollectibleCounts[];
@@ -515,7 +515,7 @@ void mapSlotFree(s32 map) {
             heapFree(slot->records);
         }
         slot->inUse = 0;
-        D_807F6010 = NULL;
+        gSavedMapModelData = NULL;
     }
 }
 

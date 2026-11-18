@@ -122,7 +122,7 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
 extern OSContPad gControllerPads[];
 extern u32 D_8074458C[];
 extern f32 gGfxFarClip;
-extern u8 D_80750AD0;
+extern u8 gMultiplayerReducedEffects;
 extern u32 gGlobalCutsceneFlags;
 extern u16 D_807FD570;
 
@@ -185,7 +185,7 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->sizeModeDirty = 1;
         blk->unk2EA = 0;
         blk->unk2EB = 0;
-        hudDrawItemWithAlpha(&blk->healthHud);
+        healthHudReset(&blk->healthHud);
         if (((gGlobalOverlayFlags & 1) && !(gGlobalCutsceneFlags & 2)) ||
             (gPlayerInventoryTable[i].health + gPlayerInventoryTable[i].healthDelta <= 0)) {
             healthRefill(sel);
@@ -198,7 +198,7 @@ void playerAllocSlots(s32 spawnIndex) {
     if (gPlayerCount >= 2) {
         actorSpawn(0x13E, 0);
     }
-    D_80750AD0 = (gSplitScreenMode == 0) && (gPlayerCount >= 2);
+    gMultiplayerReducedEffects = (gSplitScreenMode == 0) && (gPlayerCount >= 2);
 }
 
 
@@ -791,7 +791,7 @@ s32 playerAddHealthDelta(u8 playerIndex, s8 delta) {
 
     pl = &gPlayerSlots[playerIndex];
     pl->unk2E2 |= 0x11;
-    if (gPlayerCount >= 2 && delta < 0 && D_807552E4.matchPhase == 1) {
+    if (gPlayerCount >= 2 && delta < 0 && gMpSettings.matchPhase == 1) {
         func_80026E20(playerIndex, delta);
     }
     if (delta < 0) {
@@ -818,7 +818,7 @@ void playerResetSpawnGlobals(void) {
     for (i = 0; i < 4; i++) {
         bzero(p, sizeof(PlayerInventory));
         if (gActivePlayerCount >= 2) {
-            if (D_807552E4.unk0 == 1) {
+            if (gMpSettings.unk0 == 1) {
                 for (j = 0; j < 6; j++) {
                     p->kong[j].weaponFlags = 7;
                 }

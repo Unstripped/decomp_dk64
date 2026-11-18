@@ -233,7 +233,7 @@ void func_806A63A8(void) {
     }
 }
 
-void func_806A6408(void) {
+void actorLargeDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(12.0f);
@@ -248,7 +248,7 @@ extern u8 D_807203F8;
 extern u8 D_8072041C;
 extern u8 D_80720440;
 
-void func_806A6468(void) {
+void actorKongDropUpdate(void) {
     DropBounceState *state;
     void *anim;
 
@@ -286,7 +286,7 @@ extern u8 D_80720F14;
 extern u8 D_80720F40;
 extern u8 D_80720F6C;
 
-void func_806A6574(void) {
+void actorKongDropPersistentUpdate(void) {
     DropBounceState *state;
     void *anim;
 
@@ -314,7 +314,7 @@ void func_806A6574(void) {
     }
 }
 
-extern s16 D_8075038C;
+extern s16 sBounceMinSpeedY;
 
 void actorDropBounceExpireUpdate(f32 floorOffset) {
     DropBounceState *state;
@@ -366,8 +366,8 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, floorOffset);
         gCurrentActor->speedY -= 20.0f;
-        if (gCurrentActor->speedY < D_8075038C) {
-            gCurrentActor->speedY = D_8075038C;
+        if (gCurrentActor->speedY < sBounceMinSpeedY) {
+            gCurrentActor->speedY = sBounceMinSpeedY;
         }
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             switch (state->bounceCount) {
@@ -457,8 +457,8 @@ typedef struct PathCollectibleState {
     /* 0x6 */ s16 collectedFlag;
 } PathCollectibleState;
 
-extern s16 D_80750384;
-extern f32 D_80750388;
+extern s16 sBounceFadeLaunchSpeedXZ;
+extern f32 sBounceFadeGravity;
 
 
 void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
@@ -504,7 +504,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         switch (gCurrentActor->state) {
         case 1:
-            gCurrentActor->speedXZ = D_80750384;
+            gCurrentActor->speedXZ = sBounceFadeLaunchSpeedXZ;
             gCurrentActor->speedY = 0.0f;
             break;
         case 2:
@@ -531,9 +531,9 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     case 3:
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-        gCurrentActor->speedY += D_80750388;
-        if (gCurrentActor->speedY < D_8075038C) {
-            gCurrentActor->speedY = D_8075038C;
+        gCurrentActor->speedY += sBounceFadeGravity;
+        if (gCurrentActor->speedY < sBounceMinSpeedY) {
+            gCurrentActor->speedY = sBounceMinSpeedY;
         }
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             volume = 0xC8;

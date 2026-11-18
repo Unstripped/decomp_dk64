@@ -75,8 +75,8 @@ void actorClearNodeFlags(Actor *, s32, u8);
 #ifndef PROTO_SKIP_actorSetBoxEnableById
 void actorSetBoxEnableById(Actor *, s32, u8);
 #endif
-#ifndef PROTO_SKIP_func_8066E6C8
-void func_8066E6C8(Actor *, s32, u8);
+#ifndef PROTO_SKIP_actorSetTriangleEnableById
+void actorSetTriangleEnableById(Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_actorSub140Alloc
 ActorSub140 *actorSub140Alloc(f32, f32, f32, f32, f32, f32, void *, Mtx *, Mtx *);

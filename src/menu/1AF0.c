@@ -48,7 +48,7 @@ typedef struct MenuShopActor {
 
 
 
-s32 menuCheckBitgridOtherSlots(MenuShopState *state, s32 bitOffset) {
+s32 menuOtherKongHasUpgrade(MenuShopState *state, s32 bitOffset) {
     s32 found = 0;
     s32 i;
 
@@ -117,7 +117,7 @@ void menuSetBitgridBit(MenuShopState *state, s32 slot) {
     *ptr |= 1 << (state->itemLevel - 1);
 }
 
-void menuUpdateAllBitgridSlots(MenuShopState *state, u8 asBit) {
+void menuApplyUpgradeToAllKongs(MenuShopState *state, u8 asBit) {
     s32 i = 0;
 
     do {
@@ -131,7 +131,7 @@ void menuUpdateAllBitgridSlots(MenuShopState *state, u8 asBit) {
 }
 
 extern PlayerStruct *gPlayerSlots;
-extern u8 D_800334DC[];
+extern u8 gShopInstrumentMelons[];
 
 void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     s16 queueItemId = -1;
@@ -141,21 +141,21 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     case 2:
     case 4:
         if (state->itemLevel >= 2) {
-            menuUpdateAllBitgridSlots(state, 1);
+            menuApplyUpgradeToAllKongs(state, 1);
         } else {
             menuSetBitgridBit(state, gPlayerCharacterId[0]);
         }
         break;
     case 1:
     case 3:
-        menuUpdateAllBitgridSlots(state, 0);
+        menuApplyUpgradeToAllKongs(state, 0);
         break;
     default:
         menuSetBitgridValue(state, gPlayerCharacterId[0]);
         break;
     }
     if (state->itemSlot == 4) {
-        u8 newMelons = D_800334DC[state->itemLevel];
+        u8 newMelons = gShopInstrumentMelons[state->itemLevel];
         if (gPlayerInventoryTable[0].melons < newMelons) {
             gPlayerInventoryTable[0].melons = newMelons;
             healthRefill(0);
@@ -194,7 +194,7 @@ extern MenuM1_Entry D_80033334[];
 extern MenuM1_Entry D_80033408[];
 extern u8 gCurrentWorldId;
 
-void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 firstVisit) {
+void menuSelectNextShopOffer(MenuShopState *state, u8 *inventory, s32 firstVisit) {
     MenuM1_Entry *tbl;
     s32 found = 0;
     s32 count = 6;
@@ -328,10 +328,10 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
             entry6 = 0xC;
             entry7 = 0xE;
             if (state->itemSlot >= 0) {
-                otherSlotOwned = menuCheckBitgridOtherSlots(state, 1);
+                otherSlotOwned = menuOtherKongHasUpgrade(state, 1);
                 if (((u8 *)inventory)[state->itemSlot] & 1) {
                     entry3 = 9;
-                    if (gPlayerInventoryTable[0].melons < D_800334DC[((u8 *)inventory)[state->itemSlot] + 1]) {
+                    if (gPlayerInventoryTable[0].melons < gShopInstrumentMelons[((u8 *)inventory)[state->itemSlot] + 1]) {
                         entry2 = 6;
                         entry6 = 0xD;
                         entry7 = 0xF;
@@ -441,7 +441,7 @@ extern Actor *gPrimaryPlayerActor;
 s32 menuExitSubmenu(MenuShopState *state, u8 *inventory, s32 flagId) {
     s32 firstVisit = flagGet(flagId, 0) == 0;
 
-    menuCheckInventoryItemPurchased(state, inventory, firstVisit);
+    menuSelectNextShopOffer(state, inventory, firstVisit);
     state->mode = 0;
     state->step = 0;
     if (flagGet(0x61, 2) == 0) {
@@ -467,7 +467,7 @@ void menuTransitionToSubmenu(MenuShopState *state, u8 *inventory) {
     state->submenuEntered = 1;
     camStartPath(0, 0xF, 1);
     currentActorClearFlag();
-    menuCheckInventoryItemPurchased(state, inventory, 0);
+    menuSelectNextShopOffer(state, inventory, 0);
     state->mode = 0;
     state->step = 0;
     playerStateQueueCallback(0x1B, gCurrentActor, 0);
@@ -581,7 +581,7 @@ void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagI
                 break;
             case 4:
                 if (state->itemLevel == 1) {
-                    if (menuCheckBitgridOtherSlots(state, 1) == 0) {
+                    if (menuOtherKongHasUpgrade(state, 1) == 0) {
                         extraTextParam = 0x15;
                     }
                     textParam2 = 0x12;
@@ -860,7 +860,7 @@ s32 menuDecodeAddressConstant(s32 val) {
 
 
 
-void menuCheckControllerAntiPiracy(void) {
+void menuUpdateCandyShopActor(void) {
     MenuShopState *st;
     u8 *inventory;
     s32 pad[4];
@@ -919,7 +919,7 @@ void menuUpdateFunkyShopActor(void) {
 
 extern Mtx D_2000180;
 typedef struct { s16 unk0; s16 font; } MenuWidgetTextStyle;
-extern MenuWidgetTextStyle D_8003353C[];
+extern MenuWidgetTextStyle gShopWidgetTextStyles[];
 
 Gfx *menuDrawTransformedWidgets(Gfx *dl, Actor *widgetActor) {
     MenuWidgetState *widget = widgetActor->customState;
@@ -934,7 +934,7 @@ Gfx *menuDrawTransformedWidgets(Gfx *dl, Actor *widgetActor) {
     for (i = 0; i < 2; i++) {
         if (widget->text[i] != NULL) {
             gSPMatrix(dl++, &widget->mtx[i], G_MTX_LOAD | G_MTX_PUSH);
-            dl = textDrawStringVtx(dl, D_8003353C[i].font, 0, 0, widget->text[i], 0x80);
+            dl = textDrawStringVtx(dl, gShopWidgetTextStyles[i].font, 0, 0, widget->text[i], 0x80);
             gSPPopMatrix(dl++, G_MTX_MODELVIEW);
         }
     }
@@ -945,7 +945,7 @@ Gfx *menuDrawTransformedWidgets(Gfx *dl, Actor *widgetActor) {
 typedef struct {
     s32 id[2];
 } MenuTextIdPair;
-extern MenuTextIdPair D_8003365C;
+extern MenuTextIdPair gShopWidgetNoText;
 extern s32 D_80033544[5][4][2];
 extern s32 D_800335E4[4][2];
 extern s32 D_80033604[];
@@ -972,12 +972,12 @@ void menuUpdateTransformedWidgets(void) {
     }
     if (st != NULL) {
         if (!(gCurrentActor->flags & 0x10)) {
-            textIds = D_8003365C;
+            textIds = gShopWidgetNoText;
             guScaleF(mA, 0.6f, 0.6f, 1.0f);
             guTranslateF(mB, 640.0f, 800.0f, 0.0f);
             guMtxCatF(mA, mB, mA);
             guMtxF2L(mA, &widget->mtx[0]);
-            lineHeight = textGetFontHeight(D_8003353C[1].font);
+            lineHeight = textGetFontHeight(gShopWidgetTextStyles[1].font);
             guTranslateF(mB, 0.0f, lineHeight * 4, 0);
             guMtxCatF(mA, mB, mA);
             guMtxF2L(mA, &widget->mtx[1]);

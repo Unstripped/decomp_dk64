@@ -242,7 +242,7 @@ void bossKRoolDiddyStep(void) {
     case 0x37:
         switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->yaw = mathAngleBetweenPoints2D(D_807FDCA0->entries[4].x, D_807FDCA0->entries[4].z, gCurrentActor->x, gCurrentActor->z);
+            gCurrentActor->yaw = mathAngleBetweenPoints2D(gBehaviourZone->entries[4].x, gBehaviourZone->entries[4].z, gCurrentActor->x, gCurrentActor->z);
             actorScriptStart(gCurrentActor, 0);
             camStartPath(gCurrentActor, 2, 1);
             gCurrentActor->unk155++;

@@ -506,7 +506,7 @@ void actorInitAnimations(Actor *actor, Actor *owner) {
 }
 
 extern s16 gSfxSourceVoice[];
-extern f32 D_80770B68[];
+extern f32 gSfxVoicePitch[];
 extern f32 D_80770BC0[];
 
 void vehicleUpdateEngineSound(vehicle, motion)
@@ -517,21 +517,21 @@ VehicleMotion *motion;
 
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
-        D_80770B68[idx] = gCurrentActor->speedXZ / 300.0 + 1.0;
+        gSfxVoicePitch[idx] = gCurrentActor->speedXZ / 300.0 + 1.0;
         D_80770BC0[idx] = 1.0f;
     } else {
-        D_80770B68[idx] = vehicle->throttle + 1.2;
+        gSfxVoicePitch[idx] = vehicle->throttle + 1.2;
         D_80770BC0[idx] = 5.0f;
     }
 
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         if (D_80770BC0[idx] == 0.0f) {
-            D_80770B68[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + gCurrentActor->speedXZ / 300.0);
+            gSfxVoicePitch[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + gCurrentActor->speedXZ / 300.0);
             D_80770BC0[idx] = 1.0f;
         }
     } else {
-        D_80770B68[idx] = vehicle->throttle * 1.5 + 0.2;
+        gSfxVoicePitch[idx] = vehicle->throttle * 1.5 + 0.2;
         D_80770BC0[idx] = 8.0f;
     }
 }
@@ -667,7 +667,7 @@ typedef struct ProjectileTrackerState {
     u8 mode;
 } ProjectileTrackerState;
 
-extern u8 D_80750AD0;
+extern u8 gMultiplayerReducedEffects;
 
 void projectileGetTargetCoords(Actor *actor, s32 node) {
     actorGetNodePos(actor, node, &D_807FC7B0, &D_807FC7B4, &D_807FC7B8);
@@ -993,7 +993,7 @@ void actorSpawnSparkleBurst(void) {
     f32 dy;
     f32 dz;
 
-    if (D_80750AD0 != 0) {
+    if (gMultiplayerReducedEffects != 0) {
         count = 3;
     } else {
         count = 6;
@@ -1381,7 +1381,7 @@ void projectileHomingUpdate(void) {
         effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8D, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
-        if (D_80750AD0 == 0) {
+        if (gMultiplayerReducedEffects == 0) {
             for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
                 effectSetSpeed(0x0B000000 + i);
@@ -1447,7 +1447,7 @@ void projectileMultiplayerUpdate(void) {
         ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
         gActorGlobalState.unk15 != 0 ||
         (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter)) {
-        if (D_80750AD0 == 0) {
+        if (gMultiplayerReducedEffects == 0) {
             for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
                 effectSetSpeed(0x05000000 + i);
@@ -1481,7 +1481,7 @@ void projectileSpawnExplosion(void) {
 
     actorSpawnSparkleBurst();
 
-    if (D_80750AD0 == 0) {
+    if (gMultiplayerReducedEffects == 0) {
         for (i = 0; i < 12; i++) {
             effectSetDepth(1);
             effectSetSpeed(0x0B010000 + i);
@@ -1626,7 +1626,7 @@ void projectileBounceExplodeScaledUpdate(void) {
             effectSetCallback(effectLightPulseOscillate);
             effectCreateAtPosition(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 22.0f, gCurrentActor->z);
             actorSpawnSparkleBurst();
-            if (D_80750AD0 == 0) {
+            if (gMultiplayerReducedEffects == 0) {
                 for (i = 0; i != 12; i++) {
                     effectSetDepth(1);
                     effectSetSpeed(0x0B010000 + i);
@@ -1819,7 +1819,7 @@ void projectileBeamUpdate(void) {
         effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1E5, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
-        if (D_80750AD0 == 0) {
+        if (gMultiplayerReducedEffects == 0) {
             for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
                 effectSetSpeed(0x0B000000 + i);
@@ -1961,7 +1961,7 @@ void projectileRotatingUpdate(void) {
         effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0xFF, 0x7F, 5);
         actorDespawn(gCurrentActor);
-        if (D_80750AD0 == 0) {
+        if (gMultiplayerReducedEffects == 0) {
             s32 i;
             for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
@@ -2037,7 +2037,7 @@ void projectileMatrixRotationUpdate(void) {
             gCurrentActor->state = 1;
             state->counter = 0x3C;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x308, 0xFF, 0x7F, 5);
-            if (D_80750AD0 != 0) {
+            if (gMultiplayerReducedEffects != 0) {
                 actorDespawn(gCurrentActor);
                 return;
             }
@@ -2075,7 +2075,7 @@ void projectileMatrixRotationUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
-extern u8 D_8072006C;
+extern u8 gSparkEffectSprite;
 
 void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
     ProjectileState *state;
@@ -2128,7 +2128,7 @@ void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
         if (!state->cooldown && ((gCurrentActor->contactFlags & 1) || gCurrentActor->collisionHit != 0 || gActorGlobalState.unk15 != 0)) {
             effectSetSpeed(0x1006E);
             effectSetCallback(effectLightPulseOscillate);
-            effectCreateAtPosition(&D_8072006C, 1.2f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gSparkEffectSprite, 1.2f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             effectSpawnBoneWhite(0, 0, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, -0x50);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x3F, 0x14);
             state->cooldown = 2;
@@ -2286,7 +2286,7 @@ void projectileHomingParticleUpdate(void) {
 }
 
 
-extern f32 D_807502F8;
+extern f32 gDefaultAccelY;
 extern PlayerState *gActivePlayerState;
 
 void projectileFallBounceUpdate(void) {
@@ -2317,7 +2317,7 @@ void projectileFallBounceUpdate(void) {
         *spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         collisionQueryActorFloor(gCurrentActor, &floorType, &floorY, &floorFlags, &floorNormal, floorMisc);
-        gCurrentActor->accelY = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
+        gCurrentActor->accelY = gDefaultAccelY - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
         gCurrentActor->contactFlags &= 0xFFFE;
     }
     if (gActorGlobalState.bossFightPhase == 5) {
@@ -2397,7 +2397,7 @@ void projectileChaseTargetUpdate(void) {
         state->spawnFrame += 0x78;
         if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x114, 0x1E, 1, 0, 0xFF, 1.0f, 0);
-            D_80770B68[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 0.75f;
+            gSfxVoicePitch[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 0.75f;
             D_80770BC0[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 1.0f;
         }
         state->counter = 0xF;

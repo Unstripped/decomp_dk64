@@ -397,7 +397,7 @@ void playerUpdateCommon(s32 mode) {
         } else if (gActivePlayerState->attackerSpawnNodeId > 0) {
             attacker = spawnNodeActivate(gActivePlayerState->attackerSpawnNodeId, 0);
         }
-        if (D_807552E4.unk0 == 0) {
+        if (gMpSettings.unk0 == 0) {
             if (gActivePlayerActor->state == 0x3C) {
                 if (gActivePlayerState->effectTimer != 0) {
                     gActivePlayerState->effectTimer--;
@@ -1738,7 +1738,7 @@ s32 playerSelectCarryMoveTier(f32 targetSpeed, f32 speed) {
     return tier;
 }
 
-extern s16 D_807532A8[];
+extern s16 gKongPickupApproachRadius[];
 
 void playerStartPickupApproach(Actor *target) {
     f32 radius;
@@ -1761,7 +1761,7 @@ void playerStartPickupApproach(Actor *target) {
             radius = 30.0f;
             break;
         default:
-            radius = D_807532A8[gCurrentCharacterIndex];
+            radius = gKongPickupApproachRadius[gCurrentCharacterIndex];
             break;
     }
     if (gActivePlayerState->stateFlags & 0x01000000) {
@@ -1970,7 +1970,7 @@ void actorReleaseFromPlayerHold(Actor *actor) {
     }
 }
 
-extern u8 D_80750AD0;
+extern u8 gMultiplayerReducedEffects;
 extern u8 D_8071FC40;
 
 void func_806CF580(void) {
@@ -2006,7 +2006,7 @@ void func_806CF580(void) {
         (gPlayerCharacterId[gCurrentPlayerIndex] == 1 || (gPlayerCount == 1 && gPlayerCharacterId[gCurrentPlayerIndex] == 3))) {
         currentActorAnimTryIdleVariant(0x81, &gActivePlayerState->unk84);
     }
-    if ((gCurrentActor->state == 0x4F || gCurrentActor->state == 0x7F) && D_80750AD0 == 0 &&
+    if ((gCurrentActor->state == 0x4F || gCurrentActor->state == 0x7F) && gMultiplayerReducedEffects == 0 &&
         gActivePlayerState->unkD0 + 9 < gFrameCounter && randomLcgNext() % 2500 / 200 == 0) {
         effectSetCallback(effectWobbleRiseUpdate);
         effectSetDepth(1);

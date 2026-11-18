@@ -9,8 +9,8 @@ void actorCheckPlayerSmallerThanAttacker(Actor *, Actor *, ActorCollisionList *)
 #ifndef PROTO_SKIP_actorTargetIsVulnerable
 u8 actorTargetIsVulnerable(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_806762C0
-u8 func_806762C0(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorListHasId2TargetVulnerable
+u8 actorListHasId2TargetVulnerable(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorIsDamageFatal
 s32 actorIsDamageFatal(Actor *, Actor *, u8);
@@ -33,11 +33,11 @@ u8 actorIsBelowTargetStationary(Actor *, Actor *, u8);
 #ifndef PROTO_SKIP_actorIsTargetBelowNode
 u8 actorIsTargetBelowNode(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676690
-u8 func_80676690(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorListHasId1FacingTarget
+u8 actorListHasId1FacingTarget(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_806766E0
-u8 func_806766E0(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorListHasId2FacingTarget
+u8 actorListHasId2FacingTarget(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676730
 s32 func_80676730(Actor *, Actor *, ActorCollisionList *);
@@ -72,8 +72,8 @@ u8 playerIsGiantAgainstEnemy(Actor *, Actor *, ActorCollisionList *);
 #ifndef PROTO_SKIP_playerIsGiantGroundedAgainstEnemy
 u8 playerIsGiantGroundedAgainstEnemy(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676B70
-u8 func_80676B70(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_playerIsGiantLandingOnEnemy
+u8 playerIsGiantLandingOnEnemy(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorTargetIsLargeMode
 u8 actorTargetIsLargeMode(Actor *, Actor *, ActorCollisionList *);

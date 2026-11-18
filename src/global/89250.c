@@ -29,16 +29,16 @@ typedef struct ScaleGrowthState {
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern ScaleTierTable D_8074E88C;
-extern void *D_8074E880[];
-extern u8 D_80750AD0;
+extern ScaleTierTable sGrowthTierScales;
+extern void *gPuffSprites[];
+extern u8 gMultiplayerReducedEffects;
 extern s32 D_8071FC0C;
 extern s32 D_8071FE08;
 extern s32 D_8071FED0;
 extern s32 D_8071FF18;
 extern s32 D_8071FF40;
 extern s32 sEffectSparkConfig;
-extern s32 D_8072006C;
+extern s32 gSparkEffectSprite;
 extern s32 D_80720120;
 extern s32 D_80720558;
 extern s32 D_8072073C;
@@ -156,7 +156,7 @@ void effectSpawnBoneDebris(s16 bone, s8 direction) {
     effectSetSpeed((((randomNonNegative() >> 15) % 100) + 0x190) * direction);
     effectSetCallback(effectSinkBySpeedUpdate);
     effectSetDepth(1);
-    effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
+    effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3],
                    scale * 0.8,
                    ((randomNonNegative() >> 15) % 20) + (nodeX - 10.0f),
                    nodeY,
@@ -182,7 +182,7 @@ void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
         duration = lifetime * 0.02;
     }
     effectSetDuration(duration);
-    effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
+    effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3],
                    scale * 0.8,
                    ((randomNonNegative() >> 15) % 60) + (nodeX - 30.0f),
                    nodeY,
@@ -196,7 +196,7 @@ void effectSpawnAuraBurst(u8 rate) {
     f32 x, y, z;
 
     if (((randomLcgNext() / 10000) % rate) == 0) {
-        if (D_80750AD0 == 0) {
+        if (gMultiplayerReducedEffects == 0) {
             for (i = 0; i < 4; i++) {
                 x = ((f32)(randomLcgNext() / 10000 % 200) / 10.0) - 5.0;
                 y = ((f32)(randomLcgNext() / 10000 % 200) / 10.0) - 5.0;
@@ -244,7 +244,7 @@ void effectSpawnRing(void) {
     }
 }
 
-void func_80685210(f32 scale, s16 speedThreshold, s16 bone) {
+void effectSpawnSpeedDustAtBone(f32 scale, s16 speedThreshold, s16 bone) {
     if (((gFrameCounter % 3) == 0) && (gCurrentActor->speedXZ > speedThreshold)) {
         effectSetMode(2);
         effectSetDepth(1);
@@ -269,7 +269,7 @@ void effectSpawnOctagonRing(f32 scale, f32 posX, f32 posY, f32 posZ) {
 
 void actorScaleGrowthUpdate(void) {
     ScaleGrowthState *extraData = gCurrentActor->customState;
-    ScaleTierTable scales = D_8074E88C;
+    ScaleTierTable scales = sGrowthTierScales;
 
     if (!(gCurrentActor->flags & 0x10)) {
         extraData->baseScaleY = gCurrentActor->sub4->scaleY;
@@ -297,7 +297,7 @@ void actorScaleGrowthUpdate(void) {
 void effectSpawnMultiTierRing(f32 scale, u8 tier, f32 posX, f32 posY, f32 posZ) {
     s32 sector;
 
-    if (D_80750AD0 == 0) {
+    if (gMultiplayerReducedEffects == 0) {
         if (tier > 0) {
             effectSpawnOctagonRing(scale, posX, posY, posZ);
         }
@@ -318,7 +318,7 @@ void effectSpawnMultiTierRing(f32 scale, u8 tier, f32 posX, f32 posY, f32 posZ) 
                 effectSetDepth(1);
                 effectSetDuration(-1);
                 effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
-                effectCreateAtPosition(D_8074E880[sector % 3], scale, posX, posY, posZ);
+                effectCreateAtPosition(gPuffSprites[sector % 3], scale, posX, posY, posZ);
             }
         }
     }
@@ -328,7 +328,7 @@ typedef struct MultiTierRingParams {
     s32 actorTypes[4];
 } MultiTierRingParams;
 
-extern MultiTierRingParams D_8074E898;
+extern MultiTierRingParams sMultiTierRingActorTypes;
 
 void effectSpawnMultiTierRingWithActor(Actor *actor, u8 tier) {
     s32 pad0[1];
@@ -338,7 +338,7 @@ void effectSpawnMultiTierRingWithActor(Actor *actor, u8 tier) {
     s32 pad1[1];
 
     actorScale = actor->sub4->scaleY / 0.15;
-    params = D_8074E898;
+    params = sMultiTierRingActorTypes;
     if (tier) {
         effectSpawnMultiTierRing(actorScale * 0.36, tier, actor->x, actor->y + 4.0f, actor->z);
         actorSpawn(0x145, params.actorTypes[tier]);
@@ -492,7 +492,7 @@ void effectSpawnBurstParticles(Actor *actor) {
     effectSetDuration(1);
     effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
     effectCreateAtPosition(&D_8071FC0C, scale * 0.65, actor->x, actor->waterY + 15.0f, actor->z);
-    if (D_80750AD0 == 0) {
+    if (gMultiplayerReducedEffects == 0) {
         count = (randomLcgNext() & 3) + 4;
         debrisScale = scale * 0.1;
         for (i = 0; i < count; i++) {
@@ -569,7 +569,7 @@ void effectSpawnActorOrbitParticles(Actor *actor) {
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectActorOrbitFollowUpdate);
-        effectCreateAtPosition(D_8074E880[i % 3], 0.7f, actor->x, actor->y, actor->z);
+        effectCreateAtPosition(gPuffSprites[i % 3], 0.7f, actor->x, actor->y, actor->z);
     }
 }
 
@@ -581,14 +581,14 @@ void effectSpawnRingBursts(Actor *actor, f32 radius, f32 arcHeight, s32 moveSpee
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
-        effectArcMotionInit(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 1, i * 1365.3334f, radius, arcHeight, moveSpeed);
+        effectArcMotionInit(effectCreateAtPosition(gPuffSprites[i], 0.7f, actor->x, actor->y, actor->z), 1, i * 1365.3334f, radius, arcHeight, moveSpeed);
     }
     for (i = 0; i < 3; i++) {
         effectSetDepth(1);
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
-        effectArcMotionInit(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 0, i * 1365.3334f, radius, arcHeight, moveSpeed);
+        effectArcMotionInit(effectCreateAtPosition(gPuffSprites[i], 0.7f, actor->x, actor->y, actor->z), 0, i * 1365.3334f, radius, arcHeight, moveSpeed);
     }
 }
 
@@ -600,7 +600,7 @@ void effectSpawnBurstParticleCluster(Actor *actor) {
         effectSetDuration(1);
         effectSetCallback(effectBurstParticleUpdate);
         effectSetAngle(i / 7);
-        effectCreateAtPosition(D_8074E880[i % 3], 1.4f, actor->x, actor->y + 10.0f, actor->z);
+        effectCreateAtPosition(gPuffSprites[i % 3], 1.4f, actor->x, actor->y + 10.0f, actor->z);
     }
 }
 
@@ -609,8 +609,8 @@ void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, s32 speed) 
     s32 shift;
     s32 count;
 
-    count = (D_80750AD0 != 0) ? 3 : 16;
-    shift = (D_80750AD0 != 0) ? 0 : 2;
+    count = (gMultiplayerReducedEffects != 0) ? 3 : 16;
+    shift = (gMultiplayerReducedEffects != 0) ? 0 : 2;
 
     for (i = 0; i < count; i++) {
         effectSetDepth(1);
@@ -618,7 +618,7 @@ void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, s32 speed) 
         effectSetCallback(effectOrbitRiseUpdate);
         effectSetAngle(i >> shift);
         effectSetSpeed(speed);
-        effectCreateAtPosition(D_8074E880[i % 3], 0.5f, posX, posY, posZ);
+        effectCreateAtPosition(gPuffSprites[i % 3], 0.5f, posX, posY, posZ);
     }
 }
 
@@ -755,13 +755,13 @@ void effectSpawnKongRing(void) {
         effectSetAngle(i * (1.0f / 3.0f));
         effectSetFlags(0x20);
         spawnX = (mathSinF(angle) * (baseScale * 18.0f)) + nodeX;
-        effectCreateAtPosition(D_8074E880[i % 3], baseScale * 0.3f, spawnX, nodeY, (mathCosF(angle) * (baseScale * 18.0f)) + nodeZ);
+        effectCreateAtPosition(gPuffSprites[i % 3], baseScale * 0.3f, spawnX, nodeY, (mathCosF(angle) * (baseScale * 18.0f)) + nodeZ);
     }
 }
 
 void effectSpawnBoneSparkAttached(u8 bone) {
     effectSetDepth(1);
-    effectCreateAtActorBone(&D_8072006C, 1.0f, gCurrentActor, bone, 0);
+    effectCreateAtActorBone(&gSparkEffectSprite, 1.0f, gCurrentActor, bone, 0);
 }
 
 extern s32 D_80720B24;
@@ -810,7 +810,7 @@ void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     }
 }
 
-void func_80687C48(void) {
+void effectShowBananaMedalIcon(void) {
     sfxPlayOnFreeSlot(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
     sfxAllocateChannel(0x97, 1.0f);
     effectSetDuration(0xC8);
@@ -819,7 +819,7 @@ void func_80687C48(void) {
     effectCreateAtPosition(&D_80720558, 1.0f, 160.0f, 120.0f, -10.0f);
 }
 
-void func_80687CC8(void) {
+void effectShowCrownIcon(void) {
     sfxPlayOnFreeSlot(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
     sfxAllocateChannel(0x97, 1.0f);
     effectSetDuration(0xC8);

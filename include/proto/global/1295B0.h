@@ -9,8 +9,8 @@ void actorSetUniformScale(Actor *, f32);
 #ifndef PROTO_SKIP_func_80724994
 void func_80724994(u8, s16, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80724A20
-s32 func_80724A20(void);
+#ifndef PROTO_SKIP_volumeTriggerApplyActorState
+s32 volumeTriggerApplyActorState(void);
 #endif
 #ifndef PROTO_SKIP_zoneEntrySetDisabled
 void zoneEntrySetDisabled(u8, u8, u8);

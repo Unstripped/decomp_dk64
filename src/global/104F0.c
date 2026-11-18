@@ -754,7 +754,7 @@ void eepromRefillHalfConsumables(void) {
 }
 
 extern u8 gActivePlayerCount;
-extern s32 D_80750AB0;
+extern s32 gPlayTimeBaseSeconds;
 extern u16 gLevelCollectibleCounts[];
 extern u8 gPlayerCount;
 
@@ -781,7 +781,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     gPlayerInventoryTable[0].melons = eepromGetField(0xC, 0, 0, slot);
     healthRefill(0);
     collectibleCountsClear();
-    D_80750AB0 = eepromGetField(0xE, 0, 0, slot);
+    gPlayTimeBaseSeconds = eepromGetField(0xE, 0, 0, slot);
     i = 0;
     do {
         for (j = 0; j != 5; j++)
@@ -821,7 +821,7 @@ void eepromSavePlayerData(void) {
     if (gPlayerCount == 1) {
         if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
             entry = gPlayerInventoryTable[0].kong;
-            total = gfxSetupFrameViewports();
+            total = playTimeGetSeconds();
             value = func_8060C724(gEepromCurrentSlot);
             if (total >= 0x400000U) {
                 total = -1;

@@ -274,9 +274,9 @@ void actorScriptedCommandUpdate(void) {
                 case 6:
                     gCurrentActor->speedXZ = 0.0f;
                     gCurrentActor->speedY = 0.0f;
-                    gCurrentActor->x = D_807FDCA0->entries[cmd->args[0]].x;
-                    gCurrentActor->y = D_807FDCA0->entries[cmd->args[0]].y;
-                    gCurrentActor->z = D_807FDCA0->entries[cmd->args[0]].z;
+                    gCurrentActor->x = gBehaviourZone->entries[cmd->args[0]].x;
+                    gCurrentActor->y = gBehaviourZone->entries[cmd->args[0]].y;
+                    gCurrentActor->z = gBehaviourZone->entries[cmd->args[0]].z;
                     gCurrentActor->yaw = (cmd->args[1] << 12) / 360;
                     gCurrentActor->moveYaw = gCurrentActor->yaw;
                     break;
@@ -441,8 +441,8 @@ void actorScriptedCommandUpdate(void) {
         case 0xE:
         case 0xF:
             if (state->lerpTimer != 0) {
-                ZoneEntry *to = &D_807FDCA0->entries[state->zoneTo];
-                ZoneEntry *from = &D_807FDCA0->entries[state->zoneFrom];
+                ZoneEntry *to = &gBehaviourZone->entries[state->zoneTo];
+                ZoneEntry *from = &gBehaviourZone->entries[state->zoneFrom];
                 f32 frac = (f32)state->lerpTimer / state->lerpSteps;
                 state->lerpTimer--;
                 gCurrentActor->x = from->x + (to->x - from->x) * frac;
@@ -498,7 +498,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
         gBehaviourAnimState->flags |= 0x200;
         actorSetTargetSpeed(gCurrentActor, 0);
     }
-    func_80724A20();
+    volumeTriggerApplyActorState();
     switch (gCurrentActor->state) {
         case 5:
             actorMoveWithinZone(0, 0.0f, 0.0f, 2, 0.0f);
@@ -822,7 +822,7 @@ void func_806C1E44(void) {
     }
     switch (gCurrentActor->state) {
         case 0:
-            func_80724A20();
+            volumeTriggerApplyActorState();
             switch (gCurrentActor->unk155) {
                 case 1:
                     gBehaviourWorkState->timer = 3;
@@ -865,7 +865,7 @@ void func_806C1E44(void) {
             }
             break;
         case 5:
-            func_80724A20();
+            volumeTriggerApplyActorState();
             actorShowTextOnceWhenNear(0xA, 1, 7);
             actorSetAnimForMoveTier(4, 0x4F1, 0x4F7, 0x4F7, 0x4F7);
             if (currentActorTestClearFlag() != 0) {
@@ -891,7 +891,7 @@ void func_806C1E44(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_807502F4;
+extern f32 gActorDefaultAccelY;
 extern s16 gCsModelIds[];
 extern u8 D_8071FC40;
 
@@ -900,7 +900,7 @@ void func_806C226C(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->accelY = D_807502F4;
+        gCurrentActor->accelY = gActorDefaultAccelY;
         gCurrentActor->y = gCurrentActor->floorY;
         gCurrentActor->drawDistance = 0x4B0;
         if (flagGet(0x9E, 0) != 0) {

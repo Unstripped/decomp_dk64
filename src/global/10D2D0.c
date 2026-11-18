@@ -66,7 +66,7 @@ Gfx *healthHudDraw(Gfx *glist, PlayerInventory *inv, KongInventory *kong, Player
 }
 
 
-void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
+void healthHudReset(HealthHudInit *hudInit) {
     if (gGlobalOverlayFlags & 0x800) {
         hudInit->unk6 = 0x20;
     } else {
@@ -209,7 +209,7 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
 }
 
 
-extern s8 D_80744504;
+extern s8 gMapLoadPauseFrames;
 
 Gfx *healthHudDrawAll(Gfx *glist) {
     s16 playerIndex;
@@ -218,7 +218,7 @@ Gfx *healthHudDrawAll(Gfx *glist) {
     for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
         if (gPlayerSlots[playerIndex].active) {
             flags = gPlayerSlots[playerIndex].unk2E2;
-            if (!(flags & 0x20) && (((gPlayerSlots[playerIndex].unk2E4 || flags) && !D_80744504) || (flags & 0x10))) {
+            if (!(flags & 0x20) && (((gPlayerSlots[playerIndex].unk2E4 || flags) && !gMapLoadPauseFrames) || (flags & 0x10))) {
                 glist = healthHudUpdateDraw(glist, playerIndex, &gPlayerSlots[playerIndex]);
             }
         }

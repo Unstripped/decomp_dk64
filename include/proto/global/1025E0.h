@@ -21,8 +21,8 @@ struct TextObjectElem *gfxResourceCopyEntry(struct TextObjectElem *, s16, s16);
 #ifndef PROTO_SKIP_func_806FDA8C
 f32 func_806FDA8C(s16);
 #endif
-#ifndef PROTO_SKIP_func_806FDAB8
-void func_806FDAB8(s16, f32);
+#ifndef PROTO_SKIP_gfxResourceSetTimer
+void gfxResourceSetTimer(s16, f32);
 #endif
 #ifndef PROTO_SKIP_gfxResourceFree
 void gfxResourceFree(s16);

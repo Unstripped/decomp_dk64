@@ -51,7 +51,7 @@ void func_80724994(u8 subtype, s16 value0, s16 value1, s16 value2, s16 value3) {
     actorAppendCallbackMemcpy8(0, target, 0x01000000, subtype, payload, 0);
 }
 
-s32 func_80724A20(void) {
+s32 volumeTriggerApplyActorState(void) {
     s32 found;
     s16 i;
 
@@ -500,7 +500,7 @@ void actorSetPositionFromPoint(Actor *actor, SpawnNode *pt) {
 typedef struct SpawnControllerActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ void *unk178;
-    /* 0x17C */ s16 *controllerState; // the controller state id (D_8075570C entry or controllerLookupStateByHash)
+    /* 0x17C */ s16 *controllerState; // the controller state id (D_8075570C entry or controllerLookupModelAssetId)
 } SpawnControllerActor;
 
 extern f32 gDefaultActorGravity;
@@ -596,7 +596,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
             if (act->actorType == 0xFE) {
                 *controllerState = D_8075570C[node->unkA];
             } else {
-                *controllerState = controllerLookupStateByHash(act);
+                *controllerState = controllerLookupModelAssetId(act);
             }
             break;
     }
@@ -836,8 +836,8 @@ void spawnNodeSpawnAtTablePoint(s16 id, u8 slot) {
     s16 yaw;
 
     point = gBehaviourAnimState->path[slot][0];
-    yaw = (s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, D_807FDCA0->entries[point].x, D_807FDCA0->entries[point].z) * 4096.0f) / 360.0f);
-    if (spawnNodeSpawnById(id, D_807FDCA0->entries[point].x, D_807FDCA0->entries[point].y, D_807FDCA0->entries[point].z, yaw, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
+    yaw = (s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, gBehaviourZone->entries[point].x, gBehaviourZone->entries[point].z) * 4096.0f) / 360.0f);
+    if (spawnNodeSpawnById(id, gBehaviourZone->entries[point].x, gBehaviourZone->entries[point].y, gBehaviourZone->entries[point].z, yaw, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
         gSpawnedActor->state = 0x17;
         gSpawnedActor->unk155 = 0;
     }
@@ -1351,7 +1351,7 @@ extern u8 D_8071FC0C[];
 extern u8 D_8071FC40[];
 extern u8 D_8071FC58[];
 extern u8 sEffectSparkConfig[];
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 
 
@@ -1511,7 +1511,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetDepth(1);
                 effectSetSpeed(1);
                 effectSetAngle(i * 3);
-                effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 0xF) % 1000 % 3], count * 0.01, (f32)x, (f32)y, (f32)z);
+                effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 0xF) % 1000 % 3], count * 0.01, (f32)x, (f32)y, (f32)z);
             }
             return;
         case 10: {

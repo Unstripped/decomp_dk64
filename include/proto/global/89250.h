@@ -33,8 +33,8 @@ void effectSpawnSparks(u8, u8);
 #ifndef PROTO_SKIP_effectSpawnRing
 void effectSpawnRing(void);
 #endif
-#ifndef PROTO_SKIP_func_80685210
-void func_80685210(f32, s16, s16);
+#ifndef PROTO_SKIP_effectSpawnSpeedDustAtBone
+void effectSpawnSpeedDustAtBone(f32, s16, s16);
 #endif
 #ifndef PROTO_SKIP_effectSpawnOctagonRing
 void effectSpawnOctagonRing(f32, f32, f32, f32);
@@ -117,10 +117,10 @@ void effectSpawnBoneSparkAttached(u8);
 #ifndef PROTO_SKIP_effectSpawnJointBeam
 void effectSpawnJointBeam(u8, u8, u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_80687C48
-void func_80687C48(void);
+#ifndef PROTO_SKIP_effectShowBananaMedalIcon
+void effectShowBananaMedalIcon(void);
 #endif
-#ifndef PROTO_SKIP_func_80687CC8
-void func_80687CC8(void);
+#ifndef PROTO_SKIP_effectShowCrownIcon
+void effectShowCrownIcon(void);
 #endif
 #endif

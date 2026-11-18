@@ -48,7 +48,7 @@ typedef struct GridBoundsNode {
     struct GridBoundsNode *next;
 } GridBoundsNode;
 
-// Collectable model node in a grid cell list (D_80754244[cell]) or the global list D_807FD72C.
+// Collectable model node in a grid cell list (gGridCells[cell]) or the global list gGridGlobalNodes.
 typedef struct GridNode {
     s16 modelSlot;
     s16 modelType;
@@ -84,7 +84,7 @@ typedef struct GridActiveNode {
     struct GridActiveNode *next;
 } GridActiveNode; // size = 0x20
 
-// D_80753EF0: 0x2A collectable model types.
+// gGridTypeTable: 0x2A collectable model types.
 typedef struct GridTypeEntry {
     s16 modelType;
     s8 queueSlot;
@@ -135,9 +135,9 @@ typedef struct {
     /* 0x2F */ u8 flags;
 } ModelAssetEntry; /* 0x30 */
 
-extern GridTypeEntry D_80753EF0[];
-extern GridNode **D_80754244;
-extern DelayedSpawn *D_80754240;
+extern GridTypeEntry gGridTypeTable[];
+extern GridNode **gGridCells;
+extern DelayedSpawn *gDelayedSpawnQueue;
 extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
@@ -147,7 +147,7 @@ extern s16 D_807FD722;
 extern s16 D_807FD724;
 extern s16 D_807FD726;
 extern s16 D_807FD728;
-extern GridNode *D_807FD72C;
+extern GridNode *gGridGlobalNodes;
 extern GridActiveNode *D_807FD730;
 extern u8 D_807FD738;
 extern u8 D_807FD798;
@@ -186,10 +186,10 @@ void gridBuildNodeLists(void) {
     entryCount = 0;
     D_807FD738 = 0;
     if (gGlobalOverlayFlags & 0x10000) {
-        D_80754240 = heapAlloc(60 * sizeof(DelayedSpawn));
-        heapClearBlock(D_80754240);
+        gDelayedSpawnQueue = heapAlloc(60 * sizeof(DelayedSpawn));
+        heapClearBlock(gDelayedSpawnQueue);
     } else {
-        D_80754240 = NULL;
+        gDelayedSpawnQueue = NULL;
     }
     baseCount = modelTypeCountBeforeMap(gCurrentMap);
     asset = assetLoad(9, gCurrentMap, 1, 1);
@@ -201,7 +201,7 @@ void gridBuildNodeLists(void) {
     D_807FD726 = 0;
     D_807FD728 = 0;
     D_807FD730 = NULL;
-    D_807FD72C = NULL;
+    gGridGlobalNodes = NULL;
     for (i = 0; i < gPlayerCount; i++) {
         D_807FD740[i].x = 0.0f;
         D_807FD740[i].y = 0.0f;
@@ -211,7 +211,7 @@ void gridBuildNodeLists(void) {
     }
     D_807FD798 = 0;
     slotQueueInit(1);
-    typeEntry = D_80753EF0;
+    typeEntry = gGridTypeTable;
     for (i = 0; i < 0x2AU; i++) {
         type = typeEntry->modelType;
         cursor = 0;
@@ -265,11 +265,11 @@ void gridBuildNodeLists(void) {
     D_807FD722 = D_807FD726 / 500 + 1;
     D_807FD724 = D_807FD728 / 500 + 1;
     D_807FD720 = D_807FD722 * D_807FD724;
-    D_80754244 = heapAlloc(D_807FD720 * sizeof(GridNode *));
+    gGridCells = heapAlloc(D_807FD720 * sizeof(GridNode *));
     cellIdx = 0;
     for (zi = 0; zi < D_807FD724; zi++) {
         for (xi = 0; xi < D_807FD722; xi++) {
-            D_80754244[cellIdx] = NULL;
+            gGridCells[cellIdx] = NULL;
             tail = NULL;
             for (node = head; node != NULL; node = node->next) {
                 if (node->x >= (s16) (xi * 500) && node->x < (s16) (xi * 500 + 500)) {
@@ -281,7 +281,7 @@ void gridBuildNodeLists(void) {
                         if (tail != NULL) {
                             tail->next = copy;
                         } else {
-                            D_80754244[cellIdx] = copy;
+                            gGridCells[cellIdx] = copy;
                         }
                         tail = copy;
                     }
@@ -327,14 +327,14 @@ void gridAppendPositionNode(u8 playerIndex, f32 x, f32 y, f32 z, f32 radius) {
 }
 
 
-s32 gridIsSpecialActorType(s16 modelType) {
+s32 gridTypeEntryIndex(s16 modelType) {
     GridTypeEntry *entry;
     s32 found;
     s32 index;
 
     index = 0;
     found = 0;
-    entry = D_80753EF0;
+    entry = gGridTypeTable;
     do {
         if (modelType == entry->modelType) {
             found = 1;
@@ -372,7 +372,7 @@ void gridMoveNode(s16 modelSlot, f32 x, f32 y, f32 z) {
     found = 0;
     while (found == 0 && i < D_807FD720) {
         prev = NULL;
-        node = D_80754244[i];
+        node = gGridCells[i];
         while (node != NULL && modelSlot != node->modelSlot) {
             prev = node;
             node = node->next;
@@ -382,15 +382,15 @@ void gridMoveNode(s16 modelSlot, f32 x, f32 y, f32 z) {
             if (prev != NULL) {
                 prev->next = node->next;
             } else {
-                D_80754244[i] = node->next;
+                gGridCells[i] = node->next;
             }
         }
         i++;
     }
     idx = gridCoordsToIndex(x, z);
     if (idx <= D_807FD720 && idx >= 0) {
-        node->next = D_80754244[idx];
-        D_80754244[idx] = node;
+        node->next = gGridCells[idx];
+        gGridCells[idx] = node;
         node->x = x;
         node->y = y;
         node->z = z;
@@ -419,8 +419,8 @@ void gridAddModelNode(s16 modelSlot, s16 modelType, s16 delay, u8 playSound, u8 
         node->y = y;
         node->z = z;
         node->modelSlot = modelSlot;
-        typeIndex = gridIsSpecialActorType(modelType);
-        node->requiredActorType = D_80753EF0[typeIndex].requiredActorType;
+        typeIndex = gridTypeEntryIndex(modelType);
+        node->requiredActorType = gGridTypeTable[typeIndex].requiredActorType;
         node->modelType = modelType;
         node->collected = 0;
         node->delay = delay;
@@ -430,11 +430,11 @@ void gridAddModelNode(s16 modelSlot, s16 modelType, s16 delay, u8 playSound, u8 
         node->typeIndex = typeIndex;
         node->next = NULL;
         if (isGlobal) {
-            cur = D_807FD72C;
-            tail = &D_807FD72C;
+            cur = gGridGlobalNodes;
+            tail = &gGridGlobalNodes;
         } else {
-            cur = D_80754244[idx];
-            tail = &D_80754244[idx];
+            cur = gGridCells[idx];
+            tail = &gGridCells[idx];
         }
         while (cur != NULL) {
             tail = &cur->next;
@@ -451,19 +451,19 @@ void gridFreeAllNodeLists(void) {
     GridActiveNode *nextActive;
     GridActiveNode *active;
 
-    if (D_80754244 != NULL) {
+    if (gGridCells != NULL) {
         for (cell = 0; cell < D_807FD720; cell++) {
-            node = D_80754244[cell];
+            node = gGridCells[cell];
             while (node != NULL) {
                 next = node->next;
                 heapFree(node);
                 node = next;
             }
         }
-        heapFree(D_80754244);
-        D_80754244 = NULL;
+        heapFree(gGridCells);
+        gGridCells = NULL;
     }
-    node = D_807FD72C;
+    node = gGridGlobalNodes;
     while (node != NULL) {
         next = node->next;
         heapFree(node);
@@ -511,7 +511,7 @@ GridActiveNode *gridActiveNodeCreate(GridNode *src) {
     return node;
 }
 
-s32 gridAdjustActorCollisionType(s32 slot, s32 modelType, u8 override) {
+s32 gridResolveQueueSlot(s32 slot, s32 modelType, u8 override) {
     if ((modelType == 0x91) || (modelType == 0x15D) || (modelType == 0x15E) || (modelType == 0x15F) || (modelType == 0x160)) {
         if (override != 0) {
             slot = 3;
@@ -543,8 +543,8 @@ void gridCollectItem(u8 playerIndex, s32 modelType, u8 collisionOverride) {
         return;
     }
     if (gCurrentMap != 0xF) {
-        entry = &D_80753EF0[gridIsSpecialActorType(modelType)];
-        slot = gridAdjustActorCollisionType(entry->queueSlot, modelType, collisionOverride);
+        entry = &gGridTypeTable[gridTypeEntryIndex(modelType)];
+        slot = gridResolveQueueSlot(entry->queueSlot, modelType, collisionOverride);
         switch (modelType) {
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
             flagSet(flagGridIndex(0x1D5, mapGetHubWorldIndex(gCurrentWorldId, 1), gPlayerCharacterId[playerIndex]), 1, 0);
@@ -594,7 +594,7 @@ void gridCollectItem(u8 playerIndex, s32 modelType, u8 collisionOverride) {
     }
 }
 
-void func_806F58A0(u8 playerIndex, s16 modelSlot, Actor *player) {
+void gridSpawnBunchItems(u8 playerIndex, s16 modelSlot, Actor *player) {
     s32 delay;
     s32 pad;
     f32 x;
@@ -633,7 +633,7 @@ void func_806F58A0(u8 playerIndex, s16 modelSlot, Actor *player) {
     }
 }
 
-void func_806F5A48(u8 playerIndex, s16 modelSlot, Actor *player, u16 parentType) {
+void gridSpawnAmmoCrateItems(u8 playerIndex, s16 modelSlot, Actor *player, u16 parentType) {
     s32 delay;
     f32 x;
     f32 y;
@@ -707,13 +707,13 @@ void delayedSpawnQueueAdd(s32 type, s32 isActor, s16 x, s16 y, s16 z, s32 delay)
 
     found = 0;
     for (i = 0; i < 60 && !found; i++) {
-        if (D_80754240[i].timer == 0) {
-            D_80754240[i].isActor = isActor;
-            D_80754240[i].type = type;
-            D_80754240[i].x = x;
-            D_80754240[i].y = y;
-            D_80754240[i].z = z;
-            D_80754240[i].timer = delay;
+        if (gDelayedSpawnQueue[i].timer == 0) {
+            gDelayedSpawnQueue[i].isActor = isActor;
+            gDelayedSpawnQueue[i].type = type;
+            gDelayedSpawnQueue[i].x = x;
+            gDelayedSpawnQueue[i].y = y;
+            gDelayedSpawnQueue[i].z = z;
+            gDelayedSpawnQueue[i].timer = delay;
             found = 1;
         }
     }
@@ -725,7 +725,7 @@ s32 delayedSpawnQueueContains(s32 type, s32 isActor, s16 x, s16 y, s16 z) {
 
     found = 0;
     for (i = 0; i < 60 && !found; i++) {
-        if (D_80754240[i].timer != 0 && type == D_80754240[i].type && isActor == D_80754240[i].isActor) {
+        if (gDelayedSpawnQueue[i].timer != 0 && type == gDelayedSpawnQueue[i].type && isActor == gDelayedSpawnQueue[i].isActor) {
             found = 1;
         }
     }
@@ -740,7 +740,7 @@ void delayedSpawnQueueAddActor(s32 type, s32 delay, s16 x, s16 y, s16 z) {
     delayedSpawnQueueAdd(type, 1, x, y, z, delay);
 }
 
-void func_806F5FA0(s16 x, s16 y, s16 z) {
+void delayedSpawnQueueAddRandomEffectPickup(s16 x, s16 y, s16 z) {
     delayedSpawnQueueAddActor(0x76, 0, x, y, z);
 }
 
@@ -757,16 +757,16 @@ void delayedSpawnQueueTick(void) {
 
     if ((menuIsTransitionType6() != 0) && !(gGlobalPauseFlags & 2)) {
         for (i = 0; i < 60; i++) {
-            if (D_80754240[i].timer != 0) {
-                D_80754240[i].timer--;
-                if (D_80754240[i].timer == 5) {
-                    effectSpawnParticleRingAtPosition(D_80754240[i].x, D_80754240[i].y, D_80754240[i].z, 7);
+            if (gDelayedSpawnQueue[i].timer != 0) {
+                gDelayedSpawnQueue[i].timer--;
+                if (gDelayedSpawnQueue[i].timer == 5) {
+                    effectSpawnParticleRingAtPosition(gDelayedSpawnQueue[i].x, gDelayedSpawnQueue[i].y, gDelayedSpawnQueue[i].z, 7);
                 }
-                if (D_80754240[i].timer == 0) {
-                    if (D_80754240[i].isActor != 0) {
-                        actorSpawnNodeEntryScaled(D_80754240[i].type, D_80754240[i].x, D_80754240[i].y, D_80754240[i].z, 0, 0x19, -1, NULL);
+                if (gDelayedSpawnQueue[i].timer == 0) {
+                    if (gDelayedSpawnQueue[i].isActor != 0) {
+                        actorSpawnNodeEntryScaled(gDelayedSpawnQueue[i].type, gDelayedSpawnQueue[i].x, gDelayedSpawnQueue[i].y, gDelayedSpawnQueue[i].z, 0, 0x19, -1, NULL);
                     } else {
-                        gridAddModelNode(modelSlotAppend(D_80754240[i].type, D_80754240[i].x, D_80754240[i].y, D_80754240[i].z, 0.0f, 0), D_80754240[i].type, 0, 1, 0, 0);
+                        gridAddModelNode(modelSlotAppend(gDelayedSpawnQueue[i].type, gDelayedSpawnQueue[i].x, gDelayedSpawnQueue[i].y, gDelayedSpawnQueue[i].z, 0.0f, 0), gDelayedSpawnQueue[i].type, 0, 1, 0, 0);
                     }
                 }
             }
@@ -784,9 +784,9 @@ void gridCollectNodesInBounds(GridNode *node, u8 playerIndex, GridBounds *bounds
 
     player = gPlayerSlots[playerIndex].actor;
     while (node != NULL) {
-        dist = camDistance3D(node->x, D_80753EF0[node->typeIndex].yOffset + node->y, node->z, bounds->x, bounds->y, bounds->z);
+        dist = camDistance3D(node->x, gGridTypeTable[node->typeIndex].yOffset + node->y, node->z, bounds->x, bounds->y, bounds->z);
         if ((node->collected == 0) &&
-            (dist < D_80753EF0[node->typeIndex].radius + bounds->radius) &&
+            (dist < gGridTypeTable[node->typeIndex].radius + bounds->radius) &&
             ((node->requiredActorType == 0) || (player->actorType == node->requiredActorType)) &&
             (func_8063C2A8(node->modelSlot) != 0) &&
             (gridCheckNodeCondition(node->modelSlot, playerIndex, node->modelType) != 0)) {
@@ -820,11 +820,11 @@ void gridCollectNodesInBounds(GridNode *node, u8 playerIndex, GridBounds *bounds
             case 0x206:
             case 0x207:
             case 0x208:
-                func_806F58A0(playerIndex, node->modelSlot, player);
+                gridSpawnBunchItems(playerIndex, node->modelSlot, player);
                 break;
             case 0x11:
             case 0x8F:
-                func_806F5A48(playerIndex, node->modelSlot, player, node->modelType);
+                gridSpawnAmmoCrateItems(playerIndex, node->modelSlot, player, node->modelType);
                 break;
             default:
                 if (gPlayerCount >= 2) {
@@ -859,11 +859,11 @@ void gridDispatchRect(u8 playerIndex, GridBounds *bounds) {
             if (z <= D_807FD728 + radius) {
                 cell = gridCoordsToIndex(x, z);
                 if (cell >= 0) {
-                    gridCollectNodesInBounds(D_80754244[cell], playerIndex, bounds);
+                    gridCollectNodesInBounds(gGridCells[cell], playerIndex, bounds);
                 }
             }
         }
-        gridCollectNodesInBounds(D_807FD72C, playerIndex, bounds);
+        gridCollectNodesInBounds(gGridGlobalNodes, playerIndex, bounds);
     }
 }
 
@@ -979,8 +979,8 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
                 prev = node;
                 node = node->next;
             } else {
-                idx = gridIsSpecialActorType(node->modelType);
-                slot = D_80753EF0[idx].queueSlot;
+                idx = gridTypeEntryIndex(node->modelType);
+                slot = gGridTypeTable[idx].queueSlot;
                 if (node->started == 0) {
                     modelSlotGetTransformVectors(node->modelSlot, &vx, &vy, &vz, &unusedA, &unusedB, &unusedC, &unusedD, &unusedE, 1);
                     guMtxXFML(mtx, vx, vy, vz, &node->startX, &node->startY, &node->startZ);
@@ -990,7 +990,7 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
                         playerStateHandleSoundEffects(node->modelType, playerIndex);
                     }
                     if ((slot >= 0) && !(gGlobalOverlayFlags & 0x4000) && ((slot != 0xB) || !(gGlobalOverlayFlags & 0x10000000))) {
-                        slotQueueUpdate(gridAdjustActorCollisionType(slot, node->modelType, node->collisionOverride), 0, 0);
+                        slotQueueUpdate(gridResolveQueueSlot(slot, node->modelType, node->collisionOverride), 0, 0);
                     }
                     switch (node->modelType) {
                     case 0xEC:
@@ -1013,7 +1013,7 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
                 fz = ((pz - node->startZ) * node->progress) + node->startZ;
                 guMtxXFMF(inv, fx, fy, fz, &outX, &outY, &outZ);
                 next = node->next;
-                typeEntry = &D_80753EF0[idx];
+                typeEntry = &gGridTypeTable[idx];
                 node->progress += typeEntry->speed;
                 if ((node->progress > typeEntry->limit) || (typeEntry->queueSlot == -2)) {
                     gridCollectItem(playerIndex, node->modelType, node->collisionOverride);
@@ -1134,7 +1134,7 @@ void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 cou
 }
 
 
-f32 func_806F7378(u32 actorType) {
+f32 pickupModelYOffset(u32 actorType) {
     if (actorType == 0x8C) {
         return -13.0f;
     }
@@ -1160,14 +1160,14 @@ void gridCollectActorsInRange(u8 playerIndex) {
     playerState = player->customState;
     if (gPlayerInventoryTable[playerIndex].health > 0) {
         for (typeIndex = 0; typeIndex < 0x2A; typeIndex++) {
-            if (D_80753EF0[typeIndex].actorType != 0) {
+            if (gGridTypeTable[typeIndex].actorType != 0) {
                 for (i = 0; i < gActiveActorCount; i++) {
                     actor = gActiveActors[i].actor;
-                    if ((gGlobalPauseFlags & 0x10000) && (D_80753EF0[typeIndex].actorType == actor->actorType) && ((D_80753EF0[typeIndex].requiredActorType == 0) || (D_80753EF0[typeIndex].requiredActorType == player->actorType))) {
+                    if ((gGlobalPauseFlags & 0x10000) && (gGridTypeTable[typeIndex].actorType == actor->actorType) && ((gGridTypeTable[typeIndex].requiredActorType == 0) || (gGridTypeTable[typeIndex].requiredActorType == player->actorType))) {
                         node = D_807FD780[playerIndex];
-                        found = D_80753EF0[typeIndex].radius + D_807FD740[playerIndex].radius - 1.0f > camDistance3D(actor->x, D_80753EF0[typeIndex].yOffset + actor->y, actor->z, D_807FD740[playerIndex].x, D_807FD740[playerIndex].y, D_807FD740[playerIndex].z);
+                        found = gGridTypeTable[typeIndex].radius + D_807FD740[playerIndex].radius - 1.0f > camDistance3D(actor->x, gGridTypeTable[typeIndex].yOffset + actor->y, actor->z, D_807FD740[playerIndex].x, D_807FD740[playerIndex].y, D_807FD740[playerIndex].z);
                         while ((found == 0) && (node != NULL)) {
-                            found = D_80753EF0[typeIndex].radius + node->bounds.radius - 1.0f > camDistance3D(actor->x, D_80753EF0[typeIndex].yOffset + actor->y, actor->z, node->bounds.x, node->bounds.y, node->bounds.z);
+                            found = gGridTypeTable[typeIndex].radius + node->bounds.radius - 1.0f > camDistance3D(actor->x, gGridTypeTable[typeIndex].yOffset + actor->y, actor->z, node->bounds.x, node->bounds.y, node->bounds.z);
                             node = node->next;
                         }
                         if ((actor->state == 0x64) || (found != 0)) {
@@ -1228,12 +1228,12 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         isGlobal = 0;
                                         break;
                                     }
-                                    modelSlot = modelSlotAppend(D_80753EF0[typeIndex].modelType, actor->x, func_806F7378(actor->actorType) + actor->y, actor->z, 0.0f, 0);
+                                    modelSlot = modelSlotAppend(gGridTypeTable[typeIndex].modelType, actor->x, pickupModelYOffset(actor->actorType) + actor->y, actor->z, 0.0f, 0);
                                     tableIndex = csModelSlotGetTableIndex(modelSlot);
                                     flagTempRegister(gCurrentLevelIndex, tableIndex, pickupState->flagId, flagLookupValueById(pickupState->flagId));
                                     tableIndex = csModelSlotGetTableIndex(modelSlot);
                                     modelFlagsApplyState(gCurrentLevelIndex, tableIndex, &gModelSlots[hashTableLookup(modelSlot)].unk8C);
-                                    gridAddModelNode(modelSlot, D_80753EF0[typeIndex].modelType, 0, 1, 0, isGlobal);
+                                    gridAddModelNode(modelSlot, gGridTypeTable[typeIndex].modelType, 0, 1, 0, isGlobal);
                                     actor->parentActor = NULL;
                                 }
                                 actorDespawn(actor);
@@ -1280,7 +1280,7 @@ void playerStateHandleSoundEffects(s16 modelType, u8 playerIndex) {
         break;
     case 0x90:
         sfxAllocateChannel(0x12, 1.0f);
-        func_80687C48();
+        effectShowBananaMedalIcon();
         y = gPrimaryPlayerActor->y;
         if (((y - gPrimaryPlayerActor->floorY) < 100.0f) && (gPrimaryPlayerActor->state != 0x63) && (!(gPrimaryPlayerActor->contactFlags & 4) || !((gPrimaryPlayerActor->waterY - y) > 20.0f))) {
             playerStateQueueCallback(0x29, NULL, gActivePlayerState->playerIndex);
@@ -1330,7 +1330,7 @@ void playerStateHandleSoundEffects(s16 modelType, u8 playerIndex) {
     case 0x18D:
         sfxAllocateChannel(0x12, 1.0f);
         playerStateQueueCallback(0x42, NULL, gActivePlayerState->playerIndex);
-        func_80687CC8();
+        effectShowCrownIcon();
         break;
     case 0x1D1:
         sfxPlayOnFreeSlot(0xAE, 0x7FFF, 63.0f, 1.0f, 5, 0);

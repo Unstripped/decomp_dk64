@@ -855,13 +855,13 @@ void carryObjectUpdate(void) {
         switch (gCurrentActor->actorType) {
         case 0x43:
             if (flagGet(0x9A, 0) != 0) {
-                func_8068A2FC(gCurrentActor);
+                actorHideAndDisable(gCurrentActor);
             }
             break;
         case 0x3D:
             if (gCurrentMap == 0xC3) {
                 if (flagGet(0x267, 0) != 0) {
-                    func_8068A2FC(gCurrentActor);
+                    actorHideAndDisable(gCurrentActor);
                 }
             }
             if (gCurrentMap == 0x26) {
@@ -1316,7 +1316,7 @@ Gfx *renderAppendScaledMatrix(Gfx *glistp, Actor *actor, s16 xOffset, f32 scale)
 
 extern Gfx D_1000118;
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     TextMarkerState *marker;
@@ -1345,7 +1345,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
                 effectSetCallback(effectConfettiPhysicsUpdate);
                 effectSetSpeed(0xA);
                 effectEnableFade();
-                effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, confettiX, actor->y * 0.25 + 12.0, -5.0f);
+                effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, confettiX, actor->y * 0.25 + 12.0, -5.0f);
             }
         default:
             vtxGradientSetPosition(actor->unk15F * 3);

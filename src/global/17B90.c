@@ -9,10 +9,10 @@
 #include "proto/global/70FD0.h"
 #include "proto/global/8CA50.h"
 
-extern u16 D_807FBB30;
+extern u16 gModelCacheCount;
 extern PlayerState *gActivePlayerState;
 
-extern u8 D_80746B64[];
+extern u8 gDefaultModelBone[];
 
 
 AnimInitData *controllerAnimStateLoadAsset(actor, assetId, cullSwap)
@@ -24,25 +24,25 @@ unsigned char cullSwap;
     AnimInitData *asset;
     s32 delta;
 
-    for (i = 0; i < D_807FBB30; i++) {
-        if (assetId == D_807FB630[i].assetId && D_807FB630[i].cullSwap == cullSwap) {
-            D_807FB630[i].refCount++;
-            animListInit(actor, D_807FB630[i].asset);
-            return D_807FB630[i].asset;
+    for (i = 0; i < gModelCacheCount; i++) {
+        if (assetId == gModelCache[i].assetId && gModelCache[i].cullSwap == cullSwap) {
+            gModelCache[i].refCount++;
+            animListInit(actor, gModelCache[i].asset);
+            return gModelCache[i].asset;
         }
     }
 
-    // The original tests the clip cache's count here, not D_807FBB30.
+    // The original tests the clip cache's count here, not gModelCacheCount.
     if (gAnimClipCacheCount >= 0x20) {
-        return D_807FB630[0].asset;
+        return gModelCache[0].asset;
     }
 
     asset = assetLoad(5, assetId - 1, 1, 1);
-    D_807FB630[i].assetId = assetId;
-    D_807FBB30++;
-    D_807FB630[i].cullSwap = cullSwap;
-    D_807FB630[i].refCount = 1;
-    D_807FB630[i].asset = asset;
+    gModelCache[i].assetId = assetId;
+    gModelCacheCount++;
+    gModelCache[i].cullSwap = cullSwap;
+    gModelCache[i].refCount = 1;
+    gModelCache[i].asset = asset;
 
     delta = ((u8 *)asset - (u8 *)asset->unk0) + 0x28;
     asset->unk0 = (u8 *)asset->unk0 + delta;
@@ -55,7 +55,7 @@ unsigned char cullSwap;
     if (asset->unk8 != NULL) {
         asset->unk8 = (u8 *)asset->unk8 + delta;
     } else {
-        asset->unk8 = D_80746B64;
+        asset->unk8 = gDefaultModelBone;
         asset->boneCount = 1;
     }
 
@@ -121,7 +121,7 @@ void controllerAnimLoadStateAsset1(Actor *actor, s16 assetId) {
 
 void controllerAnimFreeStateAsset(Actor *actor) {
     if (actor->stateModel != NULL) {
-        controllerAnimFreeSub(actor, 2);
+        controllerAnimFreeModel(actor, 2);
         actor->stateModel = NULL;
     }
 }
@@ -198,16 +198,16 @@ void controllerCommandRelocateAssets(Gfx *cmdStart, void *cmdEnd) {
     }
 }
 
-s32 controllerLookupStateByHash(Actor *actor) {
+s32 controllerLookupModelAssetId(Actor *actor) {
     void *model = actor->animState;
     s32 i;
-    for (i = D_807FBB30; i >= 0; i--) {
-        if (model == D_807FB630[i].asset) {
+    for (i = gModelCacheCount; i >= 0; i--) {
+        if (model == gModelCache[i].asset) {
             break;
         }
     }
     if (i >= 0) {
-        return D_807FB630[i].assetId;
+        return gModelCache[i].assetId;
     }
     return 0;
 }
@@ -293,9 +293,9 @@ void controllerAnimFree(Actor *actor) {
     BoneVector *scales;
     BoneVector *offsets;
 
-    controllerAnimFreeSub(actor, 0);
-    controllerAnimFreeSub(actor, 1);
-    controllerAnimFreeSub(actor, 2);
+    controllerAnimFreeModel(actor, 0);
+    controllerAnimFreeModel(actor, 1);
+    controllerAnimFreeModel(actor, 2);
     animListFree(&actor->animList);
     controllerAnimCacheFree(actor, actor->sub4->model);
     controllerAnimCacheFree(actor, actor->sub4->layer);
@@ -316,7 +316,7 @@ void controllerAnimFree(Actor *actor) {
     heapFreeDeferred(actor->sub4);
 }
 
-void controllerAnimFreeSub(Actor *actor, u8 modelIndex) {
+void controllerAnimFreeModel(Actor *actor, u8 modelIndex) {
     AnimInitData *model;
     Gfx *cmd;
     void **dlEnd;
@@ -339,14 +339,14 @@ void controllerAnimFreeSub(Actor *actor, u8 modelIndex) {
 
     if (model != NULL) {
         for (i = 0; i < 32; i++) {
-            if (D_807FB630[i].asset == model) {
+            if (gModelCache[i].asset == model) {
                 break;
             }
         }
         if (i == 32) {
             return;
         }
-        if (--D_807FB630[i].refCount == 0) {
+        if (--gModelCache[i].refCount == 0) {
             cmd = model->displayLists[0];
             dlEnd = model->displayLists;
             if (cmd != (Gfx *)dlEnd) {
@@ -360,16 +360,16 @@ void controllerAnimFreeSub(Actor *actor, u8 modelIndex) {
                 } while (++cmd != (Gfx *)dlEnd);
             }
 
-            D_807FBB30--;
-            D_807FB630[i].assetId = D_807FB630[D_807FBB30].assetId;
-            D_807FB630[i].asset = D_807FB630[D_807FBB30].asset;
-            D_807FB630[i].cullSwap = D_807FB630[D_807FBB30].cullSwap;
-            D_807FB630[i].refCount = D_807FB630[D_807FBB30].refCount;
+            gModelCacheCount--;
+            gModelCache[i].assetId = gModelCache[gModelCacheCount].assetId;
+            gModelCache[i].asset = gModelCache[gModelCacheCount].asset;
+            gModelCache[i].cullSwap = gModelCache[gModelCacheCount].cullSwap;
+            gModelCache[i].refCount = gModelCache[gModelCacheCount].refCount;
 
-            D_807FB630[D_807FBB30].assetId = 0;
-            D_807FB630[D_807FBB30].asset = NULL;
-            D_807FB630[D_807FBB30].cullSwap = 0;
-            D_807FB630[D_807FBB30].refCount = 0;
+            gModelCache[gModelCacheCount].assetId = 0;
+            gModelCache[gModelCacheCount].asset = NULL;
+            gModelCache[gModelCacheCount].cullSwap = 0;
+            gModelCache[gModelCacheCount].refCount = 0;
 
             assetFreeBuffer(model, 0x281, 0x15);
         }
@@ -885,7 +885,7 @@ f32 actorGetAnimProgress(Actor *actor) {
 }
 
 extern u8 gGfxBufferIndex;
-void func_806195D0(Actor *);
+void actorBuildBoneMatrices(Actor *);
 void actorCheckWorldBounds(Actor *actor) {
     f32 x = actor->x;
     if (x >= -8192.0f) {
@@ -894,7 +894,7 @@ void actorCheckWorldBounds(Actor *actor) {
             f32 z = actor->z;
             if ((z >= -8192.0f) && (x <= 8192.0f) && (y <= 8192.0f) && (z <= 8192.0f)) {
                 actor->boneMtx = actor->sub4->boneMtx[gGfxBufferIndex];
-                func_806195D0(actor);
+                actorBuildBoneMatrices(actor);
                 actorTouchSub140Timestamp(actor);
                 actor->flags |= 0x200;
             }

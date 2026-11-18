@@ -236,14 +236,14 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputHandleAButtonSlopeJump, playerInputRecordBPress,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputHandleAButtonSlopeJump, playerInputRecordBPress,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -306,21 +306,21 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSlopeJump, playerInputHandleBButtonGun,
         playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
         playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSlopeJump, playerInputHandleBButtonGun,
         playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
         playerInputNoop, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputNoop,
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickFacingYaw, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputRequestPause, playerInputUpdateStickFacingYaw, playerInputHandleAButtonSlopeJump, playerInputRecordBPress,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -516,7 +516,7 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSlopeJump, playerInputHandleBButtonGun,
         playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -544,7 +544,7 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSlopeJump, playerInputHandleBButtonGun,
         playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -586,14 +586,14 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateFacingYawNormal, playerInputCheckBButton, playerInputNoop,
+        playerInputRequestPause, playerInputUpdateFacingYawNormal, playerInputHandleAButtonSlopeJump, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateFacingYawOffset, playerInputCheckBButton, playerInputNoop,
+        playerInputRequestPause, playerInputUpdateFacingYawOffset, playerInputHandleAButtonSlopeJump, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -614,28 +614,28 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputHandleAButtonSlopeJump, playerInputHandleBButtonGun,
         playerInputHandlerNoop1, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputHandleAButtonSlopeJump, playerInputHandleBButtonGun,
         playerInputHandlerNoop1, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputHandleAButtonSlopeJump, playerInputRecordBPress,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSlopeJump, playerInputRecordBPress,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -698,7 +698,7 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         (void (*)(void))playerInputPostUpdate,
     } },
     { {
-        playerInputRequestPause, playerInputCalculateStickForwardSpeed, playerInputCheckBButton, playerInputNoop,
+        playerInputRequestPause, playerInputCalculateStickForwardSpeed, playerInputHandleAButtonSlopeJump, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -838,14 +838,14 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputStepLadderClimb, func_806E9070, playerInputNoop,
+        playerInputRequestPause, playerInputStepLadderClimb, playerInputHandleAButtonLadderJump, playerInputNoop,
         func_806E8E78, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputHandleRButtonFixedLook, playerInputNoop, playerInputHandleRButtonFixedLook,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputCheckLadderTopOrBottom, func_806E9070, playerInputNoop,
+        playerInputRequestPause, playerInputCheckLadderTopOrBottom, playerInputHandleAButtonLadderJump, playerInputNoop,
         func_806E8E78, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputHandleRButtonFixedLook, playerInputNoop, playerInputHandleRButtonFixedLook,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -1608,9 +1608,9 @@ void playerInputNoop(void) {
 extern SchedStruct gScheduler;
 extern f32 gKongTurnDecelRates[];
 extern f32 gKongDecelRate[];
-extern f32 D_807535CC[];
+extern f32 gKongJumpVelocityY[];
 
-void playerInputCheckBButton(void) {
+void playerInputHandleAButtonSlopeJump(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
@@ -1627,10 +1627,10 @@ void playerInputCheckBButton(void) {
         gCurrentActor->speedXZ = 200.0f;
         gActivePlayerState->approachTimer = 0x1E;
         gActivePlayerState->approachYaw = gCurrentActor->floorSlopeYaw;
-        gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex] * 0.5;
+        gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex] * 0.5;
     } else {
         gActivePlayerState->airTimer = 0;
-        gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+        gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     }
     gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
     gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
@@ -1655,7 +1655,7 @@ void playerInputHandleAButtonState0(void) {
     gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     gCurrentActor->state = 0x17;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStart(gCurrentActor, 0xB0);
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
@@ -1677,7 +1677,7 @@ void playerInputHandleAButtonJump(void) {
     gActivePlayerState->airAccel = 20.0f;
     gCurrentActor->state = 0x17;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x10);
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
@@ -1695,7 +1695,7 @@ void playerInputHandleAButtonState17(void) {
     }
     gCurrentActor->state = 0x17;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStart(gCurrentActor, 0xAF);
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
@@ -1716,7 +1716,7 @@ void playerInputHandleAButtonGravity(void) {
     }
     gCurrentActor->state = 0x14;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x67);
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
@@ -1734,7 +1734,7 @@ void playerInputHandleAButtonState41(void) {
     }
     gCurrentActor->state = 0x41;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStart(gCurrentActor, 0x156);
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
@@ -1761,7 +1761,7 @@ void playerInputHandleAButtonState61(void) {
     }
     gCurrentActor->state = 0x61;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x50);
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
@@ -2116,7 +2116,7 @@ void playerInputHandleAButtonSub17(void) {
     }
     gCurrentActor->state = 0x17;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x10);
 }
@@ -2137,7 +2137,7 @@ void playerInputHandleAButtonSub61(void) {
     }
     gCurrentActor->state = 0x61;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x50);
 }
@@ -2208,7 +2208,7 @@ void playerInputUpdateCannonAim(void) {
         if (gCurrentActor) {} // FAKE: dead read of gCurrentActor at the jump-block head makes its load a coloured uopt web ($v1 for the state store, lw v1,0(a3) at 0x43a4) and leaves sel in $v0; replaces the one-use p and sel ^= 0
         gCurrentActor->state = 0x4C;
         gCurrentActor->unk155 = 0;
-        gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+        gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         sel = gActivePlayerState->heldActor->actorType;
         switch (sel) {
@@ -2902,7 +2902,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                     gCurrentActor->state = 0x18;
                     gCurrentActor->unk155 = 0;
                     gCurrentActor->unk144 = 1;
-                    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex] * 2.5;
+                    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex] * 2.5;
                     gActivePlayerState->unk50 = 0x28;
                     actorScriptStartByIndex(gCurrentActor, 0x22);
                     timerQueueAdd(playerInputStartTransitionToMap, 0x14, gActorGlobalState.unk10, gActorGlobalState.unk12, 0);
@@ -4050,7 +4050,7 @@ void playerInputHandleAButtonJumpOff(void) {
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
 }
 
-void func_806E9070(void) {
+void playerInputHandleAButtonLadderJump(void) {
     LockableActorState *st;
 
     st = gActivePlayerState->actor->customState;
@@ -4601,7 +4601,7 @@ void playerInputHandleAButtonGroundJump(void) {
         return;
     }
     playerSetTerminalVelocity5B0();
-    gCurrentActor->speedY = D_807535CC[gCurrentCharacterIndex];
+    gCurrentActor->speedY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     gActivePlayerState->airTimer = 0;
     gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;

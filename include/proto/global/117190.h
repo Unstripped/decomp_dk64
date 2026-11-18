@@ -57,8 +57,8 @@ void controllerFilterInput(OSContPad *);
 #ifndef PROTO_SKIP_menuSeedRandom
 void menuSeedRandom(void);
 #endif
-#ifndef PROTO_SKIP_menuSetupBonusCharacter
-void menuSetupBonusCharacter(void);
+#ifndef PROTO_SKIP_menuSetupDemoPlayback
+void menuSetupDemoPlayback(void);
 #endif
 #ifndef PROTO_SKIP_menuCheckMapTransitionOnLoad
 void menuCheckMapTransitionOnLoad(void);
@@ -81,8 +81,8 @@ void menuHandleCutsceneScreenTransition(void);
 #ifndef PROTO_SKIP_menuHandleIntroScreenTransition
 void menuHandleIntroScreenTransition(void);
 #endif
-#ifndef PROTO_SKIP_menuStartSelectedBonusStage
-void menuStartSelectedBonusStage(void);
+#ifndef PROTO_SKIP_menuStartDemo
+void menuStartDemo(void);
 #endif
 #ifndef PROTO_SKIP_menuHandleBonusStageTransition
 void menuHandleBonusStageTransition(void);
@@ -93,11 +93,11 @@ void menuHandleDemoModeTransition(void);
 #ifndef PROTO_SKIP_menuOverlayGfxInit
 Gfx *menuOverlayGfxInit(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_8071338C
-Gfx *func_8071338C(Gfx *);
+#ifndef PROTO_SKIP_menuDrawDemoHeaderText
+Gfx *menuDrawDemoHeaderText(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_80713438
-Gfx *func_80713438(Gfx *, u8);
+#ifndef PROTO_SKIP_menuDrawDemoCaption
+Gfx *menuDrawDemoCaption(Gfx *, u8);
 #endif
 #ifndef PROTO_SKIP_menuDrawBlinkingPromptText
 Gfx *menuDrawBlinkingPromptText(Gfx *);
@@ -105,20 +105,20 @@ Gfx *menuDrawBlinkingPromptText(Gfx *);
 #ifndef PROTO_SKIP_mathIdentityS32
 Gfx *mathIdentityS32(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_80713764
-Gfx *func_80713764(Gfx *, u8, f32);
+#ifndef PROTO_SKIP_menuDrawDemoSprite
+Gfx *menuDrawDemoSprite(Gfx *, u8, f32);
 #endif
-#ifndef PROTO_SKIP_func_807138A4
-Gfx *func_807138A4(Gfx *);
+#ifndef PROTO_SKIP_menuDrawPromptOverlay
+Gfx *menuDrawPromptOverlay(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_807138CC
-Gfx *func_807138CC(Gfx *);
+#ifndef PROTO_SKIP_menuDrawDemoOverlay
+Gfx *menuDrawDemoOverlay(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_80713AA8
-Gfx *func_80713AA8(Gfx *);
+#ifndef PROTO_SKIP_menuGameOverGfxInit
+Gfx *menuGameOverGfxInit(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_80713B40
-Gfx *func_80713B40(Gfx *);
+#ifndef PROTO_SKIP_menuDrawGameOverText
+Gfx *menuDrawGameOverText(Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuTimerUpdateCountdown
 void menuTimerUpdateCountdown(void);

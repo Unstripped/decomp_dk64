@@ -17,10 +17,10 @@ u8 screenWipeGetState(void) {
     return sScreenWipeActive;
 }
 
-extern u8 D_80747B20;
+extern u8 sScreenWipeCooldown;
 
 u8 screenWipeGetCooldown(void) {
-    return D_80747B20;
+    return sScreenWipeCooldown;
 }
 
 extern u16 *gFramebuffers[];
@@ -28,42 +28,42 @@ extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 gGfxBufferIndex;
 extern s8 sScreenWipeType;
-extern s16 D_807F5D86;
-extern s16 D_807F5D88;
-extern f32 D_807F5D8C;
-extern f32 D_807F5D94;
-extern u16 *D_807F5D80;
+extern s16 sScreenWipePos;
+extern s16 sScreenWipeSplitPos;
+extern f32 sScreenWipeInnerRadius;
+extern f32 sScreenWipeSweepAngle;
+extern u16 *sScreenWipeImage;
 
 void screenWipeStart(type)
 u8 type;
 {
     if ((sScreenWipeActive == 0) || (type == 7)) {
         if (sScreenWipeActive == 0) {
-            D_807F5D80 = heapAlloc(gScreenWidth * gScreenHeight * 2);
+            sScreenWipeImage = heapAlloc(gScreenWidth * gScreenHeight * 2);
         }
-        fbCopySetAlpha(D_807F5D80, gFramebuffers[gGfxBufferIndex]);
+        fbCopySetAlpha(sScreenWipeImage, gFramebuffers[gGfxBufferIndex]);
         sScreenWipeActive = 1;
-        D_80747B20 = 5;
+        sScreenWipeCooldown = 5;
         switch (type) {
             case 1:
-                D_807F5D86 = 0xFF;
+                sScreenWipePos = 0xFF;
                 break;
             case 2:
-                D_807F5D86 = 0;
+                sScreenWipePos = 0;
                 break;
             case 0:
-                D_807F5D86 = 0x136;
+                sScreenWipePos = 0x136;
                 break;
             case 3:
-                D_807F5D86 = 0xA0;
-                D_807F5D88 = 0xA0;
+                sScreenWipePos = 0xA0;
+                sScreenWipeSplitPos = 0xA0;
                 break;
             case 4:
             case 5:
-                D_807F5D8C = -5.0f;
+                sScreenWipeInnerRadius = -5.0f;
                 break;
             case 6:
-                D_807F5D94 = 0.0f;
+                sScreenWipeSweepAngle = 0.0f;
                 break;
             case 7:
                 blurBuildDivTable();
@@ -80,31 +80,31 @@ extern s16 gGfxScreenLeft;
 extern s16 gGfxScreenTop;
 extern s16 gGfxScreenRight;
 extern s16 gGfxScreenBottom;
-extern s32 D_80747B24;
-extern f32 D_807F5D90;
-extern Mtx D_807F5D98;
+extern s32 sScreenWipeMtxReady;
+extern f32 sScreenWipeOuterRadius;
+extern Mtx sScreenWipeScaleMtx;
 
 Gfx *screenWipeDraw(Gfx *glist) {
     s32 stepScale;
 
     stepScale = gFrameDelta * 0.5f;
-    if (D_80747B24 == 0) {
-        guScale(&D_807F5D98, 2.0f, 2.0f, 1.0f);
-        D_80747B24 = 1;
+    if (sScreenWipeMtxReady == 0) {
+        guScale(&sScreenWipeScaleMtx, 2.0f, 2.0f, 1.0f);
+        sScreenWipeMtxReady = 1;
     }
-    if ((sScreenWipeActive == 0) && (D_80747B20 != 0)) {
-        D_80747B20--;
+    if ((sScreenWipeActive == 0) && (sScreenWipeCooldown != 0)) {
+        sScreenWipeCooldown--;
     }
     if (sScreenWipeActive < 0) {
         sScreenWipeActive++;
         if (sScreenWipeActive == 0) {
-            heapFreeDeferred(D_807F5D80);
+            heapFreeDeferred(sScreenWipeImage);
         }
     } else if (sScreenWipeActive > 0) {
         gSPDisplayList(glist++, &D_1000118);
         glist = gfxInit2DDisplayList(glist);
         gSPMatrix(glist++, &D_2000140, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-        gSPMatrix(glist++, &D_807F5D98, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPMatrix(glist++, &sScreenWipeScaleMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
         gDPPipeSync(glist++);
         gDPSetTextureFilter(glist++, G_TF_POINT);
         gDPSetColorDither(glist++, G_CD_DISABLE);
@@ -115,88 +115,88 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 screenBlurApply();
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-                gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
+                gfxDrawTexturedTileGridDefault(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
                 if (gGlobalPauseFlags & 0x40) {
                     sScreenWipeActive = -2;
                 }
                 break;
             case 1:
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-                gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, D_807F5D86);
-                gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
-                D_807F5D86 -= stepScale * 5;
-                if (D_807F5D86 < 0) {
+                gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, sScreenWipePos);
+                gfxDrawTexturedTileGridDefault(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
+                sScreenWipePos -= stepScale * 5;
+                if (sScreenWipePos < 0) {
                     sScreenWipeActive = -2;
                 }
                 break;
             case 2:
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-                gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, D_807F5D86, 0.0f, 319.0f, 239.0f, D_807F5D86, 0.0f);
+                gfxDrawTexturedTileGridDefault(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x20, 0x20, sScreenWipePos, 0.0f, 319.0f, 239.0f, sScreenWipePos, 0.0f);
                 gDPPipeSync(glist++);
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA, G_CC_MODULATEIA);
-                if (D_807F5D86 >= 0x11) {
-                    gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x50, D_807F5D86 - 0x10, 0.0f, D_807F5D86, 239.0f, D_807F5D86 - 0x10, 0.0f, 1, 0x10, 1, NULL);
+                if (sScreenWipePos >= 0x11) {
+                    gfxDrawTexturedTileGrid(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x10, 0x50, sScreenWipePos - 0x10, 0.0f, sScreenWipePos, 239.0f, sScreenWipePos - 0x10, 0.0f, 1, 0x10, 1, NULL);
                 }
-                D_807F5D86 += stepScale * 10;
-                if (D_807F5D86 >= 0x137) {
+                sScreenWipePos += stepScale * 10;
+                if (sScreenWipePos >= 0x137) {
                     sScreenWipeActive = -2;
                 }
                 break;
             case 0:
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-                gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D86, 239.0f, 0.0f, 0.0f);
+                gfxDrawTexturedTileGridDefault(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, sScreenWipePos, 239.0f, 0.0f, 0.0f);
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA, G_CC_MODULATEIA);
-                if (D_807F5D86 < 0x131) {
-                    gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x20, D_807F5D86, 0.0f, D_807F5D86 + 0x10, 239.0f, D_807F5D86, 0.0f, 1, 0x10, 2, NULL);
+                if (sScreenWipePos < 0x131) {
+                    gfxDrawTexturedTileGrid(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x10, 0x20, sScreenWipePos, 0.0f, sScreenWipePos + 0x10, 239.0f, sScreenWipePos, 0.0f, 1, 0x10, 2, NULL);
                 }
-                D_807F5D86 -= stepScale * 10;
-                if (D_807F5D86 < 0xB) {
+                sScreenWipePos -= stepScale * 10;
+                if (sScreenWipePos < 0xB) {
                     sScreenWipeActive = -2;
                 }
                 break;
             case 3:
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-                gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, D_807F5D86, 0.0f, 319.0f, 239.0f, D_807F5D86, 0.0f);
-                gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D88, 239.0f, 0.0f, 0.0f);
+                gfxDrawTexturedTileGridDefault(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x20, 0x20, sScreenWipePos, 0.0f, 319.0f, 239.0f, sScreenWipePos, 0.0f);
+                gfxDrawTexturedTileGridDefault(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, sScreenWipeSplitPos, 239.0f, 0.0f, 0.0f);
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA, G_CC_MODULATEIA);
-                if (D_807F5D86 >= 0x11) {
-                    gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x50, D_807F5D86 - 0x10, 0.0f, D_807F5D86, 239.0f, D_807F5D86 - 0x10, 0.0f, 1, 0x10, 1, NULL);
+                if (sScreenWipePos >= 0x11) {
+                    gfxDrawTexturedTileGrid(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x10, 0x50, sScreenWipePos - 0x10, 0.0f, sScreenWipePos, 239.0f, sScreenWipePos - 0x10, 0.0f, 1, 0x10, 1, NULL);
                 }
-                if (D_807F5D88 < 0x131) {
-                    gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x20, D_807F5D88, 0.0f, D_807F5D88 + 0x10, 239.0f, D_807F5D88, 0.0f, 1, 0x10, 2, NULL);
+                if (sScreenWipeSplitPos < 0x131) {
+                    gfxDrawTexturedTileGrid(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x10, 0x20, sScreenWipeSplitPos, 0.0f, sScreenWipeSplitPos + 0x10, 239.0f, sScreenWipeSplitPos, 0.0f, 1, 0x10, 2, NULL);
                 }
-                D_807F5D86 += stepScale * 10;
-                D_807F5D88 -= stepScale * 10;
-                if (D_807F5D86 >= 0x137) {
+                sScreenWipePos += stepScale * 10;
+                sScreenWipeSplitPos -= stepScale * 10;
+                if (sScreenWipePos >= 0x137) {
                     sScreenWipeActive = -2;
                 }
                 break;
             case 4:
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA, G_CC_MODULATEIA);
-                D_807F5D8C += 5.0 * stepScale;
-                D_807F5D90 = D_807F5D8C + 40.0f;
-                gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCentre);
-                if (D_807F5D8C > 170.0f) {
+                sScreenWipeInnerRadius += 5.0 * stepScale;
+                sScreenWipeOuterRadius = sScreenWipeInnerRadius + 40.0f;
+                gfxDrawTexturedTileGrid(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCentre);
+                if (sScreenWipeInnerRadius > 170.0f) {
                     sScreenWipeActive = -2;
                 }
                 break;
             case 5:
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA, G_CC_MODULATEIA);
-                D_807F5D8C += 12.0 * stepScale;
-                D_807F5D90 = D_807F5D8C + 40.0f;
-                gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCorner);
-                if (D_807F5D8C > 350.0f) {
+                sScreenWipeInnerRadius += 12.0 * stepScale;
+                sScreenWipeOuterRadius = sScreenWipeInnerRadius + 40.0f;
+                gfxDrawTexturedTileGrid(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCorner);
+                if (sScreenWipeInnerRadius > 350.0f) {
                     sScreenWipeActive = -2;
                 }
                 break;
             case 6:
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA, G_CC_MODULATEIA);
-                D_807F5D94 += 15.0 * stepScale;
-                gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaRadialSweep);
-                if (D_807F5D94 > 350.0f) {
+                sScreenWipeSweepAngle += 15.0 * stepScale;
+                gfxDrawTexturedTileGrid(&glist, sScreenWipeImage, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaRadialSweep);
+                if (sScreenWipeSweepAngle > 350.0f) {
                     sScreenWipeActive = -2;
                 }
                 break;
@@ -213,12 +213,12 @@ void screenWipeAlphaRadialSweep(s32 x, s32 y, Vtx *vtx) {
     s16 alpha;
 
     ang = mathAngleBetweenPointsDeg(0xA0, 0x78, x, y);
-    if (D_807F5D94 < 20.0) {
+    if (sScreenWipeSweepAngle < 20.0) {
         vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         return;
     }
-    if (D_807F5D94 < ang) {
-        f64 diff = ang - D_807F5D94;
+    if (sScreenWipeSweepAngle < ang) {
+        f64 diff = ang - sScreenWipeSweepAngle;
         if (diff < 25.0) {
             alpha = (diff / 25.0) * 255.0;
         } else {
@@ -247,33 +247,33 @@ void screenWipeAlphaByDistance(s32 x, s32 y, Vtx *vtx, s32 originX, s32 originY)
     dx = x - originX;
     dy = y - originY;
     dist = sqrtf(dx * dx + dy * dy);
-    if (dist < D_807F5D8C) {
+    if (dist < sScreenWipeInnerRadius) {
         alpha = 0;
-    } else if (D_807F5D90 < dist) {
+    } else if (sScreenWipeOuterRadius < dist) {
         alpha = 0xFF;
     } else {
-        alpha = ((dist - D_807F5D8C) / (D_807F5D90 - D_807F5D8C)) * 255.0f;
+        alpha = ((dist - sScreenWipeInnerRadius) / (sScreenWipeOuterRadius - sScreenWipeInnerRadius)) * 255.0f;
     }
     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, alpha, 0);
 }
 
-extern s32 D_80747B28;
-extern u8 *D_80747B2C;
-extern s32 D_80747B38;
+extern s32 sBlurKernelWidth;
+extern u8 *sBlurDivTable;
+extern s32 sBlurPassCount;
 
 void blurBuildDivTable(void) {
     s32 i;
 
-    D_80747B2C = heapAlloc((D_80747B28 << 5) + 1);
-    for (i = 0; i <= (D_80747B28 << 5); i++) {
-        D_80747B2C[i] = i / D_80747B28;
+    sBlurDivTable = heapAlloc((sBlurKernelWidth << 5) + 1);
+    for (i = 0; i <= (sBlurKernelWidth << 5); i++) {
+        sBlurDivTable[i] = i / sBlurKernelWidth;
     }
-    D_80747B38 = 0;
+    sBlurPassCount = 0;
 }
 
 extern s32 D_80747B30;
 extern s32 D_80747B34;
-extern s32 D_80747B3C;
+extern s32 sBlurPassLimit;
 
 void screenBlurApply(void) {
     u16 *src;
@@ -293,26 +293,26 @@ void screenBlurApply(void) {
     u8 vg;
     u8 vb;
 
-    src = D_807F5D80;
-    dst = D_807F5D80;
-    lut = D_80747B2C;
-    if ((D_80747B2C == NULL) || (D_80747B3C < D_80747B38)) {
-        if (D_80747B2C != NULL) {
-            heapFree(D_80747B2C);
-            D_80747B2C = NULL;
+    src = sScreenWipeImage;
+    dst = sScreenWipeImage;
+    lut = sBlurDivTable;
+    if ((sBlurDivTable == NULL) || (sBlurPassLimit < sBlurPassCount)) {
+        if (sBlurDivTable != NULL) {
+            heapFree(sBlurDivTable);
+            sBlurDivTable = NULL;
         }
     } else {
         for (row = 0; row < D_80747B34; row++) {
             sumR = 0;
             sumB = 0;
             sumG = 0;
-            for (i = 0; i < D_80747B28; i++) {
+            for (i = 0; i < sBlurKernelWidth; i++) {
                 r[i] = 0;
                 g[i] = 0;
                 b[i] = 0;
             }
-            idx = D_80747B28 / 2;
-            for (i = 0; i < D_80747B28 / 2; i++, idx++) {
+            idx = sBlurKernelWidth / 2;
+            for (i = 0; i < sBlurKernelWidth / 2; i++, idx++) {
                 pix = *src++;
                 vr = (pix >> 11) & 0x1F;
                 r[idx] = vr;
@@ -325,9 +325,9 @@ void screenBlurApply(void) {
                 sumB += vb;
             }
             idx = 0;
-            for (i = 0; i < D_80747B30 - D_80747B28 / 2; i++, idx++) {
+            for (i = 0; i < D_80747B30 - sBlurKernelWidth / 2; i++, idx++) {
                 pix = *src++;
-                if (idx >= D_80747B28) {
+                if (idx >= sBlurKernelWidth) {
                     idx = 0;
                 }
                 vr = (pix >> 11) & 0x1F;
@@ -344,8 +344,8 @@ void screenBlurApply(void) {
                 sumB += vb;
                 *dst++ = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
             }
-            for (i = D_80747B30 - D_80747B28 / 2; i < D_80747B30; i++, idx++) {
-                if (idx >= D_80747B28) {
+            for (i = D_80747B30 - sBlurKernelWidth / 2; i < D_80747B30; i++, idx++) {
+                if (idx >= sBlurKernelWidth) {
                     idx = 0;
                 }
                 sumR -= r[idx];
@@ -357,25 +357,25 @@ void screenBlurApply(void) {
                 *dst++ = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
             }
         }
-        D_80747B38++;
+        sBlurPassCount++;
     }
 }
 
-extern u8 D_80747B40;
-extern u8 *D_807F5DD8;
+extern u8 sScreenBufferAllocated;
+extern u8 *sScreenBuffer;
 
 void screenBufferAllocate(void) {
-    if (D_80747B40 == 0) {
-        D_807F5DD8 = heapAlloc(0x25800);
-        _memset(D_807F5DD8, 0, 0x25800);
-        D_80747B40 = 1;
+    if (sScreenBufferAllocated == 0) {
+        sScreenBuffer = heapAlloc(0x25800);
+        _memset(sScreenBuffer, 0, 0x25800);
+        sScreenBufferAllocated = 1;
     }
 }
 
 void screenBufferFree(void) {
-    if (D_80747B40 != 0) {
-        heapFreeDeferred(D_807F5DD8);
-        D_80747B40 = 0;
+    if (sScreenBufferAllocated != 0) {
+        heapFreeDeferred(sScreenBuffer);
+        sScreenBufferAllocated = 0;
     }
 }
 
@@ -384,7 +384,7 @@ extern f32 D_80747B48;
 extern f32 D_80747B4C;
 extern f32 D_80747B50;
 
-void func_8062A808(s32 width, s32 height) {
+void screenRectSetSize(s32 width, s32 height) {
     D_80747B4C = 2.0f;
     D_80747B50 = 2.0f;
     D_80747B44 = width;

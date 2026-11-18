@@ -26,7 +26,7 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
 
-// Second component (Actor+0x178) of the actor kind run by func_806AEE84 (set once at init).
+// Second component (Actor+0x178) of the actor kind run by behaviourProjectileEnemyUpdate (set once at init).
 typedef struct PatrolState {
     /* 0x00 */ s16 nearDistSq; // enemyAggroStateUpdate (12E800) leaves state 0x34 for 0x24 once the squared target distance is below it
     /* 0x02 */ u8 unk2;
@@ -43,7 +43,7 @@ extern Actor *gSpawnedActor;
 extern u8 D_8071FBC8[];
 void behaviourUpdateContactAndState(); // ORIG: target loads a1 = state before the two-argument calls (lbu a0,340(s0) at 0x7b0, move a1,a0 at 0x7b4, default branch at 0x7c0 to jal at 0xd9c; lbu at 0x1d58, move a1,a0 at 0x1d68, jal at 0x2280) while the owner never reads a1 (12E800 0x1ccc homes only a0, sw a0,64(sp) at 0x1ce0): the original TU had no prototype in scope
 
-void func_806ADFE0(void) {
+void behaviourTumbleDebrisUpdate(void) {
     f32 transMtx[4][4];
     f32 rotMtx[4][4];
 
@@ -105,7 +105,7 @@ void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 ex
 }
 
 
-void func_806AE394(f32 distOffset, f32 radius) {
+void behaviourSearchlightScan(f32 distOffset, f32 radius) {
     f32 node1X;
     f32 node1Y;
     f32 node1Z;
@@ -133,7 +133,7 @@ void func_806AE394(f32 distOffset, f32 radius) {
 
 extern s32 gCurrentMap;
 
-void func_806AE588(void) {
+void behaviourMeleePatrolEnemyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x1FD, 0x1FB, 0x1FC);
@@ -290,14 +290,14 @@ void func_806AE588(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806AEE08(void) {
+void behaviourTryStartShot(void) {
     if ((randomNonNegative() >> 15) % 1000 >= 0x3D5 && behaviourIsTargetWithinAngle(0xFA0) != 0 && !(gBehaviourWorkState->flags & 0x80)) {
         gCurrentActor->state = 0x25;
         gCurrentActor->unk155 = 0;
     }
 }
 
-void func_806AEE84(void) {
+void behaviourProjectileEnemyUpdate(void) {
     PatrolState *patrolState;
     f32 scaleFactor;
 
@@ -343,7 +343,7 @@ void func_806AEE84(void) {
                     }
                     break;
                 case 2:
-                    func_806AEE08();
+                    behaviourTryStartShot();
                     behaviourUpdateShadowAlpha();
                     if ((randomNonNegative() >> 15) % 1000 >= 0x3DF && gCurrentActor->sub4->model->animId != 0x4C4) {
                         actorSetDefaultState(0x2AB);
@@ -398,7 +398,7 @@ void func_806AEE84(void) {
                 gCurrentActor->unk155 = 0;
             }
         case 0x10:
-            func_806AEE08();
+            behaviourTryStartShot();
             actorTrackBoneTowardTarget(gCurrentActor->state == 1 ? 2 : 0);
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
             break;
@@ -448,7 +448,7 @@ void func_806AEE84(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806AF688(void) {
+void behaviourSearchlightGuardUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x2C0, 0x2C1, 0x2C1);
@@ -456,7 +456,7 @@ void func_806AF688(void) {
         gBehaviourWorkState->flags |= 0x800;
         gCurrentActor->flags |= 0x400;
     }
-    func_806AE394(40.0f, 70.0f);
+    behaviourSearchlightScan(40.0f, 70.0f);
     if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
         gCurrentActor->state = 0x3A;
         gCurrentActor->unk155 = 0;
@@ -535,7 +535,7 @@ void effectSpawnActorParticleBurst(u8 nodeIndex) {
     }
 }
 
-void func_806AFB58(void) {
+void behaviourArmoredEnemyUpdate(void) {
     s32 state;
 
     behaviourFrameBegin();
@@ -681,7 +681,7 @@ void func_806AFB58(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806B02EC(void) {
+void behaviourSimplePatrolEnemyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0, 0x31E, 0x31F);
@@ -690,7 +690,7 @@ void func_806B02EC(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806B0354(void) {
+void behaviourAmbushEnemyUpdate(void) {
     behaviourFrameBegin();
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x37A);
@@ -702,7 +702,7 @@ void func_806B0354(void) {
                 gCurrentActor->state = 0x23;
                 gCurrentActor->unk155 = 0;
             } else if (actorIsTargetWithinDistance(0x64) != 0
-                       && zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) != 0) {
+                       && zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gBehaviourZone) != 0) {
                 actorScriptStart(gCurrentActor, 0x37B);
                 gCurrentActor->state = 0x23;
                 gCurrentActor->unk155 = 0;
@@ -726,7 +726,7 @@ void func_806B0354(void) {
                             actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
                         }
                         if (actorIsTargetWithinDistance(0xC8) == 0
-                            || zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) == 0) {
+                            || zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gBehaviourZone) == 0) {
                             actorScriptStart(gCurrentActor, 0x37C);
                             gCurrentActor->state = 4;
                             gCurrentActor->unk155 = 0;
@@ -763,7 +763,7 @@ void func_806B0354(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-s32 func_806B0770(void) {
+s32 behaviourDetectNearbyExplosive(void) {
     s32 found;
     s16 i;
     Actor *other;
@@ -790,7 +790,7 @@ s32 func_806B0770(void) {
 
 extern Actor *gPrimaryPlayerActor;
 
-void func_806B0848(void) {
+void behaviourExplosiveAwareEnemyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         f64 cullMargin;
@@ -875,7 +875,7 @@ void func_806B0848(void) {
             }
             break;
         case 0x11:
-            if (func_806B0770() == 0) {
+            if (behaviourDetectNearbyExplosive() == 0) {
                 switch (gCurrentActor->unk155) {
                     case 0:
                         actorSetTargetSpeed(gCurrentActor, 0);
@@ -907,7 +907,7 @@ void func_806B0848(void) {
                 gCurrentActor->unk155 = 0;
             }
         case 0x10:
-            func_806B0770();
+            behaviourDetectNearbyExplosive();
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
             break;
         case 2:

@@ -20,7 +20,7 @@
 
 extern JetpacState jetpacPlayer;
 extern struct GfSndState *D_80770DF8[];
-extern ALBank *D_8076D1F8;
+extern ALBank *gSfxBank;
 typedef struct {
     s16 sfx;
     s16 unk2;
@@ -36,10 +36,10 @@ extern Gfx *gGfxTaskBuffers[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern FrameMatrices *gGfxCurrentFrameBuffer;
-extern FrameMatrices D_80767CE8[];
+extern FrameMatrices gFrameMatrices[];
 extern u8 gScreenRenderFlags;
 extern f32 gScreenFadeProgress;
-extern void *D_8076A080;
+extern void *gSegment1Data;
 extern Gfx D_1000090;
 extern Gfx D_1000040;
 extern Gfx D_2000080;
@@ -52,7 +52,7 @@ void jetpacRunFrame(void) {
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    gGfxCurrentFrameBuffer = &D_80767CE8[gGfxBufferIndex];
+    gGfxCurrentFrameBuffer = &gFrameMatrices[gGfxBufferIndex];
     controllerUpdate();
     if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
         glist = gGfxTaskBuffers[gGfxBufferIndex];
@@ -77,7 +77,7 @@ void jetpacBuildDisplayList(FrameMatrices *frame, Gfx **outGlist) {
     glist = gGfxTaskBuffers[gGfxBufferIndex];
     gSPSegment(glist++, 0, 0);
     gSPSegment(glist++, 2, osVirtualToPhysical(frame));
-    gSPSegment(glist++, 1, osVirtualToPhysical(D_8076A080));
+    gSPSegment(glist++, 1, osVirtualToPhysical(gSegment1Data));
     gSPDisplayList(glist++, &D_1000090);
     gSPDisplayList(glist++, &D_1000040);
     guOrtho(&frame->ortho, 0.0f, 320.0f, 0.0f, 240.0f, 1.0f, 10.0f, 1.0f);
@@ -117,7 +117,7 @@ void jetpacResetPlayers(void) {
     jetpacGame.activePlayer = 0;
 }
 
-extern s32 D_8002BA6C;
+extern s32 jetpacBlinkPhase;
 
 
 void jetpacDrawScoreboard(Gfx **glist) {
@@ -126,7 +126,7 @@ void jetpacDrawScoreboard(Gfx **glist) {
     s32 i;
     JetpacPlayer *p;
 
-    mask = jetpacIsSpawnDelay() & D_8002BA6C;
+    mask = jetpacIsSpawnDelay() & jetpacBlinkPhase;
     jetpacSetupTextRdp(glist);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, "1UP", 0x38, 0x18, mask != 0 && jetpacGame.activePlayer == 0);
@@ -164,10 +164,10 @@ void jetpacStateSelection(Gfx **glist) {
     jetpacDrawScoreboard(glist);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, "JETPAC GAME SELECTION", 0x50, 0x38, 0);
-    jetpacDrawString(glist, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && jetpacGame.numPlayers == 1);
-    jetpacDrawString(glist, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && jetpacGame.numPlayers == 2);
-    jetpacDrawString(glist, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && jetpacGame.controlType == 0);
-    jetpacDrawString(glist, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && jetpacGame.controlType != 0);
+    jetpacDrawString(glist, "1@@@1@PLAYER@GAME", 0x50, 0x50, jetpacBlinkPhase != 0 && jetpacGame.numPlayers == 1);
+    jetpacDrawString(glist, "2@@@2@PLAYER@GAME", 0x50, 0x60, jetpacBlinkPhase != 0 && jetpacGame.numPlayers == 2);
+    jetpacDrawString(glist, "3@@@KEYBOARD", 0x50, 0x70, jetpacBlinkPhase != 0 && jetpacGame.controlType == 0);
+    jetpacDrawString(glist, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, jetpacBlinkPhase != 0 && jetpacGame.controlType != 0);
     jetpacDrawString(glist, "5   START GAME", 0x50, 0xB8, 0);
     _sprintf(buf, "%c1983 A.C.G. ALL RIGHTS RESERVED", 0x7F);
     jetpacDrawString(glist, buf, 0x20, 0xD8, 0);
@@ -247,9 +247,9 @@ s32 flagGet(s32, s32); // ORIG: int return seen by the caller: jetpacUpdateState
 void jetpacStatePause(Gfx **glist) {
     jetpacDrawScoreboard(glist);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
-    jetpacDrawString(glist, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && jetpacGame.menuSelection == 1);
-    jetpacDrawString(glist, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && jetpacGame.menuSelection == 2);
-    jetpacDrawString(glist, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && jetpacGame.menuSelection == 0);
+    jetpacDrawString(glist, "RETURN", 0x88, 0x70, jetpacBlinkPhase != 0 && jetpacGame.menuSelection == 1);
+    jetpacDrawString(glist, "DELETE@HISCORE", 0x68, 0x80, jetpacBlinkPhase != 0 && jetpacGame.menuSelection == 2);
+    jetpacDrawString(glist, "EXIT@@JETPAC", 0x70, 0x90, jetpacBlinkPhase != 0 && jetpacGame.menuSelection == 0);
     if (jetpacGame.pressedButtons & 0xE000) {
         switch (jetpacGame.menuSelection) {
         default:
@@ -333,7 +333,7 @@ void jetpacPlaySound(s32 soundId) {
             n_alSndpStop(D_80770DF8[i]);
         }
     }
-    n_alSndpPlay(D_8076D1F8, D_8002BA52[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
+    n_alSndpPlay(gSfxBank, D_8002BA52[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
 }
 
 void jetpacSetSoundPitch(s32 soundId, f32 pitch) {
@@ -422,9 +422,9 @@ void jetpacUpdateStateAndInput(Gfx **glist) {
             jetpacGame.unk799 = 0;
         }
     }
-    D_8002BA6C = jetpacGame.stateTimer;
-    D_8002BA6C %= 60;
-    D_8002BA6C /= 30;
+    jetpacBlinkPhase = jetpacGame.stateTimer;
+    jetpacBlinkPhase %= 60;
+    jetpacBlinkPhase /= 30;
     jetpacGame.prevButtons = jetpacGame.buttons;
     jetpacGame.buttons = D_807ECDE8->button;
     if (D_807ECDE8->stick_x >= 0x1F) {

@@ -85,7 +85,7 @@ f32 gCsGroundOffset;
 s32 D_807F623C;
 s16 gCsModelIds[600];
 u8 gCsVarsDirty[0x212];
-s8 D_807F6902;
+s8 gCsInvulnerable;
 u8 gCsCondFlag;
 s16 D_807F6904;
 s16 D_807F6906;
@@ -258,7 +258,7 @@ void csScriptLoad(s16 *scriptData) {
     }
     D_807F693F = 0;
     gCsFlagBits = 0;
-    D_807F6902 = 0;
+    gCsInvulnerable = 0;
     gCsCondFlag = 0;
     D_807F693C = 0;
     gCsCountdown.timerActor = NULL;
@@ -1110,7 +1110,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_80724994(2, cmd->a, 0, 0, 0);
         break;
     case 0x90:
-        D_807F6902 = cmd->a;
+        gCsInvulnerable = cmd->a;
         break;
     case 0x96:
         gCsCondFlag = cmd->a;

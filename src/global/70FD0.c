@@ -965,7 +965,7 @@ void actorSetBoxEnableById(Actor *actor, s32 id, u8 value) {
     }
 }
 
-void func_8066E6C8(Actor *actor, s32 id, u8 enabled) {
+void actorSetTriangleEnableById(Actor *actor, s32 id, u8 enabled) {
     ActorSub140 *sub;
     ActorSub140Tri *ent;
     s32 i;

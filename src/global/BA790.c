@@ -28,7 +28,7 @@ typedef struct CountdownActor {
 
 extern u8 gGameMode;
 extern s16 gSfxSourceVoice[];
-extern s16 D_80770710[];
+extern s16 gSfxVoiceSoundId[];
 
 extern u8 D_80720630;
 
@@ -74,13 +74,13 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         }
     }
     if (yawDiff >= 0x1F5 && yawDiff < 0xE0C) {
-        func_80685210(0.5f, 0x32, (gFrameCounter & 1) + 2);
+        effectSpawnSpeedDustAtBone(0.5f, 0x32, (gFrameCounter & 1) + 2);
         gCurrentActor->speedXZ /= 2;
         if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x122, 0, 0, 0, 0xFF, 1.0f, 0);
         }
     } else {
-        if (gCurrentActor->soundSlots[0] != -1 && D_80770710[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] == 0x122) {
+        if (gCurrentActor->soundSlots[0] != -1 && gSfxVoiceSoundId[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] == 0x122) {
             sfxStopSlotSound(gCurrentActor, 0);
         }
     }

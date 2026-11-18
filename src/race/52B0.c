@@ -207,14 +207,14 @@ f32 raceRacerSteerTowardWaypoint(void) {
     onGround = gCurrentActor->contactFlags & 1;
     prevSubPhase = participant->unk35;
     idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
-    dx = D_807FDCA0->entries[idx].x - gCurrentActor->x;
-    dz = D_807FDCA0->entries[idx].z - gCurrentActor->z;
+    dx = gBehaviourZone->entries[idx].x - gCurrentActor->x;
+    dz = gBehaviourZone->entries[idx].z - gCurrentActor->z;
     distToWaypoint = sqrtf(dx * dx + dz * dz);
-    if (distToWaypoint < D_807FDCA0->entries[idx].radius) {
+    if (distToWaypoint < gBehaviourZone->entries[idx].radius) {
         gBehaviourWorkState->waypointIndex++;
         gBehaviourWorkState->waypointIndex %= gBehaviourExtraState->pathCount;
-        target->unk10 = (D_807FDCA0->entries[idx].height == 0) && (target->curveMode != 0);
-        switch (D_807FDCA0->entries[idx].height) {
+        target->unk10 = (gBehaviourZone->entries[idx].height == 0) && (target->curveMode != 0);
+        switch (gBehaviourZone->entries[idx].height) {
             case 2:
                 if (leadDistance < 0.0f) {
                     actorScriptStart(gCurrentActor, 0x29E);
@@ -229,12 +229,12 @@ f32 raceRacerSteerTowardWaypoint(void) {
                 break;
         }
     }
-    ang = mathAngleDiscrete(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
+    ang = mathAngleDiscrete(gBehaviourZone->entries[idx].x, gBehaviourZone->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
     ang = mathAngleSignedDistance(ang, participant->heading);
-    approachRadius = D_807FDCA0->entries[idx].radius * 1.2;
+    approachRadius = gBehaviourZone->entries[idx].radius * 1.2;
     if (distToWaypoint < approachRadius) {
-        pastRadius = distToWaypoint - D_807FDCA0->entries[idx].radius;
-        approachWidth = approachRadius - D_807FDCA0->entries[idx].radius;
+        pastRadius = distToWaypoint - gBehaviourZone->entries[idx].radius;
+        approachWidth = approachRadius - gBehaviourZone->entries[idx].radius;
         approachFrac = pastRadius / approachWidth;
         ang = ang * (1.0 + (1.0f - approachFrac) * 1.5 * (2.0f * participant->throttle));
     }
@@ -386,9 +386,9 @@ void raceOpponentRacerBehaviorUpdate(void) {
         participant->throttle = 1.0f;
         gBehaviourWorkState->waypointIndex = gBehaviourExtraState->pathCount - 5;
         idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
-        gCurrentActor->x = D_807FDCA0->entries[idx].x;
-        gCurrentActor->y = D_807FDCA0->entries[idx].y;
-        gCurrentActor->z = D_807FDCA0->entries[idx].z;
+        gCurrentActor->x = gBehaviourZone->entries[idx].x;
+        gCurrentActor->y = gBehaviourZone->entries[idx].y;
+        gCurrentActor->z = gBehaviourZone->entries[idx].z;
         gTextNumberArg = 0xA;
     }
     if (target->startCountdown != 0) {

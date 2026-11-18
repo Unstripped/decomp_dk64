@@ -132,8 +132,8 @@ s32 scriptOpApplyMotionWindowStep(Actor *);
 #ifndef PROTO_SKIP_scriptOpUpdateMotionDelta
 s32 scriptOpUpdateMotionDelta(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptOpApplyMotionFriction
-s32 scriptOpApplyMotionFriction(Actor *);
+#ifndef PROTO_SKIP_scriptOpRemapMotionFrame
+s32 scriptOpRemapMotionFrame(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpSetMotionAngleFlags
 s32 scriptOpSetMotionAngleFlags(Actor *);

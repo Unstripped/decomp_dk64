@@ -284,21 +284,21 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     route = raceGetRoute(managerData->route);
     gapToTarget = raceGetPathDistanceBetweenTrackers(route, racerState, target->participant);
     idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
-    waypoint = &D_807FDCA0->entries[idx];
+    waypoint = &gBehaviourZone->entries[idx];
     dx = waypoint->x - gCurrentActor->x;
     dz = waypoint->z - gCurrentActor->z;
     distToWaypoint = sqrtf((dx * dx) + (dz * dz));
-    if (distToWaypoint < D_807FDCA0->entries[idx].radius) {
+    if (distToWaypoint < gBehaviourZone->entries[idx].radius) {
         gBehaviourWorkState->waypointIndex++;
         gBehaviourWorkState->waypointIndex %= gBehaviourExtraState->pathCount;
     }
-    angle = mathAngleDiscrete(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
+    angle = mathAngleDiscrete(gBehaviourZone->entries[idx].x, gBehaviourZone->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
     angle = mathAngleSignedDistance(angle, gCurrentActor->yaw);
     steerAngle = angle;
-    waypointThreshold = D_807FDCA0->entries[idx].radius * 1.2f;
+    waypointThreshold = gBehaviourZone->entries[idx].radius * 1.2f;
     if (distToWaypoint < waypointThreshold) {
-        zoneDist = distToWaypoint - D_807FDCA0->entries[idx].radius;
-        zoneWidth = waypointThreshold - D_807FDCA0->entries[idx].radius;
+        zoneDist = distToWaypoint - gBehaviourZone->entries[idx].radius;
+        zoneWidth = waypointThreshold - gBehaviourZone->entries[idx].radius;
         steerAngle = angle * (1.0 + ((1.0f - (zoneDist / zoneWidth)) * 1.5 * (2.0f * racerState->throttle)));
     }
     racerState->steer += ((steerAngle * 0.0033333334f) - racerState->steer) * 0.5f;

@@ -55,7 +55,7 @@ extern PlayerState *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 extern s32 effectSinkBySpeedUpdate;
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 extern u8 D_80720120[];
 extern s32 D_8072030C;
 
@@ -77,7 +77,7 @@ void minecartFollowerBehaviour(void) {
         gSpawnedActor->yawSpeed = -1;
         gSpawnedActor->sub4->scaleX *= -1.0f;
         gSpawnedActor->unkEC = 0x2BC;
-        controllerAnimLoadStateAsset1(gSpawnedActor, controllerLookupStateByHash(gSpawnedActor));
+        controllerAnimLoadStateAsset1(gSpawnedActor, controllerLookupModelAssetId(gSpawnedActor));
         actorSpawn(0x11C, 0x4C);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 1.5 * gCurrentActor->sub4->scaleY);
         gSpawnedActor->parentActor = gCurrentActor;
@@ -89,7 +89,7 @@ void minecartFollowerBehaviour(void) {
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0x96;
     }
-    if (func_80724A20()) {
+    if (volumeTriggerApplyActorState()) {
         if (gActivePlayerState->actor->state == 5) {
             if (gCurrentActor->state == 6) {
                 gCurrentActor->state = 5;
@@ -148,7 +148,7 @@ void minecartSpawnRandomParticle(void) {
     effectSetDepth(1);
     effectSetFlags(4);
     effectCreateAtPosition(
-        D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
+        gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3],
         0.5f,
         ((randomNonNegative() >> 15) % 20) + (gCurrentActor->x - 10.0f),
         gCurrentActor->y,
@@ -618,7 +618,7 @@ void minecartUpdateObstacleType3(void) {
         gCurrentActor->speedXZ = -(reboundSpeed > 0.0 ? reboundSpeed : -reboundSpeed);
         playerStateQueueCallback(0x34, gCurrentActor, 0);
     }
-    func_80724A20();
+    volumeTriggerApplyActorState();
     switch (gCurrentActor->state) {
     case 0:
         if (gActorGlobalState.volumeTriggerQueueCount != 0) {

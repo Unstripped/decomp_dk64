@@ -98,8 +98,8 @@ void playerStepYawAndProjectSpeed(void);
 #ifndef PROTO_SKIP_playerInputNoop
 void playerInputNoop(void);
 #endif
-#ifndef PROTO_SKIP_playerInputCheckBButton
-void playerInputCheckBButton(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonSlopeJump
+void playerInputHandleAButtonSlopeJump(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleAButtonState0
 void playerInputHandleAButtonState0(void);
@@ -446,8 +446,8 @@ void func_806E8F04(void);
 #ifndef PROTO_SKIP_playerInputHandleAButtonJumpOff
 void playerInputHandleAButtonJumpOff(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9070
-void func_806E9070(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonLadderJump
+void playerInputHandleAButtonLadderJump(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleRButtonFixedLook
 void playerInputHandleRButtonFixedLook(void);

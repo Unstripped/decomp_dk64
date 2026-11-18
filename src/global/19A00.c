@@ -138,7 +138,7 @@ ActorScriptCommand sScriptOpcodeTable[] = {
     scriptOpAnimSetFromTable,
     scriptOpReadRampInterpolation,
     scriptOpUpdateMotionDelta,
-    scriptOpApplyMotionFriction,
+    scriptOpRemapMotionFrame,
     scriptOpSetMotionAngleFlags,
     scriptOpClearMotionAngleFlags,
     scriptOpScaleMotionVelocity,
@@ -773,7 +773,7 @@ s32 scriptOpUpdateMotionDelta(Actor *actor) {
     return 1;
 }
 
-s32 scriptOpApplyMotionFriction(Actor *actor) {
+s32 scriptOpRemapMotionFrame(Actor *actor) {
     u8 imm;
     u8 imm2;
     AnimSlot *motion;
@@ -1847,7 +1847,7 @@ void scriptCmdSpawnSineDriftEffect(Actor *actor) {
 }
 
 extern s32 gGlobalCutsceneFlags;
-extern u8 D_8072006C;
+extern u8 gSparkEffectSprite;
 
 void scriptCmdSpawnAttachedActor(Actor *actor) {
     u8 imm;
@@ -1867,7 +1867,7 @@ void scriptCmdSpawnAttachedActor(Actor *actor) {
     sfxPlayFromActorWithAltitudeCheck(actor, 0x8A, 0x96, 0x7F, 0x32);
     effectSetSpeed((s32)actor);
     effectSetCallback(effectTimedLightIntensityFade);
-    effectCreateAtActorBone(&D_8072006C, 0.4f, actor, imm, 2);
+    effectCreateAtActorBone(&gSparkEffectSprite, 0.4f, actor, imm, 2);
 }
 
 void scriptCmdSpawnBoneEffects(Actor *actor) {
@@ -2118,7 +2118,7 @@ void scriptCmdSpawnSplashPuff(Actor *actor) {
     }
 }
 
-extern u8 D_80750AD0;
+extern u8 gMultiplayerReducedEffects;
 
 void scriptCmdSpawnFallingEffect(Actor *actor) {
     u16 imm;
@@ -2142,7 +2142,7 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
     scriptReadU8(&imm5);
     scriptReadU8(&imm6);
     scriptReadU16(&imm7);
-    if (D_80750AD0 == 0) {
+    if (gMultiplayerReducedEffects == 0) {
         scale = imm2 * 0.00048828125f;
         effectSetDepth(1);
         effectSetMode(imm3);

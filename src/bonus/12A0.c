@@ -85,7 +85,7 @@ u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
     return D_8002D8B0[reelIndex][obj->act[reelIndex]->unk15F];
 }
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
     s16 i;
@@ -94,7 +94,7 @@ void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
         effectSetDepth(1);
         effectSetCallback(effectConfettiPhysicsUpdate);
         effectSetSpeed(1);
-        effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, x, y, z);
+        effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, x, y, z);
     }
 }
 
@@ -143,7 +143,7 @@ void bonusReelGameUpdate(void) {
         gCurrentActor->x = 52.0f;
         gCurrentActor->z = 18.0f;
         obj->hitTextId = gfxResourceCreate(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(obj->hitTextId, 0.0f);
+        gfxResourceSetTimer(obj->hitTextId, 0.0f);
         obj->hitsLeft = startHits;
         obj->counterShown = startHits;
         obj->act[0] = bonusSpawnReel(0x90, -0x15, 1, 0x12);
@@ -264,7 +264,7 @@ void bonusReelGameUpdate(void) {
     case 1:
         if (gCurrentActor->parentActor->state != 5) {
             if (bonusGetReelSymbol(obj, 0) == 0 && bonusGetReelSymbol(obj, 0) == bonusGetReelSymbol(obj, 1) && bonusGetReelSymbol(obj, 1) == bonusGetReelSymbol(obj, 2) && bonusGetReelSymbol(obj, 2) == bonusGetReelSymbol(obj, 3)) {
-                func_806FDAB8(obj->hitTextId, 3.1415927f);
+                gfxResourceSetTimer(obj->hitTextId, 3.1415927f);
                 obj->hitsLeft -= 1;
                 if (obj->hitsLeft == 0) {
                     gPrimaryPlayerActor->unk155 = 1;

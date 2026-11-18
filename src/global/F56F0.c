@@ -91,7 +91,7 @@ void playerKongHolsterGun(Actor *actor) {
     s32 pad;
     PlayerState *extra;
 
-    switch (controllerLookupStateByHash(actor)) {
+    switch (controllerLookupModelAssetId(actor)) {
     case 1:
     case 2:
     case 3:
@@ -142,7 +142,7 @@ void playerKongDrawGun(Actor *actor) {
     s32 pad;
     PlayerState *extra;
 
-    switch (controllerLookupStateByHash(actor)) {
+    switch (controllerLookupModelAssetId(actor)) {
     case 1:
     case 2:
         actorSetSegmentFlag(actor, 0);
@@ -201,7 +201,7 @@ void playerKongDrawGun(Actor *actor) {
         }
         if (mpIsMatchType(0) != 0) {
             gPlayerInventoryTable[extra->playerIndex].kong[playerGetResolvedKongId(extra->playerIndex)].weaponFlags = 1;
-            func_806F5A48(extra->playerIndex, 0, actor, 0x8F);
+            gridSpawnAmmoCrateItems(extra->playerIndex, 0, actor, 0x8F);
         }
     }
 }
@@ -387,7 +387,7 @@ s32 mathCalculateRatioClamped(f32 distance, f32 speed, f32 maxSpeed, f32 accel) 
 }
 
 
-extern u16 D_80752F20[];
+extern u16 gWeaponRecoilAnglesDual[];
 
 void playerWeaponCalculateTrajectory7(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 index;
@@ -395,7 +395,7 @@ void playerWeaponCalculateTrajectory7(Actor *actor, BoneRotation *slots, s32 *co
     angle = 7U;  // FAKE: the bound shares angle with the table value (one register)
     index = gActivePlayerState->recoilTimer - 0x14;
     if ((index >= 0) && ((u32) index < angle)) {
-        angle = D_80752F20[index];
+        angle = gWeaponRecoilAnglesDual[index];
         slots[*count].weight = 0x7F;
         slots[*count].bone = gActivePlayerState->lastFireHand != 0 ? 9 : 8;
         slots[*count].rotX = 0;
@@ -405,7 +405,7 @@ void playerWeaponCalculateTrajectory7(Actor *actor, BoneRotation *slots, s32 *co
     }
 }
 
-extern u16 D_80752F30[];
+extern u16 gWeaponRecoilAnglesBone4[];
 
 void playerWeaponCalculateTrajectory4(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 index;
@@ -413,7 +413,7 @@ void playerWeaponCalculateTrajectory4(Actor *actor, BoneRotation *slots, s32 *co
     angle = 4U;  // FAKE: the bound shares angle with the table value (one register)
     index = gActivePlayerState->recoilTimer - 0x14;
     if ((index >= 0) && ((u32) index < angle)) {
-        angle = D_80752F30[index];
+        angle = gWeaponRecoilAnglesBone4[index];
         slots[*count].weight = 0x7F;
         slots[*count].bone = 4;
         slots[*count].rotX = 0;
@@ -425,7 +425,7 @@ void playerWeaponCalculateTrajectory4(Actor *actor, BoneRotation *slots, s32 *co
 
 
 
-extern u16 D_80752F38[];
+extern u16 gWeaponRecoilAnglesBone1[];
 extern u16 D_80752F40[];
 
 void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *count) {
@@ -435,7 +435,7 @@ void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *c
     angle = 0x16;  // FAKE: the base shares the angle register with the table value (Q0214)
     tableIndex = gActivePlayerState->recoilTimer - angle;
     if ((tableIndex >= 0) && ((u32)tableIndex < 4U)) {
-        angle = D_80752F38[tableIndex];
+        angle = gWeaponRecoilAnglesBone1[tableIndex];
         slots[*count].weight = 0x7F;
         slots[*count].bone = 1;
         slots[*count].rotX = 0;
@@ -1274,7 +1274,7 @@ void timerDecrementOrSetFlag(u16 *flags, s16 *timer, u8 *count, u16 bit) {
 #define WAYPOINT_CLAMP_S8(x) WAYPOINT_MIN(WAYPOINT_MAX(x, -128.0f), 127.0f)
 
 extern u8 gGameMode;
-extern u8 sHudDisabled;
+extern u8 gLetterboxRetractTimer;
 
 void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
     PlayerState *tgt;
@@ -1310,7 +1310,7 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
             D_807463B8 = 0;
             if (gGameMode == 0) {
                 gScreenRenderFlags &= 0xFFEF;
-                sHudDisabled = 0xFF;
+                gLetterboxRetractTimer = 0xFF;
             }
             if (gWaypointCallbackId != 0) {
                 playerStateQueueCallback(gWaypointCallbackId, gWaypointCallbackParam, 0);

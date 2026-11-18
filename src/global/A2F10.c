@@ -217,7 +217,7 @@ void actorLightPulseUpdate(void) {
         gCurrentActor->tintR = 0xFF;
         gCurrentActor->tintG = 0xFF;
         gCurrentActor->tintB = 0xFF;
-        switch (controllerLookupStateByHash(gCurrentActor)) {
+        switch (controllerLookupModelAssetId(gCurrentActor)) {
         case 0xAD:
             light->red = 0xFF;
             light->green = 0xFF;
@@ -754,7 +754,7 @@ void actorShadowFollowUpdate(void) {
 
 
 void actorSpawnAttachedTo(Actor *parent) {
-    actorSpawn(0x6A, controllerLookupStateByHash(parent));
+    actorSpawn(0x6A, controllerLookupModelAssetId(parent));
     gSpawnedActor->parentActor = parent;
     parent->contactFlags |= 0x800;
 }
@@ -774,7 +774,7 @@ void actorMirrorParentModelY(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x8100000;
         gCurrentActor->flags &= 0xFFFF7FFF;
-        controllerAnimLoadStateAsset1(gCurrentActor, controllerLookupStateByHash(gCurrentActor));
+        controllerAnimLoadStateAsset1(gCurrentActor, controllerLookupModelAssetId(gCurrentActor));
         sub->parentInstanceId = gCurrentActor->parentActor->instanceId;
         sub->parent = gCurrentActor->parentActor;
         sub->parentType = gCurrentActor->parentActor->actorType;
@@ -829,7 +829,7 @@ void actorMirrorParentModelAxis(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x8100000;
         gCurrentActor->flags &= 0xFFFF7FFF;
-        controllerAnimLoadStateAsset1(gCurrentActor, controllerLookupStateByHash(gCurrentActor));
+        controllerAnimLoadStateAsset1(gCurrentActor, controllerLookupModelAssetId(gCurrentActor));
         sub->parentInstanceId = gCurrentActor->parentActor->instanceId;
         sub->parent = gCurrentActor->parentActor;
         sub->parentType = gCurrentActor->parentActor->actorType;

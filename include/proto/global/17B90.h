@@ -28,8 +28,8 @@ void controllerSetCommand(Actor *, s32, Gfx *);
 #ifndef PROTO_SKIP_controllerCommandRelocateAssets
 void controllerCommandRelocateAssets(Gfx *, void *);
 #endif
-#ifndef PROTO_SKIP_controllerLookupStateByHash
-s32 controllerLookupStateByHash(Actor *);
+#ifndef PROTO_SKIP_controllerLookupModelAssetId
+s32 controllerLookupModelAssetId(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimInit
 s32 controllerAnimInit(Actor *, u16);
@@ -37,8 +37,8 @@ s32 controllerAnimInit(Actor *, u16);
 #ifndef PROTO_SKIP_controllerAnimFree
 void controllerAnimFree(Actor *);
 #endif
-#ifndef PROTO_SKIP_controllerAnimFreeSub
-void controllerAnimFreeSub(Actor *, u8);
+#ifndef PROTO_SKIP_controllerAnimFreeModel
+void controllerAnimFreeModel(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheFree
 void controllerAnimCacheFree(Actor *, AnimSlot *);

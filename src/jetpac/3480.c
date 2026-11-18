@@ -8,7 +8,7 @@
 
 extern s32 D_8002DC68[];
 
-s32 jetpacRandSpawnX(void) {
+s32 jetpacRandBonusDelay(void) {
     return jetpacRandFloat() * 200.0f + 90.0f;
 }
 
@@ -203,7 +203,7 @@ void jetpacSpawnBonusItem(JetpacPlayer *player) {
     bonusItem.sprites[0] = &D_8002D968[bonusItem.unk40];
     *item = bonusItem;
     item->unk8 = jetpacRandItemX();
-    player->unk144 = jetpacRandSpawnX();
+    player->unk144 = jetpacRandBonusDelay();
 }
 
 void jetpacBonusItemUpdate(JetpacItem *item) {

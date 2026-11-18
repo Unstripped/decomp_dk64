@@ -30,7 +30,7 @@ extern u8 D_805FB0D0[];
 extern u64 D_8076AF20[];
 extern u64 D_8076B320[];
 extern SchedClient gGfxSchedClient;
-extern FrameMatrices D_80767CE8[];
+extern FrameMatrices gFrameMatrices[];
 extern OSMesgQueue gGfxDoneQueue;
 extern u8 gGfxTaskPending[];
 extern SchedStruct gScheduler;
@@ -74,7 +74,7 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     } else {
         osWritebackDCache(task, sizeof(TaskNode));
         osWritebackDCache(glist, numCommands * 8);
-        osWritebackDCache(&D_80767CE8[gGfxBufferIndex], sizeof(FrameMatrices));
+        osWritebackDCache(&gFrameMatrices[gGfxBufferIndex], sizeof(FrameMatrices));
     }
     osSendMesg(&gScheduler.interruptQ, task, OS_MESG_BLOCK);
 }

@@ -170,7 +170,7 @@ void effectConfettiPhysicsUpdate(EffectNode *effect, void *unused) {
 }
 
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 void effectTimerCountdownAlphaUpdate(EffectNode *effect, u8 *isDone) {
     s32 timer;
@@ -182,7 +182,7 @@ void effectTimerCountdownAlphaUpdate(EffectNode *effect, u8 *isDone) {
         effectSetDepth(1);
         effectSetCallback(effectConfettiPhysicsUpdate);
         effectSetSpeed(0xA);
-        effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, effect->x, effect->y, effect->z);
+        effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, effect->x, effect->y, effect->z);
         return;
     }
     *isDone = 1;

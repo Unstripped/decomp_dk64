@@ -73,15 +73,15 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
-extern s16 D_80750AC4;
+extern s16 gMinigameCoinCount;
 extern s16 gCarryMinFallSpeed;
-extern f32 D_807502F8;
+extern f32 gDefaultAccelY;
 extern s16 D_80750338;
-extern s32 D_807F5FD0;
-extern u8 D_8072006C[];
+extern s32 gMinecartTrackCount;
+extern u8 gSparkEffectSprite[];
 extern struct GfSndState *gSfxFreeSlotHandles[];
 extern s16 gSfxSourceVoice[];
-extern f32 D_80770B68[];
+extern f32 gSfxVoicePitch[];
 
 extern void *sMinecartWheelEffect;
 extern MinecartElem *sMinecartJunctionTable[];
@@ -119,7 +119,7 @@ void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThresho
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
         effectSetSpeed((s32)gCurrentActor);
         effectSetCallback(effectTimedLightIntensityFade);
-        sMinecartWheelEffect = effectCreateAtActorBone(D_8072006C, 0.4f, gCurrentActor, side + 7, 2);
+        sMinecartWheelEffect = effectCreateAtActorBone(gSparkEffectSprite, 0.4f, gCurrentActor, side + 7, 2);
     }
 }
 
@@ -164,7 +164,7 @@ void minecartPlayerCartUpdate(u8 startPoint, u8 *route, s16 yawDeltaOverride, u8
         gCurrentActor->flags = flags | 0x1400;
         if (gCurrentMap == 6 || gCurrentMap == 0x37 || gCurrentMap == 0x6A) {
             slotQueueUpdate(0xB, 1, 0);
-            D_80750AC4 = 0;
+            gMinigameCoinCount = 0;
         }
     }
     if (cart->rider == NULL) {
@@ -267,12 +267,12 @@ void minecartUpdatePhysics(void) {
     }
     if (cart->pointIndex == 0x90) {
         gCurrentActor->speedXZ = 130.0f;
-        gCurrentActor->accelY = D_807502F8 * 0.6;
+        gCurrentActor->accelY = gDefaultAccelY * 0.6;
         if (cart->jumpHeight == 0) {
             gCurrentActor->speedY = D_80750338 * 1.6;
         }
     } else {
-        gCurrentActor->accelY = D_807502F8;
+        gCurrentActor->accelY = gDefaultAccelY;
     }
     cart->jumpHeight += gCurrentActor->speedY * scaleFactor;
     actorApplyGravity();
@@ -306,7 +306,7 @@ void minecartReverseTrackBehaviour(void) {
     prevJumpHeight = cart->jumpHeight;
     if (!(gCurrentActor->flags & 0x10)) {
         actorSetUniformScale(gPrimaryPlayerActor, 0.12f);
-        gCurrentActor->accelY = D_807502F8;
+        gCurrentActor->accelY = gDefaultAccelY;
         gCurrentActor->terminalSpeedY = gCarryMinFallSpeed;
         cart->tiltAccel = 0.1f;
         cart->tiltRateMax = 5.0f;
@@ -329,7 +329,7 @@ void minecartReverseTrackBehaviour(void) {
         gCurrentActor->speedXZ = 300.0f;
     }
     if (gCurrentActor->state == 4) {
-        for (i = 0; i < D_807F5FD0; i++) {
+        for (i = 0; i < gMinecartTrackCount; i++) {
             pointCount = gMinecartTrackPoints[i + 1] - gMinecartTrackPoints[i];
             for (j = 0; j < pointCount / 2; j++) {
                 tmp = gMinecartTrackPoints[i][j];
@@ -523,9 +523,9 @@ void minecartFollowTrack(MinecartCart *cart, s16 yawDeltaOverride, u8 maxTiltLim
     }
     waypointAngle = mathAngleBetweenPoints2D(targetPt->x, targetPt->z, targetPt[-1].x, targetPt[-1].z);
     if (cart->jumpHeight == 0) {
-        D_80770B68[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = stepDist / 15.0 + 0.7;
+        gSfxVoicePitch[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = stepDist / 15.0 + 0.7;
     } else {
-        D_80770B68[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 0.0f;
+        gSfxVoicePitch[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 0.0f;
     }
     if (gCurrentActor->movePitch != 0) {
         gCurrentActor->movePitch--;
@@ -565,7 +565,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 yawDeltaOverride, u8 maxTiltLim
     }
     gCurrentActor->y += cart->jumpHeight;
     pointCount = gMinecartTrackPoints[trackIndex + 1] - gMinecartTrackPoints[trackIndex];
-    if (D_807F5FD0 == trackIndex + 1) {
+    if (gMinecartTrackCount == trackIndex + 1) {
         limit = pointCount - 1;
     } else {
         limit = pointCount;

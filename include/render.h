@@ -40,7 +40,7 @@ typedef struct PlanePoly {
 // read as 12 floats by frustumOrientPolyNormals (its callers pass D_807F5E20[0]).
 extern f32 D_807F5E20[4][3];
 
-// Per-frame matrices and sub display list (D_80767CE8[2], gGfxCurrentFrameBuffer); 0x11B0 bytes.
+// Per-frame matrices and sub display list (gFrameMatrices[2], gGfxCurrentFrameBuffer); 0x11B0 bytes.
 typedef struct FrameMatrices {
     /* 0x000 */ Mtx perspective;
     /* 0x040 */ Mtx unk40;

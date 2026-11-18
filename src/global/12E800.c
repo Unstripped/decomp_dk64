@@ -32,7 +32,7 @@ void behaviourFrameBegin(void) {
     gBehaviourTargetActor = gBehaviourWorkState->targetActor;
     gBehaviourAnimState = gBehaviourWorkState->node;
     gBehaviourExtraState = gBehaviourAnimState;
-    D_807FDCA0 = gBehaviourAnimState->zone;
+    gBehaviourZone = gBehaviourAnimState->zone;
     gBehaviourWorkState->stepCount++;
     if (gCurrentActor->flags & 0x20000000) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x36) {
@@ -197,7 +197,7 @@ void behaviourUpdateShadowAlpha(void) {
 
 
 extern u8 D_80720120[];
-extern u16 D_80744508;
+extern u16 gEnemyDefeatCount;
 
 void behaviourCheckGroundImpactEffects(void) {
     if (gCurrentActor->collisionFlags & 2) {
@@ -206,7 +206,7 @@ void behaviourCheckGroundImpactEffects(void) {
                 effectCreateAtPosition(&D_80720120, gCurrentActor->sub4->scaleY * 6.66666666999999968, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
             gCurrentActor->state = 0x40;
-            D_80744508++;
+            gEnemyDefeatCount++;
         }
     }
 }
@@ -280,7 +280,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     if (!(gBehaviourAnimState->flags & 0x200)) {
         collisionSetQueryMode(2);
     }
-    if (D_807FDCA0->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->flags & 0x10))) {
+    if (gBehaviourZone->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->flags & 0x10))) {
         collisionSetQueryMode(1);
     }
     if (flags & 0x4000) {
@@ -314,7 +314,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     }
     if (!(flags & 8)) {
         actorUpdateFloorContactAndTilt(gCurrentActor, floorYOffset);
-    } else if (D_807FDCA0->unk19 != 1 && (flags & 0x10)) {
+    } else if (gBehaviourZone->unk19 != 1 && (flags & 0x10)) {
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->prevY, gCurrentActor->z, &gCurrentActor->floorY);
     }
     if (!(flags & 0x2000)) {
@@ -329,17 +329,17 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
         return 0;
     }
     if (state == 0x37 && (gBehaviourAnimState->flags & 0x10)) {
-        if (polygonContainsPoint2D(gCurrentActor->x, gCurrentActor->z, D_807FDCA0) == 0) {
+        if (polygonContainsPoint2D(gCurrentActor->x, gCurrentActor->z, gBehaviourZone) == 0) {
             gCurrentActor->speedXZ = ((gCurrentActor->speedXZ >= 0.0f) ? 1 : -1) * 30;
         } else {
             gBehaviourWorkState->flags |= 0x4000;
         }
         return 0;
     }
-    if (polygonContainsPoint2D(gCurrentActor->x, gCurrentActor->z, D_807FDCA0) != 0) {
+    if (polygonContainsPoint2D(gCurrentActor->x, gCurrentActor->z, gBehaviourZone) != 0) {
         gBehaviourWorkState->flags |= 0x4000;
-        if (zoneCheckActorInside(gCurrentActor, gCurrentActor->prevX, gCurrentActor->prevZ, D_807FDCA0, &zoneYaw) == 0) {
-            if (polygonContainsPoint2D(mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ + gCurrentActor->x, mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ + gCurrentActor->z, D_807FDCA0) == 0) {
+        if (zoneCheckActorInside(gCurrentActor, gCurrentActor->prevX, gCurrentActor->prevZ, gBehaviourZone, &zoneYaw) == 0) {
+            if (polygonContainsPoint2D(mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ + gCurrentActor->x, mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ + gCurrentActor->z, gBehaviourZone) == 0) {
                 if (gBehaviourWorkState->wanderTimer-- == 0) {
                     *yawPtr += 0x800;
                     *yawPtr &= 0xFFF;
@@ -483,7 +483,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
         case 0x1C:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    if (zoneFindBestReachablePoint(2, gCurrentActor, D_807FDCA0, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
+                    if (zoneFindBestReachablePoint(2, gCurrentActor, gBehaviourZone, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
                         gCurrentActor->state = gBehaviourExtraState->actorState;
                         gCurrentActor->unk155 = 0;
                         break;
@@ -524,7 +524,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     break;
                 case 2:
                     gCurrentActor->state = 0x40;
-                    D_80744508++;
+                    gEnemyDefeatCount++;
                     break;
             }
             break;
@@ -670,7 +670,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
             nextState = 7;
         } else if (gBehaviourWorkState->engageState == 7 && checkMode != 0 && !(gBehaviourWorkState->flags & 0x200) && gBehaviourWorkState->unk20 == 0) {
             gBehaviourWorkState->unk20 = 0x10;
-            if (zoneFindBestReachablePoint(0x81, gCurrentActor, D_807FDCA0, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
+            if (zoneFindBestReachablePoint(0x81, gCurrentActor, gBehaviourZone, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
                 nextState = 0x10;
             } else {
                 nextState = 7;
@@ -705,7 +705,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
 
 void behaviourSetChaseState(u8 state, u8 speed, s32 scriptId) {
     if (state == 7) {
-        if (zoneFindBestReachablePoint(1, gCurrentActor, D_807FDCA0, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
+        if (zoneFindBestReachablePoint(1, gCurrentActor, gBehaviourZone, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
             state = 0x10;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         }
@@ -745,7 +745,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
     } else {
         ang = gBehaviourWorkState->targetYaw - me->moveYaw;
     }
-    if ((zoneCanReachPoint(me, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) != 0) && !(gBehaviourAnimState->flags & 0x2000) && !(playerState->stateFlags & 0x8000)) {
+    if ((zoneCanReachPoint(me, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gBehaviourZone) != 0) && !(gBehaviourAnimState->flags & 0x2000) && !(playerState->stateFlags & 0x8000)) {
         gBehaviourWorkState->flags |= 0x400;
     } else {
         gBehaviourWorkState->flags &= 0xFBFF;
@@ -859,9 +859,9 @@ void patrolGetNextWaypointPos(s16 *outX, s16 *outY, s16 *outZ) {
     nextIdx = curIdx + 1;
     idx = (nextIdx < gBehaviourExtraState->pathCount) ? nextIdx : 0;
     key = gBehaviourAnimState->path[idx][0];
-    *outX = D_807FDCA0->entries[key].x;
-    *outY = D_807FDCA0->entries[key].y;
-    *outZ = D_807FDCA0->entries[key].z;
+    *outX = gBehaviourZone->entries[key].x;
+    *outY = gBehaviourZone->entries[key].y;
+    *outZ = gBehaviourZone->entries[key].z;
 }
 
 s32 patrolGetTargetAngle(void) {
@@ -874,7 +874,7 @@ s32 patrolGetTargetAngle(void) {
     idx = gBehaviourWorkState->waypointIndex & 0x7F;
     key = gBehaviourAnimState->path[idx][0];
     patrolGetNextWaypointPos(&x, &y, &z);
-    return mathAngleBetweenPoints2D(x, z, D_807FDCA0->entries[key].x, D_807FDCA0->entries[key].z);
+    return mathAngleBetweenPoints2D(x, z, gBehaviourZone->entries[key].x, gBehaviourZone->entries[key].z);
 }
 
 u8 patrolPathStep(u8 state, u8 flags) {
@@ -896,11 +896,11 @@ u8 patrolPathStep(u8 state, u8 flags) {
     idx = gBehaviourWorkState->waypointIndex & 0x7F;
     key = gBehaviourAnimState->path[idx][0];
     type = gBehaviourAnimState->path[idx][1];
-    x = D_807FDCA0->entries[key].x;
-    y = D_807FDCA0->entries[key].y;
-    z = D_807FDCA0->entries[key].z;
+    x = gBehaviourZone->entries[key].x;
+    y = gBehaviourZone->entries[key].y;
+    z = gBehaviourZone->entries[key].z;
     moved = ((gCurrentActor->x - x) * (gCurrentActor->x - x)) + ((gCurrentActor->z - z) * (gCurrentActor->z - z)) <
-            (D_807FDCA0->entries[key].radius * D_807FDCA0->entries[key].radius);
+            (gBehaviourZone->entries[key].radius * gBehaviourZone->entries[key].radius);
     if ((flags & 1) && gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
         gBehaviourWorkState->unk20++;
         if (gBehaviourWorkState->unk20++ > 0x10) {
@@ -914,7 +914,7 @@ u8 patrolPathStep(u8 state, u8 flags) {
         case 0x49:
             next = (idx + 1 < gBehaviourExtraState->pathCount) ? idx + 1 : 0;
             faceKey = gBehaviourAnimState->path[next][0];
-            angle = mathAngleBetweenPoints2D(D_807FDCA0->entries[faceKey].x, D_807FDCA0->entries[faceKey].z, x, z);
+            angle = mathAngleBetweenPoints2D(gBehaviourZone->entries[faceKey].x, gBehaviourZone->entries[faceKey].z, x, z);
             gCurrentActor->moveYaw = angle;
             gCurrentActor->yaw = angle;
         case 0x42:
@@ -928,7 +928,7 @@ u8 patrolPathStep(u8 state, u8 flags) {
         case 0x60:
             if (moved) {
                 if (type == 6) {
-                    gBehaviourWorkState->waypointIndex = D_807FDCA0->entries[key].height;
+                    gBehaviourWorkState->waypointIndex = gBehaviourZone->entries[key].height;
                 } else if (idx + 1 < gBehaviourExtraState->pathCount) {
                     gBehaviourWorkState->waypointIndex = idx + 1;
                 } else {
@@ -972,9 +972,9 @@ u8 patrolPathStep(u8 state, u8 flags) {
                 angle = patrolGetTargetAngle();
                 gCurrentActor->moveYaw = angle;
                 gCurrentActor->yaw = angle;
-                gCurrentActor->x = D_807FDCA0->entries[nextKey].x;
-                gCurrentActor->y = D_807FDCA0->entries[nextKey].y;
-                gCurrentActor->z = D_807FDCA0->entries[nextKey].z;
+                gCurrentActor->x = gBehaviourZone->entries[nextKey].x;
+                gCurrentActor->y = gBehaviourZone->entries[nextKey].y;
+                gCurrentActor->z = gBehaviourZone->entries[nextKey].z;
                 break;
             case 2:
                 gCurrentActor->state = 0x26;
@@ -983,10 +983,10 @@ u8 patrolPathStep(u8 state, u8 flags) {
             case 4:
                 gCurrentActor->state = 0x19;
                 gCurrentActor->unk155 = 0;
-                gBehaviourWorkState->timer = D_807FDCA0->entries[key].height;
+                gBehaviourWorkState->timer = gBehaviourZone->entries[key].height;
                 break;
             case 5:
-                actorSetTargetSpeed(gCurrentActor, D_807FDCA0->entries[key].height);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourZone->entries[key].height);
                 break;
             case 7:
                 gCurrentActor->state = 0x3B;
@@ -1001,7 +1001,7 @@ u8 patrolPathStep(u8 state, u8 flags) {
                     gCurrentActor->state = 0x37;
                     gCurrentActor->unk155 = 0;
                 }
-                D_80744508++;
+                gEnemyDefeatCount++;
                 gCurrentActor->state = 0x40;
                 break;
         }
@@ -1049,7 +1049,7 @@ void behaviourCalculateDamageForce(Actor *attacker, s32 scriptId) {
     if (attacker == NULL || attacker == gBehaviourTargetActor || attacker->actorType == 0x2B) {
         behaviourSpawnPuffParticle();
     }
-    D_80744508++;
+    gEnemyDefeatCount++;
     if (gCurrentMap == 0xBF) {
         func_8002D7E8(gCurrentActor->actorType);
     }
@@ -1058,7 +1058,7 @@ void behaviourCalculateDamageForce(Actor *attacker, s32 scriptId) {
 void behaviourSetFloorAndState40(void) {
     gCurrentActor->unk144 = 1;
     gCurrentActor->state = 0x40;
-    D_80744508++;
+    gEnemyDefeatCount++;
 }
 
 extern u8 D_8071FB34[];

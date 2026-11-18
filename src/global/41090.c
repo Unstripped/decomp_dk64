@@ -13,38 +13,38 @@ typedef struct {
     u8 active;
 } MapSurfaceEffect;
 
-extern MapSurfaceEffect D_80747D80[8];
+extern MapSurfaceEffect gMapSurfaceEffects[8];
 extern f32 D_807F6170;
 extern f32 D_807F6174;
-extern f32 D_807F6178;
-extern void *D_807F617C;
+extern f32 gEnvMipChainScroll;
+extern void *gEnvMipChainTexture;
 
 
 void mapSurfaceEffectsReset(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        D_80747D80[i].active = 0;
+        gMapSurfaceEffects[i].active = 0;
     }
 }
 
 void mapSurfaceEffectInit(s16 effectIdx) {
-    if (D_80747D80[effectIdx].active == 0) {
-        D_80747D80[effectIdx].init();
-        D_80747D80[effectIdx].active = 1;
+    if (gMapSurfaceEffects[effectIdx].active == 0) {
+        gMapSurfaceEffects[effectIdx].init();
+        gMapSurfaceEffects[effectIdx].active = 1;
     }
 }
 
 Gfx *mapSurfaceEffectDraw(Gfx *gdl, s16 effectIdx) {
-    return D_80747D80[effectIdx].draw(gdl);
+    return gMapSurfaceEffects[effectIdx].draw(gdl);
 }
 
 void mapSurfaceEffectsUpdate(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (D_80747D80[i].active != 0) {
-            D_80747D80[i].update();
+        if (gMapSurfaceEffects[i].active != 0) {
+            gMapSurfaceEffects[i].update();
         }
     }
 }
@@ -92,8 +92,8 @@ void envTextureUpdateWaterScroll(void) {
 }
 
 void envTextureInitAsset565(void) {
-    D_807F6178 = 255.0f;
-    D_807F617C = assetLoad(0x19, 0x565, 1, 0);
+    gEnvMipChainScroll = 255.0f;
+    gEnvMipChainTexture = assetLoad(0x19, 0x565, 1, 0);
 }
 
 Gfx *func_8063C7C4(Gfx *g) {
@@ -112,7 +112,7 @@ Gfx *func_8063C7C4(Gfx *g) {
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
     gSPClearGeometryMode(g++, -1);
     gSPSetGeometryMode(g++, 0x200405);
-    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, D_807F617C);
+    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gEnvMipChainTexture);
     gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, tmem, 7, 0, 0, 0, 0, 0, 0, 0);
     gDPLoadSync(g++);
     gDPLoadBlock(g++, 7, 0, 0, 0x7FF, 0);
@@ -120,7 +120,7 @@ Gfx *func_8063C7C4(Gfx *g) {
     for (i = 0; i < 4; i++) {
         line = (w + 3) / 4;
         gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, line, tmem, i, 0, 0, maskBits, i, 0, maskBits, i);
-        gDPSetTileSize(g++, i, 2, (s32)D_807F6178, ((w - 1) << 2) + 2, ((h - 1) << 2) + 2);
+        gDPSetTileSize(g++, i, 2, (s32)gEnvMipChainScroll, ((w - 1) << 2) + 2, ((h - 1) << 2) + 2);
         tmem += line * h;
         w >>= 1; h >>= 1; // LAYOUT: both shifts on one line keep as1's sra order (split: the two sra swap)
         maskBits--;
@@ -138,9 +138,9 @@ Gfx *func_8063C7C4(Gfx *g) {
 }
 
 void envTextureUpdateScroll78(void) {
-    D_807F6178 -= 1.0;
-    if (D_807F6178 < 0.0) {
-        D_807F6178 = 255.0f;
+    gEnvMipChainScroll -= 1.0;
+    if (gEnvMipChainScroll < 0.0) {
+        gEnvMipChainScroll = 255.0f;
     }
 }
 
@@ -218,15 +218,15 @@ void envTextureUpdateScroll80(void) {
     }
 }
 
-extern void *D_807F6190;
+extern void *gEnvLayeredTexture;
 
 void envTextureInitAsset3B9(void) {
-    D_807F6190 = assetLoad(7, 0x3E0, 1, 0);
+    gEnvLayeredTexture = assetLoad(7, 0x3E0, 1, 0);
 }
 
 extern f32 D_80747E00;
 extern f32 D_80747E04;
-extern s16 D_80747E08;
+extern s16 gEnvLayeredFogAlpha;
 
 Gfx *func_8063CF3C(Gfx *g) {
     gDPPipeSync(g++);
@@ -239,12 +239,12 @@ Gfx *func_8063CF3C(Gfx *g) {
         gSPSetGeometryMode(g++, 0x10000);
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0xC8104A50);
         gDPSetCombine(g++, 0xFF9441, 0xFF0FFFFF);
-        gDPSetPrimColor(g++, 0, 0, 255, 255, 255, D_80747E08);
+        gDPSetPrimColor(g++, 0, 0, 255, 255, 255, gEnvLayeredFogAlpha);
     } else {
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
         gDPSetCombine(g++, 0xFF9441, 0xFF13FFFF);
     }
-    gDPLoadTextureBlock(g++, (u32)D_807F6190 - 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
+    gDPLoadTextureBlock(g++, (u32)gEnvLayeredTexture - 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
     gDPSetTileSize(g++, 1, 0, (s32)D_80747E00, 0xFC, 0xFC);
     gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, 0, 6, 1, 0, 6, 1);
     gDPSetTileSize(g++, 2, 0, (s32)D_80747E04, 0xFC, 0xFC);
@@ -268,15 +268,15 @@ typedef struct {
     void *data;
 } AssetRef;
 
-extern AssetRef D_80747E0C[11];
-extern u8 D_807F6194;
+extern AssetRef gEnvFlipbookFrames[11];
+extern u8 gEnvFlipbookFrame;
 
 void envTextureInitAsset3BB(void) {
     s32 i;
 
-    D_807F6194 = 0;
+    gEnvFlipbookFrame = 0;
     for (i = 0; i < 11; i++) {
-        D_80747E0C[i].data = assetLoad(7, D_80747E0C[i].assetId, 1, 0);
+        gEnvFlipbookFrames[i].data = assetLoad(7, gEnvFlipbookFrames[i].assetId, 1, 0);
     }
 }
 
@@ -292,22 +292,22 @@ Gfx *func_8063D2E4(Gfx *g) {
     gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
     gDPSetCombine(g++, 0xFFFFFF, 0xFFFCF279);
     gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 255);
-    tex = D_80747E0C[D_807F6194].data;
+    tex = gEnvFlipbookFrames[gEnvFlipbookFrame].data;
     gDPLoadTextureBlock(g++, (u32)tex - 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 32, 0, G_TX_WRAP, G_TX_WRAP, 6, 5, G_TX_NOLOD, G_TX_NOLOD);
     return g;
 }
 
 void envTextureUpdateScroll98(void) {
-    D_807F6194++;
-    if (D_807F6194 == 11) {
-        D_807F6194 = 0;
+    gEnvFlipbookFrame++;
+    if (gEnvFlipbookFrame == 11) {
+        gEnvFlipbookFrame = 0;
     }
 }
 
-extern f32 D_807F6198;
+extern f32 gEnvScrollOnlyOffset;
 
 void envTextureInitAsset3BC(void) {
-    D_807F6198 = 0.0f;
+    gEnvScrollOnlyOffset = 0.0f;
 }
 
 Gfx *func_8063D4A4(Gfx *g) {
@@ -320,14 +320,14 @@ Gfx *func_8063D4A4(Gfx *g) {
     gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
     gDPSetCombine(g++, 0x121804, 0xFF13FFFF);
     gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 255);
-    gDPSetTileSize(g++, 0, 0, (s32)D_807F6198, 0xFC, 0xFC);
+    gDPSetTileSize(g++, 0, 0, (s32)gEnvScrollOnlyOffset, 0xFC, 0xFC);
     return g;
 }
 
 void envTextureUpdateScrollA0(void) {
-    D_807F6198 -= 0.865;
-    if (D_807F6198 < 0.0) {
-        D_807F6198 = 255.0f;
+    gEnvScrollOnlyOffset -= 0.865;
+    if (gEnvScrollOnlyOffset < 0.0) {
+        gEnvScrollOnlyOffset = 255.0f;
     }
 }
 

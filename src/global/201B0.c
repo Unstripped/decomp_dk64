@@ -190,7 +190,7 @@ extern u8 D_807463B8;
 extern u8 gSplitScreenMode;
 extern s32 gCurrentMap;
 extern u8 gScreenRenderFlags;
-extern u8 sHudDisabled;
+extern u8 gLetterboxRetractTimer;
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -582,7 +582,7 @@ void camSetTargetCutsceneUnscaled(Actor *camActor, Actor *targetActor, u8 mode, 
     if (gGameMode == 1) {
         camEndPath(camActor);
     }
-    sHudDisabled = 0;
+    gLetterboxRetractTimer = 0;
     gScreenRenderFlags |= 0x10;
     targetActor->sub4->scaleY = 0.15f;
     camSetTargetScaled(camActor, targetActor, mode, eyeYaw, eyeDist, focusYaw, focusDist, eyeHeight, focusHeight, duration, stepRatio);
@@ -594,7 +594,7 @@ void camSetTargetCutscene(Actor *camActor, Actor *targetActor, u8 mode, s16 eyeY
     if (gGameMode == 1) {
         camEndPath(camActor);
     }
-    sHudDisabled = 0;
+    gLetterboxRetractTimer = 0;
     gScreenRenderFlags |= 0x10;
     camSetTarget(camActor, targetActor, mode, eyeYaw, eyeDist, focusYaw, focusDist, eyeHeight, focusHeight, duration, stepRatio);
 }
@@ -780,7 +780,7 @@ u16 camStartPath(Actor *actor, s16 pathIndex, u8 flags) {
     gGameMode = 1;
     if (!(flags & 8)) {
         gScreenRenderFlags |= 0x10;
-        sHudDisabled = 0;
+        gLetterboxRetractTimer = 0;
     }
     gCamPathLastTime = osGetTime();
     gCamPathIndex = pathIndex;
@@ -984,7 +984,7 @@ void camEndPath(Actor *camActor) {
         gGameMode = 0;
         gScreenRenderFlags &= ~0x10;
         if (!(gCamPathFlags & 8)) {
-            sHudDisabled = 0xFF;
+            gLetterboxRetractTimer = 0xFF;
         }
         actorDespawn(gCamPathActor);
         gGlobalPauseFlags |= 0x1000;
@@ -2511,7 +2511,7 @@ void camComputeTargetEyePos(Actor *camActor, f32 *outX, f32 *outY, f32 *outZ) {
             gGlobalPauseFlags |= 0x2000;
             if (gScreenRenderFlags & 0x10) {
                 gScreenRenderFlags &= ~0x10;
-                sHudDisabled = 0xFF;
+                gLetterboxRetractTimer = 0xFF;
             }
         }
     }

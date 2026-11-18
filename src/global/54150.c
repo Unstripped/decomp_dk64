@@ -100,9 +100,9 @@ void modelSlotFree(ModelData *anim) {
     }
 }
 
-extern u8 *D_807F6BE0;
-extern u8 *D_807F6BE4;
-extern ModelData *D_807F6BE8;
+extern u8 *gModelAnimSrcFrame;
+extern u8 *gModelAnimDstFrame;
+extern ModelData *gModelAnimStepGroup;
 extern u8 gModelAnimChanged;
 extern u8 gGfxBufferIndex;
 
@@ -113,9 +113,9 @@ u8 modelSlotStepAnimations(s16 modelId) {
     group = gModelSlots[hashTableLookup(modelId)].unk78;
     gModelAnimChanged = 0;
     if (group != NULL) {
-        D_807F6BE0 = group->frames[gGfxBufferIndex];
-        D_807F6BE4 = group->frames[gGfxBufferIndex ^ 1];
-        D_807F6BE8 = group;
+        gModelAnimSrcFrame = group->frames[gGfxBufferIndex];
+        gModelAnimDstFrame = group->frames[gGfxBufferIndex ^ 1];
+        gModelAnimStepGroup = group;
         for (i = 0; i < 10; i++) {
             if (group->entries[i].unkE == 1) {
                 modelAnimEntryStep(&group->entries[i]);
@@ -167,8 +167,8 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
 
     node = entry->unk0;
     stride = node->keyCount * sizeof(ModelBKey) + sizeof(ModelBTrack);
-    srcBase = D_807F6BE0;
-    dstBase = D_807F6BE4;
+    srcBase = gModelAnimSrcFrame;
+    dstBase = gModelAnimDstFrame;
     p = (u8 *)(node + 1);
     for (i = 0; i < node->matrixCount; i++) {
         track = (ModelBTrack *)p;
@@ -176,7 +176,7 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
         dst = dstBase + track->mtxOffset;
         if (entry->unkE == 0) {
             src = srcBase + track->mtxOffset;
-            mtxCopyQueuePush(D_807F6BE8, src, dst);
+            mtxCopyQueuePush(gModelAnimStepGroup, src, dst);
         } else {
             mtxCopyQueueCancelDest(dst);
         }
@@ -197,8 +197,8 @@ void modelAnimEntryQueueMatrixCopies(ModelData *group, ModelAnimEntry *entry) {
     node = entry->unk0;
     p = (u8 *)(entry->unk0 + 1);
     stride = node->keyCount * sizeof(ModelBKey) + sizeof(ModelBTrack);
-    srcBase = D_807F6BE0 = group->frames[gGfxBufferIndex ^ 1];
-    dstBase = D_807F6BE4 = group->frames[gGfxBufferIndex];
+    srcBase = gModelAnimSrcFrame = group->frames[gGfxBufferIndex ^ 1];
+    dstBase = gModelAnimDstFrame = group->frames[gGfxBufferIndex];
     for (i = 0; i < node->matrixCount; i++) {
         track = (ModelBTrack *)p;
         dst = dstBase + track->mtxOffset;
@@ -229,7 +229,7 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, ModelBKey *
     f32 work[4][4];
     f32 mtx[4][4];
 
-    frame = D_807F6BE0;
+    frame = gModelAnimSrcFrame;
     next = keys[key + 1].rotX;
     prev = keys[key].rotX;
     rx = next - prev;

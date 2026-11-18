@@ -102,7 +102,7 @@ s32 triggerZoneContainsActor(Actor *actor, TriggerZoneSubNode *subNode) {
 void triggerZoneSpawnTrigger(Actor *actor, TriggerZoneData *zone) {
     MirrorActorState *spawnState;
 
-    actorSpawn(0x7B, controllerLookupStateByHash(actor));
+    actorSpawn(0x7B, controllerLookupModelAssetId(actor));
     gSpawnedActor->parentActor = actor;
     spawnState = gSpawnedActor->customState;
     spawnState->axisFlags = zone->axisFlags;

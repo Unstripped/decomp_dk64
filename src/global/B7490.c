@@ -36,10 +36,10 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
 extern EffectGridAsset D_8072073C;
-extern s16 D_80750340;
+extern s16 gFlyPatrolShotInterval;
 
 
-void func_806B2790(void) {
+void behaviourSwimLungeUpdate(void) {
     u8 flag;
     s32 st;
 
@@ -134,7 +134,7 @@ void func_806B2790(void) {
 void actorEmptyStub(void) {
 }
 
-void func_806B2D64(void) {
+void behaviourSwimShooterUpdate(void) {
     behaviourFrameBegin();
     effectSpawnSparks(0x1F, 2);
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
@@ -243,7 +243,7 @@ void func_806B2D64(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806B3420(void) {
+void behaviourTimedScriptCycleUpdate(void) {
     f32 dx;
     f32 dy;
     f32 dz;
@@ -411,7 +411,7 @@ void projectileAimAtTargetFromActor(void) {
 }
 
 
-void func_806B3D18(void) {
+void projectileSpawnScriptedInRange(void) {
     switch (gCurrentActor->unk155) {
         case 0:
             if (behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
@@ -433,7 +433,7 @@ void projectileSpawnWithTimer(void) {
     }
     if (behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
         projectileSpawnFromActorNode(1);
-        gBehaviourWorkState->timer = D_80750340;
+        gBehaviourWorkState->timer = gFlyPatrolShotInterval;
     }
 }
 
@@ -453,14 +453,14 @@ void behaviourCheckZoneReachAndSpawn(void) {
         gBehaviourWorkState->timer--;
         return;
     }
-    if (zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) && behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
+    if (zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gBehaviourZone) && behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
         gCurrentActor->state = 0x26;
         gCurrentActor->unk155 = 0;
     }
 }
 
 
-void func_806B3F3C(void) {
+void behaviourRandomZoneWander(void) {
     if (((randomNonNegative() >> 15) % 1000) >= 0x3E4) {
         gCurrentActor->state = 0x1C;
         gCurrentActor->unk155 = 0;
@@ -642,7 +642,7 @@ void behaviourFlyPatrolState2(void) {
 
 void behaviourFlyPatrolState3(void) {
     behaviourFrameBegin();
-    behaviourFlyPatrolWithCallback(func_806B3D18, 0x254, 0x252, 0x108);
+    behaviourFlyPatrolWithCallback(projectileSpawnScriptedInRange, 0x254, 0x252, 0x108);
     actorSpawnPeriodicBoneEffect();
     currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
 }
@@ -655,7 +655,7 @@ void behaviourFlyPatrolState4(void) {
     }
 }
 
-extern f32 D_807502EC;
+extern f32 gAirPatrolAccelY;
 
 void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
     FlyPatrolComponent *patrol;
@@ -669,7 +669,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         patrol->hoverHeight = gBehaviourExtraState->unkA;
-        gCurrentActor->accelY = D_807502EC;
+        gCurrentActor->accelY = gAirPatrolAccelY;
     }
     targetHeight = gBehaviourExtraState->y + patrol->hoverHeight;
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (action != 0x37)) {
@@ -825,7 +825,7 @@ void behaviourEnemyFlyIdle(void) {
             }
         }
     }
-    behaviourFlyPatrolWithCallback((gFrameCounter & 1) ? behaviourCheckZoneReachAndSpawn : func_806B3F3C, 0x30E, 0x30B, 0);
+    behaviourFlyPatrolWithCallback((gFrameCounter & 1) ? behaviourCheckZoneReachAndSpawn : behaviourRandomZoneWander, 0x30E, 0x30B, 0);
 }
 
 void behaviourEnemyFlySwoop(void) {
@@ -876,7 +876,7 @@ typedef struct FlyWanderState {
     /* 0x12 */ s16 chaseTimer;
 } FlyWanderState;
 
-extern u16 D_80744508;
+extern u16 gEnemyDefeatCount;
 
 void behaviourEnemyFlyReturn(void) {
     f32 pad;
@@ -961,8 +961,8 @@ void behaviourEnemyFlyReturn(void) {
                 gCurrentActor->unk155 = 0;
                 gCurrentActor->unk144 = 1;
                 if (gCurrentMap == 0xA7) {
-                    D_80744508++;
-                    if ((D_80744508 == 5) && (flagGet(0x15F, 0) == 0)) {
+                    gEnemyDefeatCount++;
+                    if ((gEnemyDefeatCount == 5) && (flagGet(0x15F, 0) == 0)) {
                         csModelStateSetFirstByte(4, 0xA);
                     }
                 }

@@ -762,7 +762,7 @@ Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
                     forceClear = 1;
                     break;
                 }
-                forceClear |= (D_807552E4.matchPhase >= 2);
+                forceClear |= (gMpSettings.matchPhase >= 2);
                 clearView |= forceClear;
             }
             if (clearView == 0) {

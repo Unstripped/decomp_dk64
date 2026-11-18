@@ -381,7 +381,7 @@ void bonusTargetGameUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(game->counterTextId, 0.0f);
+        gfxResourceSetTimer(game->counterTextId, 0.0f);
         bonusExt->ammoCount = 5;
         bonusExt->phase = -2;
         bonusExt->aimSlot = 0;
@@ -653,7 +653,7 @@ void bonusTargetUpdate(void) {
                 step = (target->targetType != 0) ? 2 : 1;
                 game->targetsLeft -= step;
             }
-            func_806FDAB8(game->counterTextId, 3.1415927f);
+            gfxResourceSetTimer(game->counterTextId, 3.1415927f);
             actorScriptStart(gCurrentActor, (target->targetType != 0) ? 0x212 : 0x210);
             gCurrentActor->state = 1;
             gCurrentActor->unk155 = 0;
@@ -938,7 +938,7 @@ void bonusLightFlashGameUpdate(void) {
         game->timeLimit = 0x3C;
         game->rollTimer = 0;
         game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(game->counterTextId, 0.0f);
+        gfxResourceSetTimer(game->counterTextId, 0.0f);
         game->flashTimer = 0x3C;
         game->lightLevel = 1.0f;
         playerStateQueueCallback(0x48, 0, 0);
@@ -1325,7 +1325,7 @@ void bonusPerilPathPanicGameUpdate(void) {
         game->rollTimer = 0;
         game->shownCount = game->fairiesLeft;
         game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(game->counterTextId, 0.0f);
+        gfxResourceSetTimer(game->counterTextId, 0.0f);
         game->spawnTimer = 0x1E;
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
@@ -1586,7 +1586,7 @@ void bonusBigBugBashGameUpdate(void) {
         game->shownCount = game->fliesLeft;
         fx = 0.0;
         game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, fx, fx, fx);
-        func_806FDAB8(game->counterTextId, fx);
+        gfxResourceSetTimer(game->counterTextId, fx);
         lightSetColor(1.0f, 1.0f, 1.0f, -1);
         gCurrentActor->roll = 0;
         gCurrentActor->yaw = 0x800;
@@ -1947,7 +1947,7 @@ void bonusSearchlightSeekGameUpdate(void) {
         subExt->shownCount = subExt->targetsLeft;
         subExt->timeLimit = 0x3C;
         subExt->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(subExt->counterTextId, 0.0f);
+        gfxResourceSetTimer(subExt->counterTextId, 0.0f);
         gCurrentActor->sub4->scaleX = 0.33f;
         gCurrentActor->sub4->scaleY = 0.33f;
         gCurrentActor->sub4->scaleZ = 0.33f;

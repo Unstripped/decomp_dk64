@@ -46,7 +46,7 @@ typedef struct BossMadJackActor {
     BossScriptState *scriptState;
 } BossMadJackActor;
 
-extern u8 *D_80035A00[];
+extern u8 *gMadJackPhaseScripts[];
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 
@@ -60,7 +60,7 @@ void bossMadJackStep(void) {
     f32 targetZ;
 
     scriptState = ((BossMadJackActor *) gCurrentActor)->scriptState;
-    scriptOpcodes = D_80035A00[scriptState->phase];
+    scriptOpcodes = gMadJackPhaseScripts[scriptState->phase];
     targetAngle = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
@@ -75,7 +75,7 @@ void bossMadJackStep(void) {
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
     }
-    func_80724A20();
+    volumeTriggerApplyActorState();
     switch (gCurrentActor->state) {
     case 0x2D:
         switch (gCurrentActor->unk155) {
@@ -195,7 +195,7 @@ void bossMadJackStep(void) {
                 csModelStateSetFirstByte(0xB, 0);
                 scriptState->scriptPos = 0;
                 scriptState->phase++;
-                scriptOpcodes = D_80035A00[scriptState->phase];
+                scriptOpcodes = gMadJackPhaseScripts[scriptState->phase];
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
                 break;

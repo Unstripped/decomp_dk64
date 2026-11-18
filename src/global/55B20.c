@@ -1840,9 +1840,9 @@ extern s16 D_807F6BF0[];
 
 extern u8 D_807F5FEC;
 extern void *D_807F5DEC;
-extern u8 D_807F6009;
+extern u8 gRenderSetupKind;
 extern void *D_807F600C;
-extern struct RenderEntry *D_807F5FFC;
+extern struct RenderEntry *gRenderListSorted;
 extern Gfx D_2000180;
 
 u32 osVirtualToPhysical(void *);
@@ -1913,7 +1913,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
                 gfx = billboardRenderQueued(gfx, idx);
             }
             gfx = spriteListRender(gfx, gMapChunks[idx].sprites);
-            D_807F6009 = 0xFF;
+            gRenderSetupKind = 0xFF;
             if (flag) {
                 list = gMapChunks[idx].opaqueTail;
             } else {
@@ -1965,7 +1965,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
             gDPPipeSync(gfx++);
             gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gMapChunks[idx].clipLeft, gMapChunks[idx].clipTop, gMapChunks[idx].clipRight, gMapChunks[idx].clipBottom);
             mapSetClipBounds((s16)gMapChunks[idx].clipLeft, (s16)gMapChunks[idx].clipTop, (s16)gMapChunks[idx].clipRight, (s16)gMapChunks[idx].clipBottom);
-            D_807F6009 = 0xFF;
+            gRenderSetupKind = 0xFF;
             if (flag) {
                 list = gMapChunks[idx].translucentTail;
             } else {
@@ -1989,7 +1989,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     D_807F600C = NULL;
-    gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, x, y, z, flags, -1, 0);
+    gfx = renderEntryListBuildDisplayList(gfx, gRenderListSorted, x, y, z, flags, -1, 0);
     return billboardRenderQueued(gfx, -1);
 }
 

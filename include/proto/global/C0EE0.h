@@ -9,10 +9,10 @@ void enemyGridStateStep(void);
 #ifndef PROTO_SKIP_func_806BCF98
 Gfx *func_806BCF98(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806BD094
-void func_806BD094(s16, s8);
+#ifndef PROTO_SKIP_enemyGridCellSet
+void enemyGridCellSet(s16, s8);
 #endif
-#ifndef PROTO_SKIP_func_806BD0CC
-void func_806BD0CC(void);
+#ifndef PROTO_SKIP_enemyGridReset
+void enemyGridReset(void);
 #endif
 #endif

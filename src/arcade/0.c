@@ -65,11 +65,11 @@ extern Gfx *gGfxTaskBuffers[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern FrameMatrices *gGfxCurrentFrameBuffer;
-extern FrameMatrices D_80767CE8[];
+extern FrameMatrices gFrameMatrices[];
 extern u8 gScreenRenderFlags;
 extern f32 gScreenFadeProgress;
 extern u8 gGameMode;
-extern void *D_8076A080;
+extern void *gSegment1Data;
 extern Gfx D_1000090;
 extern Gfx D_1000040;
 
@@ -81,7 +81,7 @@ void arcadeRunFrame(void) {
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    gGfxCurrentFrameBuffer = &D_80767CE8[gGfxBufferIndex];
+    gGfxCurrentFrameBuffer = &gFrameMatrices[gGfxBufferIndex];
     controllerUpdate();
     if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
         glist = gGfxTaskBuffers[gGfxBufferIndex];
@@ -103,7 +103,7 @@ void arcadeBuildDisplayList(FrameMatrices *frameBuf, Gfx **glistp) {
 
     gSPSegment(glist++, 0, 0);
     gSPSegment(glist++, 2, osVirtualToPhysical(frameBuf));
-    gSPSegment(glist++, 1, osVirtualToPhysical(D_8076A080));
+    gSPSegment(glist++, 1, osVirtualToPhysical(gSegment1Data));
     gSPDisplayList(glist++, &D_1000090);
     gSPDisplayList(glist++, &D_1000040);
     gDPPipeSync(glist++);
@@ -177,14 +177,14 @@ s32 arcadeRand(void) {
     return (D_8004A738 >> 16) & 0x7FFF;
 }
 
-extern s32 D_8004A748;
-extern u8 D_8004C71B;
+extern s32 gArcadeScore;
+extern u8 gArcadeSpareLives;
 extern u8 D_8004C71C;
 void arcadeAddScore(s32 points) {
-    s32 old = D_8004A748;
-    D_8004A748 += points;
-    if (D_8004A748 >= 0x2710 && old < 0x2710) {
-        D_8004C71B++;
+    s32 old = gArcadeScore;
+    gArcadeScore += points;
+    if (gArcadeScore >= 0x2710 && old < 0x2710) {
+        gArcadeSpareLives++;
         D_8004C71C++;
     }
 }
@@ -318,7 +318,7 @@ void arcadeInsertHighScore(s32 rank) {
             D_8004A778[i][j] = D_8004A778[i - 1][j];
         }
     }
-    D_8004A74C[rank] = D_8004A748;
+    D_8004A74C[rank] = gArcadeScore;
     for (i = 0; i < 3; i++) D_8004A778[rank][i] = blank[0];  // LAYOUT: body on the for line
 }
 
@@ -330,7 +330,7 @@ void arcadeCheckGameOver(void) {
     u8 i;
 
     for (rank = 0; rank < 5; rank++) {
-        if (D_8004A74C[rank] < D_8004A748) {
+        if (D_8004A74C[rank] < gArcadeScore) {
             arcadeInsertHighScore(rank);
             break;
         }
@@ -420,11 +420,11 @@ void arcadeTitleLoop(Gfx **glistp) {
         arcadeRenderEntities(&glist);
     }
     if ((D_8004A740 != 0 && D_8004C6DC == 0x5FE) || (gPadPressedButtons[0] & 0x9000)) {
-        D_8004A748 = 0;
+        gArcadeScore = 0;
         D_8004C723 = 0;
-        D_8004C71B = 2;
+        gArcadeSpareLives = 2;
         if (D_8004A740 != 0) {
-            D_8004C71B = 0;
+            gArcadeSpareLives = 0;
             if (flagGet(0x84, 0) != 0) {
                 D_8004C723 = 8;
             } else if (flagGet(0x82, 0) != 0) {
@@ -436,7 +436,7 @@ void arcadeTitleLoop(Gfx **glistp) {
         } else {
             gArcadeLevel = D_8004C723 / 4 + 1;
         }
-        D_8004C71C = D_8004C71B + 1;
+        D_8004C71C = gArcadeSpareLives + 1;
         D_8004C722 = 1;
         D_8004C724 = 1;
         D_8004C6DC = 0;
@@ -492,7 +492,7 @@ void arcadeStopSound(s32 soundId) {
     }
 }
 
-extern ALBank *D_8076D1F8;
+extern ALBank *gSfxBank;
 void arcadeGameplayLoop(Gfx **glistp) {
     Gfx *glist = *glistp;
 
@@ -501,13 +501,13 @@ void arcadeGameplayLoop(Gfx **glistp) {
         arcadeStopSound(0x48);
     }
     if ((D_80770DF8 == 0) && (D_8004C714 > 0)) {
-        n_alSndpPlay(D_8076D1F8, (s16)D_8004C714, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8);
+        n_alSndpPlay(gSfxBank, (s16)D_8004C714, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8);
     }
-    if (D_8004A760 < D_8004A748) {
-        D_8004A760 = D_8004A748;
+    if (D_8004A760 < gArcadeScore) {
+        D_8004A760 = gArcadeScore;
     }
     if (D_8004C6DC++ == 0x3C) {
-        D_8004C71C = D_8004C71B;
+        D_8004C71C = gArcadeSpareLives;
         gArcadeFrozen = 0;
         D_8004BCD0[arcadeFindEntityByType(0xD)].state = 2;
     }
@@ -596,8 +596,8 @@ void arcadePauseMenuLoop(Gfx **glistp) {
                 eepromInitConfigs(2);
                 arcadeLoadHighScores();
                 arcadeSaveHighScores();
-                if (D_8004A760 < D_8004A748) {
-                    D_8004A760 = D_8004A748;
+                if (D_8004A760 < gArcadeScore) {
+                    D_8004A760 = gArcadeScore;
                 }
                 D_8004A744 = 1;
             }
@@ -631,7 +631,7 @@ void arcadeFinishStageIntro(void) {
     } else {
         gArcadeLevel = rank;
     }
-    n_alSndpPlay(D_8076D1F8, 0x47, 0x7FFF, 0x3F, 1.0f, 0, 0);
+    n_alSndpPlay(gSfxBank, 0x47, 0x7FFF, 0x3F, 1.0f, 0, 0);
     D_8004C724 = 2;
     gArcadeFrozen = 1;
 }
@@ -1079,9 +1079,9 @@ typedef struct ArcadeLift {
     f32 y;
     f32 vy;
 } ArcadeLift;
-ArcadeLift D_8004BC88[6];
+ArcadeLift gArcadeLifts[6];
 extern u8 D_80032F40[];
-ArcadeGirderSpan D_8004A7C8[] = {
+ArcadeGirderSpan gArcadeStage3Girders[] = {
     { 0x0B, 0x11, 0x37 },
     { 0x00, 0x1C, 0xF7 },
     { 0x00, 0x15, 0x57 },
@@ -1132,22 +1132,22 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    count = sizeof(D_8004A7C8) / sizeof(D_8004A7C8[0]); // FAKE: constant-valued array-count bound local (Q0780); assigned here, not as its initialiser (69)
-    for (pt = D_8004A7C8; pt < D_8004A7C8 + count; pt++) {
+    count = sizeof(gArcadeStage3Girders) / sizeof(gArcadeStage3Girders[0]); // FAKE: constant-valued array-count bound local (Q0780); assigned here, not as its initialiser (69)
+    for (pt = gArcadeStage3Girders; pt < gArcadeStage3Girders + count; pt++) {
         arcadeDrawGirderSpan(&glist, pt->startX, pt->endX, pt->y);
     }
     for (i = 0; i < 6; i++) {
         if (gArcadeFrozen == 0 && D_8004C724 == 5) {
-            D_8004BC88[i].y += D_8004BC88[i].vy;
-            if (D_8004BC88[i].y < 99.0f) {
-                D_8004BC88[i].y += 144.0f;
+            gArcadeLifts[i].y += gArcadeLifts[i].vy;
+            if (gArcadeLifts[i].y < 99.0f) {
+                gArcadeLifts[i].y += 144.0f;
             }
-            if (D_8004BC88[i].y > 243.0f) {
-                D_8004BC88[i].y -= 144.0f;
+            if (gArcadeLifts[i].y > 243.0f) {
+                gArcadeLifts[i].y -= 144.0f;
             }
         }
         for (j = 0; j < 2; j++) {
-            dlAppendTextureRectangle(&glist, (D_8004BC88[i].x + 40.0f + j * 8) * 4.0f, (D_8004BC88[i].y * 0.875 + 8.0) * 4.0);
+            dlAppendTextureRectangle(&glist, (gArcadeLifts[i].x + 40.0f + j * 8) * 4.0f, (gArcadeLifts[i].y * 0.875 + 8.0) * 4.0);
         }
     }
     arcadeDrawStage3Ladders(&glist);
@@ -1212,7 +1212,7 @@ void arcadeDrawStage4Background(Gfx **glistp) {
 
 void arcadeKillPlayer(void) {
     arcadeStopSound(0);
-    n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+    n_alSndpPlay(gSfxBank, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
     D_8004BCD0[gArcadePlayerIndex].state = 8;
     D_8004BCD0[gArcadePlayerIndex].vx = 0.0f;
     D_8004BCD0[gArcadePlayerIndex].animTimer = 0.0f;
@@ -1354,7 +1354,7 @@ extern u8 D_80035CE8[];
 extern u8 D_8004A788[];
 extern s32 D_8004C710;
 extern u8 D_8004C718;
-extern u8 D_8004A764;
+extern u8 gArcadeGameOver;
 
 
 extern ArcadeEntity D_8004A478;
@@ -1421,25 +1421,25 @@ void arcadeSpawnStage3Entities(void) {
     p->vx = 0.5f;
     p->x = 260.0f;
     p->y = 103.0f;
-    D_8004BC88[0].x = 40.0f;
-    D_8004BC88[1].x = 40.0f;
-    D_8004BC88[2].x = 40.0f;
-    D_8004BC88[3].x = 104.0f;
-    D_8004BC88[4].x = 104.0f;
-    D_8004BC88[5].x = 104.0f;
-    D_8004BC88[0].y = 95.0f;
-    D_8004BC88[3].y = 95.0f;
-    D_8004BC88[1].y = 143.0f;
-    D_8004BC88[4].y = 143.0f;
-    D_8004BC88[2].y = 191.0f;
-    D_8004BC88[5].y = 191.0f;
+    gArcadeLifts[0].x = 40.0f;
+    gArcadeLifts[1].x = 40.0f;
+    gArcadeLifts[2].x = 40.0f;
+    gArcadeLifts[3].x = 104.0f;
+    gArcadeLifts[4].x = 104.0f;
+    gArcadeLifts[5].x = 104.0f;
+    gArcadeLifts[0].y = 95.0f;
+    gArcadeLifts[3].y = 95.0f;
+    gArcadeLifts[1].y = 143.0f;
+    gArcadeLifts[4].y = 143.0f;
+    gArcadeLifts[2].y = 191.0f;
+    gArcadeLifts[5].y = 191.0f;
     t = (arcadeMinFloat(gArcadeLevel, 4.0f) - 2.0) / 16 + 0.5;
-    D_8004BC88[3].vy = t;
-    D_8004BC88[0].vy = -t;
-    D_8004BC88[1].vy = -t;
-    D_8004BC88[2].vy = -t;
-    D_8004BC88[4].vy = t;
-    D_8004BC88[5].vy = t;
+    gArcadeLifts[3].vy = t;
+    gArcadeLifts[0].vy = -t;
+    gArcadeLifts[1].vy = -t;
+    gArcadeLifts[2].vy = -t;
+    gArcadeLifts[4].vy = t;
+    gArcadeLifts[5].vy = t;
 }
 
 extern ArcadeEntity D_8004A678;
@@ -1549,7 +1549,7 @@ void arcadeInitStage(void) {
     }
     D_8004C710 = 0;
     D_8004C718 = 0xFF;
-    D_8004A764 = 0;
+    gArcadeGameOver = 0;
     D_8004C6DC = 0;
     gArcadeFrozen = 1;
     D_8004C6F8 = 1;
@@ -1755,7 +1755,7 @@ s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
     }
     if (posX >= 0x4D && posX < 0x64) {
         for (i = 0; i < 3; i++) {
-            f32 y = D_8004BC88[i].y;
+            f32 y = gArcadeLifts[i].y;
             if (y < posY + 4 && posY - 0x10 < y) {
                 ret = (s32)y;
             }
@@ -1763,7 +1763,7 @@ s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
     }
     if (posX >= 0x8D && posX < 0xA4) {
         for (i = 3; i < 6; i++) {
-            f32 y = D_8004BC88[i].y;
+            f32 y = gArcadeLifts[i].y;
             if (y < posY + 4 && posY - 0x10 < y) {
                 ret = (s32)y;
             }
@@ -2120,7 +2120,7 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
     D_8004BCD0[entIndex].flipY = 0;
     frame = D_8004BCD0[entIndex].animTimer;
     if (D_8004BCD0[entIndex].state == 2) {
-        if (D_8004A764 && D_8004A764) {} // FAKE: empty guard steers regalloc
+        if (gArcadeGameOver && gArcadeGameOver) {} // FAKE: empty guard steers regalloc
         if (D_8004C710 != 0) {
             if (D_8004C710 & 8) {
                 switch (frame & 3) {
@@ -2181,9 +2181,9 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
         D_8004BCD0[entIndex].facing = (s32)(D_8004BCD0[entIndex].animTimer / 4.5) & 1;
     } else if (D_8004BCD0[entIndex].state == 8) {
         if (D_8004BCD0[entIndex].animTimer > 38.0f) {
-            if (D_8004C71B == 0) {
+            if (gArcadeSpareLives == 0) {
                 if (D_8004BCD0[entIndex].animTimer > 48.0f) {
-                    if (D_8004A74C[4] < D_8004A748) {
+                    if (D_8004A74C[4] < gArcadeScore) {
                         arcadeCheckGameOver();
                         return;
                     }
@@ -2194,8 +2194,8 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                     arcadeInitTitleScreen();
                     return;
                 }
-                if (D_8004A764 == 0) {
-                    D_8004A764 = 1;
+                if (gArcadeGameOver == 0) {
+                    gArcadeGameOver = 1;
                     for (col = 0x6C; col != 0xCC; col += 0x10) {
                         colX = col;
                         for (row = 0xA6; row != 0xC6; row += 0x10) {
@@ -2207,7 +2207,7 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                     }
                 }
             } else {
-                D_8004C71B--;
+                gArcadeSpareLives--;
                 arcadeFinishStageIntro();
             }
         } else if (D_8004BCD0[entIndex].animTimer > 20.0f) {
@@ -2271,7 +2271,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 D_8004BCD0[entIndex].vx = 0.0f;
             }
             if ((gPadPressedButtons[0] & 0xE000) && D_8004C710 == 0) {
-                n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 D_8004BCD0[entIndex].animTimer = 0.0f;
                 D_8004BCD0[entIndex].vy = -1.2f;
                 D_8004BCD0[entIndex].vx *= 0.65;
@@ -2344,7 +2344,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                  (D_8004C6F8 == 3 && D_8004A308[3] != 0))) {
                 D_8004BCD0[entIndex].state = 2;
             } else if (floorY == D_8004BCD0[entIndex].y && (gPadPressedButtons[0] & 0xE000)) {
-                n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 D_8004BCD0[entIndex].animTimer = 0.0f;
                 D_8004BCD0[entIndex].vy = -1.2f;
                 D_8004BCD0[entIndex].vx *= 0.65;
@@ -2422,7 +2422,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 }
             }
             if (D_8004BCD0[entIndex].y - D_8004BCD0[entIndex].param2 > 15.0f) {
-                n_alSndpPlay(D_8076D1F8, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 D_8004BCD0[entIndex].param2 = 0xFF;
             }
             if (D_8004BCD0[entIndex].vy > 2.5) {
@@ -2450,7 +2450,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
         case 8:
             D_8004BCD0[entIndex].animTimer += 0.125;
             if (D_8004BCD0[entIndex].animTimer == 8.0f) {
-                n_alSndpPlay(D_8076D1F8, 0x54, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x54, 0x7FFF, 0x3F, 1.0f, 0, 0);
             }
             break;
         }
@@ -2466,7 +2466,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             } else {
                 soundPitch.f = 0.7071120143f;
             }
-            n_alSndpPlay(D_8076D1F8, 0x40, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DFC);
+            n_alSndpPlay(gSfxBank, 0x40, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DFC);
             n_alSndpPostEvent(D_80770DFC, 0x10, soundPitch.bits);
         }
         floorY = arcadeCheckPlayerCollision((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
@@ -2476,7 +2476,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             arcadeKillPlayer();
         }
         if (D_8004C6F8 == 0 && floorY == D_8004BCD0[entIndex].y) {
-            n_alSndpPlay(D_8076D1F8, 0x4C, 0x7FFF, 0x3F, 1.0f, 0, 0);
+            n_alSndpPlay(gSfxBank, 0x4C, 0x7FFF, 0x3F, 1.0f, 0, 0);
             arcadeStopSound(0);
             if (D_8004C722 == 1) {
                 i = arcadeFindEntityByType(0x16);
@@ -2662,7 +2662,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
         }
         if ((D_8004BCD0[entIndex].y > 242.0f) & (D_8004BCD0[entIndex].x < 74.0f)) {
             if (D_8004BCD0[entIndex].param2 != 0) {
-                n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 idx = arcadeFindEntityByType(0x13);
                 if (idx < 0) {
                     idx = arcadeFindFreeEntity();
@@ -2853,11 +2853,11 @@ void arcadeUpdateSpringEntity(s32 entIndex) {
                 D_8004BCD0[entIndex].y = 81.0f;
                 D_8004BCD0[entIndex].vy = -3.5f;
                 if (D_8004BCD0[entIndex].x > 40.0f) {
-                    n_alSndpPlay(D_8076D1F8, 0x43, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                    n_alSndpPlay(gSfxBank, 0x43, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 }
             } else if (D_8004BCD0[entIndex].vx != 0.0f) {
                 D_8004BCD0[entIndex].vx = 0.0f;
-                n_alSndpPlay(D_8076D1F8, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
             }
         }
         if (D_8004BCD0[entIndex].y > 271.0f) {
@@ -3069,7 +3069,7 @@ extern u8 D_80045428[];
 
 void arcadeUpdateDonkeyKongIntro(s32 entIndex) {
     if (D_8004C6DC == 0x3C) {
-        n_alSndpPlay(D_8076D1F8, 0x46, 0x7FFF, 0x3F, 1.0f, 0, 0);
+        n_alSndpPlay(gSfxBank, 0x46, 0x7FFF, 0x3F, 1.0f, 0, 0);
     }
     if (D_8004C6DC >= 0x3C) {
         if (D_8004C6DC >= 0x169) {
@@ -3080,7 +3080,7 @@ void arcadeUpdateDonkeyKongIntro(s32 entIndex) {
                 D_8004C721 = 1;
                 D_8004BCD0[entIndex].y = 38.0f;
                 if (D_8004C6DC == 0x26C) {
-                    n_alSndpPlay(D_8076D1F8, 0x53, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                    n_alSndpPlay(gSfxBank, 0x53, 0x7FFF, 0x3F, 1.0f, 0, 0);
                     D_8004BCD0[entIndex].sprite = D_80041508;
                 }
                 if (D_8004C6DC == 0x2D0 || D_8004C6DC < 0x26C) {
@@ -3088,7 +3088,7 @@ void arcadeUpdateDonkeyKongIntro(s32 entIndex) {
                 }
                 if (D_8004BCD0[entIndex].vy > 0.06) {
                     D_8004C708 += 1;
-                    n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                    n_alSndpPlay(gSfxBank, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 }
                 if (D_8004BCD0[entIndex].x > 74.0f && D_8004C6DC >= 0x1A5) {
                     D_8004BCD0[entIndex].vx = -0.5f;
@@ -3293,7 +3293,7 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
                 return;
             }
             if (!(D_8004BCD0[entIndex].param & 0x1F)) {
-                n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
             }
             D_8004BCD0[entIndex].sprite = D_800424D0;
             tmp = ((D_8004BCD0[entIndex].param & 0x20) / 32) == 0;
@@ -3305,7 +3305,7 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
             D_8004C723 += 1;
             if (D_8004A740 != 0) {
                 D_8004A770 = 1;
-                if (D_8004A74C[4] < D_8004A748) {
+                if (D_8004A74C[4] < gArcadeScore) {
                     arcadeCheckGameOver();
                 } else {
                     arcadeExit();
@@ -3331,7 +3331,7 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
                 } else {
                     if (D_8004C708 != 2) {
                         D_8004C708 = 2;
-                        n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                        n_alSndpPlay(gSfxBank, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
                     }
                     D_8004BCD0[entIndex].y = 178.0f;
                     D_8004BCD0[entIndex].facing = 0;
@@ -3344,7 +3344,7 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
                         D_8004BCD0[entIndex].sprite = D_80049348;
                     }
                     if (D_8004BCD0[entIndex].animTimer == 350.0f) {
-                        n_alSndpPlay(D_8076D1F8, 0x50, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                        n_alSndpPlay(gSfxBank, 0x50, 0x7FFF, 0x3F, 1.0f, 0, 0);
                         D_8004BCD0[gArcadePlayerIndex].sprite = D_8003B180;
                         D_8004BCD0[gArcadePlayerIndex].facing = 0;
                         D_8004BCD0[gArcadePlayerIndex].x = 190.0f;
@@ -3361,10 +3361,10 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
             }
         }
         if (D_8004BCD0[entIndex].animTimer == 2.0f) {
-            n_alSndpPlay(D_8076D1F8, 0x52, 0x7FFF, 0x3F, 1.0f, 0, 0);
+            n_alSndpPlay(gSfxBank, 0x52, 0x7FFF, 0x3F, 1.0f, 0, 0);
         }
         if (D_8004BCD0[entIndex].animTimer == 200.0f) {
-            n_alSndpPlay(D_8076D1F8, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
+            n_alSndpPlay(gSfxBank, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
         }
         break;
     }
@@ -3381,7 +3381,7 @@ void arcadeUpdateDonkeyKongStage2(s32 entIndex) {
             D_8004BCD0[entIndex].sprite = D_80040540;
         } else {
             if (!((s32)D_8004BCD0[entIndex].animTimer & 0x1F)) {
-                n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                n_alSndpPlay(gSfxBank, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
             }
             D_8004BCD0[entIndex].sprite = D_800424D0;
             flash = (((s32)D_8004BCD0[entIndex].animTimer & 0x20) / 32) == 0;
@@ -3447,7 +3447,7 @@ void arcadeUpdateDonkeyKongStage3(s32 entIndex) {
 
 void arcadeUpdateScorePopup(s32 entIndex) {
     if (0.0f == D_8004BCD0[entIndex].animTimer) {
-        n_alSndpPlay(D_8076D1F8, 0x45, 0x7FFF, 0x3F, 1.0f, 0, 0);
+        n_alSndpPlay(gSfxBank, 0x45, 0x7FFF, 0x3F, 1.0f, 0, 0);
     }
     if (D_8004BCD0[entIndex].animTimer++ > 40.0f) {
         D_8004BCD0[entIndex].type = 0;
@@ -3519,7 +3519,7 @@ void arcadeUpdateHammerEntity(u8 entIndex) {
                 if (D_8004BCD0[i].type == 1 || D_8004BCD0[i].type == 4 || D_8004BCD0[i].type == 2) {
                     if (arcadeAbs(D_8004BCD0[i].x - D_8004BCD0[entIndex].x) < 0xD) {
                         if (arcadeAbs(D_8004BCD0[i].y - D_8004BCD0[entIndex].y) < 8) {
-                            n_alSndpPlay(D_8076D1F8, 0x4B, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                            n_alSndpPlay(gSfxBank, 0x4B, 0x7FFF, 0x3F, 1.0f, 0, 0);
                             idx = (u8)arcadeFindFreeEntitySlot39();
                             D_8004BCD0[idx] = D_8004A618;
                             D_8004BCD0[idx].type = 7;
@@ -3970,10 +3970,10 @@ void arcadeDrawHud(Gfx **glistp) {
     arcadeDrawString(&g, buf);
     arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     arcadeSetTextPosition(0x38, 0x1B);
-    _sprintf(buf, "%06d    %06d", D_8004A748, D_8004A760);
+    _sprintf(buf, "%06d    %06d", gArcadeScore, D_8004A760);
     arcadeDrawString(&g, buf);
     if (D_8004C724 == 5 || D_8004C724 == 4) {
-        if (D_8004A764 != 0) {
+        if (gArcadeGameOver != 0) {
             if (D_8004C722 == 2) {
                 arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
             } else if (D_8004C722 == 4) {

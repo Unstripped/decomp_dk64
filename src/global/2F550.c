@@ -445,7 +445,7 @@ void func_8062BB2C(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
     }
 }
 
-extern struct RenderEntry *D_807F5FF4;
+extern struct RenderEntry *gRenderListPending;
 
 
 u8 func_8062BCC8(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
@@ -453,7 +453,7 @@ u8 func_8062BCC8(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
     RenderEntry *item;
 
     result = func_8062BDB0(actor, D_807F5DE4, D_807F5E60, x, z, y, outFloorY);
-    item = D_807F5FF4;
+    item = gRenderListPending;
     while (item != NULL) {
         if (item->unk24 == 1) {
             result |= collisionTestDynamicActorFloor(actor, item->unk1E, x, z, y, outFloorY);
@@ -540,7 +540,7 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
 
 void mapFrameBegin(void *frame) {
     lightFlushQueued();
-    mapDistributeEntries(D_807F5FF4);
+    mapDistributeEntries(gRenderListPending);
     renderEntryListFreeTranslucent();
     if (gMapChunkCount == 0) {
         mapChunkAnimateTextures(0xFF);
@@ -630,16 +630,16 @@ void viewportSetFromRect(s16 *vp, s32 left, s32 top, s32 right, s32 bottom) {
 }
 
 extern RenderEntry *D_807F5FF8;
-extern u8 D_807F6009;
+extern u8 gRenderSetupKind;
 
 
 Gfx *func_8062CA0C(Gfx *gfx, f32 camX, f32 camY, f32 camZ) {
-    D_807F6009 = 0xFF;
+    gRenderSetupKind = 0xFF;
     return renderEntryListBuildDisplayList(gfx, D_807F5FF8, camX, camY, camZ, 0x30030, -1, 0);
 }
 
 
-extern RenderEntry *D_807F5FFC;
+extern RenderEntry *gRenderListSorted;
 
 
 Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 camY, f32 camZ, s32 renderMask) {
@@ -682,7 +682,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
             }
             gfx = spriteListRender(gfx, vis->sprites);
             gfx = billboardRenderQueued(gfx, -1);
-            D_807F6009 = 0xFF;
+            gRenderSetupKind = 0xFF;
             gfx = renderEntryListBuildDisplayList(gfx, vis->entries, camX, camY, camZ, renderMask, -1, 0);
             if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
@@ -690,7 +690,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
                 gfx = mapViewDrawPass(gfx, node, 3);
                 gDPPipeSync(gfx++);
             }
-            gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, camX, camY, camZ, renderMask, -1, 0);
+            gfx = renderEntryListBuildDisplayList(gfx, gRenderListSorted, camX, camY, camZ, renderMask, -1, 0);
             break;
         case 0:
             switch (vis->visMode) {
@@ -921,7 +921,7 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
                     mapChunkFreeNodeLists(all);
                     mapChunkRebuildNodeLists(camX, camY, camZ, all);
                     mapChunkBuildSpriteChains(camX, camY, camZ, all);
-                    D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, camX, camY, camZ, &closest);
+                    gRenderListSorted = renderEntryListSortByDistance(gRenderListSorted, camX, camY, camZ, &closest);
                 }
             }
         } else {
@@ -937,7 +937,7 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
                 vis->entries = renderEntryListPurgeUntouched(vis->entries);
                 vis->entries = renderEntryListSortByDistance(vis->entries, camX, camY, camZ, &closest);
                 vis->sprites = spriteListBuildDisplayChain(vis->entries, 0, camX, camY, camZ);
-                D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, camX, camY, camZ, &closest);
+                gRenderListSorted = renderEntryListSortByDistance(gRenderListSorted, camX, camY, camZ, &closest);
             }
         }
     } else {
@@ -1402,7 +1402,7 @@ extern s16 D_807F5FE4;
 extern s16 D_807F5FE6;
 extern s16 D_807F5FE8;
 extern s16 D_807F5FEA;
-extern s32 D_807F5FD0;
+extern s32 gMinecartTrackCount;
 extern s32 sMapSoundEmitterCount;
 extern LevelSoundEmitter *sMapSoundEmitters;
 
@@ -1443,7 +1443,7 @@ void mapHeaderLoad(MapFileHeader *header) {
     dlEndOff = header->unk38;
     emitterOff = header->unk44;
     chunkAnimOff = header->unk48;
-    D_807F5FD0 = *(s32 *)(D_807F5DE0 + trackOff) + 1;
+    gMinecartTrackCount = *(s32 *)(D_807F5DE0 + trackOff) + 1;
     gMinecartTrackPoints = (TargetVec3f **)(D_807F5DE0 + trackOff + 4);
     sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + emitterOff);
     sMapSoundEmitters = (LevelSoundEmitter *)(D_807F5DE0 + emitterOff + 4);
@@ -1481,8 +1481,8 @@ void mapRelocateOffsetTable(s32 base) {
     s32 i;
     u8 *point;
 
-    if (D_807F5FD0 != 0) {
-        for (i = 0; i <= D_807F5FD0; i++) {
+    if (gMinecartTrackCount != 0) {
+        for (i = 0; i <= gMinecartTrackCount; i++) {
             point = (u8 *)gMinecartTrackPoints[i];
             gMinecartTrackPoints[i] = (TargetVec3f *)(point + base);
         }

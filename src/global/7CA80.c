@@ -90,7 +90,7 @@ static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
 
-extern u16 D_807FBB30;
+extern u16 gModelCacheCount;
 extern void *gActorScriptIndexTable;
 extern void *gActorScriptAnimTable;
 extern void *gActorScriptSoundTable;
@@ -100,11 +100,11 @@ void actorInit(void) {
     u16 i;
 
     for (i = 0; i < 32; i++) {
-        D_807FB630[i].assetId = 0;
-        D_807FB630[i].refCount = 0;
-        D_807FB630[i].asset = NULL;
+        gModelCache[i].assetId = 0;
+        gModelCache[i].refCount = 0;
+        gModelCache[i].asset = NULL;
     }
-    D_807FBB30 = 0;
+    gModelCacheCount = 0;
 
     for (i = 0; i < 32; i++) {
         gAnimClipCache[i].id = 0xFFFF;

@@ -410,12 +410,12 @@ s32 mapIsBonusOrSpecial(void) {
     return 1;
 }
 
-extern s16 D_807F9058;
-extern s16 D_807F905A;
+extern s16 gMatrixCacheLookupCount;
+extern s16 gMatrixCacheHitCount;
 
 void matrixCacheResetStats(void) {
-    D_807F9058 = 0;
-    D_807F905A = 0;
+    gMatrixCacheLookupCount = 0;
+    gMatrixCacheHitCount = 0;
 }
 
 extern f32 *gChunkLightR;
@@ -432,7 +432,7 @@ void *matrixCacheLookup(s32 lightCount, s32 chunkIndex, s16 cellId, u8 subType) 
     LightTrigger *cand;
     LightTrigger *lights;
 
-    D_807F9058++;
+    gMatrixCacheLookupCount++;
     node = gMatrixCacheBuckets[matrixCacheHash(lightCount, cellId, subType)];
     while (node != NULL) {
         if (lightCount == node->lightCount && cellId == node->cellId && node->subType == subType) {
@@ -466,7 +466,7 @@ void *matrixCacheLookup(s32 lightCount, s32 chunkIndex, s16 cellId, u8 subType) 
                 }
                 if (!mismatch) {
                     node->lastUsedFrame = gFrameCounter;
-                    D_807F905A++;
+                    gMatrixCacheHitCount++;
                     if (node->listPrev != NULL) {
                         if (node->listNext == NULL) {
                             gMatrixCacheTail = node->listPrev;

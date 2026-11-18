@@ -57,14 +57,14 @@ void func_806A6348(void);
 #ifndef PROTO_SKIP_func_806A63A8
 void func_806A63A8(void);
 #endif
-#ifndef PROTO_SKIP_func_806A6408
-void func_806A6408(void);
+#ifndef PROTO_SKIP_actorLargeDropUpdate
+void actorLargeDropUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A6468
-void func_806A6468(void);
+#ifndef PROTO_SKIP_actorKongDropUpdate
+void actorKongDropUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A6574
-void func_806A6574(void);
+#ifndef PROTO_SKIP_actorKongDropPersistentUpdate
+void actorKongDropPersistentUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorDropBounceExpireUpdate
 void actorDropBounceExpireUpdate(f32);

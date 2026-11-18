@@ -5,27 +5,27 @@
 #include "proto/global/201B0.h"
 
 
-extern s32 D_807FEF80;
-extern s32 D_807FEF78;
-extern u16 D_807FEF84;
-extern u16 D_807FEF86;
-extern s32 D_807FEF70;
-extern s32 D_807FEF74;
+extern s32 gFaultFramebuffer;
+extern s32 gFaultCharScale;
+extern u16 gFaultFgColor;
+extern u16 gFaultBgColor;
+extern s32 gFaultCursorX;
+extern s32 gFaultCursorY;
 
 void faultFontInit(s32 a0, s32 a1, s32 a2) {
-    D_807FEF80 = a0;
-    D_807FEF78 = 2;
-    D_807FEF84 = 0xFFFF;
-    D_807FEF86 = 1;
-    D_807FEF70 = a1;
-    D_807FEF74 = a2;
+    gFaultFramebuffer = a0;
+    gFaultCharScale = 2;
+    gFaultFgColor = 0xFFFF;
+    gFaultBgColor = 1;
+    gFaultCursorX = a1;
+    gFaultCursorY = a2;
 }
 
 void faultFontSetColorMode(s32 a0) {
     if (a0 == 0) {
-        D_807FEF84 = 0xFFFF;
+        gFaultFgColor = 0xFFFF;
     } else {
-        D_807FEF84 = 0xF801;
+        gFaultFgColor = 0xF801;
     }
 }
 
@@ -42,27 +42,27 @@ void faultDrawGlyph(u8 c) {
     s32 j;
 
     glyph = D_80756130 + (c - 33) * 6;
-    dst = (D_807FEF70 + 3) * gHiResScale * 4 + (u16 *)D_807FEF80 + gScreenWidth * (D_807FEF74 + 3) * gHiResScale * 6;
+    dst = (gFaultCursorX + 3) * gHiResScale * 4 + (u16 *)gFaultFramebuffer + gScreenWidth * (gFaultCursorY + 3) * gHiResScale * 6;
     for (row = 0; row != 6; row++, glyph++) {
-        for (i = 0; i < gHiResScale * D_807FEF78; i++) {
+        for (i = 0; i < gHiResScale * gFaultCharScale; i++) {
             for (bit = 3; bit >= 0; bit--) {
-                for (j = 0; j < gHiResScale * D_807FEF78; j++) {
+                for (j = 0; j < gHiResScale * gFaultCharScale; j++) {
                     if (*glyph & (1 << bit)) {
-                        *dst = D_807FEF84;
+                        *dst = gFaultFgColor;
                     } else {
-                        *dst = D_807FEF86;
+                        *dst = gFaultBgColor;
                     }
                     dst++;
                 }
             }
-            dst += gScreenWidth - D_807FEF78 * 4 * gHiResScale;
+            dst += gScreenWidth - gFaultCharScale * 4 * gHiResScale;
         }
     }
 }
 
 #include "compiler/ido/stdarg.h"
 
-extern s32 D_807FEF7C;
+extern s32 gFaultLineStartX;
 
 void faultPrintf(const char *fmt, ...) {
     u8 *p;
@@ -76,20 +76,20 @@ void faultPrintf(const char *fmt, ...) {
     while (c) {
         switch (c) {
             case 32:
-                D_807FEF70 += D_807FEF78;
+                gFaultCursorX += gFaultCharScale;
                 break;
             case 9:
-                D_807FEF70 = D_807FEF70 / 8;
-                D_807FEF70 = D_807FEF70 + 1;
-                D_807FEF70 = D_807FEF70 * 8;
+                gFaultCursorX = gFaultCursorX / 8;
+                gFaultCursorX = gFaultCursorX + 1;
+                gFaultCursorX = gFaultCursorX * 8;
                 break;
             case 10:
-                D_807FEF70 = D_807FEF7C;
-                D_807FEF74 += D_807FEF78;
+                gFaultCursorX = gFaultLineStartX;
+                gFaultCursorY += gFaultCharScale;
                 break;
             default:
                 faultDrawGlyph(c);
-                D_807FEF70 += D_807FEF78;
+                gFaultCursorX += gFaultCharScale;
                 break;
         }
         c = *p++;
@@ -139,14 +139,14 @@ typedef struct {
     s32 unk4;
 } Ga136820Entry;
 
-extern s32 D_807FF018;
-extern Ga136820Entry D_807FEF88[];
-extern s32 D_807563B8;
-extern u8 D_807FF01C;
-extern s32 D_807FF020;
-extern s32 D_807FF024;
-extern s32 D_807FF028;
-extern char *D_80756360[];
+extern s32 gFaultStackTraceCount;
+extern Ga136820Entry gFaultStackTrace[];
+extern s32 gFaultDrawCount;
+extern u8 gFaultMessageId;
+extern s32 gFaultMessageArg0;
+extern s32 gFaultMessageArg1;
+extern s32 gFaultMessageArg2;
+extern char *gFaultMessageStrings[];
 
 void faultDrawRegs(OSThread *thread) {
     s32 y;
@@ -154,29 +154,29 @@ void faultDrawRegs(OSThread *thread) {
     s32 j;
     __OSThreadContext *ctx;
 
-    D_807FEF78 = 2;
-    D_807FEF84 = 0xFFFF;
-    D_807FEF86 = 1;
+    gFaultCharScale = 2;
+    gFaultFgColor = 0xFFFF;
+    gFaultBgColor = 1;
     ctx = &thread->context;
     for (y = 0, x = 0; y != 24; y += 6, x += 18) {
-        D_807FEF70 = D_807FEF7C = x;
-        D_807FEF74 = y;
+        gFaultCursorX = gFaultLineStartX = x;
+        gFaultCursorY = y;
         faultPrintf("DK 64\n");
         faultPrintf("%X\n", ctx->pc);
-        faultPrintf("%X\n", ((s32 *)&ctx->ra)[1]); // FAKE: low-word read of the u64 ra avoids the ucvt temps that shift D_807563B8 from t0 to t2
-        if (D_807563B8 >= 4) {
-            for (j = 0; j < D_807FF018; j++) {
-                faultPrintf("%X\n", D_807FEF88[j].unk0);
+        faultPrintf("%X\n", ((s32 *)&ctx->ra)[1]); // FAKE: low-word read of the u64 ra avoids the ucvt temps that shift gFaultDrawCount from t0 to t2
+        if (gFaultDrawCount >= 4) {
+            for (j = 0; j < gFaultStackTraceCount; j++) {
+                faultPrintf("%X\n", gFaultStackTrace[j].unk0);
             }
         }
     }
-    if (D_807FF01C != 0) {
-        faultPrintf("%s %x %x %x", D_80756360[D_807FF01C], D_807FF020, D_807FF024, D_807FF028);
+    if (gFaultMessageId != 0) {
+        faultPrintf("%s %x %x %x", gFaultMessageStrings[gFaultMessageId], gFaultMessageArg0, gFaultMessageArg1, gFaultMessageArg2);
     }
-    if (D_807563B8 < 4) {
-        D_807563B8++;
+    if (gFaultDrawCount < 4) {
+        gFaultDrawCount++;
     }
-    if (D_807563B8 == 4) {
+    if (gFaultDrawCount == 4) {
         faultUnwindStack(thread);
     }
 }
@@ -202,12 +202,12 @@ s32 unwindDecodeAddiuSp(s32 a0, s32 *a1) {
 s32 unwindDecodeJrRa(u32 a0, s32 *a1, s32 a2, s32 **a3) {
     if ((a0 & 0x3FFFFFF) == 0x3E00008) {
         unwindDecodeAddiuSp(**a3, a1);
-        if (D_807FF018 != 0 && a2 == D_807FEF88[D_807FF018 - 1].unk0) {
-            D_807FEF88[D_807FF018 - 1].unk4++;
+        if (gFaultStackTraceCount != 0 && a2 == gFaultStackTrace[gFaultStackTraceCount - 1].unk0) {
+            gFaultStackTrace[gFaultStackTraceCount - 1].unk4++;
         } else {
-            D_807FEF88[D_807FF018].unk0 = a2;
-            D_807FEF88[D_807FF018].unk4 = 1;
-            D_807FF018++;
+            gFaultStackTrace[gFaultStackTraceCount].unk0 = a2;
+            gFaultStackTrace[gFaultStackTraceCount].unk4 = 1;
+            gFaultStackTraceCount++;
         }
         *a3 = (s32 *)a2;
         return 1;
@@ -227,9 +227,9 @@ void faultUnwindStack(OSThread *a0) {
     pc = (s32 *)a0->context.pc;
     sp = a0->context.sp;
     ra = a0->context.ra;
-    D_807FF018 = 0;
+    gFaultStackTraceCount = 0;
     done = 0;
-    while (pc != 0 && D_807FF018 < 18 && !done) {
+    while (pc != 0 && gFaultStackTraceCount < 18 && !done) {
         insn = *pc++;
         r = unwindDecodeJrRa(insn, &sp, ra, &pc);
         if (r == 0) {
@@ -238,9 +238,9 @@ void faultUnwindStack(OSThread *a0) {
         if (r == 0) {
             unwindDecodeAddiuSp(insn, &sp);
         }
-        done = D_807FF018 != 0 ? D_807FEF88[D_807FF018 - 1].unk4 >= 16 : 0;
+        done = gFaultStackTraceCount != 0 ? gFaultStackTrace[gFaultStackTraceCount - 1].unk4 >= 16 : 0;
     }
-    D_807563B8++;
+    gFaultDrawCount++;
 }
 
 extern OSMesgQueue D_807FEF58;
@@ -267,7 +267,7 @@ void faultThreadMain(void *arg) {
             for (;;) {
                 for (i = 0; i < 2; i++) {
                     osViBlack(0);
-                    D_807FEF80 = gFramebuffers[i];
+                    gFaultFramebuffer = gFramebuffers[i];
                     faultDrawRegs(thread);
                     faultDrawRegs(thread);
                 }
@@ -278,10 +278,10 @@ void faultThreadMain(void *arg) {
 
 
 void faultSetMessage(u8 a0, u32 a1, s32 a2, s32 a3) {
-    D_807FF01C = a0;
-    D_807FF020 = a1;
-    D_807FF024 = a2;
-    D_807FF028 = a3;
+    gFaultMessageId = a0;
+    gFaultMessageArg0 = a1;
+    gFaultMessageArg1 = a2;
+    gFaultMessageArg2 = a3;
     camEndPath(0);
 }
 

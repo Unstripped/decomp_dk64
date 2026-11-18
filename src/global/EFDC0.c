@@ -723,7 +723,7 @@ void playerStateEnterState57(void) {
 }
 
 extern s32 gGlobalCutsceneFlags;
-extern f32 D_807535CC[];
+extern f32 gKongJumpVelocityY[];
 extern s16 D_8075380C[];
 
 void playerStateEnterState59(void) {
@@ -746,9 +746,9 @@ void playerStateEnterState17(void) {
     gCurrentActor->state = 0x17;
     gCurrentActor->unk155 = 0;
     if (gGlobalCutsceneFlags & 2) {
-        gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex] * 1.3;
+        gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex] * 1.3;
     } else {
-        gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+        gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     }
     gActivePlayerActor->speedXZ = gActivePlayerState->unk124;
     gActivePlayerState->unk50 = 0;
@@ -1919,7 +1919,7 @@ void playerStateEnterDoubleJumpWithSfx(void) {
     sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0xF3, 0xFF, 0x7F, 0x19);
     gActivePlayerActor->state = 0x19;
     gActivePlayerActor->unk155 = 0;
-    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex] * 2.6;
+    gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex] * 2.6;
     gActivePlayerState->unk50 = 0xC;
     actorScriptStartByIndex(gActivePlayerActor, 0x10);
 }

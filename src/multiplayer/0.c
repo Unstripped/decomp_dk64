@@ -125,7 +125,7 @@ s32 mpGetPlayerScore(s32 playerIndex) {
     s32 score;
 
     score = 0;
-    switch (D_807552E4.gameMode) {
+    switch (gMpSettings.gameMode) {
     case 2:
     case 3:
         score = slotQueueGetValue(1, playerIndex);
@@ -148,7 +148,7 @@ void mpDetermineWinner(MpControllerState *controllerState) {
     s32 i;
     s32 winnerIndex;
 
-    D_807552E4.matchPhase = 2;
+    gMpSettings.matchPhase = 2;
     winnerIndex = 0;
     highestScore = -99999;
     for (i = 0; i < gPlayerCount; i++) {
@@ -187,7 +187,7 @@ void mpCheckScoreLimit(void) {
 
     for (i = 0; i < gPlayerCount; i++) {
         score = mpGetPlayerScore(i);
-        if (score >= D_807552E4.limit || score < -999) {
+        if (score >= gMpSettings.limit || score < -999) {
             mpDetermineWinner(gCurrentActor->customState);
             return;
         }
@@ -288,7 +288,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     posY = viewport->top + 8;
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
-    if (D_807552E4.gameMode != 3) {
+    if (gMpSettings.gameMode != 3) {
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
         gSPDisplayList(glistp++, &D_1000118);
         gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
@@ -380,17 +380,17 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
 
 
 Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
-    s32 matchOver = D_807552E4.matchPhase >= 2;
+    s32 matchOver = gMpSettings.matchPhase >= 2;
     s32 paused = gGlobalPauseFlags & 3;
 
     gDPPipeSync(glistp++);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     if (!paused) {
-        if (D_807552E4.unk0 == 0) {
-            if ((D_807552E4.matchPhase == 1) || matchOver) {
+        if (gMpSettings.unk0 == 0) {
+            if ((gMpSettings.matchPhase == 1) || matchOver) {
                 glistp = mpDrawPlayerScores(glistp, controller);
             }
-        } else if ((D_807552E4.matchPhase == 1) || matchOver) {
+        } else if ((gMpSettings.matchPhase == 1) || matchOver) {
             glistp = mpDrawPlayerViewportHud(glistp, controller);
         }
     }
@@ -487,7 +487,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     if (menuIsTransitionType6() == 0 || (gGlobalPauseFlags & 2)) {
         return;
     }
-    if (D_807552E4.gameMode == 3) {
+    if (gMpSettings.gameMode == 3) {
         mpUpdateMatchTimer();
     }
     leaderIndex = mpUpdateScoreEffects();
@@ -497,7 +497,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
                 delayedSpawnQueueAddModel(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
             }
         }
-    } else if (D_807552E4.gameMode == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.limit) {
+    } else if (gMpSettings.gameMode == 5 && mpGetPlayerScore(leaderIndex) >= gMpSettings.limit) {
         mpDetermineWinner(controllerState);
     }
     if (controllerState->crownSpawnDelay != 0) {
@@ -700,9 +700,9 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
     controllerState->hudIconsShown = 0;
 }
 
-extern ALBank *D_8076D1F8;
+extern ALBank *gSfxBank;
 extern SchedStruct gScheduler;
-extern u64 D_807445B0;
+extern u64 gLastPauseDuration;
 extern u8 mpSfxFlags;
 
 typedef struct MpHudIconTableEntry {
@@ -733,15 +733,15 @@ void mpUpdate(void) {
         for (i = 0; i < gPlayerCount; i++) {
             state->viewports[i] = cameraFindViewportEntry(i);
         }
-        D_807552E4.matchPhase = 1;
+        gMpSettings.matchPhase = 1;
         state->startTime = osGetTime();
         state->sfxLastTick = gScheduler.unk280;
         state->sfxStep = 0;
         state->volume = 0;
         state->volumeTarget = 0;
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &state->ambientSound);
+        n_alSndpPlay(gSfxBank, 0x1E6, 0, 0x40, 1.0f, 0x80, &state->ambientSound);
         mpSfxFlags = 0;
-        switch (D_807552E4.gameMode) {
+        switch (gMpSettings.gameMode) {
         case 3:
         case 5:
             spawnCrown = 1;
@@ -754,30 +754,30 @@ void mpUpdate(void) {
             break;
         case 4:
             for (i = 0; i < gPlayerCount; i++) {
-                slotQueueAddValue(7, i, D_807552E4.limit);
+                slotQueueAddValue(7, i, gMpSettings.limit);
             }
             slotQueueInit(0);
             break;
         }
-        if (D_807552E4.unk0 == 0 && gCurrentMap == 0x6B) {
-            func_806F5FA0(0x24E, 0xD4, 0x205);
-            func_806F5FA0(0x24E, 0xD4, 0x285);
-            func_806F5FA0(0x212, 0xD4, 0x24E);
-            func_806F5FA0(0x28E, 0xD4, 0x247);
+        if (gMpSettings.unk0 == 0 && gCurrentMap == 0x6B) {
+            delayedSpawnQueueAddRandomEffectPickup(0x24E, 0xD4, 0x205);
+            delayedSpawnQueueAddRandomEffectPickup(0x24E, 0xD4, 0x285);
+            delayedSpawnQueueAddRandomEffectPickup(0x212, 0xD4, 0x24E);
+            delayedSpawnQueueAddRandomEffectPickup(0x28E, 0xD4, 0x247);
         }
         state->hudScaleMtx = heapAlloc(0x40);
         guScale(state->hudScaleMtx, 0.5f, 0.5f, 1.0f);
-        state->timeLimit = D_807552E4.limit;
+        state->timeLimit = gMpSettings.limit;
         state->timeLimit = state->timeLimit * 60; // the target stores timeLimit twice (raw value, then * 60)
         gCurrentActor->renderFlags |= 2;
         state->glyphFull = assetLoad(0xE, 0xB9, 0, 0);
         state->glyphHalf = assetLoad(0xE, 0xBA, 0, 0);
         state->blinkTimer = 0;
     }
-    state->startTime += D_807445B0;
-    switch (D_807552E4.matchPhase) {
+    state->startTime += gLastPauseDuration;
+    switch (gMpSettings.matchPhase) {
     case 1:
-        switch (D_807552E4.gameMode) {
+        switch (gMpSettings.gameMode) {
         case 3:
         case 5:
             mpUpdateCrownSpawns(state);
@@ -800,7 +800,7 @@ void mpUpdate(void) {
     case 3:
         break;
     }
-    if (D_807552E4.unk0 == 0) {
+    if (gMpSettings.unk0 == 0) {
         for (i = 0; i < gPlayerCount; i++) {
             mpApplyPendingEffect(i);
         }
@@ -907,13 +907,13 @@ void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, PlayerIn
     if (mpIsMatchType(0) != 0) {
         gActivePlayerState->unk21E = 0;
     }
-    if (D_807552E4.gameMode == 3 || D_807552E4.gameMode == 5) {
+    if (gMpSettings.gameMode == 3 || gMpSettings.gameMode == 5) {
         slotQueueAddValue(1, kongState->playerIndex, -10);
     }
 }
 
 void mpDeductDeathPenalty(PlayerState *kongState) {
-    if (D_807552E4.gameMode == 2) {
+    if (gMpSettings.gameMode == 2) {
         slotQueueAddValue(1, kongState->playerIndex, -3);
     }
 }
@@ -934,7 +934,7 @@ void mpDropCrownOnHit(u8 playerIndex, s8 delta) {
         ctrl = actorFindByType(0x13E)->customState;
         ctrl->crownSpawnDelay = 1;
         slotQueueAddValue(1, playerIndex, -10);
-        if (D_807552E4.gameMode == 5) {
+        if (gMpSettings.gameMode == 5) {
             mpResetMapModelStates();
         }
         actorSpawnNodeEntryScaled(0x7A, playerActor->x, playerActor->y, playerActor->z, playerActor->yaw, 1, -1, 0);
@@ -946,7 +946,7 @@ void mpApplyDeathPenalty(s32 playerIndex) {
     Actor *playerActor;
     playerActor = gPlayerSlots[playerIndex].actor;
     playerActor->unk144 = 12;
-    switch (D_807552E4.gameMode) {
+    switch (gMpSettings.gameMode) {
     case 2:
         slotQueueAddValue(1, playerIndex, -3);
         break;
@@ -1004,7 +1004,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
 
 
 void mpRespawnPlayer(Actor *playerActor, s32 playerIndex) {
-    if (D_807552E4.gameMode == 4 && mpGetPlayerScore(playerIndex) == 0) {
+    if (gMpSettings.gameMode == 4 && mpGetPlayerScore(playerIndex) == 0) {
         gPlayerInventoryTable[playerIndex].health = 0;
         playerActor->unk155++;
         playerStateQueueCallback(0x5B, 0, playerIndex);
@@ -1037,7 +1037,7 @@ void mpCreditKill(u8 victimIndex, s8 delta) {
             }
         }
     }
-    if (D_807552E4.gameMode == 3 || D_807552E4.gameMode == 5) {
+    if (gMpSettings.gameMode == 3 || gMpSettings.gameMode == 5) {
         mpDropCrownOnHit(victimIndex, delta);
     }
 }

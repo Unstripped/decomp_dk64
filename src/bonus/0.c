@@ -91,8 +91,8 @@ extern Actor *gActivePlayerActor;
 extern Actor *gPrimaryPlayerActor;
 extern s32 gCurrentMap;
 extern s16 D_8076AEF2;
-extern u16 D_80744508;
-extern s16 D_80750AC4;
+extern u16 gEnemyDefeatCount;
+extern s16 gMinigameCoinCount;
 extern s32 sBonusChallengeResources[];
 
 
@@ -164,7 +164,7 @@ tail:
         case 7:
         case 8:
         case 11:
-            D_80750AC4 = 0;
+            gMinigameCoinCount = 0;
             messageText = textTableGetString(0x1A, 3, 1);
             hasMessage = 1;
             break;
@@ -174,7 +174,7 @@ tail:
         }
         if (hasMessage != 0) {
             counter->labelTextId = gfxResourceCreate(1, messageText, 8, 0.0f, 0.0f, 0.0f);
-            func_806FDAB8(counter->labelTextId, 0.0f);
+            gfxResourceSetTimer(counter->labelTextId, 0.0f);
             counter->countLeft = targetCount;
             counter->counterShown = targetCount;
         }
@@ -253,7 +253,7 @@ tail:
     if (gCurrentActor->state == 0) {
         switch (challengeType) {
         case 15:
-            func_80724A20();
+            volumeTriggerApplyActorState();
             /* fallthrough */
         case 4:
         case 11:
@@ -264,14 +264,14 @@ tail:
             }
             /* fallthrough */
         case 0:
-            if (MAX(0, targetCount - D_80744508) != counter->countLeft) {
-                func_806FDAB8(counter->labelTextId, 3.1415927f);
-                counter->countLeft = MAX(0, targetCount - D_80744508);
+            if (MAX(0, targetCount - gEnemyDefeatCount) != counter->countLeft) {
+                gfxResourceSetTimer(counter->labelTextId, 3.1415927f);
+                counter->countLeft = MAX(0, targetCount - gEnemyDefeatCount);
             }
             goto render;
         case 7:
         case 8:
-            func_80724A20();
+            volumeTriggerApplyActorState();
             goto render;
         case 5:
             if (gCurrentMap == 0x85 && counter->countLeft == 1) {
@@ -290,7 +290,7 @@ tail:
             /* fallthrough */
         case 2:
             if (MAX(0, targetCount - slotQueueGetValue(0xB, 0)) != counter->countLeft) {
-                func_806FDAB8(counter->labelTextId, 3.1415927f);
+                gfxResourceSetTimer(counter->labelTextId, 3.1415927f);
                 counter->countLeft = MAX(0, targetCount - slotQueueGetValue(0xB, 0));
             }
 render:
@@ -302,7 +302,7 @@ render:
         case 10:
         case 12:
         case 16:
-            func_80724A20();
+            volumeTriggerApplyActorState();
             break;
         }
     }
@@ -391,7 +391,7 @@ render:
         gCurrentActor->state += 1;
         break;
     case 0x27:
-        func_806FDAB8(counter->labelTextId, 3.1415927f);
+        gfxResourceSetTimer(counter->labelTextId, 3.1415927f);
         counter->countLeft -= 1;
         if (counter->countLeft == 0) {
             bonusEndWin(1, 0xE);
@@ -447,7 +447,7 @@ s32 bonusGetSoundForMap(void) {
     }
 }
 
-extern ALBank *D_8076D1F8;
+extern ALBank *gSfxBank;
 extern PlayerState *gActivePlayerState;
 
 void bonusMazeChallengeUpdate(void) {
@@ -459,7 +459,7 @@ void bonusMazeChallengeUpdate(void) {
         maze->beepTimer = 0x12C;
         maze->pitch = 0;
         maze->targetPitch = 0;
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &maze->sndState);
+        n_alSndpPlay(gSfxBank, 0x1E6, 0, 0x40, 1.0f, 0x80, &maze->sndState);
         hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkB);
         spawnNodeActivateAndSetState(1, 0x40, 0x10);
         spawnNodeActivateAndSetState(2, 0x40, 0x10);

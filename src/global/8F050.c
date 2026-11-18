@@ -105,7 +105,7 @@ void actorProximityUpdate(void) {
                             actor->overrideModel = controllerAnimStateLoadAsset(actor, gActorOverrideModelConfigs[cfgIndex].modelAssetId, 0);
                         }
                     } else if (actor->overrideModel != NULL) {
-                        controllerAnimFreeSub(actor, 1);
+                        controllerAnimFreeModel(actor, 1);
                     }
                     break;
                 case 2:
@@ -114,7 +114,7 @@ void actorProximityUpdate(void) {
                             actor->overrideModel = controllerAnimStateLoadAsset(actor, gActorOverrideModelConfigs[cfgIndex].modelAssetId, 0);
                         }
                     } else if (actor->overrideModel != NULL) {
-                        controllerAnimFreeSub(actor, 1);
+                        controllerAnimFreeModel(actor, 1);
                     }
                     break;
                 }

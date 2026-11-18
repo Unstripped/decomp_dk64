@@ -100,11 +100,11 @@ f32 playerGetMinSquaredDist3D(f32, f32, f32);
 #ifndef PROTO_SKIP_actorListSpawnAlways
 s32 actorListSpawnAlways(struct ActorListNode *);
 #endif
-#ifndef PROTO_SKIP_func_80689EA4
-s32 func_80689EA4(struct ActorListNode *);
+#ifndef PROTO_SKIP_actorListSpawnIfNearOrBossChunkVisible
+s32 actorListSpawnIfNearOrBossChunkVisible(struct ActorListNode *);
 #endif
-#ifndef PROTO_SKIP_func_80689EE4
-u8 func_80689EE4(struct ActorListNode *);
+#ifndef PROTO_SKIP_actorListDespawnIfFarOrBossChunkHidden
+u8 actorListDespawnIfFarOrBossChunkHidden(struct ActorListNode *);
 #endif
 #ifndef PROTO_SKIP_mapIsBossArena
 s32 mapIsBossArena(void);
@@ -142,7 +142,7 @@ s32 actorListSpawnIfForced(struct ActorListNode *);
 #ifndef PROTO_SKIP_actorListDespawnIfForced
 s32 actorListDespawnIfForced(struct ActorListNode *);
 #endif
-#ifndef PROTO_SKIP_func_8068A2FC
-void func_8068A2FC(Actor *);
+#ifndef PROTO_SKIP_actorHideAndDisable
+void actorHideAndDisable(Actor *);
 #endif
 #endif

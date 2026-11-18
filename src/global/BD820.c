@@ -17,7 +17,7 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 extern u8 sEffectSparkConfig[];
 
 
@@ -26,7 +26,7 @@ void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
     effectSetDuration(-1);
     effectSetDepth(1);
     effectSetAngle(lifetime);
-    effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
+    effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
 }
 
 void func_806B8BDC(s16 x, s16 y, s16 z) {

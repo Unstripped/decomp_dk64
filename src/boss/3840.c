@@ -74,7 +74,7 @@ void bossPickFarthestWaypoint(BossScriptState *state, u8 *waypointRanges) {
     for (i = waypointRanges[state->scriptPos]; i <= waypointRanges[state->scriptPos + 1]; i++) {
         u8 idx = gBehaviourAnimState->path[i][0];
         Actor *actor = gCurrentActor;
-        ZoneEntry *pt = &D_807FDCA0->entries[idx];
+        ZoneEntry *pt = &gBehaviourZone->entries[idx];
         f32 dz = actor->z - pt->z;
         f32 dx = actor->x - pt->x;
         f32 dy = actor->y - pt->y;
@@ -99,7 +99,7 @@ typedef struct BossActor {
 extern Actor *gPrimaryPlayerActor;
 extern u8 gGameMode;
 extern u8 gScreenRenderFlags;
-extern s8 sHudDisabled;
+extern s8 gLetterboxRetractTimer;
 
 
 #define BOSS_ACTOR ((BossActor *)gCurrentActor)
@@ -134,7 +134,7 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
         if (gGameMode == 1) {
             camEndPath(playerData->camActor);
         }
-        sHudDisabled = 0;
+        gLetterboxRetractTimer = 0;
         BOSS_ACTOR->base.flags &= ~4;
         gScreenRenderFlags |= 0x10;
         scriptState->unk4 = script[scriptState->scriptPos++] * 30;
@@ -333,7 +333,7 @@ void bossClearMinigame(void) {
 void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
 
-extern void *D_8074E880[];
+extern void *gPuffSprites[];
 
 void bossSpawnParticleRing(u16 flag, s16 x, s16 y, s16 z, s16 unkRot, u8 unkScale) {
     s16 s0;
@@ -348,7 +348,7 @@ void bossSpawnParticleRing(u16 flag, s16 x, s16 y, s16 z, s16 unkRot, u8 unkScal
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetSpeed((s32)gBehaviourTargetActor);
-        effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->x, gBehaviourTargetActor->y + (f32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z);
+        effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->x, gBehaviourTargetActor->y + (f32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z);
     }
     actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
 }
@@ -412,11 +412,11 @@ extern s16 D_800359AC[];
 extern s16 D_800359B8[];
 extern s16 D_800359C4[];
 extern u8 D_8071FE08[];
-extern ALBank *D_8076D1F8;
+extern ALBank *gSfxBank;
 extern SchedStruct gScheduler;
 extern s32 gCurrentMap;
 
-void func_80724A20(void);  // ORIG: target keeps the BOSS_ACTOR state switch value in v0 right after jal func_80724A20 (lbu v0,0x154(a2) at 0x1268, beql v0 at 0x127c): the original TU declared the callee void (an s32 return in scope moves it to v1)
+void volumeTriggerApplyActorState(void);  // ORIG: target keeps the BOSS_ACTOR state switch value in v0 right after jal volumeTriggerApplyActorState (lbu v0,0x154(a2) at 0x1268, beql v0 at 0x127c): the original TU declared the callee void (an s32 return in scope moves it to v1)
 
 
 void bossRoundFrame(u8 *script) {
@@ -453,10 +453,10 @@ void bossRoundFrame(u8 *script) {
                 BOSS_ACTOR->base.unk155 = 0;
             }
         }
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &sound->sndHandleA);
-        n_alSndpPlay(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, &sound->sndHandleB);
+        n_alSndpPlay(gSfxBank, 0x1E6, 0, 0x40, 1.0f, 0x80, &sound->sndHandleA);
+        n_alSndpPlay(gSfxBank, 0x119, 0, 0x40, 1.0f, 0x80, &sound->sndHandleB);
     }
-    func_80724A20();
+    volumeTriggerApplyActorState();
     switch (BOSS_ACTOR->base.state) {
     case 0x37:
         if (BOSS_ACTOR->base.unk155 == 0) {

@@ -41,8 +41,8 @@ void screenBufferAllocate(void);
 #ifndef PROTO_SKIP_screenBufferFree
 void screenBufferFree(void);
 #endif
-#ifndef PROTO_SKIP_func_8062A808
-void func_8062A808(s32, s32);
+#ifndef PROTO_SKIP_screenRectSetSize
+void screenRectSetSize(s32, s32);
 #endif
 #ifndef PROTO_SKIP_gfxPassThrough
 Gfx *gfxPassThrough(Gfx *);

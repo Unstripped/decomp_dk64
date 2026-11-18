@@ -20,37 +20,37 @@ void func_806C4948(void);
 #ifndef PROTO_SKIP_func_806C498C
 void func_806C498C(void);
 #endif
-#ifndef PROTO_SKIP_func_806C49D0
-void func_806C49D0(void);
+#ifndef PROTO_SKIP_actorPerMapCarrierUpdate
+void actorPerMapCarrierUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorSpawnNumberedTargetsUpdate
 u8 actorSpawnNumberedTargetsUpdate(u16, u16);
 #endif
-#ifndef PROTO_SKIP_func_806C4E8C
-void func_806C4E8C(void);
+#ifndef PROTO_SKIP_targetGameHideCounter
+void targetGameHideCounter(void);
 #endif
-#ifndef PROTO_SKIP_func_806C4EB4
-void func_806C4EB4(void);
+#ifndef PROTO_SKIP_targetGameEndRound
+void targetGameEndRound(void);
 #endif
 #ifndef PROTO_SKIP_actorStartRewardCutscene
 void actorStartRewardCutscene(u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_806C4F5C
-void func_806C4F5C(void);
+#ifndef PROTO_SKIP_actorTargetGameHostUpdate
+void actorTargetGameHostUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C55D8
-void func_806C55D8(void);
+#ifndef PROTO_SKIP_actorBehaviourNoop
+void actorBehaviourNoop(void);
 #endif
-#ifndef PROTO_SKIP_func_806C55E0
-void func_806C55E0(void);
+#ifndef PROTO_SKIP_actorGatedTargetGameHostUpdate
+void actorGatedTargetGameHostUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C5C20
-void func_806C5C20(void);
+#ifndef PROTO_SKIP_actorPhotoSubjectUpdate
+void actorPhotoSubjectUpdate(void);
 #endif
 #ifndef PROTO_SKIP_cutsceneRestoreUpdate
 void cutsceneRestoreUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C61C8
-void func_806C61C8(void);
+#ifndef PROTO_SKIP_actorPresentBeforePlayerUpdate
+void actorPresentBeforePlayerUpdate(void);
 #endif
 #endif

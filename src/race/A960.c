@@ -100,7 +100,7 @@ void raceLoadRouteData(u8 *data) {
     }
 }
 
-extern s16 D_80750AC4;
+extern s16 gMinigameCoinCount;
 
 void raceInitRoute(s32 routeAssetId) {
     u8 *assetData;
@@ -124,7 +124,7 @@ void raceInitRoute(s32 routeAssetId) {
             raceInitGenericRaceManager();
             break;
     }
-    D_80750AC4 = 0;
+    gMinigameCoinCount = 0;
 }
 
 void raceScaleVelocity(Actor *actor, f32 scaleFactor) {

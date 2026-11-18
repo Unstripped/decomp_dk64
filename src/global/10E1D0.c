@@ -19,36 +19,36 @@ extern s16 gScreenHeight;
 extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 extern u8 gGameMode;
-extern u8 D_807444F4;
-extern ALBank *D_8076D1F8;
-extern u8 D_807FD9BC;
-extern u8 D_807FD9BD;
+extern u8 gPrevGameMode;
+extern ALBank *gSfxBank;
+extern u8 sTransitionStarted;
+extern u8 sTransitionRenderDelay;
 extern union { f32 f; s32 bits; } sTransitionSoundPitch; // sound pitch, posted as raw event bits
 extern struct GfSndState *sTransitionSound;
 
-void func_807094D0(mode)
+void transitionStart(mode)
 u8 mode;
 {
-    D_807444F4 = gGameMode;
+    gPrevGameMode = gGameMode;
     switch (mode) {
     case 2:
         sTransitionSoundPitch.f = 1.0f;
-        D_807FD9BC = 0;
+        sTransitionStarted = 0;
         gNextGameMode = 1;
         gGameMode = 6;
         break;
     case 3:
         sTransitionSoundPitch.f = 0.5f;
-        D_807FD9BC = 0;
+        sTransitionStarted = 0;
         gNextGameMode = 2;
         gGameMode = 6;
-        D_807FD9BD = 2;
-        if ((D_807444F4 == 1) && (gGlobalOverlayFlags & 1)) {
+        sTransitionRenderDelay = 2;
+        if ((gPrevGameMode == 1) && (gGlobalOverlayFlags & 1)) {
             timerQueueCancel(0);
         }
         break;
     }
-    n_alSndpPlay(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, 1.0f, 0, &sTransitionSound);
+    n_alSndpPlay(gSfxBank, 0x1BC, 0x7FFF, 0x3F, 1.0f, 0, &sTransitionSound);
 }
 
 /* A texture tile: texel offset into its RGBA16 image (the framebuffer or D_80754FC8), width and height. */
@@ -380,9 +380,9 @@ extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern Gfx *gGfxTaskBuffers[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
-extern u8 D_8076A0A4;
+extern u8 gGfxSubListEnabled;
 extern u8 D_8076A0B2;
-extern FrameMatrices D_80767CE8[];
+extern FrameMatrices gFrameMatrices[];
 extern f32 gScreenFadeProgress;
 extern MeshBlob *sTransitionMesh;
 extern u16 *sTransitionFramebufferCopy;
@@ -395,20 +395,20 @@ void transitionRunFrame(s32 map, s32 exit) {
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 1234, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    gGfxCurrentFrameBuffer = &D_80767CE8[gGfxBufferIndex];
+    gGfxCurrentFrameBuffer = &gFrameMatrices[gGfxBufferIndex];
     subDl = gGfxCurrentFrameBuffer->subDisplayList;
-    switch (D_807FD9BC) {
+    switch (sTransitionStarted) {
     case 1:
         break;
     case 0:
-        D_807FD9BC = 1;
+        sTransitionStarted = 1;
         transitionInit();
         break;
     }
     if ((gScreenRenderFlags & 1) && (gScreenFadeProgress == 31.0f)) {
         dl = gGfxTaskBuffers[gGfxBufferIndex];
         if (D_8076A0B2 == 1) {
-            gGameMode = D_807444F4;
+            gGameMode = gPrevGameMode;
         }
     } else {
         transitionBeginDisplayList(gGfxCurrentFrameBuffer, &dl);
@@ -427,7 +427,7 @@ void transitionRunFrame(s32 map, s32 exit) {
                 heapFreeDeferred(sTransitionMesh->screenVerts[0]);
                 heapFreeDeferred(sTransitionMesh->screenVerts[1]);
                 assetFreeBuffer(sTransitionMeshAsset, 0x24B, 0x4A);
-                gGameMode = D_807444F4;
+                gGameMode = gPrevGameMode;
                 if ((gGameMode == 1) && (gGlobalOverlayFlags & 1)) {
                     camRestartPath();
                 }
@@ -437,13 +437,13 @@ void transitionRunFrame(s32 map, s32 exit) {
             }
         }
     }
-    if (D_807FD9BD != 0) {
-        D_807FD9BD--;
-        if (D_807FD9BD == 0) {
+    if (sTransitionRenderDelay != 0) {
+        sTransitionRenderDelay--;
+        if (sTransitionRenderDelay == 0) {
             gScreenRenderFlags |= 2;
         }
     }
-    if ((D_8076A0A4 != 0) && (gGameMode != 6)) {
+    if ((gGfxSubListEnabled != 0) && (gGameMode != 6)) {
         gfxEndDisplayList(dl, gGfxBufferIndex, &D_8076A088, 0);
         gfxEndSubDisplayList(subDl, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
         return;
@@ -451,8 +451,8 @@ void transitionRunFrame(s32 map, s32 exit) {
     gfxEndDisplayList(dl, gGfxBufferIndex, &D_8076A088, 1);
 }
 
-extern void *D_8076A080;
-extern u16 D_8076A09C;
+extern void *gSegment1Data;
+extern u16 gPerspNorm;
 extern Gfx D_1000090[];
 
 void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
@@ -460,14 +460,14 @@ void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
 
     gSPSegment(dl++, 0, 0);
     gSPSegment(dl++, 2, osVirtualToPhysical(frame));
-    gSPSegment(dl++, 1, osVirtualToPhysical(D_8076A080));
+    gSPSegment(dl++, 1, osVirtualToPhysical(gSegment1Data));
     gSPDisplayList(dl++, D_1000090);
     dl = gfxClearZBuffer(gfxSetViewportDisplayList(dl));
     gDPPipeSync(dl++);
     gDPSetCycleType(dl++, G_CYC_1CYCLE);
     guTranslate(&frame->identity, 0.0f, 0.0f, 0.0f);
     guLookAt(&frame->unk200, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-    guPerspective(&frame->perspective, &D_8076A09C, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
+    guPerspective(&frame->perspective, &gPerspNorm, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
     gDPPipeSync(dl++);
     dl = gfxSetFrameBufferColorImage(dl);
     gDPSetColorDither(dl++, G_CD_MAGICSQ);
@@ -477,14 +477,14 @@ void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
     gDPSetRenderMode(dl++, G_RM_NOOP, G_RM_NOOP2);
     gSPClearGeometryMode(dl++, G_ZBUFFER);
     gDPFillRectangle(dl++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
-    gSPPerspNormalize(dl++, D_8076A09C);
+    gSPPerspNormalize(dl++, gPerspNorm);
     gSPClipRatio(dl++, FRUSTRATIO_2);
     *outDl = dl;
 }
 
 s32 gTransitionProgress = 0;
-s32 D_8075506C = 0;
-extern MeshVertex *D_807FD9A4;
+s32 sTransitionMeshOffsetY = 0;
+extern MeshVertex *sTransitionMeshRestVertices;
 extern AnimTable *sTransitionAnim;
 extern u16 *gFramebuffers[];
 
@@ -492,7 +492,7 @@ void transitionInit(void) {
     switch (gNextGameMode) {
     case 1:
         gTransitionProgress = 0;
-        D_8075506C = 0;
+        sTransitionMeshOffsetY = 0;
         break;
     case 2:
         gTransitionProgress = 120;
@@ -503,7 +503,7 @@ void transitionInit(void) {
     fbCopySetAlpha(sTransitionFramebufferCopy, gFramebuffers[gGfxBufferIndex]);
     meshBlobParse(sTransitionMeshAsset, &sTransitionMesh, &sTransitionAnim, NULL);
     meshComputeVertexRanges(sTransitionMesh);
-    D_807FD9A4 = sTransitionMesh->vertices;
+    sTransitionMeshRestVertices = sTransitionMesh->vertices;
     sTransitionMesh->vertices = heapAlloc(sTransitionMesh->vertexCount * sizeof(MeshVertex));
     fbBuildTileTable(sTransitionMesh->tileWidth, sTransitionMesh->tileHeight);
 }
@@ -589,8 +589,8 @@ typedef struct TransitionChannels {
 } TransitionChannels;
 
 /* Sequence channels whose volume follows the transition, 0-terminated. */
-TransitionChannels D_807550A8 = { { 1, 2, 3, 0 } };
-extern s32 D_807FD9A0;
+TransitionChannels sTransitionChannels = { { 1, 2, 3, 0 } };
+extern s32 sTransitionBarY;
 extern void *sTransitionBarTexture;
 extern Gfx D_1000020[];
 extern Mtx D_2000000;
@@ -614,7 +614,7 @@ u8 transitionRender(Gfx **gdl, void *asset, u16 *framebuffer) {
     } else {
         delta = -4;
     }
-    channels = D_807550A8;
+    channels = sTransitionChannels;
     glist = heapAlloc(0x4800);
     heapFreeDeferred(glist);
     start = glist;
@@ -651,34 +651,34 @@ u8 transitionRender(Gfx **gdl, void *asset, u16 *framebuffer) {
     gSPDisplayList(glist++, D_1000020);
     gDPPipeSync(glist++);
     for (i = 0; i < sTransitionMesh->vertexCount; i++) {
-        sTransitionMesh->vertices[i].x = D_807FD9A4[i].x;
-        sTransitionMesh->vertices[i].y = D_807FD9A4[i].y;
-        sTransitionMesh->vertices[i].z = D_807FD9A4[i].z;
+        sTransitionMesh->vertices[i].x = sTransitionMeshRestVertices[i].x;
+        sTransitionMesh->vertices[i].y = sTransitionMeshRestVertices[i].y;
+        sTransitionMesh->vertices[i].z = sTransitionMeshRestVertices[i].z;
     }
     meshApplyAnimation(sTransitionMesh, sTransitionAnim, gTransitionProgress);
     if (delta < 0) {
-        D_807FD9A0 = (gTransitionProgress * 240 - 2400) / 80;
+        sTransitionBarY = (gTransitionProgress * 240 - 2400) / 80;
     } else {
-        D_807FD9A0 = (gTransitionProgress * 240 - 1200) / 80;
+        sTransitionBarY = (gTransitionProgress * 240 - 1200) / 80;
     }
     if (gTransitionProgress >= 5 && gTransitionProgress < 86) {
         transitionMaskFramebuffer(framebuffer);
     }
     if (gTransitionProgress >= 109 && gTransitionProgress <= 120.0) {
-        D_8075506C = 220 - gTransitionProgress * 2;
+        sTransitionMeshOffsetY = 220 - gTransitionProgress * 2;
     }
     gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    gSPPerspNormalize(glist++, D_8076A09C);
+    gSPPerspNormalize(glist++, gPerspNorm);
     matrix = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(matrix);
-    guTranslate(matrix, 0.0f, D_8075506C, 0.0f);
+    guTranslate(matrix, 0.0f, sTransitionMeshOffsetY, 0.0f);
     gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPSetColorDither(glist++, G_CD_DISABLE);
     gDPSetAlphaDither(glist++, G_AD_DISABLE);
     meshDrawTextured(&glist, sTransitionMesh, framebuffer);
     gTransitionProgress += delta;
-    sTransitionBarTexture = assetLoad(0xE, 0x6A - MIN(MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
+    sTransitionBarTexture = assetLoad(0xE, 0x6A - MIN(MAX((s16)(sTransitionBarY / 26), 0), 9), 1, 1);
     assetFreeBuffer(sTransitionBarTexture, 0x381, 0x4A);
     gDPPipeSync(glist++);
     gDPSetCycleType(glist++, G_CYC_1CYCLE);
@@ -687,7 +687,7 @@ u8 transitionRender(Gfx **gdl, void *asset, u16 *framebuffer) {
     gDPSetRenderMode(glist++, G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);
     gDPPipeSync(glist++);
     gDPLoadTextureBlock(glist++, sTransitionBarTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 32, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-    gSPScisTextureRectangle(glist++, 152 << 2, D_807FD9A0 << 2, 168 << 2, (D_807FD9A0 + 31) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+    gSPScisTextureRectangle(glist++, 152 << 2, sTransitionBarY << 2, 168 << 2, (sTransitionBarY + 31) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
     gSPEndDisplayList(glist++);
     gSPDisplayList(out++, start);
     *gdl = out;

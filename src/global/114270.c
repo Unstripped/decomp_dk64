@@ -44,24 +44,24 @@ typedef struct EffectSpritePoolHeader {
     EffectSpriteParticle *entries;
 } EffectSpritePoolHeader;
 
-extern EffectSpritePoolHeader *D_807550E0;
+extern EffectSpritePoolHeader *gEffectSpritePool;
 extern PlayerStruct *gPlayerSlots;
 
 extern u8 D_807FDA1A;
-extern u8 D_807FDA1C;
-extern u8 D_807FDA28;
+extern u8 gEffectSpritePoolType;
+extern u8 gEffectSpritePoolLoaded;
 extern u8 D_807FDA30[];
 
 void effectSpritePoolReset(void) {
     s16 i;
 
-    D_807550E0->count = 0;
-    D_807FDA1C = 6;
+    gEffectSpritePool->count = 0;
+    gEffectSpritePoolType = 6;
     for (i = 0; i < 0x80; i++) {
         D_807FDA30[i] = i;
     }
     D_807FDA1A = 0x7F;
-    D_807FDA28 = 0;
+    gEffectSpritePoolLoaded = 0;
 }
 
 
@@ -78,8 +78,8 @@ typedef struct EffectSpriteTextureSetup {
     u8 (*update)(EffectSpriteParticle *particle);
 } EffectSpriteTextureSetup;
 
-extern EffectSpriteTextureSetup D_80755264[];
-extern void *D_807FD9F0[];
+extern EffectSpriteTextureSetup gEffectSpriteTextureSetups[];
+extern void *gEffectSpriteTextures[];
 extern u8 D_807FDA18;
 extern u8 D_807FDA19;
 extern Vtx *D_807FDA20;
@@ -91,25 +91,25 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
     s16 i;
     s32 idx;
 
-    if (D_807550E0->count >= 0x80) {
+    if (gEffectSpritePool->count >= 0x80) {
         return;
     }
-    if (D_807550E0->count == 0 && D_807FDA28 == 0) {
-        D_807550E0->entries = heapAlloc(0x5C00);
-        heapClearBlock(D_807550E0->entries);
-        D_807FDA1C = poolType;
-        for (i = 0; i < D_80755264[poolType].count; i++) {
-            D_807FD9F0[i] = assetLoad(D_80755264[poolType].type != 0 ? 0x19 : 7, D_80755264[poolType].images[i], 1, 1);
+    if (gEffectSpritePool->count == 0 && gEffectSpritePoolLoaded == 0) {
+        gEffectSpritePool->entries = heapAlloc(0x5C00);
+        heapClearBlock(gEffectSpritePool->entries);
+        gEffectSpritePoolType = poolType;
+        for (i = 0; i < gEffectSpriteTextureSetups[poolType].count; i++) {
+            gEffectSpriteTextures[i] = assetLoad(gEffectSpriteTextureSetups[poolType].type != 0 ? 0x19 : 7, gEffectSpriteTextureSetups[poolType].images[i], 1, 1);
         }
-        D_807FDA18 = D_80755264[poolType].width;
-        D_807FDA19 = D_80755264[poolType].height;
-        D_807FDA20 = D_80755264[poolType].vertices;
-        D_807FDA24 = D_80755264[poolType].update;
-        D_807FDA28 = 1;
+        D_807FDA18 = gEffectSpriteTextureSetups[poolType].width;
+        D_807FDA19 = gEffectSpriteTextureSetups[poolType].height;
+        D_807FDA20 = gEffectSpriteTextureSetups[poolType].vertices;
+        D_807FDA24 = gEffectSpriteTextureSetups[poolType].update;
+        gEffectSpritePoolLoaded = 1;
     }
     idx = D_807FDA30[D_807FDA1A];
     D_807FDA30[D_807FDA1A--] = 0xFF;
-    entry = &D_807550E0->entries[idx];
+    entry = &gEffectSpritePool->entries[idx];
     entry->age = 1;
     entry->x = spawnX;
     entry->drawX = spawnX;
@@ -122,7 +122,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
     entry->camZ = gPlayerSlots->camZ;
     entry->unk20 = (randomNonNegative() >> 15) % 32767 % 0xFFF;
     entry->angle = (randomNonNegative() >> 15) % 32767 % 360;
-    switch (D_807FDA1C) {
+    switch (gEffectSpritePoolType) {
     case 3:
         entry->sway = (randomNonNegative() >> 15) % 32767 % 100 * 0.02;
         break;
@@ -141,7 +141,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
         entry->sway = (randomNonNegative() >> 15) % 32767 % 100 * 0.1;
         break;
     }
-    D_807550E0->count++;
+    gEffectSpritePool->count++;
 }
 
 extern s16 D_807FDA1E;
@@ -314,15 +314,15 @@ u8 func_807103E0(EffectSpriteParticle *particle) {
 
 
 Gfx *effectSpritePoolLoadTexture(Gfx *glist, u8 textureIndex) {
-    switch (D_80755264[D_807FDA1C].texSize) {
+    switch (gEffectSpriteTextureSetups[gEffectSpritePoolType].texSize) {
     case 1:
-        gDPLoadTextureBlock(glist++, D_807FD9F0[textureIndex], D_80755264[D_807FDA1C].format, G_IM_SIZ_8b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_8b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 2:
-        gDPLoadTextureBlock(glist++, D_807FD9F0[textureIndex], D_80755264[D_807FDA1C].format, G_IM_SIZ_16b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_16b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 3:
-        gDPLoadTextureBlock(glist++, D_807FD9F0[textureIndex], D_80755264[D_807FDA1C].format, G_IM_SIZ_32b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_32b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     }
     return glist;
@@ -348,7 +348,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     u8 skipNearPlayer;
     u8 skipTimer;
     s16 i = 0x80;
-    u16 count = D_807550E0->count;
+    u16 count = gEffectSpritePool->count;
     u16 processed = 0;
     EffectSpriteParticle *entry;
     CamState *camState = gCamActor->customState;
@@ -377,16 +377,16 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetTextureFilter(glist++, G_TF_BILERP);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-    if (D_80755264[D_807FDA1C].count == 1) {
+    if (gEffectSpriteTextureSetups[gEffectSpritePoolType].count == 1) {
         glist = effectSpritePoolLoadTexture(glist, 0);
     }
     while (--i >= 0 && processed != count) {
-        entry = &D_807550E0->entries[i];
+        entry = &gEffectSpritePool->entries[i];
         D_807FDAB0 = entry;
         D_807FDAB4 = D_807FDA1E;
         if ((entry->age != 0) && ((entry->mapChunk == -1) || mapChunkContainsPoint(entry->drawX, entry->y, entry->mapChunk)) && !skipNearPlayer && !skipTimer) {
             gDPSetPrimColor(glist++, 0, 0, D_807FDA1B, D_807FDA1B, D_807FDA1B, entry->alpha);
-            if (D_807FDA1C == 4) {
+            if (gEffectSpritePoolType == 4) {
                 switch (entry->unk20) {
                 case 8:
                 case 10:
@@ -402,12 +402,12 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
                     glist = effectSpritePoolLoadTexture(glist, 1);
                     break;
                 }
-            } else if (D_80755264[D_807FDA1C].count >= 2) {
-                glist = effectSpritePoolLoadTexture(glist, entry->frame++ % D_80755264[D_807FDA1C].count);
+            } else if (gEffectSpriteTextureSetups[gEffectSpritePoolType].count >= 2) {
+                glist = effectSpritePoolLoadTexture(glist, entry->frame++ % gEffectSpriteTextureSetups[gEffectSpritePoolType].count);
             }
             scaleSize = entry->scale * 4.0;
             guScaleF(mtxScale, scaleSize, scaleSize > 0.0 ? scaleSize : -scaleSize, 1.0f);
-            switch (D_807FDA1C) {
+            switch (gEffectSpritePoolType) {
             case 3:
                 entry->angle += entry->sway;
                 matrixMakeRotationZ(mtxTemp, entry->angle);
@@ -433,7 +433,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
             if (D_807FDA24(entry) != 0 || entry->scale < 0.01) {
                 entry->age = 0;
                 D_807FDA30[++D_807FDA1A] = i;
-                D_807550E0->count--;
+                gEffectSpritePool->count--;
             }
         }
     }
@@ -442,7 +442,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
 
 
 extern f32 *gChunkLightR;
-extern u8 D_8077058C[];
+extern u8 gEffectSpritePoolAlpha[];
 
 void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scale) {
     f32 randX;
@@ -459,7 +459,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
         D_807FDA1E = cosApprox(gPlayerSlots->camYaw) * windAngle;
         calcAlpha = densityVal * 255 / 3.9;
         clampedAlpha = calcAlpha > 255.0 ? 255.0 : calcAlpha;
-        D_8077058C[0] = clampedAlpha * alphaVal;
+        gEffectSpritePoolAlpha[0] = clampedAlpha * alphaVal;
         if (densityVal < 1.0) {
             density *= 100.0f;
             if ((randomNonNegative() >> 15) % 32767 % 100 < density) {
@@ -475,7 +475,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
             randX = (randomNonNegative() >> 15) % 32767 % 320;
             effectSpritePoolSpawn(0, mapChunk, ((f32)((randomNonNegative() >> 15) % 32767 % 125 / 800.0) + 0.1) * 2.5 * scale, randX, -10, 90.0f * scale);
         }
-        if (D_807550E0->count != 0) {
+        if (gEffectSpritePool->count != 0) {
             renderCallbacksRegister(&effectSpriteRenderPool, NULL, 1);
         }
     }
@@ -508,7 +508,7 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
             random = randomLcgNext() / 10000;
             effectSpritePoolSpawn(1, mapChunk, value + 0.075, random % 320, -10, 200);
         }
-        if (D_807550E0->count != 0) {
+        if (gEffectSpritePool->count != 0) {
             renderCallbacksRegister(&effectSpriteRenderPool, NULL, 1);
         }
     }
@@ -548,17 +548,17 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
         for (idx = 0; idx < count; idx++) {
             randScale = (randomNonNegative() >> 15) % 32767 % 80 * 0.005;
             scaleVal = randScale;
-            if (D_807FDA1C != 3) {
+            if (gEffectSpritePoolType != 3) {
                 scaledVal = randScale * 3.0;
                 scaleVal = (scaledVal > 0.3 ? scaledVal : 0.3) < 2.0 ? (scaledVal > 0.3 ? scaledVal : 0.3) : 2.0;
             }
             scaleVal += 0.2;
-            if (D_807FDA1C == 4 && (randomNonNegative() >> 15) % 100 >= 0x33) {
+            if (gEffectSpritePoolType == 4 && (randomNonNegative() >> 15) % 100 >= 0x33) {
                 scaleVal *= -1.0f;
             }
             effectSpritePoolSpawn(poolType, mapChunk, scaleVal, randomLcgNext() / 10000 % 320, -10, 0xC8);
         }
-        if (D_807550E0->count != 0) {
+        if (gEffectSpritePool->count != 0) {
             renderCallbacksRegister(&effectSpriteRenderPool, NULL, 1);
         }
     }
@@ -586,7 +586,7 @@ void func_80711F90(f32 density, s16 windAngle, f32 unused, s16 mapChunk, f32 sca
         randX = (randomNonNegative() >> 15) % 32767 % 320;
         effectSpritePoolSpawn(2, mapChunk, ((f32)((randomNonNegative() >> 15) % 32767 % 125 / 800.0) + 0.1) * 2.5 * scale, randX, -10, 0xFF);
     }
-    if (D_807550E0->count != 0) {
+    if (gEffectSpritePool->count != 0) {
         renderCallbacksRegister(&effectSpriteRenderPool, NULL, 1);
     }
 }
@@ -596,22 +596,22 @@ s32 effectSpritePoolFadeOut(void) {
     s16 i;
     EffectSpritePoolHeader *pool;
 
-    pool = D_807550E0;
+    pool = gEffectSpritePool;
     if (pool->count != 0) {
-        D_8077058C[0] *= 0.9;
+        gEffectSpritePoolAlpha[0] *= 0.9;
         renderCallbacksRegister(&effectSpriteRenderPool, NULL, 1);
         return 0;
     }
-    if (D_807FDA1C != 6) {
-        D_8077058C[0] = 0;
+    if (gEffectSpritePoolType != 6) {
+        gEffectSpritePoolAlpha[0] = 0;
         heapFreeDeferred(pool->entries);
-        for (i = 0; i < D_80755264[D_807FDA1C].count; i++) {
-            assetFreeBuffer(D_807FD9F0[i], 0x34A, 0x64);
+        for (i = 0; i < gEffectSpriteTextureSetups[gEffectSpritePoolType].count; i++) {
+            assetFreeBuffer(gEffectSpriteTextures[i], 0x34A, 0x64);
         }
-        D_807FDA1C = 6;
-        D_807FDA28 = 0;
+        gEffectSpritePoolType = 6;
+        gEffectSpritePoolLoaded = 0;
         return 1;
     }
-    // ORIG: no final return; when pool->count == 0 && D_807FDA1C == 6 the target branches past li v0,1 (0x2efc) to the epilogue (beq t0,at,0x2f00 at 0x2e64; jr ra at 0x2f18) with no $v0 write, so it returns pool from lw v0,%lo(D_807550E0)(v0) at 0x2d4c
+    // ORIG: no final return; when pool->count == 0 && gEffectSpritePoolType == 6 the target branches past li v0,1 (0x2efc) to the epilogue (beq t0,at,0x2f00 at 0x2e64; jr ra at 0x2f18) with no $v0 write, so it returns pool from lw v0,%lo(gEffectSpritePool)(v0) at 0x2d4c
 }
 

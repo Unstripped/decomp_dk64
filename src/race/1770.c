@@ -84,7 +84,7 @@ void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPo
     }
 }
 
-extern s32 D_807F5FD0;
+extern s32 gMinecartTrackCount;
 
 void raceInitSplinePoints(void) {
     TargetVec3f *buf;
@@ -113,11 +113,11 @@ void raceInitSplinePoints(void) {
         buf[i].y = (next[i].y + src[i].y) * 0.5;
         buf[i].z = (next[i].z + src[i].z) * 0.5;
     }
-    D_807F5FD0 = 3;
+    gMinecartTrackCount = 3;
     gMinecartTrackPoints = tbl;
 }
 
-extern s16 D_80750AC4;
+extern s16 gMinigameCoinCount;
 extern Actor *gSpawnedActor;
 
 void raceInitOpponentEntities(Actor *parent) {
@@ -163,7 +163,7 @@ void raceInitOpponentEntities(Actor *parent) {
     participant->actor = parent;
     path = ((RaceRacerActor *)spawnedActor)->path;
     path->targetActor = racer;
-    D_80750AC4 = 0;
+    gMinigameCoinCount = 0;
     parentPart->hasCpuRival = 1;
 }
 
@@ -194,7 +194,7 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
     }
 }
 
-extern u8 D_8072006C[];
+extern u8 gSparkEffectSprite[];
 extern void *D_8002FBB0[4];
 extern u8 gLightSlotNext;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
@@ -329,7 +329,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
             mathPickCloserTargetPoint3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, cur, &points[next], &points[next], nxt2, &sparkX, &sparkY, &sparkZ);
             effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(timedLightOrbitUpdate);
-            D_8002FBB0[gLightSlotNext] = effectCreateAtPosition(D_8072006C, 0.4f, sparkX, sparkY, sparkZ);
+            D_8002FBB0[gLightSlotNext] = effectCreateAtPosition(gSparkEffectSprite, 0.4f, sparkX, sparkY, sparkZ);
             gLightSlotNext++;
             gLightSlotNext = gLightSlotNext % 4;
             sfxPlayAtPositionPooled(sparkX, sparkY, sparkZ, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
@@ -377,7 +377,7 @@ void racePlayEngineSfx(void) {
 }
 
 extern s16 gSfxSourceVoice[];
-extern f32 D_80770B68[];
+extern f32 gSfxVoicePitch[];
 extern f32 D_80770BC0[];
 
 void raceUpdateEngineSoundPitch(f32 moveSpeed) {
@@ -385,7 +385,7 @@ void raceUpdateEngineSoundPitch(f32 moveSpeed) {
     s16 idx;
 
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
-    D_80770B68[idx] = moveSpeed / 20.0 + 1.0;
+    gSfxVoicePitch[idx] = moveSpeed / 20.0 + 1.0;
     D_80770BC0[idx] = 1.0f;
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
     gCurrentActor->unk74 = moveSpeed / 20.0;
@@ -396,7 +396,7 @@ void raceUpdateEngineSoundPitch(f32 moveSpeed) {
         gCurrentActor->unk74 = 0.0f;
     }
     if (D_80770BC0[idx] == 0.0f) {
-        D_80770B68[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + moveSpeed / 15.0);
+        gSfxVoicePitch[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + moveSpeed / 15.0);
         D_80770BC0[idx] = 3.0f;
     }
 }

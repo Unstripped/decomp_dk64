@@ -5,8 +5,8 @@
 #include "actor.h"
 struct MenuShopActor;
 struct MenuShopState;
-#ifndef PROTO_SKIP_menuCheckBitgridOtherSlots
-s32 menuCheckBitgridOtherSlots(struct MenuShopState *, s32);
+#ifndef PROTO_SKIP_menuOtherKongHasUpgrade
+s32 menuOtherKongHasUpgrade(struct MenuShopState *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawShopCostPrompt
 Gfx *menuDrawShopCostPrompt(Gfx *, struct MenuShopActor *);
@@ -17,14 +17,14 @@ void menuSetBitgridValue(struct MenuShopState *, s32);
 #ifndef PROTO_SKIP_menuSetBitgridBit
 void menuSetBitgridBit(struct MenuShopState *, s32);
 #endif
-#ifndef PROTO_SKIP_menuUpdateAllBitgridSlots
-void menuUpdateAllBitgridSlots(struct MenuShopState *, u8);
+#ifndef PROTO_SKIP_menuApplyUpgradeToAllKongs
+void menuApplyUpgradeToAllKongs(struct MenuShopState *, u8);
 #endif
 #ifndef PROTO_SKIP_menuApplyPurchase
 void menuApplyPurchase(struct MenuShopState *, u8 *);
 #endif
-#ifndef PROTO_SKIP_menuCheckInventoryItemPurchased
-void menuCheckInventoryItemPurchased(struct MenuShopState *, u8 *, s32);
+#ifndef PROTO_SKIP_menuSelectNextShopOffer
+void menuSelectNextShopOffer(struct MenuShopState *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_menuGetOptionAvailability
 s32 menuGetOptionAvailability(struct MenuShopState *, s32);
@@ -65,8 +65,8 @@ void menuUpdateCrankyShopActor(void);
 #ifndef PROTO_SKIP_menuDecodeAddressConstant
 s32 menuDecodeAddressConstant(s32);
 #endif
-#ifndef PROTO_SKIP_menuCheckControllerAntiPiracy
-void menuCheckControllerAntiPiracy(void);
+#ifndef PROTO_SKIP_menuUpdateCandyShopActor
+void menuUpdateCandyShopActor(void);
 #endif
 #ifndef PROTO_SKIP_menuUpdateFunkyShopActor
 void menuUpdateFunkyShopActor(void);

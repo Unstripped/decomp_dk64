@@ -7,8 +7,8 @@
 #ifndef PROTO_SKIP_healthHudDraw
 Gfx *healthHudDraw(Gfx *, PlayerInventory *, KongInventory *, PlayerStruct *);
 #endif
-#ifndef PROTO_SKIP_hudDrawItemWithAlpha
-void hudDrawItemWithAlpha(struct HealthHudInit *);
+#ifndef PROTO_SKIP_healthHudReset
+void healthHudReset(HealthHudInit *);
 #endif
 #ifndef PROTO_SKIP_healthApplyPendingDelta
 void healthApplyPendingDelta(s32, PlayerStruct *, PlayerInventory *, KongInventory *);
