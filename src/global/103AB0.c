@@ -38,6 +38,86 @@ extern s16 gGfxScreenBottom;
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 
+typedef struct {
+    f32 scale;
+    f32 axisPos;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+    s8 texOffset;
+    u8 pad[3];
+} LensFlareSprite;
+
+typedef struct {
+    s32 shift;
+    s32 offset;
+} ZbufferDecodeEntry;
+
+typedef struct {
+    ZbufferDecodeEntry entries[8]; /* indexed by the 3-bit depth exponent */
+} ZbufferDecodeTable;
+
+typedef struct {
+    s16 x0, y0;
+    u8 pad0[0xB];
+    u8 a0;
+    s16 x1, y1;
+    u8 pad1[0xB];
+    u8 a1;
+    s16 x2, y2;
+    u8 pad2[0xB];
+    u8 a2;
+    s16 x3, y3;
+    u8 pad3[0xB];
+    u8 a3;
+} ScreenQuadVtx;
+
+// Zero-terminated list of sequence channels whose volume follows the fade (transitionSetAudioVolume).
+typedef struct {
+    s32 ids[3];
+} ScreenFadeChannels;
+
+// This TU's .data (0x80754AF0-0x80754CD4 + 12-byte TU pad), in address order.
+LensFlareSprite D_80754AF0[13] = {
+    { 1.0f, 1.0f, 255, 255, 255, 255, 3 },
+    { 0.08f, 1.2f, 250, 220, 220, 200, 2 },
+    { 0.8f, 1.0f, 255, 255, 255, 50, 1 },
+    { 0.5f, 0.8f, 100, 255, 255, 150, 0 },
+    { 0.2f, 0.7f, 255, 175, 175, 150, 2 },
+    { 0.6f, 0.5f, 255, 250, 250, 175, 0 },
+    { 0.1f, 0.45f, 255, 255, 255, 255, 2 },
+    { 0.1f, 0.42f, 150, 255, 255, 255, 2 },
+    { 0.1f, 0.38f, 255, 200, 200, 255, 2 },
+    { 0.4f, 0.3f, 55, 240, 40, 150, 2 },
+    { 0.3f, 0.1f, 255, 128, 128, 150, 2 },
+    { 3.0f, 0.0f, 100, 255, 255, 75, 1 },
+    { 1.0f, 1.0f, 255, 50, 0, 255, 4 },
+};
+u8 D_80754BC0 = 0;
+ZbufferDecodeTable D_80754BC4 = { {
+    { 6, 0x0 },
+    { 5, 0x20000 },
+    { 4, 0x30000 },
+    { 3, 0x38000 },
+    { 2, 0x3C000 },
+    { 1, 0x3E000 },
+    { 0, 0x3F000 },
+    { 0, 0x3F800 },
+} };
+Vtx D_80754C08[4] = {
+    {{{ -128, -128, -10 }, 0, { -16384, 18432 }, { 0, 0, 0, 0 } }},
+    {{{ 128, -128, -10 }, 0, { 18432, 18432 }, { 0, 0, 0, 0 } }},
+    {{{ 128, 128, -10 }, 0, { 18432, -16384 }, { 0, 0, 0, 0 } }},
+    {{{ -128, 128, -10 }, 0, { -16384, -16384 }, { 0, 0, 0, 0 } }},
+};
+// Each pad starts with the vertex z (-10).
+ScreenQuadVtx D_80754C48[2] = {
+    { 0, 0, { 0xFF, 0xF6 }, 0, 320, 0, { 0xFF, 0xF6 }, 0, 320, 240, { 0xFF, 0xF6 }, 0, 0, 240, { 0xFF, 0xF6 }, 0 },
+    { 0, 0, { 0xFF, 0xF6 }, 0, 320, 0, { 0xFF, 0xF6 }, 0, 320, 240, { 0xFF, 0xF6 }, 0, 0, 240, { 0xFF, 0xF6 }, 0 },
+};
+ScreenFadeChannels D_80754CC8 = { { 1, 3, 0 } };
+
 Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     gDPPipeSync(dl++);
     gSPViewport(dl++, osVirtualToPhysical(&gPlayerSlots[playerIndex].viewport[gGfxBufferIndex]));
@@ -264,7 +344,6 @@ typedef struct {
 
 extern ScreenPoint D_807FD840[2][3];
 
-extern u8 D_80754BC0;
 extern LensFlarePoint D_807FD808[2];
 
 void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 minDot, u8 r, u8 g, u8 b) {
@@ -383,15 +462,6 @@ s16 zbufferDepthToDistance(s16 depth) {
     return dist < 0 ? 0 : dist;
 }
 
-typedef struct {
-    s32 shift;
-    s32 offset;
-} ZbufferDecodeEntry;
-
-typedef struct {
-    ZbufferDecodeEntry entries[8]; /* indexed by the 3-bit depth exponent */
-} ZbufferDecodeTable;
-extern ZbufferDecodeTable D_80754BC4;
 extern u16 *gGfxDepthBuffer;
 
 u16 zbufferReadDepth(s16 x, s16 y) {
@@ -476,19 +546,6 @@ void func_80700BF4(void) {
         }
     }
 }
-
-typedef struct {
-    f32 scale;
-    f32 axisPos;
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-    s8 texOffset;
-    u8 pad[3];
-} LensFlareSprite;
-
-extern LensFlareSprite D_80754AF0[];
 
 Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     Vec3f axisEnd;
@@ -871,23 +928,6 @@ void viewportShrinkToCenter(u8 amount) {
     gPlayerSlots->unk280 = (f32)gPlayerSlots->unk278 / (f32)gPlayerSlots->unk27A;
 }
 
-typedef struct {
-    s16 x0, y0;
-    u8 pad0[0xB];
-    u8 a0;
-    s16 x1, y1;
-    u8 pad1[0xB];
-    u8 a1;
-    s16 x2, y2;
-    u8 pad2[0xB];
-    u8 a2;
-    s16 x3, y3;
-    u8 pad3[0xB];
-    u8 a3;
-} ScreenQuadVtx;
-
-extern ScreenQuadVtx D_80754C48[];
-
 Gfx *screenFadeDrawGradient(Gfx *dl, u8 alpha) {
     gSPDisplayList(dl++, &D_1000118);
     gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -916,7 +956,6 @@ Gfx *screenFadeDrawGradient(Gfx *dl, u8 alpha) {
 
 
 extern u8 gHiResScale;
-extern u8 D_80754C08[];
 
 Gfx *screenFadeDrawSpinTexture(Gfx *dl, u8 alpha) {
     Mtx *mtx;
@@ -1041,16 +1080,10 @@ void vtxSetPosTex(Vtx *vtx, s16 x, s16 y, s16 s, s16 t, u8 shift) {
 }
 
 
-// Zero-terminated list of sequence channels whose volume follows the fade (transitionSetAudioVolume).
-typedef struct {
-    s32 ids[3];
-} ScreenFadeChannels;
-
 extern f32 gScreenFadeProgress;
 extern f32 gScreenFadeRate;
 extern s16 gCurrentLevelIndex;
 extern u8 gActivePlayerCount;
-extern ScreenFadeChannels D_80754CC8;
 
 Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
     s32 pad1;

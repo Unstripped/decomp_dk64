@@ -254,7 +254,13 @@ segments:
       - [0x155CB0, .data, D5E10] # D_80750FB0..D_80750FE0[4] (0x80750FB0-0x80750FF0, no pad); D_80750FB8[2] unreferenced
       - [0x155CF0, .data, E4090] # gButtonRemapTable, D_80750FF4..D_80751000, gPlayerInputHandlers[107][17] (0x80750FF0-0x80752C70, no pad); 16-aligned after D5E10's D_80750FE0[4]; the table's words make playerInputUpdateCannonAim's entry label address-taken (Q0552)
       - [0x157970, .data, EFDC0] # gPlayerStateCallbacks[93] (0x80752C70-0x80752DE4) + 12-byte TU pad; 16-aligned after E4090's gPlayerInputHandlers; the word pointing at playerStateSetFlagsByActorType makes its entry label address-taken (Q0552)
-      - [0x157AF0, data]
+      - [0x157AF0, .data, F56F0] # D_80752DF0..gWaypointPaths (0x80752DF0-0x80753E94 + 12-byte TU pad): weapon recoil tables, then the per-kong tables (f32[7] / s16[8]) read by CEAE0, D5E10, E4090, EFDC0, 6AD90, 19A00, 70FD0, 7BBD0, 80150, 89250, 133A90 (data order = text order puts them in this TU's range; no text user here), then gWaypointPaths; zeros at 0x80753E84 keep gWaypointPaths 16-aligned (possibly a hidden TU start, layout-neutral); 89250's D_80753A08/D_80753A18 are actorType-indexed bases 4 bytes below D_80753A0C/D_80753A1C (undefined_syms)
+      - [0x158BA0, .data, F93B0] # gMapVoidHeights[13] (0x80753EA0-0x80753EEE + 2-byte TU pad)
+      - [0x158BF0, .data, F9450] # gGridTypeTable[42]..D_80754264[6] (0x80753EF0-0x8075427C + 4-byte TU pad); D_80753EF2/D_80753EFC/D_8075424C/D_80754250/D_80754268 were splat labels at field/loop addresses, not named in C
+      - [0x158F80, .data, FCCD0] # gSlotQueue, gSlotQueueMaskList, D_80754288 (0x80754280-0x8075428C + 4-byte TU pad)
+      - [0x158F90, .data, 100180] # font line starts, glyph tables, gTextFontLineStarts, gTextGlyphTables, gTextFonts[8], charsets D_80754A64/D_80754AA0 (0x80754290-0x80754AD0, no pad); D_80754A35..D_80754A39 were splat labels inside gTextFonts (1025E0 reads spaceWidth)
+      - [0x1597D0, .data, 1025E0] # gGfxResourceList, gGfxResourceNextId, unreferenced D_80754AD8[2] (+-pi/2) and D_80754AE0 zeros (0x80754AD0-0x80754AF0)
+      - [0x1597F0, .data, 103AB0] # D_80754AF0[13] lens flare sprites..D_80754CC8 (0x80754AF0-0x80754CD4 + 12-byte TU pad); D_80754C08 is Vtx[4] (8-aligned: 4-byte gap after D_80754BC4)
       - [0x1599E0, .data, 109660] # D_80754CE0..sBgScrollY (0x80754CE0-0x80754F80): gfx background/sky data, defined in src/global/109660.c; sBgScrollX/Y (0x80754F70/F74) are gfxBuildScrollingBackground's function-local statics, after the file-scope data
       - [0x159C80, .data, 10E1D0] # D_80754F80..D_807550A8 (0x80754F80-0x807550B8 + 8-byte TU pad): mesh texture table, an unreferenced end-DL Gfx at 0x80754FC0, transition data; 0x807550A4 is transitionSetAudioVolume's function-local static sGroupVolScaled
       - [0x159DC0, .data, 112080] # sResNodeListHead, sResQueueHead, sLanguageIndex, sResQueueValue (0x807550C0-0x807550CD + 3-byte TU pad); 104F0 also reads sLanguageIndex

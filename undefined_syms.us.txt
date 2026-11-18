@@ -344,3 +344,7 @@ D_8075658E = 0x8075658E;
 
 /* 7130 bss interior label (inside an object defined in C: D_80770DD8[4] (7130 sfxUpdateLevelAmbient)) */
 D_80770DD9 = 0x80770DD9;
+
+/* F56F0 data labels 89250 indexes by actorType (2..6): D_80753A0C - 2, D_80753A1C - 2 (per-kong s16[8] tables defined in C) */
+D_80753A08 = 0x80753A08;
+D_80753A18 = 0x80753A18;

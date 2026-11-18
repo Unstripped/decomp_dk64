@@ -23,6 +23,12 @@ extern s16 gScreenHeight;
 extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
+// This TU's .data (0x80754AD0-0x80754AF0), in address order.
+TextObject *gGfxResourceList = NULL;
+s16 gGfxResourceNextId = 0;
+f32 D_80754AD8[2] = { 1.5707964f, -1.5707964f }; // unreferenced
+s32 D_80754AE0[4] = { 0 }; // unreferenced zeros before 103AB0's 16-aligned data
+
 void textDrawStringCentered(Gfx *glist, s16 font, u8 *str, s16 y, u8 flags) {
     s16 width;
     s16 height;
@@ -35,9 +41,6 @@ void textDrawStringCentered(Gfx *glist, s16 font, u8 *str, s16 y, u8 flags) {
 void func_806FD950(Gfx *glist, s16 font, u8 *str, s16 y) {
     textDrawStringVtx(glist, font, 0x60, (s16)(y * 4), str, 1);
 }
-
-extern TextObject *gGfxResourceList;
-extern s16 gGfxResourceNextId;
 
 void gfxResourceListReset(void) {
     gGfxResourceList = NULL;

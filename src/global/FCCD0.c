@@ -86,14 +86,16 @@ typedef struct SlotQueueSlot {
     u8 pad2E[2];
 } SlotQueueSlot;
 
-extern SlotQueueSlot *gSlotQueue;
+// This TU's .data (0x80754280-0x8075428C + 4-byte TU pad), in address order.
+SlotQueueSlot *gSlotQueue = NULL;
 
 typedef struct SlotQueueMaskNode {
     s32 flags;
     struct SlotQueueMaskNode *next;
 } SlotQueueMaskNode;
 
-extern SlotQueueMaskNode *gSlotQueueMaskList;
+SlotQueueMaskNode *gSlotQueueMaskList = NULL;
+s32 D_80754288 = 0;
 
 SlotQueueSlot *slotQueueGetAddress(u8 player) {
     return &gSlotQueue[player * 15];
@@ -1161,8 +1163,6 @@ Gfx *slotQueueBuildDisplayList(Gfx *gfx) {
     }
     return gfx;
 }
-
-extern s32 D_80754288;
 
 void slotQueueSelectPlayerResource(u8 player) {
     s32 world;

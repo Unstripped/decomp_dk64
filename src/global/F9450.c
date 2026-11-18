@@ -107,6 +107,56 @@ typedef struct DelayedSpawn {
     s32 timer;
 } DelayedSpawn; // size = 0x14
 
+// This TU's .data (0x80753EF0-0x8075427C + 4-byte TU pad), in address order.
+GridTypeEntry gGridTypeTable[42] = {
+    { 0xD, 0, 0, 0.08f, 0.95f, 0x2, 0x0, 0, 0 },
+    { 0xA, 0, 0, 0.08f, 0.95f, 0x3, 0x0, 0, 0 },
+    { 0x1F, 0, 0, 0.08f, 0.95f, 0x6, 0x0, 0, 0 },
+    { 0x1E, 0, 0, 0.08f, 0.95f, 0x4, 0x0, 0, 0 },
+    { 0x16, 0, 0, 0.08f, 0.95f, 0x5, 0x0, 0, 0 },
+    { 0x24, 1, 0, 0.08f, 0.95f, 0x3, 0x35, 0, 0 },
+    { 0x23, 1, 0, 0.08f, 0.95f, 0x4, 0x35, 0, 0 },
+    { 0x27, 1, 0, 0.08f, 0.95f, 0x6, 0x35, 0, 0 },
+    { 0x1C, 1, 0, 0.08f, 0.95f, 0x5, 0x35, 0, 0 },
+    { 0x1D, 1, 0, 0.08f, 0.95f, 0x2, 0x35, 0, 0 },
+    { 0x2B, 0, 0, 0.08f, 0.95f, 0x2, 0x6E, 0, 0 },
+    { 0x208, 0, 0, 0.08f, 0.95f, 0x3, 0x6E, 0, 0 },
+    { 0x206, 0, 0, 0.08f, 0.95f, 0x6, 0x6E, 0, 0 },
+    { 0x205, 0, 0, 0.08f, 0.95f, 0x4, 0x6E, 0, 0 },
+    { 0x207, 0, 0, 0.08f, 0.95f, 0x5, 0x6E, 0, 0 },
+    { 0x74, 8, 0, 0.08f, 0.95f, 0x0, 0x2D, 8, 4 },
+    { 0x56, 4, 0, 0.08f, 0.95f, 0x0, 0x34, 0, 0 },
+    { 0x8F, -2, 0, 0.08f, 0.95f, 0x0, 0x33, 0, 0 },
+    { 0x11, -2, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0x91, 2, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0x8E, 5, 0, 0.08f, 0.95f, 0x0, 0x79, 0, 0 },
+    { 0x57, -1, 0, 0.08f, 0.95f, 0x0, 0x2F, 0, 0 },
+    { 0x98, 6, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0x90, 10, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0xEC, 11, 0, 0.08f, 0.95f, 0x0, 0x36, 0, 0 },
+    { 0x13C, -1, 0, 0.08f, 0.95f, 0x0, 0x48, 25, 20 },
+    { 0xDE, 12, 0, 0.08f, 0.95f, 0x2, 0x4E, 0, 0 },
+    { 0xE0, 12, 0, 0.08f, 0.95f, 0x3, 0x4B, 0, 0 },
+    { 0xE1, 12, 0, 0.08f, 0.95f, 0x4, 0x4D, 0, 0 },
+    { 0xDD, 12, 0, 0.08f, 0.95f, 0x5, 0x4F, 0, 0 },
+    { 0xDF, 12, 0, 0.08f, 0.95f, 0x6, 0x4C, 0, 0 },
+    { 0x15D, 2, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0x15E, 2, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0x15F, 2, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0x160, 2, 0, 0.08f, 0.95f, 0x0, 0x0, 0, 0 },
+    { 0x18D, -1, 0, 0.08f, 0.95f, 0x0, 0x56, 0, 0 },
+    { 0xB7, 1, 0, 0.08f, 0.95f, 0x0, 0x8C, 0, 0 },
+    { 0x1CF, -1, 0, 0.08f, 0.95f, 0x0, 0x78, 0, 0 },
+    { 0x1D0, -1, 0, 0.08f, 0.95f, 0x0, 0x77, 0, 0 },
+    { 0x1D1, -1, 0, 0.08f, 0.95f, 0x0, 0x76, 0, 0 },
+    { 0x1D2, 1, 0, 0.08f, 0.95f, 0x0, 0x7A, 0, 0 },
+    { 0x288, 8, 0, 0.08f, 0.95f, 0x0, 0x2D, 8, 4 },
+};
+u8 D_80754238[8] = { 2, 2, 3, 1, 1, 0, 0, 0 }; // per-kong move level needed for ability energy
+DelayedSpawn *gDelayedSpawnQueue = NULL;
+GridNode **gGridCells = NULL;
+s32 D_80754248[7] = { 0x34, 0x76, 0x33, 0x77, 0x78, 0x2F, 0x79 }; // respawn pickup actor types
+s32 D_80754264[6] = { 0x56, 0x8F, 0x11, 0x1D2, 0x8E, 0x57 }; // respawn pickup model types
 
 void gridRebuildNodeLists(void) {
     gridFreeAllNodeLists();
@@ -135,9 +185,6 @@ typedef struct {
     /* 0x2F */ u8 flags;
 } ModelAssetEntry; /* 0x30 */
 
-extern GridTypeEntry gGridTypeTable[];
-extern GridNode **gGridCells;
-extern DelayedSpawn *gDelayedSpawnQueue;
 extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
@@ -669,8 +716,6 @@ void gridSpawnAmmoCrateItems(u8 playerIndex, s16 modelSlot, Actor *player, u16 p
     }
 }
 
-extern s32 D_80754248[];
-
 s32 actorTypeIsRespawnPickup(s32 actorType) {
     s32 i;
 
@@ -681,8 +726,6 @@ s32 actorTypeIsRespawnPickup(s32 actorType) {
     }
     return 0;
 }
-
-extern s32 D_80754264[];
 
 s32 modelTypeIsRespawnPickup(s32 modelType) {
     s32 i;
@@ -1033,8 +1076,6 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
         }
     }
 }
-
-extern u8 D_80754238[];
 
 s32 kongUsesAbilityEnergy(s16 kong) {
     u8 result;
