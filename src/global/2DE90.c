@@ -27,7 +27,7 @@ extern u16 *gFramebuffers[];
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 gGfxBufferIndex;
-extern u8 sScreenWipeType;
+extern s8 sScreenWipeType;
 extern s16 D_807F5D86;
 extern s16 D_807F5D88;
 extern f32 D_807F5D8C;
@@ -37,8 +37,6 @@ extern u16 *D_807F5D80;
 void screenWipeStart(type)
 u8 type;
 {
-    s32 sel = type; // FAKE: s32 copy of the K&R u8 param steers the switch dispatch registers (Q0140)
-
     if ((sScreenWipeActive == 0) || (type == 7)) {
         if (sScreenWipeActive == 0) {
             D_807F5D80 = heapAlloc(gScreenWidth * gScreenHeight * 2);
@@ -46,7 +44,7 @@ u8 type;
         fbCopySetAlpha(D_807F5D80, gFramebuffers[gGfxBufferIndex]);
         sScreenWipeActive = 1;
         D_80747B20 = 5;
-        switch (sel) {
+        switch (type) {
             case 1:
                 D_807F5D86 = 0xFF;
                 break;
@@ -71,7 +69,7 @@ u8 type;
                 blurBuildDivTable();
                 break;
         }
-        sScreenWipeType = sel;
+        sScreenWipeType = type;
     }
 }
 
@@ -319,30 +317,28 @@ void screenBlurApply(void) {
                 b[i] = 0;
             }
             idx = D_80747B28 / 2;
-            for (i = 0; i < D_80747B28 / 2; i++) {
-                pix = *src;
+            for (i = 0; i < D_80747B28 / 2; i++, idx++) {
+                pix = *src++;
                 vr = (pix >> 11) & 0x1F;
                 r[idx] = vr;
                 sumR += vr;
                 vg = (pix >> 6) & 0x1F;
-                vb = (pix >> 1) & 0x1F;
-                idx++; // FAKE: early increment + idx - 1 stores steer schedule (Q0483)
-                src++;
-                g[idx - 1] = vg;
+                g[idx] = vg;
                 sumG += vg;
-                b[idx - 1] = vb;
+                vb = (pix >> 1) & 0x1F;
+                b[idx] = vb;
                 sumB += vb;
             }
             idx = 0;
-            for (i = 0; i < D_80747B30 - D_80747B28 / 2; i++) {
+            for (i = 0; i < D_80747B30 - D_80747B28 / 2; i++, idx++) {
                 pix = *src++;
                 if (idx >= D_80747B28) {
                     idx = 0;
                 }
                 vr = (pix >> 11) & 0x1F;
                 sumR -= r[idx];
-                sumR += vr;
                 r[idx] = vr;
+                sumR += vr;
                 vg = (pix >> 6) & 0x1F;
                 sumG -= g[idx];
                 g[idx] = vg;
@@ -350,12 +346,10 @@ void screenBlurApply(void) {
                 vb = (pix >> 1) & 0x1F;
                 sumB -= b[idx];
                 b[idx] = vb;
-                idx++;
                 sumB += vb;
-                *dst = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
-                dst++;
+                *dst++ = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
             }
-            for (i = D_80747B30 - D_80747B28 / 2; i < D_80747B30; i++) {
+            for (i = D_80747B30 - D_80747B28 / 2; i < D_80747B30; i++, idx++) {
                 if (idx >= D_80747B28) {
                     idx = 0;
                 }
@@ -365,9 +359,7 @@ void screenBlurApply(void) {
                 r[idx] = 0;
                 g[idx] = 0;
                 b[idx] = 0;
-                idx++;
-                *dst = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
-                dst++;
+                *dst++ = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
             }
         }
         D_80747B38++;
