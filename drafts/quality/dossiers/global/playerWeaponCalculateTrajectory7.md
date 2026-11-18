@@ -1,7 +1,7 @@
 # playerWeaponCalculateTrajectory7 (global, src/global/F56F0.c)
 ## Sites
 - global:806F1768:other:b7ba3b other (kept):
-  - `angle = 7U` gives angle (the table value) an earlier candidate bit than index, so the value takes v0 and index v1.
+  - `angle = 7U` is the first def of angle. It numbers angle as uopt candidate 0, ahead of index (3), so angle colours first-fit to $v0 and index to $v1. The sltiu at 0xd94 folds the 7.
   - The range check itself is folded to sltiu.
 ## Attempts
 - rounds 3-24: see history (permute best=0 only by constant-in-angle forms).
@@ -10,8 +10,59 @@
   - separate u16/u32 count local: 10
   - inline sizeof: 10
   - with a hypothetical `D_80752F20[7]`, `angle = sizeof(D_80752F20) / sizeof(D_80752F20[0])`: 0
+- 2026-11-17 "2026-11-17: cleanup CleanplayerWeaponCalculateTrajectory7" CleanplayerWeaponCalculateTrajectory7 opus:
+  - Function-local `static u16 sRecoilAngles[]` (carve stand-in) results:
+    - 7 entries, inline sizeof bound: text=10.
+    - 7 entries, literal 7U bound: text=10.
+    - 8 entries, literal 7U bound: text=10.
+    - 8 entries, `sizeof - 1` bound: text=10.
+    - `angle = sizeof/sizeof` reuse, 7 entries: text=0. fdiff --reloc-ok exit 3: TEXT OK, own .data 16 bytes.
+    - The same reuse with 8 entries (`- 1`): text=0.
+    - Both tables emit identical .data `0000f830 f448ec78 e890e890 f4480000`.
+  - Separate `u32 bound = sizeof/sizeof` local over the static table: text=10.
+    - The -l5 trace shows bound as isvar candidate 0 with no active range, so it was copy-propagated.
+    - index is candidate 3 in $v0 and angle candidate 15 in $v1.
+  - Named `timer` local for recoilTimer (Q0601), widths u8/s16/u16/s32/u32, with or without an early return: text=2.
+    - timer is candidate 0 in $v0, which pushes index to $v1 and leaves $v0 to angle.
+    - The only diff is 0xd88 `lbu v0` / 0xd8c `addiu v1,v0,-20`, where the target has `lbu v1` / `addiu v1,v1,-20`.
+    - Running variants scan from that body gave 21 variants, none 0.
+  - Other rewrites:
+    - No index local (CSE of `recoilTimer - 20`): text=8.
+    - Early return: 10.
+    - if/else arms: 10.
+    - Negate in place (`if (!hand) angle = -angle`): 31.
+    - Table read in both ternary arms with no angle: 95.
+    - No locals at all: 86.
+    - `index = timer; index -= 20`: 10.
+  - Dead initialiser `u16 angle = 0;` with a literal 7U bound: full=0, whole-file fdiff OK.
+    - The trace matches the base: angle is candidate 0 in $v0 and index candidate 3 in $v1.
+    - The same dead initialiser also zeroes the siblings playerWeaponCalculateTrajectory4 (literal: 9) and playerWeaponCalculateTrajectory22 (literal: 9).
+    - It is a dead-store steer (Q0592 precedent: tagged), so it was not applied.
+  - A hack-free permuter run from the literal-bound body (-j 2, 900 s, base 65) found best=0, with 12 zero outputs. Every one re-inserts a steer that defines the value web before index:
+    - `angle = 0x14` (the start) held in angle: 8 outputs.
+    - `angle = 0` used as the lower bound in `index >= angle`: 3 outputs.
+    - index reused for the table value, with the bound test re-reading `recoilTimer - 0x14`: 1 output.
+    - Result: nohit.
 ## Untried ideas
-- If the lead accepts the angle = sizeof reuse (Q0214) as natural, it applies here only once the table's 7-entry size is proven.
+- If the lead rules a habitual declaration zero-initialiser (`u16 angle = 0;`) ordinary C, it fixes this site and both siblings (4, 22) with one uniform form (measured 0/0/0). Otherwise it is a dead-store steer, the same count as `angle = 7U`.
+- If the lead accepts the angle = sizeof reuse (Q0214) as natural, the 7-entry size stays unprovable from the data (Q0838: every .data object is 4-aligned, so 7 entries plus pad equals 8 entries byte for byte).
 ## Evidence
 - D_80752F20 is 16 bytes: 0, F830, F448, EC78, E890, E890, F448, 0000.
-- That is 7 entries plus 4-byte alignment padding, or 8 entries; the data cannot tell them apart.
+  - That is 7 entries plus 4-byte alignment padding, or 8 entries; the data cannot tell them apart.
+  - Both static stand-ins emit the same 16 .data bytes.
+- Target 0xd88-0xd98: `lbu v1,0x8e(t6); addiu v1,v1,-20; bltz v1; sltiu at,v1,7; beqz at`.
+- Target 0xda4-0xdb0: `lui v0,%hi(D_80752F20); addu v0,v0,t7; lhu v0,%lo(D_80752F20)(v0)`.
+- No instruction writes $v0 before 0xda4. So the candidate that keeps index out of $v0 emits no code: it is a folded constant or dead def of angle placed before index's def.
+- All candidates are "assigned (unconstrained)", colouring first-fit in candidate order (Q0252/Q0900).
+  - Literal bound: index is candidate 0 (adjsave 2.0) in $v0, angle candidate 11 (adjsave 1.0) in $v1.
+- .data ownership: F56F0's .data starts at 0x80752DF0 (0x157AF0), where EFDC0's .data ends per the yaml.
+  - Labels in that range:
+    - D_80752DF0 (0x130 bytes): no users in src/ or asm/.
+    - D_80752F20: playerWeaponCalculateTrajectory7.
+    - D_80752F30: playerWeaponCalculateTrajectory4.
+    - D_80752F38: playerWeaponCalculateTrajectory22.
+    - D_80752F40: playerWeaponCalculateTrajectory23.
+    - D_80752F4C (f32): playerWeaponInitCrosshair.
+  - The earliest end is 0x80752F50 (0x157C50, 16-aligned).
+  - The unlabelled 0x80752F50 (u16[7] = 100, + pad) and 0x80752F60 (f32[7] = 180.0) have no users.
+  - D_80752F7C onward (kong tables) is used by 6AD90/CEAE0/D5E10/E4090/EFDC0/CC800/80150.

@@ -1046,3 +1046,4 @@
 {"type": "unit", "t": "2026-11-18T06:01:58Z", "unit": "2026-11-17: cleanup CleanbehaviourFlyPatrolWithCallback", "commit": "3362c88df374cec826adaf3ead99b43d5a56b8a9"}
 {"type": "unit", "t": "2026-11-18T06:05:14Z", "unit": "2026-11-17: cleanup CleanraceRenderCoinHud", "commit": "af8bf89eeac82449719cbe157ef133d414b5821d"}
 {"type": "unit", "t": "2026-11-18T06:11:24Z", "unit": "2026-11-17: cleanup CleanthrowableBarrelUpdate", "commit": "eecd93a083bf7ddcbf9ffc581bc2b066fd472001"}
+{"type": "unit", "t": "2026-11-18T06:18:16Z", "unit": "2026-11-17: cleanup CleanplayerWeaponCalculateTrajectory7", "commit": "c88082b9485c3704befa2d9cebb4c425b3a54fdc"}
