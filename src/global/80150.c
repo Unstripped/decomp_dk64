@@ -604,6 +604,7 @@ void throwableBarrelUpdate(void) {
     f32 mtx[4][4];
     f32 rot[4][4];
     f32 bob;
+    f32 accel;
     f32 brightness;
     s16 yaw;
     PlayerState *holderState;
@@ -746,14 +747,14 @@ void throwableBarrelUpdate(void) {
         bob = sinApprox((f32)state->floatFrame / 9.34);
         state->pitch = state->floatPitch + bob * 7.0f;
         state->floatFrame++;
-        bob = -5.0 - state->floatVelY;
-        bob = bob / -5.0;
-        bob = bob * -0.5;
+        accel = -5.0 - state->floatVelY;
+        accel = accel / -5.0;
+        accel = accel * -0.5;
         if (gActorGlobalState.unk39 == 0) {
-            bob = -0.5 - bob;
-            bob = 0.0 - bob;
+            accel = -0.5 - accel;
+            accel = 0.0 - accel;
         }
-        state->floatVelY += bob;
+        state->floatVelY += accel;
         gCurrentActor->y += state->floatVelY;
         if (--state->timer == 0 || state->timer == 5 || state->timer == 10 ||
             state->timer == 15 || state->timer == 20 || state->timer == 26) {
