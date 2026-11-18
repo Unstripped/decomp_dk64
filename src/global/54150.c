@@ -220,11 +220,12 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, ModelBKey *
     f32 sx;
     f32 sy;
     f32 sz;
+    f32 factor;
     f32 next;
     f32 prev;
     f32 next2;
     f32 prev2;
-    s32 pad[3];
+    s32 pad[2];
     f32 work[4][4];
     f32 mtx[4][4];
 
@@ -277,35 +278,36 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, ModelBKey *
     next2 = keys[key + 1].scaleZ;
     prev2 = keys[key].scaleZ;
     sz = (next2 - prev2) * t + prev2;
+    factor = (scaleMode >> 4 & 0xF) * 0.125;
     switch (scaleMode & 0xF) {
     case 0:
         break;
     case 1:
-        tx *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        tx *= factor;
         break;
     case 2:
-        ty *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        ty *= factor;
         break;
     case 3:
-        tz *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        tz *= factor;
         break;
     case 4:
-        rx *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        rx *= factor;
         break;
     case 5:
-        ry *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        ry *= factor;
         break;
     case 6:
-        rz *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        rz *= factor;
         break;
     case 7:
-        sx *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        sx *= factor;
         break;
     case 8:
-        sy *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
+        sy *= factor;
         break;
     case 9:
-        sz = ((next2 - prev2) * t + prev2) * (f32)((scaleMode >> 4 & 0xF) * 0.125); // FAKE: recomputes the sz lerp instead of `sz *=` (Q0560): the target builds sz in $f2 at 0x958 and stores it to 0xd8(sp) in the delay slot at 0x960; `sz *=` builds it in $f18 and reloads 0xd8(sp) at 0xb90
+        sz *= factor;
         break;
     }
     memcpy(work, frame + track->mtxPairOffset, sizeof(work));
