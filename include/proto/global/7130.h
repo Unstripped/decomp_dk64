@@ -4,10 +4,10 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_sfxGetBankIndex
-u8 sfxGetBankIndex();
+u8 sfxGetBankIndex(s16);
 #endif
 #ifndef PROTO_SKIP_sfxGetChannelIndex
-u8 sfxGetChannelIndex();
+u8 sfxGetChannelIndex(s16);
 #endif
 #ifndef PROTO_SKIP_sfxSetMode
 void sfxSetMode();

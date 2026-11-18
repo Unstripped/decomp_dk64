@@ -35,15 +35,11 @@
 
 extern u16 sSfxFlagTable[];
 
-u8 sfxGetBankIndex(sfxId)
-s16 sfxId;
-{
+u8 sfxGetBankIndex(s16 sfxId) {
     return (sSfxFlagTable[sfxId] & 6) >> 1;
 }
 
-u8 sfxGetChannelIndex(sfxId)
-s16 sfxId;
-{
+u8 sfxGetChannelIndex(s16 sfxId) {
     return (sSfxFlagTable[sfxId] & 0x78) >> 3;
 }
 
@@ -131,7 +127,7 @@ void sfxUpdateChannels(void) {
     u8 bank;
     SfxSignedBytes4 bankChannel;
     SfxUnsignedBytes4 seqState;
-    s32 sfxId;
+    s16 sfxId;
     u8 vol;
     s32 sel;
 
@@ -139,24 +135,21 @@ void sfxUpdateChannels(void) {
     seqState = D_80745B24;
 
     if (sSfxAreaAmbientActive != 0) {
-        i = 0;
-        do {
+        for (i = 0; i < 4; i++) {
             seqState.b[i] = alCSPGetState(&gSeqPlayers[i]->al);
-        } while (++i < 4);
+        }
 
-        i = 0; do { // LAYOUT: loop init on the do line keeps as1's order
+        for (i = 0; i < 12; i++) {
             sfxId = sSfxChannelSounds[i];
             if (sfxId != 0) {
-                channel = sfxGetChannelIndex((s16)sfxId);
-                bank = sfxGetBankIndex((s16)(u16)sfxId);  // FAKE: (u16) keeps this conv from being CSE'd with the one above
+                channel = sfxGetChannelIndex(sfxId);
+                bank = sfxGetBankIndex(sfxId);
                 if (sfxId == D_80770560[bank] && seqState.b[bank] == 1) {
                     if (sSfxChannelStates[i] == 1) {
                         sSfxChannelStates[i] = 2;
                     }
                     if (sSfxChannelStates[i] == 2) {
-                        j = 0;
-                        do {
-                            if (!bank) {}  // FAKE: steers uopt register order (s7/s8)
+                        for (j = 0; j < 4; j++) {
                             vol = (j & 1) ? 0 : 0xFF;
                             sel = j & 2;
                             if (sSfxChannelMasks[j][channel] != 0) {
@@ -167,39 +160,36 @@ void sfxUpdateChannels(void) {
                                 }
                                 sSfxChannelMasks[j][channel] = 0;
                             }
-                        } while (++j < 4);
+                        }
                     }
                 }
                 if (!(sSfxFlagTable[sfxId] & 0x100) && sSfxChannelStates[i] == 2) {
-                    if (seqState.b[sfxGetBankIndex((s16)(sfxId ^ 0))] == 0 || sfxId != D_80770560[bank]) {  // FAKE: ^ 0 keeps this conv from being CSE'd with the earlier two
+                    if (seqState.b[sfxGetBankIndex(sfxId)] == 0 || sfxId != D_80770560[bank]) {
                         sfxStopChannel(sfxId, 0);
                     }
                 }
             }
-        } while (++i < 12);
+        }
 
-        i = 0;
-        do {
+        for (i = 0; i < 12; i++) {
             sfxId = sSfxChannelSounds[i];
             if (sfxId != 0) {
                 if (sSfxFlagTable[sfxId] & 0x80) {
-                    j = 0;
-                    do {
+                    for (j = 0; j < 4; j++) {
                         bankChannel.b[j] = -1;
-                    } while (++j < 4);
+                    }
                 }
-                bankChannel.b[sfxGetBankIndex((s16)sfxId)] = i;
+                bankChannel.b[sfxGetBankIndex(sfxId)] = i;
             }
-        } while (++i < 12);
+        }
 
-        if (1) {}  // FAKE: steers uopt register order (s7/s8)
-        i = 0; do { // LAYOUT:
+        for (i = 0; i < 4; i++) {
             s8 idx = bankChannel.b[i];
             if (seqState.b[i] != 0) {
                 if (seqState.b[i] == 1) {
                     if (idx == -1) {
                         seqSetTargetVolume(i, 0.0f);
-                        if ((f64)D_80770568[i] < 0.1 || D_80770560[i] == 0x4B) {
+                        if (D_80770568[i] < 0.1 || D_80770560[i] == 0x4B) {
                             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
                         }
                     } else {
@@ -216,12 +206,12 @@ void sfxUpdateChannels(void) {
                         seqSetTargetVolume(i, sSfxChannelVolumes[idx]);
                         alCSPPlay(&gSeqPlayers[i]->al);
                     } else {
-                        seqLoadAndPlayWithReverb(i, (u8)sSfxChannelSounds[idx], sSfxChannelVolumes[idx]);
+                        seqLoadAndPlayWithReverb(i, sSfxChannelSounds[idx], sSfxChannelVolumes[idx]);
                         sSfxChannelStates[sfxGetChannelIndex(sSfxChannelSounds[idx])] = 1;
                     }
                 }
             }
-        } while (++i < 4);
+        }
     }
 }
 
@@ -726,7 +716,7 @@ void sfxUpdateLevelAmbient(void) {
                 for (k = count - 1; k >= 0; k--) {
                     if (group + 1 == soundEmitters[k].group) {
                         sfxUpdateDistanceVolumeAndPan(soundEmitters[k].x, soundEmitters[k].y, soundEmitters[k].z,
-                            (u8)((soundEmitters[k].volume * D_80745B28[group].volume) / 255.0),
+                            (soundEmitters[k].volume * D_80745B28[group].volume) / 255.0,
                             D_80745B28[group].range, D_80745B28[group].directionality);
                     }
                 }
@@ -744,7 +734,7 @@ void sfxUpdateLevelAmbient(void) {
             if ((gScheduler.unk280 / 12U) != D_80770E38[group]) {
                 D_80770E38[group] = (gScheduler.unk280 / 12U);
                 if (volume > 10.0f) {
-                    n_alSndpPlay(D_8076D1F8, D_80745B28[group].sfxId, (u16)volume, 0x3F, 0.4f, 0, &D_80770DF8[group]);
+                    n_alSndpPlay(D_8076D1F8, D_80745B28[group].sfxId, volume, 0x3F, 0.4f, 0, &D_80770DF8[group]);
                     D_80770EB8[group] = volume + 1.0f;
                     D_80770EF8[group] = 300.0f;
                 }
@@ -755,21 +745,21 @@ void sfxUpdateLevelAmbient(void) {
                 if (D_80770DF8[group] == 0) {
                     sfxId = D_80745B28[group].sfxId;
                     if (sfxId < 0x800) {
-                        n_alSndpPlay(D_8076D1F8, sfxId, (u16)volume, 0x3F, D_80745B28[group].pitch, 0, &D_80770DF8[group]);
+                        n_alSndpPlay(D_8076D1F8, sfxId, volume, 0x3F, D_80745B28[group].pitch, 0, &D_80770DF8[group]);
                     } else {
-                        n_alSndpPlay(D_8076D1FC, sfxId - 0x7FF, (u16)volume, 0x3F, D_80745B28[group].pitch, 0, &D_80770DF8[group]);
+                        n_alSndpPlay(D_8076D1FC, sfxId - 0x7FF, volume, 0x3F, D_80745B28[group].pitch, 0, &D_80770DF8[group]);
                     }
                     D_80770E78[group] = 0.0f;
                     D_80770EF8[group] = 255.0f;
                 }
                 if (D_80770DF8[group] != 0) {
-                    n_alSndpPostEvent(D_80770DF8[group], 8, (s32)volume);
+                    n_alSndpPostEvent(D_80770DF8[group], 8, volume);
                 }
                 if (D_80770DF0 < D_80770DF4) {
                     fxFlags = 0x80;
                 }
                 if (D_80770DF8[group] != 0) {
-                    n_alSndpPostEvent(D_80770DF8[group], 0x100, (s32)fxFlags);
+                    n_alSndpPostEvent(D_80770DF8[group], 0x100, fxFlags);
                 }
             } else if (D_80770DF8[group] != 0) {
                 n_alSndpStop(D_80770DF8[group]);
@@ -813,7 +803,7 @@ void sfxUpdateLevelAmbient(void) {
                         }
                     }
                 }
-                n_alSndpPostEvent(D_80770DF8[group], 4, (s32)angle);
+                n_alSndpPostEvent(D_80770DF8[group], 4, angle);
                 D_80770EF8[group] = angle;
             }
             if (pitch != D_80770E78[group]) {
@@ -832,7 +822,7 @@ void sfxUpdateLevelAmbient(void) {
             n_alSndpPlay(D_8076D1F8, 0x125, 0, 0x3F, 1.0f, 0, &D_807457DC);
         }
         if (D_807457DC != 0) {
-            n_alSndpPostEvent(D_807457DC, 8, (s32)((D_8077058C[0] * 10767.0) / 255.0));
+            n_alSndpPostEvent(D_807457DC, 8, (D_8077058C[0] * 10767.0) / 255.0);
             pitch = 1.0 - ((D_8077058C[2] * 0.5) / 255);
             if (gAmbientIndoors & (D_80770DD4 < 1000.0f)) {
                 angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->camYaw;
@@ -849,8 +839,8 @@ void sfxUpdateLevelAmbient(void) {
                 D_80770DCC = 64.0f;
             }
             n_alSndpPostEvent(D_807457DC, 0x10, *(s32 *)&pitch);  // ORIG: the target passes pitch's raw bits from its home slot (swc1 $f2,0xcc(sp) at 0x23d0, lw a2,0xcc(sp) at 0x24fc)
-            n_alSndpPostEvent(D_807457DC, 0x100, (s32)D_80770DD0);
-            n_alSndpPostEvent(D_807457DC, 4, (s32)D_80770DCC);
+            n_alSndpPostEvent(D_807457DC, 0x100, D_80770DD0);
+            n_alSndpPostEvent(D_807457DC, 4, D_80770DCC);
         }
     } else if (D_807457DC != 0) {
         n_alSndpStop(D_807457DC);
