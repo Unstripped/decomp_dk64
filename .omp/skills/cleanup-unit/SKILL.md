@@ -109,7 +109,8 @@ As each worker reports:
    local's or pads' slot, declaration order chosen for the frame (9BF30), a subject-first symmetric `==` of two fields in fresh
    view-retype code (F0D0), bare truth tests, a flag's natural unsigned type, a mask written at its field's width. Steers: a trailing/
    `else` continue, an empty `default:`, a dead clamp keeper, a constant-valued local (any name), a redundant alias (a second copy of
-   a value already in a local: a swap needing one is rejected), a value cast chosen for codegen, an operand-order/width/view respelling.
+   a value already in a local: a swap needing one is rejected), a value cast chosen for codegen, an operand-order/width/view respelling,
+   a single-use local whose only effect is a frame word (copy-propagated, `{ s32 _g; }` there matches too: a pad, 36880 1a2082).
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
    the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
@@ -125,7 +126,8 @@ Wrap-up (user asks to stop): no new dispatch; merge reports as they land; while 
 the knowledge queue and fold lessons into the skill (no src/include); then steps 1-5 once every worker is idle. Within a
 session, a consolidation in a quiet window runs steps 1-3 only. Once every worker is idle:
 1. Names ([naming.md](naming.md)): `rename.py func|global|field` (dry-run first). It refuses macro references, address-shaped
-   targets (`func_807444E0` data → `D_`) and names in scope (`include/PR/ucode.h` rsp/asp symbols: hold for a types item): apply
+   targets (`func_807444E0` data → `D_`) and names in scope (`include/PR/ucode.h` rsp/asp symbols: hold for a types item), also a
+   mention in a macro-line comment and the new name in any comment: reword those first, rename, restore (42630 gCsCountdown); apply
    those positions by hand; a hand-renamed global with no symbol_addrs line needs one (C-defined too) or `carry` cannot map it.
    Field renames are never carried: re-read and record a lead `review` for each touched function. Split labels: `rename.py fold
    --held`. Then `make split`, touch src, `make`, `make expected`, `unit_check.py vanished`, ONE gate staging headers/symbol files.

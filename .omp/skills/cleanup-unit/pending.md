@@ -92,7 +92,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   register-reuse steers (65898b 38b069 df709b 6151e7 32c920) EXHAUSTED with frame/colouring evidence (Q1199, Q1200).
 - Names held: D_80753354 (s16 per-kong turn rate used by CC800/E4090; `gKongTurnRate` is CEAE0's other table: pick a use-based
   name), PlayerState.unkC2, ActorGlobalState 9DD70-only fields (one file read), arcade/0 D_8004BC80/84 (file-local),
-  D_8004A794 (fold-away option), 124780 effect sprite symbol_addrs (needs split), D_807505A4 split into two s16[5]
+  124780 effect sprite symbol_addrs (needs split), D_807505A4 split into two s16[5]
   (touches undefined_syms, 478F0/FCCD0). `.scratch/lead_s1115/names.md` keeps the evidence.
 
 ## Session 2026-11-15c close leftovers (CleanupLead3)
@@ -137,14 +137,13 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   (Polishglobal100180).
 - ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
 
-## Session 2026-11-17d close leftovers (CleanupLead9; supersedes the 2026-11-17c list)
-- `rank`: every row EXHAUSTED at strength 2 (189 hack functions, 330 sites); `rank --polish` empty; reviewed 4,270/4,270. The
-  7 new entries Q1196-Q1202 name csCmdExec, hudPauseMenuUpdate, vsprintf under their own units (2 re-keyed rungs re-recorded, d5dbec93). Per §7 the
-  next step is 3+ strength-3 (:xhigh/:max) attempts per `rank` row, or the user's call; 12 of 189 have 3+ strong attempts.
+## Session 2026-11-17e close leftovers (CleanupLead3; supersedes the 2026-11-17d list)
+- `rank`: 182 hack functions (304 sites), 14 with 3+ strength-3 attempts; the 48 entries Q1203-Q1250 staled 15 sites / 6 reviews
+  (next=review/diagnose: hudPauseMenuRender, camComputeEyeFocus, csCmdExec, arcadeDrawHud/Stage3Background, 1A60, 90D80). Two
+  prepared briefs not dispatched: `.scratch/briefs/HackactorTriggerPlayerKnockbackSound2.md`, `HackkongChainInit3.md` (re-snapshot).
+- Polish: 103AB0 playerViewDrawScopeCrosshair `(u16)targetKind` redundant under the ANSI u16 prototype (dd98f7bb).
 - Types items: shared `extern KongInventory *gCurrentKongInventory;` in actor.h for 7 per-file externs (103AB0 19A00 42630 7CA80 D5E10 E4090 EFDC0; measure the stale cost first); CsState/CsStateFull merge (above; 138 478F0 handlers); `gCsCondFlag` s8 (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split.
 - HELD names: RaceParticipant.unk35 phase; PlayerStruct.rect[4] scissor fields; ModelSlot.unk8C stateFlags; PlayerState.unk50 gravityDelayFrames (D5E10 use first);
   BehaviourWorkState.unk2E sfxCooldown (dry-run touches 11 unread files); race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed); gMinigameCoinCount (above).
 
-## OPEN functions
-
-The per-file list is `uv run tools/quality.py rank` (full) or `status --file <f>`; the round-34 close snapshot is `.scratch/r34_post_knowledge.txt`.
+## OPEN functions: `uv run tools/quality.py rank` (full) or `status --file <f>`; round-34 snapshot `.scratch/r34_post_knowledge.txt`.

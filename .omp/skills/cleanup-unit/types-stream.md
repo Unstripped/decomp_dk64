@@ -79,6 +79,9 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
 - A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a copy retyping a shared global's
   extern: fix every other file's extern in the SAME gate (objdiff each; a file whose cfe would rise or that no
   longer compiles keeps its type and goes to pending.md).
+- A signature or shared-extern change stales the review of every reached user outside the worker's functions (not carried:
+  callee definition, callers, other extern users): the lead re-reads each and records `review nohit` (agent = lead, the worker's
+  unit, `--base` the merge) with what changed; a cast the new prototype makes redundant is noted as polish (00a87382, c2be8b3c).
 - Data to C: merge_drafts refuses dropped `#pragma GLOBAL_ASM` data labels (lost-symbol guard): cp the copy
   over src, `merge_gate.sh --commit - -` (snapshot), steps 3-10 by hand. A yaml carve (`--stage dk64.*.yaml`)
   re-splits only the gate tree: merge_record then fails at `make expected`; once `tools/dk --status` shows
