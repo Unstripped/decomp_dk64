@@ -74,40 +74,36 @@ unsigned char cullSwap;
 }
 
 void gfxSwapGeometryModeCullBits(Gfx *cmdStart, void *cmdEnd) {
-    u32 command;
-    s32 op;
-    u32 w0;
-    u32 w1;
+    s32 command;
+    s32 w0;
+    s32 w1;
+    s32 clear;
+    s32 swapped;
 
-    if (cmdStart != cmdEnd) {
-        do {
-            op = 0xD9; // FAKE: op holds the opcode constant before it is reused as the clear copy: first register candidate ($v0) and the bne v0,t1 order at 0x260
-            w0 = cmdStart->words.w0;
-            command = w0 >> 24;
-            w1 = cmdStart->words.w1;
-            if (command == op) {
-                if (w1 == 0) {
-                    w0 = ~w0 & 0xFFFFFF;
-                    op = w0;
-                    if ((w0 & 0x600) == 0x200) {
-                        op |= 0x400;
-                        op &= ~0x200;
-                        cmdStart->words.w0 = ~op | 0xD9000000;
-                    } else if ((w0 & 0x600) == 0x400) {
-                        op |= 0x200;
-                        op &= ~0x400;
-                        cmdStart->words.w0 = ~op | 0xD9000000;
-                    }
-                } else if ((w1 & 0x600) == 0x200) {
-                    cmdStart->words.w1 |= 0x400;
-                    cmdStart->words.w1 &= ~0x200;
-                } else if ((w1 & 0x600) == 0x400) {
-                    cmdStart->words.w1 |= 0x200;
-                    cmdStart->words.w1 &= ~0x400;
+    for (; cmdStart != cmdEnd; cmdStart++) {
+        command = cmdStart->words.w0 >> 24;
+        w0 = cmdStart->words.w0;
+        w1 = cmdStart->words.w1;
+        if (command == 0xD9) {
+            if (w1 == 0) {
+                clear = swapped = ~w0 & 0xFFFFFF; // FAKE: redundant copy, the tests read clear while the arms modify swapped; colours swapped $v0 before clear $v1 and keeps the loop scalar
+                if ((clear & 0x600) == 0x200) {
+                    swapped |= 0x400;
+                    swapped &= ~0x200;
+                    cmdStart->words.w0 = ~swapped | 0xD9000000;
+                } else if ((clear & 0x600) == 0x400) {
+                    swapped |= 0x200;
+                    swapped &= ~0x400;
+                    cmdStart->words.w0 = ~swapped | 0xD9000000;
                 }
+            } else if ((w1 & 0x600) == 0x200) {
+                cmdStart->words.w1 |= 0x400;
+                cmdStart->words.w1 &= ~0x200;
+            } else if ((w1 & 0x600) == 0x400) {
+                cmdStart->words.w1 |= 0x200;
+                cmdStart->words.w1 &= ~0x400;
             }
-            if (command && command) {} // FAKE: keeps command live across the loop ($a2); without it uopt also unrolls the loop
-        } while (++cmdStart != cmdEnd);
+        }
     }
 }
 
