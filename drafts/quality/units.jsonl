@@ -1074,3 +1074,4 @@
 {"type": "unit", "t": "2026-11-18T08:15:19Z", "unit": "2026-11-17: cleanup CleaneffectSpriteRenderPool", "commit": "3462da3401597b0fb3b0b4d1b3c0863aa3d5cfcf"}
 {"type": "unit", "t": "2026-11-18T08:21:32Z", "unit": "2026-11-17: cleanup CleangfxDrawMapBackground", "commit": "a9800a8796f8546430e61929ef22792a77f137fa"}
 {"type": "unit", "t": "2026-11-18T08:23:20Z", "unit": "2026-11-17: cleanup CleanpathPlaybackAdvance", "commit": "1d46de5bb1b4aee4735421cb15730dfddbcb8102"}
+{"type": "unit", "t": "2026-11-18T08:33:52Z", "unit": "2026-11-17: cleanup CleansfxStartAreaAmbient", "commit": "758923156cb20e48d5a5c1f4951fca433a7b5f8d"}
