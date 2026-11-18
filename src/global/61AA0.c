@@ -429,43 +429,42 @@ void *matrixCacheLookup(s32 lightCount, s32 chunkIndex, s16 cellId, u8 subType) 
     s32 i;
     s32 j;
     u8 mismatch;
-    LightTrigger *cached;
     LightTrigger *cand;
+    LightTrigger *lights;
 
     D_807F9058++;
     node = gMatrixCacheBuckets[matrixCacheHash(lightCount, cellId, subType)];
     while (node != NULL) {
         if (lightCount == node->lightCount && cellId == node->cellId && node->subType == subType) {
             if (node->lightR == gChunkLightR[chunkIndex] && node->lightG == gChunkLightG[chunkIndex] && node->lightB == gChunkLightB[chunkIndex]) {
+                lights = node->lights;
                 i = 0;
                 mismatch = 0;
                 for (; !mismatch && i < lightCount; i++) {
                     mismatch = 1;
                     for (j = 0; mismatch && j < lightCount; j++) {
                         cand = &gLightCandidates[j];
-                        cached = &node->lights[i];
                         if (cand->type == 1) {
-                            if (cached->x == cand->x && cached->y == cand->y && cached->z == cand->z &&
-                                DIFF(cand->dirX, cached->dirX) < 0.05 &&
-                                DIFF(cand->dirY, cached->dirY) < 0.05 &&
-                                DIFF(cand->dirZ, cached->dirZ) < 0.05 &&
-                                DIFF(cand->r, cached->r) < 0.05 &&
-                                DIFF(cand->g, cached->g) < 0.05 &&
-                                DIFF(cand->b, cached->b) < 0.05 &&
-                                cached->cosOuter == cand->cosOuter && cached->cosInner == cand->cosInner) {
+                            if (lights[i].x == cand->x && lights[i].y == cand->y && lights[i].z == cand->z &&
+                                DIFF(cand->dirX, lights[i].dirX) < 0.05 &&
+                                DIFF(cand->dirY, lights[i].dirY) < 0.05 &&
+                                DIFF(cand->dirZ, lights[i].dirZ) < 0.05 &&
+                                DIFF(cand->r, lights[i].r) < 0.05 &&
+                                DIFF(cand->g, lights[i].g) < 0.05 &&
+                                DIFF(cand->b, lights[i].b) < 0.05 &&
+                                lights[i].cosOuter == cand->cosOuter && lights[i].cosInner == cand->cosInner) {
                                 mismatch = 0;
                             }
-                        } else if (cached->x == cand->x && cached->y == cand->y && cached->z == cand->z &&
-                                   DIFF(cand->r, cached->r) < 0.05 &&
-                                   DIFF(cand->g, cached->g) < 0.05 &&
-                                   DIFF(cand->b, cached->b) < 0.05 &&
-                                   cached->invFalloffLength == cand->invFalloffLength) {
+                        } else if (lights[i].x == cand->x && lights[i].y == cand->y && lights[i].z == cand->z &&
+                                   DIFF(cand->r, lights[i].r) < 0.05 &&
+                                   DIFF(cand->g, lights[i].g) < 0.05 &&
+                                   DIFF(cand->b, lights[i].b) < 0.05 &&
+                                   lights[i].invFalloffLength == cand->invFalloffLength) {
                             mismatch = 0;
                         }
                     }
                 }
                 if (!mismatch) {
-                    LightTrigger *lights = node->lights;
                     node->lastUsedFrame = gFrameCounter;
                     D_807F905A++;
                     if (node->listPrev != NULL) {
@@ -481,7 +480,6 @@ void *matrixCacheLookup(s32 lightCount, s32 chunkIndex, s16 cellId, u8 subType) 
                         node->listNext = gMatrixCacheHead;
                         gMatrixCacheHead = node;
                     }
-                    node = NULL; // FAKE: redefining node stops uopt forwarding node->lights into the return, keeping it in a0
                     return &lights[lightCount];
                 }
             }
