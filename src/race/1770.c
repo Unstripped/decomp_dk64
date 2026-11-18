@@ -199,7 +199,7 @@ extern void *D_8002FBB0[4];
 extern u8 gLightSlotNext;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     s16 angle;
-    s32 pad;
+    f32 dist;
     f32 offsetDist;
     f32 dz;
     f32 dx;
@@ -207,7 +207,8 @@ void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     angle = mathAngleBetweenPointsRad(tgt[0], tgt[2], pos[0], pos[2]) * 2048.0 / 3.1415927f;
     dz = pos[2] - tgt[2];
     dx = pos[0] - tgt[0];
-    offsetDist = sqrtf((dz * dz) + (dx * dx)) * (*(f32 *)&gCurrentActor->speedXZ * 0.03); // FAKE: punned re-read of the f32 speedXZ; the plain field changes the load scheduling
+    dist = sqrtf((dz * dz) + (dx * dx));
+    offsetDist = gCurrentActor->speedXZ * 0.03 * dist;
     gCurrentActor->x = pos[0] + (mathSinF(angle) * offsetDist);
     gCurrentActor->z = pos[2] + (mathCosF(angle) * offsetDist);
     gCurrentActor->y = gCurrentActor->y + (tgt[1] - gCurrentActor->y) * 0.8;
