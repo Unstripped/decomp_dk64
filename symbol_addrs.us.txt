@@ -4170,6 +4170,7 @@ sMapOffsetSlotCount = 0x807F5FBC;
 sMapOffsetSlotsMoving = 0x807F5FC0;
 gMinecartTrackPoints = 0x807F5FD4;
 gModelSlotNextId = 0x807F6004;
+gCsCountdown = 0x807F61F0;
 gCsCondFlag = 0x807F6903;
 gCsFlagBits = 0x807F693E;
 gMtxCopyQueue = 0x807F6960;

@@ -4,7 +4,7 @@
 #include "cutscene.h"
 #include "sched.h"
 #include "model.h"
-#define PROTO_SKIP_hudSpawnCountdownTimer // ORIG: hides the 3-parameter prototype; the target passes a fourth argument (a3 = &D_807F61F0 at 0x2600/0x2604 into jal 0x261c), see the declaration in front of csCmdExec
+#define PROTO_SKIP_hudSpawnCountdownTimer // ORIG: hides the 3-parameter prototype; the target passes a fourth argument (a3 = &gCsCountdown at 0x2600/0x2604 into jal 0x261c), see the declaration in front of csCmdExec
 #define PROTO_SKIP_modelAnimEntrySetUnkC // ORIG: hides the (s16, s16, s16) prototype; the target passes h without call-site narrowing into jal 0x29e0, see the declaration in front of csCmdExec
 #define PROTO_SKIP_effectSetDepth // ORIG: hides the u8 prototype; the target loads li a0,1 at 0x51cc, see the s8 declaration below
 #include "proto/global/10130.h"
@@ -65,7 +65,7 @@ typedef struct CsSpawnReq {
 
 // .bss 0x807F61B0-0x807F6940
 CsTimer gCsTimerQueue[8];
-CsSpawnReq D_807F61F0;
+CsSpawnReq gCsCountdown;
 f32 D_807F61FC;
 f32 D_807F6200;
 f32 D_807F6204;
@@ -151,7 +151,7 @@ void csModelStateSetByte(s16 modelIndex, s16 val, s16 byteOffset) {
 
 
 extern CsTimer gCsTimerQueue[8];
-extern struct CsSpawnReq D_807F61F0;
+extern struct CsSpawnReq gCsCountdown;
 
 void csTimerQueueClear(void) {
     s32 i;
@@ -261,9 +261,9 @@ void csScriptLoad(s16 *scriptData) {
     D_807F6902 = 0;
     gCsCondFlag = 0;
     D_807F693C = 0;
-    D_807F61F0.timerActor = NULL;
-    D_807F61F0.hostActor = NULL;
-    D_807F61F0.active = 0;
+    gCsCountdown.timerActor = NULL;
+    gCsCountdown.hostActor = NULL;
+    gCsCountdown.active = 0;
 }
 
 
@@ -1001,8 +1001,8 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = listContainsS16(cond->arg[0]);
         break;
     case 0x2A:
-        if (D_807F61F0.active != 0) {
-            if (D_807F61F0.timerActor->state == 5) {
+        if (gCsCountdown.active != 0) {
+            if (gCsCountdown.timerActor->state == 5) {
                 ret = 1;
             } else {
                 ret = 0;
@@ -1012,7 +1012,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x2B:
-        ret = D_807F61F0.active;
+        ret = gCsCountdown.active;
         break;
     case 0x33:
         animProgress = actorGetAnimProgress(gPrimaryPlayerActor);
@@ -1043,7 +1043,7 @@ extern s16 D_8074809C[];
 extern s16 D_807480AC[];
 extern s16 D_807480BC[];
 extern s32 gCurrentMap;
-extern CsSpawnReq D_807F61F0;
+extern CsSpawnReq gCsCountdown;
 extern s16 gCsTrackedModels[16];
 extern u8 gCsTrackedModelCount;
 extern s16 D_807F693A;
@@ -1051,7 +1051,7 @@ extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern u32 gGlobalCutsceneFlags;
 
-void hudSpawnCountdownTimer(s32, s32, u8, void *); // ORIG: a3 = &D_807F61F0 loaded at 0x2600/0x2604 and live into jal 0x261c (a 3-argument call puts the address in t0 instead); owner A7710 homes only a0-a2 (0x8-0x10) and never reads a3
+void hudSpawnCountdownTimer(s32, s32, u8, void *); // ORIG: a3 = &gCsCountdown loaded at 0x2600/0x2604 and live into jal 0x261c (a 3-argument call puts the address in t0 instead); owner A7710 homes only a0-a2 (0x8-0x10) and never reads a3
 void modelAnimEntrySetUnkC(); // ORIG: case 0x4C passes h in a2 as computed (sll/sra at 0x29cc/0x29d0) into jal 0x29e0; the shared (s16, s16, s16) prototype re-narrows a2 before the call; owner 54150 narrows a0 itself (sll/sra at 0x15c0) and an s32 owner does not fdiff
 
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
@@ -1210,28 +1210,28 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         flagSet(cmd->a, cmd->b, 1);
         break;
     case 0x66:
-        if (D_807F61F0.active == 0) {
+        if (gCsCountdown.active == 0) {
             actorSpawn(0xB1, 0);
             actor = gCurrentActor;
-            D_807F61F0.hostActor = gSpawnedActor;
+            gCsCountdown.hostActor = gSpawnedActor;
             gCurrentActor = gSpawnedActor;
-            hudSpawnCountdownTimer(0xDC, 0x2A, cmd->a, &D_807F61F0);
-            D_807F61F0.timerActor = gSpawnedActor;
-            D_807F61F0.active = 1;
+            hudSpawnCountdownTimer(0xDC, 0x2A, cmd->a, &gCsCountdown);
+            gCsCountdown.timerActor = gSpawnedActor;
+            gCsCountdown.active = 1;
             gCurrentActor = actor;
         }
         break;
     case 0x67:
-        if (D_807F61F0.active != 0) {
-            hudCountdownTimerStart(D_807F61F0.timerActor);
+        if (gCsCountdown.active != 0) {
+            hudCountdownTimerStart(gCsCountdown.timerActor);
         }
         break;
     case 0x68:
-        if (D_807F61F0.active != 0) {
-            actorDespawn(D_807F61F0.timerActor);
-            bit = (s32)D_807F61F0.hostActor; if (bit) {} // FAKE: live range of bit (a3) splits the &D_807F61F0 piece (v0)
-            actorDespawn(D_807F61F0.hostActor);
-            D_807F61F0.active = 0;
+        if (gCsCountdown.active != 0) {
+            actorDespawn(gCsCountdown.timerActor);
+            bit = (s32)gCsCountdown.hostActor; if (bit) {} // FAKE: live range of bit (a3) splits the &gCsCountdown piece (v0)
+            actorDespawn(gCsCountdown.hostActor);
+            gCsCountdown.active = 0;
         }
         break;
     case 0x62:
