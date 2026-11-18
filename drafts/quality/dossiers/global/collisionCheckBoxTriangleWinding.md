@@ -4,6 +4,7 @@ global:8066AC10:other:27898a `f32 cross[1];`: the one-element array keeps the cr
 ## Attempts
 2026-11-16 Polishglobal6AD90 opus:high: CrossProductStack struct retired into plain arrays; one-element cross tagged.
 2026-11-16 HackcollisionCheckBoxTriangleContainsPointXZ opus:high: `f32 cross[3]` written to cross[1] (the y normal component, as collisionStoreBoxTriangleNormalAngles) 1 line (store at 0(sp)); the other 5 declaration orders 9-11; cross[3] index 0 10; scalar 16; inline test 19; `f32 cross[2]` index 1 fdiff 0 but is the same memory-only aggregate.
+2026-11-17 HackcollisionTestStaticMeshFloor3 opus: two-component XZ edge arrays plus a three-component cross[1] scores 9, with frame 0x18 vs 0x20 and cross store sp+0 vs sp+4 at 0x4bf0; best declaration swap scores 7.
 ## Untried ideas
 none: with v1[0] at 0x14 and v0[0] at 0x8 fixed, the aggregate must start at 0(sp) and span at most 8 bytes.
 ## Evidence

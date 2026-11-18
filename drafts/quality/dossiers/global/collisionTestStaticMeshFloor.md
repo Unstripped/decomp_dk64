@@ -2,7 +2,7 @@
 ## Sites
 global:806679BC:other:3172c6 `h2 = (f64)(M * 6.0f);` before `h2 = <formula> + h2;`: REMOVED (2026-11-14). It only made the offset a named leaf so the add keeps the formula first (add.d f24,f20,f6 at 0x1e34).
 global:806679BC:other:4d0a2d (was af4d3a; pre-existing, now tagged) `h2 = <full height formula> + offset;`: recomputes the formula instead of reusing val, so the formula is a CSE expression candidate (f20) separate from h2 (f24) and add.d f24,f20,f6 at 0x1e34 keeps it first; `(2000.0 * val) - 1000.0 + offset` or `h2 += offset` changes 86-337 lines.
-global:806679BC:other:356775 `struct { u8 pad[3]; u8 cb; f32 cc; } spS;`: makes the address-taken &spS.cc alias cb (uopt drops cb's vreg flag), so the call kills it and the final `cb |= collisionTestHardcodedFloorPlane(&spS.cc, ...)` reloads lbu t5,203(sp) after the call.
+global:806679BC:other:356775 REMOVED: separate `f32 floorY; u8 hit;` and a bare `if (hit)` produce the target byte homes and reload, without an address-taken aggregate.
 ## Attempts
 2026-11-09 CleanD5E10 opus:low: separate locals (frame 0x158 vs 0x150), h2 += M*6, f32/f64 offset locals, reversed operands, permute.
 2026-11-10 QualityTools: review. 2026-11-11 Rev16G / Rev17L: sweep, diagnose (single expression swaps add.d), permute.
@@ -16,8 +16,9 @@ global:806679BC:other:356775 `struct { u8 pad[3]; u8 cb; f32 cc; } spS;`: makes 
 2026-11-16 HackcollisionCheckBoxTriangleContainsPointXZ opus:high:
 - 356775: `f32 floorY; u8 hit[1];` reproduces every hit access as memory (sb/lbu at 0x19ac/0x1c58/0x20c0/0x23a8/0x2440/0x2448/0x2450/0x2458) but the array is word-aligned: byte 0xc8 vs the scalar's 0xcb (8 lines, Q1044); `u8 hit[1]` declared before floorY 16. Q0174's unassigned-path residency does not apply (sb zero,203(sp) at 0x19ac initialises hit on every path). The target keeps hit memory-resident at every access, so a byte at +3 of a word that is not a register candidate is needed: only an aggregate member gives both.
 - 4d0a2d: the formula-twice 1-line miss is the mul.d operand order at 0x1e10: f28 is the hoisted 2000.0, and only a leaf `val` keeps the constant first. Sibling-style two-step val (`val = E / (ny * 2000.0); val = 0.0 - val;`, as collisionTriangleHeightAtXZ) is 0 with the recompute and 337 with a val-based branch. A floorH hosted in the existing f64 padD slot (frame-neutral) is 317: it takes callee-saved f28 (sdc1 f28,0x40(sp)), frame 0x160, x spilled to 0x164(sp).
+2026-11-17 HackcollisionTestStaticMeshFloor3 opus: `f32 floorY; u8 hit;` with bare `if (hit)` scores 0 and whole-file fdiff 0 (Q1066/Q1116); the `!= 0` version scores 24. Previous hypothesis that only aggregate storage matches is refuted. With this fix, h2 += offset scores 86, val-based formula 337 and if/else branch 272; f20 must remain separate from f24 across 0x1e20.
 ## Untried ideas
-A real reason for cb to be aliased by the call (no callee writes it; collisionTestHardcodedFloorPlane only reads *arg0; a natural byte at +3 of a non-candidate word). A natural reason for the height formula to be computed twice that also keeps 2000.0 as the left operand of the first product (a leaf val does; the formula twice with no val is 1 line off).
+A natural reason for the height formula to be computed twice that also keeps 2000.0 as the left operand of the first product (a leaf val does; the formula twice with no val is 1 line off).
 ## Evidence
 Target: sb zero,203(sp) / swc1 f4,204(sp) at 0x19ac/0x19b0; addiu a0,sp,204 at 0x1acc/0x1b70/0x242c; final lbu t5,203(sp) at 0x2440 after jal at 0x2438; add.d f24,f20,f6 at 0x1e34.
 Target: post-loop test lbu t5,203(sp) at 0x23a8 (and 0x1c58 in the beql delay slot); sub.d f20 (formula) at 0x1e14 then mov.d f24,f20 (h2) in the beqz delay slot at 0x1e1c, both live across jal mapOffsetSlotGetValue at 0x1e20.
