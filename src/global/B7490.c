@@ -528,7 +528,6 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
     FlyPatrolComponent *patrol;
     s16 targetX;
     s16 targetZ;
-    s32 st;
 
     patrol = B7490A->typeState;
     if ((sfxId != 0) && (gCurrentActor->state != 0x37) && (gCurrentActor->soundSlots[0] == -1)) {
@@ -540,27 +539,25 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
             gBehaviourExtraState->unkB = 0x28;
         }
     }
-    st = gCurrentActor->state;
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (st != 0x37)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, animId1);
         gCurrentActor->speedY = 300.0f;
         patrol->hoverHeight = 0;
         gBehaviourWorkState->timer = 0x2BC;
-        st = gCurrentActor->state;
     }
     targetX = gBehaviourWorkState->targetX;
     targetZ = gBehaviourWorkState->targetZ;
-    switch (st) {
+    switch (gCurrentActor->state) {
         case 1:
         case 0x10:
         case 0x23:
-            targetX = (s16) gBehaviourTargetActor->x;
-            targetZ = (s16) gBehaviourTargetActor->z;
+            targetX = gBehaviourTargetActor->x;
+            targetZ = gBehaviourTargetActor->z;
         case 2:
         case 3:
         case 7:
         case 0x35:
-            if (gCurrentActor->y < (f32) (gBehaviourExtraState->y + patrol->hoverHeight)) {
+            if (gCurrentActor->y < gBehaviourExtraState->y + patrol->hoverHeight) {
                 gCurrentActor->y += gBehaviourExtraState->unkB * 0.03125;
             } else if (camIsCutsceneActive() == 0 && callback != NULL) {
                 callback();
@@ -571,10 +568,10 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
         case 0x26:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    gBehaviourWorkState->targetX = (s16) gBehaviourTargetActor->x;
-                    gBehaviourWorkState->targetY = (s16) gBehaviourTargetActor->y;
-                    gBehaviourWorkState->targetZ = (s16) gBehaviourTargetActor->z;
-                    gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                    gBehaviourWorkState->targetX = gBehaviourTargetActor->x;
+                    gBehaviourWorkState->targetY = gBehaviourTargetActor->y;
+                    gBehaviourWorkState->targetZ = gBehaviourTargetActor->z;
+                    gCurrentActor->unk155++;
                     gBehaviourWorkState->timer = 0x64;
                 case 1:
                     if ((actorFlyTowardPosition(gBehaviourWorkState, 0x23) & 1) || (gCurrentActor->y < gBehaviourWorkState->targetY + 0xF)) {
@@ -585,7 +582,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
             }
             break;
         case 0x37:
-            gCurrentActor->yaw = gCurrentActor->yaw + gBehaviourWorkState->timer;
+            gCurrentActor->yaw += gBehaviourWorkState->timer;
             gBehaviourWorkState->timer = ((gBehaviourWorkState->timer - 0x11) < 0) ? 0 : (gBehaviourWorkState->timer - 0x11);
             if (gBehaviourWorkState->timer == 0) {
                 sfxStopSlotSound(gCurrentActor, 0);
@@ -601,7 +598,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
                         break;
                     }
                     gCurrentActor->speedY = 50.0f;
-                    gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                    gCurrentActor->unk155++;
                 case 2:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x222, 0.0f);
                     break;
@@ -619,8 +616,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
             behaviourUpdateContactAndState(animId2);
             break;
     }
-    st = gCurrentActor->state;
-    switch (st) {
+    switch (gCurrentActor->state) {
         case 0x37:
         case 0x40:
             break;
@@ -630,8 +626,6 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
             break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (!gCurrentActor->state) { // FAKE: dead use keeps &gCurrentActor live across the calls, so uopt rematerialises lui/lw s0 instead of caching the address in t0
-    }
 }
 
 void behaviourFlyPatrolState(void) {
