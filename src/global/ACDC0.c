@@ -611,7 +611,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 if ((it->entries + j)->style == 2) {
                     fa += hud->carouselProgress;
                 }
-                off = (it->entries + j)->x; // FAKE: (it->entries + j)->f member-access spelling (all 8 reads in this loop) gives base-first addu v0,s2,t7 at 0x12f8; it->entries[j] gives offset-first (272) (Q0816)
+                off = (it->entries + j)->x; // FAKE: (it->entries + j)->f member-access spelling (all 8 reads in this loop) keeps mul.s $f8,$f0,$f6 at 0x131c and lh t6,12(v0) at 0x132c; it->entries[j] flips the mul.s operands and rotates the loop-1 ring (272) (Q0816)
                 y = (it->entries + j)->y;
                 off = (u16)(off * 4) + (s16)(s64)(s32)(fa * (it->entries + j)->flyX); // FAKE: narrow through a 64-bit pair to preserve the ugen scratch-register order.
                 y *= 4;
@@ -811,7 +811,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             break;
     }
     gSPEndDisplayList(dl);
-    if (sPauseKongUnlocked == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (sPauseKongUnlocked == 0) {}  // FAKE: block split at the function end (if (1) {} matches): uopt colours the case-2 gPlayerInventoryTable address in $t2 (lui t2 at 0x1408); without it $t1, and $t2 joins the loop-1 ugen ring (347)
     return ret;
 }
 
@@ -823,7 +823,7 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     u8 buf1[8];
     u8 buf2[8];
 
-    mtx = heapAlloc(0x40);
+    mtx = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(mtx);
     if (n1 >= 0x64) {
         w = 0x7C;
@@ -844,7 +844,7 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     _sprintf(buf2, "%d", n2);
     dl = textDrawStringVtx(textDrawStringVtx(dl, 1, 0, -0x28, buf1, 0x80), 1, w, 0x28, buf2, 0);
     gSPPopMatrix(dl++, G_MTX_MODELVIEW);
-    dl->words.w0 = 0xE7000000; // FAKE: raw PipeSync words with a separate dl++ (gDPPipeSync(dl++) mismatches)
+    dl->words.w0 = 0xE7000000; // FAKE: raw PipeSync words with a separate dl++: gDPPipeSync(dl++) adds a third _g block word and moves the x/y float spills 0x48/0x44 -> 0x44/0x40 (Q0663)
     dl->words.w1 = 0;
     dl++;
     return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, x + (w - 0x10) * scale, y + 45.0f * scale, scale * 3.125, scale * 3.125, 0, 0.0f);

@@ -196,7 +196,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, u32 siz, u8 width, u8 h
         tileSize = (bpp < 0x20) ? 0x20 : 0x1E;
         gfxDrawTexturedTileGridSimple(&glist, tex, fmt, width, height, tileSize, tileSize, 0.0f, 0.0f,
                       width, height,
-                      (f32)(x - (width >> 1)), (f32)(y - (height >> 1)),
+                      x - (width >> 1), y - (height >> 1),
                       1, bpp);
     } else {
         mtx1 = heapAlloc(sizeof(Mtx));
@@ -217,7 +217,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, u32 siz, u8 width, u8 h
         }
 
         guScaleF(scaleMtx, (scaleX > 0.0f) ? scaleX : -scaleX, (scaleY > 0.0f) ? scaleY : -scaleY, 0.0f);
-        matrixMakeRotationZ(tempMtx, (f32)(s16)angle);
+        matrixMakeRotationZ(tempMtx, (s16)angle);
         guMtxCatF(scaleMtx, tempMtx, scaleMtx);
         guTranslateF(tempMtx, x, y, 0.0f);
         guMtxCatF(scaleMtx, tempMtx, scaleMtx);
@@ -232,14 +232,14 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, u32 siz, u8 width, u8 h
             halfW = width >> 1;
             halfH = height >> 1;
 
-            vtxSetPosTex(vtx++, -halfW, halfH, 0.0f - scaledW, (f32)(height - 1) + scaledH, 6);
-            vtxSetPosTex(vtx++, halfW, halfH, (f32)(width - 1) + scaledW, (f32)(height - 1) + scaledH, 6);
-            vtxSetPosTex(vtx++, halfW, -halfH, (f32)(width - 1) + scaledW, 0.0f - scaledH, 6);
+            vtxSetPosTex(vtx++, -halfW, halfH, 0.0f - scaledW, (height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, halfW, halfH, (width - 1) + scaledW, (height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, halfW, -halfH, (width - 1) + scaledW, 0.0f - scaledH, 6);
             vtxSetPosTex(vtx++, -halfW, -halfH, 0.0f - scaledW, 0.0f - scaledH, 6);
         } else {
-            vtxSetPosTex(vtx++, -(width >> 1), 0, 0.0f - scaledW, (f32)(height - 1) + scaledH, 6);
-            vtxSetPosTex(vtx++, width >> 1, 0, (f32)(width - 1) + scaledW, (f32)(height - 1) + scaledH, 6);
-            vtxSetPosTex(vtx++, width >> 1, -height, (f32)(width - 1) + scaledW, 0.0f - scaledH, 6);
+            vtxSetPosTex(vtx++, -(width >> 1), 0, 0.0f - scaledW, (height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, width >> 1, 0, (width - 1) + scaledW, (height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, width >> 1, -height, (width - 1) + scaledW, 0.0f - scaledH, 6);
             vtxSetPosTex(vtx++, -(width >> 1), -height, 0.0f - scaledW, 0.0f - scaledH, 6);
         }
 
