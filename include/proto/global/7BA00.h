@@ -4,6 +4,6 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_actorTriggerPlayerKnockbackSound
-void actorTriggerPlayerKnockbackSound(Actor *, Actor *, s32, s32);
+void actorTriggerPlayerKnockbackSound(Actor *, Actor *, u8, u8);
 #endif
 #endif

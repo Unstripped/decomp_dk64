@@ -8,18 +8,18 @@
 extern PlayerStruct *gPlayerSlots;
 extern Actor *gPrimaryPlayerActor;
 
-void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused2, s32 unused3) {
-    u8 kong;
+void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, u8 phase, u8 event) {
+    u8 playerIndex;
     PlayerState* ps;
 
     if (target == gPrimaryPlayerActor) {
         ps = target->customState;
-        kong = ps->playerIndex;
+        playerIndex = ps->playerIndex;
         ps->stateFlags |= 0x80000;
         if (ps->surfaceTimer == (ps->playerIndex * 0)) { // FAKE: 2nd use makes the 0x1A4 load a web, attacker gets no reg and stays in 0x38(sp)
             if (gPrimaryPlayerActor->state != 0x36) {
                 if (playerCanTakeHit(gPrimaryPlayerActor)) {
-                    if (gPrimaryPlayerActor->actorType == 6 && gPlayerSlots[kong].unk2C0 == 2) {
+                    if (gPrimaryPlayerActor->actorType == 6 && gPlayerSlots[playerIndex].unk2C0 == 2) {
                         if (gPrimaryPlayerActor->state != 0x31) {
                             if (attacker->collisionFlags & 0x80) {
                                 sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
