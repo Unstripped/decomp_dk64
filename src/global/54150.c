@@ -192,16 +192,13 @@ void modelAnimEntryQueueMatrixCopies(ModelData *group, ModelAnimEntry *entry) {
     u32 dst;
 
     node = entry->unk0;
-    p = (u8 *)(node + 1);
+    p = (u8 *)(entry->unk0 + 1);
     stride = node->keyCount * 0x24 + 8;
     srcBase = D_807F6BE0 = (u32)group->frames[gGfxBufferIndex ^ 1];
     dstBase = D_807F6BE4 = (u32)group->frames[gGfxBufferIndex];
-    i = 0;
-    if (!p) {}  // FAKE: dead test of p (computed before stride) keeps gGfxBufferIndex in $v1 and the a2/a3 address temps (permuter, uopt LR15 colour)
-    while (i < node->matrixCount) {
+    for (i = 0; i < node->matrixCount; i++) {
         dst = *(u32 *)p + dstBase;
         mtxCopyQueuePush(group, *(u32 *)p + srcBase, dst);
-        i++;
         p += stride;
     }
 }
