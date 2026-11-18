@@ -539,71 +539,73 @@ extern f32 D_80033F4C;
 extern s8 D_80033F51;
 
 Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
-    f32 x = 66.0f;
-    s16 y;
-    s16 py;
+    f32 iconX = 66.0f;
+    s16 textX;
+    s16 textY;
     MenuScreenState *state = actor->customState;
-    s8 *p = &D_80033804;
+    s8 *iconFlag = &D_80033804;
     s32 i = 0;
-    f32 sc = 3.0f;
-    f32 four;
+    f32 iconScale = 3.0f;
+    f32 scale;
     f32 posX;
     f32 posY;
     s32 ang;
     f32 bob;
-    u8 strBuf[0x20];
+    s32 angle;
+    f32 scaleY;
+    u8 strBuf[0x18];
 
     do {
-        menuComputeElementPosition(state, x, 85.0f, &posX, &posY, 4, 0, 1.5f);
-        if (*p != 0) {
-            dl = menuSetElementCoordinates(dl, i, posX, posY, sc * 0.85);
+        menuComputeElementPosition(state, iconX, 85.0f, &posX, &posY, 4, 0, 1.5f);
+        if (*iconFlag != 0) {
+            dl = menuSetElementCoordinates(dl, i, posX, posY, iconScale * 0.85);
         } else {
-            dl = menuSetElementCoordinates(dl, i | 0x80, posX, posY, sc);
+            dl = menuSetElementCoordinates(dl, i | 0x80, posX, posY, iconScale);
         }
         i++;
-        p++;
-        x += 55.0f;
+        iconFlag++;
+        iconX += 55.0f;
     } while (i != 5);
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     menuComputeElementPosition(state, 160.0f, 180.0f, &posX, &posY, 5, 1, 2.0f);
-    four = 4.0f; // FAKE: value-named constant local holds 4.0f in one FP register
-    D_80033F4C = posY * four;
-    py = D_80033F4C;
-    py -= 0x140;
+    D_80033F4C = posY * 4.0f;
+    textY = D_80033F4C;
+    textY -= 0x140;
     _sprintf(strBuf, "%d%%", D_80033F51);
-    dl = textDrawStringVtx(dl, 1, 0x280, py, strBuf, 0x81);
-    py += 0x8C;
+    dl = textDrawStringVtx(dl, 1, 0x280, textY, strBuf, 0x81);
+    textY += 0x8C;
     _sprintf(strBuf, "%03d", D_8003380C);
-    dl = textDrawStringVtx(dl, 1, 0x280, py, strBuf, 0x81);
-    py += 0x8C;
+    dl = textDrawStringVtx(dl, 1, 0x280, textY, strBuf, 0x81);
+    textY += 0x8C;
     _sprintf(strBuf, "%03d:%02d", D_80033810, D_80033814);
-    dl = textDrawStringVtx(dl, 1, 0x280, py, strBuf, 0x81);
-    x = 0.5f; // FAKE: x reused as the sprite scale; a separate scale variable fails fdiff
+    dl = textDrawStringVtx(dl, 1, 0x280, textY, strBuf, 0x81);
+    scale = 0.5f;
     ang = (gFrameCounter * 0x78) & 0xFFF;
     bob = mathSinF(ang) * 0.1f + 0.5f;
-    py += 40.0f;
-    posY = py * 0.25f + 32.0f * bob;
-    posX = 85 * four;
-    x *= four;
-    posY *= four;
-    dl = renderRotatedSprite(dl, 0xA1, 3, 0, 0x40, 0x40, (s32)posX, (s32)posY, x, -(bob * four), 0, 0.0f);
+    textY += 40.0f;
+    posY = textY * 0.25f + 32.0f * bob;
+    posX = 85;
+    posX *= 4.0f;
+    scale *= 4.0f;
+    posY *= 4.0f;
+    dl = renderRotatedSprite(dl, 0xA1, 3, 0, 0x40, 0x40, posX, posY, scale, -(bob * 4.0f), 0, 0.0f);
     gDPPipeSync(dl++);
-    posY = py;
-    x = x * 0.75f;
-    sc = -x;
+    posY = textY;
+    scale *= 0.75f;
+    scaleY = -scale;
     posX = 340.0f;
-    i = gFrameCounter % 360U; // FAKE: loop counter i reused as the sprite angle; a separate angle variable fails fdiff
-    dl = renderRotatedSprite(dl, 0xA0, 3, 0, 0x20, 0x20, (s32)posX, (s32)posY, x, sc * 0.5f, i, 0.0f);
+    angle = gFrameCounter % 360U;
+    dl = renderRotatedSprite(dl, 0xA0, 3, 0, 0x20, 0x20, posX, posY, scale, scaleY * 0.5f, angle, 0.0f);
     gDPPipeSync(dl++);
-    i = (gFrameCounter * 0xC) % 360U;
-    dl = renderRotatedSprite(dl, 0xA0, 3, 0, 0x20, 0x20, (s32)posX, (s32)posY, x, sc, i, 0.0f);
+    angle = (gFrameCounter * 0xC) % 360U;
+    dl = renderRotatedSprite(dl, 0xA0, 3, 0, 0x20, 0x20, posX, posY, scale, scaleY, angle, 0.0f);
     gDPPipeSync(dl++);
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     menuComputeElementPosition(state, 160.0f, 15.0f, &posX, &posY, 5, 1, 0.3f);
-    y = posX * four;
-    py = posY * four;
+    textX = posX * 4.0f;
+    textY = posY * 4.0f;
     _sprintf(strBuf, "%s %d", D_80033F28[7], D_80033F48 + 1);
-    return hudDrawScaledText(dl, y, py, 0.6f, strBuf);
+    return hudDrawScaledText(dl, textX, textY, 0.6f, strBuf);
 }
 
 s32 menuDecodePiAddressConstant(s32 offset) {
