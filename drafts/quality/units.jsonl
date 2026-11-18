@@ -1042,3 +1042,4 @@
 {"type": "unit", "t": "2026-11-18T05:47:54Z", "unit": "2026-11-17: cleanup CleanjetpacStateGameplay", "commit": "41a12cde85e78eb77db82fe20afc5dd72260d1d1"}
 {"type": "unit", "t": "2026-11-18T05:53:10Z", "unit": "2026-11-17: cleanup CleanminecartUpdateObstacleType3", "commit": "0ce1bb40f2d28e12ed8589c07dcfef4e9301454d"}
 {"type": "unit", "t": "2026-11-18T05:56:14Z", "unit": "2026-11-17: cleanup CleancollisionTransformPointByActorMtx", "commit": "b775e5ba36202413fea115f36cc34c068493b389"}
+{"type": "unit", "t": "2026-11-18T05:59:18Z", "unit": "2026-11-17: cleanup CleanmenuDrawBlinkingPromptText", "commit": "ecc98153d7d892bce0353403c9e30c27d39521aa"}
