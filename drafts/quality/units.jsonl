@@ -1010,3 +1010,4 @@
 {"type": "unit", "t": "2026-11-18T03:36:08Z", "unit": "2026-11-17: cleanup CleanmodelSlotReplaceSegment6Commands", "commit": "cdb56de67d2de950617ebbb9864f5a608be2447d"}
 {"type": "unit", "t": "2026-11-18T03:39:43Z", "unit": "2026-11-17: cleanup CleanhudPauseMenuRender", "commit": "76a9066e938dd8fe7aec7c2a781c19d2934923dc"}
 {"type": "unit", "t": "2026-11-18T03:46:17Z", "unit": "2026-11-17: cleanup CleancritterUpdateZoneProximity", "commit": "d653b55a7f2a607b0a0a99f0eb074afa37030396"}
+{"type": "unit", "t": "2026-11-18T03:51:34Z", "unit": "2026-11-17: cleanup CleanactorTriggerPlayerKnockbackSound", "commit": "7fd511a8575b771da7c6c5124408274ab1593391"}
