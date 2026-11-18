@@ -254,7 +254,19 @@ segments:
       - [0x14DB50, .data, 7A510] # D_80748E50[29][9] node-flag sets, D_80748F58[24], D_80748FE8[595] hit windows, gActorInteractionTable[4] (0x80748E50-0x8074AC0C + 4-byte TU pad)
       - [0x14F910, .data, 7BBD0] # per-actor-type tables (0x8074AC10-0x8074DA2C + 4-byte TU pad): 185 collision interaction lists/pattern tables (no C user; reached through D_8074C604), D_8074C0A0[345] update functions (7CA80), D_8074C604[344] collision slots and D_8074D0C4[344] health/damage (7A510), D_8074D624[344] collision flags and gActorTypeInitIndex[344] (7CA80). Both ends are 4-byte TU pads, so a TU between 7A510 and 7CA80 in text: tentative 7BBD0 (7AF60/7BA00 layout-neutral too; the lists point at 108 7AF60 filters, none at 7BBD0)
       - [0x152730, .data, 7CA80] # gActorInitFuncs[10], D_8074DA58[117] component sizes, 344 component lists D_8074DB44..D_8074E214, D_8074E218[344], D_8074E778 (112080 indexes the name table through it), gPlayerCharacterId[4], D_8074E780[8] kong/animal name strings (0x8074DA30-0x8074E7A0, no pad); gActorInitFuncs makes its ten init functions' entry labels address-taken (Q0552)
-      - [0x1534A0, data]
+      - [0x1534A0, .data, 80150] # D_8074E7A0[4], D_8074E7B8 (unreferenced 270.0f), D_8074E7BC[8], D_8074E7D4, D_8074E7E0[10], D_8074E7F4..D_8074E80C (D_8074E80C unreferenced), D_8074E810, D_8074E814[5], gTagBarrelKongAnimFrames, D_8074E848[5], sKongNameTextIds[6] (0x8074E7A0-0x8074E874 + 12-byte TU pad)
+      - [0x153580, .data, 89250] # gPuffSprites[3] (read by many TUs and overlays), sGrowthTierScales, sMultiTierRingActorTypes, unreferenced D_8074E8A8/D_8074E8AC (0x8074E880-0x8074E8B0)
+      - [0x1535B0, .data, 8D3E0] # gActorListSpawnTable[128] (spawn/despawn predicates make their entry labels address-taken, Q0552), sActorListOffsetsReady, D_807500B4, D_807500D4 (0x8074E8B0-0x807500F4 + 12-byte TU pad)
+      - [0x154E00, .data, 8F050] # gActorOverrideModelConfigs[7] (0x80750100-0x8075018C + 4-byte TU pad; D_80750102 was entry 0's modelAssetId label)
+      - [0x154E90, .data, 8F4B0] # D_80750190 (also read by 7130 and boss 0.c), gCutsceneSpotLights[3], gLightFlickerColors[9] (0x80750190-0x807501DB + 5-byte TU pad)
+      - [0x154EE0, .data, 90D80] # D_807501E0, D_807501E8 (Vtx[4], 8-aligned), D_80750228, D_8075022C, D_80750230 (Vtx[4]) (0x807501E0-0x80750270, no pad)
+      - [0x154F70, .data, 936B0] # sProjectileShortLivedFlag, D_80750274 (0x80750270-0x80750278 + 8-byte TU pad)
+      - [0x154F80, .data, 9BF30] # gSpriteRingQuadVtx[4], D_807502C0[3] (0x80750280-0x807502CC + 4-byte TU pad)
+      - [0x154FD0, .data, 9CE20] # movement scalars gCarryMinFallSpeed..D_80750398, one 4-byte slot each (0x807502D0-0x8075039C + 4-byte TU pad): read by 80150, 936B0, 9DD70, A2F10, AA960, B7490, BB300, C4620, E4090, 11BC10, 1295B0 and overlays; 9CE20 (D_8075037C/D_80750380) is the only text TU between 9BF30 and 9DD70
+      - [0x1550A0, .data, 9DD70] # D_807503A0, gCarryDebrisSprites (0x807503A0-0x807503AC + 4-byte TU pad)
+      - [0x1550B0, .data, A2F10] # D_807503B0[9] kong/boss name table (read as D_80750338[0x1E..0x26]), D_807503D4[12], D_807503E0[12] (0x807503B0-0x807503EC + 4-byte TU pad)
+      - [0x1550F0, .data, A8400] # D_807503F0 (0x807503F0-0x807503F1 + 15-byte TU pad)
+      - [0x155100, .data, AA960] # gActorSpawnSfxTable[27], sSparkleSprites, sShrinkRate..sShrinkAlphaStep, unreferenced D_807504D4 (0x80750400-0x807504D8 + 8-byte TU pad)
       - [0x1551E0, .data, ACDC0] # D_807504E0..D_807505F8 (0x807504E0-0x807505FA + 6-byte TU pad): pause-menu tables; sPauseSaveCooldown, D_807505D8, D_807505F8 are function-local statics of hudPauseMenuUpdate, hudPauseMenuBuildPage, hudDrawTwoOptionMenu, laid out in source order after the file-scope tables (defined above the functions)
       - [0x155300, .data, B5EC0] # D_80750600[5] (0x80750600-0x80750614 + 12-byte TU pad): func_806B1DD4's per-mode flag rows
       - [0x155320, .data, BDEE0] # D_80750620[8], D_80750628[16], gFairySpawnOrder (0x80750620-0x80750643 + 13-byte TU pad); D_80750620 is unreferenced, its TU start is the 16-aligned address below the unaligned D_80750628

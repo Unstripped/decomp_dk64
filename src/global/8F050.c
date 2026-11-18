@@ -18,7 +18,16 @@ typedef struct ActorOverrideModelConfig {
     s32 animSlots[2];
 } ActorOverrideModelConfig;
 
-extern ActorOverrideModelConfig gActorOverrideModelConfigs[7];
+// This TU's .data (0x80750100-0x8075018C + 4-byte TU pad).
+ActorOverrideModelConfig gActorOverrideModelConfigs[7] = {
+    { 178, 25, 200.0f, 1, 0, 0, { -1, -1 } },
+    { 2, 5, 200.0f, 0, 0, 0, { 1, 2 } },
+    { 3, 3, 200.0f, 0, 0, 0, { 2, -1 } },
+    { 6, 15, 200.0f, 0, 0, 0, { 1, 2 } },
+    { 4, 8, 200.0f, 0, 0, 0, { 1, -1 } },
+    { 5, 11, 200.0f, 0, 0, 0, { 1, 2 } },
+    { 7, 219, 200.0f, 0, 0, 0, { 1, -1 } },
+};
 
 
 void animStopAtFrame(Actor *actor, s32 animSlot, s32 frame) {

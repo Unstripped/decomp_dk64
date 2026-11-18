@@ -11,6 +11,22 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/90D80.h"
 
+// This TU's .data (0x807501E0-0x80750270), in address order; D_807501E8 is 8-aligned (Vtx).
+u8 D_807501E0 = 0;
+Vtx D_807501E8[4] = {
+    {{ { -16, 16, 1000 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 16, 16, 1000 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 16, -16, 1000 }, 0, { 1984, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { -16, -16, 1000 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+};
+f32 D_80750228 = 0.0f;
+f32 D_8075022C = 0.0f;
+Vtx D_80750230[4] = {
+    {{ { 0, 0, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 320, 0, -10 }, 0, { 2016, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 320, 240, -10 }, 0, { 2016, 2016 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 0, 240, -10 }, 0, { 0, 2016 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+};
 
 typedef struct TexCacheEntry {
     /* 0x0 */ void *tex;
@@ -78,7 +94,6 @@ typedef struct RenderCallbackEntry {
     /* 0x8 */ u8 layer;
 } RenderCallbackEntry;
 
-extern u8 D_807501E0;
 extern RenderCallbackEntry D_807FC630[];
 
 Gfx *renderCallbacksExecute(Gfx *glist, u8 layer) {
@@ -122,7 +137,6 @@ void renderCallbacksRegister(void *func, void *actor, u8 layer) {
 }
 
 typedef f32 RenderMtxF[4][4];
-extern Vtx D_807501E8[4];
 
 Gfx *renderRotatedQuad(Gfx *glist, void *tex, s16 x, s16 y, s16 angle) {
     RenderMtxF rotMtx;
@@ -251,8 +265,6 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, u32 siz, u8 width, u8 h
 
 extern PlayerStruct *gPlayerSlots;
 extern u32 gFrameDelta;
-extern f32 D_8075022C, D_80750228;
-extern Vtx D_80750230[4];
 extern s32 gCurrentMap;
 
 Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {

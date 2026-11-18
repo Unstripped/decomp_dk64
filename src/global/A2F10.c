@@ -30,6 +30,24 @@
 #include "proto/global/AA960.h"
 #include "proto/global/EFDC0.h"
 
+// This TU's .data (0x807503B0-0x807503EC + 4-byte TU pad), in address order. The name table has no
+// label of its own: actorBannerTextRender reads it as D_80750338[0x1E..0x26] (D_80750338 is 9CE20's s16).
+extern const char D_8075A410[];
+extern const char D_8075A418[];
+extern const char D_8075A420[];
+extern const char D_8075A428[];
+extern const char D_8075A430[];
+extern const char D_8075A438[];
+extern const char D_8075A440[];
+extern const char D_8075A444[];
+extern const char D_8075A44C[];
+const char *D_807503B0[9] = {
+    D_8075A410, D_8075A418, D_8075A420, D_8075A428, D_8075A430,
+    D_8075A438, D_8075A440, D_8075A444, D_8075A44C,
+};
+u8 D_807503D4[12] = { 1, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 3 };
+u8 D_807503E0[12] = { 2, 2, 2, 0, 0, 0, 3, 3, 3, 1, 1, 1 };
+
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
@@ -919,8 +937,6 @@ void actorSetNodeValuesForFrame(BoneFrameState *state) {
     }
 }
 
-extern u8 D_807503D4[];
-extern u8 D_807503E0[];
 
 
 void func_806A112C(void) {

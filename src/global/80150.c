@@ -65,17 +65,57 @@ typedef struct KongActionEntry {
     u8 pad5;
 } KongActionEntry;
 
+// This TU's .data (0x8074E7A0-0x8074E874 + 12-byte TU pad), in address order; D_8074E7B8 and
+// D_8074E80C are unreferenced.
+ActorMapFlag D_8074E7A0[4] = {
+    { 34, 9, 0x1AA },
+    { 34, 10, 0x1AB },
+    { 34, 18, 0x1BF },
+    { 34, 8, 0x1C0 },
+};
+f32 D_8074E7B8 = 270.0f;
+typedef struct TransformBarrelEntry {
+    u8 map;
+    u8 listId;
+    u8 count;
+} TransformBarrelEntry;
+TransformBarrelEntry D_8074E7BC[8] = {
+    { 61, 0, 3 },
+    { 62, 0, 3 },
+    { 19, 1, 4 },
+    { 26, 20, 2 },
+    { 26, 4, 2 },
+    { 72, 8, 2 },
+    { 72, 9, 2 },
+    { 62, 5, 2 },
+};
+Vec3f D_8074E7D4 = { 0.0f, 0.0f, 0.0f };
+s16 D_8074E7E0[10] = { 60, 65, 61, 66, 62, 67, 63, 68, 64, 69 };
+f32 D_8074E7F4 = 50.0f;
+f32 D_8074E7F8 = 1.0f;
+f32 D_8074E7FC = 20.0f;
+f32 D_8074E800 = 1.0f;
+f32 D_8074E804 = 0.0f;
+f32 D_8074E808 = 300.0f;
+f32 D_8074E80C = 100.0f;
+u8 D_8074E810 = 40;
+KongActionEntry D_8074E814[5] = {
+    { 4, 2, 2, 0 },
+    { 1, 3, 1, 0 },
+    { 6, 4, 3, 0 },
+    { 9, 5, 4, 0 },
+    { 12, 6, 0, 0 },
+};
+KongAnimFrameTable gTagBarrelKongAnimFrames = { { 4, 1, 2, 3, 0 } };
+s32 D_8074E848[5] = { 2, 72, 4, 32, 16 };
+s32 sKongNameTextIds[6] = { 0, 1, 2, 3, 4, 5 };
+
 extern Actor *gCurrentActor;
 extern PlayerState *gActivePlayerState;
 extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
 extern s32 D_8071FE08;
-extern ActorMapFlag D_8074E7A0[4];
-extern s16 D_8074E7E0[];
-extern KongActionEntry D_8074E814[];
-extern KongAnimFrameTable gTagBarrelKongAnimFrames;
-extern s32 sKongNameTextIds[];
 extern u8 D_80720120;
 extern u8 D_80720340;
 extern u8 D_8072038C;
@@ -1172,15 +1212,6 @@ void transformBarrelWrapperUpdateD(void) {
     transformBarrelUpdate();
 }
 
-typedef struct TransformBarrelEntry {
-    u8 map;
-    u8 listId;
-    u8 count;
-} TransformBarrelEntry;
-
-
-
-extern TransformBarrelEntry D_8074E7BC[8];
 
 extern s32 gGlobalCutsceneFlags;
 
@@ -1895,7 +1926,6 @@ typedef struct TagBarrelSpawnParams {
 } TagBarrelSpawnParams;
 
 
-extern Vec3f D_8074E7D4;
 extern u8 gScreenRenderFlags;
 extern u8 D_8071FC58[];
 
@@ -2400,13 +2430,6 @@ typedef struct CannonState {
 
 
 
-extern f32 D_8074E7F4;
-extern f32 D_8074E7F8;
-extern f32 D_8074E7FC;
-extern f32 D_8074E800;
-extern f32 D_8074E804;
-extern f32 D_8074E808;
-extern u8 D_8074E810;
 
 
 void cannonUpdate(void) {
@@ -2781,7 +2804,6 @@ s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
     }
 }
 
-extern s32 D_8074E848[];
 
 
 void tagBarrelStartSelection(TagBarrelData *data) {

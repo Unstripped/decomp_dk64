@@ -11,6 +11,62 @@
 #include "proto/global/9CE20.h"
 #include "proto/global/CEAE0.h"
 
+// This TU's .data (0x807502D0-0x8075039C + 4-byte TU pad): one 4-byte slot per object, the movement
+// tuning scalars of the actor and player code (80150, 936B0, 9DD70, A2F10, AA960, B7490, BB300, C4620,
+// E4090, 11BC10, 1295B0 and the boss/minecart overlays keep their externs); 9CE20 reads D_8075037C and
+// D_80750380, the only text TU between 9BF30 and 9DD70. D_807502D4 and D_80750304..D_80750334 are
+// unreferenced; A2F10 reads its own kong-name table (0x807503B0) as D_80750338[0x1E..0x26].
+s16 gCarryMinFallSpeed = -220;
+s16 D_807502D4 = -100;
+s16 D_807502D8 = -600;
+s16 D_807502DC = -500;
+s16 D_807502E0 = -220;
+f32 gCarryGravity = -20.0f;
+f32 gDefaultActorGravity = -20.0f;
+f32 gAirPatrolAccelY = -15.0f;
+f32 D_807502F0 = -30.0f;
+f32 gActorDefaultAccelY = -30.0f;
+f32 gDefaultAccelY = -28.0f;
+f32 D_807502FC = -3.0f;
+f32 D_80750300 = -20.0f;
+s16 D_80750304 = 2;
+s16 D_80750308 = 10;
+s16 D_8075030C = 6;
+s16 D_80750310 = 12;
+s16 D_80750314 = 10;
+s16 D_80750318 = 4;
+s16 D_8075031C = 255;
+s16 D_80750320 = 8;
+s16 D_80750324 = 12;
+s16 D_80750328 = 12;
+s16 D_8075032C = 8;
+s16 D_80750330 = 8;
+s16 D_80750334 = 4;
+s16 D_80750338 = 250;
+s16 D_8075033C = 250;
+s16 gFlyPatrolShotInterval = 60;
+s16 D_80750344 = 200;
+s16 D_80750348 = 200;
+s16 D_8075034C = 30;
+s16 D_80750350 = 50;
+s16 D_80750354 = 50;
+s16 D_80750358 = 50;
+s16 D_8075035C = 50;
+s16 D_80750360 = 50;
+s16 D_80750364 = 100;
+s16 D_80750368 = 100;
+s16 D_8075036C = 100;
+s16 D_80750370 = 100;
+s16 D_80750374 = 100;
+s16 D_80750378 = 300;
+s16 D_8075037C = 200;
+s16 D_80750380 = 150;
+s16 sBounceFadeLaunchSpeedXZ = 200;
+f32 sBounceFadeGravity = -160.0f;
+s16 sBounceMinSpeedY = -1760;
+s16 D_80750390 = 300;
+f32 D_80750394 = -30.0f;
+f32 D_80750398 = -15.0f;
 
 typedef struct BoneChainData {
     /* 0x00 */ f32 swingAmplitude;
@@ -33,8 +89,6 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 extern u32 gFrameDelta;
-extern s16 D_8075037C;
-extern s16 D_80750380;
 
 
 void actorBoneChainSwingUpdate(nodeCount)

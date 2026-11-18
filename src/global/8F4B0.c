@@ -55,12 +55,30 @@ typedef struct {
     /* 0x0C */ s16 targetZ;
 } LightPosEntry;
 
+// This TU's .data (0x80750190-0x807501DB + 5-byte TU pad), in address order; D_80750190 is also read
+// by 7130 and boss 0.c.
+u8 D_80750190 = 0;
+LightPosEntry gCutsceneSpotLights[3] = {
+    { 9, 11, 108, 69, 108, 109, 0, 154 },
+    { 19, 21, 109, 108, 156, 108, 0, 156 },
+    { 18, 36, 108, 100, 114, 108, 0, 114 },
+};
+u8 gLightFlickerColors[9][3] = {
+    { 0xFF, 0x4F, 0x00 },
+    { 0xFF, 0xF6, 0x00 },
+    { 0x4A, 0xFF, 0x00 },
+    { 0x22, 0x93, 0x00 },
+    { 0x00, 0xD3, 0xFF },
+    { 0x00, 0x5C, 0xFF },
+    { 0xFF, 0x5D, 0xCC },
+    { 0x81, 0x00, 0xFF },
+    { 0xFF, 0x00, 0x00 },
+};
+
 extern Actor *gCurrentActor;
 u8 gWeatherLightningRequest;
 u8 gCutsceneLightIndex;
 u8 gCutsceneLightFlickerMode;
-extern u8 gLightFlickerColors[][3];
-extern LightPosEntry gCutsceneSpotLights[];
 
 
 void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
@@ -213,7 +231,6 @@ extern u8 gCurrentWorldId;
 extern s32 D_8076A0AC;
 extern Actor *gActivePlayerActor;
 extern u16 D_8076A0A6;
-extern u8 D_80750190;
 
 void actorCutsceneDispatchEvents(void) {
     CutsceneActorState *csState;

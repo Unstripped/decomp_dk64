@@ -69,9 +69,157 @@ typedef struct ActorListNode {
     /* 0x68 */ struct ActorListNode *next;
 } ActorListNode;
 
+typedef s32 (*ActorListSpawnFn)(ActorListNode *);
+
+typedef struct ActorListSpawnEntry {
+    /* 0x00 */ s16 actorType;
+    /* 0x02 */ s16 animAssetId;
+    /* 0x04 */ s32 scriptId;
+    /* 0x08 */ s16 radius;
+    /* 0x0A */ char padA[2];
+    /* 0x0C */ ActorListSpawnFn shouldSpawn;
+    /* 0x10 */ ActorListSpawnFn shouldDespawn;
+    /* 0x14 */ char name[0x18]; // debug name, not NUL-terminated when it fills the field
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 pad2E[2];
+} ActorListSpawnEntry;
+
+// This TU's .data (0x8074E8B0-0x807500F4 + 12-byte TU pad), in address order.
+ActorListSpawnEntry gActorListSpawnTable[128] = {
+    { 22, 123, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Barrel generator", 1 },
+    { 19, 121, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFarAndIdle, "", 0 },
+    { 26, 125, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFarAndIdle, "TNT barrel", 1 },
+    { 21, 122, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Crate", 1 },
+    { 23, 124, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Cannon Barrel", 1 },
+    { 27, 123, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "TNT barrel generator", 1 },
+    { 28, 118, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Bonus barrel", 1 },
+    { 30, 0, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 35, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 18, 126, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Rambi crate", 1 },
+    { 25, 119, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Chunky size barrel", 1 },
+    { 32, 129, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Swinging light", 1 },
+    { 33, 162, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Heli Rope", 1 },
+    { 34, 131, 0, 550, { 0 }, actorListSpawnAlways, (ActorListSpawnFn)actorListDespawnIfFar, "Barrel gun(barrel bonus)", 1 },
+    { 31, 132, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Bridge", 1 },
+    { 36, 0, 0, 550, { 0 }, actorListSpawnAlways, actorListDespawnNever, "", 0 },
+    { 42, 0, 0, 550, { 0 }, actorListSpawnAlways, actorListDespawnNever, "", 0 },
+    { 29, 130, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "Minecart", 1 },
+    { 94, 149, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Racing Car", 1 },
+    { 17, 116, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Blast barrel", 1 },
+    { 38, 0, 0, 550, { 0 }, actorListSpawnAlways, actorListDespawnNever, "", 0 },
+    { 39, 133, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Long bridge", 1 },
+    { 40, 120, 0, 570, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Tiny size barrel", 1 },
+    { 41, 0, 0, 1000, { 0 }, actorListSpawnAlways, actorListDespawnNever, "", 0 },
+    { 43, 134, 0, 550, { 0 }, actorListSpawnAlways, actorListDespawnNever, "", 0 },
+    { 44, 135, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 45, 136, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "", 0 },
+    { 47, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 46, 131, 0, 550, { 0 }, actorListSpawnAlways, (ActorListSpawnFn)actorListDespawnIfFar, "Barrel gun(snake bonus)", 1 },
+    { 48, 0, 0, 550, { 0 }, actorListSpawnAlways, actorListDespawnNever, "", 0 },
+    { 49, 137, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Jetpack barrel", 1 },
+    { 50, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 24, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 51, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 52, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 53, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 54, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 55, 0, 0, 1100, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 56, 139, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Lanky speed barrel", 1 },
+    { 57, 138, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "DK invincibility barrel", 1 },
+    { 58, 151, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Cave light", 1 },
+    { 59, 0, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 61, 153, 0, 750, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Chunky rock", 1 },
+    { 108, 0, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 63, 154, 0, 750, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Urn type 1", 1 },
+    { 64, 155, 0, 750, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Urn type 2", 1 },
+    { 65, 156, 0, 750, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Urn type 3", 1 },
+    { 66, 157, 0, 750, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Urn type 4", 1 },
+    { 67, 161, 0, 750, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Chunky cannonball", 1 },
+    { 69, 163, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Heli Vine", 1 },
+    { 71, 50, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Clobb head", 1 },
+    { 70, 164, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Big Plate", 1 },
+    { 72, 165, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "DK key", 1 },
+    { 73, 169, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Chunky cannon", 1 },
+    { 74, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 75, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 78, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 79, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 77, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 76, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 80, 130, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "Chunky Minecart", 1 },
+    { 81, 0, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 82, 170, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Rockfall", 1 },
+    { 83, 171, 0, 1100, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Spider web", 1 },
+    { 84, 0, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Flour barrel generator", 1 },
+    { 85, 172, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFarAndIdle, "", 0 },
+    { 86, 175, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Crown", 1 },
+    { 87, 130, 0, 1000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "BONUS Minecart", 1 },
+    { 89, 186, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 90, 188, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 91, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListIsPlayerInRadius, (ActorListSpawnFn)actorListIsPlayerOutsideRadius, "Diddy banana balloon", 1 },
+    { 111, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListIsPlayerInRadius, (ActorListSpawnFn)actorListIsPlayerOutsideRadius, "Chunky banana balloon", 1 },
+    { 112, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListIsPlayerInRadius, (ActorListSpawnFn)actorListIsPlayerOutsideRadius, "Tiny banana balloon", 1 },
+    { 113, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListIsPlayerInRadius, (ActorListSpawnFn)actorListIsPlayerOutsideRadius, "Lanky banana balloon", 1 },
+    { 114, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListIsPlayerInRadius, (ActorListSpawnFn)actorListIsPlayerOutsideRadius, "Donkey banana balloon", 1 },
+    { 92, 190, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 93, 191, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 97, 123, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Dragon barrel generator", 1 },
+    { 96, 119, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "", 0 },
+    { 98, 193, 0, 550, { 0 }, actorListSpawnIfNearOrBossChunkVisible, (ActorListSpawnFn)actorListDespawnIfFarOrBossChunkHidden, "Kong swap barrel", 1 },
+    { 99, 0, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 100, 198, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Script barrel gen", 1 },
+    { 101, 199, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Script barrel gen 2", 1 },
+    { 102, 200, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Script barrel gen 3", 1 },
+    { 103, 201, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Script barrel gen 4", 1 },
+    { 104, 202, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Script barrel gen 5", 1 },
+    { 105, 203, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Script barrel gen 6", 1 },
+    { 274, 0, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 62, 130, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "Donkey Minecart", 1 },
+    { 278, 0, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 110, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 109, 204, 0, 2000, { 0 }, actorListSpawnIfForced, actorListDespawnIfForced, "Hedge jump", 1 },
+    { 115, 206, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Start grid", 1 },
+    { 116, 128, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Chain Rope", 1 },
+    { 117, 72, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Beanstalk", 1 },
+    { 118, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 119, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 120, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 121, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 122, 0, 0, 550, { 0 }, actorListSpawnAlways, actorListDespawnNever, "", 0 },
+    { 124, 131, 0, 550, { 0 }, actorListSpawnAlways, (ActorListSpawnFn)actorListDespawnIfFar, "Barrel gun(barrel bonus)", 1 },
+    { 125, 131, 0, 550, { 0 }, actorListSpawnAlways, (ActorListSpawnFn)actorListDespawnIfFar, "Barrel gun(barrel bonus)", 1 },
+    { 128, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListIsPlayerInRadius, (ActorListSpawnFn)actorListIsPlayerOutsideRadius, "Headphones", 1 },
+    { 129, 127, 0, 800, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Enguarde crate", 1 },
+    { 126, 84, 0, 550, { 0 }, actorListSpawnAlways, (ActorListSpawnFn)actorListDespawnIfFar, "Fly swatter (swat bonus)", 1 },
+    { 127, 192, 0, 550, { 0 }, actorListSpawnAlways, (ActorListSpawnFn)actorListDespawnIfFar, "Spot light (bonus)", 1 },
+    { 130, 214, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Worm's apple", 1 },
+    { 131, 95, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "", 0 },
+    { 132, 127, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Boat crate", 1 },
+    { 133, 121, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFarAndIdle, "trn-throw barrel", 1 },
+    { 134, 231, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Training barrel", 1 },
+    { 135, 100, 878, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "DK's radio", 1 },
+    { 136, 193, 0, 550, { 0 }, actorListSpawnIfNearOrBossChunkVisible, (ActorListSpawnFn)actorListDespawnIfFarOrBossChunkHidden, "World k swap barrel", 1 },
+    { 137, 193, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Troff k swap barrel", 1 },
+    { 107, 228, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Hideout bonus", 1 },
+    { 138, 101, 926, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Banana sign", 1 },
+    { 145, 169, 0, 3000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Puffer cannon", 1 },
+    { 139, 224, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Mound", 1 },
+    { 140, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 165, 193, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Kutout barrel", 1 },
+    { 147, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListIsPlayerInRadius, (ActorListSpawnFn)actorListIsPlayerOutsideRadius, "Krool banana balloon", 1 },
+    { 148, 225, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Ring Rope", 1 },
+    { 149, 230, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFarAndIdle, "", 0 },
+    { 150, 0, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Skin barrel generator", 1 },
+    { 169, 90, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 170, 107, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 171, 0, 0, 550, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, actorListDespawnNever, "", 0 },
+    { 167, 124, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Big Cannon Barrel", 1 },
+};
+u8 sActorListOffsetsReady = 0;
+ActorListCustomData D_807500B4 = { { 0 } };
+ActorListCustomData D_807500D4 = { { 0 } };
+
 extern s32 gCurrentMap;
-extern ActorListCustomData D_807500B4;
-extern ActorListCustomData D_807500D4;
 extern Actor *gCurrentActor;
 extern ActorListNode *gActorListHead;
 extern ActorListFlagEntry *sActorListFlagEntries;
@@ -140,7 +288,6 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
     }
 }
 
-extern u8 sActorListOffsetsReady;
 extern u16 sActorListMapFlagBase[];
 
 
@@ -406,17 +553,6 @@ void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 ya
     actorListSpawnNodeInternal(actorType - 0x10, posX, posY, posZ, yaw, scale, customData, 1, parentActor, actorListAllocId());
 }
 
-typedef struct ActorListSpawnEntry {
-    /* 0x00 */ s16 actorType;
-    /* 0x02 */ s16 animAssetId;
-    /* 0x04 */ s32 scriptId;
-    /* 0x08 */ s16 radius;
-    /* 0x0A */ char padA[2];
-    /* 0x0C */ s32 (*shouldSpawn)(ActorListNode *);
-    /* 0x10 */ s32 (*shouldDespawn)(ActorListNode *);
-    /* 0x14 */ char pad14[0x1C];
-} ActorListSpawnEntry;
-extern ActorListSpawnEntry gActorListSpawnTable[128];
 
 ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, void *customData, u8 spawnMode, Actor *parentActor, s16 targetId) {
     ActorListNode *node;

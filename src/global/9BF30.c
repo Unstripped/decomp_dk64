@@ -16,6 +16,17 @@
 #include "proto/global/936B0.h"
 #include "proto/global/9BF30.h"
 
+// This TU's .data (0x80750280-0x807502CC + 4-byte TU pad); the projectile sprites lie in the data-in-text
+// blob 124780.
+Vtx gSpriteRingQuadVtx[4] = {
+    {{ { -16, 0, 0 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 15, 0, 0 }, 0, { 1984, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 15, 31, 0 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { -16, 31, 0 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+};
+extern u8 D_80720BE8[], D_8071FE08[], D_80720E2C[];
+void *D_807502C0[3] = { D_80720BE8, D_8071FE08 + 0x34, D_80720E2C };
+
 extern void **gSpriteRingTextures;
 
 typedef struct ProjectileState {
@@ -32,7 +43,6 @@ typedef struct ProjectileState {
 extern Gfx D_1000118;
 extern Mtx D_2000000;
 extern Mtx D_2000200;
-extern Vtx gSpriteRingQuadVtx[4];
 extern u8 gGfxBufferIndex;
 extern PlayerStruct *gPlayerSlots;
 
@@ -214,7 +224,6 @@ typedef struct ProjectileSubState {
     u8 type;
 } ProjectileSubState;
 
-extern void *D_807502C0[];
 extern u8 D_8071FBA0;
 
 void projectileActorUpdate(void) {

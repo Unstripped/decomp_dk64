@@ -14,6 +14,9 @@
 #include "proto/global/90D80.h"
 #include "proto/global/A8400.h"
 
+// This TU's .data (0x807503F0-0x807503F1 + 15-byte TU pad).
+u8 D_807503F0 = 0xB4;
+
 void func_806A3700(Actor *key, void *data) {
 }
 
@@ -544,7 +547,6 @@ void renderCalcChainCenterOffset(ResQueueActorState *state) {
 
 extern Actor *gCurrentActor;
 extern u16 gButtonsPressed;
-extern u8 D_807503F0;
 
 
 void textBoxUpdate(void) {

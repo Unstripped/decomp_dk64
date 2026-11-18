@@ -34,6 +34,10 @@
 #include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
 
+// This TU's .data (0x80750270-0x80750278 + 8-byte TU pad).
+u8 sProjectileShortLivedFlag = 0;
+f32 D_80750274 = -2.5f;
+
 // Second component (0x178) of the ridden vehicle actors (race/52B0 passes it as `motion`): the model
 // lean angles actorInterpolateAngles eases and the hop vehicleUpdateMotion consumes.
 typedef struct VehicleMotion {
@@ -631,7 +635,6 @@ void actorClearSubState(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 sProjectileShortLivedFlag;
 void projectileSetSpawnFlag(void) {
     sProjectileShortLivedFlag = 1;
 }
@@ -2221,7 +2224,6 @@ void projectileParticleSpawnerTick(void) {
     }
 }
 
-extern f32 D_80750274;
 
 
 

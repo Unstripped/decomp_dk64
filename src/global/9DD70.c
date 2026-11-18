@@ -37,6 +37,16 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/FCCD0.h"
 
+typedef struct SpritePair {
+    /* 0x0 */ void *sprites[2];
+} SpritePair;
+
+// This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad); the debris sprites lie in the data-in-text
+// blob 124780.
+s16 D_807503A0 = 200;
+extern u8 D_807212C8[], D_807212B0[];
+SpritePair gCarryDebrisSprites = { { D_807212C8, D_807212B0 } };
+
 s32 actorUpdatePrevContactFlags(Actor *); // ORIG: target loads the actorType switch value into v1 right after jal actorUpdatePrevContactFlags (jal at 0x2d78, lw v1,88(s0) at 0x2d88, beq v1,at at 0x2d8c): the original TU declared the callee non-void (the shared void prototype puts it in v0)
 
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
@@ -562,7 +572,6 @@ typedef struct {
 } SpotLightConfig;
 
 extern s32 gCurrentMap;
-extern s16 D_807503A0;
 
 void actorSpotLightUpdate(void) {
     f32 targetPos[3];
@@ -804,14 +813,9 @@ typedef struct CarryObjectSpawnData {
     /* 0x04 */ s32 interactionMode;
 } CarryObjectSpawnData;
 
-typedef struct SpritePair {
-    /* 0x0 */ void *sprites[2];
-} SpritePair;
-
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
 extern u8 D_80720340;
-extern SpritePair gCarryDebrisSprites;
 
 
 void carryObjectUpdate(void) {

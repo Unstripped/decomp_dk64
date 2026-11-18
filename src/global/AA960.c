@@ -28,11 +28,58 @@ typedef struct SfxTableEntry {
     /* 0x5 */ u8 spawnCount;
 } SfxTableEntry; /* size = 6 */
 
+// Seven sprite assets the sparkle actor picks from at random.
+typedef struct SparkleSpriteTable {
+    void *sprites[7];
+} SparkleSpriteTable;
+
+// This TU's .data (0x80750400-0x807504D8 + 8-byte TU pad), in address order; the sparkle sprites lie in
+// the data-in-text blob 124780 (no labels of their own), and D_807504D4 is unreferenced.
+SfxTableEntry gActorSpawnSfxTable[27] = {
+    { 0xB2, 0x2F, 0x2F, 1 },
+    { 0xCD, 0x2F, 0x2F, 1 },
+    { 0xD0, 0x34, 0, 3 },
+    { 0xD1, 0x33, 0, 1 },
+    { 0x3, 0x35, 0, 3 },
+    { 0xF1, 0x4E, 0x4C, 1 },
+    { 0xF2, 0x4B, 0x4C, 1 },
+    { 0xF3, 0x4D, 0x4C, 1 },
+    { 0xF4, 0x4F, 0x4C, 1 },
+    { 0xF5, 0x4C, 0x4C, 1 },
+    { 0xBB, 0x34, 0, 3 },
+    { 0xEE, 0x2F, 0x2F, 1 },
+    { 0xEB, 0x2F, 0x2F, 2 },
+    { 0x123, 0x2F, 0x2F, 2 },
+    { 0xB7, 0x2F, 0x2F, 1 },
+    { 0xCE, 0x2F, 0x2F, 1 },
+    { 0x105, 0x2F, 0x2F, 1 },
+    { 0x11D, 0x2F, 0x2F, 1 },
+    { 0x10F, 0x2F, 0x2F, 1 },
+    { 0x10E, 0x2F, 0x2F, 1 },
+    { 0x10D, 0x2F, 0x2F, 1 },
+    { 0xE0, 0x2F, 0x2F, 1 },
+    { 0x106, 0x2F, 0x2F, 1 },
+    { 0x121, 0x2F, 0x2F, 1 },
+    { 0xB6, 0x2F, 0x2F, 1 },
+    { 0xAF, 0x2F, 0x2F, 1 },
+    { 0, 0, 0, 0 },
+};
+extern u8 D_807208D8[];
+SparkleSpriteTable sSparkleSprites = { {
+    D_807208D8 + 0x18, D_807208D8 + 0x3C, D_807208D8 + 0x60, D_807208D8 + 0x84,
+    D_807208D8 + 0xA8, D_807208D8 + 0xCC, D_807208D8 + 0xF0,
+} };
+f32 sShrinkRate = 1.2f;
+f32 sShrinkFrames = 30.0f;
+u8 sShrinkBone = 0;
+u8 sShrinkStartAlpha = 70;
+u8 sShrinkAlphaStep = 0;
+f32 D_807504D4 = 14.0f;
+
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern u32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
-extern SfxTableEntry gActorSpawnSfxTable[];
 
 extern u8 D_807204BC[];
 extern u8 D_80720508[];
@@ -762,13 +809,7 @@ void actorPathCollectibleUpdate1004B(void) {
 }
 
 
-// Seven sprite assets the sparkle actor picks from at random.
-typedef struct SparkleSpriteTable {
-    void *sprites[7];
-} SparkleSpriteTable;
-
 extern u8 D_80721170;
-extern SparkleSpriteTable sSparkleSprites;
 
 void effectActorSparkleTick(void) {
     s32 hasInstrument;
@@ -815,11 +856,6 @@ typedef struct ShrinkState {
     s16 frames;
 } ShrinkState;
 
-extern u8 sShrinkBone;
-extern u8 sShrinkStartAlpha;
-extern u8 sShrinkAlphaStep;
-extern f32 sShrinkRate;
-extern f32 sShrinkFrames;
 
 void effectActorShrinkTick(void) {
     ShrinkState *state;
