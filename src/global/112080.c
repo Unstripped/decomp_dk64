@@ -117,24 +117,26 @@ void resParseRecord(ResRecord *rec, u8 **src) {
 }
 
 void resParseVariant(ResItem *item, u8 **src) {
-    s32 i;
-    u8 *p;
-    ResRecord *rec;
-
     if (item->flags & 1) {
-        item->variant = heapAlloc(8);
-        p = (u8 *)item->variant; // FAKE: u8 * cursor instead of ResRecord * keeps rec and the cursor in separate registers
-        for (i = 0; i != 1; i++) {
-            resParseRecord((ResRecord *)p, src);
-            p += 8;
+        ResRecord *rec;
+        s32 i;
+
+        rec = item->variant = heapAlloc(8);
+        for (i = 0; i < 1; i++) {
+            resParseRecord(rec, src);
+            rec++;
         }
     } else if (item->flags & 2) {
+        ResRecord *rec;
+        ResGridCell *cell;
+        s32 i;
+
         rec = item->variant = heapAlloc(8);
         streamReadBytes(1, rec, src);
-        p = rec->data.bytes = heapAlloc(rec->count * 4);
+        cell = rec->data.cells = heapAlloc(rec->count * 4);
         for (i = 0; i < rec->count; i++) {
-            streamReadBytes(4, p, src);
-            p += 4;
+            streamReadBytes(4, cell, src);
+            cell++;
         }
     }
 }
