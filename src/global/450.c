@@ -73,9 +73,6 @@ extern u8 D_2000000[];
 extern u8 D_2000180[];
 extern u8 D_2000200[];
 
-extern s32 D_8000DDCC;
-extern s32 D_8000DDE4;
-
 extern s8 D_807467CC;
 extern u8 gSaveIconTimer;
 extern s8 D_80746830;
@@ -220,10 +217,10 @@ u32 D_8076A154;
 void seg11DmaRead(s32 romOffset, s32 size, void *dst) {
     s32 romBase;
 
-    romBase = D_8000DDCC;
+    romBase = gSegmentTable[11].romStart;
     osWritebackDCache(dst, size);
-    osPiStartDma(&D_807ECE00, 0, 0, romBase + romOffset, dst, (u32) size, &D_807655F0);
-    osRecvMesg(&D_807655F0, NULL, 1);
+    osPiStartDma(&D_807ECE00, OS_MESG_PRI_NORMAL, OS_READ, romBase + romOffset, dst, size, &D_807655F0);
+    osRecvMesg(&D_807655F0, NULL, OS_MESG_BLOCK);
     osInvalDCache(dst, size);
 }
 
@@ -233,7 +230,7 @@ void viModeApplyHighRes(void) {
     void *pad0;
     void *pad1;
     u16 *src;
-    u8 *compressedBuf;
+    s32 *compressedBuf;
     void *pad2;
     void *pad3;
     u8 *gzipSrc;
@@ -242,42 +239,32 @@ void viModeApplyHighRes(void) {
     s32 j;
 
     fb = gFramebuffers[0];
-    end = (u16 *)((u8 *)fb + 0x25800);
+    end = fb + 320 * 240;
     while (fb < end) {
         *fb++ = 1;
     }
     osWritebackDCacheAll();
 
-    compressedBuf = (u8 *)gFramebuffers[1] + 0xC800;
+    compressedBuf = (s32 *)(gFramebuffers[1] + 0x6400);
     seg11DmaRead(0x38, 0x10, compressedBuf);
-    seg11DmaRead(*(s32 *)compressedBuf + 0x178, 0x10, compressedBuf);
-    seg11DmaRead(*(s32 *)compressedBuf, *(s32 *)(compressedBuf + 4) - *(s32 *)compressedBuf, compressedBuf);
+    seg11DmaRead(compressedBuf[0] + 0x178, 0x10, compressedBuf);
+    seg11DmaRead(compressedBuf[0], compressedBuf[1] - compressedBuf[0], compressedBuf);
 
-    gzipSrc = compressedBuf;
+    gzipSrc = (u8 *)compressedBuf;
     gzipDst = (u8 *)gFramebuffers[1];
     src = gFramebuffers[1];
     gunzip(&gzipSrc, &gzipDst, (u8 *)gFramebuffers[1] + 0x15E00);
 
-    fb = (u16 *)((u8 *)gFramebuffers[0] + 0xF080);
-    i = 0;
-    do {
-        j = 0;
-        for (;;) {
+    fb = gFramebuffers[0] + 96 * 320 + 64;
+    for (i = 0; i < 48; i++) {
+        for (j = 0; j < 192; j++) {
             *fb++ = *src++;
-            *fb++ = *src++;
-            *fb++ = *src++;
-            *fb++ = *src++;
-            j += 4;
-            if (j == 0xC0) {
-                break;
-            }
         }
-        fb = (u16 *)((u8 *)fb + 0x100);
-        i++;
-    } while (i < 0x30);
+        fb += 320 - 192;
+    }
 
     fb = gFramebuffers[1];
-    end = (u16 *)((u8 *)fb + 0x25800);
+    end = fb + 320 * 240;
     while (fb < end) {
         *fb++ = 1;
     }
@@ -383,9 +370,9 @@ void mainResetEngineState(void) {
     f32 aspectScale;
 
     osWritebackDCacheAll();
-    osInvalDCache((void *)0x80000000, 0x800000);
+    osInvalDCache((void *)K0BASE, 0x800000);
     D_8076A080 = &D_807FF100;
-    dmaReadAssetDecompress(D_8000DDE4, D_8076A080, &D_8076A084, 0, 0, 0, 0);
+    dmaReadAssetDecompress(gSegmentTable[12].romStart, D_8076A080, &D_8076A084, 0, 0, 0, 0);
     D_8076A0A4 = 0;
     controllerWaitRead();
     gFrameCounter = 0;
@@ -604,84 +591,78 @@ s32 pauseStateUpdate(void) {
 }
 
 s32 gfxSetupFrameViewports(void) {
-    u64 t;
-    u64 x;
+    u64 now;
+    u64 elapsed;
 
-    t = osGetTime();
-    x = t - D_807445B8;
+    now = osGetTime();
+    elapsed = now - D_807445B8;
     if (gGlobalPauseFlags & 2) {
-        x = x - t + D_807445C0;
+        elapsed -= now - D_807445C0;
     }
-    x = x * 0x40 / 0xBB8 / 0xF4240;
-    return (u32) x + D_80750AB0;
+    elapsed = OS_CYCLES_TO_USEC(elapsed) / 1000000;
+    return (u32) elapsed + D_80750AB0;
 }
 
-s32 hudCanRender(void) {
-    s32 canRenderHud;
-
-    canRenderHud = (gScreenRenderFlags & 0x10) == 0;
-    if (canRenderHud != 0) {
-        canRenderHud = sHudDisabled == 0;
-    }
-    return canRenderHud & 0xFF;
+u8 hudCanRender(void) {
+    return !(gScreenRenderFlags & 0x10) && sHudDisabled == 0;
 }
 
 extern u8 gViewportCount;
 
 #define ABS_DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
-void playerViewsBuildMatrices(void *outMtx) {
-    Actor *pa;
-    PlayerState *pl;
+void playerViewsBuildMatrices(FrameMatrices *frame) {
+    Actor *camActor;
+    PlayerState *playerState;
     CamState *camState;
     s32 i;
-    f32 fov;
-    f32 aspect;
-    f32 offs;
-    s32 *cc = sViewFrameCounter;
+    f32 viewAspect;
+    f32 aspectScale;
+    f32 eyeOffset;
+    s32 *frameCount = sViewFrameCounter;
 
-    aspect = cameraStepAspectScale();
+    aspectScale = cameraStepAspectScale();
     if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
         func_8062754C(func_806276AC());
     }
     for (i = 0; i < gViewportCount; i++) {
         if (gPlayerSlots[i].active != 0) {
             if (ABS_DIFF(gPlayerSlots[i].camX, gPlayerSlots[i].focusX) < 0.5 && ABS_DIFF(gPlayerSlots[i].camZ, gPlayerSlots[i].focusZ) < 0.5) {
-                offs = 1.0f;
+                eyeOffset = 1.0f;
             } else {
-                offs = 0.0f;
+                eyeOffset = 0.0f;
             }
             guLookAtHilite(&gPlayerSlots[i].viewMtx[gGfxBufferIndex], &gPlayerSlots[i].lookAt[gGfxBufferIndex], &gPlayerSlots[i].hilite[gGfxBufferIndex],
-                           gPlayerSlots[i].camX + offs, gPlayerSlots[i].camY, gPlayerSlots[i].camZ + offs,
+                           gPlayerSlots[i].camX + eyeOffset, gPlayerSlots[i].camY, gPlayerSlots[i].camZ + eyeOffset,
                            gPlayerSlots[i].focusX, gPlayerSlots[i].focusY, gPlayerSlots[i].focusZ,
                            gPlayerSlots[i].upX, gPlayerSlots[i].upY, gPlayerSlots[i].upZ,
                            D_807444CC, D_807444D0, D_807444D4,
                            D_807444D8, D_807444DC, D_807444E0,
                            0x20, 0x20);
-            fov = gPlayerSlots[i].unk280;
-            pl = gPlayerSlots[i].actor->customState;
-            pa = pl->camActor;
-            camState = pa->customState;
-            if (pl->stateFlags & 0x100) {
-                fov += 0.5 * sinApprox(cc[0] * 0.1);
-            } else if (pl->stateFlags & 0x2000000) {
-                fov += 0.05 * sinApprox(cc[0] * 0.4);
+            viewAspect = gPlayerSlots[i].unk280;
+            playerState = gPlayerSlots[i].actor->customState;
+            camActor = playerState->camActor;
+            camState = camActor->customState;
+            if (playerState->stateFlags & 0x100) {
+                viewAspect += 0.5 * sinApprox(frameCount[0] * 0.1);
+            } else if (playerState->stateFlags & 0x2000000) {
+                viewAspect += 0.05 * sinApprox(frameCount[0] * 0.4);
             } else if (camState->unkFA != 0 && gPlayerSlots[i].eyeY < camState->unk90 + 3.0f) {
-                fov += 0.04 * sinApprox(cc[0] * 0.1);
+                viewAspect += 0.04 * sinApprox(frameCount[0] * 0.1);
             }
-            guPerspective(&gPlayerSlots[i].projMtx[gGfxBufferIndex], &gPlayerSlots[i].perspNorm, gPlayerSlots[i].fov, fov * aspect, gPlayerSlots[i].nearClip, gPlayerSlots[i].farClip, 1.0f);
+            guPerspective(&gPlayerSlots[i].projMtx[gGfxBufferIndex], &gPlayerSlots[i].perspNorm, gPlayerSlots[i].fov, viewAspect * aspectScale, gPlayerSlots[i].nearClip, gPlayerSlots[i].farClip, 1.0f);
         }
     }
     if (ABS_DIFF(gPlayerSlots->camX, gPlayerSlots->focusX) < 0.5 && ABS_DIFF(gPlayerSlots->camZ, gPlayerSlots->focusZ) < 0.5) {
-        offs = 1.0f;
+        eyeOffset = 1.0f;
     } else {
-        offs = 0.0f;
+        eyeOffset = 0.0f;
     }
-    guPerspective((Mtx *)outMtx, &D_8076A09C, gPlayerSlots->fov, fov * aspect, gPlayerSlots->nearClip, gPlayerSlots->farClip, 1.0f);
-    guLookAt((Mtx *)((u8 *)outMtx + 0x200), gPlayerSlots->camX + offs, gPlayerSlots->camY, gPlayerSlots->camZ + offs,
+    guPerspective(&frame->perspective, &D_8076A09C, gPlayerSlots->fov, viewAspect * aspectScale, gPlayerSlots->nearClip, gPlayerSlots->farClip, 1.0f);
+    guLookAt(&frame->unk200, gPlayerSlots->camX + eyeOffset, gPlayerSlots->camY, gPlayerSlots->camZ + eyeOffset,
              gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ,
              gPlayerSlots->upX, gPlayerSlots->upY, gPlayerSlots->upZ);
-    cc[0]++;
+    frameCount[0]++;
 }
 
 Gfx *gfxSetViewportDisplayList(Gfx *glistp) {
@@ -731,10 +712,10 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
     gDPSetScissor(glist2++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
 
     guTranslate(&frameGfx->identity, 0.0f, 0.0f, 0.0f);
-    guOrtho(&frameGfx->ortho, 0.0f, (f32)((f64)(f32)gScreenWidth - 1.0), (f32)((f64)(f32)gScreenHeight - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&frameGfx->orthoQuad, 0.0f, (f32)(((f64)(f32)gScreenWidth * 4.0) - 1.0), (f32)(((f64)(f32)gScreenHeight * 4.0) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&frameGfx->orthoDouble, 0.0f, (f32)((2.0 * (f64)(f32)gScreenWidth) - 1.0), (f32)((2.0 * (f64)(f32)gScreenHeight) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&frameGfx->orthoViewport, (f32)((f64)(f32)gPlayerSlots->rect[0] * 4.0), (f32)(((f64)(f32)gPlayerSlots->rect[2] * 4.0) - 1.0), (f32)(((f64)(f32)gPlayerSlots->rect[3] * 4.0) - 1.0), (f32)((f64)(f32)gPlayerSlots->rect[1] * 4.0), -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->ortho, 0.0f, (f32)gScreenWidth - 1.0, (f32)gScreenHeight - 1.0, 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->orthoQuad, 0.0f, (f32)gScreenWidth * 4.0 - 1.0, (f32)gScreenHeight * 4.0 - 1.0, 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->orthoDouble, 0.0f, 2.0 * (f32)gScreenWidth - 1.0, 2.0 * (f32)gScreenHeight - 1.0, 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->orthoViewport, (f32)gPlayerSlots->rect[0] * 4.0, (f32)gPlayerSlots->rect[2] * 4.0 - 1.0, (f32)gPlayerSlots->rect[3] * 4.0 - 1.0, (f32)gPlayerSlots->rect[1] * 4.0, -20000.0f, 20000.0f, 1.0f);
     guPerspective(&frameGfx->perspective, &D_8076A09C, gGfxFovY, cameraStepAspectScale() * gGfxAspect, gGfxNearClip, gGfxFarClip, 1.0f);
 
     gSPMatrix(glist2++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -746,15 +727,15 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
     glist = gfxClearZBuffer(glist);
     gDPPipeSync(glist++);
     glist = gfxSetFrameBufferColorImage(glist);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 6, 2, 0);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 4, 2, 0);
+    gDPSetColorDither(glist++, G_CD_MAGICSQ);
+    gDPSetAlphaDither(glist++, G_AD_PATTERN);
     glist = gfxDrawSplitScreenDividers(glist);
 
     gSPClipRatio(glist++, FRUSTRATIO_3);
     gDPPipeSync(glist++);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
+    gDPSetCycleType(glist++, G_CYC_1CYCLE);
     gSPClearGeometryMode(glist++, -1);
-    gSPSetGeometryMode(glist++, 0x200404);
+    gSPSetGeometryMode(glist++, G_SHADE | G_CULL_BACK | G_SHADING_SMOOTH);
 
     glist = func_80701CA0(playerViewsRender(glist, frameGfx));
     if (gPlayerCount == 1) {
@@ -768,51 +749,51 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
     }
 
     if (((gScreenRenderFlags & 0x10) || (sHudDisabled != 0)) && ((gPlayerCount == 1) || (gSplitScreenMode == 1))) {
-        f32 fadeAlpha;
-        f32 fadeScale;
+        f32 barOffset;
+        f32 barProgress;
         gDPPipeSync(glist++);
-        gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
-        gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
-        gSPClearGeometryMode(glist++, 1);
+        gDPSetCycleType(glist++, G_CYC_FILL);
+        gDPSetRenderMode(glist++, 0, 0);
+        gSPClearGeometryMode(glist++, G_ZBUFFER);
         gDPSetFillColor(glist++, 0x00010001);
         gDPSetScissor(glist++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
 
         if (sHudDisabled != 0) {
             sHudDisabled -= 15;
-            fadeScale = (f32)(1.0 - ((f64)(u32)sHudDisabled / 255.0));
-            fadeAlpha = (f32)(D_807444AC - D_807444A8) * fadeScale;
+            barProgress = 1.0 - sHudDisabled / 255.0;
+            barOffset = (D_807444AC - D_807444A8) * barProgress;
             gDPFillRectangle(glist++, 0,
-                (fadeAlpha < (f32)D_807444A8) ? (f32)D_807444A8 - fadeAlpha : 0.0f,
+                (barOffset < D_807444A8) ? D_807444A8 - barOffset : 0.0f,
                 (gScreenWidth > 0) ? gScreenWidth : 0,
-                (fadeAlpha < (f32)D_807444AC) ? (f32)D_807444AC - fadeAlpha : 0.0f);
-            gDPFillRectangle(glist++, 0, D_807444B0 + fadeAlpha, gScreenWidth, D_807444B4 + fadeAlpha);
-            gPlayerSlots->rect[1] = (s16)((f32)D_807444AC - fadeAlpha);
-            gPlayerSlots->rect[3] = (s16)((f32)D_807444B0 + fadeAlpha);
+                (barOffset < D_807444AC) ? D_807444AC - barOffset : 0.0f);
+            gDPFillRectangle(glist++, 0, D_807444B0 + barOffset, gScreenWidth, D_807444B4 + barOffset);
+            gPlayerSlots->rect[1] = D_807444AC - barOffset;
+            gPlayerSlots->rect[3] = D_807444B0 + barOffset;
         } else {
             gDPFillRectangle(glist++, 0, D_807444A8, gScreenWidth, D_807444AC);
             gDPFillRectangle(glist++, 0, D_807444B0, gScreenWidth, D_807444B4);
-            gPlayerSlots->rect[1] = (s16)D_807444AC;
-            gPlayerSlots->rect[3] = (s16)D_807444B0;
+            gPlayerSlots->rect[1] = D_807444AC;
+            gPlayerSlots->rect[3] = D_807444B0;
         }
-        gPlayerSlots->unk27A = (s16)(gPlayerSlots->rect[3] - gPlayerSlots->rect[1]);
-        gPlayerSlots->unk280 = (f32)((f32)gPlayerSlots->unk278 / (f32)gPlayerSlots->unk27A);
+        gPlayerSlots->unk27A = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
+        gPlayerSlots->unk280 = (f32)gPlayerSlots->unk278 / gPlayerSlots->unk27A;
         gDPPipeSync(glist++);
-        gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
+        gDPSetRenderMode(glist++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
     }
 
     if ((gViewportInsetLeft != 0) || (gViewportInsetRight != 0) || (gViewportInsetTop != 0) || (gViewportInsetBottom != 0) || (gViewportInsetActive != 0)) {
         G00Entry *vpEntry;
-        s16 dx, dy;
+        s16 width, height;
         vpEntry = cameraFindViewportEntry(0);
-        gPlayerSlots->rect[0] = (s16)(vpEntry->left + gViewportInsetLeft);
-        gPlayerSlots->rect[2] = (s16)(vpEntry->right - gViewportInsetRight);
-        gPlayerSlots->rect[1] = (s16)(vpEntry->top + gViewportInsetTop);
-        gPlayerSlots->rect[3] = (s16)(vpEntry->bottom - gViewportInsetBottom);
+        gPlayerSlots->rect[0] = vpEntry->left + gViewportInsetLeft;
+        gPlayerSlots->rect[2] = vpEntry->right - gViewportInsetRight;
+        gPlayerSlots->rect[1] = vpEntry->top + gViewportInsetTop;
+        gPlayerSlots->rect[3] = vpEntry->bottom - gViewportInsetBottom;
 
         gDPPipeSync(glist++);
-        gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
-        gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
-        gSPClearGeometryMode(glist++, 1);
+        gDPSetCycleType(glist++, G_CYC_FILL);
+        gDPSetRenderMode(glist++, 0, 0);
+        gSPClearGeometryMode(glist++, G_ZBUFFER);
         gDPSetFillColor(glist++, 0x00010001);
         gDPSetScissor(glist++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
 
@@ -830,8 +811,8 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         }
 
         gDPPipeSync(glist++);
-        gPlayerSlots->unk278 = (s16)(gPlayerSlots->rect[2] - gPlayerSlots->rect[0]);
-        gPlayerSlots->unk27A = (s16)(gPlayerSlots->rect[3] - gPlayerSlots->rect[1]);
+        gPlayerSlots->unk278 = gPlayerSlots->rect[2] - gPlayerSlots->rect[0];
+        gPlayerSlots->unk27A = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
         if ((gViewportInsetLeft == 0) && (gViewportInsetRight == 0) && (gViewportInsetTop == 0) && (gViewportInsetBottom == 0)) {
             gViewportInsetActive = 0;
         } else {
@@ -841,10 +822,10 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         gViewportInsetRight = 0;
         gViewportInsetTop = 0;
         gViewportInsetBottom = 0;
-        dx = vpEntry->right - vpEntry->left;
-        dy = vpEntry->bottom - vpEntry->top;
-        gPlayerSlots->unk280 = (f32)dx / (f32)dy;
-        gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
+        width = vpEntry->right - vpEntry->left;
+        height = vpEntry->bottom - vpEntry->top;
+        gPlayerSlots->unk280 = (f32)width / height;
+        gDPSetRenderMode(glist++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
     }
 
     glist = renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute(gfxInit2DDisplayList(glist), 3), gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ), 5), 7);
@@ -912,21 +893,21 @@ void gfxEndDisplayList(Gfx *inGlist, u8 bufIdx, s32 *outSize, u8 fullSync) {
         gDPFullSync(glistp++);
     }
     gSPEndDisplayList(glistp++);
-    *outSize = glistp - (Gfx *)gGfxTaskBuffers[bufIdx];
+    *outSize = glistp - gGfxTaskBuffers[bufIdx];
     if (*outSize >= D_8076A058) {
         faultSetMessage(0x12, 0, 0, 0);
     }
 }
 
 
-void gfxEndSubDisplayList(Gfx *inGlist, void *basePtr, s32 *outSize, u8 fullSync) {
+void gfxEndSubDisplayList(Gfx *inGlist, FrameMatrices *frame, s32 *outSize, u8 fullSync) {
     Gfx *glistp = inGlist;
 
     if (fullSync) {
         gDPFullSync(glistp++);
     }
     gSPEndDisplayList(glistp++);
-    *outSize = ((s32)glistp - (s32)basePtr - 0xDB0) >> 3;
+    *outSize = glistp - frame->subDisplayList;
 }
 
 

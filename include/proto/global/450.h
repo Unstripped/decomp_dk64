@@ -31,10 +31,10 @@ s32 pauseStateUpdate(void);
 s32 gfxSetupFrameViewports(void);
 #endif
 #ifndef PROTO_SKIP_hudCanRender
-s32 hudCanRender(void);
+u8 hudCanRender(void);
 #endif
 #ifndef PROTO_SKIP_playerViewsBuildMatrices
-void playerViewsBuildMatrices(void *);
+void playerViewsBuildMatrices(FrameMatrices *);
 #endif
 #ifndef PROTO_SKIP_gfxSetViewportDisplayList
 Gfx *gfxSetViewportDisplayList(Gfx *);
@@ -61,7 +61,7 @@ Gfx *gfxClearFramebuffer(Gfx *, u8);
 void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
 #endif
 #ifndef PROTO_SKIP_gfxEndSubDisplayList
-void gfxEndSubDisplayList(Gfx *, void *, s32 *, u8);
+void gfxEndSubDisplayList(Gfx *, FrameMatrices *, s32 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapLoadLevel
 void mapLoadLevel(void);
