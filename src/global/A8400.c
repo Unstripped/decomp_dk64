@@ -14,14 +14,14 @@
 #include "proto/global/90D80.h"
 #include "proto/global/A8400.h"
 
-void func_806A3700(Actor *unused0, void *unused1) {
+void func_806A3700(Actor *key, void *data) {
 }
 
 extern u8 gGfxBufferIndex;
 extern u16 D_8075A740;
 
 
-void textBoxRenderNode(Gfx **gdl, ResQueueActorState *pos, ResRow *source, ResGlyph *drawNode) {
+void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGlyph *glyph) {
     union { u16 h; u8 b; u8 text[8]; } str;
     f32 mtx[4][4];
     f32 tmp[4][4];
@@ -29,28 +29,28 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *pos, ResRow *source, ResGl
     f32 halfW;
     f32 halfH;
     Gfx *dl;
-    ResGlyphText *mdl;
+    ResGlyphText *text;
     f32 scale;
 
     dl = *gdl;
     str.h = D_8075A740;
-    mdl = &drawNode->text;
+    text = &glyph->text;
     guMtxIdentF(mtx);
-    if ((mdl->attr != 0) && (drawNode->fade != 0)) {
-        halfW = (f32) drawNode->width * 0.5f * 4.0f;
-        halfH = source->height * 0.5f * 4.0f;
+    if ((text->attr != 0) && (glyph->fade != 0)) {
+        halfW = glyph->width * 0.5f * 4.0f;
+        halfH = row->height * 0.5f * 4.0f;
         guTranslateF(tmp, -halfW, -halfH, 0.0f);
         guMtxCatF(mtx, tmp, mtx);
-        mdl->animPhase = (f32) ((f64) mdl->animPhase + 0.418879032135009766);
-        if ((mdl->attr & 8) != 0) {
-            angle = (f32) ((f64) mdl->animPhase * 0.5);
+        text->animPhase += 0.418879032135009766;
+        if ((text->attr & 8) != 0) {
+            angle = text->animPhase * 0.5;
             if (angle <= 6.2831855f) {
                 guRotateF(tmp, angle * 57.295776f, 0.0f, 0.0f, 1.0f);
                 guMtxCatF(mtx, tmp, mtx);
             }
         }
-        if ((mdl->attr & 4) != 0) {
-            angle = mdl->animPhase;
+        if ((text->attr & 4) != 0) {
+            angle = text->animPhase;
             if (angle <= 6.2831855f) {
                 scale = sinApprox(angle - 1.5707964f) + 1.0f;
                 scale = 0.25f * scale + 1.0f;
@@ -60,11 +60,11 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *pos, ResRow *source, ResGl
             guScaleF(tmp, scale, scale, 1.0f);
             guMtxCatF(mtx, tmp, mtx);
         }
-        if ((mdl->attr & 2) != 0) {
+        if ((text->attr & 2) != 0) {
             f32 jitterX;
             f32 jitterY;
-            jitterX = (4.0f * sinApprox(mdl->animPhase)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
-            jitterY = (4.0f * sinApprox(mdl->animPhase)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            jitterX = (4.0f * sinApprox(text->animPhase)) * ((20.0f - ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            jitterY = (4.0f * sinApprox(text->animPhase)) * ((20.0f - ((randomNonNegative() >> 15) % 40)) / 20.0f);
             guTranslateF(tmp, jitterX, jitterY, 0.0f);
             guMtxCatF(mtx, tmp, mtx);
         }
@@ -73,99 +73,93 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *pos, ResRow *source, ResGl
     }
     guScaleF(tmp, 1.0, 1.0, 1.0);
     guMtxCatF(mtx, tmp, mtx);
-    guTranslateF(tmp, (f32) (((f64) pos->boxLeft + (f64) drawNode->x) * 4.0), (f32) (((f64) pos->boxTop + (f64) drawNode->y) * 4.0), 0.0f);
+    guTranslateF(tmp, ((f64) state->boxLeft + glyph->x) * 4.0, ((f64) state->boxTop + glyph->y) * 4.0, 0.0f);
     guMtxCatF(mtx, tmp, mtx);
-    guMtxF2L(mtx, (Mtx *) mdl->mtx[gGfxBufferIndex]);
-    gSPMatrix(dl++, mdl->mtx[gGfxBufferIndex], G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    guMtxF2L(mtx, (Mtx *) text->mtx[gGfxBufferIndex]);
+    gSPMatrix(dl++, text->mtx[gGfxBufferIndex], G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(dl++);
-    gDPSetPrimColor(dl++, 0, 0, 0x28, 0x28, 0xFF, drawNode->alpha);
-    str.b = mdl->code;
+    gDPSetPrimColor(dl++, 0, 0, 0x28, 0x28, 0xFF, glyph->alpha);
+    str.b = text->code;
     *gdl = textDrawStringVtx(dl, 6, 0, 0, str.text, 0);
 }
 
 
-void renderAppendNodeChain(Gfx **gdl, ResQueueActorState *drawActor, ResRow *head, u8 checkLast, u8 *stop) {
+void renderAppendNodeChain(Gfx **gdl, ResQueueActorState *state, ResRow *row, u8 isLast, u8 *stop) {
     Gfx *dl;
     s32 i;
-    ResGlyph *node;
+    ResGlyph *glyph;
 
     dl = *gdl;
-    node = head->glyphs;
+    glyph = row->glyphs;
     i = 0;
-    while (node != NULL && *stop == 0) {
-        if (checkLast && (i == drawActor->glyphCursor)) {
+    while (glyph != NULL && *stop == 0) {
+        if (isLast && (i == state->glyphCursor)) {
             *stop = 1;
         }
-        if (head->kind & 1) {
-            textBoxRenderNode(&dl, drawActor, head, node);
+        if (row->kind & 1) {
+            textBoxRenderNode(&dl, state, row, glyph);
         }
-        node = node->next;
+        glyph = glyph->next;
         i++;
     }
     *gdl = dl;
 }
 
-#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-
-
-Gfx *renderTextureSprite(Gfx *dl, s32 mtx, u8 alpha, s32 frame) {
+Gfx *renderTextureSprite(Gfx *dl, Mtx *mtx, u8 alpha, s32 frame) {
     void *tex;
 
     tex = texCacheFindOrLoad(frame + 0x52);
-    WRITE_GFX(dl++, 0xE7000000, 0);
-    WRITE_GFX(dl++, 0xFA000000, (alpha & 0xFF) | 0xFFFFFF00);
-    WRITE_GFX(dl++, 0xDA380002, mtx);
+    gDPPipeSync(dl++);
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
+    gSPMatrix(dl++, mtx, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gfxDrawTexturedTileGridSimple(&dl, tex, 3, 0x60, 0x40, 0x20, 0x20, 0.0f, 0.0f, 96.0f, 64.0f, 0.0f, 0.0f, 1, 8);
-    WRITE_GFX(dl++, 0xD8380002, 0x40);
-    WRITE_GFX(dl++, 0xE7000000, 0);
+    gSPPopMatrix(dl++, G_MTX_MODELVIEW);
+    gDPPipeSync(dl++);
     return dl;
 }
 
 
-void mathAddWaveOffset(f32 *x, f32 *y, f32 t, f32 amp, ResQueueActorState *angles) {
-    *x += (t * amp) * 24.0f * mathSinF((s16) ((s16) ((s32) ((f32) angles->waveAngleX + (t * 3000.0f))) & 0xFFF));
-    *y += (t * amp) * 16.0f * mathCosF((s16) ((s16) ((s32) ((f32) angles->waveAngleY + (t * 3000.0f))) & 0xFFF));
+void mathAddWaveOffset(f32 *x, f32 *y, f32 t, f32 amp, ResQueueActorState *state) {
+    *x += (t * amp) * 24.0f * mathSinF((s16) (state->waveAngleX + t * 3000.0f) & 0xFFF);
+    *y += (t * amp) * 16.0f * mathCosF((s16) (state->waveAngleY + t * 3000.0f) & 0xFFF);
 }
 
-extern u8 gGfxBufferIndex;
-
-Gfx *textBoxRenderTail(Gfx *dl, ResQueueActorState *anim, s32 frame) {
+Gfx *textBoxRenderTail(Gfx *dl, ResQueueActorState *state, s32 frame) {
     f32 mtx[4][4];
     f32 step[4][4];
     f32 x;
     f32 y;
-    u8 cnt;
+    u8 count;
     u8 i;
 
-    cnt = ((anim->openProgress < 0.32) ? anim->openProgress : 0.32) * 12.5;
-    for (i = 1; i <= cnt; i++) {
-        x = (anim->targetX - anim->anchorX) * (i * 0.08) + anim->anchorX;
-        y = (anim->targetY - anim->anchorY) * (i * 0.08) + anim->anchorY;
+    count = ((state->openProgress < 0.32) ? state->openProgress : 0.32) * 12.5;
+    for (i = 1; i <= count; i++) {
+        x = (state->targetX - state->anchorX) * (i * 0.08) + state->anchorX;
+        y = (state->targetY - state->anchorY) * (i * 0.08) + state->anchorY;
         guTranslateF(mtx, -48.0f, -32.0f, 0);
         guScaleF(step, i * 0.08 * 1.9f * 4.0 * 0.5, i * 0.08 * 1.9f * 4.0 * 0.5, 1.0f);
         guMtxCatF(mtx, step, mtx);
-        mathAddWaveOffset(&x, &y, i * 0.08, 1.0f, anim);
+        mathAddWaveOffset(&x, &y, i * 0.08, 1.0f, state);
         guTranslateF(step, x * 4.0f, y * 4.0f, 0.0f);
         guMtxCatF(mtx, step, mtx);
-        guMtxF2L(mtx, (Mtx *) (anim->mtxBuf + ((i * 2 + gGfxBufferIndex) << 6)));
-        dl = renderTextureSprite(dl, (s32) (anim->mtxBuf + ((i * 2 + gGfxBufferIndex) << 6)), ((i * 300 * 0.08) > 150.0) ? 150.0 : (i * 300 * 0.08), frame);
+        guMtxF2L(mtx, &state->mtxBuf[i * 2 + gGfxBufferIndex]);
+        dl = renderTextureSprite(dl, &state->mtxBuf[i * 2 + gGfxBufferIndex], ((i * 300 * 0.08) > 150.0) ? 150.0 : (i * 300 * 0.08), frame);
     }
     return dl;
 }
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern u8 gGfxBufferIndex;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
-
+#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     /* pad* are unused slots above the live locals; with scale/alpha/isLast
        (register-allocated, kept above dl so they cost no below-dl slot) they
-       reproduce the original stack frame (0x148, dl 0x98, start 0x94, spA0 0xA0,
-       spE0 0xE0, half 0x132, stop 0x13B). */
+       reproduce the original stack frame (0x148, dl 0x98, start 0x94, tmp 0xA0,
+       mtx 0xE0, half 0x132, stop 0x13B). */
     s32 padA;
     f32 alpha;
     f32 padH;
@@ -182,152 +176,150 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     Gfx *dl;
     Gfx *start;
     ResQueueActorState *state;
-    ResRow *node;
+    ResRow *row;
     s32 i;
 
     state = actor->customState;
-    node = state->rows;
+    row = state->rows;
     stop = 0;
     dl = heapAlloc(0x4000);
     heapFreeDeferred(dl);
     start = dl;
-    WRITE_GFX(dl++, 0xDE000000, (u32) &D_1000118);
-    WRITE_GFX(dl++, 0xDA380007, (u32) &D_20000C0);
-    WRITE_GFX(dl++, 0xE7000000, 0);
-    WRITE_GFX(dl++, 0xE200001C, 0x504240);
-    WRITE_GFX(dl++, 0xE3000A01, 0);
-    WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(dl++, 0xD9000000, 0);
-    WRITE_GFX(dl++, 0xD9FFFFFF, 0x200004);
+    gSPDisplayList(dl++, &D_1000118);
+    gSPMatrix(dl++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gDPPipeSync(dl++);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+    gDPSetCycleType(dl++, G_CYC_1CYCLE);
+    gDPSetCombine(dl++, 0x119623, 0xFF2FFFFF);
+    gSPClearGeometryMode(dl++, 0xFFFFFFFF);
+    gSPSetGeometryMode(dl++, G_SHADE | G_SHADING_SMOOTH);
     half = state->animFrame / 2;
-    scale = (f32) ((1.0 - (f64) state->waveAmp * 0.5) * (f64) state->openProgress * 1.9f * 4.0);
+    scale = (1.0 - state->waveAmp * 0.5) * state->openProgress * 1.9f * 4.0;
     guTranslateF(mtx, -48.0f, -32.0f, 0.0f);
     guScaleF(tmp, scale, scale, 1.0f);
     guMtxCatF(mtx, tmp, mtx);
     guTranslateF(tmp, actor->x * 4.0f, actor->y * 4.0f, 0.0f);
     guMtxCatF(mtx, tmp, mtx);
-    guMtxF2L(mtx, (Mtx *) (state->mtxBuf + (gGfxBufferIndex << 6)));
-    WRITE_GFX(dl++, 0xE7000000, 0);
-    WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots->rect[0] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots->rect[1] * 4.0f) & 0xFFF),
-              (((s32) ((f32) gPlayerSlots->rect[2] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots->rect[3] * 4.0f) & 0xFFF));
+    guMtxF2L(mtx, &state->mtxBuf[gGfxBufferIndex]);
+    gDPPipeSync(dl++);
+    gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
     dl = textBoxRenderTail(dl, state, half);
     alpha = (state->openProgress * 150.0f * 2 > 150.0f) ? 150.0f : state->openProgress * 150.0f * 2;
-    dl = renderTextureSprite(dl, (s32) (state->mtxBuf + (gGfxBufferIndex << 6)), (u8) alpha, half);
+    dl = renderTextureSprite(dl, &state->mtxBuf[gGfxBufferIndex], alpha, half);
     if (state->textAlpha != 0) {
-        WRITE_GFX(dl++, 0xE7000000, 0);
-        WRITE_GFX(dl++, ((s32) (state->boxTop * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->boxLeft * 4.0f) & 0xFFF) << 12),
+        gDPPipeSync(dl++);
+        WRITE_GFX(dl++, ((s32) (state->boxTop * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->boxLeft * 4.0f) & 0xFFF) << 12), // FAKE: hand-expanded gDPSetScissor whose uly-first operand order steers the word schedule (the macro matches with box[4] array reads)
                   ((s32) (state->boxBottom * 4.0f) & 0xFFF) | (((s32) (state->boxRight * 4.0f) & 0xFFF) << 12));
     }
     i = 0;
-    while (((s32) state->rowState >= i) && (node != NULL) && (stop == 0)) {
+    while ((state->rowState >= i) && (row != NULL) && (stop == 0)) {
         isLast = (i == state->rowState);
-        WRITE_GFX(dl++, 0xE7000000, 0);
-        renderAppendNodeChain(&dl, state, node, isLast, &stop);
+        gDPPipeSync(dl++);
+        renderAppendNodeChain(&dl, state, row, isLast, &stop);
         if (!stop) {
-            node = node->next;
+            row = row->next;
         }
         i++;
     }
-    WRITE_GFX(dl++, 0xE7000000, 0);
+    gDPPipeSync(dl++);
     if (state->textAlpha != 0) {
-        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[0] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[1] * 4.0f) & 0xFFF),
-                  (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[2] * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].rect[3] * 4.0f) & 0xFFF));
+        gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1],
+                      gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     }
-    state->animFrame = state->animFrame + 1;
-    state->animFrame = state->animFrame % 16;
-    WRITE_GFX(dl++, 0xDF000000, 0);
-    WRITE_GFX(gdl++, 0xDE000000, (u32) start);
+    state->animFrame++;
+    state->animFrame %= 16;
+    gSPEndDisplayList(dl++);
+    gSPDisplayList(gdl++, start);
     return gdl;
 }
 
 extern void *gEffectGridAssets[];
 
-void textBoxRowUpdateIcon(ResGlyph *row, ResRow *holder, ResQueueActorState *chain) {
-    ResGlyphCell *slot = &row->cell;
-    f32 halfW = (f32) row->width * 0.5f;
-    f32 x = row->x;
-    f32 y = row->y;
+void textBoxRowUpdateIcon(ResGlyph *glyph, ResRow *row, ResQueueActorState *state) {
+    ResGlyphCell *cell = &glyph->cell;
+    f32 halfW = glyph->width * 0.5f;
+    f32 x = glyph->x;
+    f32 y = glyph->y;
 
-    if (slot->effect == NULL) {
+    if (cell->effect == NULL) {
         effectSetDuration(-1);
         effectSetDepth(0);
         effectEnableFade();
         effectSetMode(2);
-        effectSetBounds((s16) (s32) chain->boxLeft, (s16) (s32) chain->boxTop, (s16) (s32) chain->boxRight,
-                      (s16) (s32) chain->boxBottom);
-        slot->effect = effectCreateAtPosition(gEffectGridAssets[slot->effectId], 1.0f, chain->boxLeft, chain->boxTop, 1);
-        if (slot->flip != 0) {
-            slot->effect->scaleX *= -1.0f;
+        effectSetBounds(state->boxLeft, state->boxTop, state->boxRight, state->boxBottom);
+        cell->effect = effectCreateAtPosition(gEffectGridAssets[cell->effectId], 1.0f, state->boxLeft, state->boxTop, 1);
+        if (cell->flip != 0) {
+            cell->effect->scaleX *= -1.0f;
         }
     }
     x += halfW;
-    slot->effect->x = (f32) (((f64) chain->boxLeft + x) * 4.0);
-    slot->effect->y = (f32) (((f64) chain->boxTop + (y + (holder->height * 0.5f))) * 4.0);
-    slot->effect->alpha = row->alpha;
-    slot->effect->minX = (s16) (s32) chain->boxLeft;
-    slot->effect->minY = (s16) (s32) chain->boxTop;
-    slot->effect->maxX = (s16) (s32) chain->boxRight;
-    slot->effect->maxY = (s16) (s32) chain->boxBottom;
+    cell->effect->x = ((f64) state->boxLeft + x) * 4.0;
+    cell->effect->y = ((f64) state->boxTop + (y + row->height * 0.5f)) * 4.0;
+    cell->effect->alpha = glyph->alpha;
+    cell->effect->minX = state->boxLeft;
+    cell->effect->minY = state->boxTop;
+    cell->effect->maxX = state->boxRight;
+    cell->effect->maxY = state->boxBottom;
 }
 
-void textBoxRowUpdateNodes(f32 y, Actor *actor, ResQueueActorState *chain, ResRow *holder, u8 isLast, u8 *stop) {
+void textBoxRowUpdateNodes(f32 y, Actor *actor, ResQueueActorState *state, ResRow *row, u8 isLast, u8 *stop) {
     f32 x;
     s32 step;
     s32 i;
     u8 alpha;
-    u8 prevAlpha;
-    ResGlyph *node;
+    u8 fade;
+    ResGlyph *glyph;
 
-    node = holder->glyphs;
+    glyph = row->glyphs;
     i = 0;
-    x = ((f64) 136.8f - holder->width) / 2.0;
-    while (node != NULL && *stop == 0) {
-        if (isLast && i == chain->glyphCursor) {
-            if (!(chain->inputFlags & 4)) {
+    x = ((f64) 136.8f - row->width) / 2.0;
+    while (glyph != NULL && *stop == 0) {
+        if (isLast && i == state->glyphCursor) {
+            if (!(state->inputFlags & 4)) {
                 *stop = 1;
             }
             if (actor->state == 1) {
-                if (i == 0 && node->fade == 0) {
-                    func_806A3700(chain->key, holder->data);
+                if (i == 0 && glyph->fade == 0) {
+                    func_806A3700(state->key, row->data);
                 }
-                prevAlpha = node->fade;
-                if (prevAlpha != 0xFF) {
+                fade = glyph->fade;
+                if (fade != 0xFF) {
                     step = 0x96;
-                    if (chain->inputFlags & 2) {
-                        step = (s32) (step * 0.5);
+                    if (state->inputFlags & 2) {
+                        step *= 0.5;
                     }
-                    if (!(chain->inputFlags & 4) && (step < (0xFF - node->fade))) {
-                        node->fade = node->fade + step;
+                    if (!(state->inputFlags & 4) && (step < (0xFF - glyph->fade))) {
+                        glyph->fade += step;
                     } else {
-                        node->fade = 0xFF;
-                        if (node->next != NULL) {
-                            chain->glyphCursor++;
+                        glyph->fade = 0xFF;
+                        if (glyph->next != NULL) {
+                            state->glyphCursor++;
                         } else {
-                            chain->glyphCursor = 0;
-                            chain->rowState++;
+                            state->glyphCursor = 0;
+                            state->rowState++;
                             *stop = 1;
-                            if (holder->timer != 0) {
+                            if (row->timer != 0) {
                                 actor->state = 3;
-                                chain->holdTimer = holder->timer;
+                                state->holdTimer = row->timer;
                             }
                         }
                     }
                 }
             }
         }
-        if (chain->textAlpha < node->fade) {
-            alpha = chain->textAlpha;
+        if (state->textAlpha < glyph->fade) {
+            alpha = state->textAlpha;
         } else {
-            alpha = node->fade;
+            alpha = glyph->fade;
         }
-        node->x = x;
-        node->y = y;
-        node->alpha = alpha;
-        if (holder->kind & 2) {
-            textBoxRowUpdateIcon(node, holder, chain);
+        glyph->x = x;
+        glyph->y = y;
+        glyph->alpha = alpha;
+        if (row->kind & 2) {
+            textBoxRowUpdateIcon(glyph, row, state);
         }
-        x += (f32) node->width;
-        node = node->next;
+        x += glyph->width;
+        glyph = glyph->next;
         i++;
     }
 }
@@ -337,26 +329,26 @@ void textBoxRowUpdateNodes(f32 y, Actor *actor, ResQueueActorState *chain, ResRo
 
 void textBoxUpdateRows(Actor *actor) {
     ResQueueActorState *state;
-    ResRow *node;
+    ResRow *row;
     ResRow *cur;
     u8 stop;
     u8 pad[0x90];
-    f32 acc;
-    f32 dt;
-    f32 lim;
+    f32 rowY;
+    f32 rowHeight;
+    f32 amp;
     s16 mode;
-    u8 last;
+    u8 isLast;
     s32 i;
 
     state = actor->customState;
-    node = state->rows;
+    row = state->rows;
     stop = 0;
-    lim = (1.0f - state->openProgress) * 1.47058823529411775;
-    if (lim > 1.0f) {
-        lim = 1.0f;
+    amp = (1.0f - state->openProgress) * 1.47058823529411775;
+    if (amp > 1.0f) {
+        amp = 1.0f;
     }
-    state->waveAmp = lim;
-    mathAddWaveOffset(&actor->x, &actor->y, state->openProgress, lim, state);
+    state->waveAmp = amp;
+    mathAddWaveOffset(&actor->x, &actor->y, state->openProgress, amp, state);
     state->boxLeft = actor->x - (state->openProgress * 136.8f) * 0.5;
     state->boxTop = actor->y - (state->openProgress * 79.799995f) * 0.5;
     state->boxRight = actor->x + (state->openProgress * 136.8f) * 0.5;
@@ -365,29 +357,29 @@ void textBoxUpdateRows(Actor *actor) {
     state->boxTop = (gPlayerSlots->rect[1] < state->boxTop) ? state->boxTop : gPlayerSlots->rect[1];
     state->boxRight = (state->boxRight < gPlayerSlots->rect[2]) ? state->boxRight : gPlayerSlots->rect[2];
     state->boxBottom = (state->boxBottom < gPlayerSlots->rect[3]) ? state->boxBottom : gPlayerSlots->rect[3];
-    acc = state->scrollY;
+    rowY = state->scrollY;
     i = 0;
-    while ((state->rowState >= i) && (node != NULL) && (stop == 0)) {
-        last = (i == state->rowState);
-        dt = node->height;
-        if ((acc + dt > 73.79999542236328) && (actor->state == 1)) {
+    while ((state->rowState >= i) && (row != NULL) && (stop == 0)) {
+        isLast = (i == state->rowState);
+        rowHeight = row->height;
+        if ((rowY + rowHeight > 73.79999542236328) && (actor->state == 1)) {
             actor->state = 2;
-            state->scrollLeft = acc + dt - 73.79999542236328;
+            state->scrollLeft = rowY + rowHeight - 73.79999542236328;
             stop = 1;
-        } else if ((acc + dt < 0.0f) && (actor->state == 2)) {
-            state->scrollY += dt;
-            state->rows = node->next;
+        } else if ((rowY + rowHeight < 0.0f) && (actor->state == 2)) {
+            state->scrollY += rowHeight;
+            state->rows = row->next;
             state->rowState--;
             i--;
-            acc += dt;
-            cur = node;
-            node = node->next;
+            rowY += rowHeight;
+            cur = row;
+            row = row->next;
             resNodeFree(cur);
         } else {
-            textBoxRowUpdateNodes(acc, actor, state, node, last, &stop);
+            textBoxRowUpdateNodes(rowY, actor, state, row, isLast, &stop);
             if (stop == 0) {
-                node = node->next;
-                acc += dt;
+                row = row->next;
+                rowY += rowHeight;
             }
         }
         i++;
@@ -403,25 +395,24 @@ void textBoxUpdateRows(Actor *actor) {
             }
             break;
     }
-    if ((mode == 1) && (node == NULL)) {
+    if ((mode == 1) && (row == NULL)) {
         resQueueProcessNext(actor, state->key);
     }
 }
 
-extern u8 gCurrentPlayerIndex;
 extern s16 gScreenWidth;
 
 #define CLAMP_TO_BOUNDS(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
 
-void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
+void textBoxUpdatePosition(Actor *actor, ResQueueActorState *state, f32 step) {
     f32 screenX, screenY;
     s32 nodeIndex;
-    ScriptedActorState *node;
+    ScriptedActorState *script;
     s32 pad;
     f32 posX, posY, posZ;
 
     nodeIndex = 0;
-    switch (sub->key->actorType) {
+    switch (state->key->actorType) {
     case 0x22:
     case 0x2E:
     case 0x7C:
@@ -430,17 +421,17 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     case 0x7F:
     case 0xDA:
     case 0x100:
-        sub->anchorFixed = 1;
-        sub->anchorX = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[2];
-        sub->anchorY = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[3];
+        state->anchorFixed = 1;
+        state->anchorX = gPlayerSlots[gCurrentPlayerIndex].rect[2];
+        state->anchorY = gPlayerSlots[gCurrentPlayerIndex].rect[3];
         break;
     case 0xFE:
-        node = ((ScriptedActor *)sub->key)->scriptState;
-        nodeIndex = node->anchorNode;
+        script = ((ScriptedActor *)state->key)->scriptState;
+        nodeIndex = script->anchorNode;
         break;
     default:
-        if (sub->key->animState != NULL) {
-            switch (controllerLookupStateByHash(sub->key)) {
+        if (state->key->animState != NULL) {
+            switch (controllerLookupStateByHash(state->key)) {
             case 0x11:
             case 0x12:
             case 0x1D:
@@ -486,68 +477,68 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
         }
         break;
     }
-    if ((sub->key->animState == NULL) && (sub->anchorFixed == 0)) {
-        sub->anchorFixed = 1;
-        sub->anchorX = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[0];
-        sub->anchorY = (f32) gPlayerSlots[gCurrentPlayerIndex].rect[1];
+    if ((state->key->animState == NULL) && (state->anchorFixed == 0)) {
+        state->anchorFixed = 1;
+        state->anchorX = gPlayerSlots[gCurrentPlayerIndex].rect[0];
+        state->anchorY = gPlayerSlots[gCurrentPlayerIndex].rect[1];
     }
-    if (sub->anchorFixed == 0) {
+    if (state->anchorFixed == 0) {
         if (nodeIndex == 0) {
-            posX = sub->key->x;
-            posY = sub->key->y + 1.5 * sub->key->eyeHeight;
-            posZ = sub->key->z;
+            posX = state->key->x;
+            posY = state->key->y + 1.5 * state->key->eyeHeight;
+            posZ = state->key->z;
         } else {
-            actorGetNodePos(sub->key, nodeIndex, &posX, &posY, &posZ);
+            actorGetNodePos(state->key, nodeIndex, &posX, &posY, &posZ);
         }
         if (camProjectToScreen(posX, posY, posZ, &screenX, &screenY, 0, 1.0f, gCurrentPlayerIndex) != 0) {
-            screenX = sub->anchorX;
-            screenY = sub->anchorY;
+            screenX = state->anchorX;
+            screenY = state->anchorY;
         }
-        screenX = CLAMP_TO_BOUNDS(screenX, (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[0] - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[2] + 0x64));
-        screenY = CLAMP_TO_BOUNDS(screenY, (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[1] - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].rect[3] + 0x64));
-        sub->anchorX = screenX;
-        sub->anchorY = screenY;
+        screenX = CLAMP_TO_BOUNDS(screenX, gPlayerSlots[gCurrentPlayerIndex].rect[0] - 0x64, gPlayerSlots[gCurrentPlayerIndex].rect[2] + 0x64);
+        screenY = CLAMP_TO_BOUNDS(screenY, gPlayerSlots[gCurrentPlayerIndex].rect[1] - 0x64, gPlayerSlots[gCurrentPlayerIndex].rect[3] + 0x64);
+        state->anchorX = screenX;
+        state->anchorY = screenY;
     }
-    screenX = sub->anchorX;
-    screenY = sub->anchorY;
-    if (((f32) gScreenWidth * 0.5f) < screenX) {
-        screenX = screenX - 131.1999969482421875;
+    screenX = state->anchorX;
+    screenY = state->anchorY;
+    if ((gScreenWidth * 0.5f) < screenX) {
+        screenX -= 131.1999969482421875;
     } else {
-        screenX = screenX + 131.1999969482421875;
+        screenX += 131.1999969482421875;
     }
     if (screenY > 60.7999992370605469) {
-        screenY = screenY - 60.7999992370605469;
+        screenY -= 60.7999992370605469;
     }
-    screenX = (f32) CLAMP_TO_BOUNDS((f64) screenX, (f64) gPlayerSlots[gCurrentPlayerIndex].rect[0] + 91.1999969482421875 + 5.0,
-                           (f64) gPlayerSlots[gCurrentPlayerIndex].rect[2] - 96.1999969482421875);
-    screenY = (f32) CLAMP_TO_BOUNDS((f64) screenY, (f64) gPlayerSlots[gCurrentPlayerIndex].rect[1] + 60.7999992370605469 + 5.0,
-                           (f64) gPlayerSlots[gCurrentPlayerIndex].rect[3] - 65.7999992370605469);
-    sub->targetX = ((screenX - sub->targetX) * step) + sub->targetX;
-    sub->targetY = ((screenY - sub->targetY) * step) + sub->targetY;
-    actor->x = (((sub->targetX - sub->anchorX) * sub->openProgress) + sub->anchorX);
-    actor->y = (((sub->targetY - sub->anchorY) * sub->openProgress) + sub->anchorY);
+    screenX = CLAMP_TO_BOUNDS(screenX, gPlayerSlots[gCurrentPlayerIndex].rect[0] + 91.1999969482421875 + 5.0,
+                              gPlayerSlots[gCurrentPlayerIndex].rect[2] - 96.1999969482421875);
+    screenY = CLAMP_TO_BOUNDS(screenY, gPlayerSlots[gCurrentPlayerIndex].rect[1] + 60.7999992370605469 + 5.0,
+                              gPlayerSlots[gCurrentPlayerIndex].rect[3] - 65.7999992370605469);
+    state->targetX = ((screenX - state->targetX) * step) + state->targetX;
+    state->targetY = ((screenY - state->targetY) * step) + state->targetY;
+    actor->x = (((state->targetX - state->anchorX) * state->openProgress) + state->anchorX);
+    actor->y = (((state->targetY - state->anchorY) * state->openProgress) + state->anchorY);
 }
 
-void renderCalcChainCenterOffset(ResQueueActorState *head) {
-    ResRow *node;
-    s32 sum;
+void renderCalcChainCenterOffset(ResQueueActorState *state) {
+    ResRow *row;
+    s32 total;
 
-    sum = 0;
-    node = head->rows;
-    if (node == NULL) {
+    total = 0;
+    row = state->rows;
+    if (row == NULL) {
         return;
     }
-    if (node->glyphs->fade != 0) {
+    if (row->glyphs->fade != 0) {
         return;
     }
-    while (node != NULL) {
-        sum = (s32)((f32)sum + node->height);
-        node = node->next;
+    while (row != NULL) {
+        total += row->height;
+        row = row->next;
     }
-    if ((f64)sum < 79.7999954223632812) {
-        head->scrollY = (79.7999954223632812 - (f64)sum) * 0.5;
+    if (total < 79.7999954223632812) {
+        state->scrollY = (79.7999954223632812 - total) * 0.5;
     } else {
-        head->scrollY = 6.0f;
+        state->scrollY = 6.0f;
     }
 }
 
@@ -557,94 +548,84 @@ extern u8 D_807503F0;
 
 
 void textBoxUpdate(void) {
-    ResQueueActorState *sub;
+    ResQueueActorState *state;
     f32 stepSize;
-    s32 flags;
     f32 speed;
 
-    sub = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     stepSize = 0.05f;
     if (!(gCurrentActor->flags & 0x10)) {
         stepSize = 1.0f;
-        sub->mtxBuf = heapAlloc(0x280);
-        sub->inputFlags = 0;
-    } else {
-        flags = sub->inputFlags;
-        if (!(flags & 1)) {
-            if (gCurrentActor->state != 4 && gCurrentActor->state != 5) {
-                if (sub->openTimer > 15.0) {
-                    if (gButtonsPressed & 0x4000) {
-                        sub->inputFlags = flags | 1;
-                        flags = sub->inputFlags;
-                    }
-                    if (gContPadCur.button & 0x2000) {
-                        sub->inputFlags = flags | 2;
-                    } else {
-                        sub->inputFlags = flags & 0xFFFD;
-                    }
-                    flags = sub->inputFlags;
-                    if (!(flags & 2) && gContPadCur.button == 0x8000) {
-                        sub->inputFlags = flags | 4;
-                    } else {
-                        sub->inputFlags = flags & 0xFFFB;
-                    }
-                    if (sub->inputFlags & 1) {
-                        camResumePath();
-                        gCurrentActor->state = 5;
-                    }
-                }
-            }
+        state->mtxBuf = heapAlloc(0x280);
+        state->inputFlags = 0;
+    } else if (!(state->inputFlags & 1) && gCurrentActor->state != 4 && gCurrentActor->state != 5 && state->openTimer > 15.0) {
+        if (gButtonsPressed & 0x4000) {
+            state->inputFlags |= 1;
+        }
+        if (gContPadCur.button & 0x2000) {
+            state->inputFlags |= 2;
+        } else {
+            state->inputFlags &= ~2;
+        }
+        if (!(state->inputFlags & 2) && gContPadCur.button == 0x8000) {
+            state->inputFlags |= 4;
+        } else {
+            state->inputFlags &= ~4;
+        }
+        if (state->inputFlags & 1) {
+            camResumePath();
+            gCurrentActor->state = 5;
         }
     }
-    sub->waveAngleX += 0x14;
-    sub->waveAngleY += 0x32;
+    state->waveAngleX += 0x14;
+    state->waveAngleY += 0x32;
     switch (gCurrentActor->state) {
     case 0:
-        if (sub->openTimer < 0x1E) {
-            sub->openTimer++;
+        if (state->openTimer < 0x1E) {
+            state->openTimer++;
         } else {
             gCurrentActor->state = 1;
-            sub->textAlpha = D_807503F0;
-            resQueueProcessNext(gCurrentActor, sub->key);
-            renderCalcChainCenterOffset(sub);
+            state->textAlpha = D_807503F0;
+            resQueueProcessNext(gCurrentActor, state->key);
+            renderCalcChainCenterOffset(state);
         }
         break;
     case 2:
         speed = 2.0f;
-        if (sub->inputFlags & 4) {
+        if (state->inputFlags & 4) {
             speed *= 3.0f;
-        } else if (sub->inputFlags & 2) {
+        } else if (state->inputFlags & 2) {
             speed *= 0.5f;
         }
-        if (!(speed < sub->scrollLeft)) {
-            speed = sub->scrollLeft;
+        if (!(speed < state->scrollLeft)) {
+            speed = state->scrollLeft;
         }
-        sub->scrollY -= speed;
-        sub->scrollLeft -= speed;
-        if (sub->scrollLeft < 0.0001) {
+        state->scrollY -= speed;
+        state->scrollLeft -= speed;
+        if (state->scrollLeft < 0.0001) {
             gCurrentActor->state = 1;
         }
         break;
     case 4:
-        if (sub->textAlpha) {
-            sub->textAlpha -= (sub->textAlpha >= 0x34) ? 0x33 : sub->textAlpha;
-        } else if (sub->openTimer != 0) {
-            if (sub->rows != NULL) {
-                resNodeListFree(sub);
+        if (state->textAlpha) {
+            state->textAlpha -= (state->textAlpha >= 0x34) ? 0x33 : state->textAlpha;
+        } else if (state->openTimer != 0) {
+            if (state->rows != NULL) {
+                resNodeListFree(state);
             }
-            sub->openTimer--;
+            state->openTimer--;
         } else {
             gCurrentActor->state = 5;
         }
         break;
     case 5:
-        resQueueRemove(sub->key);
+        resQueueRemove(state->key);
         break;
     }
     if (gCurrentActor->state != 5) {
-        sub->openProgress = (f32)sub->openTimer * 0.033333335f;
-        textBoxUpdatePosition(gCurrentActor, sub, stepSize);
-        if (sub->openTimer != 0) {
+        state->openProgress = state->openTimer * 0.033333335f;
+        textBoxUpdatePosition(gCurrentActor, state, stepSize);
+        if (state->openTimer != 0) {
             textBoxUpdateRows(gCurrentActor);
             renderCallbacksRegister(textBoxRender, gCurrentActor, 3);
         }

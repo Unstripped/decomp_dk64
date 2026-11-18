@@ -82,7 +82,7 @@ typedef struct ResQueueActorState {
     /* 0x28 */ f32 anchorY;
     /* 0x2C */ f32 targetX;
     /* 0x30 */ f32 targetY;
-    /* 0x34 */ u8 *mtxBuf; // heapAlloc(0x280): box and tail matrices
+    /* 0x34 */ Mtx *mtxBuf; // heapAlloc(0x280): box and tail matrices
     /* 0x38 */ s16 waveAngleX;
     /* 0x3A */ s16 waveAngleY;
     /* 0x3C */ u8 anchorFixed;

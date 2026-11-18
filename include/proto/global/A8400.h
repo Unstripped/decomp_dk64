@@ -14,7 +14,7 @@ void textBoxRenderNode(Gfx **, ResQueueActorState *, ResRow *, ResGlyph *);
 void renderAppendNodeChain(Gfx **, ResQueueActorState *, ResRow *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_renderTextureSprite
-Gfx *renderTextureSprite(Gfx *, s32, u8, s32);
+Gfx *renderTextureSprite(Gfx *, Mtx *, u8, s32);
 #endif
 #ifndef PROTO_SKIP_mathAddWaveOffset
 void mathAddWaveOffset(f32 *, f32 *, f32, f32, ResQueueActorState *);
