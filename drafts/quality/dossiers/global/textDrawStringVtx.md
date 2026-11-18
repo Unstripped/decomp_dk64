@@ -55,10 +55,22 @@
   - Direction (b), references to count in the quad loop: `while (i-- > 0 && count != 0)` 224, `&& count` 224, `count -= 4` per quad with count-indexed gSP1Quadrangle 212 (reset kept) / 332 (no reset), `count = 0` inside the loop 270, `i = count / 4; count = i;` 320.
   - Loop tests: `while (i--)` 220, `while (i-- != 0)` 304, `for (i = count / 4; i-- != 0;)` 311, `count /= 4; while (count--)` with count indices 196, `count /= 4; i = count; while (i--)` 40, `for (i = count / 4; i != 0;) { i--; ... }` 802.
   - Site 2 alone plain (site 1 hack kept): 31. uopt moves `count = 0` up to the loop entry (Q0462): `slt a0,zero,v1` + `beqz` with `move s8,zero` in its delay slot, count live over the loop. Reset order variants (`count = 0; batch = vp;` after the loop; `batch = vp; i = count / 4; count = 0;` before it): all 31, 321 with site 1 plain too.
+- 2026-11-17 U HacktextDrawStringVtx6 anthropic/claude-opus-5-5:high (cdb041 / cdb041#2; variants.py try/scan full scores, uopt -zdbug:5 traces in .scratch/HacktextDrawStringVtx6/tr):
+  - Sweep on the base copy: 27 checks, 0 hits.
+  - yoff side (untried idea 1). yoff {752|0} adjsave 50.0 = savings 200 / divisor 4 (Q0523 divisor `((n-2)>>2)+2`). That comes from one def in bb25 (0x1348) and one use in bb35 (0x1488), over n=11 blocks (25..35, all loop depth 3).
+    - Plain count is 551 / 17 = 32.4, with n about 65.
+    - Diagnostic: `s32 yoff` with an `(s8)` cast keeps adjsave 50.0. yoff still takes reg 22 (s8), and its home moves -69 -> -72, so the frame changes.
+    - Type and spelling do not move the priority. Only code-free blocks inside 25..35 would, and each also joins count's range (it is live there). k such blocks give yoff 200/(((9+k)>>2)+2) and count 551/(((63+k)>>2)+2). yoff first drops below count at k=15 (25.0 vs 26.2).
+  - count side, range length (Q0766). Moving `count = 0` from the entry block to after `gfxInit2DDisplayList` raises count's adjsave 32.4 -> 42.4 (range starts later; uopt does not hoist the store back). That is still below yoff's 50.0.
+    - It also moves `move s8,zero` out of the entry block (target 0x1104, before `jal textCountNonSpace`): full 312 plain, 30 with the hack kept. The entry store is the original position.
+  - Count as the counter (`count /= 4; while (count-- > 0)` with count-indexed quads, full 8): the first variants scan of this body (99 variants: swaps, widths, declaration swaps) has best 8, with no zero.
+    - The 8 lines are exactly 0x1560/0x1564 and 0x1728/0x172c: `slt t1,zero,t7` + `beqz` + `addiu s8,t7,-1` instead of `blez t7` + `addiu a3,t7,-1`.
+    - The decrement is count's own def, so it stays in count's s8 range. An a3 counter needs a second variable, and that variable is the alias.
+  - Permuter on the count-as-counter body, both sites: hack-free weights, -j 2, 905 s, 8350 iterations. Setup baseline 639; the run base score 620 was never beaten and no output was written. perm_cc in .scratch/HacktextDrawStringVtx6.
+  - Copy left byte-identical to the base: fdiff 0, uninit exit 0 (leftPad at line 422 is pre-existing).
 ## Untried ideas
-- cdb041 / cdb041#2: the plain forms are closed by a priority inversion at site 1 (count 32.4 below yoff 50.0) and by the Q0462 hoist of the reset at site 2 (the dead `count /= 4` is the only store between `count / 4` and `count = 0`). Still untried:
-  - lower yoff's priority below 32.4 without new code (yoff def 0x1348, single use 0x1488, home -69).
-  - a real (behavioural) definition of count between the divide and the reset that emits no instruction; no natural candidate found among the loop references above.
+- cdb041 / cdb041#2: the plain forms are closed by a priority inversion at site 1 (count 32.4 below yoff 50.0) and by the Q0462 hoist of the reset at site 2 (the dead `count /= 4` is the only store between `count / 4` and `count = 0`). Closed 2026-11-17 (HacktextDrawStringVtx6): yoff's adjsave is fixed by its def/use blocks, and count's natural range cannot shrink (see Attempts). Still untried:
+  - none natural. The only remaining construct is the same alias spelled differently (`count /= 4; i = count;`, a lone `count /= 4;` line before `for`), which keeps the steer.
 ## Evidence
 - Vertex block 0x1478-0x1500.
 - Store order: vp0 ob0 0, ob1 2, then vp1 ob1 0x12 (same v0), ob2 4, tc1 0xa, tc0 8. Then vp1 0x10/0x14/0x18/0x1a; vp2 0x20/0x22/0x24/0x28/0x2a; vp3 0x32 before 0x30, then 0x34/0x38/0x3a.
@@ -69,3 +81,4 @@
   - Plain: count 32.4 and yoff 50.0, so the two swap.
   - Callee-saved registers 14-21 have the same owners in both runs.
 - Plain site 2 (2026-11-16): count's live range covers bbs 63..67 (the quad loop) because the reset is hoisted into the entry; the hack trace has count def bb62 (3 uses), def bb66 (reset after the loop), nothing in 63..65.
+- Plain site 2 vs target (2026-11-17): the quotient goes to v1 (an uopt range for i's first def) instead of t5. The target's quotient is a ugen scratch (t7 at 0x1554, t5 at 0x171c), which means it is held by no surviving variable: after copy-propagation, count's dead redefinition leaves only the expression.
