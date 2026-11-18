@@ -119,9 +119,8 @@ u8 D_80770540[0x18];
 
 
 void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfig *taskConfig) {
-    void **cmdBuf;
-    AudioSynthesizerConfig synConfig;
     u32 i;
+    AudioSynthesizerConfig synConfig;
 
     initArgs->dmaNew = audioDmaNew;
     initArgs->outputRate = sAudioFreq;
@@ -136,23 +135,22 @@ void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfi
     D_8076FE68[0].prev = NULL;
     D_8076FE68[0].next = NULL;
 
-    for (i = 0; (i ^ 0) < 39; i++) { // FAKE: x ^ 0 keeps i from being strength-reduced away (steers LFTR)
-        if (taskConfig != 0) {} // FAKE: dead use of taskConfig swaps $s4/$s5 and the i/prev register order
+    for (i = 0; i < 39; i++) {
         alLink((ALLink *)&D_8076FE68[i + 1], (ALLink *)&D_8076FE68[i]);
-        D_8076FE68[i].ptr = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
+        D_8076FE68[i].ptr = alHeapAlloc(initArgs->heap, 1, 0x800);
     }
-    D_8076FE68[i].ptr = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
+    D_8076FE68[i].ptr = alHeapAlloc(initArgs->heap, 1, 0x800);
 
-    for (cmdBuf = D_8076D4D0.cmdBuffers; cmdBuf < &D_8076D4D0.cmdBuffers[2]; cmdBuf++) {
-        *cmdBuf = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, taskConfig->cmdCount * 8);
+    for (i = 0; i < 2; i++) {
+        D_8076D4D0.cmdBuffers[i] = alHeapAlloc(initArgs->heap, 1, taskConfig->cmdCount * sizeof(Acmd));
     }
 
     D_807701A0 = taskConfig->cmdCount;
     for (i = 0; i < 3; i++) {
-        D_8076D4D0.tasks[i] = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, sizeof(AudioTask));
+        D_8076D4D0.tasks[i] = alHeapAlloc(initArgs->heap, 1, sizeof(AudioTask));
         D_8076D4D0.tasks[i]->msgBuf = 2;
         D_8076D4D0.tasks[i]->self = D_8076D4D0.tasks[i];
-        D_8076D4D0.tasks[i]->sampleBuffer = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, D_8077019C * 4);
+        D_8076D4D0.tasks[i]->sampleBuffer = alHeapAlloc(initArgs->heap, 1, D_8077019C * 4);
     }
     osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
     osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
