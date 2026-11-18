@@ -649,9 +649,6 @@ void behaviourFairyInitPlayerScale(void) {
                 case 0:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x202, 0.0f);
                     break;
-                default:
-                    gCurrentActor->unk155 = 1;
-                    goto join;
                 join:
                 case 1:
                     if (gCurrentActor->sub4->animId != 0x21C) {
@@ -661,6 +658,9 @@ void behaviourFairyInitPlayerScale(void) {
                     break;
                 case 2:
                     break;
+                default:
+                    gCurrentActor->unk155 = 1;
+                    goto join;
             }
             break;
         case 0x37:
