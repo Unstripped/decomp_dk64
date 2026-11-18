@@ -148,7 +148,7 @@ extern s32 D_807FF024;
 extern s32 D_807FF028;
 extern char *D_80756360[];
 
-void faultDrawRegs(OSThread *a0) {
+void faultDrawRegs(OSThread *thread) {
     s32 y;
     s32 x;
     s32 j;
@@ -157,7 +157,7 @@ void faultDrawRegs(OSThread *a0) {
     D_807FEF78 = 2;
     D_807FEF84 = 0xFFFF;
     D_807FEF86 = 1;
-    ctx = &a0->context;
+    ctx = &thread->context;
     for (y = 0, x = 0; y != 24; y += 6, x += 18) {
         D_807FEF70 = D_807FEF7C = x;
         D_807FEF74 = y;
@@ -177,7 +177,7 @@ void faultDrawRegs(OSThread *a0) {
         D_807563B8++;
     }
     if (D_807563B8 == 4) {
-        faultUnwindStack(a0);
+        faultUnwindStack(thread);
     }
 }
 
