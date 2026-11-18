@@ -1,5 +1,6 @@
 # modelAnimEntryQueueMatrixCopies (global, src/global/54150.c)
 ## Sites
+(02baa4 fixed 2026-11-17 CleanmodelAnimEntryQueueMatrixCopies: no hack site left.)
 - global:8064FA7C:dead-if:02baa4 `if (!p) {}`: its own short live range (LR8) takes uopt reg 1 ($v0) in the prologue. That pushes the gGfxBufferIndex load (LR19) to $v1 and the D_807F6BE0/E4 address temps to a2/a3.
 ## Attempts
 - rounds 7/11 (opus:low): two dead gGfxBufferIndex tests merged into this one by the permuter; remove/cond/classify/diagnose/permute.
@@ -46,3 +47,13 @@
 
 ## Untried ideas (after U3)
 - A natural second use of `node + 60` that vanishes after colouring, other than an empty test (none found). A late-folded comparison is unlikely: `node + 60 == 0` is never folded.
+
+## Attempts (2026-11-17: cleanup CleanmodelAnimEntryQueueMatrixCopies, CleanmodelAnimEntryQueueMatrixCopies, base 62ab4b74)
+- FIXED (fdiff 0, uninit 0, FAKE 1 -> 0): `node = entry->unk0; p = (u8 *)(entry->unk0 + 1);` (the field read inline for p instead of through node), no dead test, `while` -> `for`.
+- Same score 0 for: p first then node; declaration initialisers `ModelAnimNodeHeader *node = entry->unk0; u8 *p = (u8 *)(entry->unk0 + 1);`; `(u8 *)entry->unk0 + sizeof(ModelAnimNodeHeader)`; stride read inline too (`entry->unk0->keyCount`), node assigned before or after p/stride but before the bases; p after stride. p after the bases: 12; node assigned after the bases: 18 (the D_807F6BE0/E4 stores force a reload of entry->unk0).
+- No effect (10): `u8 **frames = group->frames` (a copy of the param, copy-propagated before the candidate table); `p = (u8 *)node; p += sizeof(ModelAnimNodeHeader)` with the `+=` right after, after stride or after the bases (10), at the old test position after `i = 0` (17). Reverse chain `D_807F6BE0 = srcBase = ...`: 35.
+- The sibling modelAnimEntryBuildNodeMatrices also matches with `p = (u8 *)(entry->unk0 + 1)` (measured with variants.py try, not applied: not assigned).
+
+## Evidence (CleanmodelAnimEntryQueueMatrixCopies)
+- Fixed body, uopt -l5/-l6: uilod{1181} (entry->unk0) is cand 4, 3 occurrences in block 0, adjsave 4.0 > 3.0 of cand 19 (gGfxBufferIndex lbu) -> reg 1 ($v0). uopt output ucode: `v0 := ilod 0(a1); s2 := v0; s0 := v0 + 0x3c; ilod u8 0(v0)`; ugen folds v0 into node's s2 (`lw s2,0(a1)` 0x658, `lbu s4,0(s2)` 0x66c, `addiu s0,s2,60` 0x6bc), so $v0 has no code. Cand 19 -> reg 2 ($v1), D_807F6BE0/E4 address consts (1338/1354, adjsave 1.0) -> regs 5/6 (a2/a3).
+- What the dead `!p` supplied (lever b): a second occurrence of uadd(node, 60) (cand 8, adjsave 3.0, live in block 0 only), tying cand 19 at 3.0 and coloured first on bit order (8 < 19); uopt output `v0 := s2 + 0x3c; s0 := v0; tjp lab11` with lab11 next, which ugen deletes, leaving `addiu s0,s2,60`. Not a block count: cand 19 is 3.0 at 8 blocks (hack) and at 6 blocks (plain).
