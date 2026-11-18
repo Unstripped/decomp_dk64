@@ -35,21 +35,21 @@ typedef struct ArmadilloActor {
 
 #define ARMADILLO_ACTOR ((ArmadilloActor *)gCurrentActor)
 
-extern u8 D_80770629[];
+extern s16 gSfxSourceVoice[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
 
 void behaviourArmadilloPatrol(void) {
     u16 animFlags = 0;
-    s16 *heightTarget = ARMADILLO_ACTOR->rollState;
+    s16 *rollState = ARMADILLO_ACTOR->rollState;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x321, 0x322, 0x323);
         func_80724CA4(0x11, 1);
         actorClearNodeFlag(gCurrentActor, 4);
-        *heightTarget = gBehaviourExtraState->unkAWide * 10;
+        *rollState = gBehaviourExtraState->unkAWide * 10;
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         gBehaviourWorkState->timer = 0x1388;
@@ -149,11 +149,11 @@ void behaviourArmadilloPatrol(void) {
     case 0x10:
         if ((gCurrentActor->state != 0x11) && (gCurrentActor->state != 0x27)) {
             if (gCurrentActor->unk155 == 0) {
-                *heightTarget = gBehaviourExtraState->unkAWide * 2;
+                *rollState = gBehaviourExtraState->unkAWide * 2;
                 gCurrentActor->unk155 = 1;
             }
-            if (*heightTarget != 0) {
-                (*heightTarget)--;
+            if (*rollState != 0) {
+                (*rollState)--;
             } else {
                 animFlags = 0x20;
                 actorUpdateAnimSpeedFromSpeed(0);
@@ -161,7 +161,7 @@ void behaviourArmadilloPatrol(void) {
                     gCurrentActor->speedXZ = gCurrentActor->speedXZ - 1.0f;
                 } else {
                     gCurrentActor->state = 0x18;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->unk155 = 0; // ORIG: the target stores 0 (sb zero,341(t9) at 0x6e8) before the 1 (sb t2,341(t3) at 0x6f0)
                     gCurrentActor->unk155 = 1;
                     gBehaviourWorkState->timer = 0;
                     gBehaviourWorkState->unk2E = 4;
@@ -175,7 +175,7 @@ void behaviourArmadilloPatrol(void) {
     case 3:
     case 7:
     case 0x35:
-        actorMoveWithinZone(gCurrentActor->state, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
         gCurrentActor->sub4->boneRotations->rotZ -= gBehaviourWorkState->timer;
@@ -208,11 +208,11 @@ void behaviourArmadilloPatrol(void) {
         if (gCurrentActor->soundSlots[1] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x10A, 0, 1, 1, 0xFF, 1.0f, 0);
         } else {
-            f64 t = ((f64)gCurrentActor->speedXZ * 0.6) / 40.0;
-            u8 idx = D_80770629[gCurrentActor->soundSlots[1] * 2];
+            f64 t = (gCurrentActor->speedXZ * 0.6) / 40.0;
+            u8 voice = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
 
-            D_80770B68[idx] = (t < 0.0 ? 0.0 : t) + 0.4;
-            D_80770BC0[idx] = 1.0f;
+            D_80770B68[voice] = (t < 0.0 ? 0.0 : t) + 0.4;
+            D_80770BC0[voice] = 1.0f;
         }
     } else {
         sfxStopSlotSound(gCurrentActor, 1);
@@ -242,9 +242,9 @@ extern void *D_8074E880[];
 
 void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
     s32 pad;
-    s32 randC;
-    s32 randB;
-    s32 randA;
+    s32 randX;
+    s32 randScale;
+    s32 randSprite;
 
     switch (particleType) {
         case 0:
@@ -256,17 +256,17 @@ void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
             break;
     }
     effectSetDepth(1);
-    randA = randomNonNegative();
-    randB = randomNonNegative();
-    randC = randomNonNegative();
-    effectCreateAtPosition(D_8074E880[((randA >> 15) % 1000) % 3], (f32)(((randB >> 15) % 256) * 0.001953125 + 0.5), (f32)((randC >> 15) % 6) + (gCurrentActor->x - 3.0f), gCurrentActor->y + (f32)yOffset, (f32)((randomNonNegative() >> 15) % 6) + (gCurrentActor->z - 3.0f));
+    randSprite = randomNonNegative();
+    randScale = randomNonNegative();
+    randX = randomNonNegative();
+    effectCreateAtPosition(D_8074E880[((randSprite >> 15) % 1000) % 3], ((randScale >> 15) % 256) * 0.001953125 + 0.5, ((randX >> 15) % 6) + (gCurrentActor->x - 3.0f), gCurrentActor->y + yOffset, ((randomNonNegative() >> 15) % 6) + (gCurrentActor->z - 3.0f));
 }
 
 extern u8 D_80750628[];
 
 s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 z) {
-    f32 spA[4][4];
-    f32 spB[4][4];
+    f32 modelMtx[4][4];
+    f32 stepMtx[4][4];
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
@@ -279,19 +279,19 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
         actorGetNodePos(D_807FDCA0->occupant, node, &nodeX, &nodeY, &nodeZ);
         mathNudgeCoords(x, z, &nodeX, &nodeZ);
         ang = mathAtan2(nodeX - x, nodeZ - z);
-        guTranslateF(spA, 0.0f, -yOffset, 0.0f);
-        matrixMakeRotationY(spB, (gCurrentActor->yaw * 0x168) / 4096);
-        guMtxCatF(spA, spB, spA);
-        matrixMakeRotationX(spB, -90.0f);
-        guMtxCatF(spA, spB, spA);
-        guAlignF(spB, (ang * 57.295776f) + 180.0f, nodeX - x, nodeY - y, nodeZ - z);
-        guMtxCatF(spA, spB, spA);
-        guTranslateF(spB, 0.0f, yOffset, 0.0f);
-        guMtxCatF(spA, spB, spA);
-        guScaleF(spB, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
-        guMtxCatF(spA, spB, spA);
-        guTranslateF(spB, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-        guMtxCatF(spA, spB, gCurrentActor->modelMtx);
+        guTranslateF(modelMtx, 0.0f, -yOffset, 0.0f);
+        matrixMakeRotationY(stepMtx, (gCurrentActor->yaw * 0x168) / 4096);
+        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        matrixMakeRotationX(stepMtx, -90.0f);
+        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        guAlignF(stepMtx, (ang * 57.295776f) + 180.0f, nodeX - x, nodeY - y, nodeZ - z);
+        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        guTranslateF(stepMtx, 0.0f, yOffset, 0.0f);
+        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        guScaleF(stepMtx, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
+        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        guTranslateF(stepMtx, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        guMtxCatF(modelMtx, stepMtx, gCurrentActor->modelMtx);
         return 1;
     }
     return 0;
@@ -315,8 +315,8 @@ extern PlayerStruct *gPlayerSlots;
 
 extern u8 D_8071FB34[];
 
-s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
-    s16 *p;
+s32 behaviourArmadilloAimAndShoot(u8 yOffset, s16 animId) {
+    s16 *rollState;
     Actor *tgt;
     f32 nodeX;
     f32 nodeY;
@@ -324,7 +324,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     u8 node;
     s32 anim;
 
-    p = ARMADILLO_ACTOR->rollState;
+    rollState = ARMADILLO_ACTOR->rollState;
     tgt = D_807FDCA0->occupant;
     if (tgt != NULL && tgt->state == 0x23 && D_807FDCA0->unk20 < 10) {
         if (gCurrentActor->state != 0x15 && gCurrentActor->state != 0x17) {
@@ -333,8 +333,8 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
             gCurrentActor->unk155 = 0;
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->interactionType = 2;
-            p[3] = gCurrentActor->x;
-            p[4] = gCurrentActor->z;
+            rollState[3] = gCurrentActor->x;
+            rollState[4] = gCurrentActor->z;
         }
     }
     if (gCurrentActor->state == 0x15 && (tgt == NULL || tgt->state != 0x23)) {
@@ -398,15 +398,15 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
             if (animId != 0) {
                 controllerAnimSetStateIfChanged(gCurrentActor, animId, 0.0f, 4.0f);
             }
-            p[0] = (-p[0]) * 0.1 + p[0];
-            p[1] = (-p[1]) * 0.1 + p[1];
+            rollState[0] = (-rollState[0]) * 0.1 + rollState[0];
+            rollState[1] = (-rollState[1]) * 0.1 + rollState[1];
             if (node < 0xB) {
                 gCurrentActor->yaw = tgt->yaw;
             }
             gCurrentActor->x = nodeX;
             gCurrentActor->z = nodeZ;
             gCurrentActor->y = nodeY;
-            if (actorBuildNodeAlignedMatrix(node, action, nodeX, nodeY, nodeZ) != 0) {
+            if (actorBuildNodeAlignedMatrix(node, yOffset, nodeX, nodeY, nodeZ) != 0) {
                 return 1;
             }
         }
@@ -416,17 +416,17 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
 
 
 void behaviourArmadilloMoveTowardTarget(f32 speedMultiplier) {
-    s16 *p;
+    s16 *rollState;
     f32 x;
     f32 z;
-    u8 sel;
+    u8 state;
     s32 flags;
 
-    sel = gCurrentActor->state;
-    p = ARMADILLO_ACTOR->rollState;
+    state = gCurrentActor->state;
+    rollState = ARMADILLO_ACTOR->rollState;
     x = gBehaviourWorkState->targetX;
     z = gBehaviourWorkState->targetZ;
-    switch (sel) {
+    switch (state) {
         case 1:
         case 0x10:
         case 0x15:
@@ -442,8 +442,8 @@ void behaviourArmadilloMoveTowardTarget(f32 speedMultiplier) {
             } else {
                 flags = 0x810;
             }
-            if (!(actorMoveWithinZone(sel, x, z, flags, 0.0f) & 1) && gCurrentActor->hasArcBounds == 0) {
-                *p = *p + speedMultiplier;
+            if (!(actorMoveWithinZone(state, x, z, flags, 0.0f) & 1) && gCurrentActor->hasArcBounds == 0) {
+                *rollState = *rollState + speedMultiplier;
             }
             break;
         case 0x37:
@@ -467,22 +467,22 @@ void behaviourArmadilloMoveTowardTarget(f32 speedMultiplier) {
 
 
 void behaviourArmadilloStepPatrol(void) {
-    u8 arg = gCurrentActor->state;
+    u8 state = gCurrentActor->state;
 
-    switch (arg) {
+    switch (state) {
         case 0x15:
         case 0x37:
         case 0x40:
             break;
         case 2:
         case 3:
-            patrolPathStep(arg, 0);
+            patrolPathStep(state, 0);
         default:
             enemyAggroStateUpdate(0x2710, 0, 0);
     }
 }
 
-// Second component (0x178) of the rocking idle (func_806BA93C).
+// Second component (0x178) of the rocking idle (func_806BA93C): the s16 block ArmadilloActor.rollState indexes.
 typedef struct RockTiltState {
     /* 0x0 */ s16 rollPhase;
     /* 0x2 */ s16 side;
@@ -529,7 +529,7 @@ u8 pivotZ;
         if (gCurrentActor->unk155 == 0) {
             gBehaviourWorkState->timer += rock->tilt;
             if (gBehaviourWorkState->timer == 0x196 || gBehaviourWorkState->timer == 0x244 || gBehaviourWorkState->timer == 0x307 || gBehaviourWorkState->timer == 0x3B1 || gBehaviourWorkState->timer == 0x45C || gBehaviourWorkState->timer == 0x508) {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17D, 0x9B, (s16)(rock->tilt + 0x5A), 0);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17D, 0x9B, rock->tilt + 0x5A, 0);
             }
             rock->tilt--;
             if (rock->tilt < 2) {
@@ -541,7 +541,7 @@ u8 pivotZ;
         break;
     }
     if (rock->rollPhase >= 0x801) {
-        stepDist = sqrtf((1.0 - cosApprox(0.7853982f)) * (2 * (f32)(sideOffset * 2) * (f32)(sideOffset * 2)));
+        stepDist = sqrtf((1.0 - cosApprox(0.7853982f)) * (2 * (f32)(sideOffset * 2) * (sideOffset * 2)));
         if (rock->side) {
             dir = 1;
         } else {
@@ -561,12 +561,12 @@ u8 pivotZ;
         sgn = 1;
     }
     guTranslateF(modelMtx, sgn * sideOffset, 0.0f, 0.0f);
-    matrixMakeRotationZ(rotMtx, mathSinF(rock->rollPhase) * (f32)(sgn * rollAmount));
+    matrixMakeRotationZ(rotMtx, mathSinF(rock->rollPhase) * (sgn * rollAmount));
     guMtxCatF(modelMtx, rotMtx, modelMtx);
     if (gCurrentActor->state == 0x37) {
-        matrixMakeRotationY(rotMtx, (f32)(sgn * gBehaviourWorkState->timer));
+        matrixMakeRotationY(rotMtx, sgn * gBehaviourWorkState->timer);
     } else {
-        matrixMakeRotationY(rotMtx, mathSinF(rock->rollPhase - 0x400) * (f32)(-sgn * 0x2D));
+        matrixMakeRotationY(rotMtx, mathSinF(rock->rollPhase - 0x400) * (-sgn * 0x2D));
     }
     guMtxCatF(modelMtx, rotMtx, modelMtx);
     if (gCurrentActor->state == 0x37) {
@@ -574,34 +574,34 @@ u8 pivotZ;
         case 1:
             gBehaviourWorkState->timer = mathAngleEaseToward((gBehaviourWorkState->timer << 12) / 0x168, 0, 3.0f) * 0x168 / 4096;
             rock->rollPhase = rock->rollPhase + (-rock->rollPhase) * 0.3;
-            guTranslateF(rotMtx, 0.0f, 0.0f, (f32)-pivotZ);
+            guTranslateF(rotMtx, 0.0f, 0.0f, -pivotZ);
             guMtxCatF(modelMtx, rotMtx, modelMtx);
-            matrixMakeRotationX(rotMtx, (f32)rock->tilt);
+            matrixMakeRotationX(rotMtx, rock->tilt);
             guMtxCatF(modelMtx, rotMtx, modelMtx);
-            guTranslateF(rotMtx, 0.0f, 0.0f, (f32)pivotZ);
+            guTranslateF(rotMtx, 0.0f, 0.0f, pivotZ);
             gBehaviourWorkState->scale += 2.0f;
-            rock->tilt = (f32)rock->tilt + gBehaviourWorkState->scale;
+            rock->tilt = rock->tilt + gBehaviourWorkState->scale;
             if (rock->tilt >= 0x5B) {
                 rock->tilt = 0x5A;
                 if (gBehaviourWorkState->scale < 3.0f) {
                     gCurrentActor->unk155++;
                 } else {
-                    sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1B1, (u32)(gBehaviourWorkState->scale * 255.0f / 20.0f), (s32)(gBehaviourWorkState->scale + 100.0f), 0, 0x3C, 0.3f, 0);
+                    sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1B1, gBehaviourWorkState->scale * 255.0f / 20.0f, gBehaviourWorkState->scale + 100.0f, 0, 0x3C, 0.3f, 0);
                     gBehaviourWorkState->scale = -(gBehaviourWorkState->scale * 0.5);
                 }
             }
             break;
         case 2:
-            guTranslateF(rotMtx, 0.0f, 0.0f, (f32)-pivotZ);
+            guTranslateF(rotMtx, 0.0f, 0.0f, -pivotZ);
             guMtxCatF(modelMtx, rotMtx, modelMtx);
             matrixMakeRotationX(rotMtx, 90.0f);
             guMtxCatF(modelMtx, rotMtx, modelMtx);
-            guTranslateF(rotMtx, 0.0f, 0.0f, (f32)pivotZ);
+            guTranslateF(rotMtx, 0.0f, 0.0f, pivotZ);
             break;
         }
         guMtxCatF(modelMtx, rotMtx, modelMtx);
     }
-    guTranslateF(rotMtx, (f32)(-sgn * sideOffset), 0.0f, 0.0f);
+    guTranslateF(rotMtx, -sgn * sideOffset, 0.0f, 0.0f);
     guMtxCatF(modelMtx, rotMtx, gCurrentActor->modelMtx);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
@@ -675,33 +675,33 @@ void behaviourFairyInitPlayerScale(void) {
 extern Actor *gSpawnedActor;
 
 
-s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, Actor *occupant) {
-    BehaviourWorkState *v;
-    s32 r3;
-    s32 r2;
-    s32 r1;
+s32 actorSpawnJitteredChild(u8 nodeId, s16 speed, s16 speedY, Actor *target) {
+    BehaviourWorkState *childState;
+    s32 randYaw;
+    s32 randZ;
+    s32 randX;
 
     if (gBehaviourWorkState->timer != 0) {
         actorSpawnRandomParticleNearActor(0, 0xA);
         gBehaviourWorkState->timer--;
         return 0;
     }
-    r1 = randomNonNegative();
-    r2 = randomNonNegative();
-    r3 = randomNonNegative();
-    if (spawnNodeSpawnById(actorType,
-                      (s16)((f32)((r1 >> 15) % 10) + (gCurrentActor->x - 5.0f)),
-                      (s16)(gCurrentActor->y + 5.0f),
-                      (s16)((f32)((r2 >> 15) % 10) + (gCurrentActor->z - 5.0f)),
-                      ((r3 >> 15) % 1024) + gCurrentActor->yaw - 0x200,
-                      animId, subId) != 0) {
+    randX = randomNonNegative();
+    randZ = randomNonNegative();
+    randYaw = randomNonNegative();
+    if (spawnNodeSpawnById(nodeId,
+                      ((randX >> 15) % 10) + (gCurrentActor->x - 5.0f),
+                      gCurrentActor->y + 5.0f,
+                      ((randZ >> 15) % 10) + (gCurrentActor->z - 5.0f),
+                      ((randYaw >> 15) % 1024) + gCurrentActor->yaw - 0x200,
+                      speed, speedY) != 0) {
         gSpawnedActor->state = 0x17;
         gSpawnedActor->unk155 = 0;
-        v = gSpawnedActor->customState;
-        v->unk2E = 0x1E;
-        if (occupant != NULL) {
-            v->node->flags &= ~8;
-            v->targetActor = occupant;
+        childState = gSpawnedActor->customState;
+        childState->unk2E = 0x1E;
+        if (target != NULL) {
+            childState->node->flags &= ~8;
+            childState->targetActor = target;
         }
         gSpawnedActor->unk144 = 1;
         gSpawnedActor->drawDistance = 0x3E8;
@@ -728,14 +728,14 @@ extern FairySpawnOrder D_80750638;
 
 void behaviourFairyWanderUpdate(void) {
     s16 i;
-    s16 x;
-    s16 y;
+    s16 speed;
+    s16 speedY;
     FairySpawnOrder order;
     u8 step;
     s32 alpha;
 
-    x = (randomNonNegative() >> 15) % 100 + 0x64;
-    y = (randomNonNegative() >> 15) % 250 + 0xC8;
+    speed = (randomNonNegative() >> 15) % 100 + 0x64;
+    speedY = (randomNonNegative() >> 15) % 250 + 0xC8;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->cullMarginX = 0x3C;
@@ -777,7 +777,7 @@ void behaviourFairyWanderUpdate(void) {
         }
         break;
     case 2:
-        if (actorSpawnJitteredChild(0x2A, x, y, NULL) != 0) {
+        if (actorSpawnJitteredChild(0x2A, speed, speedY, NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
@@ -789,8 +789,8 @@ void behaviourFairyWanderUpdate(void) {
         break;
     case 4:
         behaviourFairyPlaySound();
-        actorSpawnJitteredChild(0x28, x, y, NULL);
-        if (actorSpawnJitteredChild(0x29, x + 0x28, y + 0x50, NULL) != 0) {
+        actorSpawnJitteredChild(0x28, speed, speedY, NULL);
+        if (actorSpawnJitteredChild(0x29, speed + 0x28, speedY + 0x50, NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
@@ -802,8 +802,8 @@ void behaviourFairyWanderUpdate(void) {
         break;
     case 6:
         behaviourFairyPlaySound();
-        actorSpawnJitteredChild(0x2B, x, y, NULL);
-        if (actorSpawnJitteredChild(0x2C, x + 0x28, y + 0x50, NULL) != 0) {
+        actorSpawnJitteredChild(0x2B, speed, speedY, NULL);
+        if (actorSpawnJitteredChild(0x2C, speed + 0x28, speedY + 0x50, NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
