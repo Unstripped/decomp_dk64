@@ -3432,7 +3432,7 @@ void playerStateTransformHold(void) {
     gCurrentActor->z = gActivePlayerState->unkA0 + (gActivePlayerState->unkA8 - gActivePlayerState->unkA0) * gActivePlayerState->unkAC;
     playerApplyMotion();
     playerSelectWalkRunState(gCurrentActor, gActivePlayerState->unk94, gActivePlayerState->unk94, 0);
-    mathAngleStepToward(&gCurrentActor->yaw, (s16)gActivePlayerState->unk98, (s16)(gKongTurnRate[gCurrentCharacterIndex] / 2));
+    mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->unk98, gKongTurnRate[gCurrentCharacterIndex] / 2);
     gCurrentActor->moveYaw = gCurrentActor->yaw;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
