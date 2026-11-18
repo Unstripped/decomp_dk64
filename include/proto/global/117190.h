@@ -103,7 +103,7 @@ Gfx *func_80713438(Gfx *, u8);
 Gfx *menuDrawBlinkingPromptText(Gfx *);
 #endif
 #ifndef PROTO_SKIP_mathIdentityS32
-s32 mathIdentityS32(s32);
+Gfx *mathIdentityS32(Gfx *);
 #endif
 #ifndef PROTO_SKIP_func_80713764
 Gfx *func_80713764(Gfx *, u8, f32);
@@ -127,7 +127,7 @@ void menuTimerUpdateCountdown(void);
 Gfx *hudDrawCountdownTimer(Gfx *);
 #endif
 #ifndef PROTO_SKIP_mathIdentityS32B
-s32 mathIdentityS32B(s32);
+Gfx *mathIdentityS32B(Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuTransitionToMapIfUnlocked
 void menuTransitionToMapIfUnlocked(s32, s32, s32);

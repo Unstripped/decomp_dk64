@@ -119,16 +119,16 @@ void menuSetTransitionTypeBFlag(void) {
 }
 
 
-void menuSetupPlayerInventory(s32 map, s32 exit, s32 characterId, s8 inventory0, s8 inventory1, s8 inventory4, s8 shared) {
+void menuSetupPlayerInventory(s32 map, s32 exit, s32 characterId, s8 moveLevel, s8 slamLevel, s8 instrumentFlags, s8 melons) {
     s32 i;
 
     gPlayerCharacterId[0] = characterId;
-    gPlayerInventoryTable[0].melons = shared;
-    gPlayerInventoryTable[0].health = shared * 4;
+    gPlayerInventoryTable[0].melons = melons;
+    gPlayerInventoryTable[0].health = melons * 4;
     for (i = 0; i < 5; i++) {
-        gPlayerInventoryTable[0].kong[i].moveLevel = inventory0;
-        gPlayerInventoryTable[0].kong[i].slamLevel = inventory1;
-        gPlayerInventoryTable[0].kong[i].instrumentFlags = inventory4;
+        gPlayerInventoryTable[0].kong[i].moveLevel = moveLevel;
+        gPlayerInventoryTable[0].kong[i].slamLevel = slamLevel;
+        gPlayerInventoryTable[0].kong[i].instrumentFlags = instrumentFlags;
     }
     menuTransitionWithState(map, exit, 12);
 }
@@ -149,14 +149,14 @@ void menuResetAndTransitionToCredits(void) {
 }
 
 void menuTransitionToCreditsOrMap28(s32 toCredits) {
-    u8 temp;
+    u8 mode;
 
     if (toCredits == 0) {
-        temp = 0xA;
+        mode = 0xA;
     } else {
-        temp = 0xE;
+        mode = 0xE;
     }
-    menuTransitionRequest(0x99, 0xB, temp);
+    menuTransitionRequest(0x99, 0xB, mode);
     gBannerTextStepIndex = -2;
 }
 
@@ -222,7 +222,7 @@ extern u8 gMenuDemoActive;
 extern u64 D_807445B8;
 extern u64 D_807445C0;
 extern s8 D_80746B60;
-extern s32 D_80755320;
+extern u32 D_80755320;
 
 
 void menuSeedRandom(void) {
@@ -233,7 +233,7 @@ void menuSeedRandom(void) {
         setRandomSeed(0x8E32B6F7U);
         D_80746B60 = 1;
     } else {
-        setRandomSeed((u32)osGetTime());
+        setRandomSeed(osGetTime());
         D_80746B60 = 0;
     }
     gControllerStickXMask = 0;
@@ -255,18 +255,19 @@ extern u8 gActivePlayerCount;
 extern u16 gMenuStateTimer;
 extern u16 gButtonsPressed;
 
-typedef struct BonusStageEntry {
-    /* 0x0 */ u8 characterId; // func_8060B750 / func_8060B49C character argument
+// Attract-mode demo: an input recording replayed in mode 3, cycled by gMenuBonusStageIndex.
+typedef struct DemoEntry {
+    /* 0x0 */ u8 recordingIndex; // input-recording asset (table 0x11) loaded by func_8060B750
     /* 0x1 */ u8 pad1;
     /* 0x2 */ u16 maxTime; // caps gMenuStateTimer
-} BonusStageEntry; // size = 0x4
+} DemoEntry; // size = 0x4
 
-extern BonusStageEntry D_8075E5C0[];
+extern DemoEntry D_8075E5C0[];
 
 
 void menuSetupBonusCharacter(void) {
     if (gMenuTargetMode == 3) {
-        func_8060B750(D_8075E5C0[gMenuBonusStageIndex].characterId);
+        func_8060B750(D_8075E5C0[gMenuBonusStageIndex].recordingIndex);
         gPlayerCharacterId[0] = func_8060B7C4();
     }
 }
@@ -312,7 +313,7 @@ void menuCheckMapTransitionOnLoad(void) {
         break;
     case 3:
         gMenuTransitionCounter++;
-        gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, D_8075E5C0[gMenuBonusStageIndex].characterId);
+        gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, D_8075E5C0[gMenuBonusStageIndex].recordingIndex);
         gMenuStateTimer = MIN(gMenuStateTimer, D_8075E5C0[gMenuBonusStageIndex].maxTime);
         gMenuBonusStageIndex++;
         gMenuBonusStageIndex %= 5U;
@@ -386,7 +387,7 @@ void menuUpdateTitleOrTransition(void) {
         if (gMenuTransitionCounter >= 3) {
             menuTransitionRequest(0x28, 0, 1);
         } else {
-            func_8060B750(D_8075E5C0[gMenuBonusStageIndex].characterId);
+            func_8060B750(D_8075E5C0[gMenuBonusStageIndex].recordingIndex);
             func_8060B7D0(&map, &exit);
             screenSetTransitionFadeType(1);
             mapRequestTransition(map, exit);
@@ -427,7 +428,7 @@ void menuStartSelectedBonusStage(void) {
     s32 exit;
 
     gMenuTransitionCounter = 0;
-    func_8060B750(D_8075E5C0[gMenuBonusStageIndex].characterId);
+    func_8060B750(D_8075E5C0[gMenuBonusStageIndex].recordingIndex);
     func_8060B7D0(&map, &exit);
     screenSetTransitionFadeType(1);
     menuTransitionWithState(map, exit, 3);
@@ -453,7 +454,6 @@ void menuHandleDemoModeTransition(void) {
     }
     menuTransitionRequest(0x4C, 0, 2);
 }
-#define R117D_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
@@ -461,24 +461,24 @@ extern Mtx D_2000180;
 Gfx *menuOverlayGfxInit(Gfx *gfx) {
     gfx = gfxInit2DDisplayList(gfx);
 
-    R117D_WRITE_GFX(gfx++, 0xDE000000, &D_1000118);
-    R117D_WRITE_GFX(gfx++, 0xDA380007, &D_20000C0);
-    R117D_WRITE_GFX(gfx++, 0xDA380003, &D_2000180);
-    R117D_WRITE_GFX(gfx++, 0xE7000000, 0);
-    R117D_WRITE_GFX(gfx++, 0xFC11FE23, 0xFFFFF7FB);
-    R117D_WRITE_GFX(gfx++, 0xFA000000, 0xFFFFFFFF);
-    R117D_WRITE_GFX(gfx++, 0xED028028, 0x4D4394);
+    gSPDisplayList(gfx++, &D_1000118);
+    gSPMatrix(gfx++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gDPPipeSync(gfx++);
+    gDPSetCombineMode(gfx++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
+    gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, 255);
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 10, 10, 309, 229);
     return gfx;
 }
 
 Gfx *func_8071338C(Gfx *dl) {
     f32 y = 20.0f;
-    void *text;
+    u8 *text;
 
     text = textTableGetString(0xC, 0, 1);
-    R117D_WRITE_GFX(dl++, 0xFCFFFFFF, 0xFFFCF279);
-    R117D_WRITE_GFX(dl++, 0xDA380003, &D_807FDAC0);
-    return textDrawStringVtx(dl, 1, 0x118, (s16) ((y + y) * 4.0f), text, 4);
+    gDPSetCombineMode(dl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+    gSPMatrix(dl++, &D_807FDAC0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    return textDrawStringVtx(dl, 1, 0x118, y * 2.0f * 4.0f, text, 4);
 }
 
 
@@ -498,19 +498,19 @@ Gfx *func_80713438(Gfx *dl, u8 alpha) {
 
     text = textTableGetString(0xC, 1, 1);
     len = strlen(text) + 2;
-    x = (f32) ((f64) gScreenWidth * 0.5 * 2.0f);
+    x = gScreenWidth * 0.5 * 2.0f;
     y = 418.0f;
     str = heapAlloc(len);
     heapFreeDeferred(str);
     _sprintf(str, "%c%s", 0x63, text);
-    halfWidth = (f64) textGetStringWidth(1, str);
+    halfWidth = textGetStringWidth(1, str);
     halfWidth = 0.5 * halfWidth;
     x = x - halfWidth;
-    xFixed = (s16) ((s32) (x * 4.0f));
-    R117D_WRITE_GFX(dl++, 0xE200001C, 0x504240);
-    R117D_WRITE_GFX(dl++, 0xFA000000, alpha & 0xFF);
-    R117D_WRITE_GFX(dl++, 0xFCFF97FF, 0xFF2CFE7F);
-    return textDrawStringVtx(dl, 1, xFixed, (s16) ((s32) (y * 4.0f)), str, 4);
+    xFixed = x * 4.0f;
+    gDPSetRenderMode(dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, alpha);
+    gDPSetCombineLERP(dl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+    return textDrawStringVtx(dl, 1, xFixed, y * 4.0f, str, 4);
 }
 
 
@@ -548,8 +548,8 @@ Gfx *menuDrawBlinkingPromptText(Gfx *dl) {
     return dl;
 }
 
-s32 mathIdentityS32(s32 value) {
-    return value;
+Gfx *mathIdentityS32(Gfx *dl) {
+    return dl;
 }
 extern s16 gScreenHeight;
 
@@ -557,13 +557,13 @@ Gfx *func_80713764(Gfx *dl, u8 alpha, f32 yOffset) {
     f32 x;
     f32 y;
 
-    x = (f32) ((f64) gScreenWidth * 0.5);
-    y = (f32) (((f64) gScreenHeight * 0.5) + -20.0 + (f64) yOffset);
-    R117D_WRITE_GFX(dl++, 0xE200001C, 0x504240);
+    x = gScreenWidth * 0.5;
+    y = gScreenHeight * 0.5 + -20.0 + yOffset;
+    gDPSetRenderMode(dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, alpha);
-    R117D_WRITE_GFX(dl++, 0xFCFF97FF, 0xFF2CFE7F);
-    R117D_WRITE_GFX(dl++, 0xE3001201, 0);
-    return renderRotatedSprite(dl, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
+    gDPSetCombineLERP(dl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetTextureFilter(dl++, G_TF_POINT);
+    return renderRotatedSprite(dl, 0x2C, 0, 2, 0xE0, 0x80, x, y, 1.0f, 1.0f, 0, 0.0f);
 }
 
 
@@ -572,19 +572,19 @@ Gfx *func_807138A4(Gfx *dl) {
 }
 
 Gfx *func_807138CC(Gfx *dl) {
-    void *rect;
+    Vp *rect;
     f32 fade;
     Gfx *g;
 
-    rect = (void *)heapAlloc(0x10);
+    rect = heapAlloc(sizeof(Vp));
     heapFreeDeferred(rect);
-    viewportSetFromRect(rect, 0xA, 0xA, 0x135, 0xE5);
+    viewportSetFromRect(rect->vp.vscale, 10, 10, 309, 229);
     dl = menuDrawBlinkingPromptText(menuOverlayGfxInit(dl));
     dl = func_8071338C(dl);
-    if ((u32)++D_80755320 < 0xD3U) {
-        fade = (f32) (0xD2U - D_80755320) * 0.03333333507f;
+    if (++D_80755320 < 0xD3) {
+        fade = (0xD2 - D_80755320) * 0.03333333507f;
         fade = (fade < 0.0f) ? 0.0f : ((fade > 1.0f) ? 1.0f : fade);
-        dl = func_80713764(func_80713438(dl, (u32) (255.0f * fade)), (u32) (255.0f * fade), 0);
+        dl = func_80713764(func_80713438(dl, 255.0f * fade), 255.0f * fade, 0);
     }
     g = dl++; g->words.w0 = 0xDC080008; // LAYOUT: same-line pointer-copy and first store steers as1 move/ori order
     g->words.w1 = (u32)rect;
@@ -593,12 +593,12 @@ Gfx *func_807138CC(Gfx *dl) {
 
 
 Gfx *func_80713AA8(Gfx *dl) {
-    R117D_WRITE_GFX(dl++, 0xE7000000, 0);
-    R117D_WRITE_GFX(dl++, 0xDE000000, &D_1000118);
-    R117D_WRITE_GFX(dl++, 0xE3000A01, 0);
-    R117D_WRITE_GFX(dl++, 0xE200001C, 0x504240);
-    R117D_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
-    R117D_WRITE_GFX(dl++, 0xDA380007, &D_20000C0);
+    gDPPipeSync(dl++);
+    gSPDisplayList(dl++, &D_1000118);
+    gDPSetCycleType(dl++, G_CYC_1CYCLE);
+    gDPSetRenderMode(dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    gSPMatrix(dl++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     return dl;
 }
 
@@ -608,6 +608,7 @@ Gfx *func_80713B40(Gfx *dl) {
     s16 remaining;
     s16 pad0;
     s16 alpha;
+    f32 scale;
     remaining = gMenuStateTimer - 0x8C;
     if (remaining >= 0) {
         if (remaining < 0x96) {
@@ -626,7 +627,8 @@ Gfx *func_80713B40(Gfx *dl) {
             }
             dl = func_80713AA8(dl);
             gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, alpha);
-            dl = hudDrawScaledText(dl, 0x280, (s16)(s32)(480.0 - ((f64)(f32)((f64)(0x96 - remaining) / 40.0) * 32.0)), (f32)((f64)(0x96 - remaining) / 40.0), D_80755378);
+            scale = (0x96 - remaining) / 40.0;
+            dl = hudDrawScaledText(dl, 0x280, 480.0 - scale * 32.0, scale, D_80755378);
         }
     }
     return dl;
@@ -648,8 +650,8 @@ void menuTimerUpdateCountdown(void) {
         }
         gMenuBonusTimer.time += D_807445B0;
         if (!(gGlobalPauseFlags & 2)) {
-            elapsed = (osGetTime() - gMenuBonusTimer.time) * 64;
-            gMenuBonusTimer.remaining = gMenuBonusTimer.duration - (u32)(elapsed / 3000 / 1000000);
+            elapsed = OS_CYCLES_TO_USEC(osGetTime() - gMenuBonusTimer.time);
+            gMenuBonusTimer.remaining = gMenuBonusTimer.duration - (u32)(elapsed / 1000000);
             if (((u32)gMenuBonusTimer.index < 0xA) && (gMenuBonusTimer.remaining == gMenuBonusTimerThresholds[gMenuBonusTimer.index])) {
                 sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 gMenuBonusTimer.index++;
@@ -665,20 +667,19 @@ void menuTimerUpdateCountdown(void) {
 Gfx *hudDrawCountdownTimer(Gfx *dl) {
     s32 pad[8];
     f32 timerX;
-    Gfx *dlCur;
 
     if ((menuGetTimerFlag() != 0) && !(gGlobalPauseFlags & 3)) {
-        timerX = (f32) gScreenWidth * 0.5f;
-        dlCur = menuOverlayGfxInit(dl);
-        R117D_WRITE_GFX(dlCur++, 0xFC119623, 0xFF2FFFFF);
-        R117D_WRITE_GFX(dlCur++, 0xFA000000, 0xFFFFFFFF);
-        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, gMenuBonusTimer.remaining);
+        timerX = gScreenWidth * 0.5f;
+        dl = menuOverlayGfxInit(dl);
+        gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
+        dl = renderTimerMinutesSecondsHUD(dl, timerX, 214.0f, gMenuBonusTimer.remaining);
     }
     return dl;
 }
 
-s32 mathIdentityS32B(s32 value) {
-    return value;
+Gfx *mathIdentityS32B(Gfx *dl) {
+    return dl;
 }
 
 void menuTransitionToMapIfUnlocked(s32 map, s32 exit, s32 gate) {
@@ -736,7 +737,7 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     if ((D_80755338 != 0) && (gFrameCounter == 1)) {
         D_80755338 = 0;
         if (D_8075533C >= 0) {
-            camStartPath(0, (s16)D_8075533C, 1);
+            camStartPath(0, D_8075533C, 1);
         }
     }
     if (D_807552E0 != 0) {
@@ -770,13 +771,13 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     }
     switch (gMenuCurrentMode) {
     case 0:
-    case 1: dl = (Gfx *)mathIdentityS32((s32)dl); break;
+    case 1: dl = mathIdentityS32(dl); break;
     case 2: dl = func_807138A4(dl); break;
     case 3: dl = func_807138CC(dl); break;
     case 7:
     case 9: dl = func_80713B40(dl); break;
     case 6: dl = hudDrawCountdownTimer(dl); break;
-    case 5: dl = (Gfx *)mathIdentityS32B((s32)dl); break;
+    case 5: dl = mathIdentityS32B(dl); break;
     case 11: break;
     }
     return dl;
