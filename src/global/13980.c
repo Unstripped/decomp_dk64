@@ -187,7 +187,6 @@ void schedMain(void *arg) {
 }
 
 u32 D_8074684C[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 };
-s16 D_80746858 = 0;
 
 void schedHandleNewTask(SchedStruct *sc, TaskNode *task) {
     schedAppendTask(sc, task);
@@ -209,6 +208,7 @@ extern s8 D_80744510;
 
 
 void schedHandleRetrace(SchedStruct *sc) {
+    static s16 sViModeDelay = 0;
     OSMesg msg;
     s32 i;
     s32 pad;
@@ -221,18 +221,16 @@ void schedHandleRetrace(SchedStruct *sc) {
     D_807F04F8 = osGetTime();
     if (D_80744510 != 0) {
         if (D_80744510 == 1) {
-            if (D_80746858 == 0) {
+            if (sViModeDelay == 0) {
                 osViBlack(1);
-                if (D_80744510 && D_80744510) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
-            if (D_80746858 == 60) {
+            if (sViModeDelay == 60) {
                 osViSetMode(&osViModeTable[D_8074684C[osTvType]]);
                 osViSetSpecialFeatures(OS_VI_GAMMA_OFF | OS_VI_DITHER_FILTER_ON);
                 osViBlack(0);
                 D_80744510 = 2;
-                if (gFramebuffers && gFramebuffers) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
-            D_80746858++;
+            sViModeDelay++;
         }
         osViSwapBuffer((void *)gFramebuffers[0]);
     }
@@ -266,7 +264,6 @@ void schedHandleRetrace(SchedStruct *sc) {
             schedAppendTask(sc, msg);
         } else {
             osSendMesg(&sc->cmdQ, msg, OS_MESG_NOBLOCK);
-            if (D_80746858 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
     }
