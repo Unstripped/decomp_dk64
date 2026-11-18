@@ -429,13 +429,14 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     u8 count;
     Actor *playerActor;
     PlayerState *playerState;
-    f32 inv;
+    f32 invScale;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
     u8 r;
     u8 g;
     u8 b;
     f32 scale;
+    f32 roll;
 
     scale = 5.6f / gBgRotatedScale;
     playerActor = gPlayerSlots->actor;
@@ -443,9 +444,9 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     guScaleF(mtxA, scale, scale, scale);
     guTranslateF(mtxB, -2560.0f, -1920.0f, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
-    inv = (0x1000 - playerState->camActor->pitch) & 0xFFF; // FAKE: inv doubles as the roll angle; a separate f32 roll local takes a declaration slot and grows the frame 0x1B0 -> 0x1B8
-    inv *= 0.087890625f;
-    guRotateF(mtxB, inv, 0, 0, 1);
+    roll = (0x1000 - playerState->camActor->pitch) & 0xFFF;
+    roll *= 360.0f / 4096.0f;
+    guRotateF(mtxB, roll, 0, 0, 1);
     guMtxCatF(mtxA, mtxB, mtxA);
     guTranslateF(mtxB, 2560.0f, 1920.0f, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
@@ -458,16 +459,16 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     gSPMatrix(glist++, &D_807FD8A8[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist++, &D_807FD928, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPPipeSync(glist++);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x404240);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x404240);
     gDPSetCombineMode(glist++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
+    gDPSetCycleType(glist++, G_CYC_1CYCLE);
     gfxGetBackgroundTint(playerActor->y, &r, &g, &b);
     gDPSetPrimColor(glist++, 0, 0, r, g, b, 0xFF);
     gSPClearGeometryMode(glist++, 0xFFFFFF);
     gSPSetGeometryMode(glist++, 0x200004);
     scrollU = rotX * 0.15915494f * gBgRotatedScale;
     scrollV = rotY * 0.15915494f * gBgRotatedScale;
-    inv = 1.0f / scale;
+    invScale = 1.0f / scale;
     while (scrollU > 1.0f) {
         scrollU -= 1.0f;
     }
@@ -476,11 +477,12 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     }
     scrollU = scrollU * width;
     scrollV = scrollV * height;
-    spans[0].v[0][0] = scrollU - 460.0f * inv * 0.5f;
-    spans[0].v[0][1] = scrollV - 380.0f * inv * 0.5f;
-    spans[0].v[1][0] = 460.0f * inv * 0.5f + scrollU;
-    spans[0].v[1][1] = 380.0f * inv * 0.5f + scrollV;
-    spans[0].v[2][1] = spans[0].v[2][0] = -70.0f * inv;
+    spans[0].v[0][0] = scrollU - 460.0f * invScale * 0.5f;
+    spans[0].v[0][1] = scrollV - 380.0f * invScale * 0.5f;
+    spans[0].v[1][0] = 460.0f * invScale * 0.5f + scrollU;
+    spans[0].v[1][1] = 380.0f * invScale * 0.5f + scrollV;
+    spans[0].v[2][0] = -70.0f * invScale;
+    spans[0].v[2][1] = -70.0f * invScale;
     count = 1;
     gfxWrapRectSpan(spans, &count, 0, width);
     gfxWrapRectSpan(spans, &count, 1, height);
