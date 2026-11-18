@@ -10,6 +10,11 @@
 #include "proto/global/61AA0.h"
 #include "proto/global/69E60.h"
 
+// This TU's .data (0x80748300-0x8074830C + 4-byte TU pad).
+s16 gLightVolumeCount = 0;
+s32 gShadowLitAlpha = 70;
+s32 gShadowAmbientAlpha = 90;
+
 extern u8 gLightNextFlags;
 extern s16 gLightNextOwnerId;
 extern s16 gLightNextActiveRadius;
@@ -163,7 +168,6 @@ void lightLerpColors(f32 r, f32 g, f32 b, f32 t, s16 index) {
     }
 }
 
-extern s16 gLightVolumeCount;
 extern f32 D_807F7ECC;
 extern f32 D_807F7ED0;
 extern f32 D_807F7ED4;
@@ -272,8 +276,6 @@ void lightAdd(f32 x, f32 y, f32 z, f32 targetX, f32 targetY, f32 targetZ, f32 ra
     }
 }
 
-extern s32 gShadowLitAlpha;
-extern s32 gShadowAmbientAlpha;
 extern u8 gPlayerCount;
 
 

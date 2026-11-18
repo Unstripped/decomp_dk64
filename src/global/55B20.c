@@ -20,6 +20,10 @@
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
+// This TU's .data (0x807482F0-0x807482F8 + 8-byte TU pad); D_807482F0 is unreferenced.
+s32 D_807482F0 = 2500;
+s32 D_807482F4 = 5;
+
 typedef struct MapChunkCell {
     /* 0x00 */ s16 id;
     /* 0x02 */ u8 layerMask;
@@ -1368,7 +1372,6 @@ void mapChunkRenderNodes(f32 x, f32 y, f32 z) {
 }
 
 extern f32 D_807F5FAC;
-extern s32 D_807482F4;
 extern PlanePoly D_807F7148[];
 
 void mapChunkBuildClipFrusta(f32 x, f32 y, f32 z) {

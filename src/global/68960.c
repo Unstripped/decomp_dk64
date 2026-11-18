@@ -9,7 +9,15 @@ typedef struct MapFogEntry {
     s16 fogDistance;
 } MapFogEntry;
 
-extern MapFogEntry gMapFogDistances[6];
+// This TU's .data (0x80748B70-0x80748B94 + 12-byte TU pad).
+MapFogEntry gMapFogDistances[6] = {
+        { 72, 4, 0, 2500 },
+    { 72, 8, 0, 2500 },
+    { 72, 5, 0, 1000 },
+    { 72, 0, 0, 1500 },
+    { 72, 13, 0, 4000 },
+    { 72, -1, 0, 800 },
+};
 extern s32 gCurrentMap;
 
 void mapUpdateFogDistance(f32 *pDist, s16 characterId) {

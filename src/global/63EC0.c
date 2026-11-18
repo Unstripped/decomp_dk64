@@ -16,7 +16,7 @@
 
 typedef struct EffectTableEntry {
     void (*fn0)(u8);
-    void (*fn1)();
+    Gfx *(*fn1)(Gfx *, WaterSurface *, u8);
     void (*fn2)(WaterSurface *);
     void *res0;
     void *res1;
@@ -54,9 +54,22 @@ typedef struct EffectBufferEntry {
     /* 0x088 */ u8 bspBounds[0x1C8 - 0x88];
 } EffectBufferEntry; /* 0x1C8 */
 
+// This TU's .data (0x80748A90-0x80748B6C + 4-byte TU pad): per-type effect table rows; D_80748A94,
+// D_80748A9C and D_80748AA5 are column views of these rows (absolute lines in undefined_syms.us.txt).
+EffectTableEntry D_80748A90[9] = {
+    { effectInitTextureTableRGBA32, effectBuildGdlTexture32x32RGBA, effectNodeStepUVAndPos, NULL, NULL, { 0x00000100 } },
+    { effectInitTextureTableCI4, effectBuildGdlTexture64x64CI4, effectNodeUpdateAlphaOffset, NULL, NULL, { 0x00000000 } },
+    { effectInitTextureTable0, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildMipmapGdl, (void (*)(WaterSurface *))effectNoopCallback1, NULL, NULL, { 0x00010000 } },
+    { effectInitTextureTableRGBA32, effectBuildGdlTexture32x32RGBAWithPrim, effectNodeStepUVAndPos, NULL, NULL, { 0x00000100 } },
+    { effectInitTextureTable2, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildMipmapGdlDup, (void (*)(WaterSurface *))effectNoopCallback3, NULL, NULL, { 0x00020000 } },
+    { effectInitTextureTable3, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildSingleTextureGdl, effectNodeUpdateAlphaOffset, NULL, NULL, { 0x00000100 } },
+    { effectInitTextureTable4, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildSingleTextureGdlDup, effectNodeUpdateAlphaOffset, NULL, NULL, { 0x00000000 } },
+    { effectInitTextureTableDual, effectBuildMultiBlockTextureGdl, effectNodeUpdateDualAlphaOffset, NULL, NULL, { 0x00000100 } },
+    { effectInitTextureTable1, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildMipmapGdlWrapper, (void (*)(WaterSurface *))effectNoopCallback2, NULL, NULL, { 0x00010000 } },
+};
+s32 D_80748B68 = -2;
 
 extern WaterSurface *gEffectNodeList;
-extern EffectTableEntry D_80748A90[];
 extern TextureCacheEntry D_80748A9C[];
 extern EffectTableFlags D_80748AA5[];
 extern EffectBufferEntry *gMapChunks;
@@ -1047,7 +1060,6 @@ void effectInitTextureTableDual(u8 tableIndex) {
     D_80748A90[tableIndex].res1 = assetLoad(7, 0x3DB, 1, 0);
 }
 
-extern s32 D_80748B68;
 
 Gfx *effectBuildMultiBlockTextureGdl(Gfx *glist, WaterSurface *node, u8 tableIndex) {
     gDPPipeSync(glist++);

@@ -22,6 +22,8 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/FE40.h"
 
+// This TU's .data (0x80748E40-0x80748E42 + 14-byte TU pad).
+s16 D_80748E40 = 0;
 
 typedef struct BufferCacheEntry {
     /* 0x00 */ void *tris;
@@ -334,7 +336,6 @@ void collisionLoadStaticCell(s32 cell) {
 }
 
 extern s32 gModelSlotCount;
-extern s16 D_80748E40;
 
 
 void modelSlotExpireNextBuffers(void) {

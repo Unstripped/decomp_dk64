@@ -21,6 +21,13 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/FE40.h"
 
+// This TU's .data (0x80748E10-0x80748E40): D_80748E10 is unreferenced; D_80748E18 flags the asset
+// tables loaded compressed.
+s32 D_80748E10 = 0;
+void *D_80748E14 = NULL;
+u8 D_80748E18[0x28] = {
+    1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+};
 
 typedef struct CollisionStaticTri {
     /* 0x00 */ s16 x[3];
@@ -1646,13 +1653,11 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *tri, f32 x, f32 z) {
     return outside == 0;
 }
 
-extern void *D_80748E14;
 void assetEnsureTableLoaded();
 extern s32 D_807F9678;
 extern u8 D_807F967C;
 extern u8 D_807F967D;
 extern s32 *D_807F95A8[];
-extern u8 D_80748E18[];
 extern s32 *D_807FB1A0[];
 typedef struct {
     void *dmaDst;

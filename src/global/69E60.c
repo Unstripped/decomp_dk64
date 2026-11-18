@@ -8,6 +8,40 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 
+typedef struct {
+    s16 slopeDivisor;
+    u8 maxPitchDegAlt;
+    u8 maxPitchDeg;
+    u8 pad4[2];
+    u8 minPitchDeg;
+    u8 pad7[3];
+} ActorTiltTableEntry;
+
+// This TU's .data (0x80748D40-0x80748E05 + 11-byte TU pad), in address order. D_80748D48 (byte 8 of
+// each entry), D_80748D4A (entry 1, read by 7CA80) and D_80748DA4 (entry 10) are interior labels.
+ActorTiltTableEntry D_80748D40[19] = {
+    { 1, 90, 90, { 90, 90 }, 0, { 100, 0, 0 } },
+    { 32, 70, 53, { 45, 37 }, 30, { 90, 0, 0 } },
+    { 32, 60, 45, { 37, 30 }, 30, { 100, 0, 0 } },
+    { 32, 60, 45, { 37, 30 }, 30, { 100, 0, 0 } },
+    { 32, 70, 53, { 45, 37 }, 30, { 100, 0, 0 } },
+    { 32, 60, 45, { 37, 30 }, 30, { 100, 0, 0 } },
+    { 1024, 0, 90, { 90, 90 }, 70, { 100, 0, 0 } },
+    { 1024, 0, 90, { 90, 90 }, 70, { 100, 0, 0 } },
+    { 1024, 0, 90, { 90, 90 }, 70, { 100, 0, 0 } },
+    { 32, 70, 53, { 45, 37 }, 30, { 100, 0, 0 } },
+    { 8, 85, 75, { 65, 60 }, 45, { 10, 1, 0 } },
+    { 16, 75, 75, { 75, 75 }, 0, { 20, 0, 0 } },
+    { 4, 90, 80, { 75, 70 }, 70, { 100, 0, 0 } },
+    { 16, 0, 0, { 0, 0 }, 0, { 100, 0, 0 } },
+    { 1024, 0, 0, { 0, 0 }, 0, { 50, 0, 0 } },
+    { 32, 30, 20, { 15, 15 }, 30, { 90, 0, 0 } },
+    { 32, 35, 25, { 65, 30 }, 55, { 100, 0, 0 } },
+    { 8, 85, 75, { 65, 60 }, 45, { 10, 0, 0 } },
+    { 8, 85, 75, { 65, 60 }, 45, { 10, 0, 0 } },
+};
+u8 D_80748E00 = 0;
+u8 D_80748E04 = 0;
 
 void actorStepPhysics(Actor *actor, s16 targetYaw, s16 facingYaw) {
     actorUpdatePrevContactFlags(actor);
@@ -85,9 +119,6 @@ void actorApplyVelocityCustom(Actor *actor, f32 speedXZ, f32 speedY) {
     actor->y += speedY * scaleFactor;
 }
 
-extern u8 D_80748E00;
-extern u8 D_80748E04;
-
 void actorSkipFloorSnap(void) {
     D_80748E00 = 1;
 }
@@ -97,18 +128,6 @@ u8 actorGetFloorSnapped(void) {
 }
 
 
-
-
-typedef struct {
-    s16 slopeDivisor;
-    u8 maxPitchDegAlt;
-    u8 maxPitchDeg;
-    u8 pad4[2];
-    u8 minPitchDeg;
-    u8 pad7[3];
-} ActorTiltTableEntry;
-
-extern ActorTiltTableEntry D_80748D40[];
 extern ActorTiltTableEntry D_80748DA4;
 extern PlayerState *gActivePlayerState;
 extern Actor *gCurrentActor;

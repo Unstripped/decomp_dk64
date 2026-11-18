@@ -241,7 +241,17 @@ segments:
       - [0x14CA80, .data, 41090] # gMapSurfaceEffects[8]..D_80747E64 (0x80747D80-0x80747E68 + 8-byte TU pad; D_80747D84/D_80747E10 were split labels); D_80747E64 unreferenced (its label is gEnvFlipbookFrames's loop end); the table's env* handlers make their entry labels address-taken (Q0552)
       - [0x14CB70, .data, 42630] # gCsCmdTable[118], gCsCondTable[19], D_80748094..D_807480BC[8] (0x80747E70-0x807480CC + 4-byte TU pad); D_80748098 unreferenced; every table handler but csCmdSpawnSparkAndLight lives in 478F0
       - [0x14CDD0, .data, 478F0] # D_807480D0..D_807482EC (0x807480D0-0x807482F0, no pad): cutscene-command data, defined in src/global/478F0.c in address order before each first user; sHubItemsFrames/sHubItemsCycle (0x80748170/0x80748178) are csCmdHubWorldItemsAdjust's function-local statics, D_8074817C an unreferenced word; 16-aligned after 42630's D_807480BC, next TU data starts 16-aligned at 0x807482F0
-      - [0x14CFF0, data]
+      - [0x14CFF0, .data, 55B20] # D_807482F0 (unreferenced, tentative: 54150 would be layout-neutral too), D_807482F4 (0x807482F0-0x807482F8 + 8-byte TU pad)
+      - [0x14D000, .data, 5E2F0] # gLightVolumeCount, gShadowLitAlpha, gShadowAmbientAlpha (0x80748300-0x8074830C + 4-byte TU pad)
+      - [0x14D010, .data, 61AA0] # D_80748310, D_80748370, D_807483D0 segment-6 render-mode lists (0x80748310-0x80748430)
+      - [0x14D130, .data, 63810] # gLightKeyframeTable[27], gLightQueueCount (0x80748430-0x80748A86 + 10-byte TU pad)
+      - [0x14D790, .data, 63EC0] # D_80748A90[9] effect table rows (D_80748A94/A9C/AA5 are column views: undefined_syms), D_80748B68 (0x80748A90-0x80748B6C + 4-byte TU pad); the rows' effect* handlers make their entry labels address-taken (Q0552)
+      - [0x14D870, .data, 68960] # gMapFogDistances[6] (0x80748B70-0x80748B94 + 12-byte TU pad)
+      - [0x14D8A0, .data, 699B0] # particlePathTable[13] (0x80748BA0-0x80748D40)
+      - [0x14DA40, .data, 69E60] # D_80748D40[19] tilt table (D_80748D48/D_80748D4A/D_80748DA4 interior), D_80748E00, D_80748E04 (0x80748D40-0x80748E05 + 11-byte TU pad)
+      - [0x14DB10, .data, 6AD90] # D_80748E10 (unreferenced), D_80748E14, D_80748E18[0x28] (0x80748E10-0x80748E40)
+      - [0x14DB40, .data, 70FD0] # D_80748E40 (0x80748E40-0x80748E42 + 14-byte TU pad)
+      - [0x14DB50, data]
       - [0x1551E0, .data, ACDC0] # D_807504E0..D_807505F8 (0x807504E0-0x807505FA + 6-byte TU pad): pause-menu tables; sPauseSaveCooldown, D_807505D8, D_807505F8 are function-local statics of hudPauseMenuUpdate, hudPauseMenuBuildPage, hudDrawTwoOptionMenu, laid out in source order after the file-scope tables (defined above the functions)
       - [0x155300, .data, B5EC0] # D_80750600[5] (0x80750600-0x80750614 + 12-byte TU pad): func_806B1DD4's per-mode flag rows
       - [0x155320, .data, BDEE0] # D_80750620[8], D_80750628[16], gFairySpawnOrder (0x80750620-0x80750643 + 13-byte TU pad); D_80750620 is unreferenced, its TU start is the 16-aligned address below the unaligned D_80750628

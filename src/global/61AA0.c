@@ -8,14 +8,37 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 
+// This TU's .data (0x80748310-0x80748430): segment-6 render-mode lists, one {set, end} pair per mode.
+Gfx D_80748310[6][2] = {
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552078), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC192078), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC193078), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC192038), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC1849D8), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552048), gsSPEndDisplayList() },
+};
+Gfx D_80748370[6][2] = {
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552230), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC192230), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC193078), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC192230), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC184A50), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552048), gsSPEndDisplayList() },
+};
+Gfx D_807483D0[6][2] = {
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x5504270), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xD184270), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x1504A50), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xD184270), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x1504A50), gsSPEndDisplayList() },
+    { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x5504240), gsSPEndDisplayList() },
+};
 
 extern u8 gSegment6Override;
 
 void renderSetSegment6Override(u8 enabled) {
     gSegment6Override = enabled;
 }
-
-extern Gfx D_80748310[6][2];
 
 void renderReplaceSegment6Commands(Gfx *start, void *end) { // end: one past the last command
     while (start != end) {
@@ -78,8 +101,6 @@ f32 renderAdjustActorDistance(s16 actorType, f32 dist) {
     return dist;
 }
 
-extern Gfx D_80748370[6][2];
-extern Gfx D_807483D0[6][2];
 
 Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 fogAlpha, u8 override) {
     if (fogAlpha == 0xFF) {
