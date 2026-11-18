@@ -253,7 +253,8 @@ segments:
       - [0x14DB40, .data, 70FD0] # D_80748E40 (0x80748E40-0x80748E42 + 14-byte TU pad)
       - [0x14DB50, .data, 7A510] # D_80748E50[29][9] node-flag sets, D_80748F58[24], D_80748FE8[595] hit windows, gActorInteractionTable[4] (0x80748E50-0x8074AC0C + 4-byte TU pad)
       - [0x14F910, .data, 7BBD0] # per-actor-type tables (0x8074AC10-0x8074DA2C + 4-byte TU pad): 185 collision interaction lists/pattern tables (no C user; reached through D_8074C604), D_8074C0A0[345] update functions (7CA80), D_8074C604[344] collision slots and D_8074D0C4[344] health/damage (7A510), D_8074D624[344] collision flags and gActorTypeInitIndex[344] (7CA80). Both ends are 4-byte TU pads, so a TU between 7A510 and 7CA80 in text: tentative 7BBD0 (7AF60/7BA00 layout-neutral too; the lists point at 108 7AF60 filters, none at 7BBD0)
-      - [0x152730, data]
+      - [0x152730, .data, 7CA80] # gActorInitFuncs[10], D_8074DA58[117] component sizes, 344 component lists D_8074DB44..D_8074E214, D_8074E218[344], D_8074E778 (112080 indexes the name table through it), gPlayerCharacterId[4], D_8074E780[8] kong/animal name strings (0x8074DA30-0x8074E7A0, no pad); gActorInitFuncs makes its ten init functions' entry labels address-taken (Q0552)
+      - [0x1534A0, data]
       - [0x1551E0, .data, ACDC0] # D_807504E0..D_807505F8 (0x807504E0-0x807505FA + 6-byte TU pad): pause-menu tables; sPauseSaveCooldown, D_807505D8, D_807505F8 are function-local statics of hudPauseMenuUpdate, hudPauseMenuBuildPage, hudDrawTwoOptionMenu, laid out in source order after the file-scope tables (defined above the functions)
       - [0x155300, .data, B5EC0] # D_80750600[5] (0x80750600-0x80750614 + 12-byte TU pad): func_806B1DD4's per-mode flag rows
       - [0x155320, .data, BDEE0] # D_80750620[8], D_80750628[16], gFairySpawnOrder (0x80750620-0x80750643 + 13-byte TU pad); D_80750620 is unreferenced, its TU start is the 16-aligned address below the unaligned D_80750628
