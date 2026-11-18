@@ -906,7 +906,7 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if (D_8077058C[1] != D_8077058C[2]) {
-        angle = (D_8077058C[2] * 0.3) / 255.0;
+        angle = (D_8077058C[2] * 0.3) / 255.0; // FAKE: angle reused for the pan value (also 1009-1037); a dedicated f32 pan local is full 346/355 with the frame kept 0xe8
         volume = ((D_8077058C[2] * 0.35) / 255.0) + 1.0;
         count = D_8077058C[2];  // FAKE: reusing the emitter-count local for the reverb level; a separate u32 level local grows the frame 0xe8 -> 0xf0
         if (gCurrentMap == 0xE) {
