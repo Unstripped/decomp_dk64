@@ -173,24 +173,25 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Session 2026-11-17b (rolling queue from 4d0df275, director mode; CleanupLead4 → 5 → 6 → 7 hand-offs via dispatch.md and handoff-close-17b.md)** — 30 worker reports, 13 of them merged into src: coverage of the last unreviewed hack functions (ACDC0 hudPauseMenuRender, 104F0, C0EE0, 9CE20, 7130, 12E800, 936B0, arcade/0, bonus/2690, B5EC0, FCCD0, F56F0, 80150) and 7 polish reviews (boss/F0D0 with a 3-callee `BossWaypointState *` signature bundle, 36880, 68EA0, 9BF30, EFDC0, race/0 with 18 file-local prototypes moved to shared includes, race/6650), then hack items (E4090, 42630 ×3, CEAE0, 201B0 ×2, 6AD90, 3D20 ×2, C0EE0 ×2). Fixes: a dead `if (f == 0) {}` replaced by a real `!f` toggle (arcade/0: FAKE 2 → 0), z1-first operand order (6AD90), one merged value local (42630 csCondEval), and a tagged `PUTC` do-while(0) macro standing in for two dead tests in vsprintf. Reviews 4,237 → 4,266/4,270, open sites 68 → 32. Close: renames 5d9d70dd, carry 14a7f632, knowledge 9b1f664c (Q1158-Q1185).
 - [x] **Session 2026-11-17c (rolling queue from 9c8bb0fd, director mode, CleanupLead8)** — the 7 OPEN `rank` rows of the 17b close, as 8 hack-worker reports (all merged and recorded): 3 knowledge-staled reviews (camComputeEyeFocus: 4 gotos re-kept with Q0591 evidence; enemyGridStateStep: two same-value dead tests merged into one two-term guard; playerUpdateCommon: a block local dropped so the plain `!=` gets the target's operand order), vsprintf ×2 (hundreds digit through the tagged PUTC macro; a score-5 down-counter lead for the e-arm trio and a 900 s permuter run did not match), csCmdExec ×2 (`found` merged with the 0xE/0x7D `b` flag into one `u8 bit`, which retires the `if (found) {}` guard), raceOpponentFollowWaypoints (an in-test assignment became a `dist` local; the heading got its own local). FAKE 310 → 304, reviews 4,266 → 4,267/4,270 (4,269 before the close's knowledge), exhausted functions 4,261 → 4,265. Knowledge Q1186-Q1190 (a25ed90c) and Q1191-Q1195 (0a2798ac); no renames.
 - [x] **Session 2026-11-17d (rolling queue from f46b6ee5, director mode, CleanupLead9)** — the three OPEN `rank` rows and both blocked polish items, 4 worker reports (all merged and recorded) plus two director rulings: hudPauseMenuUpdate (a new shape: `x`/`stickY` retyped `s8` share one home word, freeing a slot for a dedicated `step` local at frame 0x58, which retires the carousel-step reuse of `i`: FAKE 6 → 5; the other 5 reuse steers measured and EXHAUSTED), vsprintf and csCmdExec re-measured against Q1191-Q1195 (no fix; a score-5 trio-free up-counter lead for vsprintf), 90D80 renderHitCounterHUD (`(const u8 *)"HIT"` ruled an untagged literal conversion to the const u8 * text API: W709 1 → 0), FE40 retype ruled permanent debt (`retype kept`, polymorphic `void *dst`). Close: 3 ACDC0 pause-carousel globals named, knowledge Q1196-Q1202.
-- [ ] Paused after session 2026-11-17d. `quality.py report` shows reviewed and exhausted 4,270/4,270 and `rank` lists no OPEN function: the "Done when" below holds. The 330 remaining hack sites (189 functions) are EXHAUSTED at strength 2 (12 functions have 3+ strength-3 attempts); per §7 the next step is 3+ strength-3 (`:xhigh`/`:max`) attempts per `rank` row, or the user's call. Held names and types items are in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Session 2026-11-17e (rolling hack queue from 3ffe1656, director mode; CleanupLead → CleanupLead2 → CleanupLead3 hand-offs via dispatch.md)** — strength-3 (`:xhigh`) hack items over `rank`, 33 worker reports merged and recorded (4 through lead copies, 1 signature bundle) plus TypesOwner10 batches 10-11 (actor.h, cutscene.h/model.h `CsState`), the rrs `u32 siz` bundle and an arcade `.data` carve: vsprintf (5 → 2), 68EA0 (3 → 0), 7A510 (2 → 0), 70FD0 (5 → 1, the m2c `actorYaw` local read inline), 6AD90 (Q0927 refuted: separate `u8 hit` tested bare), 3C10 (1 → 0, `gPlayerStateSaved` u8 with its CC800 extern), 936B0 (5 → 3: `projectileFindHomingTarget` K&R → ANSI retires the caller cast; a squared-distance accumulator), 36880 (early `continue`), arcade/0 (three `.data` templates as local initialisers); rulings: sibling-arm same-role reuse ordinary, register sharing and frame layout are not ORIG, value spellings and redundant aliases stay steers, a frame-word-only local is a pad (no hack swap). Close: `D_807F61F0` → `gCsCountdown`; knowledge Q1203-Q1250 (48 new entries; superseded claims filed as new entries). FAKE 303 → 277, proto-steer 3 → 1, goto 27 → 27.
+- [ ] Paused after session 2026-11-17e. `quality.py report` shows reviewed 4,264/4,270 and exhausted 4,263/4,270: the 48 knowledge entries staled the rungs of the functions they name (15 sites, 6 reviews: next session's leftovers, `rank` / `rank --polish`). The 304 remaining hack sites (182 functions) are EXHAUSTED at strength 2 or 3 (14 functions have 3+ strength-3 attempts); per §7 the next step is 3+ strength-3 attempts per `rank` row, or the user's call. Two prepared briefs were not dispatched (7BA00, CC800 kongChainInit). Held names and types items are in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-17d close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-17e close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 303 | 583 |
-| FAKE dead-if | 102 | 263 |
-| FAKE proto-steer | 3 | 134 |
-| FAKE other kinds | 198 | 186 |
-| ORIG (cited target offset) | 89 | 0 |
-| LAYOUT | 85 | 47 |
+| FAKE | 277 | 583 |
+| FAKE dead-if | 96 | 263 |
+| FAKE proto-steer | 1 | 134 |
+| FAKE other kinds | 180 | 186 |
+| ORIG (cited target offset) | 90 | 0 |
+| LAYOUT | 86 | 47 |
 | goto | 27 | 39 |
 | proto-type (`// PROTO:`) | 1 | 0 |
-| protos mismatch | 6 | 1,202 |
-| reviewed / exhausted functions | 4,270 / 4,270 of 4,270 | 0 |
+| protos mismatch | 5 | 1,202 |
+| reviewed / exhausted functions | 4,264 / 4,263 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 4 | 1,890 |
-| uninit warnings (clint checks every function) | 252 | 122 |
+| uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 291 | 457 |
 | m2c names | 3 | 5,040 |
 
