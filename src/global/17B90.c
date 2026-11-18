@@ -379,12 +379,10 @@ void controllerAnimFreeSub(Actor *actor, u8 modelIndex) {
 void controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
     AnimClip *clip;
     s32 i;
-    s32 count;
 
     clip = slot->clip;
     if (clip != NULL) {
-        count = gAnimClipCacheCount;
-        for (i = 0; i + 1 <= count; i++) { // FAKE: the `i + 1 <=` operand respelling blocks uopt's LFTR: the target keeps `slt at,v0,a0` at 0xaf4 and `bnez at` at 0xb84; plain `i < count` becomes a bne latch one instruction shorter
+        for (i = 0; i < gAnimClipCacheCount; i++) {
             if (clip == gAnimClipCache[i].asset) {
                 if (--gAnimClipCache[i].refCount == 0) {
                     assetFreeBuffer(gAnimClipCache[i].asset, 0x298, 0x15);
