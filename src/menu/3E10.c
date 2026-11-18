@@ -3221,9 +3221,9 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
             if (D_80033804[idx] == 0) {
-                elemActor->red = (D_800337DC + idx)->r; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
-                elemActor->green = (D_800337DC + idx)->g; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
-                elemActor->blue = (D_800337DC + idx)->b; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
+                elemActor->red = (D_800337DC + idx)->r; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; D_800337DC[idx].f shares the 0x9688 sll and loses it (Q0776)
+                elemActor->green = (D_800337DC + idx)->g; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; D_800337DC[idx].f shares the 0x9688 sll and loses it (Q0776)
+                elemActor->blue = (D_800337DC + idx)->b; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; D_800337DC[idx].f shares the 0x9688 sll and loses it (Q0776)
             }
             break;
         }
