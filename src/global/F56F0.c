@@ -801,44 +801,39 @@ void playerWeaponCrosshairRender(Actor *actor, BoneVector *entries, s32 *count) 
     f32 fade;
     f32 scaleY;
     f32 scaleX;
-    u16 timer;
-    s32 adj;
-    s32 inc;
-    s32 sel;
-    if (gActivePlayerState && gActivePlayerState) {}  // FAKE: dead global test steers uopt (ps in v0, u16 in v1)
-    timer = gActivePlayerState->unk21E;
-    fade = timer * 0.033333335f;
+    s32 remaining;
+    fade = gActivePlayerState->unk21E * 0.033333335f;
     if (fade < 1e-05) {
         fade = 1e-05f;
     }
-    sel = actor->state;
-    if ((sel == 0x34) || (sel == 0x84)) {
-        if (gActivePlayerState->unk25C > 0.01) {
-            gActivePlayerState->unk258 *= 1.07;
-            gActivePlayerState->unk25C *= 0.7;
-        } else {
-            actor->flags &= ~0x8000;
-            if (gActivePlayerState->unk21E != 0) {
-                gActivePlayerState->unk21E--;
+    switch (actor->state) {
+        case 0x34:
+        case 0x84:
+            if (gActivePlayerState->unk25C > 0.01) {
+                gActivePlayerState->unk258 *= 1.07;
+                gActivePlayerState->unk25C *= 0.7;
+            } else {
+                actor->flags &= ~0x8000;
+                if (gActivePlayerState->unk21E != 0) {
+                    gActivePlayerState->unk21E--;
+                }
+                actor->alpha = 255.0f * fade;
             }
-            actor->alpha = 255.0f * fade;
-        }
-        scaleX = gActivePlayerState->unk258;
-        scaleY = gActivePlayerState->unk25C;
-    } else {
-        scaleY = fade;
-        scaleX = fade;
-        if (timer < 0x1E) {
-            actor->flags |= 0x8000;
-            adj = 0x1E - gActivePlayerState->unk21E;
-            if (timer == 0) {}  // FAKE: dead use steers uopt priority
-            inc = (adj >= 3) ? 2 : adj;
-            gActivePlayerState->unk21E += inc;
-            gActivePlayerState->unk258 = 1.0f;
-            gActivePlayerState->unk25C = gActivePlayerState->unk258;
-        }
+            scaleX = gActivePlayerState->unk258;
+            scaleY = gActivePlayerState->unk25C;
+            break;
+        default:
+            scaleY = fade;
+            scaleX = fade;
+            if (gActivePlayerState->unk21E < 0x1E) {
+                actor->flags |= 0x8000;
+                remaining = 0x1E - gActivePlayerState->unk21E;
+                gActivePlayerState->unk21E += (remaining >= 3) ? 2 : remaining;
+                gActivePlayerState->unk258 = 1.0f;
+                gActivePlayerState->unk25C = gActivePlayerState->unk258;
+            }
+            break;
     }
-    if (entries && entries) {}  // FAKE: dead use of arg1 raises its uopt priority (entries in s0, count stays in a2)
     entries[*count].bone = 0;
     entries[*count].lastBone = 0xFF;
     entries[*count].x = scaleX;
