@@ -13,8 +13,16 @@ global:80649BF0:other:fb80a0 other (removed): punned `*((u8 *)cs + 0x48)` ordere
 
 2026-11-16 HackcsCmdStepSequenceProgress3 anthropic/claude-opus-5-5:high: eq site, ok assigned the compare result per arm (eq-free): odd if + even `ok = cmp`: 56; both arms `ok = cmp` (parenthesised or not): 68; odd `ok = cmp` + even if: 72; both arms `cmp ? 1 : 0`: 9; else-if: 4 (v0/v1). nohit.
 
+2026-11-17 CleancsCmdStepSequenceProgress (cleanup session 2026-11-17f): eq site, strength-3 attempt.
+- 36880 lever (per-role local refined in place, first def a shared load): even arm `next = st[1]; next++;` or `next += 1;` then `cs->unk48[0] == next`: 17. `next` stays a 2-def coloured candidate, gets reg 1 and pushes ok to $v1 exactly as the target (0x706c/0x7088/0x70a0/0x70a4 match), but it is emitted: `addiu v0,a0,1; bne v0,t6` against the target's `addiu t7,a0,1; bne t6,t7` (0x7090/0x7098), and the t ring shifts by one after it (t8 -> t7 at 0x70ac...). As u8: 5, but `andi t5,v0,0xff` (a semantic change). Odd arm `next = cs->unk48[0]; next++; if (next == st[1])`: 22; both arms: 22; `prev = st[1]` refined in place with `prev++` in the even arm (block-level, before or after `ok = 0`): 20; per-arm `prev = st[1]` + `prev++`: 18.
+- uopt -l5/-l6 read of the base (candidate table + colouring): colouring order 53 (D pointer, reg 2), 46 (found, reg 6), 49 (i, reg 1), 18, 14 (prev, reg 3), 2, 29 (eq, reg 1), 20 (ok, reg 2), 5 (st, reg 7), 0 (cs, split 72 -> reg 4). eq: adjsave 2.0, live in bb 9 only (def + use, deadout), interferes 20/14/5/0. ok: adjsave 1.33, live bb 5-11, forbidden [1 3] once eq and prev are coloured. A pushing candidate must outrank ok (adjsave > 1.33), live inside bb 5-11, avoid i, and leave no code: the target's bb 5-11 (0x7068-0x70a4) has no $v0. Only a compare stored to a var whose single use is the next branch in the same bb is fused into the branch at reemission (eq); a value var (`next`, `cur`, `odd`) is emitted in $v0.
+- `eq` in both arms (`eq = cs->unk48[0] + 1 == st[1]; if (eq)` / `eq = cs->unk48[0] == st[1] + 1; if (eq)`): 0 (the same steer twice, not kept).
+- `odd = (st[1] & 1) != 0` before the parity test: 2 (ok gets $v1, but `andi v0,a0,1; sltu t1,zero,v0` is materialised: only a two-register `==` compare var is fused into its branch).
+- An unused `s32 pad` declared before ok, between ok and i, or after i (offset shift only; also with else-if): 4 each; before st: 22. The eq effect is the reg-1 candidate, not the frame offsets.
+- Hack-free-weights permuter 900 s -j 2 from the plain body (compare inline in the even-arm if), baseline 20: 49 of 53 outputs at 0, every one a steer adding a reg-1 candidate inside bb 5-11: the compare temp in either arm (statement or `if (x = ...)`), `i` reused as that temp or as a copy of st[1] for the `& 1` test, a `new_var = st[1]` copy used only for the `& 1` test (both compares still read st[1]), a D_80748180 alias pointer with the i temp, dead `!cs->unk48` terms. nohit.
+
 ## Untried ideas
-- A natural variable live across the odd/even block that uopt colours $v0 and later eliminates (the eq var's effect) - none found among the forms above.
+- A natural boolean that is assigned a compare and tested by the next branch inside bb 5-11 (the only vanishing kind): none found; the original may have had such a temp (no code to cite, so not ORIG).
 - csCmdModelStepAnimation 2177 `(*st).lastValue` vs `(u8)cs->unk44[2]` (not this worker's function): with this header, `cs->unk48[1]` (same lbu 0x49) may give the target order with `st->lastValue` (untested).
 
 ## Evidence

@@ -30,9 +30,22 @@
   - No p local, `gMinecartTrackPoints[1]` read directly at every use: the arrow macro on `gMinecartTrackPoints[1] + k` 18, `t * (G[1][k+1].y - G[1][k].y) + G[1][k].y` 18.
   - Mechanism (Q0860 extends to `+`): cfe emits a subscripted right operand of `+` before the left product, so every `p[k].y` form loads p0 first; `->` is not counted as a subscript, which is why the arrow form keeps source order.
 
+- 2026-11-17 CleancsCmdStepSequenceProgress (cleanup session 2026-11-17f), strength-3 attempt:
+  - Mechanism corrected by `as1probe ucode --cfe` (11BC10 rule: a right operand holding a subscript or explicit `*` load goes first only while the statement's ucode stack is empty):
+    - `t * (p[1].y - p[0].y) + p[0].y` (p local or direct `gMinecartTrackPoints[1][k]`, sn local or call inline): the outer addend `p[0].y` is emitted first (`ilod; cvt f64 f32` before the blend), then the product in source order (t, p1, p0, sub). The mul.d is already right; uopt numbers `ucvt p0` before the umpy and orders the commutative uadd {cvt p0}{product}: `add.d $f10,$f6,$f4` against the target's `add.d $f10,$f4,$f6` (0x8F0), and lights 2/3 follow with a rotated FP ring. That is the whole 18.
+    - `p[0].y + t * (p[1].y - p[0].y)`: the product goes first on the empty stack, so its right operand dy goes first (`p0; p1; swp; sub; cvt` before t): the ring rotates from 0x8C4 (cvt.d.s $f10 for $f4): 18.
+    - So the target ucode needs all three point reads free of subscripts and `*`, and their offsets folded from one base (`lwc1 4(s0)`, `lwc1 16(s0)`).
+  - Direct element reads + call inline (68EA0 lever), no p or sn local: 18 (only the outer add.d order above). Addend-first form: 18.
+  - Per-point pointer locals `lo = &gMinecartTrackPoints[1][k]; hi = &gMinecartTrackPoints[1][k + 1];` (or `= G[1] + k`, either assignment order) with `(sn * 0.5 + 0.5) * (hi->y - lo->y) + lo->y` and direct `gMinecartTrackPoints[1][k].x/.z` in lightAdd: 11. Every FP register and the add.d/mul.d order now match; the residue is the element addresses not folded (Q0874): `addiu v0,s0,12; lwc1 $f10,4(v0)` for `lwc1 $f10,16(s0)` (0x8D8), lights 2/3 `addiu v1,s0,24; addiu v0,s0,36` (and 48/60). `hi = lo + 1`: 53; `p = G[1]; lo = &p[k]; hi = &p[k+1]`: 51; lightAdd through `lo->x`: 89.
+  - Value locals after a blend local: `t = mathSinF(..) * 0.5 + 0.5` (f64), then `y1`/`y0` f32 locals: 33-36 (y1 becomes a coloured variable, $f12 for the ring's $f10); y0 local + direct p1 read: 18; struct copies `TargetVec3f lo = G[1][k]`: 153.
+  - Kept form with `p = gMinecartTrackPoints[1]` only before each lerp and direct `gMinecartTrackPoints[1][k].x/.z` reads in lightAdd: 51, so the six `p =` reloads are load-bearing (one pointer local for every access).
+  - `variants.py scan` of the direct-read/inline-call body (18) and of the pointer-local body (11): no zero.
+  - Block-scoped `TargetVec3f *lo = &G[1][k], *hi = &G[1][k + 1];` per light: 11 (same unfolded addresses); block-scoped `lo = G[1] + k` with `(lo + 1)->y`: 53.
+  - Hack-free-weights permuter 900 s -j 2 from the direct-read/inline-call body (variants 18), baseline 125: best 100 (variants 13), 3 outputs, all mixing per-light forms: one light written addend first fixes its add.d order but rotates the FP ring by three from 0x8C4 (cvt.d.s $f10 for $f4), the other lights keep `add.d $f6,$f18,$f8` (0x990). No zero. nohit.
+
 ## Untried ideas
-- A hack-free spelling that keeps `p[k].y`. The cfe weight function that ranks the subscript form above the `->` form is still unexplained (a cfe source/ucode dump would settle it).
-- A file-local pair struct view (`{TargetVec3f lo, hi;}`). It was avoided because a view is itself a cleanup cost.
+- A spelling that reads the three y values without a subscript or `*` and still folds their offsets into one base: only `(base + k)->y` is known. A file-local six-point view (`tl->p3.y`) would fold too, but it is a view.
+- The struct-pair view (`{TargetVec3f lo, hi;}`) still needs `(pair + 1)` or a pair pointer variable per light (addiu shape, as for lo/hi).
 ## Evidence
 - Target 0x8C4 cvt.d.s $f4,$f0 / 0x8CC mul.d $f6,$f4,$f20 / 0x8E0 add.d $f8,$f6,$f20: the blend is allocated first.
 - 0x8D8 lwc1 $f10,16(s0) / 0x8DC sub.s $f16 / 0x8E4 cvt.d.s $f18: dy is allocated second.
