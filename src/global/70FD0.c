@@ -76,7 +76,7 @@ typedef struct CollisionAssetTri {
 
 
 void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
-    s32 off;
+    s8 lastBone;
     ModelData *anim;
     s32 count;
     CollisionAssetTri *entry;
@@ -89,16 +89,14 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
     DynamicBuffer *buf;
     u8 *animFrame;
     u8 *boneTable;
-    s8 lastBone;
 
-    off = slot * sizeof(ModelSlot);
-    anim = ((ModelSlot *)((u8 *)gModelSlots + off))->unk78; // FAKE: byte-offset spelling keeps gModelSlots in v1 and the slot * 0x90 product in v0 (gModelSlots[slot].unk78 swaps them)
     lastBone = -1;
     buf = &gModelSlots[slot].unk28;
+    anim = gModelSlots[slot].unk78;
     if (anim != NULL) {
         animFrame = anim->frames[gGfxBufferIndex];
     } else {
-        animFrame = 0;
+        animFrame = NULL;
     }
     boneTable = asset->unk60 + (u8 *)asset;
     buf->unkC = (s32)((f32)asset->unk20 * scale * 8.0f * 1.5);
@@ -122,26 +120,22 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
         guMtxCatF(slotMtx, tmpMtx, slotMtx);
         guTranslateF(tmpMtx, x, y, z);
         guMtxCatF(slotMtx, tmpMtx, slotMtx);
-        i = 0;
-        if (count > 0) {
-            do {
-                if (entry->bone == -1) {
-                    if (collisionTransformTriangle(entry, out, slotMtx) != 0) {
-                        out++;
-                    }
-                } else {
-                    if (lastBone != entry->bone) {
-                        modelBuildBoneChainMatrix((s32 *)((entry->bone << 5) + boneTable), animFrame, boneMtx);
-                        guMtxCatF(boneMtx, slotMtx, boneWorldMtx);
-                        lastBone = entry->bone;
-                    }
-                    if (collisionTransformTriangle(entry, out, boneWorldMtx) != 0) {
-                        out++;
-                    }
+        for (i = 0; i < count; i++) {
+            if (entry->bone == -1) {
+                if (collisionTransformTriangle(entry, out, slotMtx) != 0) {
+                    out++;
                 }
-                i++;
-                entry++;
-            } while (i != count);
+            } else {
+                if (lastBone != entry->bone) {
+                    modelBuildBoneChainMatrix((s32 *)(boneTable + (entry->bone << 5)), animFrame, boneMtx);
+                    guMtxCatF(boneMtx, slotMtx, boneWorldMtx);
+                    lastBone = entry->bone;
+                }
+                if (collisionTransformTriangle(entry, out, boneWorldMtx) != 0) {
+                    out++;
+                }
+            }
+            entry++;
         }
         buf->box_end = out;
     } else {
