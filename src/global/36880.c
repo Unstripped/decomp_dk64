@@ -30,6 +30,45 @@
 #include "proto/global/8D3E0.h"
 #include "proto/global/CEAE0.h"
 
+typedef struct ModelMapIdValueTriple {
+    /* 0x0 */ u16 map;
+    /* 0x2 */ u16 id;
+    /* 0x4 */ u16 val;
+} ModelMapIdValueTriple;
+
+typedef struct ModelMapIdPair {
+    /* 0x0 */ u16 map;
+    /* 0x2 */ u16 id;
+} ModelMapIdPair;
+
+u16 D_80747CE0[20][2] = { // unreferenced
+    { 0x0A, 2 }, { 0x16, 2 }, { 0x1E, 2 }, { 0x1F, 2 },
+    { 0x0D, 3 }, { 0x16, 3 }, { 0x1E, 3 }, { 0x1F, 3 },
+    { 0x0A, 5 }, { 0x0D, 5 }, { 0x1E, 5 }, { 0x1F, 5 },
+    { 0x0A, 6 }, { 0x16, 6 }, { 0x1E, 6 }, { 0x0D, 6 },
+    { 0x0A, 4 }, { 0x16, 4 }, { 0x0D, 4 }, { 0x1F, 4 },
+};
+ModelMapIdValueTriple D_80747D30[5] = {
+    { 0x69, 0x128, 2000 },
+    { 0xAA, 0x129, 2000 },
+    { 0xAA, 0x1A4, 2000 },
+    { 0x52, 0xEC, 900 },
+    { 0x22, 0x74, 900 },
+};
+ModelMapIdPair D_80747D50[8] = {
+    { 0x1E, 0x153 },
+    { 0x1E, 0x210 },
+    { 0x1E, 0x211 },
+    { 0x1E, 0x212 },
+    { 0x1E, 0x213 },
+    { 0x1E, 0x214 },
+    { 0x1E, 0x124 },
+    { 0x1E, 0x7A },
+};
+s32 gModelSlotCount = 0;
+s16 D_80747D74 = 0;
+u8 D_80747D78 = 0;
+
 typedef struct {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;
@@ -88,7 +127,6 @@ s16 modelTypeCountGet(u8 hubIndex) {
 }
 
 
-extern u8 D_80747D78;
 
 void modelTypeCountsInit(void) {
     s32 pad;
@@ -234,7 +272,6 @@ s16 modelSlotsAllocate(s32 map, u8 allocate) {
 }
 
 
-extern s32 gModelSlotCount;
 extern s16 gCsModelIds[];
 extern s32 gModelSlotNextId;
 
@@ -630,14 +667,6 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     return gModelSlotNextId - 1;
 }
 
-
-typedef struct ModelMapIdPair {
-    /* 0x0 */ u16 map;
-    /* 0x2 */ u16 id;
-} ModelMapIdPair;
-
-extern ModelMapIdPair D_80747D50[8];
-
 void modelFlagsApplyMapPairs(s16 id, u8 *flags) {
     s32 i;
     s32 count;
@@ -671,14 +700,6 @@ void modelFlagsApplyState(s16 map, s16 id, u8 *flags) {
             break;
     }
 }
-
-typedef struct ModelMapIdValueTriple {
-    /* 0x0 */ u16 map;
-    /* 0x2 */ u16 id;
-    /* 0x4 */ u16 val;
-} ModelMapIdValueTriple;
-
-extern ModelMapIdValueTriple D_80747D30[5];
 
 void modelApplyMapOverrideValue(s32 id, ModelAssetHeader *info) {
     s32 i;
@@ -2216,7 +2237,6 @@ void dlFreeSegmentCommandTextures(DisplayListCmd *start, DisplayListCmd *end, u8
 }
 
 
-extern s16 D_80747D74;
 
 void modelSlotsStepSegmentCommands(void) {
     u32 start;

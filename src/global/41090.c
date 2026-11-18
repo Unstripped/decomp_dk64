@@ -13,7 +13,30 @@ typedef struct {
     u8 active;
 } MapSurfaceEffect;
 
-extern MapSurfaceEffect gMapSurfaceEffects[8];
+typedef struct {
+    s16 assetId;
+    void *data;
+} AssetRef;
+
+MapSurfaceEffect gMapSurfaceEffects[8] = {
+    { NULL, NULL, NULL, 0 },
+    { envTextureInitWater, func_8063C4C4, envTextureUpdateWaterScroll, 0 },
+    { envTextureInitAsset565, func_8063C7C4, envTextureUpdateScroll78, 0 },
+    { envTextureInitAsset3B7, func_8063CB40, envTextureUpdateScroll80, 0 },
+    { envTextureInitAsset3B9, func_8063CF3C, envTextureUpdateScroll8C, 0 },
+    { envTextureInitAsset3BB, func_8063D2E4, envTextureUpdateScroll98, 0 },
+    { envTextureInitAsset3BC, func_8063D4A4, envTextureUpdateScrollA0, 0 },
+    { envTextureInitAsset3BD, func_8063D638, envTextureUpdateScrollAC, 0 },
+};
+f32 D_80747E00 = 0.0f;
+f32 D_80747E04 = 0.0f;
+s16 gEnvLayeredFogAlpha = 150;
+AssetRef gEnvFlipbookFrames[11] = {
+    { 0x3AC, NULL }, { 0x3AD, NULL }, { 0x3AE, NULL }, { 0x3AF, NULL },
+    { 0x3B0, NULL }, { 0x3B1, NULL }, { 0x3B2, NULL }, { 0x3B3, NULL },
+    { 0x3B4, NULL }, { 0x3B5, NULL }, { 0x3B6, NULL },
+};
+s32 D_80747E64 = 150; // unreferenced; its label is gEnvFlipbookFrames's loop-end address
 extern f32 D_807F6170;
 extern f32 D_807F6174;
 extern f32 gEnvMipChainScroll;
@@ -224,10 +247,6 @@ void envTextureInitAsset3B9(void) {
     gEnvLayeredTexture = assetLoad(7, 0x3E0, 1, 0);
 }
 
-extern f32 D_80747E00;
-extern f32 D_80747E04;
-extern s16 gEnvLayeredFogAlpha;
-
 Gfx *func_8063CF3C(Gfx *g) {
     gDPPipeSync(g++);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
@@ -263,12 +282,6 @@ void envTextureUpdateScroll8C(void) {
     }
 }
 
-typedef struct {
-    s16 assetId;
-    void *data;
-} AssetRef;
-
-extern AssetRef gEnvFlipbookFrames[11];
 extern u8 gEnvFlipbookFrame;
 
 void envTextureInitAsset3BB(void) {

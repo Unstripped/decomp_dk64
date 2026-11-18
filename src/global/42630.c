@@ -25,6 +25,7 @@
 #include "proto/global/36880.h"
 #include "proto/global/3C10.h"
 #include "proto/global/42630.h"
+#include "proto/global/478F0.h"
 #include "proto/global/54150.h"
 #include "proto/global/55B20.h"
 #include "proto/global/5E020.h"
@@ -62,6 +63,154 @@ typedef struct CsSpawnReq {
     /* 0x4 */ Actor *hostActor;
     /* 0x8 */ u8 active;
 } CsSpawnReq;
+
+CsCmdFunc gCsCmdTable[118] = {
+    /* 0x00 */ csCmdVarAdd,
+    /* 0x01 */ csCmdCopyTargetPosSub10,
+    /* 0x02 */ csCmdVarIncrement,
+    /* 0x03 */ csCmdDecayTargetPosDiff,
+    /* 0x04 */ csCmdDecayTargetPosCoord,
+    /* 0x05 */ csCmdRotXAdjust,
+    /* 0x06 */ csCmdTransformSave,
+    /* 0x07 */ csCmdTransformRestore,
+    /* 0x08 */ csCmdVarSlotDelta,
+    /* 0x09 */ csCmdSpawnSparkAndLight,
+    /* 0x0A */ csCmdSpawnFixedNodeEffects,
+    /* 0x0B */ csCmdSpawnSparksAtNodes,
+    /* 0x0C */ csCmdFlickerLight,
+    /* 0x0D */ csCmdBouncePos,
+    /* 0x0E */ csCmdPeriodicNodeEffect,
+    /* 0x0F */ csCmdBobbingLights,
+    /* 0x10 */ csCmdSpawnFourNodeEntries,
+    /* 0x11 */ csCmdPointCycleEffect,
+    /* 0x12 */ csCmdStepSequenceProgress,
+    /* 0x13 */ csCmdCamShakeOnAnim,
+    /* 0x14 */ csCmdPlayAnimSlot1,
+    /* 0x15 */ csCmdLookupSlotKey,
+    /* 0x16 */ csCmdSetParam49,
+    /* 0x17 */ csCmdModelStepAnimation,
+    /* 0x18 */ csCmdSetModelSlotByte5F,
+    /* 0x19 */ csCmdSpawnBurstAtNodeOrPos,
+    /* 0x1A */ csCmdPlayAnimSlotB,
+    /* 0x1B */ csCmdAllocAnimTracking,
+    /* 0x1C */ csCmdSfxOnAnimChange,
+    /* 0x1D */ csCmdPeriodicEffectPair,
+    /* 0x1E */ csCmdLightPulse,
+    /* 0x1F */ csCmdPeriodicSfxAlloc,
+    /* 0x20 */ csCmdCountdownTimer,
+    /* 0x21 */ csCmdNodeSpotLight,
+    /* 0x22 */ csCmdStormLightningRain,
+    /* 0x23 */ csCmdSpawnParticleTrail,
+    /* 0x24 */ csCmdSetCeilAndFloorAtPos,
+    /* 0x25 */ csCmdPosFromNode,
+    /* 0x26 */ csCmdSpawnEffectAtNode,
+    /* 0x27 */ csCmdAnimProgressFromCounter,
+    /* 0x28 */ csCmdAnimProgressFromHubItems,
+    /* 0x29 */ csCmdSplineLights,
+    /* 0x2A */ csCmdNodeSpotLightFov,
+    /* 0x2B */ csCmdSpawnRandomEffectAtPos,
+    /* 0x2C */ csCmdNop,
+    /* 0x2D */ csCmdFindSlotIdMatch,
+    /* 0x2E */ csCmdSlotQueueSelectPlayer,
+    /* 0x2F */ csCmdPeriodicPointEffect,
+    /* 0x30 */ csCmdSineMotionUpdate,
+    /* 0x31 */ csCmdBeatSyncAnimation,
+    /* 0x32 */ csCmdRandomPointEffects,
+    /* 0x33 */ csCmdGroundPointEffect,
+    /* 0x34 */ csCmdStepLightColor,
+    /* 0x35 */ csCmdSpawnMultiRingParticles,
+    /* 0x36 */ csCmdAnimStepInterpolate,
+    /* 0x37 */ csCmdChanceNodeEffect,
+    /* 0x38 */ csCmdSpawnEffectsAtNodeRange,
+    /* 0x39 */ csCmdModelApplyTranslation,
+    /* 0x3A */ csCmdFindNearestActorToCamera,
+    /* 0x3B */ csCmdStepCameraFrac,
+    /* 0x3C */ csCmdTagBarrelSpawnSmokeAndPuffs,
+    /* 0x3D */ csCmdAllocSlotPointer,
+    /* 0x3E */ csCmdPeriodicSfx,
+    /* 0x3F */ csCmdNodeTargetLights,
+    /* 0x40 */ csCmdExtraObjectAttach,
+    /* 0x41 */ csCmdPeriodicProximityEffects,
+    /* 0x42 */ csCmdSeqMatchPattern5,
+    /* 0x43 */ csCmdPatternBufferMatch,
+    /* 0x44 */ csCmdPointHitEffectSpawn,
+    /* 0x45 */ csCmdSpawnDirectionalEffects,
+    /* 0x46 */ csCmdSpawnScaledSphereEffects,
+    /* 0x47 */ csCmdSpawnModelNodeEffects,
+    /* 0x48 */ csCmdResolveNodePair,
+    /* 0x49 */ csCmdGetModelNodeAndProject,
+    /* 0x4A */ csCmdSpawnRandomJitterEffects,
+    /* 0x4B */ csCmdSpawnEffectAtRandomNode,
+    /* 0x4C */ csCmdPointListEffect,
+    /* 0x4D */ csCmdSeqMatchPattern4,
+    /* 0x4E */ csCmdSpawnFallingSparkles,
+    /* 0x4F */ csCmdSeqMatchPattern3,
+    /* 0x50 */ csCmdSpawnTumbleBounceRing,
+    /* 0x51 */ csCmdSeqMatchPattern4B,
+    /* 0x52 */ csCmdPeriodicIntervalEffects,
+    /* 0x53 */ csCmdSpawnBurstColoredLights,
+    /* 0x54 */ csCmdSpawnOrbitingPuffs,
+    /* 0x55 */ csCmdSpawnPointParticles,
+    /* 0x56 */ csCmdRandomizeCutsceneTimer,
+    /* 0x57 */ csCmdBlinkNodeFrames,
+    /* 0x58 */ csCmdEnableEffectNodes5And6,
+    /* 0x59 */ csCmdResetEffectNodes5And6,
+    /* 0x5A */ csCmdEffectNodeStepAlpha,
+    /* 0x5B */ csCmdSlotQueuePurchaseFlag,
+    /* 0x5C */ csCmdSpawnDustPuffs,
+    /* 0x5D */ csCmdCameraLookAtMatrixUpdate,
+    /* 0x5E */ csCmdSpawnOrbitingSparks,
+    /* 0x5F */ csCmdSpawnSphereEffects,
+    /* 0x60 */ csCmdSpawnPuffBurst,
+    /* 0x61 */ csCmdSpawnEffectsAtPos,
+    /* 0x62 */ csCmdHubWorldItemsAdjust,
+    /* 0x63 */ csCmdInterpolateFloatPair,
+    /* 0x64 */ csCmdCameraShakeOnModelAnim,
+    /* 0x65 */ csCmdSpawnSparksOnModelAnim,
+    /* 0x66 */ csCmdSpawnPuffsOnModelAnim,
+    /* 0x67 */ csCmdPlayerProximityPointCheck,
+    /* 0x68 */ csCmdSfxFadeLoop,
+    /* 0x69 */ csCmdSpawnActorAtPoint,
+    /* 0x6A */ csCmdSetAudioUnk3,
+    /* 0x6B */ csCmdUpdateSlotIdView8A,
+    /* 0x6C */ csCmdSpawnFallingWhiteSparks,
+    /* 0x6D */ csCmdStepMultiModelAnimations,
+    /* 0x6E */ csCmdSpawnRandomNodeParticles,
+    /* 0x6F */ csCmdSpawnActorNodeByCase,
+    /* 0x70 */ csCmdFreeModelSlotIndex,
+    /* 0x71 */ csCmdSumFlagsE6ThroughEA,
+    /* 0x72 */ csCmdSetPositionPreset,
+    /* 0x73 */ csCmdShowRemainingDigits,
+    /* 0x74 */ csCmdCameraVectorTargetUpdate,
+    /* 0x75 */ csCmdSetFlag1C1Or1C2,
+};
+typedef s32 (*CsCondFunc)(CsState *, s16, s16, s16);
+CsCondFunc gCsCondTable[19] = {
+    /* 0x00 */ (CsCondFunc)csCondVarLess, // u8 return
+    /* 0x01 */ csCondSyncActorAnim,
+    /* 0x02 */ (CsCondFunc)csCmdCheckCollectedSufficientItems, // void return
+    /* 0x03 */ (CsCondFunc)csCondActorFacingPos, // u8 return
+    /* 0x04 */ csCondFlags82Or83,
+    /* 0x05 */ (CsCondFunc)csCondCheckSlotMapIndex, // u8 return
+    /* 0x06 */ (CsCondFunc)csCondCheckFrameTimingMap, // u8 return
+    /* 0x07 */ (CsCondFunc)csCondCheckKongItems, // u8 return
+    /* 0x08 */ csCondFindPlayerSlotByModel,
+    /* 0x09 */ (CsCondFunc)csCondKongHasHubItems, // u8 return
+    /* 0x0A */ (CsCondFunc)csCondTransitionState5, // u8 return
+    /* 0x0B */ csCondDepositItem,
+    /* 0x0C */ (CsCondFunc)csCondAudioFlag, // u8 return
+    /* 0x0D */ (CsCondFunc)csCondTrue, // u8 return
+    /* 0x0E */ csCondCheckAllKongs,
+    /* 0x0F */ (CsCondFunc)csCondWorldHubFlagSet, // void return
+    /* 0x10 */ (CsCondFunc)csCondCountFlags261Ge4, // u8 return
+    /* 0x11 */ csCondPlayerNearFixedPoint,
+    /* 0x12 */ (CsCondFunc)csCondActorInFront, // u8 return
+};
+s8 D_80748094 = 0;
+s16 D_80748098 = 7; // unreferenced
+s16 D_8074809C[8] = { 7, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0 };
+s16 D_807480AC[8] = { 0xF, 0, 0, 0, 0x1B, 0, 0, 0 };
+s16 D_807480BC[8] = { 0x1B, 0x5F, 0x8C, 0xC2, 0x101, 0x11A, 0x15D, 0 };
 
 // .bss 0x807F61B0-0x807F6940
 CsTimer gCsTimerQueue[8];
@@ -586,7 +735,6 @@ extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern u8 gGameMode;
 extern s16 D_8076AEF2;
-extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
 
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
 
@@ -1036,12 +1184,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
 
 // Cutscene script command interpreter (csCmdExec): one 8-byte command per call.
 
-extern CsCmdFunc gCsCmdTable[];
 extern u8 D_80744824;
-extern s8 D_80748094;
-extern s16 D_8074809C[];
-extern s16 D_807480AC[];
-extern s16 D_807480BC[];
 extern s32 gCurrentMap;
 extern CsSpawnReq gCsCountdown;
 extern s16 gCsTrackedModels[16];
