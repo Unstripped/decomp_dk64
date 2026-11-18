@@ -90,18 +90,18 @@ void bossKRoolChunkyPlayTauntSfx(void) {
     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
 
-extern u8 sKRoolChunkyScriptPhase0[];
-extern u8 sKRoolChunkyScriptLate[];
+extern const u8 sKRoolChunkyScriptPhase0[];
+extern const u8 sKRoolChunkyScriptLate[];
 
 // C920's .data (0x80035AC0-0x80035AF4; the TU ends here, DAA0's data starts 16-aligned at 0x80035B00)
-u8 *sKRoolChunkyPhaseScripts[4] = { sKRoolChunkyScriptPhase0, sKRoolChunkyScriptLate, sKRoolChunkyScriptLate, sKRoolChunkyScriptLate };
+const u8 *sKRoolChunkyPhaseScripts[4] = { sKRoolChunkyScriptPhase0, sKRoolChunkyScriptLate, sKRoolChunkyScriptLate, sKRoolChunkyScriptLate };
 u8 sKRoolChunkyPathGroupState[4] = { 3, 0, 2, 1 };
 f32 sKRoolChunkyPhaseApproachRate[4] = { 0.015f, 0.025f, 0.03f, 0.01f };
 f32 sKRoolChunkyPhaseRampTarget[4] = { 1.0f, 1.3f, 1.8f, 0.7f };
 
 void bossKRoolChunkyStep(void) {
     BossScriptState *scriptState;
-    u8 *scriptOpcodes;
+    const u8 *scriptOpcodes;
     s16 waypointCoords[3];
 
     scriptState = ((BossKRoolChunkyActor *)gCurrentActor)->scriptState;
@@ -333,6 +333,9 @@ void bossKRoolChunkyStep(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/sKRoolChunkyScriptPhase0.s")
+const u8 sKRoolChunkyScriptPhase0[24] = {
+    0x00, 0x54, 0x6C, 0x5F, 0x00, 0x51, 0x03, 0xE4, 0x41, 0x00, 0x27, 0x41, 0x01, 0x27, 0x41, 0x02,
+    0x27, 0x28, 0x4F, 0x4B, 0x00, 0x06, 0x27, 0x50,
+};
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/sKRoolChunkyScriptLate.s")
+const u8 sKRoolChunkyScriptLate[7] = { 0x28, 0x4F, 0x4B, 0x00, 0x06, 0x27, 0x50 };
