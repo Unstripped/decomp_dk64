@@ -30,7 +30,7 @@ extern ALBank *gSfxBank;
 extern ALBank *D_8076D1FC;
 extern u16 D_8076BF30[];
 extern void *D_8076BF38[];
-extern s32 D_807452B0[];
+s32 D_807452B0[4] = { 0x407E, 0x11B6, 0x7B6, 0x156 };
 void alHeapInit(ALHeap *, u8 *, s32);
 void *heapAlloc(s32);
 void heapFree(void *);

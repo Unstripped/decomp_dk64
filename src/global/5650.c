@@ -11,7 +11,7 @@ typedef struct QueuedFunction {
     s32 param2;
 } QueuedFunction;
 
-extern QueuedFunction *gTimerQueue;
+QueuedFunction *gTimerQueue = NULL;
 
 void timerQueueInit(void) {
     gTimerQueue = NULL;

@@ -93,7 +93,9 @@ extern s32 gCurrentMap;
 extern s16 D_8076AEF2;
 extern u16 gEnemyDefeatCount;
 extern s16 gMinigameCoinCount;
-extern s32 sBonusChallengeResources[];
+s32 sBonusChallengeResources[17] = {
+    0x0E, 0x0F, 0x11, 0x10, 0x0D, 0x12, 0x13, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E,
+};
 
 
 void bonusControllerUpdate(void) {

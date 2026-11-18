@@ -35,7 +35,25 @@ extern void *gPuffSprites[];
 typedef struct {
     u8 b[4];
 } BossWaypointPick;
-extern BossWaypointPick D_80035B80;
+
+extern const u8 D_80036C10[8];
+extern const u8 D_80036C18[8];
+extern const u8 D_80036C20[8];
+extern const u8 D_80036C28[8];
+extern const u8 D_80036C30[16];
+
+BossWaypointPick D_80035B80 = { { 5, 6, 9, 10 } };
+const u8 *gBossWaypointPhaseScripts[5] = { D_80036C10, D_80036C18, D_80036C20, D_80036C28, D_80036C30 };
+u16 D_80035B98[32] = {
+    0x000F, 0x00F0, 0x0F00, 0xF000, 0x1111, 0x2222, 0x4444, 0x8888,
+    0x0001, 0x0012, 0x0124, 0x1248, 0x2480, 0x4800, 0x8000, 0x0000,
+    0x0001, 0x0002, 0x0004, 0x0008, 0x0080, 0x0040, 0x0020, 0x0010,
+    0x0100, 0x0200, 0x0400, 0x0800, 0x8000, 0x4000, 0x2000, 0x1000,
+};
+u8 gBossIntroWaypointPath[4] = { 9, 10, 14, 0 };
+u8 D_80035BDC[8] = { 0x10, 0x12, 0x15, 0x17, 0x18, 0x1A, 0x1D, 0x1F };
+u8 D_80035BE4[8] = { 0x11, 0x13, 0x14, 0x16, 0x19, 0x1B, 0x1C, 0x1E };
+u8 gBossWaypointIsSpecial[16] = { 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0 };
 
 // Waypoint component of the boss actor (Actor+0x17C): indices into the 16 gBehaviourZone pillar entries.
 typedef struct BossWaypointState {
@@ -153,8 +171,6 @@ void bossSpawnPuffDebris(void) {
 }
 
 void csModelStateSetFirstByte(s16, u8); // ORIG: target sign-extends the model index (sll a0,v0,0x10 / sra t0,a0,0x10 at 0x824-0x828) but passes stateByte as a plain lbu a1,39(sp) at 0x81c (the shared (s16, s16) prototype adds sll/sra of a1 there): the original TU declared an unsigned narrow second parameter
-extern u8 D_80035BDC[];
-extern u8 D_80035BE4[];
 
 void bossSetRandomObjectPair(waypoints, stateByte)
 BossWaypointState *waypoints;
@@ -200,7 +216,7 @@ void bossSpawnObjectAtWaypoint(BossWaypointState *waypoints) {
     projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, gBehaviourZone->entries[waypoints->playerNearest].x, gBehaviourZone->entries[waypoints->playerNearest].y, gBehaviourZone->entries[waypoints->playerNearest].z, 1200.0f, gCurrentActor);
 }
 
-s32 bossCheckPlayerBelow(BossScriptState *scriptState, u8 *scriptOpcodes) {
+s32 bossCheckPlayerBelow(BossScriptState *scriptState, const u8 *scriptOpcodes) {
     if ((gPrimaryPlayerActor->y < (gCurrentActor->y - 10.0f)) && (scriptState->phase < 5)) {
         scriptState->scriptPos = scriptState->loopPos;
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
@@ -231,12 +247,8 @@ typedef struct BossWaypointActor {
     /* 0x17C */ BossWaypointState *waypoints;
 } BossWaypointActor;
 
-extern u8 *gBossWaypointPhaseScripts[];
-extern u16 D_80035B98[];
-extern u8 gBossIntroWaypointPath[];
-extern u8 gBossWaypointIsSpecial[];
 extern u8 gBossWaypointLightFade[];
-extern f32 D_80036C40[];
+extern const f32 D_80036C40[];
 extern s16 D_807502DC;
 extern f32 D_807502F0;
 extern u8 D_8071FC58[];
@@ -246,7 +258,7 @@ extern u8 D_80720BE8[];
 void bossMainStep(void) {
     BossScriptState *scriptState;
     BossWaypointState *waypoints;
-    u8 *tbl;
+    const u8 *tbl;
     u8 playerAbove;
     u8 pad2[3];
     u8 debrisSfx;
@@ -795,14 +807,9 @@ void bossShockwaveTriggerDamage(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C10.s")
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C18.s")
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C20.s")
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C28.s")
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C30.s")
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C40.s")
+const u8 D_80036C10[8] = { 0x4F, 0x23, 0x08, 0x25, 0x06, 0x32, 0x50, 0x00 };
+const u8 D_80036C18[8] = { 0x4F, 0x23, 0x0A, 0x25, 0x05, 0x2D, 0x50, 0x00 };
+const u8 D_80036C20[8] = { 0x4F, 0x23, 0x0B, 0x25, 0x04, 0x28, 0x50, 0x00 };
+const u8 D_80036C28[8] = { 0x4F, 0x23, 0x0C, 0x28, 0x04, 0x05, 0x50, 0x00 };
+const u8 D_80036C30[16] = { 0x5F, 0x0A, 0x54, 0x29, 0xFB, 0x54, 0x4F, 0x23, 0x0E, 0x28, 0x04, 0x01, 0x50, 0x00, 0x00, 0x00 };
+const f32 D_80036C40[5] = { 0.8f, 0.9f, 1.0f, 1.1f, 1.2f };

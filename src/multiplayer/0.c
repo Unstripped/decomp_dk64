@@ -73,10 +73,34 @@ typedef struct MpMapEntry {
     s32 mapId;
     s32 count;
     MpSpawnPoint *items;
-    s32 modelIds[4];
-    char pad1C[4];
+    s32 modelIds[5]; // -1 ends the list; mpResetMapModelStates reads at most 4
 } MpMapEntry;
-extern MpMapEntry mpMapSpawnTable[];
+
+typedef struct MpHudIconTableEntry {
+    void *asset;
+    f32 scale;
+    s32 param;
+} MpHudIconTableEntry;
+
+extern u8 D_807204BC[];
+extern u8 D_80720768[];
+
+u8 mpSfxFlags = 0;
+MpSpawnPoint D_80026F74[1] = { { 0x249, 0xEB, 0x244, 0x50, 0 } };
+MpSpawnPoint D_80026F80[1] = { { 0x57E, 0x160, 0x579, 0xC8, 0 } };
+MpSpawnPoint D_80026F8C[1] = { { 0x4B0, 0x25, 0x2BC, 0xAA, 0 } };
+MpSpawnPoint D_80026F98[1] = { { 0x3E8, 0x50, 0x384, 0x5A, 0 } };
+MpMapEntry mpMapSpawnTable[4] = {
+    { 0x6B, 1, D_80026F74, { -1, -1, -1, -1, -1 } },
+    { 0x6D, 1, D_80026F80, { 0x50, 0x51, 0x52, 0x53, -1 } },
+    { 0xBE, 1, D_80026F8C, { 0x28, 0x46, 0x49, 0x52, 0x53 } },
+    { 0xC0, 1, D_80026F98, { 0x26, 0x28, 0x27, 0x25, -1 } },
+};
+MpHudIconTableEntry mpHudIconTable[2] = {
+    { D_80720768, 0.3f, 12 },
+    { D_807204BC, 0.5f, 0 },
+};
+
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
@@ -703,14 +727,6 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
 extern ALBank *gSfxBank;
 extern SchedStruct gScheduler;
 extern u64 gLastPauseDuration;
-extern u8 mpSfxFlags;
-
-typedef struct MpHudIconTableEntry {
-    void *asset;
-    f32 scale;
-    s32 param;
-} MpHudIconTableEntry;
-extern MpHudIconTableEntry mpHudIconTable[];
 
 void mpUpdate(void) {
     MpControllerState *state;

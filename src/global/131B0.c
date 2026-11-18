@@ -8,8 +8,9 @@
 
 extern s32 __osMotorAccess(OSPfs *, s32);
 
-extern s32 gRumblePaused;
-extern u8 gRumbleResetPending;
+s32 gRumblePaused = 1;
+s32 D_80746814 = 0;
+u8 gRumbleResetPending = 1;
 extern u8 gScreenRenderFlags;
 extern u8 gControllerConnectedMask;
 extern OSMesgQueue D_807ECCF0;

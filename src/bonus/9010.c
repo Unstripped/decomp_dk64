@@ -13,7 +13,13 @@
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
-extern s8 D_8002D92C;
+s8 D_8002D910[10] = { 7, 20, 8, 9, 11, 10, 12, 13, 15, 14 };
+s8 D_8002D91C[4] = { 8, 11, 12, 14 };
+s8 D_8002D920 = 0;
+s8 D_8002D924 = 0;
+s8 D_8002D928 = 0;
+s8 D_8002D92C = 0;
+s8 D_8002D930 = 0;
 extern s8 D_8002DEF0[];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
@@ -80,10 +86,6 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
 extern u8 gGameMode;
 extern s16 D_80744518;
 extern Actor *gPrimaryPlayerActor;
-extern s8 D_8002D920;
-extern s8 D_8002D924;
-extern s8 D_8002D928;
-extern s8 D_8002D930;
 
 void bonusScoreHudUpdate(void) {
     BonusScoreHud *hud = gCurrentActor->customState;
@@ -178,9 +180,6 @@ void bonusScoreHudUpdate(void) {
     D_80744518 = hud->score;
     renderCallbacksRegister(bonusRenderScoreHud, gCurrentActor, 3);
 }
-
-extern s8 D_8002D910[];
-extern s8 D_8002D91C[];
 
 void bonusQueueScore(s16 targetId) {
     s32 i;

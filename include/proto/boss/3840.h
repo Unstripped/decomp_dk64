@@ -12,13 +12,13 @@ void bossInitScriptData(u8 *);
 void bossLerpCoords(struct BossB_Struct_800278F4 *, f32, s16, s16);
 #endif
 #ifndef PROTO_SKIP_bossPickRandomWaypoint
-void bossPickRandomWaypoint(BossScriptState *, u8 *);
+void bossPickRandomWaypoint(BossScriptState *, const u8 *);
 #endif
 #ifndef PROTO_SKIP_bossPickFarthestWaypoint
-void bossPickFarthestWaypoint(BossScriptState *, u8 *);
+void bossPickFarthestWaypoint(BossScriptState *, const u8 *);
 #endif
 #ifndef PROTO_SKIP_bossScriptStep
-u8 bossScriptStep(u8 *, u16, f32);
+u8 bossScriptStep(const u8 *, u16, f32);
 #endif
 #ifndef PROTO_SKIP_bossClearMinigame
 void bossClearMinigame(void);

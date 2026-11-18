@@ -217,14 +217,14 @@ segments:
       - [0x149160, .data, 0] # D_80744460/64 only (0x80744460-0x80744470)
       - [0x149170, .data, 450] # 0x80744470-0x807445E0
       - [0x1492E0, data, 3C10]
-      - [0x149FA0, data, 5650]
-      - [0x149FB0, data, 5A50]
+      - [0x149FA0, .data, 5650] # gTimerQueue (0x807452A0-0x807452B0)
+      - [0x149FB0, .data, 5A50] # D_807452B0[4] sequence-player buffer sizes (0x807452B0-0x807452C0)
       - [0x149FC0, .data, 6710]
       - [0x14A1F0, .data, 7130] # D_807454F0..D_807462A8 (0x807454F0-0x80746332 + 14-byte TU pad): sfx/sequence tables defined in src/global/7130.c in address order; D_80745B20/D_80745B24 are sfxUpdateChannels's initialised-local templates (bankChannel/seqState); D_807462A8[69][2] is the table 7130 reached as D_807460AE (= D_807462A8 - 0x1FA); next TU F4C0's gMapActionRemapTable starts 16-aligned at 0x80746340
       - [0x14B040, data]
-      - [0x14B510, data, 131B0]
+      - [0x14B510, .data, 131B0] # gRumblePaused, D_80746814 (unreferenced), gRumbleResetPending (0x80746810-0x80746820)
       - [0x14B520, .data, 13980] # D_80746820..D_80746A2C (0x80746820-0x80746A30); 131B0's own data is gRumblePaused/gRumbleResetPending (0x80746810-0x80746820)
-      - [0x14B730, data, 15050]
+      - [0x14B730, .data, 15050] # sHeapReclaimFlag, sHeapReclaimMatrixFlag (sHeapFlags = its low byte) (0x80746A30-0x80746A40)
       - [0x14B740, data]
       - [0x14B880, .data, 19A00] # sScriptEffectSprites..sCharacterBehaviorMap (0x80746B80-0x80746E1E) + 2-byte TU pad; 16-aligned after 17B90's D_80746B64; sScriptOpcodeTable's .word scriptOpPlaySoundAndShake makes its entry label address-taken (Q0552)
       - [0x14BB20, data]

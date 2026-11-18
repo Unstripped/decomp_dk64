@@ -23,7 +23,7 @@ void bossSetRandomObjectPair();
 void bossSpawnObjectAtWaypoint(struct BossWaypointState *);
 #endif
 #ifndef PROTO_SKIP_bossCheckPlayerBelow
-s32 bossCheckPlayerBelow(BossScriptState *, u8 *);
+s32 bossCheckPlayerBelow(BossScriptState *, const u8 *);
 #endif
 #ifndef PROTO_SKIP_bossAdjustHealth
 void bossAdjustHealth(s8);

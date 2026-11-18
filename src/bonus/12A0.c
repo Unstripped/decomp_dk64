@@ -79,7 +79,12 @@ Actor *bonusSpawnReel(s32 type, s16 x, s16 y, s16 z) {
     return gSpawnedActor;
 }
 
-extern u8 *D_8002D8B0[];
+extern const u8 D_8002DC90[8];
+extern const u8 D_8002DC98[8];
+extern const u8 D_8002DCA0[8];
+extern const u8 D_8002DCA8[8];
+
+const u8 *D_8002D8B0[4] = { D_8002DC90, D_8002DC98, D_8002DCA0, D_8002DCA8 };
 
 u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
     return D_8002D8B0[reelIndex][obj->act[reelIndex]->unk15F];
@@ -116,13 +121,10 @@ void bonusInitActors(LB3Obj *obj, u8 timerVal) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DC90.s")
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DC98.s")
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DCA0.s")
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DCA8.s")
+const u8 D_8002DC90[8] = { 0, 1, 2, 0, 3, 4, 0, 0 };
+const u8 D_8002DC98[8] = { 4, 2, 3, 0, 1, 0, 0, 0 };
+const u8 D_8002DCA0[8] = { 2, 0, 1, 4, 0, 3, 0, 0 };
+const u8 D_8002DCA8[8] = { 3, 1, 0, 2, 0, 4, 0, 0 };
 
 extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;

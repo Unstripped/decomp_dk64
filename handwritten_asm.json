@@ -7,6 +7,9 @@
   "asm/libultra/libc/bcopy.s": "libultra handwritten memory copy.",
   "asm/libultra/libc/bzero.s": "libultra handwritten memory clearing.",
   "asm/libultra/os/exceptasm.s": "libultra exception entry, context switching, and thread dispatch assembly.",
+  "asm/data/libultra/os/exceptasm.rodata.s": "exceptasm.s's cause-dispatch jump table and constants; only exceptasm.s reads them.",
+  "asm/data/libultra/os/exceptasm_intmask.rodata.s": "__osIntMaskTable of exceptasm.s; read only by exceptasm.s and getintmask.s.",
+  "asm/data/libultra/gu/sinf_nan.rodata.s": "__libm_qnan_f from ultralib's assembly libm_vals.s (read by sinf.c and cosf.c).",
   "asm/libultra/os/getcount.s": "libultra COP0 Count register access.",
   "asm/libultra/os/getfpccsr.s": "libultra floating-point control/status register access.",
   "asm/libultra/os/getintmask.s": "libultra handwritten interrupt-mask access.",
@@ -28,10 +31,15 @@
   "asm/global/15010.s": "COP0 Status access and interrupt disable with handwritten register saves.",
   "asm/global/16B60.s": "Handwritten table-based math with 64-bit saves and non-ABI register state.",
   "asm/global/17A10.s": "Handwritten cosine entry falls through into the sine polynomial.",
+  "asm/global/data/15C020.rodata.s": "17A10.s's sine/cosine polynomial coefficients; only 17A10.s reads them.",
   "asm/global/1E2D0.s": "Handwritten math entries share non-ABI integer/FP state and internal jump targets.",
+  "asm/global/data/14BB20.data.s": "1E2D0.s's zero-initialised work area (2,176 bytes); only 1E2D0.s uses it.",
+  "asm/global/data/15C190.rodata.s": "1E2D0.s's float constants; only 1E2D0.s reads them.",
   "asm/global/61690.s": "Handwritten routine with 64-bit saves, multiplication, and integer-to-FP transfers.",
+  "asm/global/data/15DA50.rodata.s": "61690.s's float constants; only 61690.s reads them.",
   "asm/global/77B90.s": "Handwritten 64-bit math using dmult, ld/sd, and kernel registers.",
   "asm/global/110F00.s": "Handwritten float-to-integer helper using round.w.s and mfc1; IDO C cannot emit it.",
   "asm/global/146010.s": "RSP microcode, including COP0 DMA helpers; not CPU C.",
-  "asm/global/146C40.s": "RSP microcode overlays, including func_80742E9C and func_8074422C DMA helpers; not CPU C."
+  "asm/global/146C40.s": "RSP microcode overlays, including func_80742E9C and func_8074422C DMA helpers; not CPU C.",
+  "asm/global/data/165290.rodata.s": "RSP microcode data images (DMEM) of the audio (6710 osTask) and graphics (14CF0 osTask) microcode; RSP data words, not CPU C."
 }

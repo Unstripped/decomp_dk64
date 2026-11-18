@@ -8,8 +8,8 @@
 
 
 
-extern s32 sHeapReclaimFlag;
-extern s32 sHeapReclaimMatrixFlag;
+s32 sHeapReclaimFlag = 1;
+s32 sHeapReclaimMatrixFlag = 0;
 extern u8 sHeapFlags;
 extern HeapPool gHeapPools[];
 extern s32 gHeapPoolCount;

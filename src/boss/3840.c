@@ -55,7 +55,7 @@ void bossLerpCoords(BossB_Struct_800278F4 *coords, f32 factor, s16 targetY, s16 
     coords->x += ((f32)targetX - coords->x) * factor;
 }
 
-void bossPickRandomWaypoint(BossScriptState *state, u8 *waypointRanges) {
+void bossPickRandomWaypoint(BossScriptState *state, const u8 *waypointRanges) {
     u8 prev = gBehaviourWorkState->waypointIndex;
     do {
         s32 rand = randomNonNegative() >> 15;
@@ -67,7 +67,7 @@ void bossPickRandomWaypoint(BossScriptState *state, u8 *waypointRanges) {
 
 extern Actor *gCurrentActor;
 
-void bossPickFarthestWaypoint(BossScriptState *state, u8 *waypointRanges) {
+void bossPickFarthestWaypoint(BossScriptState *state, const u8 *waypointRanges) {
     s16 i;
     s32 maxDist = 0;
 
@@ -104,7 +104,7 @@ extern s8 gLetterboxRetractTimer;
 
 #define BOSS_ACTOR ((BossActor *)gCurrentActor)
 
-u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
+u8 bossScriptStep(const u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     PlayerState *playerData;
     BossScriptState *scriptState;
     u8 advanceScript;
