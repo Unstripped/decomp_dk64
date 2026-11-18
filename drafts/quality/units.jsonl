@@ -1017,3 +1017,4 @@
 {"type": "unit", "t": "2026-11-18T04:07:45Z", "unit": "2026-11-17: cleanup CleaneffectInterpolationUpdate", "commit": "45e10058d52429aad3d447276a7f948764d81806"}
 {"type": "unit", "t": "2026-11-18T04:10:39Z", "unit": "2026-11-17: cleanup CleaneepromClearSlotData", "commit": "07b03884bcb61bc35e64c8fa8aa75411406e61ea"}
 {"type": "unit", "t": "2026-11-18T04:11:50Z", "unit": "2026-11-17: cleanup CleanfaultDrawRegs", "commit": "dd3501780846cee3129e71496d5c92126597c8a7"}
+{"type": "unit", "t": "2026-11-18T04:16:22Z", "unit": "2026-11-17: cleanup CleanmapChunksApplyLights", "commit": "7b8cdfb7273636138aedb6a6dc6c7dac751b9585"}
