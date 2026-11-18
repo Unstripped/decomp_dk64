@@ -57,6 +57,117 @@ typedef struct MenuEffectTarget {
     f32 spawnScaleX;
 } MenuEffectTarget;
 
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+} BonusMenu_Pair;
+
+typedef struct MenuMapExit { // map/exit pair of a cheats-menu warp
+    s16 map;
+    s16 exit;
+} MenuMapExit;
+
+typedef struct MenuMapCharacter { // map/character pair passed to menuSetupPlayerInventory
+    s16 map;
+    s16 characterId;
+} MenuMapCharacter;
+
+typedef struct MenuMapLoadout { // full menuSetupPlayerInventory argument row
+    s16 map;
+    s16 characterId;
+    s8 inventory0;
+    s8 inventory1;
+    s8 inventory4;
+    s8 shared;
+} MenuMapLoadout;
+
+typedef struct MenuUiRgba {
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} MenuUiRgba;
+
+extern const u8 D_80033BE0[];
+extern const u8 D_80033BE4[];
+extern const u8 D_80033BE8[];
+
+s16 D_80033670 = 0;
+s16 D_80033674 = 250;
+f32 D_80033678[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
+s8 D_80033698 = 0;
+f32 D_8003369C = 0.0f;
+s16 D_800336A0 = 0;
+// Main-screen camera script: path/duration pairs, negative opcodes, -1 ends each sequence.
+s16 D_800336A4[64] = {
+    -10, 150, -1, 9, 90, -7, 170, -6, 150, -1, -10, 150, -1, 1, 55, -13,
+    450, -1, 2, 25, -13, 390, -1, 3, 300, -1, 4, 280, -13, 330, -1, 5,
+    210, -9, 165, -13, 450, -1, 6, 80, -13, 95, -11, 420, -1, -4, 180, -12,
+    604, -5, 150, -1, -2, 30, -8, 300, -3, 150, -1, -1, -1, -1, -1, 0,
+};
+s16 D_80033724[8] = { 0x34B, 0x34C, 0x34D, 0x34E, 0x34F, 0x350, 0x351, 0x352 };
+s8 D_80033734 = 0;
+s8 D_80033738 = 0;
+f32 gSelectorSplineX[20] = {
+    0.0f, 100.0f, 0.0f, 0.0f,
+    100.0f, 85.0f, 0.0f, 0.0f,
+    85.0f, -85.0f, 0.0f, 0.0f,
+    -85.0f, -100.0f, 0.0f, 0.0f,
+    -100.0f, 0.0f, 0.0f, 0.0f,
+};
+f32 gSelectorSplineY[20] = {
+    -60.0f, -10.0f, 0.0f, 0.0f,
+    -10.0f, 60.0f, 0.0f, 0.0f,
+    60.0f, 60.0f, 0.0f, 0.0f,
+    60.0f, -10.0f, 0.0f, 0.0f,
+    -10.0f, -60.0f, 0.0f, 0.0f,
+};
+MenuUiRgba sMenuKongColors[5] = { { 0xFF, 0x00, 0x00, 0xFF }, { 0xFF, 0x00, 0x00, 0xFF }, { 0x16, 0x99, 0xFF, 0xFF }, { 0xB0, 0x45, 0xFF, 0xFF }, { 0x41, 0xFF, 0x25, 0xFF } };
+s8 D_800337F0 = 0;
+s8 D_800337F4 = 0;
+s8 D_800337F8 = 0;
+BonusMenu_Pair D_800337FC = { 0x3FFFF, 0xC80000 };
+s8 sMenuKongUnlocked[5] = { 1, 0, 0, 0, 0 };
+s32 D_8003380C = 0;
+s32 D_80033810 = 0;
+s32 D_80033814 = 0;
+u8 D_80033818 = 0;
+u16 D_8003381C[7] = { 0x800, 0x200, 0x800, 0x400, 0x100, 0x400, 0x2000 };
+s32 D_8003382C[2] = { 1, 0 };
+s32 D_80033834[6] = { 4, 2, 1, 0, 3, 5 };
+u8 D_8003384C[4] = { 2, 1, 4 };
+s8 D_80033850[8] = { 0, 1, 3, 1, 1, 2 };
+s32 sMenuPrevButtons = 0;
+s32 sMenuPrevStickBits[4] = { 0 };
+s16 gMenuKongModelIds[6] = { 4, 1, 6, 9, 0xC, 0xDB };
+u8 D_80033878 = 0;
+u8 D_8003387C[24] = { 0 };
+f32 gMenuKongSlotPositions[8] = { 160.0f, 70.0f, 210.0f, 120.0f, 160.0f, 170.0f, 110.0f, 120.0f }; // (x, y) screen position of each character-select kong slot
+s32 gMenuKongScriptIds[18] = {
+    0x6F, 0x133, 0x16C, 0x19E, 0x1DB, 0x1DC,
+    0x42F, 0x430, 0x431, 0x432, 0x433, 0x434,
+    0x435, 0x436, 0x437, 0x438, 0x439, 0x43A,
+};
+s8 D_800338FC = 4;
+MenuMapExit gMenuCheatWarps[14] = {
+    { 0x4C, 0 }, { 0x99, 0 }, { 0x1C, 0xF }, { 0x1C, 0x10 }, { 0x1C, 0x11 }, { 0x1C, 0x12 }, { 0x1C, 0x13 },
+    { 0x1C, 0x14 }, { 0x1C, 0x15 }, { 0x1C, 0x16 }, { 0x1C, 0x18 }, { 0x99, 9 }, { 0x1C, 0x17 }, { 0x99, 0xB },
+};
+MenuMapLoadout gMenuCheatLoadouts[8] = {
+    { 8, 0, 1, 3, 1, 1 }, { 0xC5, 1, 1, 3, 1, 2 }, { 0x9A, 3, 2, 3, 1, 2 }, { 0x6F, 2, 1, 3, 1, 2 },
+    { 0x53, 4, 3, 3, 1, 2 }, { 0xC4, 0, 1, 3, 1, 3 }, { 0xC7, 2, 1, 3, 1, 3 }, { 0xCB, 0, 3, 3, 1, 3 },
+};
+MenuMapCharacter gMenuCheatMapCharacters[4] = { { 0xBF, 6 }, { 0xB8, 7 }, { 2, 0 }, { 9, 0 } };
+s8 D_80033988[5] = { 0xE, 4, 8, 1, 7 };
+s8 D_80033990[5] = { 2, 6, 10, 15, 20 };
+s16 D_80033998[5] = { 0 };
+s16 D_800339A4 = -1;
+s8 gMenuHighScoreGame = 0;
+const u8 *D_800339AC[3] = { D_80033BE0, D_80033BE4, D_80033BE8 };
+MenuMapCharacter gMenuHighScoreGames[2] = { { 0xBF, 6 }, { 0xB8, 7 } };
+s8 D_800339C0 = 0;
+u8 D_800339C4[4] = "???";
+
 
 extern s8 gAudioOutputMode;
 
@@ -72,8 +183,6 @@ void menuSetAudioMode(void) {
     }
     configureCSPOutputMode(val);
 }
-
-extern s8 D_80033734;
 
 
 void menuTitleScreenHandleInput(Actor *actor, s32 buttons) {
@@ -110,7 +219,6 @@ typedef struct MenuModelActor { // menu actors carry an extra pointer past Actor
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
-extern s8 D_80033734;
 
 void menuResetCameraAndFlags(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
@@ -123,17 +231,6 @@ void menuResetCameraAndFlags(Actor *actor, s32 unused) {
 }
 
 
-typedef struct {
-    s32 unk0;
-    s32 unk4;
-} BonusMenu_Pair;
-
-extern s16 D_800336A0;
-extern s16 D_800336A4[];
-extern s16 D_80033724[];
-extern s8 D_800337F0;
-extern s8 D_800337F4;
-extern BonusMenu_Pair D_800337FC;
 extern f32 D_80033F3C;
 extern f32 D_80033F40;
 extern s16 D_80033F52;
@@ -348,7 +445,6 @@ Gfx *menuDrawMainScreenTitle(Actor *actor, Gfx *dl) {
     return textDrawStringVtx(dl, 1, 0, 0, D_80033F28[strIdx], 0x80);
 }
 
-extern s8 D_800337F8;
 extern s8 D_8076A0D1[];
 extern s8 D_80033F38;
 extern u8 D_8072052C;
@@ -493,8 +589,6 @@ void menuInitAdventureFileSelect(Actor *actor, s32 unused) {
 }
 
 
-extern u8 D_80033818;
-extern u16 D_8003381C[];
 extern s8 D_807563B4;
 
 void menuCheckCheatCodeSequence(void) {
@@ -531,10 +625,6 @@ void menuHandleConfirmationInput(Actor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
 }
 
-extern s8 sMenuKongUnlocked[];
-extern s32 D_8003380C;
-extern s32 D_80033810;
-extern s32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 
@@ -618,8 +708,6 @@ extern u8 D_80720C34;
 extern void *gKongIconSprites[];
 extern s16 D_807505B2[];
 extern u32 gPlayTimeBaseSeconds;
-extern s32 D_8003380C;
-extern s32 D_80033810;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 
@@ -828,8 +916,6 @@ void menuMysteryInit(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
 }
 
-extern s16 D_80033670;
-extern s8 D_80033698;
 extern s8 D_80744538;
 extern s8 D_8076A104;
 
@@ -1037,11 +1123,6 @@ extern s8 D_80033F50;
 extern u8 D_80744514;
 extern s8 sMenuCharacterAvailMask;
 extern s8 D_8074451C;
-extern s32 D_8003382C[];
-extern s32 D_80033834[];
-extern u8 D_8003384C[];
-extern s32 sMenuPrevButtons;
-extern s32 sMenuPrevStickBits[];
 extern u8 D_80750ABC;
 extern u8 gActivePlayerCount;
 extern u8 gControllerConnectedMask;
@@ -1247,7 +1328,6 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
 
 extern f32 D_80033F44;
 extern s8 sMenuJoinedPlayerCount;
-extern s8 D_80033850[];
 extern s8 D_80744520;
 extern s8 D_80744534;
 extern s8 D_8076A0E5;
@@ -1368,7 +1448,6 @@ typedef struct MenuCharacterKongState { // customState of the character-select k
     s32 animFrame;
     s8 animSet;
 } MenuCharacterKongState;
-extern s16 gMenuKongModelIds[];
 extern s8 sMenuMatchStarting;
 extern s8 sMenuCharacterAvailMask;
 extern s8 D_8074451C;
@@ -1447,7 +1526,6 @@ void menuMultiplayerResultsHandleInput(Actor *actor, s32 buttons) {
     gGlobalPauseFlags |= 0x10000;
 }
 
-extern u8 D_80033878;
 extern u8 D_80033F20[];
 extern s16 D_80744524[];
 extern s8 gMpWinnerIndex;
@@ -1488,7 +1566,6 @@ Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
 }
 
 
-extern u8 D_8003387C[];
 extern u8 D_80033F24[];
 
 void menuInitMultiplayerResults(Actor *actor, s32 unused) {
@@ -1525,10 +1602,6 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
     }
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
 }
-
-
-extern s32 gMenuKongScriptIds[];
-extern f32 gMenuKongSlotPositions[]; // (x, y) screen position of each character-select kong slot
 
 
 void menuCharacterSelectUpdateActor(void) {
@@ -1707,7 +1780,6 @@ void menuHandleSoundOptionsInput(Actor *actor, s32 buttons) {
     }
 }
 
-extern s16 D_80033674;
 extern s8 gAudioOutputMode;
 
 Gfx *menuFormatOptionValues(Actor *actor, Gfx *dl) {
@@ -1769,7 +1841,6 @@ void menuInitSoundOptions(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_80720D38, 0xA0, 0xC8, 1.0f, 2, 0xC);
 }
 
-extern s8 D_800338FC;
 extern s8 D_807444C0;
 extern s8 D_8074452C;
 extern u8 D_80744530;
@@ -1850,8 +1921,6 @@ void menuHandleGameOptionsInput(Actor *actor, s32 buttons) {
 }
 
 
-extern s16 D_80033674;
-
 Gfx *menuDrawGameOptions(Actor *actor, Gfx *dl) {
     MenuScreenState *state = actor->customState;
     u32 selectedOption;
@@ -1914,32 +1983,8 @@ void menuInitGameOptions(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_80720D38, 0xA0, 0xC8, 1.0f, 2, 0xC);
 }
 
-typedef struct MenuMapExit { // map/exit pair of a cheats-menu warp
-    s16 map;
-    s16 exit;
-} MenuMapExit;
 
-typedef struct MenuMapCharacter { // map/character pair passed to menuSetupPlayerInventory
-    s16 map;
-    s16 characterId;
-} MenuMapCharacter;
-
-typedef struct MenuMapLoadout { // full menuSetupPlayerInventory argument row
-    s16 map;
-    s16 characterId;
-    s8 inventory0;
-    s8 inventory1;
-    s8 inventory4;
-    s8 shared;
-} MenuMapLoadout;
-
-extern s8 gMenuHighScoreGame;
 extern u8 D_80744514;
-extern MenuMapExit gMenuCheatWarps[];
-extern MenuMapLoadout gMenuCheatLoadouts[];
-extern MenuMapCharacter gMenuCheatMapCharacters[];
-extern s8 D_80033988[];
-extern s16 D_80033998[];
 extern s8 D_8074453C[];
 
 extern s8 D_80744540;
@@ -2046,8 +2091,6 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
     }
 }
 
-extern s8 D_80033990[];
-extern s16 D_800339A4;
 extern s8 D_8074453D;
 extern s8 D_8074453E;
 
@@ -2259,10 +2302,7 @@ void menuSaveHighScores(void) {
 }
 
 extern s8 D_80033F60;
-extern s8 gMenuHighScoreGame;
 extern s8 D_80033F61;
-extern s8 D_800339C0;
-extern MenuMapCharacter gMenuHighScoreGames[];
 
 void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
@@ -2357,14 +2397,13 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
 }
 
-const char D_80033BE0[4] = "-";
-const char D_80033BE4[4] = "  -";
-const char D_80033BE8[8] = "    -";
+const u8 D_80033BE0[4] = "-";
+const u8 D_80033BE4[4] = "  -";
+const u8 D_80033BE8[8] = "    -";
 
 extern s8 D_80033F60;
 extern s8 D_80033F61;
 extern s16 D_80744518;
-extern u8 *D_800339AC[];
 
 Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     MenuScreenState *state;
@@ -2478,7 +2517,6 @@ void menuUpdateCameraPositions(void) {
     gPlayerSlots->focusZ = gPrimaryPlayerActor->z - 100.0f;
 }
 
-extern u8 D_800339C4[];
 extern f32 D_80033F44;
 
 Gfx *menuDrawScrollSelector(Gfx *dl, MenuScreenState *state, u8 **strTable, s32 itemCount, u32 *outIdx, s16 textFlag, f32 *outOffset, f32 posY, s16 enabledMask) {
@@ -2606,8 +2644,6 @@ typedef struct MenuKioskState { // customState of the menu kiosk actors (gPrimar
 } MenuKioskState;
 
 extern u8 D_8076A0D0[];
-extern s8 D_80033738;
-extern f32 D_8003369C;
 extern void *D_80033F34;
 extern s8 D_80033F30;
 
@@ -3003,14 +3039,6 @@ void menuSparkleParticleUpdate(EffectNode *spinner, s32 unused) {
     guMtxF2L(rotMatrix, &spinner->matrices[0][gGfxBufferIndex]);
 }
 
-typedef struct MenuUiRgba {
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-} MenuUiRgba;
-
-extern MenuUiRgba sMenuKongColors[];
 
 void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
     MenuScreenState *state = elemActor->data;
@@ -3233,9 +3261,6 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
 }
 
 
-extern f32 gSelectorSplineX[];
-extern f32 gSelectorSplineY[];
-
 s32 menuEvaluateSelectorSpline(MenuScreenState *state, s32 index, f32 *outPosX, f32 *outPosY, f32 *outScale, s16 *outColor, s16 *outAlpha) {
     f32 depth;
     s32 slot;
@@ -3334,7 +3359,6 @@ f32 menuEvaluateSpline(f32 *coeffs, f32 t, f32 *outDeriv) {
     return (((((poly[0] * t) + poly[1]) * t) + poly[2]) * t) + poly[3];
 }
 
-extern s8 D_80033734;
 
 void menuActorStateDispatch(void) {
     Actor *actor = gCurrentActor;
@@ -3363,7 +3387,6 @@ void menuActorStateDispatch(void) {
 
 
 
-extern f32 D_80033678[];
 extern s16 D_80754CE0;
 extern u8 D_8071FE64;
 
@@ -3461,7 +3484,6 @@ void menuUpdateKioskActor(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 gSelectorSplineY[];
 
 void menuUpdateKioskPodActor(void) {
     MenuKioskState *podState;

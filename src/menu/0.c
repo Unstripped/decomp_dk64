@@ -42,21 +42,70 @@ typedef struct MenuState {
     /* 0x1A */ u8 pendingMedals;
 } MenuState;
 
-typedef struct MenuCsModelEntry {
-    s16 csModelIndex;
-    s16 unk2;
-} MenuCsModelEntry;
-
 extern u8 gCurrentWorldId;
-extern s32 D_80032F48[][6];
-extern MenuCsModelEntry D_800330A2[];
+
+u8 D_80032F50 = 0;
+// Cam path per hub world for menuMainStateStep steps 3-8; 0 ends the sequence.
+s32 D_80032F54[14][6] = {
+    { 3, 0, 0, 0, 0, 0 },
+    { 4, 0, 0, 0, 0, 0 },
+    { 6, 0, 0, 0, 0, 0 },
+    { 8, 0, 0, 0, 0, 0 },
+    { 10, 0, 0, 0, 0, 0 },
+    { 6, 10, 0, 0, 0, 0 },
+    { 3, 4, 8, 0, 0, 0 },
+    { 6, 3, 4, 10, 8, 0 },
+    { 6, 3, 4, 10, 8, 0 },
+    { 6, 3, 4, 10, 8, 0 },
+    { 6, 3, 4, 10, 8, 0 },
+    { 6, 3, 4, 10, 8, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0 },
+};
+// csModel per pending medal count (1-8).
+s32 D_800330A4[8] = { 4, 2, 3, 0x10, 0x12, 0x13, 0x14, 0x15 };
+// menuTransitionWithStateD target per options entry (steps 4-11).
+u8 D_800330C4[12] = { 0x75, 0x7B, 0x89, 0x8A, 0x8F, 0x92, 0x96, 0x78 };
+Mtx *D_800330D0 = NULL;
+Vtx *D_800330D4 = NULL;
+s16 D_800330D8 = 0;
+Vtx D_800330E0[20] = {
+    {{{ 120, 132, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1160, 132, -10 }, 0, { 0x2800, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1120, 180, -10 }, 0, { 0x2000, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 160, 180, -10 }, 0, { 0x800, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 120, 828, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1160, 828, -10 }, 0, { 0x2800, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1120, 780, -10 }, 0, { 0x2000, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 160, 780, -10 }, 0, { 0x800, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1160, 132, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1160, 828, -10 }, 0, { 0x2800, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1120, 780, -10 }, 0, { 0x2000, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 1120, 180, -10 }, 0, { 0x800, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 120, 132, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 120, 828, -10 }, 0, { 0x2800, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 160, 780, -10 }, 0, { 0x2000, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 160, 180, -10 }, 0, { 0x800, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 320, 240, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 960, 240, -10 }, 0, { 0x1000, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 960, 720, -10 }, 0, { 0x1000, 0x1000 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{{ 320, 720, -10 }, 0, { 0, 0x1000 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+};
+s16 D_80033220[4] = { 0, 5, 25, 30 };
+u8 D_80033228[48] = {
+    0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0x80, 0x00,
+    0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x80, 0x80, 0x00, 0xFF, 0xFF,
+    0x00, 0xFF, 0xFF, 0x80, 0x80, 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF,
+    0x80, 0x80, 0x80, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00,
+};
+s8 D_80033258 = 0;
 
 
 void menuStartNextCamPath(MenuState *menu) {
-    s32 soundId = D_80032F48[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step];
+    s32 soundId = D_80032F54[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step - 3];
 
     if (soundId == 0) {
-        csModelStateSetFirstByte(D_800330A2[menu->pendingMedals].csModelIndex, 9);
+        csModelStateSetFirstByte(D_800330A4[menu->pendingMedals - 1], 9);
         menu->mode = 4;
         menu->step = 0;
         return;
@@ -262,9 +311,6 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
 
 extern OSContPad *gCurrentContPad;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_800330C0[];
-extern u8 D_80032F50;
-extern s16 D_800330D8;
 
 
 void menuUpdateOptionsState(MenuState *menu) {
@@ -359,7 +405,7 @@ void menuUpdateOptionsState(MenuState *menu) {
             menu->step = ((menu->step - 4) & 7) + 4;
         }
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-            menuTransitionWithStateD(D_800330C0[menu->step]);
+            menuTransitionWithStateD(D_800330C4[menu->step - 4]);
             D_80032F50 = 1;
             menu->step = 0x37;
         }
@@ -469,12 +515,6 @@ void menuDispatchAction(void) {
     actorScriptedCommandUpdate();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-extern Mtx *D_800330D0;
-extern Vtx *D_800330D4;
-extern u8 D_800330E0[];
-extern s16 D_80033220[];
-extern u8 D_80033228[];
-extern s8 D_80033258;
 extern Vtx *D_80033F10;
 
 void *memcpy(void *, const void *, s32);

@@ -46,6 +46,60 @@ typedef struct MenuShopActor {
     /* 0x178 */ MenuShopState *shop;
 } MenuShopActor;
 
+typedef struct {
+    s16 slot;
+    s16 level;
+    s16 price;
+} MenuM1_Entry;
+typedef struct { s16 unk0; s16 font; } MenuWidgetTextStyle;
+typedef struct {
+    s32 id[2];
+} MenuTextIdPair;
+
+// Shop offers (slot, level, price), 7 per kong; menuSelectNextShopOffer's tables for shop actor types 0xBD, 0xBF, 0xBE.
+MenuM1_Entry D_80033260[35] = {
+    { 0, 1, 3 }, { 0, 2, 5 }, { 0, 3, 7 }, { -1, 0, 0 }, { 1, 2, 5 }, { -1, 0, 0 }, { 1, 3, 7 },
+    { 0, 1, 3 }, { 0, 2, 5 }, { 0, 3, 7 }, { -1, 0, 0 }, { 1, 2, 5 }, { -1, 0, 0 }, { 1, 3, 7 },
+    { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
+    { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
+    { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
+};
+MenuM1_Entry D_80033334[35] = {
+    { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
+    { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
+    { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
+    { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
+    { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
+};
+MenuM1_Entry D_80033408[35] = {
+    { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
+    { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
+    { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
+    { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
+    { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
+};
+u8 gShopInstrumentMelons[8] = { 2, 2, 2, 3, 3, 3 };
+u16 D_800334E4[4] = { 0, 0x12, 0x13, 0x14 };
+u16 D_800334EC[10] = { 0, 3, 4, 5, 6, 7, 8, 9, 0x1C };
+u16 D_80033500[10] = { 1, 2, 3, 7, 0xA, 0xB, 0xC, 0xE };
+u16 D_80033514[10] = { 1, 2, 3, 4, 9, 0xA, 0xB, 0xC };
+u16 D_80033528[10] = { 1, 2, 7, 8, 9, 0xA, 0xD, 0xE };
+MenuWidgetTextStyle gShopWidgetTextStyles[2] = { { 0, 1 }, { 0, 6 } };
+s32 D_80033544[5][4][2] = {
+    { { 0, 0 }, { 6, 7 }, { 8, 9 }, { 0xA, 0xB } },
+    { { 0, 0 }, { 0xC, 0xD }, { 0xE, 0xF }, { 0x10, 0x11 } },
+    { { 0, 0 }, { 0x12, 0x13 }, { 0x14, 0x15 }, { 0x16, 0x17 } },
+    { { 0, 0 }, { 0x18, 0x19 }, { 0x1A, 0x1B }, { 0x1C, 0x1D } },
+    { { 0, 0 }, { 0x1E, 0x1F }, { 0x20, 0x21 }, { 0x22, 0x23 } },
+};
+s32 D_800335E4[4][2] = { { 0, 0 }, { 0, 1 }, { 2, 3 }, { 4, 5 } };
+s32 D_80033604[5] = { 0x24, 0x25, 0x26, 0x27, 0x28 };
+s32 D_80033618[4] = { 0, 0, 0x2E, 0x2F };
+s32 D_80033628[3] = { 0, 0x30, 0x31 };
+s32 D_80033634[5] = { 0x29, 0x2A, 0x2B, 0x2C, 0x2D };
+s32 D_80033648[5] = { 0, 0, 0x33, 0, 0x34 };
+MenuTextIdPair gShopWidgetNoText = { { -1, -1 } };
+
 
 
 s32 menuOtherKongHasUpgrade(MenuShopState *state, s32 bitOffset) {
@@ -133,7 +187,6 @@ void menuApplyUpgradeToAllKongs(MenuShopState *state, u8 asBit) {
 }
 
 extern PlayerStruct *gPlayerSlots;
-extern u8 gShopInstrumentMelons[];
 
 void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     s16 queueItemId = -1;
@@ -186,14 +239,6 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
 }
 
 
-typedef struct {
-    s16 slot;
-    s16 level;
-    s16 price;
-} MenuM1_Entry;
-extern MenuM1_Entry D_80033260[];
-extern MenuM1_Entry D_80033334[];
-extern MenuM1_Entry D_80033408[];
 extern u8 gCurrentWorldId;
 
 void menuSelectNextShopOffer(MenuShopState *state, u8 *inventory, s32 firstVisit) {
@@ -298,10 +343,6 @@ void menuResetSubmenuState(MenuShopState *state, s32 *outAvailability) {
     state->itemSlot = -1;
 }
 
-extern u16 D_800334EC[];
-extern u16 D_80033500[];
-extern u16 D_80033514[];
-extern u16 D_80033528[];
 
 void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSecondAction) {
     u16 *textLines;
@@ -554,7 +595,6 @@ void menuUpdateShopPurchaseStep(MenuShopState *state, u8 *inventory) {
     }
 }
 
-extern u16 D_800334E4[];
 
 void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagId) {
     s32 textParam2;
@@ -918,8 +958,6 @@ void menuUpdateFunkyShopActor(void) {
 
 
 extern Mtx D_2000180;
-typedef struct { s16 unk0; s16 font; } MenuWidgetTextStyle;
-extern MenuWidgetTextStyle gShopWidgetTextStyles[];
 
 Gfx *menuDrawTransformedWidgets(Gfx *dl, Actor *widgetActor) {
     MenuWidgetState *widget = widgetActor->customState;
@@ -941,18 +979,6 @@ Gfx *menuDrawTransformedWidgets(Gfx *dl, Actor *widgetActor) {
     return dl;
 }
 
-
-typedef struct {
-    s32 id[2];
-} MenuTextIdPair;
-extern MenuTextIdPair gShopWidgetNoText;
-extern s32 D_80033544[5][4][2];
-extern s32 D_800335E4[4][2];
-extern s32 D_80033604[];
-extern s32 D_80033618[];
-extern s32 D_80033628[];
-extern s32 D_80033634[];
-extern s32 D_80033648[];
 
 void menuUpdateTransformedWidgets(void) {
     MenuWidgetState *widget = gCurrentActor->customState;

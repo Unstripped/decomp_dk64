@@ -47,7 +47,7 @@ void menuLightSpotlightActorUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 menuOptionDescFade;
+u8 menuOptionDescFade = 0;
 
 void menuUpdateLightFadeActor(void) {
     s32 d;
