@@ -12,6 +12,7 @@
 #include "proto/global/2C910.h"
 #include "proto/global/35000.h"
 #include "proto/global/3C10.h"
+#include "proto/global/42630.h"
 #include "proto/global/7CA80.h"
 #include "proto/global/90D80.h"
 #include "proto/global/C4620.h"
@@ -34,12 +35,12 @@ typedef struct MenuShopState {
     u8 mode;
     u8 step;
     u8 nextMode;
-    u8 unk10;
+    u8 melonsBefore;
     u8 itemLevel;
     u8 requirementUnmet;
 } MenuShopState;
 
-// Shop actors (Cranky/Funky/Candy) and the shop's overlay widget actor: one component.
+// Shop actors (Cranky/Funky/Candy): one component.
 typedef struct MenuShopActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ MenuShopState *shop;
@@ -105,7 +106,7 @@ typedef struct {
     MenuShopActor *shopActor;
 } MenuWidgetState;
 
-extern MenuShopActor *gCurrentActor;
+extern Actor *gCurrentActor;
 
 void menuSetBitgridValue(MenuShopState *state, s32 slot) {
     gPlayerInventoryTable[0].kong[slot].unk0[state->itemSlot] = state->itemLevel;
@@ -134,7 +135,7 @@ extern u8 D_800334DC[];
 
 void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     s16 queueItemId = -1;
-    u8 hasItem = kongUsesAbilityEnergy(gPlayerCharacterId[0]);
+    u8 usedEnergyBefore = kongUsesAbilityEnergy(gPlayerCharacterId[0]);
 
     switch (state->itemSlot) {
     case 2:
@@ -154,9 +155,9 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
         break;
     }
     if (state->itemSlot == 4) {
-        u8 v = D_800334DC[state->itemLevel];
-        if (gPlayerInventoryTable[0].melons < v) {
-            gPlayerInventoryTable[0].melons = v;
+        u8 newMelons = D_800334DC[state->itemLevel];
+        if (gPlayerInventoryTable[0].melons < newMelons) {
+            gPlayerInventoryTable[0].melons = newMelons;
             healthRefill(0);
             gPlayerSlots->unk2E2 |= 0x11;
         }
@@ -170,7 +171,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
         queueItemId = 7;
         break;
     case 0:
-        if (hasItem == 0 && kongUsesAbilityEnergy(gPlayerCharacterId[0]) != 0) {
+        if (usedEnergyBefore == 0 && kongUsesAbilityEnergy(gPlayerCharacterId[0]) != 0) {
             queueItemId = 5;
         }
         break;
@@ -183,19 +184,17 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
 }
 
 
-extern u8 D_807FCC4C;
-
 typedef struct {
     s16 slot;
     s16 level;
     s16 price;
 } MenuM1_Entry;
-extern MenuM1_Entry D_80033260[][7];
-extern MenuM1_Entry D_80033334[][7];
-extern MenuM1_Entry D_80033408[][7];
+extern MenuM1_Entry D_80033260[];
+extern MenuM1_Entry D_80033334[];
+extern MenuM1_Entry D_80033408[];
 extern u8 gCurrentWorldId;
 
-void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 isExiting) {
+void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 firstVisit) {
     MenuM1_Entry *tbl;
     s32 found = 0;
     s32 count = 6;
@@ -211,15 +210,15 @@ void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 is
     }
     count++;
     state->hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    switch (gCurrentActor->base.actorType) {
+    switch (gCurrentActor->actorType) {
     case 0xBD:
-        tbl = D_80033260[0];
+        tbl = D_80033260;
         break;
     case 0xBF:
-        tbl = D_80033334[0];
+        tbl = D_80033334;
         break;
     case 0xBE:
-        tbl = D_80033408[0];
+        tbl = D_80033408;
         break;
     }
     tbl += gPlayerCharacterId[0] * 7;
@@ -253,11 +252,11 @@ void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 is
             state->itemSlot = -2;
         }
     }
-    state->unk10 = D_807FCC4C;
+    state->melonsBefore = gPlayerInventoryTable[0].melons;
 }
 
 
-s32 menuGetOptionAvailability(MenuShopState *state, s32 optionIdx) {
+s32 menuGetOptionAvailability(MenuShopState *state, s32 hasSecondAction) {
     s32 ret = 0;
 
     state->nextMode = 3;
@@ -281,7 +280,7 @@ s32 menuGetOptionAvailability(MenuShopState *state, s32 optionIdx) {
 }
 
 s32 menuIsSpecialMovePurchased(MenuShopState *state) {
-    s32 ret = gCurrentActor->base.actorType == 0xBD;
+    s32 ret = gCurrentActor->actorType == 0xBD;
 
     if (ret != 0) {
         ret = state->submenuEntered == 0;
@@ -301,14 +300,9 @@ extern u16 D_800334EC[];
 extern u16 D_80033500[];
 extern u16 D_80033514[];
 extern u16 D_80033528[];
-extern u8 D_800334DD[];
-typedef struct {
-    u8 hi;
-    u8 lo;
-} MenuM1_Pair;
 
 void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSecondAction) {
-    MenuM1_Pair *pairs;
+    u16 *textLines;
     u16 textParam1;
     s32 availability;
     u16 entry2;
@@ -319,15 +313,15 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
     u16 introTextId;
     u16 priceOrCount;
     s32 flagCount;
-    s16 beEntry3;
+    u16 funkyEntry3;
 
     if (currentActorTestClearFlag() != 0) {
-        pairs = NULL;
+        textLines = NULL;
         availability = menuGetOptionAvailability(state, hasSecondAction);
         currentActorClearFlag();
         state->requirementUnmet = 0;
         state->step++;
-        switch (gCurrentActor->base.actorType) {
+        switch (gCurrentActor->actorType) {
         case 0xBF:
             entry2 = 3;
             entry3 = 7;
@@ -337,7 +331,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                 otherSlotOwned = menuCheckBitgridOtherSlots(state, 1);
                 if (((u8 *)inventory)[state->itemSlot] & 1) {
                     entry3 = 9;
-                    if (D_807FCC4C < D_800334DD[((u8 *)inventory)[state->itemSlot]]) {
+                    if (gPlayerInventoryTable[0].melons < D_800334DC[((u8 *)inventory)[state->itemSlot] + 1]) {
                         entry2 = 6;
                         entry6 = 0xD;
                         entry7 = 0xF;
@@ -354,7 +348,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
             D_80033500[3] = entry3;
             D_80033500[6] = entry6;
             D_80033500[7] = entry7;
-            pairs = (MenuM1_Pair *)D_80033500;
+            textLines = D_80033500;
             textParam1 = 9;
             break;
         case 0xBD:
@@ -367,7 +361,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                 priceOrCount = 0xF;
             }
             textParam1 = 8;
-            pairs = (MenuM1_Pair *)D_800334EC;
+            textLines = D_800334EC;
             if (state->submenuEntered == 0) {
                 if (flagGet(0x61, 2) != 0) {
                     flagSet(0x61, 0, 2);
@@ -397,26 +391,26 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
             D_800334EC[0] = introTextId;
             break;
         case 0xBE:
-            pairs = (MenuM1_Pair *)D_80033514;
+            textLines = D_80033514;
             if (state->itemSlot == 3) {
-                pairs = (MenuM1_Pair *)D_80033528;
+                textLines = D_80033528;
             } else {
                 entry2 = 3;
-                beEntry3 = 4;
+                funkyEntry3 = 4;
                 if (state->itemSlot >= 0 && (((u8 *)inventory)[state->itemSlot] & 1)) {
                     entry2 = 5;
-                    beEntry3 = 6;
+                    funkyEntry3 = 6;
                 }
                 D_80033514[2] = entry2;
-                D_80033514[3] = beEntry3;
+                D_80033514[3] = funkyEntry3;
             }
             textParam1 = 7;
             break;
         }
         if (hasSecondAction != 0) {
-            resQueueAttachActor(&gCurrentActor->base, textParam1, pairs[8].lo);
+            resQueueAttachActor(gCurrentActor, textParam1, textLines[8]);
         }
-        resQueueAttachActor(&gCurrentActor->base, textParam1, pairs[availability].lo);
+        resQueueAttachActor(gCurrentActor, textParam1, textLines[availability]);
         if (availability == 2 || availability == 3 || availability == 6 || availability == 7) {
             slotQueueInit(0);
             slotQueueUpdate(1, 1, 0);
@@ -426,13 +420,13 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
 }
 
 
-void menuDispatchSubmenuAction(MenuShopState *state, u8 *inventory, s32 flag) {
+void menuDispatchSubmenuAction(MenuShopState *state, u8 *inventory, s32 firstVisit) {
     switch (state->step) {
     case 0:
-        menuFormatShopPurchaseText(state, inventory, flag);
+        menuFormatShopPurchaseText(state, inventory, firstVisit);
         break;
     case 1:
-        if (!(gCurrentActor->base.flags & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             state->step = 0;
             state->mode = state->nextMode;
             camResumePath();
@@ -445,13 +439,13 @@ void menuDispatchSubmenuAction(MenuShopState *state, u8 *inventory, s32 flag) {
 extern Actor *gPrimaryPlayerActor;
 
 s32 menuExitSubmenu(MenuShopState *state, u8 *inventory, s32 flagId) {
-    s32 flag = flagGet((s16)flagId, 0) == 0;
+    s32 firstVisit = flagGet(flagId, 0) == 0;
 
-    menuCheckInventoryItemPurchased(state, inventory, flag);
+    menuCheckInventoryItemPurchased(state, inventory, firstVisit);
     state->mode = 0;
     state->step = 0;
     if (flagGet(0x61, 2) == 0) {
-        if (flag != 0) {
+        if (firstVisit != 0) {
             playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x1B);
             camStartPath(0, 0, 1);
         } else {
@@ -463,8 +457,8 @@ s32 menuExitSubmenu(MenuShopState *state, u8 *inventory, s32 flagId) {
         camStartPath(0, 0xB, 1);
     }
     currentActorClearFlag();
-    gCurrentActor->base.flags |= 0x10000000;
-    return flag;
+    gCurrentActor->flags |= 0x10000000;
+    return firstVisit;
 }
 
 
@@ -529,7 +523,7 @@ void menuUpdateShopPurchaseStep(MenuShopState *state, u8 *inventory) {
         break;
     case 15:
         textParam1 = -1;
-        switch (gCurrentActor->base.actorType) {
+        switch (gCurrentActor->actorType) {
         case 0xBD:
             textParam1 = 8;
             if (menuIsSpecialMovePurchased(state) != 0) {
@@ -553,7 +547,7 @@ void menuUpdateShopPurchaseStep(MenuShopState *state, u8 *inventory) {
         camStartPath(gPlayerSlots->actor, 3, 1);
         state->mode = 3;
         state->step = 0;
-        resQueueAttachActor(&gCurrentActor->base, textParam1, textParam2);
+        resQueueAttachActor(gCurrentActor, textParam1, textParam2);
         break;
     }
 }
@@ -591,7 +585,7 @@ void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagI
                         extraTextParam = 0x15;
                     }
                     textParam2 = 0x12;
-                } else if (D_807FCC4C == state->unk10 + 1) {
+                } else if (gPlayerInventoryTable[0].melons == state->melonsBefore + 1) {
                     textParam2 = 0x14;
                 } else {
                     textParam2 = 0x13;
@@ -608,15 +602,15 @@ void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagI
                 textParam1 = 7;
                 break;
             }
-            resQueueAttachActor(&gCurrentActor->base, textParam1, textParam2);
+            resQueueAttachActor(gCurrentActor, textParam1, textParam2);
             if (extraTextParam >= 0) {
-                resQueueAttachActor(&gCurrentActor->base, textParam1, extraTextParam);
+                resQueueAttachActor(gCurrentActor, textParam1, extraTextParam);
             }
             state->step++;
         }
         break;
     case 1:
-        if (!(gCurrentActor->base.flags & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             flagSet(flagId, 1, 0);
             camResumePath();
             state->step++;
@@ -641,18 +635,18 @@ void menuUpdateShopExitingStep(MenuShopState *state, u8 *inventory, s32 flagId) 
 
     switch (state->step) {
     case 0:
-        if (!(gCurrentActor->base.flags & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
             state->step++;
             flagSet(flagId, 1, 0);
         }
         break;
     case 2:
-        if (!(gCurrentActor->base.flags & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             slotIndex = -1;
             camResumePath();
             state->step = 4;
-            switch (gCurrentActor->base.actorType) {
+            switch (gCurrentActor->actorType) {
             case 0xBE:
                 slotIndex = 2;
             case 0xBF:
@@ -671,7 +665,7 @@ void menuUpdateShopExitingStep(MenuShopState *state, u8 *inventory, s32 flagId) 
             itemSlot = -1;
             currentActorClearFlag();
             playerResumeLocomotion(gPrimaryPlayerActor);
-            switch (gCurrentActor->base.actorType) {
+            switch (gCurrentActor->actorType) {
             case 0xBE:
                 textParam1 = 7;
                 textParam2 = 0x11;
@@ -685,8 +679,8 @@ void menuUpdateShopExitingStep(MenuShopState *state, u8 *inventory, s32 flagId) 
                     itemSlot = 4;
                 }
                 if (itemSlot >= 0 && (inventory[itemSlot] & 1)) {
-                    if (slotQueueGetValue((u8)queueItemId, 0) < slotQueueGetMaxValue(queueItemId, 0)) {
-                        resQueueAttachActor(&gCurrentActor->base, textParam1, textParam2);
+                    if (slotQueueGetValue(queueItemId, 0) < slotQueueGetMaxValue(queueItemId, 0)) {
+                        resQueueAttachActor(gCurrentActor, textParam1, textParam2);
                         slotQueueAddValue(queueItemId, 0, 0x3E7);
                         state->step = 0;
                         camPathId = 5;
@@ -695,7 +689,7 @@ void menuUpdateShopExitingStep(MenuShopState *state, u8 *inventory, s32 flagId) 
                 break;
             }
             state->step += 2;
-            camStartPath(0, (s16)camPathId, 1);
+            camStartPath(0, camPathId, 1);
         }
         break;
     case 4:
@@ -711,11 +705,11 @@ void menuUpdateShopExitingStep(MenuShopState *state, u8 *inventory, s32 flagId) 
 
 
 void menuDispatchCurrentMenuAction(MenuShopState *state, u8 *inventory, s32 flagId) {
-    s32 flag = flagGet((s16)flagId, 0) == 0;
+    s32 firstVisit = flagGet(flagId, 0) == 0;
 
     switch (state->mode) {
     case 0:
-        menuDispatchSubmenuAction(state, inventory, flag);
+        menuDispatchSubmenuAction(state, inventory, firstVisit);
         break;
     case 1:
         menuUpdateShopPurchaseStep(state, inventory);
@@ -738,40 +732,40 @@ void menuUpdateCrankyShopActor(void) {
     MenuShopState *st;
     s32 pad;
     u8 *inventory;
-    s32 flag;
+    s32 flagId;
     s32 scriptId;
 
     behaviourFrameBegin();
     if (gCurrentMap == 5) {
-        st = gCurrentActor->shop;
+        st = ((MenuShopActor *)gCurrentActor)->shop;
         inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
-        if (!(gCurrentActor->base.flags & 0x10)) {
+        if (!(gCurrentActor->flags & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
-                gCurrentActor->base.unk155 = 0;
+                gCurrentActor->unk155 = 0;
             } else {
-                gCurrentActor->base.unk155 = 0xFF;
+                gCurrentActor->unk155 = 0xFF;
             }
         }
-        if (gCurrentActor->base.unk155 != 0xFF) {
-            flag = 0x17F;
+        if (gCurrentActor->unk155 != 0xFF) {
+            flagId = 0x17F;
             if (mapGetHubWorldIndex(gCurrentWorldId, 0) != 7) {
-                flag = 0x177;
+                flagId = 0x177;
             }
             scriptId = 0x26E;
-            if (!(gCurrentActor->base.flags & 0x10)) {
-                if (menuExitSubmenu(st, inventory, flag) != 0) {
+            if (!(gCurrentActor->flags & 0x10)) {
+                if (menuExitSubmenu(st, inventory, flagId) != 0) {
                     scriptId = 0x26F;
                 }
-                actorScriptStart(&gCurrentActor->base, scriptId);
+                actorScriptStart(gCurrentActor, scriptId);
             }
-            menuDispatchCurrentMenuAction(st, inventory, flag);
+            menuDispatchCurrentMenuAction(st, inventory, flagId);
         } else {
-            if (!(gCurrentActor->base.flags & 0x10)) {
+            if (!(gCurrentActor->flags & 0x10)) {
                 st->hubWorld = 7;
                 if (flagGet(0x17F, 0) == 0) {
-                    actorScriptStart(&gCurrentActor->base, 0x26E);
+                    actorScriptStart(gCurrentActor, 0x26E);
                     camStartPath(0, 5, 1);
-                    gCurrentActor->base.state = 0;
+                    gCurrentActor->state = 0;
                     flagSet(0x64, 1, 2);
                 } else {
                     count = 0;
@@ -782,10 +776,10 @@ void menuUpdateCrankyShopActor(void) {
                     } while (i != 4);
                     if (count != 4) {
                         camPathId = 0;
-                        gCurrentActor->base.state = 3;
+                        gCurrentActor->state = 3;
                     } else {
                         camPathId = 6;
-                        gCurrentActor->base.state = 4;
+                        gCurrentActor->state = 4;
                         st->itemSlot = 1;
                         st->price = 0;
                         st->itemLevel = 1;
@@ -793,51 +787,51 @@ void menuUpdateCrankyShopActor(void) {
                         flagSet(0x180, 1, 0);
                     }
                     playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x1B);
-                    camStartPath(0, (s16)camPathId, 1);
+                    camStartPath(0, camPathId, 1);
                     currentActorClearFlag();
-                    actorScriptStart(&gCurrentActor->base, 0x26E);
+                    actorScriptStart(gCurrentActor, 0x26E);
                 }
             }
-            switch (gCurrentActor->base.state) {
+            switch (gCurrentActor->state) {
             case 0:
                 if (currentActorTestClearFlag() != 0) {
-                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1C);
-                    gCurrentActor->base.state = 1;
+                    resQueueAttachActor(gCurrentActor, 8, 0x1C);
+                    gCurrentActor->state = 1;
                 }
                 break;
             case 1:
-                if (!(gCurrentActor->base.flags & 0x02000000)) {
+                if (!(gCurrentActor->flags & 0x02000000)) {
                     playerResumeLocomotion(gPrimaryPlayerActor);
                     currentActorClearFlag();
                     camStartPath(0, 1, 1);
                     mapTransitionToPreviousOrExit();
-                    gCurrentActor->base.state = 2;
+                    gCurrentActor->state = 2;
                 }
                 break;
             case 3:
                 if (currentActorTestClearFlag() != 0) {
-                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1D);
-                    gCurrentActor->base.state = 1;
+                    resQueueAttachActor(gCurrentActor, 8, 0x1D);
+                    gCurrentActor->state = 1;
                 }
                 break;
             case 4:
                 if (currentActorTestClearFlag() != 0) {
-                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1E);
-                    gCurrentActor->base.state = 5;
+                    resQueueAttachActor(gCurrentActor, 8, 0x1E);
+                    gCurrentActor->state = 5;
                 }
                 break;
             case 5:
-                if (!(gCurrentActor->base.flags & 0x02000000)) {
+                if (!(gCurrentActor->flags & 0x02000000)) {
                     camResumePath();
-                    gCurrentActor->base.state = 6;
+                    gCurrentActor->state = 6;
                 }
                 break;
             case 6:
                 if (currentActorTestClearFlag() != 0) {
                     playerStateQueueCallback(0x52, 0, 0);
-                    gGlobalPauseFlags &= 0xFFFEFFCF;
+                    gGlobalPauseFlags &= ~0x10030;
                     gPlayerSlots->actor->flags |= 0x40000000;
-                    gCurrentActor->base.state = 7;
+                    gCurrentActor->state = 7;
                     currentActorClearFlag();
                     camStartPath(gPlayerSlots->actor, 2, 1);
                 }
@@ -846,18 +840,18 @@ void menuUpdateCrankyShopActor(void) {
                 if (currentActorTestClearFlag() != 0) {
                     gGlobalPauseFlags |= 0x10030;
                     gTextNumberArg = 0xF;
-                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1F);
-                    gCurrentActor->base.state = 1;
+                    resQueueAttachActor(gCurrentActor, 8, 0x1F);
+                    gCurrentActor->state = 1;
                 }
                 break;
             }
         }
     }
-    if (gCurrentActor->base.flags & 0x10000000) {
+    if (gCurrentActor->flags & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(&gCurrentActor->base, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 s32 menuDecodeAddressConstant(s32 val) {
@@ -865,8 +859,6 @@ s32 menuDecodeAddressConstant(s32 val) {
 }
 
 
-
-extern s32 csCmdExec;
 
 void menuCheckControllerAntiPiracy(void) {
     MenuShopState *st;
@@ -876,10 +868,10 @@ void menuCheckControllerAntiPiracy(void) {
 
     behaviourFrameBegin();
     if (gCurrentMap == 0x19) {
-        st = gCurrentActor->shop;
+        st = ((MenuShopActor *)gCurrentActor)->shop;
         inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
 
-        if (!(gCurrentActor->base.flags & 0x10)) {
+        if (!(gCurrentActor->flags & 0x10)) {
 
             s32 *cur = (s32 *)controllerUpdate;
             s32 *end = (s32 *)controllerLatchPad;
@@ -892,36 +884,36 @@ void menuCheckControllerAntiPiracy(void) {
                 } while ((u32)cur < (u32)end);
             }
 
-            if (sum != (s32)0xA1C0EB24) {
-                dest = (s32 *)menuDecodeAddressConstant((s32)&csCmdExec + 0xFFDE0BB1);
+            if (sum != 0xA1C0EB24) {
+                dest = (s32 *)menuDecodeAddressConstant((s32)csCmdExec + 0xFFDE0BB1);
                 *dest = menuDecodeAddressConstant(0x03BE0BB9);
             }
             menuExitSubmenu(st, inventory, 0x175);
         }
         menuDispatchCurrentMenuAction(st, inventory, 0x175);
     }
-    if (gCurrentActor->base.flags & 0x10000000) {
+    if (gCurrentActor->flags & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(&gCurrentActor->base, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
-        MenuShopState *st = gCurrentActor->shop;
+        MenuShopState *st = ((MenuShopActor *)gCurrentActor)->shop;
         u8 *inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
 
-        if (!(gCurrentActor->base.flags & 0x10)) {
+        if (!(gCurrentActor->flags & 0x10)) {
             menuExitSubmenu(st, inventory, 0x176);
         }
         menuDispatchCurrentMenuAction(st, inventory, 0x176);
     }
-    if (gCurrentActor->base.flags & 0x10000000) {
+    if (gCurrentActor->flags & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(&gCurrentActor->base, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -929,8 +921,8 @@ extern Mtx D_2000180;
 typedef struct { s16 unk0; s16 font; } MenuWidgetTextStyle;
 extern MenuWidgetTextStyle D_8003353C[];
 
-Gfx *menuDrawTransformedWidgets(Gfx *dl, MenuShopActor *widgetActor) {
-    MenuWidgetState *widget = widgetActor->base.customState;
+Gfx *menuDrawTransformedWidgets(Gfx *dl, Actor *widgetActor) {
+    MenuWidgetState *widget = widgetActor->customState;
     s32 i;
 
     gSPDisplayList(dl++, D_1000118);
@@ -940,7 +932,7 @@ Gfx *menuDrawTransformedWidgets(Gfx *dl, MenuShopActor *widgetActor) {
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, widget->alpha);
 
     for (i = 0; i < 2; i++) {
-        if (widget->text[i] != 0) {
+        if (widget->text[i] != NULL) {
             gSPMatrix(dl++, &widget->mtx[i], G_MTX_LOAD | G_MTX_PUSH);
             dl = textDrawStringVtx(dl, D_8003353C[i].font, 0, 0, widget->text[i], 0x80);
             gSPPopMatrix(dl++, G_MTX_MODELVIEW);
@@ -951,9 +943,9 @@ Gfx *menuDrawTransformedWidgets(Gfx *dl, MenuShopActor *widgetActor) {
 
 
 typedef struct {
-    s32 a[2];
+    s32 id[2];
 } MenuTextIdPair;
-extern MenuTextIdPair D_8003365C[];
+extern MenuTextIdPair D_8003365C;
 extern s32 D_80033544[5][4][2];
 extern s32 D_800335E4[4][2];
 extern s32 D_80033604[];
@@ -961,10 +953,9 @@ extern s32 D_80033618[];
 extern s32 D_80033628[];
 extern s32 D_80033634[];
 extern s32 D_80033648[];
-extern s16 D_80033542;
 
 void menuUpdateTransformedWidgets(void) {
-    MenuWidgetState *widget = gCurrentActor->base.customState;
+    MenuWidgetState *widget = gCurrentActor->customState;
     s32 done = 0;
     MenuShopState *st = NULL;
     f32 mA[4][4];
@@ -980,49 +971,49 @@ void menuUpdateTransformedWidgets(void) {
         st = widget->shopActor->shop;
     }
     if (st != NULL) {
-        if (!(gCurrentActor->base.flags & 0x10)) {
-            textIds = D_8003365C[0];
+        if (!(gCurrentActor->flags & 0x10)) {
+            textIds = D_8003365C;
             guScaleF(mA, 0.6f, 0.6f, 1.0f);
             guTranslateF(mB, 640.0f, 800.0f, 0.0f);
             guMtxCatF(mA, mB, mA);
             guMtxF2L(mA, &widget->mtx[0]);
-            lineHeight = textGetFontHeight(D_80033542);
-            guTranslateF(mB, 0.0f, (f32)(lineHeight * 4), 0);
+            lineHeight = textGetFontHeight(D_8003353C[1].font);
+            guTranslateF(mB, 0.0f, lineHeight * 4, 0);
             guMtxCatF(mA, mB, mA);
             guMtxF2L(mA, &widget->mtx[1]);
             if (st->itemSlot == 0) {
                 for (i = 0; i < 2; i++) {
-                    textIds.a[i] = D_80033544[gPlayerCharacterId[0]][st->itemLevel][i];
+                    textIds.id[i] = D_80033544[gPlayerCharacterId[0]][st->itemLevel][i];
                 }
             } else if (st->itemSlot == 1) {
                 for (i = 0; i < 2; i++) {
-                    textIds.a[i] = D_800335E4[st->itemLevel][i];
+                    textIds.id[i] = D_800335E4[st->itemLevel][i];
                 }
             } else if (st->itemSlot == 2) {
                 widget->timer = 0x82;
                 if (st->itemLevel >= 2) {
-                    textIds.a[0] = D_80033618[st->itemLevel];
+                    textIds.id[0] = D_80033618[st->itemLevel];
                 } else {
-                    textIds.a[0] = D_80033604[gPlayerCharacterId[0]];
+                    textIds.id[0] = D_80033604[gPlayerCharacterId[0]];
                 }
             } else if (st->itemSlot == 3) {
                 widget->timer = 0x82;
-                textIds.a[0] = D_80033628[st->itemLevel];
+                textIds.id[0] = D_80033628[st->itemLevel];
             } else if (st->itemSlot == 4) {
                 widget->timer = 0x82;
                 if (st->itemLevel == 1) {
-                    textIds.a[0] = D_80033634[gPlayerCharacterId[0]];
+                    textIds.id[0] = D_80033634[gPlayerCharacterId[0]];
                 } else if (st->requirementUnmet == 0) {
-                    textIds.a[0] = D_80033648[st->itemLevel];
+                    textIds.id[0] = D_80033648[st->itemLevel];
                 } else {
-                    textIds.a[0] = 0x32;
+                    textIds.id[0] = 0x32;
                 }
             }
             for (i = 0; i < 2; i++) {
-                if (textIds.a[i] >= 0) {
-                    widget->text[i] = textTableGetString(0x27, textIds.a[i], 0);
+                if (textIds.id[i] >= 0) {
+                    widget->text[i] = textTableGetString(0x27, textIds.id[i], 0);
                 } else {
-                    widget->text[i] = 0;
+                    widget->text[i] = NULL;
                 }
             }
         }
@@ -1034,13 +1025,13 @@ void menuUpdateTransformedWidgets(void) {
         }
         switch (widget->timer) {
         case 0x78:
-            gCurrentActor->base.state = 1;
+            gCurrentActor->state = 1;
             break;
         case 0x1E:
-            gCurrentActor->base.state = 2;
+            gCurrentActor->state = 2;
             break;
         }
-        switch (gCurrentActor->base.state) {
+        switch (gCurrentActor->state) {
         case 1:
             widget->alpha += (0xFF - widget->alpha > 0x10) ? 0x10 : 0xFF - widget->alpha;
             break;
@@ -1049,14 +1040,14 @@ void menuUpdateTransformedWidgets(void) {
             break;
         }
         if (done == 0) {
-            if (gCurrentActor->base.state != 0) {
+            if (gCurrentActor->state != 0) {
                 renderCallbacksRegister(menuDrawTransformedWidgets, gCurrentActor, 3);
             }
-            if (gCurrentActor->base.actorType == 0x140) {
-                actorUpdateModelMatrix(&gCurrentActor->base, 0);
+            if (gCurrentActor->actorType == 0x140) {
+                actorUpdateModelMatrix(gCurrentActor, 0);
             }
         } else {
-            actorDespawn(&gCurrentActor->base);
+            actorDespawn(gCurrentActor);
         }
     }
 }

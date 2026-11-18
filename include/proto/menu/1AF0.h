@@ -2,6 +2,7 @@
 #ifndef PROTO_MENU_1AF0_H
 #define PROTO_MENU_1AF0_H
 #include "common.h"
+#include "actor.h"
 struct MenuShopActor;
 struct MenuShopState;
 #ifndef PROTO_SKIP_menuCheckBitgridOtherSlots
@@ -71,7 +72,7 @@ void menuCheckControllerAntiPiracy(void);
 void menuUpdateFunkyShopActor(void);
 #endif
 #ifndef PROTO_SKIP_menuDrawTransformedWidgets
-Gfx *menuDrawTransformedWidgets(Gfx *, struct MenuShopActor *);
+Gfx *menuDrawTransformedWidgets(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateTransformedWidgets
 void menuUpdateTransformedWidgets(void);
