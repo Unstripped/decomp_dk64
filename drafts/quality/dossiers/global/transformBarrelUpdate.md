@@ -50,6 +50,21 @@
 | plain store + case 20 `volumeTriggerQueueOp[i] == 1U` | 393; with `unk2C0 != 1U` too: 118 |
 | plain store + `unk2C0 != 1` as nested `switch` / `== 1` then `break` / `!(== 1)` | 354 each |
 
+**2026-11-18 2026-11-18: cleanup CleantagBarrelActorUpdate CleantagBarrelActorUpdate (anthropic/claude-opus-5-5):**
+
+| attempt | result |
+|---|---|
+| review: `ret` held the actorListFindIdByActor list id and then the flag id (unrelated roles); dedicated `s32 listId` + block-scoped `s32 flag` | 10 (one more word moves the case 3 `sound` home sp+98 -> sp+94); top-level flag at any position 8-16; s16 flag or s8 flag ~374; s16 listId >= 16; `sound` hoisted to the top level 74 |
+| riderState folded into activePlayerState to pay for the word | 8 (rider pointer v1 + spill sp+128 instead of s0) |
+| `i` folded into `entry` | >= 29 |
+| **split + `u8 hide; s16 channel;` (Q1198 packing: hide is a 0/1 flag, channel holds the same sound ids as the s16 `sound`)** | **0 (kept)**; each width alone 0 without the split, both together without the split 74 |
+| 0f5fc9 plain store on the new body | 364 (base body 354) |
+| plain store + bare `if (allowed)` / `if (hide)` | 354 each (base body) |
+| plain store + u8 allowed bare / u8 hide bare | 356 / 364 |
+| plain store + `unk2C0 != 1U` on the new body | 0 (Q1180 bridge; a steer) |
+| uopt -l5 base vs plain | base {1\|1} piece 531 = bb 247 only (adjsave 5.0, uopt 6 a3); plain piece 529 = bbs 85/87/89 (0x3914 store path) + 196 (case 4 compare) + 247 (adjsave 0.818) coloured uopt 11 t4 |
+| variants scan of the plain copy (new body) | best 149 (`step` u8), no zero |
+
 ## Untried ideas
 - 0f5fc9: closed as a header case: interactionType is s16 in actor.h and all 11 target loads of 0x132 are `lh` (C920, 42630, 7A510 x2, 9DD70, A6280, A8400 x2, B1F60, C2A90 x2).
 - 0f5fc9: what bridges is the case 4 `unk2C0 != 1` compare (0x4218 `li at,1`, 0x421c `beq t6,at`): any spelling that makes that compare unsigned matches (1U, `& 0xFFFFFFFF`). A natural reason for an unsigned compare there (a real unsigned field or operand) has not been found; `unk2C0` is `lbu` everywhere (u8).
