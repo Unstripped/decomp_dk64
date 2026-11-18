@@ -23,6 +23,7 @@ a context compaction:
 |[namer-brief.md](namer-brief.md)|§4: fill for the naming agent|
 |[troubleshooting.md](troubleshooting.md)|usage limits, crashes, missing `.s` files, Docker disk, tool quirks|
 |[run-log.md](run-log.md)|sizing lists; §5 appends a row|
+|[data.md](data.md), [data-brief.md](data-brief.md)|§1: a data unit (every function is matched): procedure; fill the brief into local://data-brief.md|
 
 ## 0. Ingest
 
@@ -38,12 +39,12 @@ a context compaction:
 
 ## 1. Pick the unit ([split.md](split.md))
 
-Every global file is C, so a unit is matching rounds on unmatched functions. Pick from
-`python3 tools/ledger.py rank` (attempt ledger `drafts/attempts.jsonl`): never-attempted
-first, then most units (new findings) since the last attempt, fewest attempts, unparked
-before parked; tier 3 = `blocked` (split/data work first). Group the top of the ranking by
-file/subsystem (`rank --file src/<seg>/<f>.c ...` shows a file's set). For a file still to
-convert, check it first:
+Every function is matched: a unit is a data unit ([data.md](data.md), replacing §2–3; §0,
+§4, §5 apply). A leftover-function unit: pick from `python3 tools/ledger.py rank` (attempt
+ledger `drafts/attempts.jsonl`): never-attempted first, then most units (new findings) since
+the last attempt, fewest attempts, unparked before parked; tier 3 = `blocked` (split/data
+work first). Group the top by file/subsystem (`rank --file src/<seg>/<f>.c ...` shows a
+file's set). For a file still to convert, check it first:
 - `python3 tools/unit_check.py count global <file>...` (size);
 - `python3 tools/unit_check.py handasm global <file>...`: every count must be 0 (else
   hand-written asm: keep it asm);

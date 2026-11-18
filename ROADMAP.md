@@ -199,6 +199,22 @@ Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc -
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
+### 12. Static data (ongoing)
+Every function matches; the code segments' static data still comes from splat asm: 118 rodata `GLOBAL_ASM` pragmas in 23 C files (4,560 B), 34 asm `data` and 7 asm `rodata` subsegments. Every object a C file owns becomes a C initialiser; asset-like blobs are ROM-extracted includes (`data_inc.us.txt`, `tools/data_inc.py`, written by `make split`, never committed); data used only by registered handwritten asm is registered in `handwritten_asm.json`. Procedure: `.omp/skills/decomp-unit/data.md`. Tools: `tools/data_owners.py` (owners and TU runs from relocations), `tools/datadiff.py` (first differing data object after a failed build), `tools/progress.py` Data column. Out of scope: the ROM-tail asset tables and `.bss`.
+- [ ] **B. Registration + single-TU data** — handwritten-only data registered (global `data` 0x14BB20, `rodata` 0x15C020, 0x15C190, 0x15DA50, 0x165290; boot `exceptasm`, `exceptasm_intmask`, `sinf_nan`); carves: multiplayer 0x2F70; bonus 0x9860, 0x9910; boss 0x11B80; global 0x149FA0, 0x149FB0, 0x14B510, 0x14B730.
+- [ ] **C. Rodata pragmas** — 118 pragmas in 23 files (bonus 12A0; boss 0, 52B0, 6240, 9230, 9C60, A7A0, B100, C920, F0D0; global 100180, 104F0, 117190, 1295B0, 136820, 13980, 7CA80, A2F10, A8400, ACDC0, EFDC0; menu 1AF0, 3E10).
+- [ ] **D1. minecart** `data` 0x4B90.
+- [ ] **D2. race** `data` 0xBB10.
+- [ ] **D3. critter** `data` 0x57F0.
+- [ ] **D4. boss** `data` 0x118B0.
+- [ ] **D5. menu** `data` 0xEF50.
+- [ ] **E. global multi-TU blobs** — one unit each, in order: 0x1492E0, 0x14B040, 0x14B740, 0x14C450, 0x14C9E0, 0x155300, 0x1553C0, 0x159DC0, 0x15A380, 0x157AF0, 0x14CFF0 (33 KB, ~25 TUs, may span sessions).
+- [ ] **F1. arcade** `data` 0xE220 (bitmap pool 0x80032220–0x8004A308 as includes, descriptors as C).
+- [ ] **F2. jetpac** `data` 0x7090, 0x9D38 (392-byte pixel objects as includes).
+- [ ] **G. boot game data** `E8B0_data` → `main`, `1630` (`sNoExpPakImageGz` include), `1CC0`, `30E0`, `3630`.
+- [ ] **H. boot libultra data** — `io/vitbl`, `vimodes/vimodepallan1`, `vimodempallan1`, `vimodentsclan1`, `os/thread` (0x20 C + exceptasm's 0x30 registered).
+- **Done when:** `grep -rn GLOBAL_ASM src` prints only pragmas listed blocked here; every asm `data`/`rodata` subsegment in `dk64*.yaml` is registered in `handwritten_asm.json` or listed blocked; the README Data line reads 100.00% (or 100% minus the blocked bytes listed here).
+
 ## Dependencies
 
 ```mermaid
