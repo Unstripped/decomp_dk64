@@ -36,8 +36,8 @@ run `make split`/`make` there. Never touch the main checkout's `src/`, yaml or b
 Your task names one. The full rules are in `skill://decomp-unit/data.md` §3; the essentials:
 
 - **Pragma:** each `#pragma GLOBAL_ASM("asm/<seg>/nonmatchings/<file>/<label>.s")` becomes a
-  definition at the same position with the label's name and explicit size = its stride
-  (read the `.s`: `.asciz` length + NUL + `.align` padding). Strings `const char X[N]`,
+  definition at the same position with the label's name and its natural size (string length
+  + NUL, a script up to its last opcode: IDO 4-aligns .rodata aggregates, Q1468). Strings `const char X[N]`,
   scripts/tables `const u8 X[N]`, floats `const f32 X[N]`, an existing struct type where
   the C already declares one, the copying extern's struct type for an aggregate-copy
   blob. Keep extern users `const` (headers: say which; the orchestrator stages them).
