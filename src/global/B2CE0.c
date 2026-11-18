@@ -28,7 +28,7 @@
 
 // Second component (Actor+0x178) of the actor kind run by func_806AEE84 (set once at init).
 typedef struct PatrolState {
-    /* 0x00 */ s16 unk0;
+    /* 0x00 */ s16 nearDistSq; // enemyAggroStateUpdate (12E800) leaves state 0x34 for 0x24 once the squared target distance is below it
     /* 0x02 */ u8 unk2;
 } PatrolState;
 
@@ -313,7 +313,7 @@ void func_806AEE84(void) {
     scaleFactor = gCurrentActor->sub4->scaleY / 0.15;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        patrolState->unk0 = 0x2710;
+        patrolState->nearDistSq = 0x2710;
         patrolState->unk2 = 0x20;
         behaviourSetAnimIds(0x2AD, 0x2AB, 0x2AC);
         func_80724CA4(2, 1);
@@ -526,20 +526,20 @@ void func_806AF688(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_8072073C;
+extern EffectGridAsset D_8072073C;
 
 void effectSpawnActorParticleBurst(u8 nodeIndex) {
     s16 i;
-    f32 temp;
+    f32 scaleFactor;
 
     for (i = 0; i < 7; i++) {
-        temp = gCurrentActor->sub4->scaleY / 0.15;
+        scaleFactor = gCurrentActor->sub4->scaleY / 0.15;
         effectSetDepth(1);
         effectSetDuration(10);
         effectSetCallback(effectTumbleBounceUpdate);
         effectSetMode(2);
         effectSetSpeed(0);
-        effectCreateAtActorBone(&D_8072073C, temp * 0.15, gCurrentActor, nodeIndex, 0);
+        effectCreateAtActorBone(&D_8072073C, scaleFactor * 0.15, gCurrentActor, nodeIndex, 0);
     }
 }
 
@@ -801,12 +801,12 @@ extern Actor *gPrimaryPlayerActor;
 void func_806B0848(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        f64 d;
+        f64 cullMargin;
 
-        d = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
-        gCurrentActor->cullMarginX = d > 255.0 ? 255.0 : d;
-        d = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
-        gCurrentActor->cullMarginY = d > 255.0 ? 255.0 : d;
+        cullMargin = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
+        gCurrentActor->cullMarginX = cullMargin > 255.0 ? 255.0 : cullMargin;
+        cullMargin = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
+        gCurrentActor->cullMarginY = cullMargin > 255.0 ? 255.0 : cullMargin;
         behaviourSetAnimIds(0x35E, 0x35F, 0x360);
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
