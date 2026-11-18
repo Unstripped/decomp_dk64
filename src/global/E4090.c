@@ -3608,7 +3608,6 @@ typedef struct LaneActor {
 
 void playerInputRegisterAnimatedEffect(void) {
     LaneActorState *st;
-    PadInputState *pad;
     s16 yaw;
 
     st = gActivePlayerState->actor->customState;
@@ -3618,31 +3617,27 @@ void playerInputRegisterAnimatedEffect(void) {
     yaw = gCurrentActor->yaw;
     if (yaw < 0x200 || yaw >= 0xE01) {
         st->stickInput = gPlayerPadState[gCurrentPlayerIndex].stickX;
-        pad = &gPlayerPadState[gCurrentPlayerIndex ^ 0]; // FAKE: no-op xor splits this index from the CSE (keeps the multu of the other arms)
     } else if (yaw >= 0x201 && yaw < 0x600) {
         s8 t;
         st->stickInput = gPlayerPadState[gCurrentPlayerIndex].stickY;
-        pad = &gPlayerPadState[gCurrentPlayerIndex];
-        t = pad->stickX;
-        pad->stickX = pad->stickY;
-        pad->stickY = t;
+        t = gPlayerPadState[gCurrentPlayerIndex].stickX;
+        gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickY;
+        gPlayerPadState[gCurrentPlayerIndex].stickY = t;
     } else if (yaw >= 0x601 && yaw < 0xA00) {
         st->stickInput = -gPlayerPadState[gCurrentPlayerIndex].stickX;
-        pad = &gPlayerPadState[gCurrentPlayerIndex];
-        pad->stickX = -pad->stickX;
-        pad->stickY = -pad->stickY;
+        gPlayerPadState[gCurrentPlayerIndex].stickX = -gPlayerPadState[gCurrentPlayerIndex].stickX;
+        gPlayerPadState[gCurrentPlayerIndex].stickY = -gPlayerPadState[gCurrentPlayerIndex].stickY;
     } else {
         s8 t;
         st->stickInput = -gPlayerPadState[gCurrentPlayerIndex].stickY;
-        pad = &gPlayerPadState[gCurrentPlayerIndex];
-        t = pad->stickX;
-        pad->stickX = -pad->stickY;
-        pad->stickY = -t;
+        t = gPlayerPadState[gCurrentPlayerIndex].stickX;
+        gPlayerPadState[gCurrentPlayerIndex].stickX = -gPlayerPadState[gCurrentPlayerIndex].stickY;
+        gPlayerPadState[gCurrentPlayerIndex].stickY = -t;
     }
-    if (pad->stickX < -0x1E) {
+    if (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E) {
         gActivePlayerState->unk23C = 0x28;
         st->stickDirection = 1;
-    } else if (pad->stickX >= 0x1F) {
+    } else if (gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F) {
         gActivePlayerState->unk23C = 0x28;
         st->stickDirection = 2;
     } else if (gActivePlayerState->unk23C != 0) {
