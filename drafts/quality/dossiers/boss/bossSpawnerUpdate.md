@@ -25,11 +25,15 @@
 - `i <<= 4` (or `i *= 16`, `i = i << 4`, `(u8)i` args, `k = state->side` after the shift) with `i` passed to both calls: full 2. Only difference: the call-crossing intensity temp spills to 0x48 (`sw v0,72(sp)` / `lw v0,72(sp)`) instead of 0x44. `level = i << 4; i = level` and `i <<= 4; level = i` also 2. variants.py scan (120 + width/declswap 67) around it: no zero.
 - permuter 900 s from the `i <<= 4` copy (perm_t3, base 8, 35838 iterations): the only 0 re-inserts `if (gCurrentActor) {}` right after `i <<= 4` (another dead guard: confirms a block boundary after the intensity def is what the target needs); no natural output below 8.
 
+## Attempts (2026-11-17, CleanbossFollowerActorUpdate, strength-3, base 2cbbc1af)
+- spilltemps emulation (dossier untried idea 2) from `uopt_trace.sh -l 4` node regions: in the target the light-block nodes carry only bit 406 (`(i << 4) & 0xFF`, region from its def through the guard nodes to the call-block entry) and bit 443 (ucvtl{and}, call-block entry to the second lightAdd); they share one node, so 406 holds the first slot 0x48 and 443 takes 0x44. In the `i <<= 4` body (full 2) those nodes carry only bit 424 (ucvtl{i}, live bb169 + bb173), so it takes 0x48. The target therefore needs a second, lower-bit region item in the light block, which only exists when the masked intensity crosses a block boundary before its cvtl use; no other region item (gCurrentActor bit 2, umpy{k}{2} bit 407, the x/z loads) reaches those nodes.
+- natural block-end candidates (untried idea 1), deadsweep full: if/else abs + `i <<= 4` 5; x/z moved ahead of `i <<= 4` 18; if/else abs + masked level 26; x/z moved ahead of the masked level def 23; abs spelled `if (i < 0) i = -i` + `i <<= 4` 2. variants.py scan of the `i <<= 4` copy: 195 variants, best 2. sweep: 0 hits (classify class 2).
+
 ## Untried ideas
-- a natural construct that ends the basic block between the intensity def and the first x/z + lightAdd without emitting code (none found: the abs and clamp branches precede the def, the phase test follows the call)
-- emulate spilltemps (ido-uopt-temp-slots guide) for the `i <<= 4` body: find the lower-bit item in the light region that holds 0x48 in the target and a natural C shape giving it an earlier bit than the intensity temp (source: this session's trace, bits 427/443)
+- none left in straight-line C: the 0xe80-0xf24 block has no branch, and a block boundary there without emitted code is a dead guard (or label/loop steer) by construction.
 
 ## Evidence
+- D_80035B38 (u8) is compared with -1 in case 0 (`lbu t6` 0x24c, `li at,-1` 0x224, `bnel t6,at` 0x250): the target performs the always-false compare, so `D_80035B38 == -1` is original code, not a steer.
 - frame 0x80: s0/s1/ra 0x34/0x38/0x3c, spills v1 0x48 / v0 0x44, j 0x52, cutsceneId 0x5c (lh 0x5e), s8 locals 0x67-0x6b, i 0x70; unaddressed 4-byte locals fill 0x7c,0x78,0x74,0x6c,0x60,0x58,0x54
 - light block: `addiu v0,t9,-16; move t0,v0; bgez v0` (level separate from i), `sll t2,t0,4; andi v0,t2,0xff; sw v0,0x44(sp)` and v0 passed straight to the u8 args
 - 0xec8 `sll t2,t0,0x4` (t2 is a uopt-coloured temp, the x/z table loads take ring t3/t4 at 0xe80/0xe8c), 0xecc `andi v0,t2,0xff`, 0xeec `sw v0,68(sp)`, 0xf3c `lw v0,68(sp)`; slot 0x44 is also the &D_80035B44[i] induction temp's spill (0x2e4/0x300), 0x48 holds v1/a3 spills (0x54, 0xac, 0x1d8, ...)
