@@ -1035,3 +1035,4 @@
 {"type": "unit", "t": "2026-11-18T05:19:13Z", "unit": "2026-11-17: cleanup CleancsCmdStepSequenceProgress", "commit": "6c10bf440147af4f51ca23d1929f425e17d2b25f"}
 {"type": "unit", "t": "2026-11-18T05:21:20Z", "unit": "2026-11-17: cleanup CleanmodelAnimEntryQueueMatrixCopies", "commit": "18126526e5992a68672805c72ab1fa06cf5ed9a5"}
 {"type": "unit", "t": "2026-11-18T05:31:07Z", "unit": "2026-11-17: cleanup CleanlightUpdateFromActorLighting", "commit": "0f30ee8f4a887192bed4f4297559c3955164dcdd"}
+{"type": "unit", "t": "2026-11-18T05:35:40Z", "unit": "2026-11-17: cleanup CleanhealthHudDrawAll", "commit": "9b8b8a971f06b1830267429cac9eb553aa42bc66"}
