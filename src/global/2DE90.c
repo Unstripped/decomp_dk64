@@ -8,6 +8,19 @@
 #include "proto/global/69E60.h"
 
 extern s8 sScreenWipeActive;
+u8 sScreenWipeCooldown = 0;
+s32 sScreenWipeMtxReady = 0;
+s32 sBlurKernelWidth = 11;
+u8 *sBlurDivTable = NULL;
+s32 D_80747B30 = 320;
+s32 D_80747B34 = 240;
+s32 sBlurPassCount = 0;
+s32 sBlurPassLimit = 0;
+u8 sScreenBufferAllocated = 0;
+f32 D_80747B44 = 100.0f;
+f32 D_80747B48 = 150.0f;
+f32 D_80747B4C = 0.0f;
+f32 D_80747B50 = 0.0f;
 
 void screenWipeReset(void) {
     sScreenWipeActive = 0;
@@ -17,7 +30,6 @@ u8 screenWipeGetState(void) {
     return sScreenWipeActive;
 }
 
-extern u8 sScreenWipeCooldown;
 
 u8 screenWipeGetCooldown(void) {
     return sScreenWipeCooldown;
@@ -80,7 +92,6 @@ extern s16 gGfxScreenLeft;
 extern s16 gGfxScreenTop;
 extern s16 gGfxScreenRight;
 extern s16 gGfxScreenBottom;
-extern s32 sScreenWipeMtxReady;
 extern f32 sScreenWipeOuterRadius;
 extern Mtx sScreenWipeScaleMtx;
 
@@ -257,9 +268,6 @@ void screenWipeAlphaByDistance(s32 x, s32 y, Vtx *vtx, s32 originX, s32 originY)
     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, alpha, 0);
 }
 
-extern s32 sBlurKernelWidth;
-extern u8 *sBlurDivTable;
-extern s32 sBlurPassCount;
 
 void blurBuildDivTable(void) {
     s32 i;
@@ -271,9 +279,6 @@ void blurBuildDivTable(void) {
     sBlurPassCount = 0;
 }
 
-extern s32 D_80747B30;
-extern s32 D_80747B34;
-extern s32 sBlurPassLimit;
 
 void screenBlurApply(void) {
     u16 *src;
@@ -361,7 +366,6 @@ void screenBlurApply(void) {
     }
 }
 
-extern u8 sScreenBufferAllocated;
 extern u8 *sScreenBuffer;
 
 void screenBufferAllocate(void) {
@@ -379,10 +383,6 @@ void screenBufferFree(void) {
     }
 }
 
-extern f32 D_80747B44;
-extern f32 D_80747B48;
-extern f32 D_80747B4C;
-extern f32 D_80747B50;
 
 void screenRectSetSize(s32 width, s32 height) {
     D_80747B4C = 2.0f;

@@ -234,8 +234,9 @@ segments:
       - [0x14B880, .data, 19A00] # sScriptEffectSprites..sCharacterBehaviorMap (0x80746B80-0x80746E1E) + 2-byte TU pad; 16-aligned after 17B90's D_80746B64; sScriptOpcodeTable's .word scriptOpPlaySoundAndShake makes its entry label address-taken (Q0552)
       - [0x14BB20, data]
       - [0x14C3A0, .data, 201B0]
-      - [0x14C450, data]
-      - [0x14C9D0, .data, 2F550] # D_80747CD0 (cameraStepAspectScale's static f32, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad); 16-aligned, no other 2F550 data
+      - [0x14C450, .data, 2C910] # gScriptAnimScriptIds[210], sScriptTintColors[5], sScriptAnimBase[254], sScriptParticleColors[8] (0x80747750-0x80747B18 + 8-byte TU pad): 2C910 reads gScriptAnimScriptIds; the other three are read only by C4620, which follows 2DE90 in text (data order = text order)
+      - [0x14C820, .data, 2DE90] # sScreenWipeCooldown..D_80747B50 (0x80747B20-0x80747B54 + 12-byte TU pad)
+      - [0x14C860, .data, 2F550] # sCamZoomTable[23][4] (0x80747B60-0x80747CD0): 201B0's only user cannot own it: 2C910/2DE90 data lie between; nearest later TU with data, layout-neutral. Then cameraStepAspectScale's static f32 sc (D_80747CD0, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad)
       - [0x14C9E0, data]
       - [0x14CDD0, .data, 478F0] # D_807480D0..D_807482EC (0x807480D0-0x807482F0, no pad): cutscene-command data, defined in src/global/478F0.c in address order before each first user; sHubItemsFrames/sHubItemsCycle (0x80748170/0x80748178) are csCmdHubWorldItemsAdjust's function-local statics, D_8074817C an unreferenced word; 16-aligned after 42630's D_807480BC, next TU data starts 16-aligned at 0x807482F0
       - [0x14CFF0, data]
