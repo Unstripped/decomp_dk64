@@ -117,7 +117,7 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     Ambient *ambient;
     Light *slot_light;
     f32 intensity;
-    f64 clamped;
+    f64 falloff;
     f64 dy_d;
     u8 c;
     f32 factor;
@@ -133,18 +133,18 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     }
 
     if (cmd->type == 5) {
-        dist_d = sqrtf((actorX - cmd->x) * (actorX - cmd->x) + (actorZ - cmd->z) * (actorZ - cmd->z));
-        dist = (dist_d > 0.001) ? dist_d : 0.001;
-        factor = (dist - cmd->radius / 2 < 1.0) ? 1.0 : dist - cmd->radius / 2;
-        clamped = (f32)cmd->radius / (0.5 * factor * factor);
-        intensity = (clamped > 1.0) ? 1.0 : clamped;
+        dist_d = sqrtf(SQ(actorX - cmd->x) + SQ(actorZ - cmd->z));
+        dist = MAX(dist_d, 0.001);
+        factor = MAX(1.0, dist - cmd->radius / 2);
+        falloff = (f32)cmd->radius / (0.5 * factor * factor);
+        intensity = MIN(1.0, falloff);
         if (cmd->y + 50 < actorY) {
-            dy_d = (actorY - cmd->y - 50.0f > 20.0) ? 20.0 : actorY - cmd->y - 50.0f;
+            dy_d = MIN(20.0, actorY - cmd->y - 50.0f);
             intensity *= 1.0 - dy_d / 20.0;
         }
     } else {
-        dist_d = sqrtf((actorX - cmd->x) * (actorX - cmd->x) + (actorY - cmd->y) * (actorY - cmd->y) + (actorZ - cmd->z) * (actorZ - cmd->z));
-        dist = (dist_d > 0.001) ? dist_d : 0.001;
+        dist_d = sqrtf(SQ(actorX - cmd->x) + SQ(actorY - cmd->y) + SQ(actorZ - cmd->z));
+        dist = MAX(dist_d, 0.001);
         intensity = 1.0f;
     }
 
@@ -162,7 +162,7 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
             lights->l.colc[2] = c;
             lights->l.col[2] = c;
 
-            c = ambient->l.col[0] + (ambient->l.col[0] / 2.0 - ambient->l.col[0]) * intensity; // FAKE: `/ 2.0` here and on the col[1]/col[2] lines chosen over `* 0.5` only to give the 0.5 constant its own register range (`* 0.5` = 10 lines; replaces the 062c74 guard; Q0816)
+            c = ambient->l.col[0] + (ambient->l.col[0] / 2.0 - ambient->l.col[0]) * intensity;
             ambient->l.colc[0] = c;
             ambient->l.col[0] = c;
 
