@@ -134,9 +134,6 @@ void func_806AE394(f32 distOffset, f32 radius) {
 extern s32 gCurrentMap;
 
 void func_806AE588(void) {
-    s32 state;
-    s32 entryState;
-
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x1FD, 0x1FB, 0x1FC);
@@ -147,9 +144,8 @@ void func_806AE588(void) {
         }
     }
     currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
-    state = gCurrentActor->state;
-    if ((state != 0x32) || (gActorGlobalState.unk15 != 0)) {
-        if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (state != 0x37)) {
+    if ((gCurrentActor->state != 0x32) || (gActorGlobalState.unk15 != 0)) {
+        if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
             if (gCurrentActor->health < -1) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x202);
                 gCurrentActor->speedY = 250.0f;
@@ -166,9 +162,7 @@ void func_806AE588(void) {
             gCurrentActor->speedY = 220.0f;
         }
     }
-    state = gCurrentActor->state;
-    entryState = state; // FAKE: redundant copy of state keeps the 0x35 test on the switch register (bne a1,at at 0xc08); testing state adds move v0,a1 at 0x7c4 and reads v0
-    switch (state) {
+    switch (gCurrentActor->state) {
     case 0x31:
         if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
             actorSetDefaultState(0x1FB);
@@ -243,16 +237,15 @@ void func_806AE588(void) {
             gCurrentActor->state = 0x27;
             gCurrentActor->unk155 = 0;
         }
-        state = gCurrentActor->state;
     case 0x10:
-        actorTrackBoneTowardTarget((state == 1) ? 2 : 0);
+        actorTrackBoneTowardTarget((gCurrentActor->state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        actorTrackBoneTowardTarget((entryState == 0x35) ? 2 : 3);
+        actorTrackBoneTowardTarget((gCurrentActor->state == 0x35) ? 2 : 3);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
@@ -279,11 +272,10 @@ void func_806AE588(void) {
     case 0x40:
         break;
     default:
-        behaviourUpdateContactAndState(0x1FB, state);
+        behaviourUpdateContactAndState(0x1FB, gCurrentActor->state);
         break;
     }
-    state = gCurrentActor->state;
-    switch (state) {
+    switch (gCurrentActor->state) {
     case 0x31:
     case 0x37:
     case 0x40:
