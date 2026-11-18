@@ -347,7 +347,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     f64 pad;
     u8 skipNearPlayer;
     u8 skipTimer;
-    s16 i;
+    s16 i = 0x80;
     u16 count = D_807550E0->count;
     u16 processed = 0;
     EffectSpriteParticle *entry;
@@ -358,7 +358,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
 
     if ((gPrimaryPlayerActor->state == 3) || (gPrimaryPlayerActor->state == 5)) {
         f32 rem = (gCamActor->distToFloor > 180.0f) ? 0.0f : 180.0f - gCamActor->distToFloor;
-        if (count == 0) {}  // FAKE: deadsweep dead statement (steers uopt: count's temp slot)
+        if (count == 0) {}  // FAKE: numbers ucvt(count) ahead of the texture-if candidates, so its loop spill temp is 0x64(sp), not 0x5c
         D_807FD9EC = rem * 0.02 * 240.0;
     } else {
         D_807FD9EC = 240.0f;
@@ -377,7 +377,6 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetTextureFilter(glist++, G_TF_BILERP);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-    i = 0x80;  // FAKE: set before the unrelated texture if; moving it next to the loop changes the entry guard
     if (D_80755264[D_807FDA1C].count == 1) {
         glist = effectSpritePoolLoadTexture(glist, 0);
     }
