@@ -809,7 +809,7 @@ s32 playerAddHealthDelta(u8 playerIndex, s8 delta) {
     return 0;
 }
 
-extern s8 gPlayerStateSaved;
+extern u8 gPlayerStateSaved;
 extern s32 D_807FD56C;
 
 void playerResetSpawnGlobals(void) {

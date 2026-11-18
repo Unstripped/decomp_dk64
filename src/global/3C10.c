@@ -393,7 +393,7 @@ s32 mapFindSlotByMap(s16 target) {
     return found;
 }
 
-extern s8 gPlayerStateSaved;
+extern u8 gPlayerStateSaved;
 extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
@@ -407,7 +407,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     f32 r;
     f32 g;
     f32 b;
-    s32 saved;
+    s32 pad;
     PlayerState *playerState;
 
     found = 0;
@@ -456,12 +456,11 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     }
     for (k = 0; k < gMapChunkCount; k++) {
         lightGetColor(&r, &g, &b, k);
-        D_8076A160[i].rgb[k][0] = (u32)(r * 255.0);
-        D_8076A160[i].rgb[k][1] = (u32)(g * 255.0);
-        D_8076A160[i].rgb[k][2] = (u32)(b * 255.0);
+        D_8076A160[i].rgb[k][0] = r * 255.0;
+        D_8076A160[i].rgb[k][1] = g * 255.0;
+        D_8076A160[i].rgb[k][2] = b * 255.0;
     }
-    saved = TRUE; // FAKE: constant-valued s32 local shares one li a2,1 between the two byte stores (u8 or an initializer copy-propagates the 1)
-    gPlayerStateSaved = saved;
+    gPlayerStateSaved = TRUE;
     playerState = gPrimaryPlayerActor->customState;
     D_807FD56C = playerState->stateFlags;
     if (playerState->heldActor != NULL) {
@@ -469,7 +468,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     } else {
         D_807FD570 = 0;
     }
-    D_8076A160[i].inUse = saved;
+    D_8076A160[i].inUse = TRUE;
     mapRequestTransition(map, exitIndex);
 }
 
