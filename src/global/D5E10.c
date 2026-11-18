@@ -1274,13 +1274,13 @@ void playerStateApproachVelocity(void) {
     switch (gCurrentActor->unk155) {
         case 0:
             if (gActivePlayerState->approachTimer != 0) {
-                if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {} // FAKE: dead if keeps the ignored s32 result out of $v0 (Q0198)
+                if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {} // FAKE: block split after the call; the gActivePlayerState piece stops at the jal, so $v0 is not forbidden (Q0198, Q0738)
                 playerApproachVelocity(gActivePlayerState->approachYaw, 50.0f, gActivePlayerState->targetSpeed);
                 gActivePlayerState->approachTimer--;
             }
             playerInputUpdate(0x23);
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 2) {
-                gActivePlayerState->maxSpeed = gActivePlayerState->maxSpeed * 0.63;
+                gActivePlayerState->maxSpeed *= 0.63;
             }
             playerApplyFullPhysics();
             break;
@@ -1289,7 +1289,7 @@ void playerStateApproachVelocity(void) {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                 case 0:
                 case 2:
-                    gActivePlayerState->maxSpeed = gActivePlayerState->maxSpeed * 0.63;
+                    gActivePlayerState->maxSpeed *= 0.63;
                     break;
             }
             playerSetBaseGravity();
@@ -2779,9 +2779,7 @@ void playerStateFreezeIdleCopy(void) {
 extern s32 D_8072014C;
 
 void playerStateEnterFallOnCheck(void) {
-    s32 n;
-    u16 b;
-    s32 z;
+    s32 decel;
 
     if (gCurrentActor->hasArcBounds) {
         gCurrentActor->speedXZ = 0.0f;
@@ -2795,17 +2793,14 @@ void playerStateEnterFallOnCheck(void) {
         effectSetDuration(1);
         effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
     }
-    b = gCurrentActor->prevContactFlags;
-    z = (b == 0);
-    n = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
-    if ((b == 0) & gCurrentActor->contactFlags & 1) {
-        gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.25;
+    decel = (gCurrentActor->contactFlags & gCurrentActor->prevContactFlags & 1) ? 2 : 1;
+    if (!gCurrentActor->prevContactFlags & gCurrentActor->contactFlags & 1) {
+        gCurrentActor->speedXZ *= 0.25;
     }
-    if (z) {} // FAKE: dead guard is a real uopt use (Q0561)
-    if (gCurrentActor->speedXZ < (f32)n) {
+    if (gCurrentActor->speedXZ < decel) {
         gCurrentActor->speedXZ = 0.0f;
     } else {
-        gCurrentActor->speedXZ = gCurrentActor->speedXZ - (f32)n;
+        gCurrentActor->speedXZ -= decel;
     }
     playerInputUpdate(1);
     playerApplyGravityAndMotion();
