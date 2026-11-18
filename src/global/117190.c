@@ -161,7 +161,7 @@ void menuTransitionToCreditsOrMap28(s32 toCredits) {
 }
 
 extern u8 gPlayerCount;
-void func_80026D40(void *);
+void func_80026D40(Actor *, s32);
 
 void playerRefillHealth(Actor *player, s32 playerIndex) {
     s32 map;
@@ -170,8 +170,7 @@ void playerRefillHealth(Actor *player, s32 playerIndex) {
     s32 savedMap;
     s32 savedExit;
 
-    healthRefill((u8) playerIndex);
-    if (playerIndex == 0) {} // FAKE: keeps playerIndex in a1 with an eager restore after healthRefill
+    healthRefill(playerIndex);
     if (gGlobalOverlayFlags & 1) {
         player->unk155++;
         if (gGlobalCutsceneFlags & 2) {
@@ -197,7 +196,7 @@ void playerRefillHealth(Actor *player, s32 playerIndex) {
         return;
     }
     if (gPlayerCount >= 2) {
-        func_80026D40(player);
+        func_80026D40(player, playerIndex);
         return;
     }
     mapExecuteDeathTransition(playerIndex);
@@ -534,15 +533,17 @@ Gfx *menuDrawBlinkingPromptText(Gfx *dl) {
     if ((elapsed >= 0) && !(elapsed & 0x10)) {
         textIds = D_80755370;
         textIndex = 0;
-        x = (f32) gScreenWidth;
-        y = (f32) (0xBD - textGetFontHeight(6));
-        if ((gControllerConnectedMask != 0) && ((menuIsTransitionType3Or4() == 0) || (textIndex = 1, (gCurrentMap == 0x4C)))) {
-            return dl;
+        x = gScreenWidth;
+        y = 0xBD - textGetFontHeight(6);
+        if (gControllerConnectedMask != 0) {
+            if ((menuIsTransitionType3Or4() == 0) || (gCurrentMap == 0x4C)) {
+                return dl;
+            }
+            textIndex = 1;
         }
-        if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
         x = x * 0.5;
         gDPSetCombineMode(dl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-        dl = hudDrawScaledText(dl, (s16) (x * 4.0f), (s16) ((f32) gHiResScale * y * 4.0f), 0.7f, textTableGetString(0xC, textIds.ids[textIndex], 1));
+        dl = hudDrawScaledText(dl, x * 4.0f, gHiResScale * y * 4.0f, 0.7f, textTableGetString(0xC, textIds.ids[textIndex], 1));
     }
     return dl;
 }
