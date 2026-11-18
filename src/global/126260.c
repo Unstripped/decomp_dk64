@@ -19,6 +19,10 @@ extern u8 D_807FDB7E;
 extern u8 D_807FDB7F;
 extern u8 D_807FDB80;
 
+s16 D_80755680 = 0;
+f32 D_80755684 = 255.0f;
+f32 D_80755688 = 255.0f;
+f32 D_8075568C = 255.0f;
 
 typedef struct {
     s32 unk0;
@@ -79,11 +83,6 @@ void commandStateInit(void) {
     commandSetParameters(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
     commandSetFlags(1, 1);
 }
-
-extern s16 D_80755680;
-extern f32 D_80755684;
-extern f32 D_80755688;
-extern f32 D_8075568C;
 
 void func_8072167C(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetRot) {
     D_80755680 += (targetRot - D_80755680) * 0.1;

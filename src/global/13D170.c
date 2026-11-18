@@ -3,7 +3,8 @@
 #include "audio_synth.h"
 #include "proto/global/13D170.h"
 
-
+ALGlobals *n_globals = NULL;
+N_ALSynth *n_syn = NULL;
 
 void n_alCSeqNew(ALCSeq *seq, ALCMidiHdr *base) {
     u32 i;
@@ -294,7 +295,6 @@ s32 __readVarLen(ALCSeq *seq, s32 track) {
     return value;
 }
 
-extern ALGlobals *n_globals;
 void n_alSynNew(AudioInitArgs *config);
 void n_alSynDelete(void);
 

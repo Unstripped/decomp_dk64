@@ -31,7 +31,11 @@ void faultFontSetColorMode(s32 a0) {
 
 extern u8 gHiResScale;
 extern s16 gScreenWidth;
-extern u8 D_80756130[];
+
+// Fault-screen font: 6 rows per glyph from '!' (data_inc.us.txt, tools/data_inc.py).
+u8 D_80756130[0x230] = {
+#include "global/D_80756130.inc.c"
+};
 
 void faultDrawGlyph(u8 c) {
     u8 *glyph;
@@ -116,6 +120,18 @@ const char D_80760124[21] = "SORT LIST LATE ERROR";
 const char D_8076013C[19] = "DISPLAY LIST ERROR";
 const char D_80760150[22] = "OBJECT EXIST OVERFLOW";
 
+// faultPrintf message per gFaultMessageId (entry 0 is not a string).
+const char *gFaultMessageStrings[20] = {
+    (const char *)0x08000000, D_8075FFF0, D_80760004, D_80760018,
+    D_80760028, D_80760038, D_80760048, D_80760054,
+    D_80760064, D_80760078, D_8076008C, D_807600A0,
+    D_807600B4, D_807600CC, D_807600E0, D_807600F8,
+    D_8076010C, D_80760124, D_8076013C, D_80760150,
+};
+u8 D_807563B0 = 0;
+u8 D_807563B4 = 0;
+s32 gFaultDrawCount = 0;
+
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -123,12 +139,10 @@ typedef struct {
 
 extern s32 gFaultStackTraceCount;
 extern Ga136820Entry gFaultStackTrace[];
-extern s32 gFaultDrawCount;
 extern u8 gFaultMessageId;
 extern s32 gFaultMessageArg0;
 extern s32 gFaultMessageArg1;
 extern s32 gFaultMessageArg2;
-extern char *gFaultMessageStrings[];
 
 void faultDrawRegs(OSThread *thread) {
     s32 y;
@@ -228,7 +242,6 @@ void faultUnwindStack(OSThread *a0) {
 extern OSMesgQueue D_807FEF58;
 
 extern s32 gFramebuffers[];
-extern u8 D_807563B4;
 
 void faultThreadMain(void *arg) {
     OSMesg msg;
@@ -269,7 +282,6 @@ void faultSetMessage(u8 a0, u32 a1, s32 a2, s32 a3) {
 
 extern OSMesg D_807FEF50;
 extern OSThread D_807FDDA0;
-extern u8 D_807563B0;
 
 void faultThreadInit(void) {
     __osSetFpcCsr(__osGetFpcCsr() | 0x400);

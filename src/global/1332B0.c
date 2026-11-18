@@ -48,7 +48,61 @@ typedef struct {
     /* 0x04 */ VolumeTrigger *entries;
 } VolumeTriggerTable;
 
-extern VolumeTriggerTable *gVolumeTriggerTable;
+// Receiver of the actions of a volume trigger: an actor found by type at map load.
+typedef struct {
+    /* 0x00 */ u8 pad0[2];
+    /* 0x02 */ u16 actorType;
+    /* 0x04 */ u8 pad4[3];
+    /* 0x07 */ u8 subtype; // callback subtype
+    /* 0x08 */ Actor *actor;
+    /* 0x0C */ s32 (*condition)(void); // NULL: always fire
+} VolumeTriggerHook; // size = 0x10
+
+extern VolumeTriggerTable D_807FDCB0;
+
+VolumeTriggerHook gVolumeTriggerHooks[39] = {
+    { { 0, 0 }, 11, { 0, 0, 0 }, 1, NULL, NULL },
+    { { 0, 0 }, 11, { 0, 0, 0 }, 2, NULL, NULL },
+    { { 0, 0 }, 11, { 0, 0, 0 }, 3, NULL, NULL },
+    { { 0, 0 }, 13, { 0, 0, 0 }, 1, NULL, NULL },
+    { { 0, 0 }, 14, { 0, 0, 0 }, 1, NULL, NULL },
+    { { 0, 0 }, 10, { 0, 0, 0 }, 1, NULL, NULL },
+    { { 0, 0 }, 10, { 0, 0, 0 }, 2, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 1, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 2, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 3, NULL, NULL },
+    { { 0, 0 }, 15, { 0, 0, 0 }, 1, NULL, NULL },
+    { { 0, 0 }, 11, { 0, 0, 0 }, 4, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 4, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 5, NULL, NULL },
+    { { 0, 0 }, 15, { 0, 0, 0 }, 2, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 6, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 7, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 8, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 9, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 10, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 11, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 12, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 13, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 14, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 15, NULL, NULL },
+    { { 0, 0 }, 15, { 0, 0, 0 }, 3, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 17, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 18, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 19, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 21, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 22, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 23, NULL, NULL },
+    { { 0, 0 }, 15, { 0, 0, 0 }, 1, NULL, (s32 (*)(void))func_8072E5B0 },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 24, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 0, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 25, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 26, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 27, NULL, NULL },
+    { { 0, 0 }, 12, { 0, 0, 0 }, 28, NULL, NULL },
+};
+u8 D_80755A10 = 39; // unreferenced: gVolumeTriggerHooks' entry count
+VolumeTriggerTable *gVolumeTriggerTable = &D_807FDCB0;
 
 void volumeTriggerTableLoad(s16 *data) {
     VolumeTriggerDef *src;
@@ -73,18 +127,6 @@ void volumeTriggerTableLoad(s16 *data) {
         }
     }
 }
-
-// Receiver of the actions of a volume trigger: an actor found by type at map load.
-typedef struct {
-    /* 0x00 */ u8 pad0[2];
-    /* 0x02 */ u16 actorType;
-    /* 0x04 */ u8 pad4[3];
-    /* 0x07 */ u8 subtype; // callback subtype
-    /* 0x08 */ Actor *actor;
-    /* 0x0C */ s32 (*condition)(void); // NULL: always fire
-} VolumeTriggerHook; // size = 0x10
-
-extern VolumeTriggerHook gVolumeTriggerHooks[];
 
 void volumeTriggerTableInit(s32 mapId) {
     VolumeTriggerHook *hook;

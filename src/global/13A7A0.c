@@ -65,8 +65,14 @@ typedef struct {
     ALMicroTime curTime;
 } GeSndp;
 
-extern GeSndp *gSndp;
-extern GfSndState *gSndpFreeList;
+extern GeSndp D_807FF080;
+
+GfSndState *gSndpUsedHead = NULL;
+GfSndState *gSndpUsedTail = NULL;
+GfSndState *gSndpFreeList = NULL;
+GeSndp *gSndp = &D_807FF080;
+s16 gSndpVoiceCount = 0;
+
 extern s16 *gSndpGroupVol;
 
 void n_alSndpNew(GeSndpConfig *c) {
@@ -118,9 +124,6 @@ ALMicroTime __n_sndpVoiceHandler(void *node) {
     sndp->curTime += sndp->nextDelta;
     return sndp->nextDelta;
 }
-
-extern s16 gSndpVoiceCount;
-extern GfSndState *gSndpUsedTail;
 
 #define GE_STATE_VOL(st, km, snd) \
     (gSndpGroupVol[(km)->keyMin & 0x1F] * (((st)->envVol * (st)->vol * (snd)->sampleVolume) / 0x3F01) / 0x7FFF)
@@ -357,8 +360,6 @@ void __n_handleEvent(GeSndEvt *event) {
         }
     } while (!done && state && !mask);
 }
-
-extern GfSndState *gSndpUsedHead;
 
 void __n_sndpDestroyState(GfSndState *state) {
     if (state->flags & 4) {

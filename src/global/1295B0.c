@@ -28,6 +28,40 @@ extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 
+typedef struct A2PtrPair {
+    void *p[2];
+} A2PtrPair;
+
+typedef struct A2BytePair {
+    u8 b[2];
+} A2BytePair;
+
+extern ZoneTable D_807FDC80;
+extern SpawnNodeList D_807FDC88;
+extern u8 sEffectSparkConfig[];
+extern u8 D_8071FF40[];
+
+ZoneTable *gZoneTable = &D_807FDC80;
+SpawnNodeList *gSpawnNodeList = &D_807FDC88;
+u8 gSpawnEntryKind[116] = {
+    2, 5, 0, 4, 0, 4, 0, 9, 7, 0, 0, 6, 6, 6, 2, 6, 0, 4, 10, 6,
+    6, 6, 6, 6, 9, 6, 7, 2, 4, 4, 2, 2, 8, 2, 0, 8, 0, 0, 7, 8,
+    7, 0, 8, 0, 0, 0, 10, 0, 8, 0, 0, 3, 3, 10, 3, 10, 3, 7, 0, 0,
+    5, 1, 1, 1, 1, 1, 5, 6, 10, 10, 0, 0, 10, 10, 9, 8, 8, 8, 3, 3,
+    6, 0, 9, 4, 0, 5, 5, 3, 3, 3, 2, 0, 2, 0, 2, 2, 10, 7, 0, 4,
+    2, 0, 5, 0, 0, 3, 7, 7, 7, 7, 4, 10, 2, 0, 0, 0,
+};
+s16 D_8075570C[68] = {
+    0x3E, 0xA0, 0x21, 0x22, 0x23, 0x3A, 0x11, 0x41, 0x99, 0xC, 0x1C, 0x3B,
+    0x3C, 0x25, 0x46, 0x49, 0x3A, 0x37, 0x31, 0x1D, 0x58, 0x1, 0xC, 0x6,
+    0x9, 0x4, 0x17, 0x60, 0x63, 0x88, 0x5B, 0x45, 0x66, 0x99, 0x18, 0x38,
+    0x67, 0xDA, 0x13, 0x12, 0x3D, 0x27, 0x2D, 0x14, 0x68, 0x69, 0xE2, 0x61,
+    0xDC, 0xDD, 0xDE, 0xDF, 0xE3, 0x2C, 0x70, 0x71, 0x72, 0x6B, 0xEA, 0xE9,
+    0x1A, 0x1B, 0x44, 0x80, 0xEC, 0xEB, 0xC3, 0,
+};
+A2PtrPair D_80755794 = { { sEffectSparkConfig, D_8071FF40 } };
+A2BytePair D_8075579C = { { 0x01, 0x12 } };
+
 void actorSetUniformScale(Actor *actor, f32 scale) {
     actor->sub4->scaleX = scale;
     actor->sub4->scaleY = scale;
@@ -505,10 +539,8 @@ typedef struct SpawnControllerActor {
 
 extern f32 gDefaultActorGravity;
 extern s16 D_807502E0;
-extern s16 D_8075570C[];
 extern s32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
-extern u8 gSpawnEntryKind[];
 extern s32 gCurrentMap;
 
 void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
@@ -1335,22 +1367,11 @@ void currentActorAnimSetFrame(u8 frame, u8 subframe) {
     animSetFrameAndSubframe(gCurrentActor, frame, subframe, 0.0f);
 }
 
-typedef struct A2PtrPair {
-    void *p[2];
-} A2PtrPair;
-
-typedef struct A2BytePair {
-    u8 b[2];
-} A2BytePair;
-
-extern A2PtrPair D_80755794;
-extern A2BytePair D_8075579C;
 extern u8 D_8071FB34[];
 extern u8 D_8071FB54[];
 extern u8 D_8071FC0C[];
 extern u8 D_8071FC40[];
 extern u8 D_8071FC58[];
-extern u8 sEffectSparkConfig[];
 extern void *gPuffSprites[];
 
 

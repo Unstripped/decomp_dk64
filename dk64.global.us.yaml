@@ -263,7 +263,15 @@ segments:
       - [0x159FE0, .data, 117190] # D_807552E0, gMpSettings..D_80755384[3] (0x807552E0-0x80755390, no pad): menu/multiplayer state; D_807552E8/D_807552EC/D_807552F0/gMultiplayerOverrideAnimFrames were split labels inside gMpSettings (folded to .gameMode/.limit/.playerControllerSlots in 478F0/8F050), D_80755348/D_80755350 inside gMenuBonusTimer
       - [0x15A090, .data, 119370] # gEffectGridAssets[176] (0x80755390-0x80755650, no pad): read only by A8400/112080 (earlier in text); between 117190's data and 11BC10's, given to the effect-grid unit 119370 (tentative: 117190 or 11BC10 would be layout-neutral too); entries point into the 124780 blob, 46 at an offset from the enclosing label
       - [0x15A350, .data, 11BC10] # D_80755650[18], D_80755674, D_80755678, D_8075567C (effectCircleRiseFadeUpdate's static s8 + 3-byte pad): the TU's data, 16-aligned after 119370's gEffectGridAssets; 126260's data starts at 0x80755680
-      - [0x15A380, data]
+      - [0x15A380, .data, 126260] # D_80755680..D_8075568C (0x80755680-0x80755690, no pad): interpolated light parameters
+      - [0x15A390, .data, 1295B0] # gZoneTable, gSpawnNodeList, gSpawnEntryKind[116], D_8075570C[68], D_80755794, D_8075579C (0x80755690-0x8075579E + 2-byte TU pad); C2A90 also reads gZoneTable
+      - [0x15A4A0, .data, 1332B0] # gVolumeTriggerHooks[39] (condition func_8072E5B0 is its own; text unchanged), unreferenced hook count D_80755A10, gVolumeTriggerTable (0x807557A0-0x80755A18 + 8-byte TU pad)
+      - [0x15A720, .data, 135D30] # D_80755A20[0x71], D_80755DA8[0x1F], D_80755EA0[0x16], D_80755F50[0x35], D_80756024[0x21] (0x80755A20-0x8075612C + 4-byte TU pad); D_80755DAE was a split label (D_80755DA8 +6), D_80755F4C (D_80755F50 - 4, func_8073195C's 1-based index) is an undefined_syms interior label; ACDC0 also reads D_80755DA8
+      - [0x15AE30, .data, 136820] # D_80756130[0x230] (fault font, data_inc), gFaultMessageStrings[20], D_807563B0, D_807563B4, gFaultDrawCount (0x80756130-0x807563BC + 4-byte TU pad); 13980/menu also read D_807563B4
+      - [0x15B0C0, .data, 13A7A0] # gSndpUsedHead..gSndpVoiceCount (0x807563C0-0x807563D2 + 14-byte TU pad)
+      - [0x15B0E0, .data, 13D170] # n_globals, n_syn (0x807563E0-0x807563E8 + 8-byte TU pad)
+      - [0x15B0F0, .data, 140600] # unreferenced reverb parameters D_807563F0[26], n_alFxNew's default D_80756458[14] (0x807563F0-0x80756490, no pad): D_80756458 is unaligned after the params, so both are one TU, its user's
+      - [0x15B190, .data, 1435C0] # D_80756490[128] eqpower curve (0x80756490-0x80756590, no pad); D_8075658E (its last entry, read as D_8075658E[-pan]) is an undefined_syms interior label
       - [0x15B290, .rodata, 450] # playerViewsBuildMatrices's doubles, func_805FD088's +-20000.0f, 255.0, 0.5493331552f, 4-byte TU pad
       - [0x15B2E0, .rodata, 3C10] # D_807565E0/D_80756630 byte tables, then func_805FF9AC's double 255.0, 8-byte TU pad
       - [0x15B390, .rodata, 5230]

@@ -7,7 +7,15 @@
 #include "proto/global/1435C0.h"
 #include "proto/global/166A0.h"
 
-
+// Unreferenced 3-section reverb parameters (libultra ALFx parameter layout).
+s32 D_807563F0[26] = {
+    3, 2200,
+    0, 1184, 9830, -9830, 0, 0, 0, 0,
+    416, 832, 3276, -3276, 0x3FFF, 0, 0, 0,
+    0, 1320, 5000, 0, 0, 0, 0, 0x5000,
+};
+// n_alFxNew's default parameters (no sections); word 11 holds -10.0f's bits.
+s32 D_80756458[14] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xC1200000, 0, 0 };
 
 void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
     SynCoreParam *param;
@@ -155,10 +163,6 @@ void rebuildLowPassCoefficients(SynLowPass *filter, f32 sampleRate) {
         filter->coeff[i] = 0;
     }
 }
-
-
-
-extern s32 D_80756458[];
 
 void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) {
     u16 sectionIdx;
