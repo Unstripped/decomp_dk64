@@ -1614,7 +1614,6 @@ extern Actor *gCurrentActor;
 
 void modelSlotUpdateFacingTrigger(s32 slot) {
     s16 yaw;
-    s16 actorYaw;
     s32 inArc;
     s32 kind;
     CsState *sub;
@@ -1664,27 +1663,24 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
             if (yaw < 0) {
                 yaw += 0x1000;
             }
-            actorYaw = gCurrentActor->yaw;
-            yawDiff = (s16)(yaw - actorYaw);
-            yaw = (1 | inArc) ? yaw : yaw + 1; // FAKE: redefines yaw (always-true condition folds) so uopt does not forward yawDiff's store into the sign test
+            yawDiff = yaw - gCurrentActor->yaw;
             if (yawDiff < 0) {
-                yawDiff = (s16)-yawDiff;
+                yawDiff = -yawDiff;
             }
             if (yawDiff >= 0x801) {
-                yawDiff = (s16)(0xFFF - yawDiff);
+                yawDiff = 0xFFF - yawDiff;
             }
             arcMax = sub->unk8A;
-            if (yawDiff) {} // FAKE: dead use raises yawDiff adjsave so it is coloured before actorYaw/arcMax
             arcMin = sub->unk88;
             if (arcMax >= arcMin) {
-                if (actorYaw >= arcMin && arcMax >= actorYaw) {
+                if (gCurrentActor->yaw >= arcMin && arcMax >= gCurrentActor->yaw) {
                     inArc = 1;
                 }
-            } else if (actorYaw >= arcMin || arcMax >= actorYaw) {
+            } else if (gCurrentActor->yaw >= arcMin || arcMax >= gCurrentActor->yaw) {
                 inArc = 1;
             }
             if (yawDiff < 0x258 && inArc != 0) {
-                angle = (f32)(((f64)yaw / 4095.0) * 6.2831854820251465);
+                angle = (yaw / 4095.0) * 6.2831854820251465;
                 yaw = 0; // FAKE: dead store to angle's operand kills store-forwarding so angle stays a variable (spilled to its own home 0x44)
                 sub->unk8C = sinApprox(angle);
                 sub->unk90 = cosApprox(angle);
@@ -1701,23 +1697,20 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
             if (yaw < 0) {
                 yaw += 0x1000;
             }
-            actorYaw = gCurrentActor->yaw;
-            yawDiff = (s16)(yaw - actorYaw);
-            yaw = 0; // FAKE: dead store (yaw unused below) so uopt does not forward yawDiff's store into the sign test
+            yawDiff = yaw - gCurrentActor->yaw;
             if (yawDiff < 0) {
-                yawDiff = (s16)-yawDiff;
+                yawDiff = -yawDiff;
             }
             if (yawDiff >= 0x801) {
-                yawDiff = (s16)(0xFFF - yawDiff);
+                yawDiff = 0xFFF - yawDiff;
             }
             arcMax = sub->unk8A;
-            if (yawDiff) {} // FAKE: dead use raises yawDiff adjsave so it is coloured before actorYaw/arcMax
             arcMin = sub->unk88;
             if (arcMax >= arcMin) {
-                if (actorYaw >= arcMin && arcMax >= actorYaw) {
+                if (gCurrentActor->yaw >= arcMin && arcMax >= gCurrentActor->yaw) {
                     inArc = 1;
                 }
-            } else if (actorYaw >= arcMin || arcMax >= actorYaw) {
+            } else if (gCurrentActor->yaw >= arcMin || arcMax >= gCurrentActor->yaw) {
                 inArc = 1;
             }
             if (yawDiff < 0x258 && inArc != 0) {
@@ -1739,7 +1732,7 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
                 guScaleF(mtx, scale, scale, scale);
                 guRotateF(tmp, rotX, 1.0f, 0.0f, 0.0f);
                 guMtxCatF(mtx, tmp, mtx);
-                guRotateF(tmp, (f32)((f64)rotY + 1.0), 0.0f, 1.0f, 0.0f);
+                guRotateF(tmp, rotY + 1.0, 0.0f, 1.0f, 0.0f);
                 guMtxCatF(mtx, tmp, mtx);
                 guRotateF(tmp, rotZ, 0.0f, 0.0f, 1.0f);
                 guMtxCatF(mtx, tmp, mtx);
@@ -1749,15 +1742,15 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
                 guScaleF(mtx, scale, scale, scale);
                 guRotateF(tmp, rotX, 1.0f, 0.0f, 0.0f);
                 guMtxCatF(mtx, tmp, mtx);
-                guRotateF(tmp, (f32)((f64)rotY - 1.0), 0.0f, 1.0f, 0.0f);
+                guRotateF(tmp, rotY - 1.0, 0.0f, 1.0f, 0.0f);
                 guMtxCatF(mtx, tmp, mtx);
                 guRotateF(tmp, rotZ, 0.0f, 0.0f, 1.0f);
                 guMtxCatF(mtx, tmp, mtx);
                 guTranslateF(tmp, posX, posY, posZ);
                 guMtxCatF(mtx, tmp, mtx);
                 guMtxXFMF(mtx, localX, localY, localZ, &minusX, &minusY, &minusZ);
-                minusDist = (f32)camDistance3D((s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z, (s32)minusX, (s32)minusY, (s32)minusZ);
-                if (minusDist < (f32)camDistance3D((s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z, (s32)plusX, (s32)plusY, (s32)plusZ)) {
+                minusDist = camDistance3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, minusX, minusY, minusZ);
+                if (minusDist < camDistance3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, plusX, plusY, plusZ)) {
                     sub->unk52 = 1;
                     return;
                 }
