@@ -5,34 +5,41 @@
 #include "proto/boss/3840.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
 #include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
 #include "proto/global/2C910.h"
 #include "proto/global/35000.h"
 #include "proto/global/63EC0.h"
 #include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
 #include "proto/global/7130.h"
 #include "proto/global/80150.h"
+#include "proto/global/89250.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/8F050.h"
+#include "proto/global/936B0.h"
 
-typedef struct BossByteTable6 {
-    u8 bytes[6];
-} BossByteTable6;
+// Bone indices of the six smoke puffs bossArmydilloSpawnSmoke spawns (D_8003598C).
+typedef struct BossSmokeBones {
+    u8 bones[6];
+} BossSmokeBones;
 
 extern Actor *gCurrentActor;
-extern BossByteTable6 D_8003598C;
-extern u8 sEffectSparkConfig;
+extern BossSmokeBones D_8003598C;
+extern u8 sEffectSparkConfig[];
 
 
 void bossArmydilloSpawnSmoke(void) {
-    BossByteTable6 smokeBones;
     s16 i;
 
     for (i = 0; i < 6; i++) {
-        smokeBones = D_8003598C;
-        tagBarrelSpawnNodeSmokePuffs(gCurrentActor, smokeBones.bytes[i], 3.0f);
+        BossSmokeBones smokeBones = D_8003598C;
+
+        tagBarrelSpawnNodeSmokePuffs(gCurrentActor, smokeBones.bones[i], 3.0f);
     }
 
     for (i = 0; i < 12; i++) {
@@ -41,28 +48,26 @@ void bossArmydilloSpawnSmoke(void) {
         effectSetDepth(1);
         effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
         effectSetMode(3);
-        effectCreateAtPosition(&sEffectSparkConfig, 2.5f, gCurrentActor->x, gCurrentActor->y + 40.0f, gCurrentActor->z);
+        effectCreateAtPosition(sEffectSparkConfig, 2.5f, gCurrentActor->x, gCurrentActor->y + 40.0f, gCurrentActor->z);
     }
 }
 
-typedef struct BossA_Struct_8002413C_Template {
+// Stowed pose of one armadillo piece (D_800358E0[arena mode][piece]): bone offset and bone scale.
+// bossPieceStep moves a piece from it to offset 0, scale 1 and back.
+typedef struct BossPiecePose {
     s8 x;
     s8 y;
     s8 z;
     u8 pad3;
-    f32 rotX;
-    f32 rotY;
-    f32 rotZ;
-} BossA_Struct_8002413C_Template;
+    f32 scaleX;
+    f32 scaleY;
+    f32 scaleZ;
+} BossPiecePose;
 
 extern s32 gCurrentMap;
 extern u8 D_800358D8[5];
-extern BossA_Struct_8002413C_Template D_800358E0[][5];
+extern BossPiecePose D_800358E0[][5];
 extern u8 D_80035994[8];
-
-void func_80724D28(s16, s16);
-void func_80724DB0(s16, s16);
-void func_80724CA4(s16, s16);
 
 void bossArmydilloInitArena(void) {
     s32 pad[4];
@@ -72,7 +77,7 @@ void bossArmydilloInitArena(void) {
     BoneVector *offset;
     BoneVector *scale;
     BoneRotation *rotation;
-    BossA_Struct_8002413C_Template *t;
+    BossPiecePose *pose;
 
     if (gCurrentMap == 8) {
         mode = 0;
@@ -90,7 +95,7 @@ void bossArmydilloInitArena(void) {
     func_80724CA4(1, 5);
 
     sub = gCurrentActor->sub4;
-    t = D_800358E0[mode];
+    pose = D_800358E0[mode];
     offset = sub->boneOffsets;
     scale = sub->boneScales;
     rotation = sub->boneRotations;
@@ -98,15 +103,15 @@ void bossArmydilloInitArena(void) {
     for (i = 0; i < 5; i++) {
         offset->bone = D_800358D8[i];
         offset->lastBone = 0xFF;
-        offset->x = t[i].x;
-        offset->y = t[i].y;
-        offset->z = t[i].z;
+        offset->x = pose[i].x;
+        offset->y = pose[i].y;
+        offset->z = pose[i].z;
 
         scale->bone = D_800358D8[i];
         scale->lastBone = 0xFF;
-        scale->x = t[i].rotX;
-        scale->y = t[i].rotY;
-        scale->z = t[i].rotZ;
+        scale->x = pose[i].scaleX;
+        scale->y = pose[i].scaleY;
+        scale->z = pose[i].scaleZ;
 
         rotation->weight = -0x80;
         rotation->bone = D_800358D8[i];
@@ -174,15 +179,11 @@ void bossArmydilloDebrisUpdate(void) {
     }
 
     if (soundId != 0) {
-        sfxPlayAtPositionPooled(gCurrentActor->x,
-                      gCurrentActor->y,
-                      gCurrentActor->z,
-                      soundId, soundVol, 0x7F, 1, 0x1E, 0.3f, 0);
+        sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, soundId, soundVol, 0x7F, 1, 0x1E, 0.3f, 0);
     }
 
-    i = 0;
     gCurrentActor->sub4->boneOffsets[5].x = 99999.0f;
-    do {
+    for (i = 0; i < 13; i++) {
         if (debris->y >= 1800.0f) {
             debris->x = 99999.0f;
             debris->y = 99999.0f;
@@ -195,18 +196,18 @@ void bossArmydilloDebrisUpdate(void) {
             debris->y += 100.0f;
             debris++;
         }
-        i++;
-    } while (i < 13);
+    }
 }
 
-// Armadillo piece/cannon animation state (BossArmydilloActor.unk17C): per piece a counter, a state and a bone angle.
+// Armadillo piece/cannon animation state (BossArmydilloActor.pieceAnim): per piece a timer, a state, an angle
+// and a fly-off velocity.
 typedef struct BossPieceAnim {
-    /* 0x00 */ u8 unk0; // cannon-open animation done (bossArmydilloStep)
-    /* 0x01 */ u8 cnt[5];
+    /* 0x00 */ u8 endSfxPlayed; // sfx 0x174 played once the cannon-open animation ended (bossArmydilloStep)
+    /* 0x01 */ u8 timer[5]; // frames into the detach/attach move (bossPieceStep states 1-4)
     /* 0x06 */ u8 state[5];
     /* 0x0B */ u8 pad0B;
     union {
-        /* 0x0C */ s16 ang[5]; // bone rotX per piece (bossPieceStep)
+        /* 0x0C */ s16 ang[5]; // fly-off heading per piece (bossPieceStep states 5-6)
         struct {
             /* 0x0C */ u8 pad0C[4];
             /* 0x10 */ s16 cannonAngA; // bone 2 rotX (bossArmydilloStep, bossPieceSetAngle(2, ...))
@@ -215,8 +216,8 @@ typedef struct BossPieceAnim {
         };
     };
     /* 0x16 */ u8 pad16[2];
-    /* 0x18 */ f32 f1[5];
-    /* 0x2C */ f32 f2[5];
+    /* 0x18 */ f32 speedXZ[5]; // fly-off speed along ang
+    /* 0x2C */ f32 speedY[5]; // fly-off vertical speed: -10 per frame, halved and reversed on a bounce
 } BossPieceAnim; // size = 0x40
 
 void bossPieceSetState(BossPieceAnim *pieceData, u8 index, u8 state) {
@@ -231,49 +232,44 @@ void bossPieceSetAngle(u8 index, s16 angle) {
     entry->rotX = angle;
 }
 
-
-
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void actorScriptStart(void *, s32);
-
-
 u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 endTimer) {
     u8 ret;
-    BoneVector *p1;
-    BoneVector *p2;
+    BoneVector *offset;
+    BoneVector *scale;
     Actor *boss;
 
     boss = gCurrentActor;
     ret = 0;
-    p1 = &boss->sub4->boneOffsets[pieceIdx];
-    p2 = &boss->sub4->boneScales[pieceIdx];
+    offset = &boss->sub4->boneOffsets[pieceIdx];
+    scale = &boss->sub4->boneScales[pieceIdx];
     switch (animData->state[pieceIdx]) {
     case 5:
-        animData->f1[pieceIdx] = 30.0f;
+        animData->speedXZ[pieceIdx] = 30.0f;
         animData->ang[pieceIdx] = pieceIdx * 0x800 + 0x400;
-        animData->f2[pieceIdx] = 100.0f;
+        animData->speedY[pieceIdx] = 100.0f;
         animData->state[pieceIdx] = 6;
+        /* fallthrough */
     case 6:
-        p1->x += animData->f1[pieceIdx] * mathSinF(animData->ang[pieceIdx]);
-        p1->z += animData->f1[pieceIdx] * mathCosF(animData->ang[pieceIdx]);
-        p1->y += animData->f2[pieceIdx];
-        animData->f2[pieceIdx] -= 10.0f;
-        if (animData->f2[pieceIdx] < -200.0f) {
-            animData->f2[pieceIdx] = -200.0f;
+        offset->x += animData->speedXZ[pieceIdx] * mathSinF(animData->ang[pieceIdx]);
+        offset->z += animData->speedXZ[pieceIdx] * mathCosF(animData->ang[pieceIdx]);
+        offset->y += animData->speedY[pieceIdx];
+        animData->speedY[pieceIdx] -= 10.0f;
+        if (animData->speedY[pieceIdx] < -200.0f) {
+            animData->speedY[pieceIdx] = -200.0f;
         }
-        if (p1->y < -300.0f) {
-            p1->y = -300.0f;
-            if (-50.0f < animData->f2[pieceIdx]) {
-                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, (u8)(pieceIdx + 1), 1.5f);
+        if (offset->y < -300.0f) {
+            offset->y = -300.0f;
+            if (-50.0f < animData->speedY[pieceIdx]) {
+                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, pieceIdx + 1, 1.5f);
                 actorClearSegmentFlag(gCurrentActor, pieceIdx);
                 animData->state[pieceIdx] = 0;
                 ret = 1;
                 break;
             }
             if (!pieceIdx) {
-                sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x36, (u32)(120.0f - animData->f2[pieceIdx] > 255.0f ? 255.0f : 120.0f - animData->f2[pieceIdx]), 0x7F, 0x28, 0, 0.3f, 0);
+                sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x36, 120.0f - animData->speedY[pieceIdx] > 255.0f ? 255.0f : 120.0f - animData->speedY[pieceIdx], 0x7F, 0x28, 0, 0.3f, 0);
             }
-            animData->f2[pieceIdx] *= -0.5;
+            animData->speedY[pieceIdx] *= -0.5;
         }
         break;
     case 1:
@@ -290,14 +286,15 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
         }
         actorSetSegmentFlag(gCurrentActor, pieceIdx);
         animData->state[pieceIdx] = 2;
-        animData->cnt[pieceIdx] = 0;
+        animData->timer[pieceIdx] = 0;
+        /* fallthrough */
     case 2:
-        if ((f32)++animData->cnt[pieceIdx] < maxTimer) {
-            f32 t = (f32)animData->cnt[pieceIdx] / maxTimer;
-            p1->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
-            p1->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
-            p1->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
-        } else if (maxTimer == (f32)animData->cnt[pieceIdx]) {
+        if (++animData->timer[pieceIdx] < maxTimer) {
+            f32 t = animData->timer[pieceIdx] / maxTimer;
+            offset->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
+            offset->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
+            offset->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
+        } else if (maxTimer == animData->timer[pieceIdx]) {
             switch (pieceIdx) {
             case 0:
             case 2:
@@ -305,7 +302,7 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
                 sfxStopSlotSound(gCurrentActor, 1);
                 break;
             }
-        } else if (scriptTimer == (f32)animData->cnt[pieceIdx]) {
+        } else if (scriptTimer == animData->timer[pieceIdx]) {
             switch (gCurrentActor->state) {
             case 0x27:
                 actorScriptStart(gCurrentActor, 0x264);
@@ -317,11 +314,11 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
                 actorScriptStart(gCurrentActor, 0x266);
                 break;
             }
-        } else if (scriptTimer + 1.0f == (f32)animData->cnt[pieceIdx]) {
-            p2->x = 1.0f;
-            p2->y = 1.0f;
-            p2->z = 1.0f;
-        } else if (endTimer < (f32)animData->cnt[pieceIdx]) {
+        } else if (scriptTimer + 1.0f == animData->timer[pieceIdx]) {
+            scale->x = 1.0f;
+            scale->y = 1.0f;
+            scale->z = 1.0f;
+        } else if (endTimer < animData->timer[pieceIdx]) {
             ret = 1;
             animData->state[pieceIdx] = 0;
         }
@@ -336,17 +333,18 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
             break;
         }
         animData->state[pieceIdx] = 4;
-        animData->cnt[pieceIdx] = endTimer;
+        animData->timer[pieceIdx] = endTimer;
+        /* fallthrough */
     case 4:
-        if (maxTimer < (f32)--animData->cnt[pieceIdx]) {
-            p2->x = p2->x + (D_800358E0[0][pieceIdx].rotX - p2->x) * 0.08;
-            p2->y = p2->y + (D_800358E0[0][pieceIdx].rotY - p2->y) * 0.08;
-            p2->z = p2->z + (D_800358E0[0][pieceIdx].rotZ - p2->z) * 0.09;
-        } else if (animData->cnt[pieceIdx] > 0) {
-            f32 t = (f32)animData->cnt[pieceIdx] / maxTimer;
-            p1->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
-            p1->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
-            p1->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
+        if (maxTimer < --animData->timer[pieceIdx]) {
+            scale->x = scale->x + (D_800358E0[0][pieceIdx].scaleX - scale->x) * 0.08;
+            scale->y = scale->y + (D_800358E0[0][pieceIdx].scaleY - scale->y) * 0.08;
+            scale->z = scale->z + (D_800358E0[0][pieceIdx].scaleZ - scale->z) * 0.09;
+        } else if (animData->timer[pieceIdx] > 0) {
+            f32 t = animData->timer[pieceIdx] / maxTimer;
+            offset->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
+            offset->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
+            offset->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
         } else {
             actorClearSegmentFlag(gCurrentActor, pieceIdx);
             animData->state[pieceIdx] = 0;
@@ -360,27 +358,22 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
     return ret;
 }
 
-
-
-
-
-void scriptSetActorRampTarget(void *, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
 void actorMoveWithinZone(s32, f32, f32, s32, f32); // ORIG: the target passes bossArmydilloStep's int ternary flags (0x210/0x212) straight to a3 at 0x287C/0x2880 (li a3); the owner's u16 prototype adds a sw/lhu 82(sp) narrowing, so these callers saw an s32 flags parameter
 
 void bossArmydilloAimTowardTarget(void) {
-    s32 res;
+    s32 yawDiff;
     u16 animState;
 
     animState = gCurrentActor->sub4->animId;
     mathAngleSignedDistance(gBehaviourWorkState->targetYaw, gCurrentActor->yaw);
     actorMoveWithinZone(0x45, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x16, 0.0f);
-    res = mathAngleSignedDistance(gBehaviourWorkState->targetYaw, gCurrentActor->yaw);
-    if (res > 0) {
+    yawDiff = mathAngleSignedDistance(gBehaviourWorkState->targetYaw, gCurrentActor->yaw);
+    if (yawDiff > 0) {
         if (animState != 0x260) {
             actorScriptStart(gCurrentActor, 0x260);
         }
-    } else if (res < 0) {
+    } else if (yawDiff < 0) {
         if (animState != 0x25F) {
             actorScriptStart(gCurrentActor, 0x25F);
         }
@@ -390,33 +383,28 @@ void bossArmydilloAimTowardTarget(void) {
     }
 }
 
-void bossArmydilloOpenCannons(void *boss, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
+void bossArmydilloOpenCannons(void *state, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
     u8 i;
-    u8 res;
+    u8 done;
 
     i = 0;
-    res = 0;
+    done = 0;
     switch (gCurrentActor->unk155) {
     case 2:
-        if (*pieceList != 0xFF) {
-            do {
-                bossPieceSetState(pieceData, pieceList[i++], 1);
-            } while (pieceList[i] != 0xFF);
+        while (pieceList[i] != 0xFF) {
+            bossPieceSetState(pieceData, pieceList[i++], 1);
         }
         gCurrentActor->unk155 = 3;
         break;
     case 3:
-        if (*pieceList != 0xFF) {
-            do {
-                if (gCurrentActor->state == 0x27 ||
-                    gCurrentActor->state == 0x2E) {
-                    res = bossPieceStep(pieceData, pieceList[i++], 50.0f, 70.0f, 90.0f);
-                } else {
-                    res = bossPieceStep(pieceData, pieceList[i++], 10.0f, 15.0f, 50.0f);
-                }
-            } while (pieceList[i] != 0xFF);
+        while (pieceList[i] != 0xFF) {
+            if (gCurrentActor->state == 0x27 || gCurrentActor->state == 0x2E) {
+                done = bossPieceStep(pieceData, pieceList[i++], 50.0f, 70.0f, 90.0f);
+            } else {
+                done = bossPieceStep(pieceData, pieceList[i++], 10.0f, 15.0f, 50.0f);
+            }
         }
-        if (res != 0) {
+        if (done != 0) {
             gCurrentActor->unk155 = 4;
             animSetLoopLimit(gCurrentActor, 1, 1);
         }
@@ -424,37 +412,30 @@ void bossArmydilloOpenCannons(void *boss, BossPieceAnim *pieceData, u8 *script, 
     }
 }
 
-void bossPieceListStep(void *boss, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
+void bossPieceListStep(void *state, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
     u8 i;
-    u8 res;
+    u8 done;
 
     i = 0;
-    res = 0;
+    done = 0;
     switch (gCurrentActor->unk155) {
     case 2:
-        if (*pieceList != 0xFF) {
-            do {
-                bossPieceSetState(pieceData, pieceList[i++], 3);
-            } while (pieceList[i] != 0xFF);
+        while (pieceList[i] != 0xFF) {
+            bossPieceSetState(pieceData, pieceList[i++], 3);
         }
         gCurrentActor->unk155 = 3;
         break;
     case 3:
-        if (*pieceList != 0xFF) {
-            do {
-                res = bossPieceStep(pieceData, pieceList[i++], 10.0f, 20.0f, 30.0f);
-            } while (pieceList[i] != 0xFF);
+        while (pieceList[i] != 0xFF) {
+            done = bossPieceStep(pieceData, pieceList[i++], 10.0f, 20.0f, 30.0f);
         }
-        if (res != 0) {
+        if (done != 0) {
             gCurrentActor->unk155 = 4;
             animSetLoopLimit(gCurrentActor, 1, 1);
         }
         break;
     }
 }
-
-void actorClearNodeFlag(void *, s32);
-void actorSetNodeFlag(void *, s32);
 
 void bossArmydilloHideCannons(void) {
     actorClearNodeFlag(gCurrentActor, 3);
@@ -488,48 +469,31 @@ void bossArmydilloSpawnExhaustSmoke(void) {
     effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 4, 0);
 }
 
-// Armadillo boss actor: Actor plus its two component pointers (0x178 script state, 0x17C sprite/aim state).
+// Armadillo boss actor: Actor plus its two component pointers (0x178 script state, 0x17C piece animation state).
 typedef struct BossArmydilloActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ BossScriptState *scriptState;
-    /* 0x17C */ BossPieceAnim *unk17C;
+    /* 0x17C */ BossPieceAnim *pieceAnim;
 } BossArmydilloActor;
 
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 
 extern u8 *D_800358B0[][5];
-extern u8 D_80035980;
-extern u8 D_80035984;
-extern u8 D_80035988;
-extern u8 D_80035CB8;
+extern u8 D_80035980[];
+extern u8 D_80035984[];
+extern u8 D_80035988[];
+extern u8 D_80035CB8[];
 extern u8 D_80035CC0[];
 extern u8 gGameMode;
-extern s8 D_80750190;
+extern u8 D_80750190;
 extern s16 D_807502D8;
 extern f32 D_807502F4;
 extern s16 gSfxSourceVoice[];
 extern s16 D_80770710[];
 
-u8 camIsCutsceneActive(void);
-u16 camStartPath(void *, s16, u8);
-void camStartShake();
-void camSetSecondTarget();
-s32 currentActorTestClearFlag();
-void currentActorClearFlag();
-void effectSpawnBoneDebris(s16, s8);
-void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
-void effectSpawnJointBeam();
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileGetTargetCoords();
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, Actor *);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, Actor *);
-void projectileClampAngleAndSpawn(s16, s16, s16, s16, f32, f32, f32, f32, f32, Actor *);
-void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
-void actorSetUniformScale(void *, f32);
-u8 currentActorAnimTryIdleVariant(u8, u32 *);
-void behaviourFrameBegin();
-void behaviourUpdateShadowAlpha();
+void behaviourFrameBegin(void);
+void behaviourUpdateShadowAlpha(void);
 u8 patrolPathStep(u8, u8);
 
 
@@ -543,9 +507,8 @@ void bossArmydilloStep(void) {
     s32 pad_bot[1];
     BossScriptState *state;
 
-
     state = ((BossArmydilloActor *)gCurrentActor)->scriptState;
-    pieceAnim = ((BossArmydilloActor *)gCurrentActor)->unk17C;
+    pieceAnim = ((BossArmydilloActor *)gCurrentActor)->pieceAnim;
     scriptData = D_800358B0[(gCurrentMap == 8) ? 0 : 1][state->phase];
     cannonBone = (state->unk12 & 1) ? 1 : 2;
     playSfx = 0;
@@ -689,15 +652,15 @@ void bossArmydilloStep(void) {
         case 0:
             if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                 animSetLoopLimit(gCurrentActor, 1, 1);
-                pieceAnim->unk0 = 0;
+                pieceAnim->endSfxPlayed = 0;
                 gCurrentActor->unk155 = 1;
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x3A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             }
             break;
         case 1:
-            if ((animIsPlaying(gCurrentActor, 1) == 0) && (pieceAnim->unk0 == 0)) {
+            if ((animIsPlaying(gCurrentActor, 1) == 0) && (pieceAnim->endSfxPlayed == 0)) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x174, 0xC8, 0x7F, 1, 0x1E, 0.3f, 0);
-                pieceAnim->unk0 = 1;
+                pieceAnim->endSfxPlayed = 1;
             }
             if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                 gCurrentActor->unk155 = 2;
@@ -706,11 +669,11 @@ void bossArmydilloStep(void) {
         case 2:
         case 3:
             if (gCurrentActor->state == 0x29) {
-                bossArmydilloOpenCannons(state, pieceAnim, scriptData, &D_80035984);
+                bossArmydilloOpenCannons(state, pieceAnim, scriptData, D_80035984);
             } else if (gCurrentActor->state == 0x2E) {
-                bossArmydilloOpenCannons(state, pieceAnim, scriptData, &D_80035988);
+                bossArmydilloOpenCannons(state, pieceAnim, scriptData, D_80035988);
             } else {
-                bossArmydilloOpenCannons(state, pieceAnim, scriptData, &D_80035980);
+                bossArmydilloOpenCannons(state, pieceAnim, scriptData, D_80035980);
             }
             break;
         case 4:
@@ -852,7 +815,7 @@ void bossArmydilloStep(void) {
             break;
         case 2:
         case 3:
-            bossPieceListStep(state, pieceAnim, scriptData, (gCurrentActor->state == 0x2B) ? &D_80035980 : &D_80035984);
+            bossPieceListStep(state, pieceAnim, scriptData, (gCurrentActor->state == 0x2B) ? D_80035980 : D_80035984);
             break;
         case 4:
             gCurrentActor->state = scriptData[state->scriptPos++];
@@ -1058,7 +1021,7 @@ void bossArmydilloStep(void) {
     case 0x26:
         switch (gCurrentActor->unk155) {
         case 0:
-            bossInitScriptData(&D_80035CB8);
+            bossInitScriptData(D_80035CB8);
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:
@@ -1141,30 +1104,25 @@ void bossArmydilloStep(void) {
         if (gCurrentActor->soundSlots[1] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x114, 1, 1, 1, 0xFF, 0.5f, 0);
         }
-    } else {
-        if ((gCurrentActor->soundSlots[1] != -1) && (D_80770710[gSfxSourceVoice[gCurrentActor->soundSlots[1]]] == 0x114)) {
-            sfxStopSlotSound(gCurrentActor, 1);
-        }
+    } else if ((gCurrentActor->soundSlots[1] != -1) && (D_80770710[gSfxSourceVoice[gCurrentActor->soundSlots[1]]] == 0x114)) {
+        sfxStopSlotSound(gCurrentActor, 1);
     }
     behaviourUpdateShadowAlpha();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-
-void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
-
 void bossArmydilloDebrisFall(void) {
-    u8 val;
+    u8 bone;
 
     if (!(gFrameCounter & 3)) {
         if (!(gFrameCounter & 0xF)) {
-            val = 0xC;
+            bone = 0xC;
         } else {
-            val = ((randomNonNegative() >> 15) % 0x7FFF) % 7 + 0x1D;
+            bone = ((randomNonNegative() >> 15) % 0x7FFF) % 7 + 0x1D;
         }
         effectSetMode(3);
         effectSetColor(0x50, 0x50, 0x50, 0xC8);
-        effectSpawnBoneDefault(gCurrentActor, val, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
+        effectSpawnBoneDefault(gCurrentActor, bone, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
     }
 }
 
