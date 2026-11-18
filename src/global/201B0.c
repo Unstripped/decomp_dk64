@@ -244,12 +244,6 @@ s16 gCamPathStartYaw;
 Actor *gCamPathActor;
 Actor *gCamActor;
 u8 gCamCueIndex;
-f32 D_807F5D18;
-f32 D_807F5D1C;
-f32 D_807F5D20;
-f32 D_807F5D24;
-f32 D_807F5D28;
-f32 D_807F5D2C;
 
 // .data 0x807476A0-0x80747750
 f32 gCamEyeBlendRate = 0.0f;
@@ -2574,6 +2568,12 @@ f32 camAngleLerpRad(f32 a, f32 b, f32 t) {
 }
 
 void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f32 *focusY, f32 *focusZ, Actor *target) {
+    static f32 sStepEyeX;
+    static f32 sStepEyeY;
+    static f32 sStepEyeZ;
+    static f32 sStepLookX;
+    static f32 sStepLookY;
+    static f32 sStepLookZ;
     CamState *cam;
     s16 *list;
     s16 count;
@@ -2735,17 +2735,17 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     p = &gCamActivePaths->nodes[list[gCamPathStep + 1]];
                 }
                 if (gCamPathStepFrames == gCamPathFramesLeft + 1) {
-                    D_807F5D18 = *eyeX;
-                    D_807F5D1C = *eyeY;
-                    D_807F5D20 = *eyeZ;
-                    D_807F5D24 = *focusX;
-                    D_807F5D28 = *focusY;
-                    D_807F5D2C = *focusZ;
+                    sStepEyeX = *eyeX;
+                    sStepEyeY = *eyeY;
+                    sStepEyeZ = *eyeZ;
+                    sStepLookX = *focusX;
+                    sStepLookY = *focusY;
+                    sStepLookZ = *focusZ;
                 }
             } else if (gCamPathStepFrames == gCamPathFramesLeft + 1) {
-                D_807F5D24 = *focusX - *eyeX;
-                D_807F5D28 = *focusY - *eyeY;
-                D_807F5D2C = *focusZ - *eyeZ;
+                sStepLookX = *focusX - *eyeX;
+                sStepLookY = *focusY - *eyeY;
+                sStepLookZ = *focusZ - *eyeZ;
             }
             if (type == 7) {
                 target->yawSpeed = 0;
@@ -2770,13 +2770,12 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     posZ = mathCosF(target->yaw - angle) * dist + target->z;
                     posY = target->y + height;
                     gPlayerSlots[cam->playerIndex].fov = CAM_LERP(orbit->fovStart, orbit->fovEnd, t);
-                    if (p->type == 16) {
-                        lookX = posX + D_807F5D24;
-                        lookY = posY + D_807F5D28;
-                        lookZ = posZ + D_807F5D2C;
-                    } else {
-                        goto calc_look;
+                    if (p->type != 16) {
+                        break;
                     }
+                    lookX = posX + sStepLookX;
+                    lookY = posY + sStepLookY;
+                    lookZ = posZ + sStepLookZ;
                 default:
                     goto apply_view;
                 case 1:
@@ -2840,7 +2839,6 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     }
                     break;
             }
-        calc_look:
             if (!gCamPathLookNode) {
                 lookX = mathSinF(target->yaw) * gCamPathLookAhead + target->x;
                 lookZ = mathCosF(target->yaw) * gCamPathLookAhead + target->z;
@@ -2855,26 +2853,26 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
         apply_view:
             if (type == 7) {
                 blend = mathSinF(gCamPathStepProgress * 1024.0f + 3072.0f) + 1.0;
-                angleD = mathAngleBetweenPoints2D(D_807F5D24, D_807F5D2C, D_807F5D18, D_807F5D20);
+                angleD = mathAngleBetweenPoints2D(sStepLookX, sStepLookZ, sStepEyeX, sStepEyeZ);
                 angleT = mathAngleBetweenPoints2D(lookX, lookZ, posX, posZ);
-                pitchD = mathCalculatePitchAngle(D_807F5D18, D_807F5D1C, D_807F5D20, D_807F5D24, D_807F5D28,
-                                                 D_807F5D2C, 0);
+                pitchD = mathCalculatePitchAngle(sStepEyeX, sStepEyeY, sStepEyeZ, sStepLookX, sStepLookY,
+                                                 sStepLookZ, 0);
                 pitchT = mathCalculatePitchAngle(posX, posY, posZ, lookX, lookY, lookZ, 0);
                 yaw = mathAngleLerp(angleT, angleD, blend);
                 pitch = camAngleLerpRad(pitchT, pitchD, blend);
                 dist2D = CAM_LERP(sqrtf((lookX - posX) * (lookX - posX) + (lookZ - posZ) * (lookZ - posZ)),
-                                  sqrtf((D_807F5D24 - D_807F5D18) * (D_807F5D24 - D_807F5D18) +
-                                        (D_807F5D2C - D_807F5D20) * (D_807F5D2C - D_807F5D20)),
+                                  sqrtf((sStepLookX - sStepEyeX) * (sStepLookX - sStepEyeX) +
+                                        (sStepLookZ - sStepEyeZ) * (sStepLookZ - sStepEyeZ)),
                                   blend);
                 dist3D = CAM_LERP(sqrtf((lookX - posX) * (lookX - posX) + (lookY - posY) * (lookY - posY) +
                                         (lookZ - posZ) * (lookZ - posZ)),
-                                  sqrtf((D_807F5D24 - D_807F5D18) * (D_807F5D24 - D_807F5D18) +
-                                        (D_807F5D28 - D_807F5D1C) * (D_807F5D28 - D_807F5D1C) +
-                                        (D_807F5D2C - D_807F5D20) * (D_807F5D2C - D_807F5D20)),
+                                  sqrtf((sStepLookX - sStepEyeX) * (sStepLookX - sStepEyeX) +
+                                        (sStepLookY - sStepEyeY) * (sStepLookY - sStepEyeY) +
+                                        (sStepLookZ - sStepEyeZ) * (sStepLookZ - sStepEyeZ)),
                                   blend);
-                *eyeX = CAM_LERP(posX, D_807F5D18, blend);
-                *eyeY = CAM_LERP(posY, D_807F5D1C, blend);
-                *eyeZ = CAM_LERP(posZ, D_807F5D20, blend);
+                *eyeX = CAM_LERP(posX, sStepEyeX, blend);
+                *eyeY = CAM_LERP(posY, sStepEyeY, blend);
+                *eyeZ = CAM_LERP(posZ, sStepEyeZ, blend);
                 *focusX = *eyeX + mathSinF(yaw) * dist2D;
                 *focusZ = *eyeZ + mathCosF(yaw) * dist2D;
                 *focusY = *eyeY + sinApprox(pitch) * dist3D;
