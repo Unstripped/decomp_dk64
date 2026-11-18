@@ -48,7 +48,7 @@ u8 nodeCount;
     f32 padC;
     s16 *p;
     u8 dir;
-    f32 limit = 15.0f;
+    f32 maxAmplitude = 15.0f;
 
     data = gCurrentActor->customState;
     player = gPlayerSlots->actor->customState;
@@ -96,16 +96,16 @@ u8 nodeCount;
     if (data->swingAmplitude > 2.0f) {
         if (data->phase < 3.926991f && data->phase + data->phaseStep >= 3.926991f) {
             if (gCurrentActor->actorType == 0x74) {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x257, data->swingAmplitude * 100.0 / limit, 0x7F, 5);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x257, data->swingAmplitude * 100.0 / maxAmplitude, 0x7F, 5);
             } else {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C, data->swingAmplitude * 100.0 / limit, 0x7F, 5);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C, data->swingAmplitude * 100.0 / maxAmplitude, 0x7F, 5);
             }
         }
         if (data->phase < 0.7853982f && data->phase + data->phaseStep >= 0.7853982f) {
             if (gCurrentActor->actorType == 0x74) {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x258, data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x258, data->swingAmplitude * 25.0 / maxAmplitude, 0x7F, 0x14);
             } else {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D, data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D, data->swingAmplitude * 25.0 / maxAmplitude, 0x7F, 0x14);
             }
         }
     }
@@ -156,7 +156,7 @@ u8 nodeCount;
         data->unk15--;
     }
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && data->playerHolding == 0 && gCurrentActor == player->pathOwner) {
-        data->swingAmplitude = 15.0f;
+        data->swingAmplitude = maxAmplitude;
         if (mathAngleDistance(gPrimaryPlayerActor->yaw, gCurrentActor->yaw) < 0x400) {
             data->phase = 3.1415927f;
         } else {
@@ -172,8 +172,8 @@ u8 nodeCount;
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
         data->playerHolding = 1;
         data->swingAmplitude += 0.2;
-        if (data->swingAmplitude > 15.0f) {
-            data->swingAmplitude = 15.0f;
+        if (data->swingAmplitude > maxAmplitude) {
+            data->swingAmplitude = maxAmplitude;
         }
     } else {
         data->playerHolding = 0;
@@ -185,8 +185,8 @@ u8 nodeCount;
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
         if (player->pathDist < 1.5 && ((data->phase > 4.0 && (f64)data->phase < 4.712389f) ||
                                      ((f64)data->phase < 1.5707964f && data->phase > 0.9))) {
-            player->unk14C = D_8075037C * (data->swingAmplitude / 15.0f);
-            player->unk150 = D_80750380 * (data->swingAmplitude / 15.0f);
+            player->unk14C = D_8075037C * (data->swingAmplitude / maxAmplitude);
+            player->unk150 = D_80750380 * (data->swingAmplitude / maxAmplitude);
         } else {
             player->unk14C = 200.0f;
             player->unk150 = 200.0f;
