@@ -4,6 +4,7 @@
   - It is a block split: the handle param (cand 2) spans two blocks, so its adjsave drops 2.0 -> 1.0.
   - &gHeapSurvivorCount (cand 19, 2.0) is then coloured first and takes a0. The handle moves to a1 (target 0x1264-0x1270).
   - Without the block both candidates are 2.0, and the param wins the lowest-bit tie: handle stays in a0 and &count takes a1.
+  - uopt -l6 on the plain body: bit 8 (count load, 3.0) -> v0, then the 2.0 tie in bit order: bit 0 (b) -> v1, bit 2 (handle) -> a0, bit 18 (&count) -> a1. The const candidate is numbered after every var/expr candidate, so no spelling of the statements reorders the tie (Q0900).
 ## Attempts
 - 2026-11-10..14 rounds 6/19/24/36 (low, unlevelled, xhigh): uopt traces and permuter runs. best=0 only through steer swaps (do-while(0), if (!handle) {}, copy temps).
 - 2026-11-16 cleanup HackloadOverlay2 anthropic/claude-opus-5-5:high, scored with variants.py try (full=):
@@ -22,13 +23,25 @@
   - `if (b != NULL)`: 15
   - `if (handle) {}`: 12
   - b decrement after the tag store, or at the end: 8
+- 2026-11-17 cleanup CleanheapRegisterSurvivor anthropic/claude-opus-5-5, scored with variants.py try / deadsweep score (full=):
+  - one-line b with `++gHeapSurvivorCount == 0x20`: 6; two-line b with it: 11
+  - `0x20 == gHeapSurvivorCount`, `gHeapSurvivorCount += 1`, early return on `!= 0x20`, `(*handle - sizeof(HeapBlock))`: 6
+  - K&R definition: 6
+  - `s32 *count = &gHeapSurvivorCount` pointer local for every access (declared first, initialised at the top, or set after the tag store): 6. uopt copy-propagates the local away (no active candidate for it); the address stays a const candidate (bit 21), still behind the handle (bit 5) on the 2.0 tie.
+  - b in its own `{ }` scope around the tag store: 6; a bare `{ }` around the body after two-line b: 11 (same as plain removal)
+  - `HeapBlock **` / `void **` handle parameter (PROTO_SKIP stand-in): 6
+  - a named u8 tag field at 0xB (file-local view struct for the test): 6, so a HeapBlock tag field would not fix the site
+  - `u32` gHeapSurvivorCount: 6
+  - `if (1) { ... }` kept with one-line b: 9
+  - variants.py scan on the plain body: one variant (the mirrored compare), 6
+  - tools/permute.py run (hack-free weights) from the plain one-line body, 900 s, base 131: best 0, but all 23 zero outputs insert an empty dead test after the b load (`if (b && b) {}`, `if (!b) {}`, `if (handle) {}`, `if (!handle) {}`), some with copy temps: steer swaps (.scratch/CleanheapRegisterSurvivor/zeros_hr.txt)
 ## Untried ideas
 - A natural second block between the *handle load and the tag store. Nothing in the target asm shows one (straight-line code up to the 0x20 test).
-- A `void **` or `HeapBlock **` handle parameter. This needs a prototype bundle across the callers.
 ## Evidence
 - target 0x1258-0x12c0:
   - `lw v1,0(a0)` and `move a1,a0` at 0x1260/0x1264
   - `lui/addiu a0,gHeapSurvivorCount` at 0x1268/0x1270
   - `sb t6,-5(v1)` at 0x1274
   - a dead `addiu v1,v1,-16` (b) at 0x1280
-- traces: .scratch/HackloadOverlay2/tr5_hr_keep.txt and tr5_hr_oneline.txt
+- caller 3C10.c passes one argument (`move a0,s0` in the jal delay slot at 0xc04/0xc2c)
+- traces: .scratch/HackloadOverlay2/tr5_hr_keep.txt and tr5_hr_oneline.txt; .scratch/CleanheapRegisterSurvivor/t/tr_hr_plain5.txt, tr_hr_keep5.txt, tr_hr_plain6.txt
