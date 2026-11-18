@@ -118,7 +118,7 @@ void func_806AE394(f32 distOffset, f32 radius) {
     actorGetNodePos(gCurrentActor, 2, &node2X, &node2Y, &node2Z);
     angle = mathAngleBetweenPoints2D(node2X, node2Z, node1X, node1Z);
     lensFlareAddSource(node1X, node1Y, node1Z, node2X, node2Y, node2Z, 0.6f, 0xFF, 0xFF, 0xFF);
-    node1X = mathSinF(angle) * distOffset + gCurrentActor->x;
+    node1X = mathSinF(angle) * distOffset + gCurrentActor->x; // ORIG: target stores the light X/Z into node1X/node1Z's homes (swc1 $f4,0x64(sp) at 0x48c, swc1 $f16,0x5c(sp) at 0x4c0; &node1X/&node1Z = sp+0x64/0x5c at 0x3dc/0x3c8); separate locals grow the frame 0x68 -> 0x70
     node1Z = mathCosF(angle) * distOffset + gCurrentActor->z;
     lightAdd(node1X, gCurrentActor->y, node1Z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, 0xFF, 0xFF);
     if (gCurrentActor->state != 0) {
@@ -167,7 +167,7 @@ void func_806AE588(void) {
         }
     }
     state = gCurrentActor->state;
-    entryState = state;
+    entryState = state; // FAKE: redundant copy of state keeps the 0x35 test on the switch register (bne a1,at at 0xc08); testing state adds move v0,a1 at 0x7c4 and reads v0
     switch (state) {
     case 0x31:
         if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
