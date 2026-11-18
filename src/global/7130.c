@@ -716,7 +716,7 @@ void sfxUpdateLevelAmbient(void) {
     s8 pad;
     u8 fxFlags;
     u8 extraSfx;
-    u8 emitterCount;
+    u8 emitterCount; // FAKE: u8 width chosen for codegen: the count is a per-map constant (li s1,N at 0x1088..0x1194), never a byte load or store; its int promotion is the ucvt copy uopt colours s3 (move s3,s1 at 0x1254) as the loop bound; s32/s16/s8 counts are 17 (replaces the n bound copy of 417de3)
     s16 group;
     s16 k;
     f32 volume;
