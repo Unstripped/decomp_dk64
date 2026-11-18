@@ -2,8 +2,9 @@
 
 ## Sites
 - global:8072C918:dead-if:627052 dead-if: `if (ang != 0) {}` after behaviourCheckTargetCollisionMode. It keeps ang (t2) live across both calls: spilled at sh t2,74(sp) 0x2f1c and again at 0x2fb0. Without the use, the whole ang computation (subu 0x2ed8/0x2ee8) disappears and the function shifts by 214 diff lines.
-- global:8072C918:other:49d7fe other: `me = (Actor *)C1B40->secondComponent; if (dist < *(s16 *)me)`. Reusing `me` for the 0x178 component kept the pointer in its register (t8 at 0x3134 instead of v1).
-- global:8072C918:noop-arith:97a9f3 noop-arith: `(ret ^ 0) == gBehaviourWorkState->unk36` gives `beq t5,v0` at 0x3170 (field lbu t5,54(v1) first). The plain compare gives `beq v0,t5`; colouring is identical (full=1).
+- global:8072C918:noop-arith:ad854e (was 97a9f3 until 2026-11-17f) noop-arith: `(ret ^ 0) != unk36 && (hasTarget == 0 || (s32)ret >= 7)` (the empty-then `if ((ret ^ 0) == unk36) {} else if (...)` respelled as one `&&` test, 0). The uxor makes the $v0 side an isop; uopt keeps an op-vs-op compare in reversed source order, so the unk36 load (right) is the first operand: `beq t5,v0` at 0x3170. The plain compare (var vs op) gives `beq v0,t5` (full=1).
+- global:8072C918:other:ec05fc other (pre-existing, tagged 2026-11-17f): case 0x35 `near = (unk20-- == 0); if (near)` reuses near (s32, home 64(sp), t4) for the countdown flag (sltiu t4,v0,1 at 0x34b0). A dedicated local leaves near uncoloured (candidate 27 split into -ve-save pieces), so every near test reloads 64(sp): 185-221.
+- global:8072C918:other:49d7fe (fixed 2026-11-14): `me = (Actor *)C1B40->secondComponent; if (dist < *(s16 *)me)`, now the typed `range` local.
 - global:8072C918:other:c57b42, 5bba72, 1ad395, 5bba72#2 (fixed 2026-11-15, now `// ORIG:`): the `near & 0xFF` tests. The target really masks the s32 flag (sw/lw slot 64(sp), register t4) at every one of these tests: andi t9,t4,0xff at 0x305c/0x3080, andi t7,t4,0xff at 0x3168, 0x32d8, 0x33f4/0x341c. The case 0x35 reuse (`near = (unk20-- == 0); if (near)`, sltiu t4 / beqz t4 at 0x34b0) has no mask, so the mask belongs to the source tests.
 
 ## Attempts
@@ -62,14 +63,28 @@
     - Value local `cur = unk36; if (ret == cur)` (or `cur == ret`), s32 or u8, in pad0's place / first / last / after ret: 94-126.
   - **627052:** angle wrap `if (ang > 0x800) { ang = 0x1000 - ang; }` (also `>=`, and `& 0xFFF` on the result) at the guard line: full=0. It is still a dead use, though: the store is dead, and the target never branches on ang. It would swap one dead construct for another, so it was not adopted. The same wrap right after the ang computation: 201.
   - sweep on the copy: 0 hits. Review: no edits.
+- 2026-11-17f CleanenemyAggroStateUpdate (unit "2026-11-17: cleanup CleanenemyAggroStateUpdate"), opus-5-5:
+  - **97a9f3 -> ad854e:** uopt trace at base: the compare operand is the `$v0` return-register var (`isvar R 0 2vreg`, hash 1485): `uxor{1485}{0}` / `uequ{1521}{7|3}` (bits 194/195). ret (-20vreg, 1181) is copy-propagated and never stored, so declaration-position numbering (Q1027) never reaches the final compare.
+    - Op-vs-op compares keep reversed source order (not candidate order, refines Q0474): `unk36 == (ret ^ 0)` gives `uequ{7}{1521}` and `beq v0,t5` (1); `(ret << 0)` on the left 0, on the right 1.
+    - `| 0` and `& 0xFFFFFFFF` fold after the ordering into ret own var: `uequ{1521}{1181}`, `move a1,v0` after the jal, `beq t5,a1` (4). `+ 0` / `- 0` fold first (1). `<< 0`, `>> 0`, `* 1`, `/ 1` survive codeless like `^ 0` (0). s32 ret with the uxor: 36.
+    - Callee return width (PROTO_SKIP stand-in): u16 keeps the callee (0), caller 1 with ret u32 and 22 with ret u16 (andi re-mask); s16 breaks the callee (5; caller 34/115); u32 0/1.
+    - Control flow: `if ((ret ^ 0) == unk36) {} else if (A) {...}` respelled `if ((ret ^ 0) != unk36 && A) {...}` (0; the nested form is 0 too). New key ad854e. Plain on the new body: 1; variants scan of it: 57 variants, best 1.
+  - **627052:** lever (e) (Q1187/Q0932) fails: with the plain compare, `if (ang != 0 && ret != 0) {}` or `if (ret != 0 && ang != 0) {}` keeps ang but leaves `beq v0,t5` (1): the beq order is set inside the compare, not by ret liveness. The ang test inside the 0x23 compare arm: 46 (with or without the uxor). `register s16 ang` without the guard: 214. Removal on the new body 214.
+  - **ec05fc (new, pre-existing, now tagged):** case 0x35 reuses `near` for the `unk20-- == 0` flag. A dedicated local: u8 in the pad0 slot 185, s8 188, u16 193, s16 196; s32 declared last, block-scoped, or the inline `if (unk20-- == 0)` 221. Trace: near (cand 27, -24vreg) is coloured t4 whole with the reuse; without it, it splits into pieces 213/225/228/232 (-ve save) and each test reloads `lw 64(sp)` (0x305c, 0x3164, 0x32d8). The reuse never stores to 64(sp) after the def, so ORIG does not apply (register sharing only).
+  - **permute (hack-free weights, -j 2, 900 s):** all-removed body (ang guard and uxor removed, near reuse kept), `perm_allrm`: base 3580, best 310. Every best output reuses ang for an unrelated value (`ang = 0xFF` with `near & ang` in 0x23/0x33, `(s32)ret >= (ang = 7)`, `ang = targetX` in case 7); none keeps the behaviour.
+    - Natural body with all three removed (dedicated s32 `expired`, pad0 dropped), `perm_rec3`: base 6759, best 2806. The best outputs again reuse ang (`ang = near` before case 4, `ang = chaseScriptId` before case 0x23) or respell `dist < 0x1388` as `(dist + 1) <= 0x1388`; none puts near back in t4.
+  - **reconstruct:** the natural body (no ang guard, plain `ret != unk36 && (...)`, a dedicated s32 `expired` local for case 0x35, pad0 dropped): 217; expired in the pad0 slot 214; near reuse kept 215.
+  - sweep on the copy: 0 hits. Review: the empty-then compare respelled, the near reuse tagged; casts=1 kept (`(s32)ret >= 7`: the target does a signed `slti at,v0,7` at 0x317c).
 
 ## Untried ideas
-- uopt_trace done: in the plain form, uequ{1181|0}{1521|0} numbers ret (1181) before unk36 (1521); the ^ 0 form wraps ret in a uxor isop numbered after the field. isvar hashes follow 1501 + 16*offset (-20vreg -> 1181), so no in-frame declaration position puts ret after the field. A source-level way to put a codeless isop on ret's side is still missing; every 32-bit no-op cvt folds.
-- 97a9f3: ret u8 with `u8 pad1[3]` (slots kept) is 5 lines away: only the `andi a0,v0,0xff` re-mask remains. A way to make uopt trust the u8 call result (no re-mask at the compare and the slti) is untried.
-- 627052: no codeless natural use of ang after `type = ret` found; only dead constructs match (incl. a dead angle-wrap store, 2026-11-17).
-- 97a9f3: a narrow (u8/u16) value that holds the unmasked v0 would give a codeless `ucvt` on ret's side, as `type` does in case 0x10. But the target's slti/beq use unmasked v0, and IDO re-masks narrow call results, so no such declaration is known.
+- ad854e: a natural codeless isop on a 32-bit var written on the left of the compare. Every 32-bit cast folds before ordering (`+ 0`/`- 0` too); `| 0` folds after ordering but splits ret off $v0. Only a narrow var gives a codeless ucvt, and IDO re-masks a narrow var assigned from the int-typed $v0 R var.
+- 627052: no codeless natural use of ang after `type = ret` found; only dead constructs match (dead angle-wrap store 2026-11-17; the permuter only finds unrelated reuses of ang, 2026-11-17f).
+- ec05fc: a natural extra def/use of near in case 0x35 that keeps near coloured whole in t4 (the target tests only the countdown there).
 
 ## Evidence
 - 0x2ed8 `subu t2,v1,v0` / 0x2ee8 `subu t2,v0,v1`: ang = |moveYaw - unk8| is computed.
 - 0x2f1c `sh t2,74(sp)` before the jal zoneCanReachPoint; 0x2f44 `lh t2,74(sp)` after it; 0x2fb0 `sh t2,74(sp)` before the jal behaviourCheckTargetCollisionMode. Nothing reloads 74(sp) later.
 - 0x316c `lbu t5,54(v1)` (unk36); 0x3170 `beq t5,v0,31a4`: the field comes first.
+- 0x2fec `andi a3,v0,0xff` (type); ret stays in $v0 through the switch: `slti at,v0,7` at 0x317c and `beq t5,v0` at 0x3170 use the unmasked call result; ret has no home store.
+- 0x34b0 `sltiu t4,v0,1` / 0x34b8 `beqz t4`: the case 0x35 countdown flag lives in near register t4; near home 64(sp) is written only by the call-site spills.
+- Case 0x10 `beql t9,a3` at 0x33f0: `type != unk36` (ucvt of the u8 var vs the field) already puts the field first with no extra code.
