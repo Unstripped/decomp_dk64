@@ -1054,3 +1054,4 @@
 {"type": "unit", "t": "2026-11-18T06:33:43Z", "unit": "2026-11-17: cleanup CleanschedHandleRetrace", "commit": "fa0b530b3ff105e2b91d3ad143ad7945a298414e"}
 {"type": "unit", "t": "2026-11-18T06:43:23Z", "unit": "2026-11-17: cleanup CleanenemyGridStateStep", "commit": "226cabaec85b5a4c035b225e53f3b2a9873b2ae3"}
 {"type": "unit", "t": "2026-11-18T06:47:15Z", "unit": "2026-11-17: cleanup CleanbossScriptStep", "commit": "5945a20345de9820e8a6d197f27b7dca598e0b1d"}
+{"type": "unit", "t": "2026-11-18T07:03:39Z", "unit": "2026-11-17: cleanup CleantagBarrelOrbitKongs", "commit": "1a3628763141747f4bc1fe8316a4e85605b6b2c9"}
