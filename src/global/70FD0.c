@@ -160,15 +160,17 @@ void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
     f32 tmpMtx[4][4];
     u8 *animFrame;
     u8 *boneTable;
-    ModelSlot *entry;
+    ModelData *anim;
+    ModelAssetHeader *asset;
 
-    entry = (ModelSlot *)((u8 *)gModelSlots + slot * sizeof(ModelSlot)); // FAKE: byte-offset spelling keeps the slot * 0x90 product in t9 and gModelSlots in t8 (&gModelSlots[slot] swaps them)
-    if (entry->unk78 != NULL) {
-        animFrame = entry->unk78->frames[gGfxBufferIndex];
+    anim = gModelSlots[slot].unk78;
+    if (anim != NULL) {
+        animFrame = anim->frames[gGfxBufferIndex];
     } else {
-        animFrame = 0;
+        animFrame = NULL;
     }
-    boneTable = entry->unk24->unk60 + (u8 *)entry->unk24;
+    asset = gModelSlots[slot].unk24;
+    boneTable = asset->unk60 + (u8 *)asset;
     modelSlotGetTransformVectors(slot, &posX, &posY, &posZ, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);
     guScaleF(mtx, scale, scale, scale);
     guRotateF(tmpMtx, rotX, 1.0f, 0.0f, 0.0f);
