@@ -7,9 +7,9 @@
 extern s32 gCurrentMap;
 
 typedef struct {
-    void (*init)();
-    Gfx *(*draw)();
-    void (*update)();
+    void (*init)(void);
+    Gfx *(*draw)(Gfx *);
+    void (*update)(void);
     u8 active;
 } MapSurfaceEffect;
 
@@ -101,29 +101,29 @@ Gfx *func_8063C7C4(Gfx *g) {
     s32 w;
     s32 h;
     s32 tmem;
-    s32 j;
+    s32 maskBits;
     s32 line;
 
     tmem = 0;
     w = 0x20;
     h = 0x20;
-    j = 5;
+    maskBits = 5;
     gDPPipeSync(g++);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
     gSPClearGeometryMode(g++, -1);
     gSPSetGeometryMode(g++, 0x200405);
     gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, D_807F617C);
-    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0);
+    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, tmem, 7, 0, 0, 0, 0, 0, 0, 0);
     gDPLoadSync(g++);
     gDPLoadBlock(g++, 7, 0, 0, 0x7FF, 0);
     tmem = 0;
     for (i = 0; i < 4; i++) {
         line = (w + 3) / 4;
-        gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, line, tmem, i, 0, 0, j, i, 0, j, i);
+        gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, line, tmem, i, 0, 0, maskBits, i, 0, maskBits, i);
         gDPSetTileSize(g++, i, 2, (s32)D_807F6178, ((w - 1) << 2) + 2, ((h - 1) << 2) + 2);
         tmem += line * h;
-        w >>= 1; h >>= 1;
-        j--;
+        w >>= 1; h >>= 1; // LAYOUT: both shifts on one line keep as1's sra order (split: the two sra swap)
+        maskBits--;
     }
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 16, 1, 0x10000);
     if (fogGetEnabled()) {
@@ -244,11 +244,7 @@ Gfx *func_8063CF3C(Gfx *g) {
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
         gDPSetCombine(g++, 0xFF9441, 0xFF13FFFF);
     }
-    gDPSetTextureImage(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, (u32)D_807F6190 - 0x80000000);
-    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 6, 0, 0, 6, 0);
-    gDPLoadSync(g++);
-    gDPLoadBlock(g++, 7, 0, 0, 0x7FF, 0x100);
-    gDPPipeSync(g++); gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 0, 0, 0, 6, 0, 0, 6, 0); gDPSetTileSize(g++, 0, 0, 0, 0xFC, 0xFC);
+    gDPLoadTextureBlock(g++, (u32)D_807F6190 - 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
     gDPSetTileSize(g++, 1, 0, (s32)D_80747E00, 0xFC, 0xFC);
     gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, 0, 6, 1, 0, 6, 1);
     gDPSetTileSize(g++, 2, 0, (s32)D_80747E04, 0xFC, 0xFC);
@@ -285,7 +281,7 @@ void envTextureInitAsset3BB(void) {
 }
 
 Gfx *func_8063D2E4(Gfx *g) {
-    u32 tex;
+    void *tex;
 
     gDPPipeSync(g++);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
@@ -296,13 +292,8 @@ Gfx *func_8063D2E4(Gfx *g) {
     gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
     gDPSetCombine(g++, 0xFFFFFF, 0xFFFCF279);
     gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 255);
-    tex = (u32)D_80747E0C[D_807F6194].data;
-    gDPSetTextureImage(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, tex - 0x80000000);
-    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 5, 0, 0, 6, 0);
-    gDPLoadSync(g++);
-    gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x100);
-    gDPPipeSync(g++);
-    gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 0, 0, 0, 5, 0, 0, 6, 0); gDPSetTileSize(g++, 0, 0, 0, 0xFC, 0x7C);
+    tex = D_80747E0C[D_807F6194].data;
+    gDPLoadTextureBlock(g++, (u32)tex - 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 32, 0, G_TX_WRAP, G_TX_WRAP, 6, 5, G_TX_NOLOD, G_TX_NOLOD);
     return g;
 }
 
@@ -372,10 +363,7 @@ Gfx *func_8063D638(Gfx *g) {
             break;
     }
     gDPSetPrimColor(g++, 0, 0, 255, 255, 255, alpha);
-    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, (u32)D_807F619C - 0x80000000);
-    gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 5, 0, 0, 5, 0);
-    gDPLoadSync(g++); gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x100); gDPPipeSync(g++); gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, 0, 5, 0, 0, 5, 0);
-    gDPSetTileSize(g++, 0, 0, 0, 0x7C, 0x7C);
+    gDPLoadTextureBlock(g++, (u32)D_807F619C - 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
     gDPSetTileSize(g++, 0, 0, (s32)D_807F61A0, 0x7C, 0x7C);
     gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 1, 0, 0, 5, 0, 0, 5, 0);
     return g;
