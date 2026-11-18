@@ -574,21 +574,21 @@ extern s8 D_80752CBF[];
 void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) {
     KongChain *state = ((F56AActor *) actor)->weaponState;
     KongChainNode *node;
-    BoneRotation *slot;
+    f32 target;
     f32 trajectory;
     s32 index;
     s32 kind;
-    s32 value;
+    s8 value;
     s32 i;
     s32 k;
     f32 angle0;
     f32 angle1;
-    f32 ret;
+    f32 turnDelta;
     f32 angle;
     f32 pos[2][3];
-    f32 y;
-    f32 newvel;
-    f32 delta;
+    f32 turnSpeed;
+    f32 velY;
+    f32 accelY;
     KongChain *cur;
     s32 active;
     f32 boost;
@@ -596,7 +596,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
     f32 accel1;
 
     index = *count;
-    ret = 0;
+    turnDelta = 0;
     kind = 0x16;
     cur = state;
     active = playerWeaponCalculateTrajectory26(actor, state, 5);
@@ -609,7 +609,6 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
             cur[k].prevAngle = angle;
             cur[k].prevY = pos[k][1];
         }
-        if (k == 0) {}  // FAKE: dead use of k after loop 1 (index in s7, slots in s2)
         if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->kind == 5)) {
             state->holdTimer -= 1;
         }
@@ -617,57 +616,52 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
         s16 idx = actor->sub4->model->animId;
 
         if (idx >= 0) {
-            newvel = D_80752CBF[idx];
+            target = D_80752CBF[idx];
         } else {
-            newvel = -128.0f;
+            target = -128.0f;
         }
-        state->weight += (newvel - state->weight) * 0.3;
-        value = (s8) state->weight;
-        ret = mathAngleRadDeltaTurns(&state->prevAngle, angle);
+        state->weight += (target - state->weight) * 0.3;
+        value = state->weight;
+        turnDelta = mathAngleRadDeltaTurns(&state->prevAngle, angle);
         trajectory = playerWeaponCalculateTrajectory25(actor, state, 0.02f);
     }
-    slot = slots; slot += index; k = 0; do { // LAYOUT: one source line lets as1 schedule the loop preheader
+    for (k = 0; k != 2; k++, cur++) {
         accel1 = 0.0f;
         accel0 = 0.0f;
         angle0 = 0.0f;
         angle1 = 0.0f;
         node = cur->nodes;
         if (active != 0) {
-            y = pos[k][1];
-            newvel = y - cur->prevY;
-            delta = newvel - cur->prevVelY;
-            cur->prevY = y;
-            cur->prevVelY = newvel;
-            boost = 0.4f * ret;
-            y = (0 < ret) ? ret : -ret;
+            velY = pos[k][1] - cur->prevY;
+            accelY = velY - cur->prevVelY;
+            cur->prevY = pos[k][1];
+            cur->prevVelY = velY;
+            boost = 0.4f * turnDelta;
+            turnSpeed = (turnDelta > 0) ? turnDelta : -turnDelta;
             if (k != 0) {
                 accel0 = -trajectory;
-                accel1 = -((y * 0.3f) + (-0.015f * delta - 0.0008f * newvel));
+                accel1 = -((turnSpeed * 0.3f) + (-0.015f * accelY - 0.0008f * velY));
             } else {
                 accel0 = trajectory;
-                accel1 = (y * 0.3f) + (-0.015f * delta - 0.0008f * newvel);
+                accel1 = (turnSpeed * 0.3f) + (-0.015f * accelY - 0.0008f * velY);
             }
             accel0 += boost;
         }
-        i = 0;
-        do {
+        for (i = 0; i != 8; i++) {
             if (active != 0) {
                 playerWeaponCalculateTrajectory24(accel1, 0.06f, &node->springX, &angle0);
                 playerWeaponCalculateTrajectory24(accel0, 0.06f, &node->springY, &angle1);
             }
-            slot->weight = value;
-            slot->bone = kind;
-            slot->rotX = 0;
-            slot->rotY = (s32) ((node->springY.angle + node->springY.offset) * 10430.218905280077);
-            slot->rotZ = (s32) ((node->springX.angle + node->springX.offset) * 10430.218905280077);
-            i++;
+            slots[index].weight = value;
+            slots[index].bone = kind;
+            slots[index].rotX = 0;
+            slots[index].rotY = (s32) ((node->springY.angle + node->springY.offset) * 10430.218905280077);
+            slots[index].rotZ = (s32) ((node->springX.angle + node->springX.offset) * 10430.218905280077);
             node++;
             index++;
-            slot++;
             kind++;
-        } while (i != 8);
-        k++; cur++; // LAYOUT: one source line orders the k/cur reload-increment-store tail
-    } while (k != 2);
+        }
+    }
     *count = index;
 }
 
