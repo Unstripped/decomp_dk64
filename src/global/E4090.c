@@ -1334,24 +1334,22 @@ void playerInputUpdateMoveTargetClamped(void) {
                 actorScriptStartByIndex(gCurrentActor, 0x61);
                 gCurrentActor->state = 0x10;
                 gCurrentActor->unk155 = 0;
-            } else if (pad->stickX >= 0x1F) {
+            } else if (pad->stickX > 0x1E) {
                 actorScriptStartByIndex(gCurrentActor, 0x5F);
                 gCurrentActor->state = 0x11;
                 gCurrentActor->unk155 = 0;
-            } else {
-                if (pad->stickY >= 0x1F) {
-                    actorScriptStartByIndex(gCurrentActor, 0x63);
-                    gCurrentActor->state = 0x12;
-                    gCurrentActor->unk155 = 0;
-                } else if (pad->stickY < -0x1E) {
-                    actorScriptStartByIndex(gCurrentActor, 0x65);
-                    gCurrentActor->state = 0x13;
-                    gCurrentActor->unk155 = 0;
-                }
+            } else if (pad->stickY > 0x1E) {
+                actorScriptStartByIndex(gCurrentActor, 0x63);
+                gCurrentActor->state = 0x12;
+                gCurrentActor->unk155 = 0;
+            } else if (pad->stickY < -0x1E) {
+                actorScriptStartByIndex(gCurrentActor, 0x65);
+                gCurrentActor->state = 0x13;
+                gCurrentActor->unk155 = 0;
             }
         }
         pad = &gPlayerPadState[gCurrentPlayerIndex];
-        if ((pad->stickX < 0x1E && gCurrentActor->state == 0x11) || (pad->stickY >= -0x1D && gCurrentActor->state == 0x13) || (pad->stickY < 0x1E && gCurrentActor->state == 0x12) || (pad->stickX >= -0x1D && gCurrentActor->state == 0x10)) {
+        if ((pad->stickX < 0x1E && gCurrentActor->state == 0x11) || (pad->stickY > -0x1E && gCurrentActor->state == 0x13) || (pad->stickY < 0x1E && gCurrentActor->state == 0x12) || (pad->stickX > -0x1E && gCurrentActor->state == 0x10)) {
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 2 && gCurrentActor->state != 0x12) {
                 actorScriptStart(gCurrentActor, 0x191);
             } else if (gCurrentActor->unk155 == 1) {
