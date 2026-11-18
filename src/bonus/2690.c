@@ -2159,12 +2159,11 @@ Gfx *bonusSearchlightSeekRenderHud(Gfx *gdl, Actor *actor) {
     gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     switch (actor->state) {
     case 7:
-        do {
-        } while (0); // FAKE: empty do/while(0) moves the spill temps up one word (sp+0x50/0x54/0x4C)
         break;
     case 0:
     case 1:
-        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, subExt->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &subExt->shownCount, subExt->targetsLeft, &subExt->rollTimer);
+        gdl = textDrawAnimated(gdl, subExt->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f);
+        gdl = hudDrawRollingCounter(gdl, 0x26, 0x32, &subExt->shownCount, subExt->targetsLeft, &subExt->rollTimer);
         break;
     }
     return gdl;
