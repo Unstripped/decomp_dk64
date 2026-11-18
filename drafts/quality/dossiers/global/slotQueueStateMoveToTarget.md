@@ -61,8 +61,16 @@
     - same with `target = cur`: 8 (copy propagation folds target into cur, which then takes s0). call arg *v, target *v: 10 (now the expression takes a1 and cur a3). u32 cur: same as s32; u16/s16 cur: 13-51. `shown` before target: 6. call arg `shown` var: 53. call before target/shown: 47. cur declared in any position / at block scope: 5-10. variants scan of the 5 body: nothing below 5.
     - the gap is structural: the target has ONE allocation candidate (the PRE expression temp, a1) spanning the pre-test load, the call arg, the NULL edge and the join; any named variable adds a second candidate holding the same value, so one of them lands outside a1.
   - permuter, 900 s, 80k iterations, base 339 (the cur body): best 50, which needs `while (new_var = node != 0)` plus a redundant `cur = *v` re-read inside the arm; without the while hack that body scores 13.
+- 2026-11-17f U CleanslotQueueDrawLabel (anthropic/claude-opus-5-5), 34e891 (sweep re-run: classify class 2, cond/recipe/remove nohit; plain removal 13):
+  - lever (c), the 54150 no-code CSE candidate, tested with a real read through a `value` pointer local:
+    - `value = gSlotQueue[slot].value` at the arm start, used for the null test, target and call arg: join through the field 18, join through `*value` 17; call args target/shown 22.
+    - pre-test `target = *value` through the local: 14. With the call arg as the inline field read: 11 (lw a3,0(v0); lhu s0,0(a3); andi a1,s0,0xffff in the jal slot; the join reloads lhu t4,0(a3)).
+    - `*value` through the local is a different expression from the field-based ilod that the join's PRE reuses on the NULL edge, so it never becomes the a1 temp.
+  - field-based pre-test `target = *v` with the call arg as a second inline read: 4 (the known form). The colours are right; ugen emits `move s0,a1` before the beqz, as1 puts it in the delay slot, and `lhu a1,0(v1)` stays above the branch. With `target = *v` re-read in the arm as well: 13. With call arg target: 16.
+  - variants scan of the target-before-test body: nothing below 4.
+  - permuter, 900 s, -j 2, hack-free weights, base 256 (the plain removal body: the first run from it on the current function), 33128 iterations: best 80, which is the target-before-test form. 95 routes it through the unrelated `index` local (a reuse steer).
 ## Untried ideas
-- 34e891: none left in natural C. A source read of *v before the null test is required (Q1075), and the target keeps that value in one PRE expression temp (a1) through the call arg, the NULL edge and the join compare. Every spelling that gives the read a real use names a variable, which becomes a second allocation candidate for the same value (best 5: the join-variable `cur` body above).
+- 34e891: none left in natural C. A source read of *v before the null test is required (Q1075), and the target keeps that value in one PRE expression temp (a1) through the call arg, the NULL edge and the join compare. Every spelling that gives the read a real use names a variable. Best 4: `target = *v` before the test, schedule only (`move s0,a1` lands in the beqz delay slot). Best join form 5: the `cur` body. A read through a pointer local is a different expression, so PRE cannot reuse it at the join (11-18).
 ## Evidence
 - frame 0x58
 - slot*0x30 spilled at 0x30(sp)
