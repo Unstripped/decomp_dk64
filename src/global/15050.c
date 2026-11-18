@@ -47,7 +47,8 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
     u32 bssSize;
     u8 *addr[10];
     s32 sizes[8];
-    s32 pad[2];
+    u8 *pix;
+    s32 pad;
     u64 saved[2];
     s32 fb1;
     u32 top;
@@ -55,7 +56,7 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
     HeapBlock *first;
     s32 total;
     u8 *dst;
-    s32 pad2;
+    s32 fb;
     HeapBlock *blk;
     u32 *p;
     u8 *q;
@@ -124,8 +125,8 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
         vram = gSegmentTable[id].vramStart;
         romStart = gSegmentTable[id].romStart;
         bssStart = gSegmentTable[id].bssStart;
-        bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart;
-        size = (s32)gSegmentTable[id].bssStart - vram;
+        bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart; // FAKE: re-reads the field the bssStart local holds (target loads it once, lw v1,16(v0) at 0x170); the local spelling gives bssStart a register from its init (move t4,zero for sw zero,228(sp) at 0xac), 120 lines
+        size = (s32)gSegmentTable[id].bssStart - vram; // FAKE: same bssStart re-read (one load at 0x170; the local spelling scores 120); keeps the left-operand conversion (Q0733)
     }
     gFramebuffers[0] = (size + bssSize + 0x8002403F) & ~0x3F;
     fb1 = ((size + bssSize + 0x8002403F) & ~0x3F) + fbSize;
@@ -224,12 +225,12 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
         osWritebackDCache((void *)vram, size);
         osInvalICache((void *)vram, size);
     }
-    for (id = 0; id < 2; id++) {
-        q = (u8 *)gFramebuffers[id];
-        p = (u32 *)(q + (gHiResScale * 0x12C00 * gHiResScale) / 2 * 4);
-        while (q < (u8 *)p) {
-            *(u32 *)q = 0x10001;
-            q += 4;
+    for (fb = 0; fb < 2; fb++) {
+        pix = (u8 *)gFramebuffers[fb];
+        p = (u32 *)(pix + (gHiResScale * 0x12C00 * gHiResScale) / 2 * 4); // FAKE: p (loop 2's survivor payload) reused for the framebuffer end: the inner-loop refs raise p's adjsave 30 -> 75, so p takes v1 before hp (30) and hp gets a3 (0x320-0x354); a separate end pointer ties them at 30 and hp takes v1 (9 lines)
+        while (pix < (u8 *)p) {
+            *(u32 *)pix = 0x10001;
+            pix += 4;
         }
     }
 }
@@ -395,10 +396,9 @@ s32 heapReleasePool(s32 idx) {
                     }
                     blk = tail->next;
                 }
-                tailEnd = bs + (s32)tail;
-                tailEnd += 0x20;
+                tailEnd = bs + (s32)tail + 0x20;
                 if (tailEnd == (s32)start) {} // FAKE: second use keeps the tailEnd sum a coloured candidate in a0; the start use ties start with the bs conversion so start keeps a3 and bs t0
-                poolEnd = gHeapPools[idx].size + (s32)start;
+                poolEnd = (s32)start + gHeapPools[idx].size;
                 if (tailEnd != poolEnd) {
                     ok = 0;
                 }
