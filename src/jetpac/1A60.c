@@ -6,8 +6,54 @@
 #include "proto/jetpac/3060.h"
 #include "proto/jetpac/3480.h"
 #include "proto/jetpac/4FC0.h"
-extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
+
+// .data 0x8002BA80-0x8002C570 (sprite pixel layout: see 0.c).
+Gfx D_8002BA80[1] = { gsSPEndDisplayList() };
+u8 D_8002BA88[0x188] = {
+#include "jetpac/D_8002BA88.inc.c"
+};
+u8 D_8002BC10[0x108] = {
+#include "jetpac/D_8002BC10.inc.c"
+};
+u8 D_8002BD18[0x188] = {
+#include "jetpac/D_8002BD18.inc.c"
+};
+u8 D_8002BEA0[0x188] = {
+#include "jetpac/D_8002BEA0.inc.c"
+};
+u8 D_8002C028[0x188] = {
+#include "jetpac/D_8002C028.inc.c"
+};
+u8 D_8002C1B0[0x180] = {
+#include "jetpac/D_8002C1B0.inc.c"
+};
+JetpacSprite D_8002C330 = { D_8002BA88, 0, 16, 16, 24, 4, 1, 0, 0, 0 };
+JetpacSprite D_8002C348[4] = {
+    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 0, 0 },
+    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 8, 0 },
+    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 16, 0 },
+    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 24, 0 },
+};
+JetpacSprite D_8002C3A8[4] = {
+    { D_8002BD18, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
+    { D_8002BEA0, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
+    { D_8002C028, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
+    { D_8002C1B0, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
+};
+Gfx D_8002C408[1] = { gsSPEndDisplayList() };
+u8 D_8002C410[0xC0] = {
+#include "jetpac/D_8002C410.inc.c"
+};
+JetpacSprite D_8002C4D0[3] = {
+    { D_8002C410, 0, 24, 8, 8, 4, 1, 16, 0, 0 },
+    { D_8002C410, 0, 24, 8, 8, 4, 1, 8, 0, 0 },
+    { D_8002C410, 0, 24, 8, 8, 4, 1, 0, 0, 0 },
+};
+// The jetman template (jetpacInitPlayer).
+JetpacActor D_8002C518 = {
+    0.0f, 0.0f, 0.0f, 0.0f, { 255, 255, 255, 1 }, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 14, { 255, 255, 255, 1 } }, 0, 0, NULL, NULL,
+};
 
 void jetpacUpdateExplosion(JetpacExplosion *explosion) {
     s32 frame;
@@ -389,9 +435,6 @@ extern u8 D_8002F060[];
 extern s32 D_8002F064;
 extern s32 D_8002F068;
 extern s32 D_8002F080;
-extern JetpacSprite D_8002C330;
-extern JetpacSprite D_8002C348[];
-extern JetpacSprite D_8002C3A8[];
 
 void jetpacDrawPlayer(void) {
     f32 x;
@@ -478,8 +521,6 @@ void jetpacPlayerStateUpdate(void) {
         }
     }
 }
-
-extern JetpacActor D_8002C518;
 
 void jetpacInitPlayer(void) {
     JetpacPlayerActor *g = &jetpacGame.player;

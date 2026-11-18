@@ -1,28 +1,72 @@
 #include "common.h"
 #include "jetpac.h"
-#include "proto/global/100180.h"
 #include "proto/jetpac/0.h"
 #include "proto/jetpac/1460.h"
 #include "proto/jetpac/1A60.h"
 #include "proto/jetpac/3060.h"
 #include "proto/jetpac/3480.h"
 #include "proto/jetpac/4FC0.h"
-extern JetpacSprite D_8002E800[];
-extern JetpacSprite D_8002E848[];
-extern JetpacSprite D_8002E890;
-extern JetpacSprite D_8002E8C0;
-extern JetpacSprite D_8002E8D8;
-extern JetpacSprite D_8002E830;
-extern JetpacSprite D_8002E8A8;
 extern s32 jetpacBlinkPhase;
-extern JetpacSprite D_8002E878;
 extern f32 D_8002F054;
 extern s32 D_8002F078;
-extern JetpacActor jetpacActorClearTemplate;
-extern JetpacActor jetpacActorSpawnTemplate;
-extern s32 jetpacSpawnTimer;
-extern u8 D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3;
-extern u8 D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC;
+
+// .data 0x8002DEB0-0x8002E9B4 (sprite pixel layout: see 0.c).
+Gfx D_8002DEB0[1] = { gsSPEndDisplayList() };
+u8 D_8002DEB8[0x108] = {
+#include "jetpac/D_8002DEB8.inc.c"
+};
+u8 D_8002DFC0[0x108] = {
+#include "jetpac/D_8002DFC0.inc.c"
+};
+u8 D_8002E0C8[0x108] = {
+#include "jetpac/D_8002E0C8.inc.c"
+};
+u8 D_8002E1D0[0x108] = {
+#include "jetpac/D_8002E1D0.inc.c"
+};
+u8 D_8002E2D8[0x108] = {
+#include "jetpac/D_8002E2D8.inc.c"
+};
+u8 D_8002E3E0[0x88] = {
+#include "jetpac/D_8002E3E0.inc.c"
+};
+u8 D_8002E468[0x88] = {
+#include "jetpac/D_8002E468.inc.c"
+};
+u8 D_8002E4F0[0x108] = {
+#include "jetpac/D_8002E4F0.inc.c"
+};
+u8 D_8002E5F8[0x108] = {
+#include "jetpac/D_8002E5F8.inc.c"
+};
+u8 D_8002E700[0x100] = {
+#include "jetpac/D_8002E700.inc.c"
+};
+JetpacSprite D_8002E800[2] = {
+    { D_8002DEB8, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
+    { D_8002DFC0, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
+};
+JetpacSprite D_8002E830 = { D_8002E0C8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+JetpacSprite D_8002E848[2] = {
+    { D_8002E1D0, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
+    { D_8002E2D8, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
+};
+JetpacSprite D_8002E878 = { D_8002E3E0, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
+JetpacSprite D_8002E890 = { D_8002E468, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
+JetpacSprite D_8002E8A8 = { D_8002E4F0, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+JetpacSprite D_8002E8C0 = { D_8002E5F8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+JetpacSprite D_8002E8D8 = { D_8002E700, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+s32 jetpacSpawnTimer = 0;
+void (*jetpacActorInitTable[8])(JetpacActor *) = {
+    jetpacActorInitMeteor, jetpacActorInitBounce, jetpacActorInitWander, jetpacActorInitFighter,
+    jetpacActorInitSaucer, jetpacActorInitHop, jetpacActorInitCross, jetpacActorInitBlob,
+};
+JetpacActor jetpacActorSpawnTemplate = {
+    0.0f, 0.0f, 0.0f, 0.0f, { 190, 190, 190, 1 }, 0, 0, 0, 0, 16, 16, 0, { 0, 0, 14, { 255, 255, 255, 1 } }, 0, 25, NULL, NULL,
+};
+JetpacActor jetpacActorClearTemplate = {
+    0.0f, 0.0f, 0.0f, 0.0f, { 190, 190, 190, 1 }, 0, 0, 0, 0, 16, 11, 0, { 0, 0, 14, { 255, 255, 255, 1 } }, 0, 0, NULL, NULL,
+};
 
 JetpacActor *jetpacFindFreeActor(void) {
     JetpacActor *actor = jetpacGame.actors;
@@ -128,8 +172,6 @@ JetpacActor *jetpacAllocActor(void) {
     }
     return actor;
 }
-
-extern void (*jetpacActorInitTable[])(JetpacActor *);
 
 void jetpacSpawnActor(void) {
     s32 pad[2];
@@ -687,44 +729,4 @@ void jetpacDrawActors(void) {
             }
         }
     }
-}
-
-void jetpacSetupTextRdp(Gfx **pGlist) {
-    Gfx *g = *pGlist;
-
-    gDPPipeSync(g++);
-    gDPSetCycleType(g++, G_CYC_1CYCLE);
-    gSPClearGeometryMode(g++, -1);
-    gSPSetGeometryMode(g++, G_SHADE | G_SHADING_SMOOTH);
-    gDPSetCombineLERP(g++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, TEXEL0,
-                      PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, TEXEL0);
-    gDPSetRenderMode(g++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
-    *pGlist = g;
-}
-
-void jetpacSetTextColor(u8 r, u8 g, u8 b, u8 a) {
-    D_80045BE0 = r;
-    D_80045BE1 = g;
-    D_80045BE2 = b;
-    D_80045BE3 = a;
-}
-
-void jetpacSetTextHighlightColor(s8 r, s8 g, s8 b, s8 a) {
-    D_8002E9C0 = r;
-    D_8002E9C4 = g;
-    D_8002E9C8 = b;
-    D_8002E9CC = a;
-}
-
-void jetpacDrawString(Gfx **pGlist, char *str, s32 x, s32 y, s32 highlight) {
-    Gfx *g = *pGlist;
-
-    if (highlight != 0) {
-        gDPSetPrimColor(g++, 0, 0, D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC);
-        gDPSetEnvColor(g++, D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3);
-    } else {
-        gDPSetPrimColor(g++, 0, 0, D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3);
-        gDPSetEnvColor(g++, D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC);
-    }
-    *pGlist = textDrawString(g, 4, x, y, str);
 }

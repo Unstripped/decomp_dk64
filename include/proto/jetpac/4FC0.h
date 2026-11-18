@@ -99,16 +99,4 @@ void jetpacUpdateActors(void);
 #ifndef PROTO_SKIP_jetpacDrawActors
 void jetpacDrawActors(void);
 #endif
-#ifndef PROTO_SKIP_jetpacSetupTextRdp
-void jetpacSetupTextRdp(Gfx **);
-#endif
-#ifndef PROTO_SKIP_jetpacSetTextColor
-void jetpacSetTextColor(u8, u8, u8, u8);
-#endif
-#ifndef PROTO_SKIP_jetpacSetTextHighlightColor
-void jetpacSetTextHighlightColor(s8, s8, s8, s8);
-#endif
-#ifndef PROTO_SKIP_jetpacDrawString
-void jetpacDrawString(Gfx **, char *, s32, s32, s32);
-#endif
 #endif

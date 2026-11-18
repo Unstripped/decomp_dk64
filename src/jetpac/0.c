@@ -17,18 +17,48 @@
 #include "proto/jetpac/1A60.h"
 #include "proto/jetpac/3480.h"
 #include "proto/jetpac/4FC0.h"
+#include "proto/jetpac/6E00.h"
 
 extern JetpacState jetpacPlayer;
 extern struct GfSndState *D_80770DF8[];
 extern ALBank *gSfxBank;
 typedef struct {
+    s16 unk0;
     s16 sfx;
-    s16 unk2;
 } JetpacSoundEntry;
-extern JetpacSoundEntry D_8002BA52[];
 
-
-
+// .data 0x8002B090-0x8002BA80. Each sprite's pixels follow an 8-byte gsSPEndDisplayList; a pixel
+// include also holds the lead-in of the sprite after it. 1A60 draws the explosion sprites.
+Gfx D_8002B090[1] = { gsSPEndDisplayList() };
+u8 D_8002B098[0x188] = {
+#include "jetpac/D_8002B098.inc.c"
+};
+u8 D_8002B220[0x188] = {
+#include "jetpac/D_8002B220.inc.c"
+};
+u8 D_8002B3A8[0x188] = {
+#include "jetpac/D_8002B3A8.inc.c"
+};
+u8 D_8002B530[0x188] = {
+#include "jetpac/D_8002B530.inc.c"
+};
+u8 D_8002B6B8[0x188] = {
+#include "jetpac/D_8002B6B8.inc.c"
+};
+u8 D_8002B840[0x180] = {
+#include "jetpac/D_8002B840.inc.c"
+};
+JetpacSprite D_8002B9C0[6] = {
+    { D_8002B098, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
+    { D_8002B220, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
+    { D_8002B3A8, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
+    { D_8002B530, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
+    { D_8002B6B8, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
+    { D_8002B840, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
+};
+JetpacSoundEntry D_8002BA50[7] = { { 0, 0xA3 }, { 0, 0xA4 }, { 0, 0xA0 }, { 0, 0x9F }, { 0, 0x9E }, { 0, 0xA1 }, { 0, 0xA2 } };
+s32 jetpacBlinkPhase = 0;
+u8 jetpacInitPending = 1;
 
 extern u8 gGfxBufferIndex;
 extern u8 gGameMode;
@@ -116,9 +146,6 @@ void jetpacResetPlayers(void) {
     }
     jetpacGame.activePlayer = 0;
 }
-
-extern s32 jetpacBlinkPhase;
-
 
 void jetpacDrawScoreboard(Gfx **glist) {
     char buf[0x50];
@@ -333,7 +360,7 @@ void jetpacPlaySound(s32 soundId) {
             n_alSndpStop(D_80770DF8[i]);
         }
     }
-    n_alSndpPlay(gSfxBank, D_8002BA52[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
+    n_alSndpPlay(gSfxBank, D_8002BA50[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
 }
 
 void jetpacSetSoundPitch(s32 soundId, f32 pitch) {
@@ -401,7 +428,6 @@ void jetpacStartStage(void) {
     }
 }
 
-extern u8 jetpacInitPending;
 extern OSContPad *D_807ECDE8;
 
 void jetpacUpdateStateAndInput(Gfx **glist) {

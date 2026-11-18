@@ -42,7 +42,6 @@ segments:
     start: 0x0
     vram: 0x80024000
     bss_size: 0x16FD0
-    subalign: 8 # interior data carve at 0x9CE8, not a new TU boundary
     subsegments:
       - [0x0, c, 0]
       - [0x1460, c, 1460]
@@ -50,9 +49,12 @@ segments:
       - [0x3060, c, 3060]
       - [0x3480, c, 3480]
       - [0x4FC0, c, 4FC0]
-      - [0x7090, data, 0]
-      - [0x9CE8, .data, 3480] # item color + bonus template; same-TU callback affects as1 scheduling
-      - [0x9D38, data, 9D38]
+      - [0x6E00, c, 6E00] # hidden TU (text colours, jetpacDrawString): .data/.bss 16-align pads after 4FC0's last objects (jetpacActorClearTemplate ends 0x8002E9B4; jetpacTiledSpriteCount's 0x10 bss slot ends 0x80045BE0)
+      - [0x7090, .data, 0] # explosion pixels/sprites (1A60's D_8002B9C0), sound table D_8002BA50, jetpacBlinkPhase, jetpacInitPending (0x8002B090-0x8002BA80)
+      - [0x7A80, .data, 1A60] # player pixels/sprites, D_8002C518 jetman template (0x8002BA80-0x8002C570)
+      - [0x8570, .data, 3480] # rocket/item pixels/sprites, D_8002DC68 item x table, item templates, flame colour, ledge sprites (0x8002C570-0x8002DEB0)
+      - [0x9EB0, .data, 4FC0] # enemy pixels/sprites, jetpacSpawnTimer, jetpacActorInitTable, actor templates (0x8002DEB0-0x8002E9C0)
+      - [0xA9C0, .data, 6E00] # D_8002E9C0..D_8002E9CC highlight colour (0x8002E9C0-0x8002E9D0)
       - [0xA9D0, .rodata, 0]
       - [0xAB20, .rodata, 1460]
       - [0xAB30, .rodata, 1A60]
@@ -60,5 +62,7 @@ segments:
       - [0xAB80, .rodata, 3480]
       - [0xABB0, .rodata, 4FC0]
       - { start: 0xAC30, type: bss, vram: 0x8002EC30 }
+      - { start: 0xAC30, type: .bss, vram: 0x80045BE0, name: 6E00 } # D_80045BE0..D_80045BE3 text colour (0x80045BE0-0x80045BF0)
+      - { start: 0xAC30, type: bss, vram: 0x80045BF0, name: AC30_80045BF0 }
 
   - [0xAC30]
