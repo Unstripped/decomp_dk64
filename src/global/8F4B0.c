@@ -684,8 +684,8 @@ void playerCameraUpdateFromTarget(void) {
             }
         }
         minLimit = -maxDiff;
-        clampedDiff = (minLimit < angleDiff) ? angleDiff : minLimit;
-        clampedDiff = (clampedDiff < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;
+        clampedDiff = MAX(angleDiff, minLimit);
+        clampedDiff = (clampedDiff < maxDiff) ? MAX(angleDiff, minLimit) : maxDiff;
         curAngle = gCurrentActor->pitch;
         gCurrentActor->pitch = (((clampedDiff * scaleFactor) - curAngle) * stepFactor) + curAngle;
     }
