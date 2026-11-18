@@ -10,7 +10,6 @@
   "asm/data/libultra/os/exceptasm.data.s": "exceptasm.s's __osHwIntTable-position data; read only by exceptasm.s.",
   "asm/data/libultra/os/exceptasm.rodata.s": "exceptasm.s's cause-dispatch jump table and constants; only exceptasm.s reads them.",
   "asm/data/libultra/os/exceptasm_intmask.rodata.s": "__osIntMaskTable of exceptasm.s; read only by exceptasm.s and getintmask.s.",
-  "asm/data/libultra/gu/sinf_nan.rodata.s": "__libm_qnan_f from ultralib's assembly libm_vals.s (read by sinf.c and cosf.c).",
   "asm/libultra/os/getcount.s": "libultra COP0 Count register access.",
   "asm/libultra/os/getfpccsr.s": "libultra floating-point control/status register access.",
   "asm/libultra/os/getintmask.s": "libultra handwritten interrupt-mask access.",

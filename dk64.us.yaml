@@ -224,7 +224,7 @@ segments:
       - [0x11220, .rodata, libultra/gu/sinf]
       - [0x11270, rodata, libultra/os/exceptasm_intmask]
       - [0x112F0, .rodata, libultra/io/devmgr]
-      - [0x11310, rodata, libultra/gu/sinf_nan]
+      - [0x11310, .rodata, libultra/gu/sinf_nan] # __libm_qnan_f (0x80010710-0x80010714 + 12-byte TU pad)
       - { start: 0x11320, type: bss, vram: 0x80010720, name: 11320_bss }
       - { start: 0x11320, type: .bss, vram: 0x80013B10, name: libultra/os/seteventmesg }
       - { start: 0x11320, type: .bss, vram: 0x80013B90, name: libultra/io/vimgr }
