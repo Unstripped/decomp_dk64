@@ -446,14 +446,16 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
 
 s32 actorCheckAlwaysFalse(void) {
     s32 i;
-    u32 v;
 
     for (i = 0; i < gActorGlobalState.unk39; i++) {
-        v = gActorGlobalState.unk7C[i]->actorType;
-        if (v != 2 && v != 3) { // FAKE: keeps both state tests as beq-to-latch (dead carrier v)
-            v = 0;
+        switch (gActorGlobalState.unk7C[i]->actorType) {
+        case 2:
+        case 3:
+            break;
+        case 6: // FAKE: empty 6/7 group (li a3,6 / li t0,7 webs): labelopt drops its last beq, as1 the next, so the 2/3 beq-to-latch tests stay; t0 coloured -> lw t1,88(t9)
+        case 7:
+            break;
         }
-        if (v == 5 || i == 5) {} // FAKE: v == 5 keeps the carrier store v = 0 alive; i == 5 colours &gActorGlobalState+20 to t0 (lw 88(t9) takes t1)
     }
     if (gCurrentActor->actorType == 0x1F) {
         return 0;
