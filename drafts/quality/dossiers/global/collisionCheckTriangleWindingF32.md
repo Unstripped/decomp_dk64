@@ -1,11 +1,12 @@
 # collisionCheckTriangleWindingF32 (global, src/global/6AD90.c)
 ## Sites
-global:80669930:other:27898a other: `f32 cross[1]` keeps the cross product memory-resident so ugen emits its home store `swc1 $f4,4(sp)` at 0x3910 (never reloaded; the c.le.d reads the cvt of $f4). A plain scalar takes the same home word but is coloured, so the store vanishes.
+global:80669930:other:27898a other (now `// ORIG`, no site): `f32 cross[1]` is a non-vreg memory local (uopt `isvar M -28` without vreg), so ugen emits its home store `swc1 $f4,4(sp)` at 0x3910 and the compare converts the cached register (`cvt.d.s $f10,$f4` at 0x390c). A plain scalar takes the same home -28 but is coloured (adjsave 2.0) and the store vanishes.
 ## Attempts
 2026-11-16 Polishglobal6AD90 opus:high: CrossProductStack struct of locals retired into plain v1[3]/v0[3] arrays; one-element cross tagged.
 2026-11-17 HackcollisionTestStaticMeshFloor3 gpt-6.1-terra: two-element XZ edges and three-element normal cross[1] score 9; best adjacent declaration swap scores 7.
 2026-11-18 CleancollisionCheckTriangleWinding opus: `f32 cross[3]` with the Y component `cross[1]`: v1,v0,cross order keeps frame 0x20 but stores at 0(sp) (score 1); the other 5 orders 9-11. cross[3] idx2 fdiff 0 (Y formula in the Z slot: index steer). Vec3f normal struct 16 (scalar-replaced, frame 0x18), Vec3f edges+normal 34, `f32 edge[2][3]` + cross[3] idx1 1. -> kept (nohit).
+2026-11-18 "2026-11-18: cleanup CleancollisionCheckTriangleWindingF32" CleancollisionCheckTriangleWindingF32 opus: ORIG check: the target executes the store to the variable own home (swc1 at 0x3910, fp-28, the word right below v0 at sp+8) and never reloads it. Plain scalar 16 (store dropped); `f32 cross; f32 *out = &cross;` with every access through `*out` fdiff 0 (uopt resolves `*out` to `isvar M -28` non-vreg: an address-taken scalar stays in memory like the array; a redundant alias, so the array is kept); `*&cross` folds in cfe to the coloured scalar 16. -> FAKE retagged `// ORIG` citing 0x3910 (diagnose fixed).
 ## Untried ideas
-none natural: same frame mechanism as collisionCheckTriangleWindingS16 (only the last element of the array declared after v0 reaches sp+4).
+none: the construct is the target behaviour (executed store at 0x3910); the third twin collisionCheckBoxTriangleWinding (global:8066AC10:other:27898a, not in this unit) has the same evidence (swc1 $f4,4(sp) at 0x4bf0, cvt.d.s $f10,$f4 at 0x4bec).
 ## Evidence
-Frame 0x20 (leaf). v1[0] 0x14 (0x38b8), v1[2] 0x1c (0x38c8, reloaded 0x38d8), v0[0] 0x8 (0x38dc, reloaded 0x38e8), v0[2] 0x10 (0x38fc, reloaded 0x3900); v1[0] reloaded 0x38f4. Cross stored swc1 $f4,4(sp) at 0x3910, c.le.d at 0x3914.
+Frame 0x20 (leaf). v1[0] 0x14 (0x38b8), v1[2] 0x1c (0x38c8, reloaded 0x38d8), v0[0] 0x8 (0x38dc, reloaded 0x38e8), v0[2] 0x10 (0x38fc, reloaded 0x3900); v1[0] reloaded 0x38f4. Cross: sub.s $f4 at 0x3908, cvt.d.s $f10,$f4 at 0x390c, swc1 $f4,4(sp) at 0x3910, c.le.d $f10,$f6 at 0x3914; no lwc1 of 4(sp). uopt -l5 (base): cross bit 24 `isvar M 196 -28` (no vreg), ustr bit 29, ucvt bit 30; scalar: `isvar M 196 -28vreg`, active, adjsave 2.0.

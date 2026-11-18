@@ -25,8 +25,12 @@ Fixed 2026-11-16c: global:8066A988:noop-arith:ec388d (a reused for the x midpoin
 - named f32 vertex locals x0..z2 (the bounding-box sibling shape) with hx/hz, assignments interleaved in candidate order: 85 (frame 0xd0; the six named locals are coloured in the prologue and the 0.5 constant loses f0).
 - permuter, hack-free weights, -j 2, 900 s from the hx/hz split body (base 106, best 0): all 14 zeros re-insert the reuse: a/b/c holding the x or z midpoint (10) or hx/hz holding the centre side value with c dropped (4). permute nohit.
 - the triangle sibling (same unit) measured the narrow loop counter needed to pack i with a u8 outside: s8/s16 i 10 lines, u8/u16 i 18; the body is the same apart from the field names.
+2026-11-18 CleancollisionCheckTriangleWindingF32 opus (unit "2026-11-18: cleanup CleancollisionCheckTriangleWindingF32"), the triangle twin bodies with the box field names, same scores:
+- control: the hx/hz split body 14 (frame 0xd0 only).
+- c inlined as the FIRST operand of the `!=`, hx/hz named: 116 ((f64)x0 loses f30 and spills to 72(sp), cx/cz f22/f24 -> f24/f26).
+- `f64 mid[2]` for both midpoints: 211 (sdc1 stores to the array). `f32 hz`: 141 (cvt.s.d/cvt.d.s pair, frame 0xc0).
 ## Untried ideas
-None that keeps the switch: with an int-width i, the switch selector temp and the outside flag word, an eleventh named f64 needs >= 88 + 12 = 100 bytes of cfe extent against the 96 the spill temps fix, and the inline forms of all eleven values are measured (midpoints, products, c, cx/cz).
+None that keeps the switch: with an int-width i, the switch selector temp and the outside flag word, an eleventh named f64 needs >= 88 + 12 = 100 bytes of cfe extent against the 96 the spill temps fix, and the inline forms of all eleven values are measured (midpoints, products, c with either `!=` operand order, cx/cz); an f64 midpoint array and an f32 hz fail on their own stores/conversions.
 ## Evidence
 Frame census: cfe homes cx -8, cz -16, a -24, b -32, dx -40 (sp+0xa0), dz -48, ox -56, oz -64 (sp+0x88), c -72, hx -80, outside -84, i -88, cfe temp -92 (switch selector + first ternary), cfe temp -96 (second ternary): 96 bytes, exactly the target. uopt spill temps start right below at -100 (x2 0x64, x1 0x60, z2 0x5c, z1 0x58, x0 0x54, z0 0x44, ucvt(z0) 0x38): any extra referenced local moves them.
 Frame 0xc8 (200) = 144 (lowest home 0x38) + 56 (FP saves 0x08-0x38). Uninitialised loads of dx/dz/ox/oz homes: ldc1 f12,0xa0 / f14,0x98 / f16,0x90 / f18,0x88 at 0x49a4/0x499c/0x49a8/0x49ac, stored back at 0x4b48-0x4b54.
