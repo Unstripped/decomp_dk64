@@ -52,7 +52,7 @@ extern s32 gCurrentMap;
 
 
 void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId) {
-    s16 *durationPtr = COMPONENT_ACTOR->secondComponent;
+    s16 *hoverHeightPtr = COMPONENT_ACTOR->secondComponent;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->flags |= 0x20;
@@ -66,12 +66,12 @@ void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId)
         gCurrentActor->unk155 = 0;
     }
     {
-        s32 d = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
+        s32 deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
 
-        if (d < 0) {
-            *durationPtr = 0;
+        if (deltaHeight < 0) {
+            *hoverHeightPtr = 0;
         } else {
-            *durationPtr = d;
+            *hoverHeightPtr = deltaHeight;
         }
     }
     switch (gCurrentActor->state) {
@@ -151,7 +151,7 @@ void actorRestoreMapMusic(void) {
 }
 
 
-void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
+void actorCountGoalRewardUpdate(s32 startPathId, s32 lowCountPathId, s32 rewardPathId, s32 startSpawnId, s32 goalSpawnId, s32 targetCount, s32 rewardFlag) {
     s16 *heightOffsetPtr = COMPONENT_ACTOR->secondComponent;
     PlayerState *playerState = gPlayerSlots->actor->customState;
     Actor *attachedActor = playerState->actor;
@@ -162,15 +162,15 @@ void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewar
     if (!(gCurrentActor->flags & 0x10)) {
         pathId = -1;
         if (flagGet(rewardFlag, 0) != 0 || menuIsTransitionType3Or4() != 0) {
-            if (initialCutsceneId == gBehaviourExtraState->id) {
+            if (gBehaviourExtraState->id == startSpawnId) {
                 actorRestoreMapMusic();
             }
             gCurrentActor->state = 0x40;
             return;
         }
         func_80724CA4(1, 1);
-        if (initialCutsceneId == gBehaviourExtraState->id) {
-            pathId = defaultPathId;
+        if (gBehaviourExtraState->id == startSpawnId) {
+            pathId = startPathId;
         } else {
             playerStateQueueCallback(0x46, 0, 0);
             if (slotQueueGetValue(0xB, 0) < targetCount) {
@@ -191,7 +191,7 @@ void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewar
             attachedActor->yawSpeed = 0;
         }
     }
-    if (rewardCutsceneId == gBehaviourExtraState->id && (gCurrentActor->unk15F & 0x80) && gBehaviourWorkState->timer == 0x5A && flagGet(rewardFlag, 0) == 0) {
+    if (gBehaviourExtraState->id == goalSpawnId && (gCurrentActor->unk15F & 0x80) && gBehaviourWorkState->timer == 0x5A && flagGet(rewardFlag, 0) == 0) {
         actorSpawnNodeEntryAtActor(0x2D, rewardFlag);
         sfxAllocateChannel(0x14, 1.0f);
     }
@@ -215,7 +215,7 @@ void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewar
                 gBehaviourWorkState->timer = 0x1E;
             } else {
                 gCurrentActor->unk15F++;
-                if (rewardCutsceneId == gBehaviourExtraState->id && slotQueueGetValue(0xB, 0) >= targetCount) {
+                if (gBehaviourExtraState->id == goalSpawnId && slotQueueGetValue(0xB, 0) >= targetCount) {
                     gBehaviourWorkState->timer = 0x78;
                 }
             }
@@ -228,7 +228,7 @@ void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewar
         if (++*heightOffsetPtr >= 0x3D) {
             gCurrentActor->state = 0x40;
             actorRestoreMapMusic();
-            if (rewardCutsceneId == gBehaviourExtraState->id) {
+            if (gBehaviourExtraState->id == goalSpawnId) {
                 if (flagGet(rewardFlag, 0) != 0 || slotQueueGetValue(0xB, 0) >= targetCount) {
                     mapCheckAutoTransition();
                 } else {
@@ -285,22 +285,22 @@ u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
     u8 ret = 0;
     s32 pad;
     s16 *cooldownPtr;
-    s16 *durationPtr;
-    f32 ang;
+    s16 *hoverHeightPtr;
+    f32 playerAngle;
 
-    durationPtr = COMPONENT_ACTOR->secondComponent;
+    hoverHeightPtr = COMPONENT_ACTOR->secondComponent;
     cooldownPtr = COMPONENT_ACTOR->fourthComponent;
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->flags |= 0x20;
-        gCurrentActor->speedXZ = (f32)(u32)gBehaviourExtraState->targetSpeed;
+        gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
     }
     {
-        s32 d = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
+        s32 deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
 
-        if (d < 0) {
-            *durationPtr = 0;
+        if (deltaHeight < 0) {
+            *hoverHeightPtr = 0;
         } else {
-            *durationPtr = d;
+            *hoverHeightPtr = deltaHeight;
         }
     }
     switch (gCurrentActor->state) {
@@ -310,8 +310,8 @@ u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
         case 2:
         case 0x26:
             gActivePlayerState->stateFlags2 |= 0x40;
-            ang = mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z);
-            gCurrentActor->unkEC = (s16)(ang - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
+            playerAngle = mathAngleBetweenPointsDeg(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
+            gCurrentActor->unkEC = playerAngle - mathAngleBetweenPointsDeg(gPlayerSlots->focusX, gPlayerSlots->focusZ, gPlayerSlots->camX, gPlayerSlots->camZ);
             actorAirPatrolStep(gCurrentActor->state, gBehaviourAnimState->animId1, gBehaviourAnimState->animId2);
             gCurrentActor->unk15F = maxSpawns - gBehaviourWorkState->timer + 1;
             if (gActorGlobalState.notifyReceived != 0) {
@@ -360,13 +360,13 @@ void func_806C4EB4(void) {
 }
 
 
-void actorStartRewardCutscene(u8 subAction, u8 stateValue) {
+void actorStartRewardCutscene(u8 subAction, u8 succeeded) {
     gBehaviourWorkState->unk2E = 0;
     resQueueSetValue(1);
     resQueueAttachActor(gCurrentActor, 0xF, subAction);
     gCurrentActor->state = 0x29;
     gCurrentActor->unk155 = 0;
-    gCurrentActor->yawSpeed = stateValue;
+    gCurrentActor->yawSpeed = succeeded;
     gCurrentActor->movePitch = 0;
 }
 
@@ -387,9 +387,9 @@ void func_806C4F5C(void) {
     gActivePlayerState->stateFlags2 &= ~0x40;
     switch (gCurrentActor->state) {
         case 0:
-        case 14:
-        case 15:
-        case 30:
+        case 0xE:
+        case 0xF:
+        case 0x1E:
             actorScriptedCommandUpdate();
             if (currentActorTestClearFlag() != 0) {
                 csModelStateSetFirstByte(0x2D, 0x14);
@@ -401,7 +401,7 @@ void func_806C4F5C(void) {
                 gBehaviourWorkState->unk2E = 0xF0;
             }
             break;
-        case 39:
+        case 0x27:
             gActivePlayerState->stateFlags2 |= 0x40;
             actorAirPatrolStep(2, 0x244, 0x246);
             if ((gBehaviourWorkState->flags & 4) && ((gBehaviourWorkState->waypointIndex & 0x7F) == 3)) {
@@ -410,7 +410,7 @@ void func_806C4F5C(void) {
                 actorScriptStart(gCurrentActor, 0x244);
             }
             break;
-        case 40:
+        case 0x28:
             gActivePlayerState->stateFlags2 |= 0x40;
             switch (gCurrentActor->unk155) {
                 case 0:
@@ -450,7 +450,7 @@ void func_806C4F5C(void) {
             }
             behaviourUpdateShadowAlpha();
             break;
-        case 41:
+        case 0x29:
             if (gCurrentActor->movePitch == 0) {
                 camStartPath(gCurrentActor, 0x1C, 1);
                 gCurrentActor->movePitch++;
@@ -474,10 +474,10 @@ void func_806C4F5C(void) {
             }
             behaviourUpdateShadowAlpha();
             break;
-        case 42:
+        case 0x2A:
             func_80724A20();
             break;
-        case 48:
+        case 0x30:
             gCurrentActor->yaw = 0xA82;
             gPrimaryPlayerActor->yaw = 0xA82;
             zoneEntryGetPosition(8, 2, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
@@ -508,6 +508,8 @@ void func_806C55D8(void) {
 void func_806C55E0(void) {
     s32 pad;
     s16 *cooldownPtr;
+    f32 dx;
+    f32 dz;
 
     cooldownPtr = COMPONENT_ACTOR->fourthComponent;
     behaviourFrameBegin();
@@ -556,7 +558,9 @@ void func_806C55E0(void) {
             break;
         case 0x28:
             if (gPrimaryPlayerActor->state == 0x63) {
-                if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) < 10000.0f) {
+                dx = gCurrentActor->x - gPrimaryPlayerActor->x;
+                dz = gCurrentActor->z - gPrimaryPlayerActor->z;
+                if (dx * dx + dz * dz < 10000.0f) {
                     camStartPath(gCurrentActor, 0x15, 1);
                     resQueueAttachActor(gCurrentActor, 0x15, 1);
                     gCurrentActor->state = 0x29;
@@ -674,13 +678,14 @@ extern s32 D_8071FB08;
 extern s16 D_807FD802;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
-f32 sqrtf(f32);
 
 void func_806C5C20(void) {
     f32 screenX;
     f32 screenY;
     f32 dist;
-    s32 outFlag[2];
+    f32 dz;
+    s32 flagIndex;
+    f32 dx;
 
     behaviourFrameBegin();
     actorClearMovementFlags(gCurrentActor);
@@ -689,7 +694,7 @@ void func_806C5C20(void) {
         gCurrentActor->drawDistance = 0xFA;
         func_80724CA4(2, 1);
     }
-    if ((randomNonNegative() >> 15) % 1000 >= 0x3CB) {
+    if ((randomNonNegative() >> 15) % 1000 >= 971) {
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed << 2;
     }
     actorTrackBoneTowardTarget(6);
@@ -700,9 +705,9 @@ void func_806C5C20(void) {
         effectCreateAtPosition(&D_8071FB08, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
     if (!(gActivePlayerState->stateFlags & 0x8000)) {
-        dist = sqrtf((gPlayerSlots->camZ - gCurrentActor->z) * (gPlayerSlots->camZ - gCurrentActor->z) +
-                     (gPlayerSlots->camX - gCurrentActor->x) * (gPlayerSlots->camX - gCurrentActor->x)) -
-               gPlayerSlots->nearClip;
+        dz = gPlayerSlots->camZ - gCurrentActor->z;
+        dx = gPlayerSlots->camX - gCurrentActor->x;
+        dist = sqrtf(dz * dz + dx * dx) - gPlayerSlots->nearClip;
         if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < D_807FD802) {
             if (gActivePlayerState->unk1EC != 1) {
                 if (behaviourIsTargetWithinAngle(0x1388) != 0) {
@@ -719,7 +724,7 @@ void func_806C5C20(void) {
     }
     if ((gActivePlayerState->stateFlags & 0x8000) && gActivePlayerState->unk1EC == 1) {
         if (gCurrentActor->state != 0x40) {
-            flagSet(spawnFlagLookup(gCurrentLevelIndex, spawnNodeIdForActor(gCurrentActor), outFlag), 1, 0);
+            flagSet(spawnFlagLookup(gCurrentLevelIndex, spawnNodeIdForActor(gCurrentActor), &flagIndex), 1, 0);
             eepromSavePlayerData();
         }
         gCurrentActor->state = 0x40;
@@ -781,9 +786,8 @@ void cutsceneRestoreUpdate(void) {
 
 
 void func_806C61C8(void) {
-    f32 x;
-    f32 z;
-    f32 sinv;
+    f32 frontX;
+    f32 frontZ;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkEC = 0x3C;
@@ -792,12 +796,12 @@ void func_806C61C8(void) {
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x87);
         }
     }
-    x = mathSinF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->x;
-    z = mathCosF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->z;
+    frontX = mathSinF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->x;
+    frontZ = mathCosF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->z;
     gCurrentActor->yaw = (gPrimaryPlayerActor->yaw + 0x800) & 0xFFF;
     if (gCurrentActor->unkEC == 0x3C) {
-        gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * 10.0f + x;
-        gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 10.0f + z;
+        gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * 10.0f + frontX;
+        gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 10.0f + frontZ;
     }
     gCurrentActor->y = mathSinF(gFrameCounter * 100) * 5.0f + (gCurrentActor->unk15F + gPrimaryPlayerActor->y + 3.0f + gCurrentActor->unkEC);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -809,8 +813,7 @@ void func_806C61C8(void) {
     if (gCurrentActor->movePitch != 0) {
         actorPlaceAttachedChildren(-0x1E);
     }
-    sinv = mathSinF(gFrameCounter * 50);
-    gCurrentActor->moveYaw = gCurrentActor->moveYaw + 60.0f * sinv;
+    gCurrentActor->moveYaw += 60.0f * mathSinF(gFrameCounter * 50);
     if (gCurrentActor->flags & 0x2000000) {
         gCurrentActor->yawSpeed = 0x14;
     }
