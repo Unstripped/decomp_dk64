@@ -1,15 +1,18 @@
 # sfxUpdateSourceGroups (global, src/global/7130.c)
 ## Sites
-global:806057F8:dead-if:f73918 dead-if: entry `if (gActivePlayerState != NULL) {}` (class 2, availability). Without it &gActivePlayerState becomes an a1 web and the tail reload (lw t1,0(t1) at 0x5fdc after sw t9 at 0x5fd8) is forwarded: full 8, 16 bytes shorter.
+global:806057F8:dead-if:f73918 dead-if: entry `if (gActivePlayerState != NULL) {}` (class 2, availability: the read must dominate the tail). Without it &gActivePlayerState becomes an a1 web and the tail reload (lw t1,0(t1) at 0x5fdc after sw t9 at 0x5fd8) is forwarded: full 8, 16 bytes shorter.
 global:806057F8:punned-cast:u9b99d punned-cast: CLOSED as ORIG (2026-11-17): `*(s32 *)&D_80770F38` passed to n_alSndpPostEvent is the target's integer reload of the static's bits.
 ## Attempts
 2026-11-17 2026-11-17: cleanup HacksfxUpdateSourceGroups HacksfxUpdateSourceGroups anthropic/claude-opus-5-5:high: classify by hand: `if (1) {}`, `if (actor != NULL) {}`, `;` -> 8 (= removal); `if (gActivePlayerState) {}`, `if (gActivePlayerState->camActor != NULL) {}` -> 0; guard on gPlayerSlots 15, on gPlayerSlots->actor 27
 2026-11-17 2026-11-17: cleanup HacksfxUpdateSourceGroups HacksfxUpdateSourceGroups anthropic/claude-opus-5-5:high: entry dead store `camActor = gActivePlayerState->camActor;` -> 8; `camActor = NULL;` -> 8; guard moved before the tail store -> 8
 2026-11-17 2026-11-17: cleanup HacksfxUpdateSourceGroups HacksfxUpdateSourceGroups anthropic/claude-opus-5-5:high: tail rewrites without the guard: assignment expression `camActor = (gActivePlayerState = ...)->camActor` -> 8; camActor local dropped -> 29; `gPlayerSlots[0].actor` -> 8
 2026-11-17 2026-11-17: cleanup HacksfxUpdateSourceGroups HacksfxUpdateSourceGroups anthropic/claude-opus-5-5:high: u9b99d tagged `// ORIG:` with offsets 0x5f74/0x5f90/0x5f98 -> fdiff 0, sweep no longer lists the site
+2026-11-17 2026-11-17: cleanup HacksfxUpdateSourceGroups2 HacksfxUpdateSourceGroups2 anthropic/claude-opus-5-5: re-measure on the 11134d9a body (CsState unk10[] edits): removal still full=8 text=5 reloc=2 shape=6, same tail shape; sweep 0 hits
+2026-11-17 2026-11-17: cleanup HacksfxUpdateSourceGroups2 HacksfxUpdateSourceGroups2 anthropic/claude-opus-5-5: guard position (variants.py try): loop-body head 0, inside the 0x88 arm 4, start of the else arm 8, loop tail after the 0x10 post-event block 8, function end 18
 ## Untried ideas
 A data/bss-level change for gActivePlayerState is out of scope (shared global, other files); the 7130 .bss carve is DEFERRED (pending.md:85) and does not touch gActivePlayerState.
-uopt -l trace of why an entry read of the global blocks uoptinput's tail store forwarding (Q0558 count-1 ilod rule): would explain, not remove, the guard.
+The guard needs a same-value read of gActivePlayerState on every path to the tail and the target emits none before 0x5fc8; any replacement is another steer (Q1026 kept class). Only a new hypothesis about why the target's lda is uncoloured without such a read (not a dominating read) would justify another attempt.
 ## Evidence
 Target 7130.o sfxUpdateSourceGroups starts 0x33c8. No load of gActivePlayerState before 0x5fc8. Tail: lui at / lui t1 at 0x5fc8/0x5fcc, sw t9,%lo(gActivePlayerState)(at) at 0x5fd8, lw t1,%lo(gActivePlayerState)(t1) at 0x5fdc (store not forwarded), lw v0,0x104(t1) at 0x5fe0.
 D_80770F38 = .bss+0x148: lwc1 $f4,0x148(at) at 0x5f74, c.eq.s with D_80770D70[i] at 0x5f7c, swc1 $f4,0(v0) at 0x5f90, then lw a2,0x148(a2) at 0x5f98 and jal n_alSndpPostEvent at 0x5fa0 (a1 = 0x10).
+uopt -l5 (copy at ff2f08b4): with the guard, its uilod{823} is candidate bit 3 (node 459|0, bb 0) and the tail camActor load is bit 859 uilod{459|0}, i.e. the tail reload is the same expression node as the entry read; lda gActivePlayerState {823} range 890 spans bb 0-55 plus 397 (adjsave -3.08) and stays uncoloured. Without the guard the tail reload is a fresh node 459|1 (bit 856, after the store bit 853 uistr{823}{822|1}); lda range 908 lives in bb 397 only (adjsave 1.0), is coloured (a1: lui a1/addiu a1 at 0x5fc8) and ugen forwards the stored t9 (lw v0,260(t9)).

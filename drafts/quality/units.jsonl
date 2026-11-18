@@ -991,3 +991,4 @@
 {"type": "unit", "t": "2026-11-18T00:05:35Z", "unit": "2026-11-17: cleanup HackcommandApplyToLight4", "commit": "1d1c24c4bc1542a9b333aee211d0dbed1484af30"}
 {"type": "unit", "t": "2026-11-18T00:07:53Z", "unit": "2026-11-17: cleanup HackcsCmdExec11", "commit": "03f8e3b5f034bf2a2ea44f266ce199e50c297477"}
 {"type": "unit", "t": "2026-11-18T00:14:50Z", "unit": "2026-11-17: cleanup HackhudPauseMenuRender13", "commit": "e3781e90709958f5a791e8044cce06c49e4c3039"}
+{"type": "unit", "t": "2026-11-18T00:15:57Z", "unit": "2026-11-17: cleanup HacksfxUpdateSourceGroups2", "commit": "96c29382fc212316eea076fd18c57ee6c7bcf920"}
