@@ -2108,22 +2108,22 @@ extern u8 D_8003D600[];
 extern u8 D_8003D848[];
 
 void arcadeUpdatePlayerAnimation(s32 entIndex) {
-    s32 val;
-    s32 b;
+    s32 frame;
+    s32 dirBit;
     s32 col;
     s32 row;
     f32 colX;
     f32 y;
 
-    b = D_8004BCD0[entIndex].facing & 2;
-    D_8004BCD0[entIndex].facing = b / 2 | b;
+    dirBit = D_8004BCD0[entIndex].facing & 2;
+    D_8004BCD0[entIndex].facing = dirBit / 2 | dirBit;
     D_8004BCD0[entIndex].flipY = 0;
-    val = D_8004BCD0[entIndex].animTimer;
+    frame = D_8004BCD0[entIndex].animTimer;
     if (D_8004BCD0[entIndex].state == 2) {
         if (D_8004A764 && D_8004A764) {} // FAKE: empty guard steers regalloc
         if (D_8004C710 != 0) {
             if (D_8004C710 & 8) {
-                switch (val & 3) {
+                switch (frame & 3) {
                 case 0:
                 case 2:
                     D_8004BCD0[entIndex].sprite = D_8003C178;
@@ -2136,7 +2136,7 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                     break;
                 }
             } else {
-                switch (val & 3) {
+                switch (frame & 3) {
                 case 0:
                 case 2:
                     D_8004BCD0[entIndex].sprite = D_8003C3C0;
@@ -2150,7 +2150,7 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                 }
             }
         } else {
-            switch (val & 3) {
+            switch (frame & 3) {
             case 0:
             case 2:
                 D_8004BCD0[entIndex].sprite = D_8003B180;
@@ -2167,7 +2167,7 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
         D_8004BCD0[entIndex].sprite = D_8003CF28;
     } else if (D_8004BCD0[entIndex].state == 5) {
         y = D_8004BCD0[entIndex].y;
-        if (D_8004C6E8 - y < 1.0f || (y - D_8004C6E4 < 1.0f)) {
+        if (D_8004C6E8 - y < 1.0f || y - D_8004C6E4 < 1.0f) {
             D_8004BCD0[entIndex].sprite = D_8003BF30;
         } else if (y - D_8004C6E4 < 6.0f) {
             D_8004BCD0[entIndex].sprite = D_8003B858;
