@@ -54,12 +54,12 @@ void sfxSpawnTableNodes(Actor *actor) {
     s32 i;
     s32 found;
     s32 j;
-    s16 step;
-    s16 offset;
+    s16 yawStep;
+    s16 yaw;
 
     i = 0;
     found = 0;
-    offset = 0;
+    yaw = 0;
     if (gPlayerCount >= 2) {
         return;
     }
@@ -79,26 +79,35 @@ void sfxSpawnTableNodes(Actor *actor) {
     if (gActorSpawnSfxTable[i].sfxId != 0) {
         sfxAllocateChannel(gActorSpawnSfxTable[i].sfxId, 1.0f);
     }
-    step = 0xFFF / gActorSpawnSfxTable[i].spawnCount;
+    yawStep = 0xFFF / gActorSpawnSfxTable[i].spawnCount;
     for (j = 0; j < gActorSpawnSfxTable[i].spawnCount; j++) {
-        actorSpawnNodeEntryScaled(gActorSpawnSfxTable[i].spawnType, actor->x, actor->y, actor->z, offset, 1, -1, 0);
-        offset += step;
+        actorSpawnNodeEntryScaled(gActorSpawnSfxTable[i].spawnType, actor->x, actor->y, actor->z, yaw, 1, -1, 0);
+        yaw += yawStep;
     }
 }
 
-void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 pitch, s32 roll, Actor *extraParam) {
-    s32 pad[6];
-    f32 vec[3];
+// spawnData of the bouncing pickups (actorDropBounceExpireUpdate, actorBounceFadeInSpinUpdate):
+// the 8-float customData record actorSpawnNodeEntryScaled fills and actorListSpawnNodeInternal copies.
+typedef struct BounceSpawnConfig {
+    /* 0x00 */ f32 initialState;
+    /* 0x04 */ f32 yaw;
+    /* 0x08 */ f32 flagId;
+    /* 0x0C */ f32 padC[5];
+} BounceSpawnConfig; /* size = 0x20 */
+
+void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 initialState, s32 flagId, Actor *extraParam) {
+    s32 pad;
+    BounceSpawnConfig config;
     f32 scale;
 
     scale = 0.15f;
     if (gGlobalCutsceneFlags & 0x10) {
         scale *= 2.0f;
     }
-    vec[0] = (u8)pitch;
-    vec[1] = (s16)yaw;
-    vec[2] = (s16)roll;
-    actorListSpawnNodeEntry(actorType, x, y, z, 0, scale, extraParam, vec);
+    config.initialState = (u8)initialState;
+    config.yaw = (s16)yaw;
+    config.flagId = (s16)flagId;
+    actorListSpawnNodeEntry(actorType, x, y, z, 0, scale, extraParam, &config);
 }
 
 // customState of the drop-and-bounce pickups (actorDropBounceExpireUpdate).
@@ -111,9 +120,7 @@ typedef struct DropBounceState {
     /* 0xA */ s16 flagId;
 } DropBounceState;
 
-void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) {
-    DropBounceState *state = targetState;
-
+void effectSpawnAttachedSprite(DropBounceState *state, void *spriteAsset, f32 scale) {
     if (gGlobalCutsceneFlags & 0x10) {
         scale *= 2.0f;
     }
@@ -124,7 +131,7 @@ void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) 
 }
 
 void actorHealthDropUpdate(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -133,7 +140,7 @@ void actorHealthDropUpdate(void) {
 }
 
 void func_806A5FA4(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -142,7 +149,7 @@ void func_806A5FA4(void) {
 }
 
 void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -174,7 +181,7 @@ void effectSpawnAttachedSpriteColoredType5(void) {
 }
 
 void func_806A615C(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -184,7 +191,7 @@ void func_806A615C(void) {
 }
 
 void func_806A61D0(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -193,7 +200,7 @@ void func_806A61D0(void) {
 }
 
 void func_806A6230(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -209,7 +216,7 @@ void effectSpawnA6230Wrapper(void) {
 }
 
 void func_806A62D4(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -219,7 +226,7 @@ void func_806A62D4(void) {
 }
 
 void func_806A6348(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -228,7 +235,7 @@ void func_806A6348(void) {
 }
 
 void func_806A63A8(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -237,7 +244,7 @@ void func_806A63A8(void) {
 }
 
 void func_806A6408(void) {
-    void *state = gCurrentActor->customState;
+    DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(12.0f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -252,7 +259,7 @@ extern u8 D_8072041C;
 extern u8 D_80720440;
 
 void func_806A6468(void) {
-    void *state;
+    DropBounceState *state;
     void *anim;
 
     state = gCurrentActor->customState;
@@ -290,7 +297,7 @@ extern u8 D_80720F40;
 extern u8 D_80720F6C;
 
 void func_806A6574(void) {
-    void *state;
+    DropBounceState *state;
     void *anim;
 
     state = gCurrentActor->customState;
@@ -316,13 +323,6 @@ void func_806A6574(void) {
         effectSpawnAttachedSprite(state, anim, 1.0f);
     }
 }
-
-// spawnData of the bouncing pickups (actorDropBounceExpireUpdate, actorBounceFadeInSpinUpdate).
-typedef struct BounceSpawnConfig {
-    /* 0x0 */ f32 initialState;
-    /* 0x4 */ f32 yaw;
-    /* 0x8 */ f32 flagId;
-} BounceSpawnConfig;
 
 extern s16 D_8075038C;
 
@@ -781,11 +781,11 @@ extern u8 D_80721170;
 extern SparkleSpriteTable sSparkleSprites;
 
 void effectActorSparkleTick(void) {
-    s32 flag;
+    s32 hasInstrument;
     s32 idx;
     SparkleSpriteTable table;
 
-    flag = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].instrumentFlags & 1;
+    hasInstrument = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].instrumentFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 10.0f, 0.0f, -1);
         actorSetCollisionRadius(gCurrentActor, 175.0f);
@@ -794,7 +794,7 @@ void effectActorSparkleTick(void) {
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }
     actorUpdatePrevContactFlags(gCurrentActor);
-    if (flag != 0 && gActorGlobalState.bossFightPhase == 4 && gFrameCounter % 5 == 0) {
+    if (hasInstrument != 0 && gActorGlobalState.bossFightPhase == 4 && gFrameCounter % 5 == 0) {
         idx = (randomNonNegative() >> 15) % 0xFF % 7;
         table = sSparkleSprites;
         effectSetCallback(&effectOrbitSourceUpdate);
@@ -811,7 +811,7 @@ void effectActorSparkleTick(void) {
         effectSetCallback(&effectProximityFadeUpdate);
         effectSetSpeed(0x226);
         effectSetMode(2);
-        effectSetColor(0xFF, 0xFF, 0xFF, flag ? 0xFF : 0x7F);
+        effectSetColor(0xFF, 0xFF, 0xFF, hasInstrument ? 0xFF : 0x7F);
         effectCreateAtActorBone(&D_80721170, 0.4f, gCurrentActor, 1, 2);
     }
     if (gCurrentActor->floorY != 99999.0f) {

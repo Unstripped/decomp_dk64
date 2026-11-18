@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_AA960_H
 #include "common.h"
 #include "actor.h"
+struct DropBounceState;
 #ifndef PROTO_SKIP_sfxSpawnTableNodes
 void sfxSpawnTableNodes(Actor *);
 #endif
@@ -10,7 +11,7 @@ void sfxSpawnTableNodes(Actor *);
 void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
 #endif
 #ifndef PROTO_SKIP_effectSpawnAttachedSprite
-void effectSpawnAttachedSprite(void *, void *, f32);
+void effectSpawnAttachedSprite(struct DropBounceState *, void *, f32);
 #endif
 #ifndef PROTO_SKIP_actorHealthDropUpdate
 void actorHealthDropUpdate(void);
