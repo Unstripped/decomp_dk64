@@ -40,7 +40,7 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   replaced sites `diagnose fixed` with notes naming the new key. After removing or respelling one
   steer, re-run the plain form of every other kept steer in the function: an old measurement can
   belong to the steer you just changed (race/1770 c924a2).
-- Drop a tag only from a construct that is ordinary C. A named local temp or pointer local that
+- Drop a tag only from a construct that is ordinary C. Rulings: `.omp/skills/cleanup-unit/rulings.md`. A named local temp or pointer local that
   first holds a value or field for use is ordinary C (Q0601), never `// FAKE`, even when inlining it
   fails fdiff; a dedicated local per role (splitting a reused local) is often the fix (936B0, 127B00).
   Dead ifs, no-op arithmetic, `volatile`, comma expressions, `do {} while (0)`, punned casts,

@@ -1,8 +1,8 @@
 # Cleanup pending (unresolved items only; checked against the tree at f13156f0, 2026-11-18)
 
 Open functions come from `uv run tools/quality.py rank` / `rank --polish` (SKILL §2) or `status --file <f>`. This file keeps what
-`rank` cannot show: the `TypesOwner` queue (types-stream.md: oldest first, skipping HELD/PARKED items), director rulings, held
-names and tooling fixes. Delete an item once it lands (git and run-log.md keep the history); a closed decision keeps one outcome line.
+`rank` cannot show: the `TypesOwner` queue (`.omp/skills/cleanup-unit/types-stream.md`: oldest first, skipping HELD/PARKED items), director rulings, held
+names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/sessions.md` keep the history); a closed decision keeps one outcome line.
 
 ## Blocked owner/header changes (`TypesOwner` queue)
 - NEXT batch (director 2026-11-18: one batch, not now): (1) PlayerState 0x220..0x228 -> `f32 unk220[3]` removes 478F0
@@ -34,7 +34,7 @@ names and tooling fixes. Delete an item once it lands (git and run-log.md keep t
 - jetpac 0x8002BA80 Gfx split: the `jetpacInitPending` splat label (jetpac/0.c:404) spans a gSPEndDisplayList.
 - jetpac shared head (PARKED; CleanjetpacUpdatePlayerMovement, ledger 7d1cc6e8): embed one 0x30-byte head struct in JetpacActor
   and JetpacPlayerActor. `player->head.x` compiles like the plain body; only a `head = &player->head` local used for EVERY head
-  access matches, so it retires 1A60 ba285d only if that local is ruled ordinary C (SKILL §5.6 pointer-local precedent: 450
+  access matches, so it retires 1A60 ba285d only if that local is ruled ordinary C (`.omp/skills/cleanup-unit/rulings.md` pointer-local precedent: 450
   firstSetupFlag). It touches every head-field access of JetpacPlayerActor.
 - F9450 ModelAssetEntry (0x30, map model asset table 9; identical copies in 36880.c:33-49 and F9450.c, modelAssetGetSubtables):
   move it to include/model.h and drop both copies (merge_drafts prunes identical typedefs). DEFERRED (director turn 164); evidence

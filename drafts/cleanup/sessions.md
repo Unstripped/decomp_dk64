@@ -1,7 +1,7 @@
-# Run log
+# Cleanup sessions
 
-One row per cleanup session (rounds before 2026-11-14 are one row per round), newest last; keep
-the last ~10. Read when sizing a session; SKILL.md §6 adds the row.
+One row per cleanup session (rounds before 2026-11-14 are one row per round), newest last. Read when
+sizing a session; `.omp/skills/cleanup-unit/SKILL.md` §6 step 5 appends the row.
 
 |date|unit|files|FAKE −|goto −|steer|names|notes|
 |---|---|---|---|---|---|---|---|
@@ -16,7 +16,7 @@ the last ~10. Read when sizing a session; SKILL.md §6 adds the row.
 |2026-11-11|cleanup round 14|global/10D2D0, 140600, 55B20 (ledger only), 114270, 2C910; Rev14A (29 stale + 141E60); Batch12 b19 (6 gates)|tags 792 → 800 (pre-existing steers tagged in 114270/10D2D0/Rev14A files)|35 → 35|proto-steer 117 → 116|none; m2c 591 → 566|cfe 783 → 764; reviewed 3,474 → 3,521, exhausted 3,221 → 3,218; sites open 1,261 → 1,336 (newly tagged pre-existing hacks count as sites). Lessons: sweep's classify regex (GUARD) needs a `//` comment, so a dead if with a `/* */` comment is never classified and blocks the ladder: tag it `// FAKE:` (10D2D0, where the tagged if then removed cleanly by sweep's `remove`, 37c04844); an all-or-nothing copy-only batch drops every line when one key rekeyed at the merge (10D2D0 e653d4 → 31f258): dry-run copy-only files at the merge commit; IDO 7.1 -g array locals read through `addiu tN,sp,off` + load 0(tN) (Q0614).|
 |2026-11-11|cleanup round 15|global/D5E10, 201B0, arcade/0, 80150, 8F050; Rev15A, Rev15B; Batch12 b20 (9), b21 (3), b22 (6 of 7)|tags 800 -> 787|35 -> 35|proto-steer 116 -> 106|none applied|m2c 566 -> 519|cfe 764 -> 513; reviewed 3,521 -> 3,459, exhausted 3,218 -> 3,210 (batches staled 92 reviews -> .scratch/rereview16.md); sites open 1,336 -> 1,030. Lessons: a held patch that 3-ways only in the file Rev15A touched rebases by hand in one hunk; record batch `fixed` lines at the patch base.|
 |2026-11-11|cleanup round 16|race/7BD0 (4 passes + race.h/actor.h type bundles), menu/1AF0, global/133A90, 13A7A0, 5E2F0, 8CA50; CleanRaceB (1770/A960/36B0); re-review groups Rev16A–K (~100 files); Batch16 callee/type batches (tgsw, slot, b49c, resq, sincos, arc, cs42630, ad3e0, ceae0, snd, tz, hud, spawn, zone, sepia)|tags 787 → 763|35 → 35|proto-steer 106 → 82|33 symbols applied (AnimNode, PlayerState path, 5E2F0 lights, RaceTarget); m2c 519 → 442|cfe 513 → 234; reviewed 3,459 → 3,755, exhausted 3,210 → 3,540; sites open 1,030 → 716; 168 OPEN functions left in 94 touched files. Lessons: filing IDO knowledge per merge staled the round's own events (137 of 201 stale rungs), so findings are queued and filed once at Close as new entries with --see-also (the Close commit itself staled 256 rungs in 112 functions); tooling notes (Q0626/Q0634/Q0638) belong in ladder.md; a stale-cause census (fp_local / hdr_fresh / knowledge after event) separates text, header and knowledge staleness; re-review agents must checkpoint ledger lines + status.md; batch → re-review loop; basename collisions need separate gates; stale dkd server in .scratch/gate gives bogus cfe header errors (`tools/dk --stop`).|
-## Pending for the next session
+## Pending after round 16 (historical, not maintained; live items: drafts/cleanup/pending.md)
 
 - Round 8 leftovers: A2F10 func_8069E774 (4 open sites, reconstruct not done; 8069E210 diagnose); 110F00 mtxIdentityF dead-if u4a570 still present (next=cond); menu/1AF0 most functions not reviewed; bonus/2690 reconstruct for bonusLightFlashGameUpdate/bonusActorUpdateVertexPositions/bonusPerilPathPanicGameUpdate, permutes (perm dirs ready in .scratch/CleanBonus2690/r8) and diagnoses (traces there), cond/classify for 300787/b1a373/e5ec5b; 7CA80 u2423a permute, ActorGlobalState.unk204 → Actor *.
 - ReRead2 stopped early: the remaining diff-derived QualityTools reviews still need re-reading (ReRead list).
@@ -49,7 +49,7 @@ the last ~10. Read when sizing a session; SKILL.md §6 adds the row.
 - Round 9 later: boss/6240 bossPufftossStep has 18 warning sites needing a gCurrentActor view retirement; 7130's 5 warning sites have no retype lines (n_alSndpPlay / mapGetSoundEmitters) → pending callee batch; effectSpawnActorBone / effectSetSpeed first param (callers pass `gCurrentActor`; needs a measured owner decision, C4620 4 blocked sites); gScheduler is declared as `OSMesgQueue` in 14CF0.c and `AudioSched` in 6710.c while 450.c defines a SchedStruct (shared-globals rule; 5230 keeps a volatile SCHED284 view); memcpy local declarations left in 36880, C2A90, menu/0, race/1770 and 112080 (would raise 112080's cfe 0 -> 2; 22 other files moved to compiler/ido/memory.h in 3fb8311d); ACDC0 keeps its HudCount views over KongInventory until KongInventory.unk8 signedness is settled (ACDC0 reads it as u16; the u16[14] carve landed in bc6602db; the view retirement would add two FAKE tags, so standin_ACDC0.c was not taken).
 - Round 9 owner/callee batches (blocked retypes): 450: `SchedClient` type + schedAddClient (13980.c), actorMapModelsSetup asset param (8D3E0.c); 36880: CsStateFull from 42630.c into include/, 70FD0/54150/133A90/55B20/8D3E0 protos, modelSlotInit asset header views (`.scratch/CleanGlobal36880/header-request.md`).
 
-## Proposed names (not yet applied)
+## Proposed names after round 16 (historical, not maintained; held names: drafts/cleanup/pending.md)
 
 Symbol folds, now applicable with `rename.py fold` (dry-run first): D_807FD63A/C/E/F → gPlayerPadState+0x2A/0x2C/0x2E/0x2F
 (3 E4090 functions keep the labels for codegen, Q0264). Unconfirmed (moderate evidence, round 2 55B20):

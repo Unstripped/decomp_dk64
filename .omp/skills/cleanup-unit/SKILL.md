@@ -18,8 +18,9 @@ recorded the moment it reports; close once per session. AGENTS.md rules always a
 |[types-stream.md](types-stream.md)|running `TypesOwner`; any header request or callee-prototype batch; special merges (§5.4)|
 |[ladder.md](ladder.md)|checking a report's LEDGER block; what `status`/`rank` print|
 |[naming.md](naming.md)|polish phase 2 and session-close renames|
-|[pending.md](pending.md)|blocked owner/header changes (the `TypesOwner` queue)|
-|[run-log.md](run-log.md)|sizing a session; close appends a row|
+|[rulings.md](rulings.md)|deciding whether a construct is ordinary C, a steer, ORIG or LAYOUT (§5.6); checking a report's tags|
+
+Campaign state lives outside the skill in `drafts/cleanup/`: `pending.md` (the `TypesOwner` queue, director rulings in force, ready hack items, held names, tooling fixes) and `sessions.md` (one row per session).
 
 ## 0. Model
 
@@ -45,7 +46,7 @@ opus, 2026-11-16c; fix a wrong one through a lead `--copy-dir`). `rank` orders f
 3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
    `uv run tools/clint.py compdb`; `uv run tools/quality.py report --markdown` → starting numbers.
 4. `uv run tools/quality.py rank --limit 40` (hack queue: `str att strong hacks state file function kinds`, weakest earlier
-   attempts first) and `rank --polish` (per file: functions without hack sites still open, `unrev` = never or stale reviewed).
+   attempts first) and `rank --polish` (per file: functions without hack sites still open, `unrev` = never or stale reviewed); read `drafts/cleanup/pending.md` (ready items, rulings in force, held files).
 
 ## 2. Queue (rolling)
 
@@ -69,7 +70,7 @@ Keep up to 6 workers plus one `TypesOwner` running. Never two agents on one src 
 ## 4. Types stream
 
 See [types-stream.md](types-stream.md). Workers never edit `include/`: they write the hunk to `.scratch/<A>/header-request.md` and message
-the lead, which forwards it to `TypesOwner` (`write agent://TypesOwner`) and gates its batches (no batch open: pending.md, 478F0 abbd3b).
+the lead, which forwards it to `TypesOwner` (`write agent://TypesOwner`) and gates its batches (no batch open: `drafts/cleanup/pending.md`).
 
 ## 5. Merge
 
@@ -99,27 +100,16 @@ As each worker reports:
    first (Q0548). Carve window: `rm -f .scratch/<lead>/RESUME`, wait for jobs 0, gate, split/make/expected/vanished,
    re-record, carry, commit, `touch` it. A merge whose file-scope edit stales other reviews, or whose body respelling stales the function's other sites (3D20 PUTC: 9), queues that item at once;
    if the idle worker already measured those sites on the new body, ask it for the lines and `quality.py record --base <merge>` them (42630 45a97280).
-6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816); the lead retags it in a `--copy-dir`
-   copy with a keymap or copy-only line. Ordinary C, untagged even as the only match: a load-bearing guard `continue`/`break`,
-   a one-path store, an index loop over a global table, one quantity refined in place (104F0 `offset = sector << 3`), an assignment
-   in a test whose values the target uses, one macro for every recomputation, function-local statics, a selector local at its use,
-   a local holding one field read for use (Q0601), a pointer local to a global used for EVERY access, a per-role local in a dropped
-   local's or pads' slot, declaration order chosen for the frame (9BF30), a subject-first symmetric `==` of two fields in fresh
-   view-retype code (F0D0), bare truth tests, a flag's natural unsigned type, a mask written at its field's width, a byte-view local
-   used for every offset access beside the typed pointer (55B20 `u8 *file`), a constant-valued local the target converts or uses at run
-   time in a way no literal reproduces (Q0814: CEAE0 `li`/`mtc1`/`cvt.s.w`, every literal folds to `lui`), `/ 2.0` where the file
-   family halves that way and `* 0.5` fails (126260). Steers: a trailing/`else` continue, an empty `default:`, a dead clamp keeper,
-   any other constant-valued local, a redundant alias (a second copy of a value already in a local: a swap needing one is rejected),
-   a value cast chosen for codegen, an operand-order/width/view respelling,
-   a single-use local whose only effect is a frame word (copy-propagated, `{ s32 _g; }` there matches too: a pad, 36880 1a2082).
+6. Rule every new, changed or dropped tag by [rulings.md](rulings.md); the lead retags a construct ruled a steer
+   in a `--copy-dir` copy with a keymap or copy-only line.
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
    the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
 applied copy (`git worktree add --detach` at the base, cp the copy + `asm/<seg>/nonmatchings/<file>`, `status --file` there); the
-tags are the only accepted rise. `// ORIG:` replacing `// FAKE` needs the cited target-asm offset (check it; K&R declarations, -g puns, a per-file extern type the target proves qualify).
-FAKE → `// LAYOUT:` with line-order evidence is a drop. Accept a K&R → ANSI uninit read (note).
+tags are the only accepted rise. `// ORIG:` replacing `// FAKE` needs a cited target-asm offset the lead checks ([rulings.md](rulings.md)).
+Accept a K&R → ANSI uninit read (note).
 
 ## 6. Session close (once per session)
 
@@ -139,8 +129,11 @@ session, a consolidation in a quiet window runs steps 1-3 only. Once every worke
    entries (a superseded claim goes in the new entry, not a paragraph); drop confirmations; tooling rules → ladder.md; `quirks.py check`.
    Every new finding is filed (AGENTS.md), never withheld to keep rungs fresh: the rungs it stales are the next session's leftovers.
 4. `uv run tools/quality.py report --baseline 2b2532bc --markdown` replaces the ROADMAP.md `### 11. Code quality` table.
-5. One [run-log.md](run-log.md) row; lessons → this skill (caps: SKILL.md and references ≤150 lines, briefs ≤180; a lesson replaces or
-   merges text); commit `cleanup-unit skill: …`. No re-review groups: stale reviews show as `next=review` and go out as polish work.
+5. One row in `drafts/cleanup/sessions.md`; lessons → this skill, new tag rulings → [rulings.md](rulings.md), open state
+   (header requests, ready items, held names, rulings in force) → `drafts/cleanup/pending.md`, landed items deleted there
+   (caps: SKILL.md and references ≤150 lines, briefs ≤180, `drafts/cleanup/` uncapped; a lesson replaces or merges text);
+   one commit `cleanup-unit skill: …` with the `drafts/cleanup/` edits. No re-review groups: stale reviews show as
+   `next=review` and go out as polish work.
 
 ## 7. Stop rule
 

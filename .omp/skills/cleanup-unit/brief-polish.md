@@ -11,7 +11,7 @@ via `tools/dk <cmd>`, never commit, never edit `knowledge/ido/`, `include/` or o
 instead). Every function already matches; your job is to make your file read like ordinary C
 (types, names, reviews) and keep it byte-identical. Hack sites are not yours: hack workers take
 them. Your file: <src/seg/file.c>, base commit <base>.
-<file-specific facts: shared headers, key globals, `rank --polish` row, pending.md items for this file>
+<file-specific facts: shared headers, key globals, `rank --polish` row, `drafts/cleanup/pending.md` items for this file>
 
 Start state (`uv run tools/quality.py status --file <file>` at the base):
 <status output>
@@ -39,7 +39,7 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   it then enters the hack queue. Hidden steers count as hacks: an odd spelling chosen only for
   codegen (`(*p).f` for `p->f`, a re-read through another pointer, a value-named constant local,
   a redundant alias `start = head;`, an unrelated local reused for another value). A named local
-  temp or pointer local that first holds a value or field for use is ordinary C (Q0601): never tag it.
+  temp or pointer local that first holds a value or field for use is ordinary C (Q0601): never tag it. Rulings: `.omp/skills/cleanup-unit/rulings.md`.
 - Unused locals that only reproduce a frame size are `pad`/`pad[N]`, untagged.
 - Never grow or shift a shared struct. Header changes: write the exact hunk to
   `.scratch/<You>/header-request.md` and message the orchestrator (it forwards it to `TypesOwner`);

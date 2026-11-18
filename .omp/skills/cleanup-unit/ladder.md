@@ -26,18 +26,7 @@ its cfe warning code plus the line's normalized code. Kinds:
 |`warning`|an IDO `cfe: Warning` line of the file's matching compile (`tools/cwarn.py`), on the line it names (file-scope lines: the first later function naming the symbol); `status` shows `[W<code> <msg>]`|
 
 `// LAYOUT:` lines are not sites (as1 line-order scheduling is ordinary source layout), nor are `// ORIG: <what the target does at 0x<offset>>` lines;
-an `// ORIG` line without a cited offset stays a hack site. The offset must show the tagged line's OWN executed operations (a wider
-call-site declaration's caller-side `andi`, an extra argument register), never register numbering alone (136820 5fb2de), nor a computation
-a dead test keeps alive (stays FAKE, `diagnose nohit`; 627052); pre-switch constant store: compile without it first. A `T x[1]` memory
-home is ORIG only with a cited store-without-reload offset (6AD90 `swc1` 0x3910, compare on the register copy). A reused local/parameter
-is ORIG when the value is stored to its own home slot (not the temp area below the named homes) and a separate local grows the frame (CEAE0
-f73438, arcade ff5952), or two values spill to one home (42630 83069d#2); a shared register is not. Load count: a field re-read (`p->f`
-while a local holds it) is ordinary only when the target loads the field again; cite the loads (36880, 15050 0x170: one load, FAKE).
-Width: narrow only with a byte/halfword load/store of the value or the type the code uses for it (0/1 flag u8, s16 sound ids; 7130: steer).
-`(d = X) > best` whose value the target uses is ordinary C, a comma expression is not; a `volatile` pointee of a cross-thread busy-wait poll
-(104F0 77df56) is ordinary, volatile locals or reads elsewhere stay FAKE. A sentinel `switch` or several steers merged into ONE tagged
-construct are natural only when every case value/compare it adds is in the target (9DD70 `li a3,6`/`li t0,7`; Q0844/Q0845); else it is
-invented code and the base sites stay (936B0 `case 0`, 7BBD0 `if (&flag) {}`). The lead checks the compares in the expected asm.
+an `// ORIG` line without a cited offset stays a hack site. What a cited offset must show, and every other tag ruling: [rulings.md](rulings.md).
 
 ## Methods
 

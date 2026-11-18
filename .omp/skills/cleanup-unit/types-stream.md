@@ -7,7 +7,7 @@ which forwards it (`write agent://TypesOwner`).
 
 ## Queue
 
-1. pending.md "Blocked owner/header changes" (oldest first, skipping items marked held or closed);
+1. `drafts/cleanup/pending.md` "Blocked owner/header changes" (oldest first, skipping items marked held or closed);
 2. forwarded header requests, in arrival order.
 Each batch works in `.scratch/TypesOwner/batch_<n>/` and first writes `files.txt`: every src file and
 header it edits, one path per line. The lead dispatches no worker on a listed src file while the batch
@@ -50,7 +50,7 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
    --batch <ledger>`; `tools/dk make expected`; `quality.py sweep <srcs> -j 4 --record --unit ...`;
    `quality.py carry --rev <merge>^ --unit ... <srcs>` (plus `--header-carve` for layout-keeping carves);
    commit `drafts/quality`.
-4. Remove the batch's `files.txt` (its files return to the queue); move a closed pending.md item to
+4. Remove the batch's `files.txt` (its files return to the queue); move a closed drafts/cleanup/pending.md item to
    its outcome line.
 
 ## Special merges (SKILL §5)
@@ -78,7 +78,7 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
   merge_record's steps 3-10. Commit explicit paths only; headers go in `--stage`, never as a gate file argument.
 - A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a copy retyping a shared global's
   extern: fix every other file's extern in the SAME gate (objdiff each; a file whose cfe would rise or that no
-  longer compiles keeps its type and goes to pending.md).
+  longer compiles keeps its type and goes to drafts/cleanup/pending.md).
 - A signature or shared-extern change stales the review of every reached user outside the worker's functions (not carried:
   callee definition, callers, other extern users): the lead re-reads each and records `review nohit` (agent = lead, the worker's
   unit, `--base` the merge) with what changed; a cast the new prototype makes redundant is noted as polish (00a87382, c2be8b3c).
