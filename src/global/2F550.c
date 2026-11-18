@@ -105,8 +105,6 @@ void frustumCalculateCornerRays(f32 fovY, f32 aspect, f32 depth) {
     }
 }
 
-extern f32 D_807F5E20[4][3];
-
 
 void frustumCornersTransformByInverse(Mtx *mtx) {
     f32 viewMtx[4][4];

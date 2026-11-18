@@ -1202,8 +1202,6 @@ void mapChunkSetIndexOverride(s8 index) {
     D_807F70AB = index;
 }
 
-extern f32 D_807F5E20[];
-
 extern PlanePoly gFrustumPlanes[];
 extern u8 gGfxBufferIndex;
 extern f32 D_807F5FB4;
@@ -1219,7 +1217,7 @@ void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
     gMapFogDist = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].farClip;
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)gMapFogDist);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(x, y, z, gFrustumPlanes, D_807F5E20);
+    frustumOrientPolyNormals(x, y, z, gFrustumPlanes, D_807F5E20[0]);
     mapChunkClearBounds();
     mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].unk290);
     mapTriggerCollectZonesAtPoint(x, y, z);

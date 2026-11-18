@@ -36,6 +36,10 @@ typedef struct PlanePoly {
 // (`*poly`, `planes[i]`): `(*p).f` keeps the add tree order where `p->f` lets uopt reassociate (Q1130).
 #define PLANE_DIST(plane, x, y, z) ((((plane).a * (x) + (plane).b * (y)) + (plane).c * (z)) + (plane).d)
 
+// The four frustum corner points in world space, one row each: written by frustumCornersTransformByInverse (2F550.c),
+// read as 12 floats by frustumOrientPolyNormals (its callers pass D_807F5E20[0]).
+extern f32 D_807F5E20[4][3];
+
 // Per-frame matrices and sub display list (D_80767CE8[2], gGfxCurrentFrameBuffer); 0x11B0 bytes.
 typedef struct FrameMatrices {
     /* 0x000 */ Mtx perspective;
