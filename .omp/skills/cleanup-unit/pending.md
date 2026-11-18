@@ -146,4 +146,71 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - HELD names: RaceParticipant.unk35 phase; PlayerStruct.rect[4] scissor fields; ModelSlot.unk8C stateFlags; PlayerState.unk50 gravityDelayFrames (D5E10 use first);
   BehaviourWorkState.unk2E sfxCooldown (dry-run touches 11 unread files); race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed); gMinigameCoinCount (above).
 
+## Session 2026-11-17f leftovers (CleanupLead17f; no TypesOwner this session by director ruling)
+- jetpac shared head (CleanjetpacUpdatePlayerMovement, ledger 7d1cc6e8; types item, parked): embed one 0x30-byte head struct in
+  `JetpacActor` and `JetpacPlayerActor`. The natural `player->head.x` keeps one base and compiles like the plain body; only a
+  local `head = &player->head` used for EVERY head access matches, so it retires 1A60 ba285d only if that pointer local is ruled
+  ordinary C (SKILL §5.6 pointer-local precedent: 450 firstSetupFlag). It touches every head-field access of JetpacPlayerActor in jetpac.
+- 11BC10 effectInterpolationUpdate 6e5dc3 (CleaneffectInterpolationUpdate, merge 45e10058; DECLINED by director ruling, evidence
+  only): retyping EffectNode.interp (include/render.h 0x384) from `struct EffectInterpolationState *` to `f32 *` with enum slot
+  indices and `+=` updates matches with plain indexing (whole-object OK on a shadow render.h stand-in:
+  `.scratch/CleaneffectInterpolationUpdate/render_interp_f32.patch`, `typed_standin_11BC10.c`). An enum-indexed f32 array that
+  replaces a named-field struct is a view chosen for codegen, not a better type: do not retry without new type evidence.
+- 7130 whole-TU .data + .bss carve LANDED (CleansfxUpdateLevelAmbient, merge 08e85d18, director turn 75). All 7130 data is now in
+  C; the sfxUpdateChannels templates are initialised local arrays; split labels are folded. FAKE 8 -> 8. Leftovers:
+  - 70c91e is NOT retired. IDO places a function-local .bss static by first reference, so `static u8 D_80770DC8` lands at
+    0x80770F38, not 0x80770DC8 (worker carve_7130.txt section 4). Retry only with a new .bss-order lever.
+  - TYPES ITEM (interim by director ruling): undefined_syms.us.txt carries D_80770561 and D_80770DD9, interior labels of
+    C-defined objects. Fold the outside externs and drop the lines:
+    - CEAE0.c `extern u8 D_80770561;` -> D_80770560[1];
+    - DONE: BDEE0.c's D_80770629 byte view became gSfxSourceVoice[slot] (PolishglobalBDEE0, merge c274b360; line dropped);
+    - 478F0.c `extern u8 D_8077058C;` is a scalar where 7130/114270 use u8[];
+    - D_80770DD9: check for remaining asm users, then drop it.
+  - TOOLING (§6): objdiff.py text_matches turns symbol_addrs names into absolute addresses on the expected side only, and
+    compares own-.bss relocations by raw offset. A carve that moves a TU's .bss base therefore shows `fdiff --reloc-ok`
+    exit 1 even when the ROM matches. The ROM gate was the arbiter (GATE_OK 08e85d18; worker raw-word proof 0 unexplained).
+- D_807F5E20 shared-globals types item (from CleanmapBspPlaneSideTest, merge c33bc820): 2F550.c now declares
+  `extern f32 D_807F5E20[4][3];` (the 4 frustum corner rows; the D_807F5E24/D_807F5E28 split labels are retired there). 55B20.c
+  and 5E2F0.c still declare `extern f32 D_807F5E20[]`. Unify them under the shared-globals rule (one declaration in a header,
+  each user's accesses as [i][k]), gating every user and checking objdiff on each. Not touched this session by director
+  ruling (turn 78).
+- SQ macro duplication (types/shared-header item, from CleanactorShowTextOnceWhenNear, merge 8eefc39a): `#define SQ(x) ((x) *
+  (x))` is now defined locally in 5 files (global/12E800.c and C4620.c inside function bodies; 5E2F0.c, 68EA0.c, CEAE0.c), and
+  race/36B0.c has its own RB_SQ. Move one definition to a shared header (e.g. include/macros.h, if no SQ exists there), drop the
+  local copies, and gate every user; it is a text-only change (expected fdiff 0 everywhere).
+- HeapBlock allocated-block tag (types item, director ruling HOLD; from CleanheapRegisterSurvivor, header-request at
+  .scratch/CleanheapRegisterSurvivor/header-request.md): byte 0x0B of HeapBlock is the low byte of `next` while a block is
+  free, and the allocation tag while it is allocated (0 normal, 1 locked, 2 survives an overlay load). Every access is a byte
+  view: `((u8 *)p)[0xB]` in heapInitGeneralPool, heapInitBlockPool, heapReleasePool, heapFree, heapFreeDeferred and
+  heapRegister/UnregisterSurvivor, and `ptr[-5]` in heapLockBlock/heapUnlockBlock. An anonymous union over `next` adds cfe
+  Warning 838 + 649 per declaration, and a named union rewrites all 28 `->next` in 15050.c to `->u.next`. Do it only as a
+  file-wide polish/types pass.
+- hudPauseMenuUpdate (src/global/ACDC0.c): the hold was LIFTED for one worker (director turn 178). CleanhudPauseMenuUpdate (merge
+  54a784f8) ran the hidden-temp census. The nested mapGetHubWorldIndex result temp owned a frame word; routing the call through
+  `hubWorld` freed it for `s32 sel` (the map selector), so 65898b is FIXED and `i` is loop-only. The FAKE count is 5 -> 4, all
+  EXHAUSTED: c127b7 page and db430c credits reuse sel; 6151e7 limit and 32c920 half reuse flag. Retry only with a new lever.
+  The flag reuse is pinned by register colouring: the bools are a0 only while flag also covers the limit region. The
+  dossier lists every measured variant.
+- A8400 textBoxRender scissor d5a412 (TypesOwner/hack item; from PolishglobalA8400, director ruling turn 162): the second
+  scissor is a hand-expanded G_SETSCISSOR word (WRITE_GFX, uly-first operand order), tagged FAKE (pre-existing). The plain
+  `gDPSetScissor(dl++, G_SC_NON_INTERLACE, boxLeft, boxTop, boxRight, boxBottom)` gives fdiff 1 (or/sll flip at
+  +0xff4..+0xffc); the macro matches with constant-index array reads `box[0..3]`. REFUSED as proposed: an anonymous
+  union/struct over ResQueueActorState.boxLeft..boxBottom (0x44..0x53) - IDO 5.3 emits cfe Warnings 838/649 for anonymous
+  members (15050 finding), and a plain `f32 box[4]` replacing the four named fields exists only to steer the scissor
+  codegen. Retry only with a new reason for an array (another user or asset layout evidence); only A8400 uses the fields.
+  Evidence: .scratch/PolishglobalA8400/header-request.md, resqueue.patch (hunk 2), shadow/resqueue.h.
+- F9450 shared records (types items, DEFERRED by director ruling turn 164: no TypesOwner this session; from PolishglobalF9450,
+  merge cb19a3d9): F9450.c now carries file-local copies of two records other files define, identical to them (fdiff 0):
+  - ModelAssetEntry (0x30, placed model of the map's model asset, table 9; 36880.c:33-49, modelAssetGetSubtables): move to
+    include/model.h, then drop 36880.c's and F9450.c's copies (merge_drafts prunes the identical typedefs).
+  - DropBounceState (customState of the drop-and-bounce pickups; AA960.c:105-112, actorDropBounceExpireUpdate): move to
+    include/actor.h (spell the field `struct EffectNode *`, actor.h does not include render.h), then drop AA960.c's and
+    F9450.c's copies (by hand: `EffectNode *` vs `struct EffectNode *` spelling). NEW HEADER REFERENCE (PolishglobalAA960b,
+    merge afae36b6): include/proto/global/AA960.h now forward-declares `struct DropBounceState;` and declares
+    `effectSpawnAttachedSprite(struct DropBounceState *, void *, f32)`. Both copies keep the tag `struct DropBounceState`, so
+    the 19 includers (F9450 among them) compile against it; the move must keep that tag. AA960's 12 wrappers now take
+    `DropBounceState *state`.
+  Hunks and evidence: .scratch/PolishglobalF9450/header-request.md. gridBuildNodeLists / gridCollectActorsInRange carry
+  `views blocked` until it lands.
+
 ## OPEN functions: `uv run tools/quality.py rank` (full) or `status --file <f>`; round-34 snapshot `.scratch/r34_post_knowledge.txt`.
