@@ -78,30 +78,29 @@ void gfxSwapGeometryModeCullBits(Gfx *cmdStart, void *cmdEnd) {
     s32 w0;
     s32 w1;
     s32 clear;
-    s32 swapped;
 
     for (; cmdStart != cmdEnd; cmdStart++) {
         command = cmdStart->words.w0 >> 24;
         w0 = cmdStart->words.w0;
         w1 = cmdStart->words.w1;
-        if (command == 0xD9) {
+        if (command == G_GEOMETRYMODE) {
             if (w1 == 0) {
-                clear = swapped = ~w0 & 0xFFFFFF; // FAKE: redundant copy, the tests read clear while the arms modify swapped; colours swapped $v0 before clear $v1 and keeps the loop scalar
-                if ((clear & 0x600) == 0x200) {
-                    swapped |= 0x400;
-                    swapped &= ~0x200;
-                    cmdStart->words.w0 = ~swapped | 0xD9000000;
-                } else if ((clear & 0x600) == 0x400) {
-                    swapped |= 0x200;
-                    swapped &= ~0x400;
-                    cmdStart->words.w0 = ~swapped | 0xD9000000;
+                clear = ~w0 & 0xFFFFFF;
+                if ((clear & G_CULL_BOTH) == G_CULL_FRONT) {
+                    clear |= G_CULL_BACK;
+                    clear &= ~G_CULL_FRONT;
+                    cmdStart->words.w0 = ~clear | 0xD9000000;
+                } else if ((clear & G_CULL_BOTH) == G_CULL_BACK) {
+                    clear |= G_CULL_FRONT;
+                    clear &= ~G_CULL_BACK;
+                    cmdStart->words.w0 = ~clear | 0xD9000000;
                 }
-            } else if ((w1 & 0x600) == 0x200) {
-                cmdStart->words.w1 |= 0x400;
-                cmdStart->words.w1 &= ~0x200;
-            } else if ((w1 & 0x600) == 0x400) {
-                cmdStart->words.w1 |= 0x200;
-                cmdStart->words.w1 &= ~0x400;
+            } else if ((w1 & G_CULL_BOTH) == G_CULL_FRONT) {
+                cmdStart->words.w1 |= G_CULL_BACK;
+                cmdStart->words.w1 &= ~G_CULL_FRONT;
+            } else if ((w1 & G_CULL_BOTH) == G_CULL_BACK) {
+                cmdStart->words.w1 |= G_CULL_FRONT;
+                cmdStart->words.w1 &= ~G_CULL_BACK;
             }
         }
     }
