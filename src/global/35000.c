@@ -276,86 +276,78 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *list, f32 camX, f32 camY
     RenderEntry *head;
     RenderEntry *cur;
     RenderEntry *ins;
-    RenderEntry *base;
     s32 inserted;
+    f32 insKey;
     f32 dist;
-    f32 cmpB;
     f32 key;
+    RenderEntry *next;
 
     dist = 0.0f;
     node = list;
     head = list;
     *outClosest = NULL;
-    base = list; // FAKE: third copy of list; reading list/head instead changes allocation
-    if (base != NULL) {
-        do {
-            dx = node->unk4 - camX;
-            dy = node->unk8 - camY;
-            dz = node->unkC - camZ;
-            if (node->unk10 != -1.0) {
-                node->unk10 = sqrtf(dx * dx + dy * dy + dz * dz);
-            }
-            node = node->unk14;
-        } while (node != NULL);
+    while (node != NULL) {
+        dx = node->unk4 - camX;
+        dy = node->unk8 - camY;
+        dz = node->unkC - camZ;
+        if (node->unk10 != -1.0) {
+            node->unk10 = sqrtf(dx * dx + dy * dy + dz * dz);
+        }
+        node = node->unk14;
     }
-    if (base != NULL) {
-        if (base->unk10 < base->unk1C || base->unk1C == -2) {
-            *outClosest = base;
-            if (base->unk1C == -2) {
+    if (head != NULL) {
+        if (head->unk10 < head->unk1C || head->unk1C == -2) {
+            *outClosest = head;
+            if (head->unk1C == -2) {
                 dist = 9999.0f;
             } else {
-                dist = base->unk10;
+                dist = head->unk10;
             }
         }
-        cur = base->unk14;
-        if (cur != NULL) {
-            do {
-                inserted = 0;
-                if ((dist < cur->unk10 && cur->unk10 < cur->unk1C) || cur->unk1C == -2) {
-                    *outClosest = cur;
-                    if (cur->unk1C == -2) {
-                        dist = 9999.0f;
-                    } else {
-                        dist = cur->unk10;
-                    }
+        cur = head->unk14;
+        while (cur != NULL) {
+            inserted = 0;
+            if ((dist < cur->unk10 && cur->unk10 < cur->unk1C) || cur->unk1C == -2) {
+                *outClosest = cur;
+                if (cur->unk1C == -2) {
+                    dist = 9999.0f;
+                } else {
+                    dist = cur->unk10;
                 }
-                key = (f32)((cur->unk1C < cur->unk10) ? 9999.0 : cur->unk10);
-                ins = cur->unk18;
-                if (ins != NULL) {
-                    do {
-                        cmpB = (f32)((ins->unk1C < ins->unk10) ? 9999.0 : ins->unk10);
-                        if (key <= cmpB || cur->unk1C == -2) {
-                            inserted = 1;
-                            if (ins != cur->unk18) {
-                                cur->unk18->unk14 = cur->unk14;
-                                node = cur->unk14;
-                                if (node != NULL) {
-                                    node->unk18 = cur->unk18;
-                                }
-                                node = ins->unk14;
-                                ins->unk14 = cur;
-                                cur->unk14 = node;
-                                if (cur->unk14 != NULL) {
-                                    cur->unk14->unk18 = cur;
-                                }
-                                cur->unk18 = ins;
-                            }
+            }
+            key = (cur->unk1C < cur->unk10) ? 9999.0 : cur->unk10;
+            ins = cur->unk18;
+            while (ins != NULL && inserted == 0) {
+                insKey = (ins->unk1C < ins->unk10) ? 9999.0 : ins->unk10;
+                if (key <= insKey || cur->unk1C == -2) {
+                    inserted = 1;
+                    if (ins != cur->unk18) {
+                        cur->unk18->unk14 = cur->unk14;
+                        if (cur->unk14 != NULL) {
+                            cur->unk14->unk18 = cur->unk18;
                         }
-                        ins = ins->unk18;
-                    } while (ins != NULL && inserted == 0);
-                }
-                if (inserted == 0) {
-                    cur->unk18->unk14 = cur->unk14;
-                    if (cur->unk14 != NULL) {
-                        cur->unk14->unk18 = cur->unk18;
+                        next = ins->unk14;
+                        ins->unk14 = cur;
+                        cur->unk14 = next;
+                        if (cur->unk14 != NULL) {
+                            cur->unk14->unk18 = cur;
+                        }
+                        cur->unk18 = ins;
                     }
-                    cur->unk18 = NULL;
-                    cur->unk14 = head;
-                    head->unk18 = cur;
-                    head = cur;
                 }
-                cur = cur->unk14;
-            } while (cur != NULL);
+                ins = ins->unk18;
+            }
+            if (inserted == 0) {
+                cur->unk18->unk14 = cur->unk14;
+                if (cur->unk14 != NULL) {
+                    cur->unk14->unk18 = cur->unk18;
+                }
+                cur->unk18 = NULL;
+                cur->unk14 = head;
+                head->unk18 = cur;
+                head = cur;
+            }
+            cur = cur->unk14;
         }
     }
     return head;
