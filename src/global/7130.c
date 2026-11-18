@@ -227,20 +227,19 @@ void sfxStartAreaAmbient(void) {
         return;
     }
 
-    count = 29;
+    count = sizeof(sAmbientSfxTable) / sizeof(sAmbientSfxTable[0]);  // ORIG: the row count is stored before the call: li t0,29 at 0xb0, sh t0,0x24(sp) (its own home) in the jal delay slot at 0xc8, lh t0,0x24(sp) at 0xd4, slt at 0xf4
     chunk = mapChunkFindByPosition(gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, 0);
 
-    i = 0; do { // LAYOUT: loop init on the do line keeps as1's order
+    for (i = 0; i < count; i++) {
         if (gCurrentMap == sAmbientSfxTable[i].map && chunk == sAmbientSfxTable[i].chunk) {
             gAmbientIndoors = sAmbientSfxTable[i].indoors;
             sfxAllocateChannel(sAmbientSfxTable[i].sfxId, 1.0f);
             if (sAmbientSfxTable[i].altSfx != 0) {
-                count = (u8)sAmbientSfxTable[i].altSfx;  // FAKE: reusing the loop bound for the alternate sfx keeps its register (a separate temp recolours the loop)
-                D_80770DD8[1] = count;
+                D_80770DD8[1] = sAmbientSfxTable[i].altSfx;
             }
             return;
         }
-    } while (++i < count);
+    }
 
     D_80770DD8[1] = 0xFF;
 }
@@ -852,7 +851,7 @@ void sfxUpdateLevelAmbient(void) {
             } else {
                 D_80770DC8 = 0;
             }
-            D_80770DD9 = emitters[nearest].sfxId;
+            D_80770DD9 = emitters[nearest].sfxId;  // FAKE: the D_80770DD9 linker alias (byte 1 of D_80770DD8) keeps this store on its own lui at/sb t3 at 0x15d0/0x15d8; D_80770DD8[1] joins the &D_80770DD8 web hoisted into s1 (text 7)
         } else {
             D_80770DCB = 0;
         }
@@ -1715,7 +1714,7 @@ void sfxUpdateSourceGroups(void) {
                         case 0x118:
                             if (actor->actorType != 0x139) {
                                 if (D_80770BC0[i]++ >= 2.0f) {
-                                    D_80770BC0[i] = (u32)randomLcgNext();
+                                    D_80770BC0[i] = randomLcgNext();
                                     if (D_80770DF0 < D_80770DF4) {
                                         fxFlags |= 0x80;
                                     }
@@ -1940,7 +1939,7 @@ void sfxUpdateSourceGroups(void) {
                             }
                         }
                         D_80770D10[i] = volume;
-                        n_alSndpPostEvent(sSoundSlotHandles[i], 8, (s32)volume);
+                        n_alSndpPostEvent(sSoundSlotHandles[i], 8, volume);
                     }
                     pan = D_80770DDC;
                     if (pan != D_80770D40[i]) {
@@ -2388,19 +2387,15 @@ void seqUpdateVolumeFades(void) {
     s8 i;
     for (i = 0; i < 4; i++) {
         if (D_80770598[i]) {
-            f32 curr = D_80770568[i];
-            f32 target = D_80770578[i];
             f32 diff;
-            D_80770568[i] = curr + (target - curr) * 0.075;
-            do {} while (0);  // FAKE: empty loop splits the block so the D_80770568[i] reload stays
-            curr = D_80770568[i];
-            if (curr < target) {
-                diff = target - curr;
+            D_80770568[i] += (D_80770578[i] - D_80770568[i]) * 0.075;
+            if (D_80770568[i] < D_80770578[i]) {
+                diff = D_80770578[i] - D_80770568[i];
             } else {
-                diff = -(target - curr);
+                diff = -(D_80770578[i] - D_80770568[i]);
             }
             if (diff < 0.05) {
-                D_80770568[i] = target;
+                D_80770568[i] = D_80770578[i];
                 D_80770598[i] = 0;
             }
             seqUpdateVolume(i);
