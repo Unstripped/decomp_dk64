@@ -124,7 +124,6 @@ void animNodeAdvanceTime(AnimNode *node) {
                 node->subframe = 1.0f;
                 if (node->loopMode == 1) {
                     node->direction = 1;
-                    return;
                 }
             } else {
                 switch (node->loopMode) {
@@ -132,7 +131,6 @@ void animNodeAdvanceTime(AnimNode *node) {
                     node->frame = node->frame % endFrame;
                     if (node->frame < node->startFrame) {
                         node->frame = node->startFrame;
-                        return;
                     }
                     break;
                 case 1:
@@ -140,15 +138,10 @@ void animNodeAdvanceTime(AnimNode *node) {
                         node->direction = 1;
                         node->frame = endFrame - 1;
                         node->subframe = 1.0f;
-                        return;
                     }
                     break;
-                default:
-                    return;
                 }
             }
-        } else {
-            return;
         }
         break;
     }
@@ -162,7 +155,7 @@ void animNodeAdvanceTime(AnimNode *node) {
         node->subframe -= node->speed;
         subframe = node->subframe;
         if (subframe < 0.0) {
-            u32 step = (s32)subframe - 1;
+            u32 step = (s32)subframe - 1; // FAKE: u32 width stops uopt reassociating frame + (x - 1) to (frame + x) - 1, keeping x - 1 one value (v0) for the addu and cvt.s.w at 0x43c-0x44c
             node->frame += step;
             node->subframe = subframe - (f32)(s32)step;
         }
@@ -178,7 +171,6 @@ void animNodeAdvanceTime(AnimNode *node) {
                 node->subframe = 0.0f;
                 if (node->loopMode == 1) {
                     node->direction = 0;
-                    return;
                 }
             } else {
                 switch (node->loopMode) {
@@ -186,12 +178,11 @@ void animNodeAdvanceTime(AnimNode *node) {
                     node->frame = negFrame % (endFrame - 1);
                     if (node->frame != 0) {
                         node->frame = (endFrame - node->frame) - 1;
-                        return;
                     }
                     break;
                 case 1:
                     inc = loopCount + 1;
-                    if (inc) {} // FAKE: second read keeps lo+1 a real variable (v0) instead of folding to lo != -1
+                    if (inc) {} // FAKE: second read keeps loopCount + 1 a coloured candidate (v0, beql delay slot at 0x4f8) instead of a ugen temp (t2)
                     if (inc) {
                         node->frame = 0;
                         node->direction = 0;
@@ -201,8 +192,6 @@ void animNodeAdvanceTime(AnimNode *node) {
                         node->subframe = 0.0f;
                     }
                     break;
-                default:
-                    return;
                 }
             }
         }
