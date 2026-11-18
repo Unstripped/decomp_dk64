@@ -91,8 +91,8 @@ Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {
         posX = 278.0f;
         posY = 210.0f;
     } else {
-        posX = (f32) (gScreenWidth * 0.5);
-        posY = (f32) (gScreenHeight * 0.5);
+        posX = gScreenWidth * 0.5;
+        posY = gScreenHeight * 0.5;
     }
     glistp = gfxInit2DDisplayList(glistp);
     gSPDisplayList(glistp++, &D_1000118);
@@ -101,7 +101,7 @@ Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {
     if (gSplitScreenMode == 1) {
         gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(glistp++, 0, 0, 0, 120, 255, 80);
-        glistp = renderRotatedSprite(glistp, 0x60, 4, 0, 0x40, 0x40, (s32) (posX * 4.0f), (s32) (posY * 4.0f), 3.7f, 2.0f, 0xB4, 0.0f);
+        glistp = renderRotatedSprite(glistp, 0x60, 4, 0, 0x40, 0x40, posX * 4.0f, posY * 4.0f, 3.7f, 2.0f, 0xB4, 0.0f);
     }
     gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 255);
@@ -284,8 +284,8 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
 
     state = controller->customState;
     viewport = state->viewports[0];
-    posXStep = (f32) gScreenWidth / (f32) (gPlayerCount + 1);
-    posY = (f32) (viewport->top + 8);
+    posXStep = (f32) gScreenWidth / (gPlayerCount + 1);
+    posY = viewport->top + 8;
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
     if (D_807552E4.gameMode != 3) {
@@ -299,7 +299,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
         posY += 8.0f;
         for (i = 0; i < gPlayerCount; i++) {
             _sprintf(scoreStr, "%d", mpGetPlayerScore(i));
-            glistp = textDrawStringVtx(glistp, 1, (s16) ((((f32) (i + 1) * posXStep) - (f32) ((f32) textGetStringWidth(1, scoreStr) * 0.25)) * 8.0f), (s16) (posY * 8.0f), scoreStr, 4);
+            glistp = textDrawStringVtx(glistp, 1, ((i + 1) * posXStep - (f32) ((f32) textGetStringWidth(1, scoreStr) * 0.25)) * 8.0f, posY * 8.0f, scoreStr, 4);
         }
     }
     return glistp;
@@ -311,7 +311,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     Gfx *gfx;
     f32 fx;
     f32 fy;
-    s32 textY;
+    s16 textY;
     f32 fontHeight;
     Gfx *curGlist;
     u8 textBuf[32];
@@ -322,8 +322,8 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     G00Entry *rect;
 
     state = controller->customState;
-    fontHeight = (f32) textGetFontHeight(1);
-    fontHeight2 = (f32) textGetFontHeight(1);
+    fontHeight = textGetFontHeight(1);
+    fontHeight2 = textGetFontHeight(1);
     curGlist = mpDrawScoreGlyphs(glist, state, 0.0f);
     gSPDisplayList(curGlist++, &D_1000118);
     gSPMatrix(curGlist++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
@@ -336,11 +336,11 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
             fx = rect->left + (rect->right - rect->left) * 0.5;
             fy = rect->top + (rect->bottom - rect->top) * 0.5;
             alpha = (u8) gPlayerSlots[playerIndex].actor->alpha;
-            gDPSetPrimColor(curGlist++, 0, 0, 255, 255, 255, (0xFF - alpha));
+            gDPSetPrimColor(curGlist++, 0, 0, 255, 255, 255, 0xFF - alpha);
             _sprintf(textBuf, "BAD LUCK");
             fx = fx - textGetStringWidth(1, textBuf) * 0.25;
             fy = fy - fontHeight * 0.25;
-            curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), (s16) (fy * 8.0f), textBuf, 4);
+            curGlist = textDrawStringVtx(curGlist, 1, fx * 8.0f, fy * 8.0f, textBuf, 4);
         } else {
             alpha = 0xFF;
         }
@@ -350,8 +350,8 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
         gfx = curGlist++;
         gfx->words.w0 = 0xFA000000; gfx->words.w1 = (alpha & 0xFF) | 0xFFFFFF00; // LAYOUT: same-line packet stores (as1 stores w1 first)
         if (state->hudIconsShown == 0) {
-            fx = (f32) rect->left + 4.0f;
-            fy = (f32) rect->bottom - ((8.0f + fontHeight2) * 0.5f);
+            fx = rect->left + 4.0f;
+            fy = rect->bottom - (8.0f + fontHeight2) * 0.5f;
             fy = fy * 8.0f;
             bonusValue = slotQueueGetValue(3, playerIndex);
             if (bonusValue != 0) {
@@ -360,20 +360,20 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
             } else {
                 _sprintf(textBuf, "%d", slotQueueGetValue(2, playerIndex));
             }
-            textY = (s16) fy;
-            curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
+            textY = fy;
+            curGlist = textDrawStringVtx(curGlist, 1, fx * 8.0f, textY, textBuf, 4);
             if (bonusValue != 0) {
                 gDPSetColor(curGlist++, G_SETPRIMCOLOR, (alpha & 0xFF) | 0xFFFFFF00);
             }
             _sprintf(textBuf, "%d", slotQueueGetValue(4, playerIndex));
-            fx = (f32) rect->right - ((f32) (textGetStringWidth(1, textBuf) + 8) * 0.5f);
-            curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
+            fx = rect->right - (textGetStringWidth(1, textBuf) + 8) * 0.5f;
+            curGlist = textDrawStringVtx(curGlist, 1, fx * 8.0f, textY, textBuf, 4);
         }
         _sprintf(textBuf, "%d", mpGetPlayerScore(playerIndex));
-        fx = (f32) rect->right - (((f32) textGetStringWidth(1, textBuf) * 0.5f) + 50.0f);
+        fx = rect->right - (textGetStringWidth(1, textBuf) * 0.5f + 50.0f);
         fy = rect->top + (8.0 + (8.0f - fontHeight2 * 0.5f) * 0.5);
         fy = fy * 8.0f;
-        curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), (s16) fy, textBuf, 4);
+        curGlist = textDrawStringVtx(curGlist, 1, fx * 8.0f, fy, textBuf, 4);
     }
     return curGlist;
 }
@@ -516,7 +516,7 @@ void mpUpdateItemSpawns(void) {
     s32 k;
     s32 clusterCount;
     s32 itemCount;
-    s32 spawnDelay;
+    s16 spawnDelay;
     s16 angle;
     f32 baseY;
     f32 radius;
@@ -541,28 +541,28 @@ void mpUpdateItemSpawns(void) {
                 }
                 for (j = 0; j < clusterCount; j++) {
                     itemCount = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
-                    spawnDelay = (s16) mpRandomSpawnDelay();
-                    radius = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->radius);
+                    spawnDelay = mpRandomSpawnDelay();
+                    radius = (randomFloat() * 0.8 + 0.2) * item->radius;
                     angle = (randomNonNegative() >> 15) % 4096;
-                    centerX = (f32) item->x;
-                    baseY = (f32) (item->y - 23);
-                    centerZ = (f32) item->z;
+                    centerX = item->x;
+                    baseY = item->y - 23;
+                    centerZ = item->z;
                     centerX += radius * mathSinF(angle);
                     centerZ += radius * mathCosF(angle);
                     if (itemCount >= 2) {
                         angle = (randomNonNegative() >> 15) % 4096;
                         radius = 15.0f;
-                        angleStep = 4096.0f / (f32) itemCount;
+                        angleStep = 4096.0f / itemCount;
                     } else {
                         radius = 0.0f;
                         angleStep = 0.0f;
                         angle = 0;
                     }
-                    spawnY = (s16) baseY;
+                    spawnY = baseY;
                     for (k = 0; k < itemCount; k++) {
                         f32 x = centerX + mathSinF(angle) * radius;
                         f32 z = centerZ + mathCosF(angle) * radius;
-                        delayedSpawnQueueAddActor(0x7A, spawnDelay, (s16) x, spawnY, (s32) z);
+                        delayedSpawnQueueAddActor(0x7A, spawnDelay, x, spawnY, z);
                         angle += angleStep;
                         angle &= 0xFFF;
                     }
@@ -645,7 +645,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
         actorSpawnEffectChild(playerActor->x, playerActor->y, playerActor->z, 0.1f, 0.1f, playerActor, 1);
         break;
     case 4:
-        switch ((u32) (randomNonNegative() >> 15) % 5U) {
+        switch ((randomNonNegative() >> 15) % 5U) {
         case 0:
             playerSetSizeMode(playerActor, 0);
             gridCollectItem(playerIndex, 0x8E, 0);
@@ -807,7 +807,7 @@ void mpUpdate(void) {
         if (gPlayerCount == 2) {
             mpUpdateRandomSpawner(state);
         }
-    } else if ((gGlobalPauseFlags & 2) || ((s16)((f32)state->blinkTimer * 0.033333335f) & 1)) {
+    } else if ((gGlobalPauseFlags & 2) || ((s16) (state->blinkTimer * 0.033333335f) & 1)) {
         mpFreeHudIcons(state);
     } else if (state->hudIconsShown == 0) {
         for (j = 0; j < 2; j++) {
@@ -821,11 +821,11 @@ void mpUpdate(void) {
                 effectSetMode(0);
                 effectSetParam(mpHudIconTable[j].param);
                 if (j == 0) {
-                    x = (f32)(vp->left + 0xB);
+                    x = vp->left + 0xB;
                 } else {
-                    x = (f32)(vp->right - 0xB);
+                    x = vp->right - 0xB;
                 }
-                y = (f32)(vp->bottom - 0xB);
+                y = vp->bottom - 0xB;
                 state->hudIcons[j * gPlayerCount + k] = effectCreateAtPosition(mpHudIconTable[j].asset, mpHudIconTable[j].scale, x, y, -10.0f);
             }
         }
