@@ -1,19 +1,18 @@
 # mapSaveSlotAndTransition (global, src/global/3C10.c)
 ## Sites
-global:805FF9AC:other:39a5c7 other: `k = 1; D_80750ACC = k; ... D_8076A160[i].inUse = k;` makes one `li a2,1` (0xed8) feed both `sb a2,D_80750ACC` (0xee0) and `sb a2,0(s1)` (0xf18, after the heldActor if/else join).
+(none left) global:805FF9AC:other:e48433 (pre-retag 39a5c7) other, REMOVED 2026-11-17: was `saved = TRUE; gPlayerStateSaved = saved; ... D_8076A160[i].inUse = saved;`, one `li a2,1` (0xed8) feeding `sb a2,gPlayerStateSaved` (0xee0) and `sb a2,0(s1)` (0xf18, after the heldActor if/else join). Now `extern u8 gPlayerStateSaved;` and literal `TRUE` in both stores; `s32 pad` keeps frame 88.
 ## Attempts
+2026-11-17 U HackmapSaveSlotAndTransition3 anthropic/claude-opus-5-5: uopt -l5 traces of base, literal and initializer bodies. Base: `saved` copy-propagated, its constant node {1|0} lives bb39..bb42 (adjsave 0.5) and is colored uopt reg 5 = a2. Literal with `extern s8`: s8 store uses {1|0}, u8 inUse store uses {1|1} (typed constant webs, Q0449/Q0843), each one-block, adjsave 0, not colored -> li t2,1 + li t6,1 (+1 insn). Initializer `s32 saved = TRUE`: same object as the literal. `extern u8 gPlayerStateSaved` + literal TRUE: one node {1|1} bb39..42, a2, fdiff 0 (pad needed: without it 8 diff lines; pad after playerState also 0). Also dropped the three no-op `(u32)` casts on `r/g/b * 255.0` (fdiff 0: the u8 store already converts via the u32 sequence). CC800.c:812 extern retyped u8 in a stand-in, fdiff 0. -> fdiff 0, FAKE 1 -> 0.
 2026-11-16 U HackmapSaveSlotAndTransition2 anthropic/claude-opus-5-5:high: uopt trace (-l 6): k web {1117} gets ustr k,1 + uistr slot,k, live range colored a2. variants try: dedicated s32 local appended after playerState 29 (frame 96 vs 88 only: IDO reserves a slot per declared local); same local in place of `s32 pad` 0 (fdiff 0); u8/s8/s16 in that slot 11; `s32 saved = TRUE` initializer 11; literal 11. Kept: `s32 saved` in pad's slot, `saved = TRUE; D_80750ACC = saved; ... inUse = saved;`; also dropped the void* cast on customState. sweep on final copy: no sites.
 2026-11-14 U HackmapSaveSlotAndTransition anthropic/claude-opus-5-5:high: variants try, scores vs base: literal 1 in both stores 11; literal with D_80750ACC store after the playerState load 10; `inUse = D_80750ACC` read-back (store-to-load forwarding) mismatch +2 insns: IDO builds &D_80750ACC in a2 and emits `lb t6,0(a2)`, it does not forward the stored 1; slot pointer local for the tail 40; chained `inUse = D_80750ACC = 1` at the join 19. variants scan: no ZERO beyond operand swaps/widths. sweep: 0 hits.
 2026-11-13 Rev27 (history): literal rematerialises li per store; permuter only zero is pad = 1 carrier (steer swap).
 2026-11-11 Rev16I (history): permuter best=0 moves the carrier to pad (Q0634).
 2026-11-10 Clean3C10 (history): permuter found=1 carrier reuse.
 ## Untried ideas
-- (2026-11-16) none left for the removed site; if a reviewer rejects the role-named constant local as a steer, the only other route is a multi-def flag whose last def is the 1 after the chunk loop (none found: found/i/flags/returnExitIndex are dead or reused there).
-- A local with several defs that is naturally 1 at the end (Q0789: only a join store reached by several defs keeps the variable's register); no such meaning-bearing local is visible in the asm (found/i are dead or in s1).
-- Callers/neighbour code in 3C10.c that set D_80750ACC elsewhere (spelling there might reveal an original idiom).
+- none open. The `pad` local only reproduces frame 88 (10 declared locals); a natural tenth local was not found (slot pointer tried 2026-11-14: 40).
 ## Evidence
-- Frame 88: with k reused the base needed `s32 pad` between b and playerState; a dedicated local in that slot keeps the frame, an extra one grows it to 96 (an s32 slot per local, 8-aligned).
-- Only an s32 carrier keeps the a2 web; a u8/s8/s16 local or a def at the declaration is copy-propagated (Q0789, Q0402).
-- 0xed8 `li a2,1` sits in the loop-exit block before `lw t2,gPrimaryPlayerActor`; a2 is a caller-saved reg live only to 0xf18, no call in between.
-- 0xee0 `sb a2,%lo(D_80750ACC)(at)` precedes `lw v0,0x174(t2)` (customState), so source order is D_80750ACC store before playerState load.
-- 0xf18 `sb a2,0(s1)` is the join block after `beqz v1` (heldActor) – a chained store cannot produce the split placement.
+- Frame 88: 10 local slots; without `pad` the frame shrinks and 8 lines differ.
+- 0xed8 `li a2,1` sits in the loop-exit block (bb39) before `lw t2,gPrimaryPlayerActor`; 0xee0 `sb a2,%lo(gPlayerStateSaved)(at)` precedes `lw v0,0x174(t2)` (customState); 0xf18 `sb a2,0(s1)` is the heldActor join block (bb42) before the mapRequestTransition argument loads (a0/a1 forbidden there, so a2).
+- The uopt constant web is typed: an s8 store and a u8 store of 1 are separate constant nodes ({1|0}/{1|1}); only same-signedness stores share the a2 web.
+- gPlayerStateSaved (0x80750ACC, .data byte padded to a word) has no reader in the ROM's asm/C; its only accesses are this `sb 1` and CC800 playerResetSpawnGlobals `sb zero`, so its signedness is free; u8 matches the sibling flag `inUse` (u8 by `lbu` at 0xae8).
+- The rgb stores (0xd08-0xeb4) use the double -> u32 sequence (0x41e0 2^31 compare, ctc1 rounding) for a plain `u8 = f32 * 255.0` store; the `(u32)` casts were no-ops.
