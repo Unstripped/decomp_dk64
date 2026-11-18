@@ -387,7 +387,7 @@ unsigned char slot;
 int save;
 {
     u8 *dst = sEepromSlotBuffer;
-    s32 slotId;
+    u32 slotId;
     s32 size;
     s32 sector;
 
@@ -397,8 +397,8 @@ int save;
     dst += sector * size;
     gEepromCurrentSlot = slotId;
     bzero(dst, size);
-    eepromSetField(0xC, 0, 0, slotId, 1);
-    eepromSetField(0xF, 0, 0, slotId ^ 0, slotId); // FAKE: a second u8 cvt web; one CSE cvt of slotId is spilled across the first eepromSetField (sw a3 / lw a3)
+    eepromSetField(0xC, 0, 0, slot, 1);
+    eepromSetField(0xF, 0, 0, slot, slotId);
     if (save != 0) {
         eepromDispatchCommand(1);
     }
