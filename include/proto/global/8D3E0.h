@@ -62,13 +62,13 @@ struct ActorListNode *actorListSpawnNodeInternal(s16, f32, f32, f32, s16, f32, v
 void actorListUpdateSpawns(void);
 #endif
 #ifndef PROTO_SKIP_actorListRemoveAndDespawn
-void actorListRemoveAndDespawn(s32);
+void actorListRemoveAndDespawn(struct ActorListNode *);
 #endif
 #ifndef PROTO_SKIP_actorListRemoveNode
-void actorListRemoveNode(s32);
+void actorListRemoveNode(struct ActorListNode *);
 #endif
 #ifndef PROTO_SKIP_actorListRemoveNodeInternal
-void actorListRemoveNodeInternal();
+void actorListRemoveNodeInternal(struct ActorListNode *, u8);
 #endif
 #ifndef PROTO_SKIP_actorListRemoveByActor
 void actorListRemoveByActor(Actor *);
@@ -98,10 +98,10 @@ s32 actorListFindClosestTargetIndex(s32 *, s16 *, u8, f32, f32, f32);
 f32 playerGetMinSquaredDist3D(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorListSpawnAlways
-s32 actorListSpawnAlways(s32);
+s32 actorListSpawnAlways(struct ActorListNode *);
 #endif
 #ifndef PROTO_SKIP_func_80689EA4
-void func_80689EA4(struct ActorListNode *);
+s32 func_80689EA4(struct ActorListNode *);
 #endif
 #ifndef PROTO_SKIP_func_80689EE4
 u8 func_80689EE4(struct ActorListNode *);
@@ -119,7 +119,7 @@ u8 actorListDespawnIfFar(struct ActorListNode *);
 u8 actorListDespawnIfFarAndIdle(struct ActorListNode *);
 #endif
 #ifndef PROTO_SKIP_actorListDespawnNever
-s32 actorListDespawnNever(s32);
+s32 actorListDespawnNever(struct ActorListNode *);
 #endif
 #ifndef PROTO_SKIP_actorListIsPlayerInRadius
 u8 actorListIsPlayerInRadius(struct ActorListNode *);
