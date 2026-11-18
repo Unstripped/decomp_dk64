@@ -208,7 +208,7 @@ u16 type;
     if (actor != NULL) {
         heapClearBlock(actor);
         types = D_8074E218[type];
-        ptrArray = (void **)&actor->customState;
+        ptrArray = &actor->customState;
         dataPtr = (u8 *)actor + ((u16)((headerSize + 7) & 0xFFF8));
         if (*types != 0) {
             do {
