@@ -4,6 +4,9 @@
   (Q0780 ARRAY_COUNT bound local, data-proven length) and `for (pt = D_8004A7C8; pt < D_8004A7C8 + count; pt++)` keep the
   end derived from the walker (`addiu s1,s0,84`, 0x3884); `count` takes the old `pad[1]` slot. Was: `(s32)` end pointer.
   A constant-valued local whose assignment position steers (initialised at its declaration: 69), so a steer per SKILL §5.6.
+  2026-11-18 (director ruling: a sizeof count local is ordinary only if the target keeps the bound): the target has no
+  home for 21 (no `li`/`sw` of 0x15 in the function); the bound exists only as the immediate of `addiu s1,s0,84` at
+  0x3884, a register-only end, so the count stays `// FAKE` (re-checked by CleanarcadeDrawStage3Background).
 ## Attempts
 - 2026-11-14 opus:high (full=):
   - sized extern [21] with sizeof bound: 18; for walker: 20
@@ -40,9 +43,24 @@
     pad[1] slot (i, j, count, glist, pt): fdiff 0. Same local in the do/while form 0; `&D_8004A7C8[count]` 18;
     `i < count` index loop 2 (LFTR end off the walker but coloured s2, target s1); `s32 count = ...` initialised at its
     declaration 69 (the assignment moves to the function entry); `n = 21` in place of sizeof/sizeof also 2 in the index loop.
+- 2026-11-18 2026-11-18: cleanup CleanarcadeDrawStage3Background CleanarcadeDrawStage3Background anthropic/claude-opus-5-5 (base 2291c741):
+  - a pointer local to the table for every access (`spans = D_8004A7C8; for (pt = spans; pt < spans + 21; pt++)`,
+    spans in the count slot): 18 (text 16); `spans + sizeof/sizeof` 18; `spans[i]` index loop 20. uopt -l5: the end
+    reaches the candidate table as `uadd{spans}{84}` (literal offset, cand 52) and after copy propagation folds to its own
+    `lui s1` + `addiu s1,s1,%lo(D_8004A7C8+0x54)` (copy 0x3880/0x3888). Only the count local keeps the offset as
+    `ushl{count}{2}` (cands 52-53: `uadd{lda}{ushl}`), which ugen adds to the walker s0 (target 0x3884).
+  - countdown counters next to the walker (`for (pt = D_8004A7C8, n = 21; n != 0 / n > 0; n--, pt++)`, the
+    sizeof/sizeof start, `do {} while (--n)`, `while (n--)`): 19-20; the counter stays in s1 (`li s1,0x14` at 0x3884,
+    `bnez s1` / `addiu s1,s1,-1`): no LFTR onto the pointer, no end register.
+  - `{ s32 count = sizeof/sizeof; for (...) }` (block-scoped initialiser at the loop) with the outer slot as `s32 pad`: 0;
+    without the pad 3 (frame). The 69 is only the function-entry position of a top-level initialiser. Still the same
+    constant-valued bound local with a register-only bound: a respelling of the steer plus a pad, not kept.
+  - permuter 900 s -j 2 (hack-free weights) from the spans pointer-local body: base 192, best 75 only by inserting a dead
+    `if (D_8004C719 && D_8004C719) {}` before the loop (a dead guard: steer), no zero.
 ## Untried ideas
-- an untagged natural end that matches without the constant-valued local: measured `&D_8004A7C8[count]` 18, `&D_8004A7C8[21]` 16,
-  `D_8004A7C8 + sizeof/sizeof` inline 18-20; none so far.
+- none from the local asm: every hack-free end with a literal offset (sized array, sizeof, pointer local, end local,
+  byte offset, pointer difference, index loop) folds to `%lo(D_8004A7C8+0x54)`; only a variable count gives the scaled
+  `ushl` that ugen adds to the walker, and no real variable holds 21 there (i is unset, j is 20 after the second loop).
 ## Evidence
 - target: `lui t8,%hi(D_8004A7C8)` / `addiu s0,t8,%lo` at 0x387c/0x3880, `addiu s1,s0,84` at 0x3884, `sltu at,s0,s1` at 0x38a0, `bnezl` 0x38a4.
 - first j loop keeps `slti at,s0,160` (0x3770: the second loop redefines j), the second has `li s1,160; bnel s0,s1` (0x37d4).
@@ -50,3 +68,4 @@
 - `<` ends are hoisted as loop invariants and fold to `addiu s1,%lo(D_8004A7C8+0x54)`; `!=` ends stay in the loop but keep the base + 0x54 add (lda shared in s1).
 - a non-literal bound (a local holding the count) keeps the end off the walker: the pointer walk `pt < D_8004A7C8 + count`
   gives the target `addiu s1,s0,84` exactly; a literal bound folds (Q0811).
+- target 0x35e8-0x3a34: no `li` or `sw` of 21 anywhere; the count survives only as the 84 immediate at 0x3884.
