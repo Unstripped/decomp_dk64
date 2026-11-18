@@ -2775,10 +2775,11 @@ s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
                 gCurrentActor->unk155 = 0xB;
             }
         }
-        ret = p->found != 0; // FAKE: no explicit return: ret/v0 web, operands read via ilod p
+        ret = p->found != 0; // FAKE: alias p: found read as a uilod through p (lw v0,0x28(sp) at 0x7f60) is not copy-propagated into the test, so ret stays a candidate coloured $v0 (move v0,t3 at 0x7f6c); info.found propagates ret away (lw t3; sltu t4; beqzl t4)
         if (ret != 0) {
-            return p->isSet == 0;
+            return info.isSet == 0;
         }
+        // ORIG: no final return; when found == 0 the target branches past the isSet test (beqz t3,0x7f7c at 0x7f68) to the epilogue (jr ra at 0x7f84) with ret in $v0 from move v0,t3 in the delay slot (0x7f6c); return 0 gives move v0,zero plus a b (2 lines), return ret 8, ret = isSet == 0 + return ret 8
     }
 }
 
