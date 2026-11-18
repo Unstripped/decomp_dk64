@@ -716,11 +716,11 @@ void sfxUpdateLevelAmbient(void) {
     s8 pad;
     u8 fxFlags;
     u8 extraSfx;
-    s32 n;
-    s32 emitterCount;
+    u8 emitterCount;
     s16 group;
     s16 k;
     f32 volume;
+    f32 pan;
     f32 angle;
     f32 pitch;
     u32 count;
@@ -793,27 +793,26 @@ void sfxUpdateLevelAmbient(void) {
         break;
     }
 
-    if (emitterCount != 0 && sSfxAreaAmbientActive != 0 && sSfxMode == 0) {
+    if (emitterCount && sSfxAreaAmbientActive != 0 && sSfxMode == 0) {
         D_80770DD4 = 1000000.0f;
         volume = 0.0f;
-        for (k = 0, n = emitterCount; k < n; k++) {  // FAKE: n caches emitterCount as the loop bound; k < emitterCount moves emitterCount from s1 to s3 (pre-existing copy, now tagged)
-            AmbientEmitter *entry = &emitters[0] + k;  // FAKE: `&emitters[0] + k` keeps the base-first addu s1,t4,t5 (emitters reloaded into t4 from 0xc0(sp), k*14 in t5); &emitters[k] builds offset-first (Q0813)
-            f32 dx = gPlayerSlots->camX - entry->x;
-            f32 dz = gPlayerSlots->camZ - entry->z;
-            if (entry->facing == -1) {
+        for (k = 0; k < emitterCount; k++) {
+            f32 dx = gPlayerSlots->camX - emitters[k].x;
+            f32 dz = gPlayerSlots->camZ - emitters[k].z;
+            if (emitters[k].facing == -1) {
                 D_80770DE4 = sqrtf(dx * dx + dz * dz);
-                if (D_80770DE4 < entry->radius - 20) {
-                    sfxAllocateChannel(entry->sfxId, 1.0f);
-                } else if (D_80770DE4 > entry->radius) {
-                    sfxStopChannel(entry->sfxId, 0);
+                if (D_80770DE4 < emitters[k].radius - 20) {
+                    sfxAllocateChannel(emitters[k].sfxId, 1.0f);
+                } else if (D_80770DE4 > emitters[k].radius) {
+                    sfxStopChannel(emitters[k].sfxId, 0);
                 }
             } else {
-                f32 dy = gPlayerSlots->camY - entry->y;
+                f32 dy = gPlayerSlots->camY - emitters[k].y;
                 D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
                 if (k == 0 || D_80770DE4 < D_80770DD4) {
                     nearest = k;
                     D_80770DD4 = D_80770DE4;
-                    angle = (mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - entry->facing;
+                    angle = (mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - emitters[k].facing;
                 }
             }
             D_80770DE8 = 32767.0f - (D_80770DE4 - 50.0f) * 120.0f;
@@ -899,27 +898,25 @@ void sfxUpdateLevelAmbient(void) {
     } else {
         D_8077058C[2] = gMapAudioTable[gCurrentMap].volume;
     }
-    if (D_80770DE8 && D_80770DE8) {}  // FAKE: dead read keeps the spilled &D_80770EB8[group] (v0 at 0x1e44) home at 0x9c(sp) (sw at 0x1e5c, lw t0 at 0x1ffc/0x2014/0x2024); without it 0xa0(sp)
 
     if (D_80745838 != 0) {
         D_8077058C[2] = 0xFF;
     }
 
     if (D_8077058C[1] != D_8077058C[2]) {
-        angle = (D_8077058C[2] * 0.3) / 255.0; // FAKE: angle reused for the pan value (also 1009-1037); a dedicated f32 pan local is full 346/355 with the frame kept 0xe8
+        pan = (D_8077058C[2] * 0.3) / 255.0;
         volume = ((D_8077058C[2] * 0.35) / 255.0) + 1.0;
-        count = D_8077058C[2];  // FAKE: reusing the emitter-count local for the reverb level; a separate u32 level local grows the frame 0xe8 -> 0xf0
         if (gCurrentMap == 0xE) {
-            if (count != 0) {
+            if (D_8077058C[2]) {
                 seqSetVolumeInstant(0, 1.0f);
             } else {
                 seqSetVolumeInstant(0, 0.6f);
             }
-            alCSPSetChlPanVolume(&gSeqPlayers[0]->al, angle, volume);
+            alCSPSetChlPanVolume(&gSeqPlayers[0]->al, pan, volume);
         }
         for (seq = 0; seq < 4; seq++) {
             if (sSfxFlagTable[D_80770560[seq]] & 1) {
-                alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, angle, volume);
+                alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, pan, volume);
             } else {
                 alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, 0.0f, 1.0f);
             }
@@ -1006,7 +1003,7 @@ void sfxUpdateLevelAmbient(void) {
             }
             if (D_80770DEC < D_80770DE8) {
                 if (D_80770DE8 > 0.0f) {
-                    angle = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);
+                    angle = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);  // FAKE: angle reused for the per-group pan value (to the n_alSndpPostEvent(.., 4, angle) below); the target keeps it in angle f20 (cvt.s.d $f20 at 0x20cc/0x2100): a separate local here is 565, sharing pan with the seq-player block 366 (pre-existing part of 7d249b)
                 } else {
                     angle = 0.0f;
                 }
@@ -1038,7 +1035,7 @@ void sfxUpdateLevelAmbient(void) {
                 D_80770EF8[group] = angle;
             }
             if (pitch != D_80770E78[group]) {
-                n_alSndpPostEvent(D_80770DF8[group], 0x10, *(s32 *)&pitch);  // ORIG: the target passes pitch's raw bits from its home slot (swc1 $f2,0xcc(sp) at 0x218c, lw a2,0xcc(sp) at 0x2244); an f32 parameter would pass them by mfc1 with no home store (Q0026)
+                n_alSndpPostEvent(D_80770DF8[group], 0x10, *(s32 *)&pitch);  // ORIG: the target passes the raw bits of pitch from its home slot (swc1 $f2,0xcc(sp) at 0x218c, lw a2,0xcc(sp) at 0x2244); an f32 parameter would pass them by mfc1 with no home store (Q0026)
                 D_80770E78[group] = pitch;
             }
         }
@@ -1069,7 +1066,7 @@ void sfxUpdateLevelAmbient(void) {
             } else {
                 D_80770DCC = 64.0f;
             }
-            n_alSndpPostEvent(D_807457DC, 0x10, *(s32 *)&pitch);  // ORIG: the target passes pitch's raw bits from its home slot (swc1 $f2,0xcc(sp) at 0x23d0, lw a2,0xcc(sp) at 0x24fc)
+            n_alSndpPostEvent(D_807457DC, 0x10, *(s32 *)&pitch);  // ORIG: the target passes the raw bits of pitch from its home slot (swc1 $f2,0xcc(sp) at 0x23d0, lw a2,0xcc(sp) at 0x24fc)
             n_alSndpPostEvent(D_807457DC, 0x100, D_80770DD0);
             n_alSndpPostEvent(D_807457DC, 4, D_80770DCC);
         }
