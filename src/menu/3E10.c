@@ -371,11 +371,11 @@ void menuInitMainScreen(Actor *actor, s32 unused) {
     menuSetAudioMode();
     state->selection = D_8076A0D1[0];
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 2, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 3, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 4, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) makes the address one ucvt CSE value, spilled at 0x30(sp) (sw a1 at 0xae4) and reloaded per call; an s32 asset parameter does this implicitly but draws cfe Warning 712 at every other call (Q0704)
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb18
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 2, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb48
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 3, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb78
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 4, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xba8
     menuSpawnUiElementEffect(state, &D_8072052C, 0, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &D_807211D0, 1, 0, 0.8f, 2, 6);
     if (flagGet(0, 1) == 0) {
@@ -2242,15 +2242,15 @@ void menuLoadHighScores(void) {
 
     for (i = 0; i < 5; i++) {
         D_80744548[i].score = eepromGetField(0x19, 0, i, 0);
-        D_80744548[i].initial0 = eepromGetField(0x16, 0, i, 0);
-        D_80744548[i].initial1 = eepromGetField(0x17, 0, i, 0);
-        D_80744548[i].initial2 = eepromGetField(0x18, 0, i, 0);
-        D_80744548[i].initial3 = 0;
+        D_80744548[i].initials[0] = eepromGetField(0x16, 0, i, 0);
+        D_80744548[i].initials[1] = eepromGetField(0x17, 0, i, 0);
+        D_80744548[i].initials[2] = eepromGetField(0x18, 0, i, 0);
+        D_80744548[i].initials[3] = 0;
         D_80744568[i].score = eepromGetField(0x1D, 0, i, 0);
-        D_80744568[i].initial0 = eepromGetField(0x1A, 0, i, 0);
-        D_80744568[i].initial1 = eepromGetField(0x1B, 0, i, 0);
-        D_80744568[i].initial2 = eepromGetField(0x1C, 0, i, 0);
-        D_80744568[i].initial3 = 0;
+        D_80744568[i].initials[0] = eepromGetField(0x1A, 0, i, 0);
+        D_80744568[i].initials[1] = eepromGetField(0x1B, 0, i, 0);
+        D_80744568[i].initials[2] = eepromGetField(0x1C, 0, i, 0);
+        D_80744568[i].initials[3] = 0;
     }
 }
 
@@ -2259,13 +2259,13 @@ void menuSaveHighScores(void) {
 
     for (i = 0; i < 5; i++) {
         eepromSetField(0x19, 0, i, 0, D_80744548[i].score);
-        eepromSetField(0x16, 0, i, 0, D_80744548[i].initial0);
-        eepromSetField(0x17, 0, i, 0, D_80744548[i].initial1);
-        eepromSetField(0x18, 0, i, 0, D_80744548[i].initial2);
+        eepromSetField(0x16, 0, i, 0, D_80744548[i].initials[0]);
+        eepromSetField(0x17, 0, i, 0, D_80744548[i].initials[1]);
+        eepromSetField(0x18, 0, i, 0, D_80744548[i].initials[2]);
         eepromSetField(0x1D, 0, i, 0, D_80744568[i].score);
-        eepromSetField(0x1A, 0, i, 0, D_80744568[i].initial0);
-        eepromSetField(0x1B, 0, i, 0, D_80744568[i].initial1);
-        eepromSetField(0x1C, 0, i, 0, D_80744568[i].initial2);
+        eepromSetField(0x1A, 0, i, 0, D_80744568[i].initials[0]);
+        eepromSetField(0x1B, 0, i, 0, D_80744568[i].initials[1]);
+        eepromSetField(0x1C, 0, i, 0, D_80744568[i].initials[2]);
     }
     func_8060DEA8();
 }
@@ -2280,10 +2280,9 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
     s8 holdFrames;
     MenuHighScoreEntry *table;
-    MenuHighScoreEntry *entry;
     u32 pressed;
-    s32 pad;
     u8 *p;
+
     if (gMenuHighScoreGame == 0) {
         table = D_80744548;
     } else {
@@ -2308,23 +2307,21 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
                 holdFrames = 0;
             }
             pressed = 0;
-            if (holdFrames == 1 || (D_800339C0 = holdFrames, holdFrames >= 0x10)) { // FAKE: comma stores the counter only on the second test; a separate if reorders the store
-                if (D_80033F61 && D_80033F61) {} // FAKE: dead test steers register colouring (frame counter / D_80033F61 candidates)
+            if (holdFrames == 1 || (D_800339C0 = holdFrames, holdFrames >= 0x10)) { // ORIG: the target stores the counter on the holdFrames != 1 path before the 0x10 test (sb v1 at 0x7290, slti at,v1,16 at 0x7294) and again at the block head (sb v1 at 0x72a0); (D_800339C0 = holdFrames) >= 0x10 reloads the byte for the test
+                if (D_80033F61 && D_80033F61) {} // FAKE: dead test splits the block head: the store below stays a direct sb (D_800339C0 address uncoloured) and the D_80033F61 value takes v0 ahead of holdFrames (v1)
                 D_800339C0 = holdFrames;
                 pressed = buttons;
                 if (holdFrames >= 0x10) {
                     holdFrames = 0xF;
-                    if (row == 0xF) {} // FAKE: constant 15 becomes a coloured web (v1), leaving gFrameCounter a ring temp
+                    if (row == 0xF) {} // FAKE: with the next test, constant 15 gets v1 (li v1,15 at 0x72b8), the 15 store stays a direct sb and row (a0) is coloured ahead of table (a2)
                     D_800339C0 = holdFrames;
-                    if (row == 0xF) {} // FAKE: second reference to the 15 web
+                    if (row == 0xF) {} // FAKE: second compare of the constant-15 pair
                     if (!(gFrameCounter & 1)) {
                         pressed = 0;
                     }
                 }
             }
-            entry = table;
-            entry += row; // FAKE: split respelling of entry = &table[row] keeps the base-first addu; &table[row], table + row and &table[row].initial0 each fail (10 rows) (Q0816)
-            p = &entry->initial0 + D_80033F61;
+            p = &table[row].initials[D_80033F61];
             if (pressed & 4) {
                 switch (*p) {
                 case 0x20:
@@ -2422,7 +2419,7 @@ Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     for (i = 0; i < 5; i++) {
         _sprintf(strBuf, "%d.", i + 1);
         dl = textDrawStringVtx(dl, 1, (s16)(xBase + 0x50), yPos, strBuf, 1);
-        _sprintf(strBuf, "%c %c %c", scoreTable[i].initial0, scoreTable[i].initial1, scoreTable[i].initial2);
+        _sprintf(strBuf, "%c %c %c", scoreTable[i].initials[0], scoreTable[i].initials[1], scoreTable[i].initials[2]);
         dl = textDrawStringVtx(dl, 0x81, (s16)(xBase + 0x118), yPos, strBuf, 1);
         _sprintf(strBuf, "%d", scoreTable[i].score);
         dl = textDrawStringVtx(dl, 0x81, (s16)(0x3E8 - xBase), yPos, strBuf, 1);
@@ -2465,16 +2462,16 @@ void menuInsertHighScore(void) {
             if (i < 4) {
                 do {
                     table[j].score = table[j - 1].score;
-                    table[j].initial0 = table[j - 1].initial0;
-                    table[j].initial1 = table[j - 1].initial1;
-                    table[j].initial2 = table[j - 1].initial2;
+                    table[j].initials[0] = table[j - 1].initials[0];
+                    table[j].initials[1] = table[j - 1].initials[1];
+                    table[j].initials[2] = table[j - 1].initials[2];
                     j--;
                 } while (j > i);
             }
             table[i].score = D_80744518;
-            table[i].initial0 = 0x2E;
-            table[i].initial1 = 0x2E;
-            table[i].initial2 = 0x2E;
+            table[i].initials[0] = 0x2E;
+            table[i].initials[1] = 0x2E;
+            table[i].initials[2] = 0x2E;
             D_80033F60 = i;
             D_80033F61 = 0;
             return;

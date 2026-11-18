@@ -441,18 +441,18 @@ void eepromInitConfigs(u8 mask) {
     if (mask & 4) {
         for (i = 0; i != 5; i++) {
             eepromSetField(0x19, 0, i, 0, D_80757044[i].score);
-            eepromSetField(0x16, 0, i, 0, D_80757044[i].initial0);
-            eepromSetField(0x17, 0, i, 0, D_80757044[i].initial1);
-            eepromSetField(0x18, 0, i, 0, D_80757044[i].initial2);
+            eepromSetField(0x16, 0, i, 0, D_80757044[i].initials[0]);
+            eepromSetField(0x17, 0, i, 0, D_80757044[i].initials[1]);
+            eepromSetField(0x18, 0, i, 0, D_80757044[i].initials[2]);
             D_80744548[i] = D_80757044[i];
         }
     }
     if (mask & 8) {
         for (i = 0; i != 5; i++) {
             eepromSetField(0x1D, 0, i, 0, D_80757064[i].score);
-            eepromSetField(0x1A, 0, i, 0, D_80757064[i].initial0);
-            eepromSetField(0x1B, 0, i, 0, D_80757064[i].initial1);
-            eepromSetField(0x1C, 0, i, 0, D_80757064[i].initial2);
+            eepromSetField(0x1A, 0, i, 0, D_80757064[i].initials[0]);
+            eepromSetField(0x1B, 0, i, 0, D_80757064[i].initials[1]);
+            eepromSetField(0x1C, 0, i, 0, D_80757064[i].initials[2]);
             D_80744568[i] = D_80757064[i];
         }
     }
