@@ -842,11 +842,10 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     gSPMatrix(dl++, mtx, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     _sprintf(buf1, "%d", n1);
     _sprintf(buf2, "%d", n2);
-    dl = textDrawStringVtx(textDrawStringVtx(dl, 1, 0, -0x28, buf1, 0x80), 1, w, 0x28, buf2, 0);
+    dl = textDrawStringVtx(dl, 1, 0, -0x28, buf1, 0x80);
+    dl = textDrawStringVtx(dl, 1, w, 0x28, buf2, 0);
     gSPPopMatrix(dl++, G_MTX_MODELVIEW);
-    dl->words.w0 = 0xE7000000; // FAKE: raw PipeSync words with a separate dl++: gDPPipeSync(dl++) adds a third _g block word and moves the x/y float spills 0x48/0x44 -> 0x44/0x40 (Q0663)
-    dl->words.w1 = 0;
-    dl++;
+    gDPPipeSync(dl++);
     return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, x + (w - 0x10) * scale, y + 45.0f * scale, scale * 3.125, scale * 3.125, 0, 0.0f);
 }
 
