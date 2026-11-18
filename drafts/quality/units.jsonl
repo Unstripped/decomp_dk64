@@ -1081,3 +1081,4 @@
 {"type": "unit", "t": "2026-11-18T08:54:12Z", "unit": "2026-11-17: cleanup CleantextDrawStringVtx", "commit": "d25a9bbe024782f136e80d4e855ad633299ab70b"}
 {"type": "unit", "t": "2026-11-18T09:01:41Z", "unit": "2026-11-17: cleanup CleancontrollerAnimSetFromTable", "commit": "7c007c3c83332411daf08ab0711828d1479be5b8"}
 {"type": "unit", "t": "2026-11-18T09:04:59Z", "unit": "2026-11-17: cleanup CleancollisionCheckTriangleWinding", "commit": "e5d6f6621e1c7dd7442ad3956f7ff9559125fd42"}
+{"type": "unit", "t": "2026-11-18T09:06:42Z", "unit": "2026-11-17: cleanup CleananimNodeAdvanceTime", "commit": "ba79f09bef1be30260a79c066681d1a42c4a328b"}
