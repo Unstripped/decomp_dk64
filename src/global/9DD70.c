@@ -217,7 +217,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->sub4->boneOffsets = (BoneVector *)heapAlloc((numNodes + 1) * 0x10);
+        gCurrentActor->sub4->boneOffsets = heapAlloc((numNodes + 1) * sizeof(BoneVector));
         for (i = 0; i < numNodes; i++) {
             gCurrentActor->sub4->boneOffsets[i].bone = i;
             if (i != numNodes - 1) {
@@ -239,7 +239,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
             state->slotPhase[i] = 0;
         }
     }
-    if ((actorCheckAlwaysFalse() != 0) && (state->animDelay == -1)) {
+    if (actorCheckAlwaysFalse() && state->animDelay == -1) {
         state->animDelay = 10;
     }
     if (state->animDelay > 0) {
@@ -254,129 +254,111 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         posOffsets[i] = 0.0f;
         nodeForces[i] = 0.0f;
     }
-    i = 0;
-    if ((s32)gActorGlobalState.unk39 > 0) {
-        do {
-            found = 0;
-            j = 0;
-            while (j < (s32)state->trackedCount && found == 0) {
-                if (state->trackedActors[j] == gActorGlobalState.unk7C[i]) {
-                    found = 1;
-                } else {
-                    j++;
-                }
+    for (i = 0; i < gActorGlobalState.unk39; i++) {
+        found = 0;
+        j = 0;
+        while (j < state->trackedCount && !found) {
+            if (state->trackedActors[j] == gActorGlobalState.unk7C[i]) {
+                found = 1;
+            } else {
+                j++;
             }
-            if (!found) {
-                switch (waveType) {
-                case 0:
-                    actorAddNodeForceSlot(gActorGlobalState.unk3C[i][2], waveType);
-                    break;
-                case 1:
-                    actorAddNodeForceSlot(gActorGlobalState.unk3C[i][0], waveType);
-                    break;
-                }
+        }
+        if (!found) {
+            switch (waveType) {
+            case 0:
+                actorAddNodeForceSlot(gActorGlobalState.unk3C[i][2], waveType);
+                break;
+            case 1:
+                actorAddNodeForceSlot(gActorGlobalState.unk3C[i][0], waveType);
+                break;
             }
-            i++;
-        } while (i < (s32)gActorGlobalState.unk39);
-        i = 0;
+        }
     }
-    if ((s32)state->trackedCount > 0) {
-        do {
-            found = 0;
-            j = 0;
-            while (j < (s32)gActorGlobalState.unk39 && found == 0) {
-                if (state->trackedActors[i] == gActorGlobalState.unk7C[j]) {
-                    found = 1;
-                } else {
-                    j++;
-                }
+    for (i = 0; i < state->trackedCount; i++) {
+        found = 0;
+        j = 0;
+        while (j < gActorGlobalState.unk39 && !found) {
+            if (state->trackedActors[i] == gActorGlobalState.unk7C[j]) {
+                found = 1;
+            } else {
+                j++;
             }
-            if (!found) {
-                actorAddNodeForceSlot(state->trackedPos[i], waveType);
-            }
-            i++;
-        } while (i < (s32)state->trackedCount);
-        i = 0;
+        }
+        if (!found) {
+            actorAddNodeForceSlot(state->trackedPos[i], waveType);
+        }
     }
-    memcpy(state->trackedActors, gActorGlobalState.unk7C, 0x10);
+    memcpy(state->trackedActors, gActorGlobalState.unk7C, sizeof(state->trackedActors));
     state->trackedCount = gActorGlobalState.unk39;
-    if ((s32)state->trackedCount > 0) {
-        do {
-            switch (waveType) {
-            case 0:
-                state->trackedPos[i] = gActorGlobalState.unk3C[i][2];
-                break;
-            case 1:
-                state->trackedPos[i] = gActorGlobalState.unk3C[i][2];
-                break;
-            }
-            i++;
-        } while (i < (s32)state->trackedCount);
-        i = 0;
+    for (i = 0; i < state->trackedCount; i++) {
+        switch (waveType) {
+        case 0:
+            state->trackedPos[i] = gActorGlobalState.unk3C[i][2];
+            break;
+        case 1:
+            state->trackedPos[i] = gActorGlobalState.unk3C[i][2];
+            break;
+        }
     }
-    if ((s32)gActorGlobalState.unk39 > 0) {
-        do {
+    for (i = 0; i < gActorGlobalState.unk39; i++) {
+        switch (waveType) {
+        case 0:
+            if (gActorGlobalState.unk3C[i][2] / 843.0 > 0) {
+                waveForce = gActorGlobalState.unk3C[i][2] / 843.0;
+            } else {
+                waveForce = -(gActorGlobalState.unk3C[i][2] / 843.0);
+            }
+            break;
+        case 1:
+            if (gActorGlobalState.unk3C[i][0] / 480.0 > 0) {
+                waveForce = gActorGlobalState.unk3C[i][0] / 480.0;
+            } else {
+                waveForce = -(gActorGlobalState.unk3C[i][0] / 480.0);
+            }
+            break;
+        }
+        for (j = 0; j < numNodes; j++) {
+            if (waveForce < j) {
+                dist = j - waveForce;
+            } else {
+                dist = -(j - waveForce);
+            }
             switch (waveType) {
             case 0:
-                if ((f64)gActorGlobalState.unk3C[i][2] / 843.0 > 0) {
-                    waveForce = (f32)((f64)gActorGlobalState.unk3C[i][2] / 843.0);
-                } else {
-                    waveForce = (f32)-((f64)gActorGlobalState.unk3C[i][2] / 843.0);
+                dist = 3.0 - dist;
+                if (dist < 0.0) {
+                    dist = 0.0f;
                 }
+                posOffsets[j] -= 45.0f * dist;
                 break;
             case 1:
-                if ((f64)gActorGlobalState.unk3C[i][0] / 480.0 > 0) {
-                    waveForce = (f32)((f64)gActorGlobalState.unk3C[i][0] / 480.0);
-                } else {
-                    waveForce = (f32)-((f64)gActorGlobalState.unk3C[i][0] / 480.0);
+                dist = 7.0 - dist;
+                if (dist < 0.0) {
+                    dist = 0.0f;
                 }
+                posOffsets[j] -= 70.0f * dist;
                 break;
             }
-            i++;
-            for (j = 0; j < numNodes; j++) {
-                if (waveForce < (f32)j) {
-                    dist = (f32)j - waveForce;
-                } else {
-                    dist = -((f32)j - waveForce);
-                }
-                switch (waveType) {
-                case 0:
-                    dist = (f32)(3.0 - (f64)dist);
-                    if (dist < 0.0) {
-                        dist = 0.0f;
-                    }
-                    posOffsets[j] -= 45.0f * dist;
-                    break;
-                case 1:
-                    dist = (f32)(7.0 - (f64)dist);
-                    if (dist < 0.0) {
-                        dist = 0.0f;
-                    }
-                    posOffsets[j] -= 70.0f * dist;
-                    break;
-                }
-            }
-        } while (i < (s32)gActorGlobalState.unk39);
-        i = 0;
+        }
     }
     for (i = 0; i < 4; i++) {
         if (state->slotPhase[i] != 0) {
             for (j = 0; j < numNodes; j++) {
-                if (state->slotPos[i] < (f32)j) {
-                    dist = (f32)j - state->slotPos[i];
+                if (state->slotPos[i] < j) {
+                    dist = j - state->slotPos[i];
                 } else {
-                    dist = -((f32)j - state->slotPos[i]);
+                    dist = -(j - state->slotPos[i]);
                 }
-                dist = (f32)(3.0 - (f64)dist);
+                dist = 3.0 - dist;
                 if (dist < 0.0) {
                     dist = 0.0f;
                 }
-                waveForce = sinApprox((f32)((f64)state->slotPhase[i] * 0.5));
-                nodeForces[j] = ((dist * state->slotAmp[i]) * waveForce) + nodeForces[j];
-
+                waveForce = sinApprox(state->slotPhase[i] * 0.5);
+                nodeForces[j] += dist * state->slotAmp[i] * waveForce;
             }
-            state->slotAmp[i] = (f32)((f64)state->slotAmp[i] - ((f64)state->slotAmp[i] / 20.0));
-            if ((f64)state->slotAmp[i] < 0.5) {
+            state->slotAmp[i] -= state->slotAmp[i] / 20.0;
+            if (state->slotAmp[i] < 0.5) {
                 state->slotPhase[i] = 0;
             } else {
                 state->slotPhase[i]++;
@@ -387,10 +369,10 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         if (state->nodeY[i] < posOffsets[i]) {
             switch (waveType) {
             case 0:
-                state->nodeY[i] = (f32)(((f64)(posOffsets[i] - state->nodeY[i]) * 0.25) + (f64)state->nodeY[i]);
+                state->nodeY[i] += (posOffsets[i] - state->nodeY[i]) / 4.0;
                 break;
             case 1:
-                state->nodeY[i] = (f32)(((f64)(posOffsets[i] - state->nodeY[i]) / 15.0) + (f64)state->nodeY[i]);
+                state->nodeY[i] += (posOffsets[i] - state->nodeY[i]) / 15.0;
                 break;
             }
             if (posOffsets[i] < state->nodeY[i]) {
@@ -400,10 +382,10 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         if (posOffsets[i] < state->nodeY[i]) {
             switch (waveType) {
             case 0:
-                state->nodeY[i] = (f32)((f64)state->nodeY[i] - ((f64)(state->nodeY[i] - posOffsets[i]) * 0.5f));
+                state->nodeY[i] -= (state->nodeY[i] - posOffsets[i]) / 2.0;
                 break;
             case 1:
-                state->nodeY[i] = (f32)((f64)state->nodeY[i] - ((f64)(state->nodeY[i] - posOffsets[i]) * 0.125));
+                state->nodeY[i] -= (state->nodeY[i] - posOffsets[i]) / 8.0;
                 break;
             }
             if (state->nodeY[i] < posOffsets[i]) {
@@ -413,7 +395,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         gCurrentActor->sub4->boneOffsets[i].y = state->nodeY[i] + nodeForces[i];
     }
     gCurrentActor->sub4->boneOffsets[0].y = 0.0f;
-    *(f32 *)((u8 *)gCurrentActor->sub4->boneOffsets + (numNodes << 4) - 8) = 0.0f;  // FAKE: byte-offset form stops the CSE of numNodes * 16 across the calls
+    gCurrentActor->sub4->boneOffsets[numNodes - 1].y = 0.0f;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
