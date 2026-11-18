@@ -3032,7 +3032,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
     if (elemActor->allocation != NULL) {
         target = elemActor->allocation;
         progress = state->fade;
-        offsetY = (s32)((f64)(&state->scrollY)[(s32)target->offsetIndex] * 4.0);
+        offsetY = (s32)((&state->scrollY)[(s32)target->offsetIndex] * 4.0);
         type = (s32)target->kind;
 
         switch (type) {
@@ -3079,7 +3079,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             }
             elemActor->alpha = (s32)(progress * 255.0f);
             if (type == 4) {
-                elemActor->scaleX = (f64)(target->slideXOrScale * progress) * 4.0;
+                elemActor->scaleX = target->slideXOrScale * progress * 4.0;
                 elemActor->scaleY = elemActor->scaleX;
             }
             progress = 0;
