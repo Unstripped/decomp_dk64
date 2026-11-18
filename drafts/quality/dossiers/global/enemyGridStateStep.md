@@ -33,10 +33,20 @@
   - cc75db/047f57: narrowing moved into the clamp compares (`(s16)dx < -1` ...) 112; each narrowing alone dropped 4 (unchanged).
   - reconstruct: loop-2 mirror (`row = cell >> 2; dx = (s16)(col - st->gridX); dy = (s16)(row - st->gridY);`, j < 16, no dead tests) 113; uncast 112; else-if clamps 115; pointer bound kept 111; merged guard kept 90. variants.py scan of the merged-guard body: only no-op swaps.
 
+- 2026-11-17 CleanenemyGridStateStep anthropic/claude-opus-5-5 (session 17f levers; merged guard, loop bound and other sites kept unless noted):
+  - sweep: 10 checks 0 hits (148492 classify class 2).
+  - 3f4254 (lever c): p walk with bound `D_807FC8C0 + 16`, `&D_807FC8C0[16]`, start `&D_807FC8C0[0]`: 13 each, so the shared VN is the walk start `lda D_807FC8C0` (one candidate with the i-loop base, coloured t1), not the bound. Index IV `&D_807FC8C0[j] < D_807FC8C0 + 16` 0 (same compare respelled); `D_807FC8C0 + j < D_807FC8C0 + 16` 285.
+  - 92ac80 (lever b): dedicated row-of-cell local `r = cell >> 2` in the 3-byte slack (home -76, frame stays 0x88) with deferred narrowing: u16 0 (the same `and 0xffff` record as a local: hidden steer, not kept), u8 3 (andi 0xff kept at 0x750), s8 92, s16 90, s32/u32 109. Shared col/row retyped in pairs (s16/u16/u8/s8): 90-125.
+  - cc75db/047f57: ugen emits `col` (cand 237) lazily at its first use; inline dx narrowing with u16 r 4 (dx sll t9 at 0x74c, cell >> 2 t5 at 0x750); dy statement first 4; dx raw + dy inline + dx deferred 4-6; col/row refined in place as the deltas (`col -= st->gridX`, clamps and write-back on col/row) 47 (u16 r) / 141; dedicated s16/s8 dy local 25-120. variants.py scan (swap/width/declswap) of the u16 inline body and the i-as-cell body: no improvement.
+  - 148492 (lever a, uopt -l5): gridX/gridY 169/176 save 3 over bbs 89..97 (9 blocks, divisor 3, adjsave 1.0) without the guard, 89..99 (11, divisor 4, 0.75) with it; `if (dy) {}` (one live block) 89..98 (10, divisor 4, 0.75) but still v1/a3 (forbidden [1 3 4 5 9 14]). Lever d: `i` reused as the chosen cell, guard and u16 dropped: 10 (cell v1, gridX/gridY v0/a3).
+  - permute (perm_r8): 8-row reshaped body, -j 2, 900 s, 14555 iterations, base 45 best 45.
+  - reconstruct: natural cell block with a dedicated u16 row local, no dead tests: pointer bound 94, j < 16 96; s16 r 111/113.
+
 ## Untried ideas
-- One natural statement inside a clamp block that reads both `ones` and `col` (the merged guard is that shape but dead); a debug-print/assert macro compiled out to an empty if would explain it but reads `ones` uninitialised.
-- A file-owned definition of D_807FC8C0 (4x4 `s8 [4][4]` grid) for the pointer walk: needs a .bss carve (address 0x807FC8C0 not owned by this TU); no evidence it changes the shared %hi web.
+- One natural statement inside a clamp block that reads both `ones` and `col` (the merged guard is that shape but dead); a debug-print/assert macro compiled out to an empty if would explain it but reads `ones` uninitialised. The 17f traces show the guard is needed for both webs (237 col -> v1, 105 ones -> a3), not for the block count alone.
+- A file-owned definition of D_807FC8C0 (4x4 `s8 [4][4]` grid) for the pointer walk: needs a .bss carve (address 0x807FC8C0 not owned by this TU); no evidence it changes the shared %hi web (17f: the shared web is the walk START lda, which a [4][4] view does not change).
 - s8 gx/gy write-back locals with a narrowing spelling that is not copy-propagated into the clamp compare (the target narrows into dx's own register a1/a0); `a = (b = expr)` (Q0370) does not apply to a single-def dx.
+- Lead ruling wanted: whether a dedicated `u16` row-of-cell local in the frame slack (fdiff 0, replaces the `(u16)` cast of 92ac80 one for one) counts as a narrow natural type or a hidden steer.
 
 ## Evidence
 - Target 0x4bc-0x508: lui v1/lui a0 (D_807FC8C0, +16), loop sltu at,v1,a0 / bnezl at; ones a3 spilled at 66(sp), zeros t0 at 64(sp) around flagSet (0x51c-0x53c).
@@ -44,3 +54,6 @@
 - Target 0x708-0x7a8: n spilled 84(sp) around randomFloat; gridX lb t0 0x718, gridY lb t1 0x724; andi t8 0x744, sll t4 0x74c, sra t3 0x750, sll t6 0x75c; clamps slti/li; addu t8/t9 + sb 0x7a4/0x7a8.
 - uopt trace (base): cand 235 (uand cell,3) v1 adjsave 1.0, cand 169/176 (gridX/gridY uilod) adjsave 0.75 forbidden [1 2 3 4 5 6 9 14] -> 7/8; without dead tests adjsave 1.0, forbidden [1 3 4 5 9 14] -> 2/6. Cand 105 (ones, -70vreg) a3 interferes with 169/176.
 - uopt trace (s8 gx/gy, no dead tests): 245 (ucvtl(col - gx)) v1, 249 (ucvtl dy) a3 coloured before gx 235 -> t0, gy 238 -> t1; dx 166 a1, dy 173 a0.
+- uopt trace 17f (base, -l5): 169/176 live bbs 89 + 99 + default 90..98 (11), adjsave 0.75; col 237 (ucvtl cell & 3) adjsave 1.5 bbs 89/91 -> v1; ones 105 adjsave 5.5 bbs 52/54/61/90 (needreglod in 90: dead `lh $7,66($sp)`) -> a3. Without the guard 169/176 bbs 89..97, adjsave 1.0 -> v1/a3. Priority divisor = ((nblocks-2)>>2)+2.
+- ugen (as1probe keep, base t.s:826-850): `and $3,$2,3` (col, coloured v1) emitted at its first use in the dx statement, cvtl `sll $15`/`sra $24` (as1 drops the cvtl and leaves andi in $24 = t8); `sra $25,$2,2; and $11,$25,65535` (as1 deletes the and, sra -> $11 = t3); dx `sll $12`/`sra $13`; dy `sll $14`/`sra $15`.
+- Target: v1 and a3 are not referenced in 0x700-0x868 (v1 last read at 0x6fc, a3 next written at 0x86c); the region has no compare besides the four slti clamps on a1/a0 and blezl a2 at 0x700.
