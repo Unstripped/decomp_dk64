@@ -21,6 +21,13 @@ global:80649BF0:other:fb80a0 other (removed): punned `*((u8 *)cs + 0x48)` ordere
 - An unused `s32 pad` declared before ok, between ok and i, or after i (offset shift only; also with else-if): 4 each; before st: 22. The eq effect is the reg-1 candidate, not the frame offsets.
 - Hack-free-weights permuter 900 s -j 2 from the plain body (compare inline in the even-arm if), baseline 20: 49 of 53 outputs at 0, every one a steer adding a reg-1 candidate inside bb 5-11: the compare temp in either arm (statement or `if (x = ...)`), `i` reused as that temp or as a copy of st[1] for the `& 1` test, a `new_var = st[1]` copy used only for the `& 1` test (both compares still read st[1]), a D_80748180 alias pointer with the i temp, dead `!cs->unk48` terms. nohit.
 
+2026-11-18 CleancsCmdCameraVectorTargetUpdateb anthropic/claude-opus-5-5 (cleanup session 2026-11-18): eq site.
+- Even arm first, eq-free (`if (!(st[1] & 1))` or `if ((st[1] & 1) == 0)` with the arms swapped): 11 each, shape 5 (the
+  parity branch at 0x7068 flips sides), ok still in v0.
+- `found = 0` hoisted before `if (ok)` (the target `move a3,zero` at 0x70a8 sits in the beqz v1 delay slot): 17 eq-free,
+  13 with the eq temp kept. So `found = 0` belongs to the else arm, and as1 fills the delay slot from it.
+- sweep at the base: 0 hits (plain, recipe).
+
 ## Untried ideas
 - A natural boolean that is assigned a compare and tested by the next branch inside bb 5-11 (the only vanishing kind): none found; the original may have had such a temp (no code to cite, so not ORIG).
 - csCmdModelStepAnimation 2177 `(*st).lastValue` vs `(u8)cs->unk44[2]` (not this worker's function): with this header, `cs->unk48[1]` (same lbu 0x49) may give the target order with `st->lastValue` (untested).

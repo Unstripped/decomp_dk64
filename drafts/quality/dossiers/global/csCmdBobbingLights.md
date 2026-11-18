@@ -42,6 +42,16 @@
   - `variants.py scan` of the direct-read/inline-call body (18) and of the pointer-local body (11): no zero.
   - Block-scoped `TargetVec3f *lo = &G[1][k], *hi = &G[1][k + 1];` per light: 11 (same unfolded addresses); block-scoped `lo = G[1] + k` with `(lo + 1)->y`: 53.
   - Hack-free-weights permuter 900 s -j 2 from the direct-read/inline-call body (variants 18), baseline 125: best 100 (variants 13), 3 outputs, all mixing per-light forms: one light written addend first fixes its add.d order but rotates the FP ring by three from 0x8C4 (cvt.d.s $f10 for $f4), the other lights keep `add.d $f6,$f18,$f8` (0x990). No zero. nohit.
+- 2026-11-18 CleancsCmdCameraVectorTargetUpdateb anthropic/claude-opus-5-5 (cleanup session 2026-11-18):
+  - Two-statement lerp with f64 locals per light: `t = sn * 0.5 + 0.5` (or `t = mathSinF(..) * 0.5 + 0.5`, with p loaded
+    before or after t), then `rise = t * (p[k + 1].y - p[k].y)` and `fy = rise + p[k].y` or `fy = p[k].y + rise`: 38 each.
+    - The instruction order now matches 0x8c4-0x8f0: cvt sn, mul.d, lwc1 p0/p1, sub.s, add.d t, cvt dy, cvt p0, mul.d, add.d.
+    - t and rise become coloured variables, so rise takes $f2 and p0 takes $f12 (the target has $f2).
+    - Both commutative ops flip: `mul.d $f2,$f8,$f18` (dy * t) for the target `mul.d $f4,$f8,$f18` at 0x8ec, and
+      `add.d $f6,$f4,$f2` (p0 + rise) for `add.d $f10,$f4,$f6` at 0x8f0.
+    - A local operand is ordered by its own load in the statement, not by the earlier umpy. The operand-order lever needs
+      inline expressions, not locals.
+  - sweep at the base: 0 hits (plain, recipe).
 
 ## Untried ideas
 - A spelling that reads the three y values without a subscript or `*` and still folds their offsets into one base: only `(base + k)->y` is known. A file-local six-point view (`tl->p3.y`) would fold too, but it is a view.
