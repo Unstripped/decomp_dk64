@@ -18,7 +18,8 @@
         copied before a later snapshot (agents still running from an earlier round), pass
         the commit their copy started from. A copy that dropped another function's (or
         standalone data/rodata symbol's) GLOBAL_ASM line without a C definition of it is
-        refused before merging (exit 1, src untouched).
+        refused before merging (exit 1, src untouched); `--allow-lost NAME` (repeatable)
+        accepts NAME's loss (a data label folded into a table the copy defines).
 
 Runs on the host (needs git and tools/dk). Exit codes: 0 OK / TEXT OK, 1 compile error
 or mismatch, 2 merge conflicts (src untouched; conflicted result in .scratch/merged/).
@@ -240,7 +241,7 @@ def lost_functions(base_text, draft_text):
     return lost
 
 
-def merge(src, drafts, rev=None):
+def merge(src, drafts, rev=None, allow_lost=frozenset()):
     base = base_path(src)
     if rev:
         os.makedirs(os.path.join(SCRATCH, "bases"), exist_ok=True)
@@ -260,7 +261,7 @@ def merge(src, drafts, rev=None):
         base_text = f.read()
     for d in drafts:
         with open(d) as f:
-            lost = lost_functions(base_text, f.read())
+            lost = [n for n in lost_functions(base_text, f.read()) if n not in allow_lost]
         if lost:
             print(f"Error: {d} lost {', '.join(lost)} (no GLOBAL_ASM line, no definition); "
                   f"restore them in the copy first. {src} untouched.", file=sys.stderr)
@@ -302,12 +303,19 @@ def merge(src, drafts, rev=None):
 
 
 def main():
-    if len(sys.argv) >= 3 and sys.argv[1] == "snapshot":
-        return snapshot(sys.argv[2:])
-    if len(sys.argv) >= 5 and sys.argv[1] == "merge" and sys.argv[2] == "--base":
-        return merge(sys.argv[4], sys.argv[5:], sys.argv[3])
-    if len(sys.argv) >= 3 and sys.argv[1] == "merge":
-        return merge(sys.argv[2], sys.argv[3:])
+    argv, allow_lost = [], set()
+    args = iter(sys.argv)
+    for arg in args:
+        if arg == "--allow-lost":
+            allow_lost.add(next(args, ""))
+        else:
+            argv.append(arg)
+    if len(argv) >= 3 and argv[1] == "snapshot":
+        return snapshot(argv[2:])
+    if len(argv) >= 5 and argv[1] == "merge" and argv[2] == "--base":
+        return merge(argv[4], argv[5:], argv[3], allow_lost)
+    if len(argv) >= 3 and argv[1] == "merge":
+        return merge(argv[2], argv[3:], allow_lost=allow_lost)
     print(__doc__, file=sys.stderr)
     return 1
 

@@ -2,7 +2,8 @@
 """Host-side: merge one cleanup worker's private copies and record its ledger in one command.
 
   python3 tools/merge_record.py --agent A --unit U --base BASE --model SEL --ledger FILE [--copy-only FILE]
-         [--keymap FILE] [--stage PATH]... [--message MSG] [--copy-dir DIR] [--dry-run] src/<seg>/<f>.c...
+         [--keymap FILE] [--stage PATH]... [--allow-lost NAME]... [--message MSG] [--copy-dir DIR] [--dry-run]
+         src/<seg>/<f>.c...
 
 --copy-dir defaults to .scratch/<A>, --message to `<seg>: clean <file stems> (<A>)`. Every step prints
 `== <step>` and echoes its command's output; the first failure prints `MERGE_RECORD_FAIL: <step>` and
@@ -12,7 +13,7 @@ the commands and runs none.
 Steps:
   1. ledger-only check: every <copy-dir>/<basename> equal to BASE's src file means nothing to merge:
      record (--base BASE), carry --rev BASE, dossiers, commit.
-  2. gate: tools/merge_gate.sh --commit MSG [--stage P]... <copy-dir> BASE <srcs> (GATE_OK and COMMITTED);
+  2. gate: tools/merge_gate.sh --commit MSG [--stage P]... [--allow-lost NAME]... <copy-dir> BASE <srcs> (GATE_OK and COMMITTED);
      MERGE = HEAD
   3. record --base BASE --model SEL --batch <ledger>
   4. tools/dk make expected
@@ -116,6 +117,8 @@ def main(argv=None):
     p.add_argument("--copy-only", help="record lines whose keys exist only in the copy")
     p.add_argument("--keymap", help="`<old key> -> <new key>` lines for the re-record at the merge commit")
     p.add_argument("--stage", action="append", default=[])
+    p.add_argument("--allow-lost", action="append", default=[],
+                   help="data label the copy folded into a table (passed to merge_gate.sh)")
     p.add_argument("--message")
     p.add_argument("--copy-dir")
     p.add_argument("--dry-run", action="store_true")
@@ -137,7 +140,8 @@ def main(argv=None):
         else:
             r.step("gate")
             stage = [x for s in a.stage for x in ("--stage", s)]
-            r.run(["tools/merge_gate.sh", "--commit", msg, *stage, copy_dir, a.base, *a.srcs],
+            lost = [x for s in a.allow_lost for x in ("--allow-lost", s)]
+            r.run(["tools/merge_gate.sh", "--commit", msg, *stage, *lost, copy_dir, a.base, *a.srcs],
                   ok=lambda out: re.search(r"(?m)^GATE_OK$", out) and re.search(r"(?m)^COMMITTED ", out))
             merge = "<MERGE>" if a.dry_run else r.git("rev-parse", "HEAD")
             r.step("record at base")

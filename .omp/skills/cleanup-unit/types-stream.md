@@ -82,8 +82,7 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
 - A signature or shared-extern change stales the review of every reached user outside the worker's functions (not carried:
   callee definition, callers, other extern users): the lead re-reads each and records `review nohit` (agent = lead, the worker's
   unit, `--base` the merge) with what changed; a cast the new prototype makes redundant is noted as polish (00a87382, c2be8b3c).
-- Data to C: merge_drafts refuses dropped `#pragma GLOBAL_ASM` data labels (lost-symbol guard): cp the copy
-  over src, `merge_gate.sh --commit - -` (snapshot), steps 3-10 by hand. A yaml carve (`--stage dk64.*.yaml`)
+- Data to C: pass each dropped data label as `--allow-lost <label>` to merge_record.py. A yaml carve (`--stage dk64.*.yaml`)
   re-splits only the gate tree: merge_record then fails at `make expected`; once `tools/dk --status` shows
   jobs 0 (never `make split` under a running job), `make split`, touch src, `make`, `make expected`, steps 5-10.
   A renamed carved data object passes `fdiff --reloc-ok` only with its name in symbol_addrs (19A00 convention:

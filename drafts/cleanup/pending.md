@@ -120,8 +120,6 @@ names_failed.txt refused), .scratch/lead_s1115/names.md, .scratch/lead_s1115c/cl
   effectSpawnActorScale, gMenuBonusTimer -> gHelmTimer, modelAnimEntrySet*.
 
 ## Tooling fixes (open)
-- merge_drafts.py lost-symbol guard: add an override (`--allow-lost SYM` through merge_gate.sh/merge_record.py) or accept a dropped
-  data label inside a symbol the draft defines, so data-to-C moves go through merge_record (DT, EA used the `- -` fallback).
 - Shadow headers (sfdiff/fdiff.sh/cwarn `--as`): automatically shadow every include/*.h that quote-includes a shadowed header (cpp
   searches the includer's directory first; EG race.h, EI boss.h).
 - `permute.py batch` compiles row copies against the current include/: build each row at its base (or re-snapshot copies whose file

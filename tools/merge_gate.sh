@@ -1,7 +1,9 @@
 #!/bin/sh
 # Host-side: merge one agent's private copies into src/ and gate on the full ROM build.
-#   tools/merge_gate.sh [--commit MSG [--stage PATH]...] <copy-dir> <base-commit> <src/seg/file.c> [<src/seg/file.c> ...]
-#   tools/merge_gate.sh [--commit MSG [--stage PATH]...] - - <src/seg/file.c> ...   re-check src after a manual fix (merge with no copies)
+#   tools/merge_gate.sh [--commit MSG [--stage PATH]...] [--allow-lost NAME]... <copy-dir> <base-commit> <src/seg/file.c> [<src/seg/file.c> ...]
+#   tools/merge_gate.sh [--commit MSG [--stage PATH]...] [--allow-lost NAME]... - - <src/seg/file.c> ...   re-check src after a manual fix (merge with no copies)
+# --allow-lost NAME (repeatable) passes through to merge_drafts.py: a data label the copy folded
+# into a table it defines under another name.
 # For each src file, merges <copy-dir>/<basename> with `merge_drafts.py merge --base`, stops
 # on a merge failure (exit 1 compile/clash, 2 conflict: src left for inspection). The merges
 # (and their objdiff checks) run in this checkout. A merge whose only complaint is
@@ -50,7 +52,9 @@ if [ "$1" = "--commit" ]; then
   msg=$2; shift 2; [ -n "$msg" ] || { echo "--commit needs a message" >&2; exit 64; }
   while [ "$1" = "--stage" ]; do extra="$extra $2"; shift 2; done
 fi
-[ $# -ge 3 ] || { echo "usage: $0 [--commit MSG [--stage PATH]...] <copy-dir>|- <base-commit>|- <src/seg/file.c>..." >&2; exit 64; }
+lost=
+while [ "$1" = "--allow-lost" ]; do lost="$lost --allow-lost $2"; shift 2; done
+[ $# -ge 3 ] || { echo "usage: $0 [--commit MSG [--stage PATH]...] [--allow-lost NAME]... <copy-dir>|- <base-commit>|- <src/seg/file.c>..." >&2; exit 64; }
 dir=$1; base=$2; shift 2
 sha1_guard() {
   changed=$(git diff --name-only HEAD -- '*.sha1') || { echo "GATE_FAIL: git diff failed"; exit 1; }
@@ -62,10 +66,10 @@ for src in "$@"; do
   name=$(basename "$src")
   if [ "$dir" = "-" ]; then
     log=.scratch/merge_recheck_$name.log
-    main_dk_env python3 tools/merge_drafts.py merge "$src" > "$log" 2>&1
+    main_dk_env python3 tools/merge_drafts.py merge $lost "$src" > "$log" 2>&1
   else
     log=.scratch/merge_$(basename "$dir")_$name.log
-    main_dk_env python3 tools/merge_drafts.py merge --base "$base" "$src" "$dir/$name" > "$log" 2>&1
+    main_dk_env python3 tools/merge_drafts.py merge $lost --base "$base" "$src" "$dir/$name" > "$log" 2>&1
   fi
   rc=$?
   tail -4 "$log"
