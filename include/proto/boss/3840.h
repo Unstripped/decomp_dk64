@@ -36,7 +36,7 @@ Gfx *bossDrawRoundText(Gfx *, Actor *);
 void bossResetAudioChannels(void);
 #endif
 #ifndef PROTO_SKIP_bossRoundFrame
-void bossRoundFrame(u8 *);
+void bossRoundFrame(const u8 *);
 #endif
 #ifndef PROTO_SKIP_bossSetCannonsVisible
 void bossSetCannonsVisible();
