@@ -1,8 +1,9 @@
 # hudPauseMenuRender (global, src/global/ACDC0.c)
 
 ## Sites
-- **6bd641/01af71 proto-steer** (kept; fix requested 2026-11-17e): the target materialises the case-0 4th argument itself (`li a3,2` at 0x1638/0x16b8) instead of reusing the int constant-2 web in $s8; the local u8-`siz` declaration reproduces that (an unsigned-typed argument constant is its own uopt candidate), the shared 90D80 s32 prototype gives `move a3,s8` there (earlier entries had the two columns swapped). u8/u16/u32 `siz` all match; the owner takes u32 unchanged, so the fix is the owner retype `siz` s32 -> u32 (`.scratch/HackhudPauseMenuIconUpdate/header-request.md`).
-- **f38e4a byte-offset entry** (FIXED 2026-11-15): `sPauseTextLists` is `HudTextList *[2]` (`HudTextList { HudTextEntry entries[10]; }`, the 0x1E0 buffer split at +10 entries); `(it->entries + j)->f` gives base-first `addu v0,s2,t7` at 0x12f8 for all eight loop-1 reads. `it->entries[j]`/`&it->entries[j]` stay index-first (272).
+- **6bd641/01af71 proto-steer** (RETIRED by merge 62d6133d, 2026-11-17e): the owner retype `siz` s32 -> u32 (90D80 + generated proto/global/90D80.h) let ACDC0 drop the PROTO_SKIP define and the local u8-`siz` declaration; the target's `li a3,2` at 0x1638/0x16b8 comes from the shared u32 prototype. Every other site re-measured on that body gives the same numbers as under the u8 declaration (2026-11-17e HackhudPauseMenuRender13).
+- **f38e4a byte-offset entry** (FIXED 2026-11-15): `sPauseTextLists` is `HudTextList *[2]` (`HudTextList { HudTextEntry entries[10]; }`, the 0x1E0 buffer split at +10 entries).
+- **a97e00 member-access spelling** (OPEN, Q0816 tag): `(it->entries + j)->f` for all eight loop-1 reads. Re-measured 2026-11-17e: with all eight as `it->entries[j]` the 0x12f8 `addu v0,s2,t7` still matches; the 272 is `mul.s $f8,$f6,$f0` at 0x131c (target `$f0,$f6`), `lh` offsetX into t7 not t6 at 0x132c and the loop-1 ring rotating through 0x13dc. One indexed read among seven member reads 9-284 (the two spellings do not CSE: style indexed adds a second `addu t7,s2,v1`). The FAKE note was corrected accordingly.
 - **e1b0a2 -> 766e68 s64 pair** (OPEN): `(u16)(off * 4) + (s16)(s64)(s32)(fa * flyX)`. The (u16) mask on off*4 is a deleted no-op that moves off*4 from the ring front t3 to t4 (Q0374); with the s64 conversion the trunc result lands t5. Target: `sll t4,s0,2` (0x1324), `mfc1 t5,$f10` (0x1344), `addu s0,t4,t5` (0x134c), `mul.s $f8,$f0,$f6` (0x131c).
 - **5ed6ef -> a87eed (u16) y steer** (OPEN): `y += (u16)(s32)(fa * flyY)` with s16 `y`; without the `(u16)` the flyY mfc1 lands t3 not t4 at 0x1350 (116-358).
 - **fa96af -> c4e347 (u32)off steer** (OPEN): `off = (s16)((u32)off + offsetX * 4)`; without `(u32)` the addu at 0x1364 becomes `addu t8,t7,s0` (full=1).
@@ -11,7 +12,7 @@
 - **cd26dc dead initializer** (copy-only key, kept; pre-existing, now tagged per lead ruling 2026-11-17): `f32 fadeInput0 = 0.0f;` is never read, but its first appearance orders fadeInput0 ahead of fadeInput4 so uopt colours unk0 $f2 / unk4 $f12 in cases 2/3 (Q0584); removing it gives 14.
 - **ORIG (not a site)**: case-0 `i = j;` (line 697): the target stores the string index to i's own home 0x158(sp) (`sh` at 0x1858/0x186c/0x1894); a dedicated local gives 228.
 - **cfa137 stays FAKE (lead ruling 2026-11-17e, CleanupLead)**: HackhudPauseMenuRender12 proposed `// ORIG` for case-1 `j = tab->kong[...].goldenBananas[...]`: the target writes the count into s3, the case-1 loop index register (`move s3,zero` 0x1a68, `addiu s3,s3,1` 0x1b1c, `lh s3,66(s3)` 0x1c64), then narrows it (`sll a2,s3,0x10` 0x1c74, `sra t7,a2,0x10` 0x1c78); offsets checked in expected/ objdump. A dedicated count is its own short web (`lh a2,66(a2)`, no narrowing): 96-135 as s16, 51 as s32. Ruling: register sharing only, with no store to j's home slot and no frame growth from a separate local, so per ladder.md this is not ORIG (83069d precedent); the tag stays FAKE and the site stays `diagnose nohit`.
-- **d4f3b3 dead-if** = old 498f25 (renamed sPauseKongUnlocked): pure block split (`if (1) {}` 0 at the same spot).
+- **d4f3b3 dead-if** = old 498f25 (renamed sPauseKongUnlocked): pure block split (`if (1) {}` 0 at the same spot). It makes uopt colour the case-2 gPlayerInventoryTable address in $t2 (`lui t2` at 0x1408, `addiu t2` at 0x1cec/0x1d34/0x1e48); without it that candidate takes $t1 and $t2 joins the loop-1 ugen ring (`sll t2,t9,0x2` at 0x12b4), 347. FAKE note made concrete 2026-11-17e.
 - FIXED earlier: fc512f, 4cca45, 744852, 1c9898.
 
 ## Attempts
@@ -83,6 +84,14 @@
   - Consolidated copy (define + local declaration deleted, shared s32 siz): only 0x1638/0x16b8 differ, copy `move a3,s8` vs target `li a3,2` (score 400).
   - Local-declaration `siz` census: u8 (current) / u16 / u32 fdiff 0; s8 / s16 3240; s32 = consolidated.
   - Owner-side u32: 90D80 stand-in (PROTO_SKIP + u32 declaration) whole object OK; clean patched 90D80.c against a shadow include/ with the u32 header OK; every other caller file (bonus/2690, global/103AB0, 109660, 10D2D0, 117190, 80150, A2F10, BC3B0, menu/3E10, multiplayer/0, race/7BD0) under a u32 stand-in fdiff 0, cfe warnings 0 -> 0; ACDC0 with both steer lines deleted against the shadow header: objdiff OK. Delivered as a header request (patch + bundle), pair stays FAKE until it lands.
+- **2026-11-17e 2026-11-17: cleanup HackhudPauseMenuRender13 HackhudPauseMenuRender13 anthropic/claude-opus-5-5** (base ff2f08b4 = 62d6133d body with the shared u32 siz prototype; sweep 0 hits): re-measure of every site plus:
+  - Plain/removal scores unchanged from the u8-declaration body: cd26dc 14, a97e00 272, 766e68 99 (trunc-first 3), a87eed 311, c4e347 1 (`off +=` 307), b371d1 5, cfa137 inline 98, d4f3b3 347. variants.py scan (195-197 variants) of each removal copy: no zero (a97 best 264, a87 176, d4f 344, others none below the removal).
+  - cd26dc: case-3 max as the case-1 direct ternary matches with the init kept (0); without the init 7 (only the case-2 $f2/$f12 swap). uopt -l6: without the init fadeInput4 (-136vreg) is bit 494 and fadeInput0 (-132vreg) bit 497. On that body: case-2 assignments swapped 2 (colours right, `lwc1 $f2,0(t3)` before `lwc1 $f12,4(t3)`), case-2 locals ternary / swapped compare / swapped declarations 7, one direct read 14/21, fa or fb in the fade role 14/6/15/53, all three direct ternaries with pad[2] 19 (64 without pad), fadeInput0 as a one-use fade temp in case 1 (`fa = 1.0f - fadeInput0`) 96, case 0 140/308, loop-1 fa split into fadeInput0 14.
+  - a97e00 per-read census: one indexed read among seven member reads: style 9, x/y 13, flyX 284, flyY 158, offsetX 159, offsetY 157, text 159; member access on flyX only 112, flyX+flyY 240.
+  - cfa137: case-2 count `cnt` reused for the same role 340 (one candidate with case 2's t0 count).
+  - d4f3b3: `gSPEndDisplayList(dl++)` without the test 347.
+  - reconstruct (u32 prototype, it->entries[j], plain x/y/offsetX, no dead tests, count inlined, fadeInput0 uninitialised) 383; + case-3 direct ternary 378; + `(s16)(off + offsetX * 4)` 362; that body with both dead tests 335; entry pointer + whole-sum x/y 510; the four loop-1 steers alone 310-312.
+  - Review: FAKE notes of a97e00 and d4f3b3 corrected (see Sites); fdiff 0, uninit 0, cfe warnings 0.
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
@@ -90,7 +99,8 @@
 - Making list live through loop 1 with a use that emits no code (Q0585); none found in the target. Only an empty conditional fits: 0x13C(sp) is read only at 0x1278 and no s-register but $s7 is live over 0x126c-0x1294, so a real later read (lw 0x13c(sp)) or competitor-based fix is excluded (2026-11-17 census).
 - A natural ugen dead def on $24 between the `y *= 4` chain and the flyY trunc.w.s (a87eed), surviving cfe (expression statements are dropped) (Q0583); shift spellings are the same ucode (2026-11-17).
 - A plain-C conversion node on off's side of `off + offsetX * 4` (c4e347): `4U` and `(u32)off` both give 0; a u32-typed `off` does not reverse the addu (a leaf) and breaks the case-2 signed slide compares; s16/u16 off break other webs (2026-11-17).
-- A code-free block boundary after gSPEndDisplayList (d4f3b3 is a pure block split: `if (1) {}` matches); the target has nothing between 0x1f8c and the epilogue.
+- A code-free block boundary after gSPEndDisplayList (d4f3b3 is a pure block split: `if (1) {}` matches); the target has nothing between 0x1f8c and the epilogue; `gSPEndDisplayList(dl++)` is not one (347, 2026-11-17e).
+- cd26dc on the case-3-direct-ternary body: a natural construct that makes fadeInput0's first appearance (candidate bit) precede fadeInput4's while case 2 still loads carouselProgress (4(t3)) before fade (0(t3)); swapped assignments fix the colours but not the load order (2) (Q0584, Q1040).
 
 ## Evidence
 - Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0x160 (`addiu s0,sp,352` at 0x1920); 0xA8 is a case-0 f32 spill (`swc1 $f6,0xA8(sp)` at 0x14b0, `lwc1 $f18` at 0x15d4).
@@ -98,6 +108,8 @@
 - Owner renderRotatedSprite (90D80 0x528) applies `siz &= ~0xC000` as `lui at,0xffff; ori at,0x3fff; and t6,a3,at` (0x52c-0x53c): siz is 32-bit in the definition, so the shared prototype cannot become u8/u16; u32 compiles the owner identically (whole object OK, 2026-11-17e).
 - Loop 1: `li s5,24` (0x12a4) + `multu s3,s5` (0x12e8), entry address `addu v0,s2,t7` (0x12f8) shared by all eight reads; s4 = &sPauseTextCounts[i] (0x12c4), s6 = hud + i*2 (0x12e4).
 - ugen (as1probe dis) for the x statement in the matching body: off*4 mul, (u16) and, l.s, `mul.s $f8,$f0,$f6`, `trunc.w.s $f10,$f8,$13`, mfc1, s64 moves/sra, `addu $16,$12,$13`; trunc-first form: `trunc.w.s $f10,$f8,$11`, mfc1, mul, `addu $16,$12,$13` with the operands reversed.
+- uopt candidate bits (trace -l6, 2026-11-17e): fadeInput0 -132vreg, fadeInput4 -136vreg, cnt -140vreg; with the dead init fadeInput0 is bit 0, without it fadeInput4 494 / fadeInput0 497 (assigned in that order, 25/26 constrained).
+- Case 2 keeps the gPlayerInventoryTable address in $t2 (`lui t2` 0x1408, `addiu t2,t2,0` 0x1cec, rematerialised 0x1d30/0x1d34 after hudDrawItemLabel and 0x1e44/0x1e48); the case-2 count sums in t0 (`move t0,zero` 0x1d44, `addu t0,t0,t9` 0x1d8c).
 - sPauseTextLists[0] = heapAlloc(0x1E0); sPauseTextLists[1] = sPauseTextLists[0] + 10 entries (hudPauseMenuUpdate).
 - 0x13C(sp) (list) appears only at 0x126c (`sw v0,316(sp)`) and 0x1278 (`lw a0,316(sp)`); every later read of a homed local is a real `lw` (tab 0x144 at 0x16e4, hubWorld 0x138 at 0x1810, ret 0x140 at 0x1fd0).
 - Case-0 menu loop stores the string index to i's home: `sh s3,344(sp)` 0x1858, `sh t6,344(sp)` (4) 0x186c, `sh t5,344(sp)` (5) 0x1894, `lh t7,344(sp)` 0x1898 for sPauseMenuStrings[i] - the same slot loop 1 reads at 0x12a8.
