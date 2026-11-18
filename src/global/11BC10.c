@@ -591,8 +591,8 @@ void effectInterpolationUpdate(EffectNode *effect, s8 *isDone) {
         effect->interp->endY = effect->y;
         effect->interp->endZ = effect->z;
         effect->interp->increment = 0.01f;
-        effect->interp->angle = (f32)((u32)(randomLcgNext() % 36000U) / 100U);
-        effect->interp->angleIncrement = (f32)((u32)(randomLcgNext() % 400U) / 100U);
+        effect->interp->angle = (randomLcgNext() % 36000) / 100;
+        effect->interp->angleIncrement = (randomLcgNext() % 400) / 100;
     }
     start[0] = effect->interp->startX;
     start[1] = effect->interp->startY;
@@ -610,7 +610,7 @@ void effectInterpolationUpdate(EffectNode *effect, s8 *isDone) {
     effect->interp->increment += 0.001;
     effect->scaleX *= 0.975;
     effect->scaleY *= 0.975;
-    effect->interp->angle = effect->interp->angle + effect->interp->angleIncrement;
+    effect->interp->angle += effect->interp->angleIncrement;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
     guRotateF(rotMtx, effect->interp->angle, 0.0f, 0.0f, 1.0f);
     guMtxCatF(mtx, rotMtx, mtx);
