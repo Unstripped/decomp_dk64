@@ -3513,7 +3513,6 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     s32 pad4;
     s32 pad5;
     ModelSlot *slots;
-    f32 *zPtr;
     u8 i;
     f32 *px;
     f32 *py;
@@ -3529,30 +3528,29 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                 allow = allowDefault;
                 break;
             case 4:
-                if (zPtr != 0) {}  // FAKE: dead test steers register colouring
+                if (1) {}  // FAKE: empty test splits the case 4 block; steers register colouring (kind byte t5, 752/6 in t3/t4)
                 allow = allowDefault;
             case 3:
             case 6:
                 best = 1e8f;
                 for (i = 0; i < gViewportCount; i++) {
-                    if (gPlayerSlots[i].active != 0) {
-                        if (entry && entry) {}  // FAKE: dead test steers register colouring
-                        if (obj->unk54 == 6) {
-                            px = &gPlayerSlots[i].actor->x;
-                            py = &gPlayerSlots[i].actor->y;
-                            zPtr = &gPlayerSlots[i].actor->z;
-                            pz = zPtr;
-                        } else {
-                            px = &gPlayerSlots[i].eyeX;
-                            py = &gPlayerSlots[i].eyeY;
-                            pz = &gPlayerSlots[i].eyeZ;
-                        }
-        if (px) {}  // FAKE: dead test steers register colouring
-                        if ((*px - entry->unk4) * (*px - entry->unk4) + (*py - entry->unk8) * (*py - entry->unk8) + (*pz - entry->unkC) * (*pz - entry->unkC) < best) {
-                            best = (*px - entry->unk4) * (*px - entry->unk4) + (*py - entry->unk8) * (*py - entry->unk8) + (*pz - entry->unkC) * (*pz - entry->unkC);
-                        }
-                        if (slots && slots) {}  // FAKE: dead test steers register colouring
+                    if (gPlayerSlots[i].active == 0) {
+                        continue;
                     }
+                    if (entry && entry) {}  // FAKE: dead test steers register colouring
+                    if (obj->unk54 == 6) {
+                        px = &gPlayerSlots[i].actor->x;
+                        py = &gPlayerSlots[i].actor->y;
+                        pz = &gPlayerSlots[i].actor->z;
+                    } else {
+                        px = &gPlayerSlots[i].eyeX;
+                        py = &gPlayerSlots[i].eyeY;
+                        pz = &gPlayerSlots[i].eyeZ;
+                    }
+                    if ((*px - entry->unk4) * (*px - entry->unk4) + (*py - entry->unk8) * (*py - entry->unk8) + (*pz - entry->unkC) * (*pz - entry->unkC) < best) {
+                        best = (*px - entry->unk4) * (*px - entry->unk4) + (*py - entry->unk8) * (*py - entry->unk8) + (*pz - entry->unkC) * (*pz - entry->unkC);
+                    }
+                    if (slots && slots) {}  // FAKE: dead test steers register colouring
                 }
                 allow &= best < (f32)obj->unk58;
                 break;
