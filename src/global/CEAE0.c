@@ -1747,7 +1747,7 @@ void playerStartPickupApproach(Actor *target) {
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
-    s32 frames = 15; // FAKE: int constant local steers regalloc (literal 15.0f: one sub.s fewer)
+    s32 frames = 15;
 
     switch (target->actorType) {
         case 0x3D:
