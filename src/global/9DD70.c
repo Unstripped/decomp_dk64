@@ -464,15 +464,14 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
 
 s32 actorCheckAlwaysFalse(void) {
     s32 i;
-    s32 v;
+    u32 v;
 
     for (i = 0; i < gActorGlobalState.unk39; i++) {
         v = gActorGlobalState.unk7C[i]->actorType;
         if (v != 2 && v != 3) { // FAKE: keeps both state tests as beq-to-latch (dead carrier v)
             v = 0;
         }
-        if (v == 5) {} // FAKE: dead test of the carrier
-        if (i == 5) {} // FAKE: consumes a ring temp (t0)
+        if (v == 5 || i == 5) {} // FAKE: v == 5 keeps the carrier store v = 0 alive; i == 5 colours &gActorGlobalState+20 to t0 (lw 88(t9) takes t1)
     }
     if (gCurrentActor->actorType == 0x1F) {
         return 0;
