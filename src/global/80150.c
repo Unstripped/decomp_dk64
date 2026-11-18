@@ -1975,7 +1975,7 @@ void tagBarrelActorUpdate(void) {
             case 2:
                 sub->riseTimer = 0x8C;
                 break;
-            default:
+            default: // FAKE: empty default steers the trigger queue loop (pre-existing, now tagged): without it 294, as a continue form 4, as a plain if 301
                 break;
         }
     }
