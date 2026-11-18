@@ -71,7 +71,7 @@ extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
 extern s32 D_8071FE08;
-extern ActorMapFlag D_8074E7A0[];
+extern ActorMapFlag D_8074E7A0[4];
 extern s16 D_8074E7E0[];
 extern KongActionEntry D_8074E814[];
 extern KongAnimFrameTable gTagBarrelKongAnimFrames;
@@ -81,7 +81,7 @@ extern u8 D_80720340;
 extern u8 D_8072038C;
 
 s32 tagBarrelIsSpecial(Actor *actor) {
-    s32 count = 4; // FAKE: value-named constant local steers regalloc (literal 4: mismatch)
+    s32 count = sizeof(D_8074E7A0) / sizeof(D_8074E7A0[0]); // ORIG: the row count is stored to its own home before the call: li a2,4 at 0x8, sw a2,0x1c(sp) in the jal delay slot at 0x10, lw a2,0x1c(sp) at 0x1c, bne a0,a2 at 0x5c
     s32 listId = actorListFindIdByActor(actor);
     s32 i;
 
