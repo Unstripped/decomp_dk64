@@ -105,9 +105,7 @@ void frustumCalculateCornerRays(f32 fovY, f32 aspect, f32 depth) {
     }
 }
 
-extern f32 D_807F5E20[];
-extern f32 D_807F5E24[];
-extern f32 D_807F5E28[];
+extern f32 D_807F5E20[4][3];
 
 
 void frustumCornersTransformByInverse(Mtx *mtx) {
@@ -118,7 +116,7 @@ void frustumCornersTransformByInverse(Mtx *mtx) {
     guMtxL2F(viewMtx, mtx);
     matrix4Invert(invMtx, viewMtx);
     for (i = 0; i < 4; i++) {
-        guMtxXFMF(invMtx, sFrustumCornerRays[i * 3], sFrustumCornerRays[i * 3 + 1], sFrustumCornerRays[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
+        guMtxXFMF(invMtx, sFrustumCornerRays[i * 3], sFrustumCornerRays[i * 3 + 1], sFrustumCornerRays[i * 3 + 2], &D_807F5E20[i][0], &D_807F5E20[i][1], &D_807F5E20[i][2]);
     }
 }
 
@@ -598,7 +596,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     planeFromTwoPoints(eyeX, eyeY, eyeZ, atX, atY, atZ);
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FA8);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(eyeX, eyeY, eyeZ, gFrustumPlanes, D_807F5E20);
+    frustumOrientPolyNormals(eyeX, eyeY, eyeZ, gFrustumPlanes, D_807F5E20[0]);
     mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, eyeX, eyeY, eyeZ, 0, !D_807F5FEC, gViewportCount >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
@@ -1232,9 +1230,7 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     f32 nz;
     f32 d;
     *outVisMode = mapBspPlaneDistanceCheck(node, x, y, z);
-    nz = node->unk54;
-    ny = node->unk50;
-    nx = node->unk4C;
+    nx = node->unk4C; ny = node->unk50; nz = node->unk54; // LAYOUT: one line lets as1 emit the loads (0x4080-0x4088) and their spills (0x4148-0x4150) as nz, ny, nx; separate lines: text=8
     d = node->unk58;
     ea[0] = node->unk5C[2] - node->unk5C[0];
     ea[1] = node->unk62[2] - node->unk62[0];
@@ -1249,7 +1245,7 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     n[0] = c[0] / len;
     n[1] = c[1] / len;
     n[2] = c[2] / len;
-    n[0] = n[0] * 20; // FAKE: int literal 20 (the other two use 20.0f) recolours the node plane loads (f8/f18 instead of f10/f4); pre-existing, now tagged
+    n[0] = n[0] * 20.0f;
     n[1] = n[1] * 20.0f;
     n[2] = n[2] * 20.0f;
     p[0] = node->unk5C[0] + n[0];
@@ -1257,9 +1253,7 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     p[2] = node->unk68[0] + n[2];
     s1 = nx * x + ny * y + nz * z + d;
     if (s1 > 0.0) {
-        if (ny > 0.0f) {}  // FAKE: colours nx/ny/nz f14/f16/f18
         if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
-            if (nx && nx) {}  // FAKE: nx coloured before nz
             return 0;
         }
     }
@@ -1290,7 +1284,7 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
     i = 0;
     dot = node->unk4C * x + node->unk50 * y + node->unk54 * z + node->unk58;
     len = sqrtf(node->unk4C * node->unk4C + node->unk50 * node->unk50 + node->unk54 * node->unk54);
-    if (dot && dot) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (dot && dot) {}  // FAKE: offsets the dx use the guard below adds (dot stays whole in $f30); without that guard it changes nothing
     dist = dot / len;
     absd = dist;
     if (dist < 0.0) {
@@ -1303,10 +1297,10 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
     ny = node->unk50;
     nz = node->unk54;
     do {
-        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12) - x; // FAKE: byte-offset corner address keeps base+offset addu order (Q0175)
-        dy = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 4) - y;
-        dz = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 8) - z;
-        if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
+        dx = D_807F5E20[i][0] - x;
+        dy = D_807F5E20[i][1] - y;
+        dz = D_807F5E20[i][2] - z;
+        if (dx) {}  // FAKE: block split after dz drops dx/dy/dz below d (d $f0, dx $f2, dy $f12, dz $f14); if (1) {} here alone matches both
         d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
             t = dot / d;
@@ -1315,7 +1309,7 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
             }
         }
         i++;
-    } while ((f32 *)((u8 *)D_807F5E20 + i * 12) < sViewPlane);
+    } while (i < 4);
     return 1;
 }
 
