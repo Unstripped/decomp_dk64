@@ -591,7 +591,6 @@ void actorSetAnimForMoveTier(s16 threshold, s16 animLow, s16 animMid, s16 animHi
 void actorShowTextOnceWhenNear(u16 actionId, u8 actionParam, s16 flagId) {
     u8 near;
 
-#define SQ(x) ((x) * (x))
     near = SQ(gPrimaryPlayerActor->x - gCurrentActor->x) + SQ(gPrimaryPlayerActor->y - gCurrentActor->y) +
            SQ(gPrimaryPlayerActor->z - gCurrentActor->z) < 4900.0f;
     if (near) {

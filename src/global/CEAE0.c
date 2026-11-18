@@ -275,8 +275,6 @@ extern s32 D_80720020;
 void func_80026D40(void *, u8);
 f32 sqrtf(f32);
 
-#define SQ(x) ((x) * (x))
-
 void playerUpdateCommon(s32 mode) {
     f32 dist;
     f32 screenX;

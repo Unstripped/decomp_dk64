@@ -735,7 +735,6 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
 
     playerState = gBehaviourTargetActor->customState;
     me = gCurrentActor;
-#define SQ(x) ((x) * (x))
     dist = (SQ(me->x - gBehaviourTargetActor->x) + SQ(me->y - gBehaviourTargetActor->y) + SQ(me->z - gBehaviourTargetActor->z));
     near = dist < aggroDist;
     if (near == 0) {

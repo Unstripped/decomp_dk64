@@ -62,7 +62,6 @@ s32 raceGetWaypointDiff(s32 pathLength, RacePathState *curA, RacePathState *curB
     return diff;
 }
 
-#define RB_SQ(v) ((v) * (v))
 f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RacePathState *cursor) {
     s32 idx1;
     s32 idx2;
@@ -81,8 +80,8 @@ f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RacePathState *
     p2 = &base[idx2];
     cur = &base[cursor->waypoint];
     mathPickCloserTargetPoint3D(actor->x, actor->y, actor->z, cur, p1, p1, p2, &out.x, &out.y, &out.z);
-    d2 = RB_SQ(cur->x - p1->x) + RB_SQ(cur->y - p1->y) + RB_SQ(cur->z - p1->z);
-    return sqrtf((e2 = RB_SQ(cur->z - out.z) + (RB_SQ(cur->x - out.x) + RB_SQ(cur->y - out.y))) / d2); // ORIG: target stores e2 to its home 76(sp) at 0x1b0 and reloads at 0x1b4
+    d2 = SQ(cur->x - p1->x) + SQ(cur->y - p1->y) + SQ(cur->z - p1->z);
+    return sqrtf((e2 = SQ(cur->z - out.z) + (SQ(cur->x - out.x) + SQ(cur->y - out.y))) / d2); // ORIG: target stores e2 to its home 76(sp) at 0x1b0 and reloads at 0x1b4
 }
 
 f32 raceGetPathDistance(s32 pathLength, u16 laneIndex, u16 waypointIndex) {
@@ -606,7 +605,7 @@ void raceFindNearestWaypoint(RacePathState *cursor) {
     pz = gCurrentActor->z;
     for (i = 0; i < 3; i++) {
         for (j = 0; j < count; j++) {
-            d = RB_SQ(px - p->x) + RB_SQ(py - p->y) + RB_SQ(pz - p->z);
+            d = SQ(px - p->x) + SQ(py - p->y) + SQ(pz - p->z);
             if (d < best) {
                 cursor->waypoint = j;
                 cursor->lane = i;

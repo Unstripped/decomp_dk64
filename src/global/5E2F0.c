@@ -594,7 +594,6 @@ s32 lightCheckVolumeBounds(LightVolume *light, f32 x, f32 y, f32 z, s16 minX, s1
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gViewportCount;
-#define SQ(x) ((x) * (x))
 
 s32 lightCheckPlayerDistance(LightVolume *light) {
     s32 i;

@@ -104,8 +104,6 @@ s32 modelTypeIsEmitter(s16 modelType) {
     return 0;
 }
 
-#define SQ(x) ((x) * (x))
-
 void modelEmittersUpdate(void) {
     s32 i;
     f32 distSq;
