@@ -248,8 +248,20 @@ s32 meshComputeVertexRanges(MeshBlob *mesh) {
 typedef struct MeshTexInfo {
     s32 offset, width, height;
 } MeshTexInfo;
-extern MeshTexInfo D_80754F80[];
-extern u16 D_80754FC8[];
+MeshTexInfo D_80754F80[] = {
+    { 0x00, 4, 4 }, { 0x10, 4, 4 }, { 0x20, 4, 4 }, { 0x30, 4, 4 }, { 0x40, 4, 4 },
+};
+// Unreferenced: nothing in the ROM points at this display list.
+Gfx D_80754FC0[] = {
+    gsSPEndDisplayList(),
+};
+u16 D_80754FC8[] = {
+    0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
+    0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843,
+    0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF, 0x7BDF,
+    0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631, 0xC631,
+};
 s16 func_8070C200(f32);
 
 void meshDrawTextured(Gfx **gdl, MeshBlob *mesh, u16 *framebuffer) {
@@ -491,8 +503,8 @@ void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
     *outDl = dl;
 }
 
-extern s32 gTransitionProgress;
-extern s32 D_8075506C;
+s32 gTransitionProgress = 0;
+s32 D_8075506C = 0;
 extern MeshVertex *D_807FD9A4;
 extern AnimTable *sTransitionAnim;
 extern s32 *gFramebuffers[];
@@ -522,7 +534,13 @@ typedef struct TransitionDitherMask {
     u16 data[24];
 } TransitionDitherMask;
 
-extern TransitionDitherMask D_80755074;
+u8 sTransitionState = 0;
+TransitionDitherMask D_80755074 = { {
+    0xFFFF, 0xFFFE, 0xFFFF, 0xFFFF, 0xFFFE, 0xFFFF,
+    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFE, 0xFFFE, 0xFFFE,
+    0xFFFF, 0xFFFE, 0xFFFF, 0xFFFF, 0xFFFE, 0xFFFF,
+    0xFFFE, 0xFFFE, 0xFFFE, 0xFFFF, 0xFFFF, 0xFFFF,
+} };
 
 void transitionMaskFramebuffer(u16 *framebuffer) {
     TransitionDitherMask mask = D_80755074;
@@ -551,7 +569,6 @@ void transitionMaskFramebuffer(u16 *framebuffer) {
     }
 }
 
-extern u8 sTransitionState;
 
 void transitionSetState(u8 state) {
     sTransitionState = state;
@@ -562,7 +579,6 @@ u8 transitionGetState(void) {
 }
 
 extern s8 gSfxVolume;
-extern s32 D_807550A4;
 
 
 void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels) {
@@ -570,6 +586,7 @@ void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels)
     u16 rawVol;
     u16 scaledVol;
     s32 i;
+    static s32 sGroupVolScaled = 1;
 
     rawVol = 25000.0f * volumeScale;
     scaledVol = (f64)(rawVol * gSfxVolume) / 40.0;
@@ -577,15 +594,15 @@ void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels)
     osSetThreadPri(0, 0x1A);
     n_alSndpSetGroupVol(0, scaledVol);
     if (isGroupActive != 0) {
-        D_807550A4 = 1;
+        sGroupVolScaled = 1;
         n_alSndpSetGroupVol(2, scaledVol);
         if ((sTransitionState == 0) && ((gScreenRenderFlags & 1) || !(gScreenRenderFlags & 0x40))) {
             seqSetChannelVolumeScale(0, volumeScale);
         }
     } else {
         n_alSndpSetGroupVol(3, (f64)(rawVol * gSfxVolume) / 40.0);
-        if (D_807550A4 != 0) {
-            D_807550A4 = 0;
+        if (sGroupVolScaled != 0) {
+            sGroupVolScaled = 0;
             n_alSndpSetGroupVol(2, (f64)(gSfxVolume * 25000) / 40.0);
             n_alSndpSetGroupVol(1, (f64)(gSfxVolume * 25000) / 40.0);
         }
@@ -593,7 +610,6 @@ void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels)
     for (i = 0; channels != 0 && channels[i] != 0; i++) {
         seqSetChannelVolumeScale(channels[i], volumeScale);
     }
-    if (D_807550A4 && D_807550A4) {} // FAKE: dead read keeps &D_807550A4 from being CSE'd into $v0 for the isGroupActive store
     osSetThreadPri(0, oldPri);
 }
 
@@ -601,7 +617,7 @@ typedef struct TransitionChannels {
     s32 a[4];
 } TransitionChannels;
 
-extern TransitionChannels D_807550A8;
+TransitionChannels D_807550A8 = { { 1, 2, 3, 0 } };
 extern s32 D_807FD9A0;
 extern void *sTransitionBarTexture;
 extern Gfx D_1000020[];
