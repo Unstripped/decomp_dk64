@@ -384,7 +384,7 @@ void controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
     clip = slot->clip;
     if (clip != NULL) {
         count = gAnimClipCacheCount;
-        for (i = 0; i + 1 <= count; i++) { // LAYOUT: plain `i < count` is rewritten to a bne latch by uopt's LFTR
+        for (i = 0; i + 1 <= count; i++) { // FAKE: the `i + 1 <=` operand respelling blocks uopt's LFTR: the target keeps `slt at,v0,a0` at 0xaf4 and `bnez at` at 0xb84; plain `i < count` becomes a bne latch one instruction shorter
             if (clip == gAnimClipCache[i].asset) {
                 if (--gAnimClipCache[i].refCount == 0) {
                     assetFreeBuffer(gAnimClipCache[i].asset, 0x298, 0x15);
