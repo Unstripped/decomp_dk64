@@ -1187,3 +1187,4 @@
 {"type": "unit", "t": "2026-11-18T17:06:54Z", "unit": "2026-11-18: cleanup CleancommandApplyToLightb", "commit": "a3a7199f031d0ed9e92219e573b1c3cf539b04c1"}
 {"type": "unit", "t": "2026-11-18T17:08:59Z", "unit": "2026-11-18: cleanup CleantagBarrelActorUpdate", "commit": "4ac76740a5a29b101e68639639ad9b3286186d09"}
 {"type": "unit", "t": "2026-11-18T17:10:25Z", "unit": "2026-11-18: cleanup CleanactorCollisionResolveSurfaceHitb", "commit": "3df0d13a6ca04a389be345e62fb84156c32c7b19"}
+{"type": "unit", "t": "2026-11-18T17:27:36Z", "unit": "2026-11-18: cleanup CleanbonusSearchlightSeekGameUpdateb", "commit": "1d5ea897d90c2677555ec5a90a7329f8540be4f3"}
