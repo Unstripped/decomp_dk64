@@ -62,12 +62,38 @@
     - Q0556 varreflimit cut: from the clamp join label (0xc48) to the end of `normal[2] *= ...` the block counts 6 variable loads (normal[0..2], clamp x3), far below the 20 needed for a label-less statement-boundary cut, so no natural statement count can split there.
     - variants scan on the removal copy: 52 variants, all 16; on the plain-flag copy all 118-120.
     - Permuter, both sites removed, on the current body (index-loop walk, stickMag spelling), hack-free weights, 900 s at -j 2: baseline 991, best 660 (`other->collisionFlags & (long long)1`, a 64-bit width steer), no zero.
+- 2026-11-17 U CleanactorCollisionResolveSurfaceHit (cleanup session 2026-11-17f): both sites nohit; copy unchanged (fdiff 0, uninit 0). The copy sweep (--copy-of) found 0 hits.
+  - 94c1f4:
+    - s32 holder (12E800 finding 1): a PROTO_SKIP stand-in with an `s32 checkStick` parameter and `u8 flag = checkStick` (as the first statement, before the first test, or as the initialiser) gives 118 each, the same asm as plain: `lbu s1,0x157(sp)` at 0x84c, pos s1 -> s2 at 0x810. With -l5 the u8 local's store (ustr cand 4) is forwarded, and ucvt{local} cand 27 takes the place of ucvt{flag} cand 24. The local's u8 home is never read, so a per-use byte load cannot come from a declared width here.
+    - The header prototype is ANSI u8 (proto/global/7BBD0.h:16), and both 7CA80 callers pass the constants 1/0, so 343(sp) is the u8 parameter home in ANSI and K&R alike.
+    - C4620 style `u8 boost = flag != 0 && stickMag > 30.0; if (boost)`: 104.
+    - Element-read order:
+      - The stick test before the flag test gives 126. The target calls playerFindIndexByActor at 0x938 only after `beqz t5` at 0x930.
+      - A nested flag test with a `playerIndex` local gives 192.
+      - An `s32 doCheck = flag` snapshot gives 192.
+    - Permuter, only the pun removed (do-while kept), hack-free weights, 900 s at -j 2: base 891, best 174, no zero.
+      - 174 is `u8 *new_var = &flag` with the second test read through it (Q0191 alias).
+      - 230/412 pass `&flag` instead of `&worldY` (wrong behaviour).
+      - 697 is a volatile u8 copy.
+  - e9a088:
+    - Callback before the push, re-measured: 28. The target computes pushX/pushZ before `jal actorAppendCallbackS32` (0xc90/0xc9c) and spills them to 104/100(sp) (0xc98/0xca8, reloads at 0xcac/0xcb0), so the source order is observable and the 9CE20 move-after-call lever does not apply.
+    - A per-role `f32 clampScale = (f32)clamp / 8` with `for (i) normal[i] *= clampScale` scores 108 in block or function scope.
+    - A push interleaved after each scaling: 25.
+    - `clamp / 8.0f` on the current body: 18 (the earlier "2" was not reproduced).
+    - Classification as a Q0908 guard: `if (1) {}`, `if (otherBounds) {}` and `if (clamp) {}` in place of the do-while all give 0, while a bare `;` gives 16. So the site is a label-only block split ending the div.s $f0 block (0xc6c-0xc88), the shape of D5E10 finding 2.
+    - Permuter, only the do-while removed (pun kept), hack-free weights, 900 s at -j 2: base 100, best 0. Both zeros (and every output under 100) put an empty dead guard in its place (`if (otherBounds) {}`, `if (!hitRadius && !hitRadius) {}`, `if (normal) {}`, ...).
 
 ## Untried ideas
-- 94c1f4: none left in this TU. The target performs no by-reference use of `flag`; only dead code (`(void)&flag`, an unused `u8 *p = &flag`, Q0191) or `volatile` can make it address-taken, and all are hacks. Retyping, qualifiers (const/register), conversion widths, switch/nested-if/snapshot spellings are measured.
-- e9a088: the target needs pushX/pushZ in a uopt block after the last use of the clamp/8 CSE temp ($f0, 0xc6c-0xc88). Real loops, copies and statement order are measured; a do-while(0) statement macro is still a tagged do-while(0) (3D20 PUTC precedent, Q1191). No ordinary C construct that splits the block without code is known.
+- 94c1f4: none left in this TU. The target performs no by-reference use of `flag`. Only dead code (`(void)&flag`, an unused `u8 *p = &flag`, Q0191) or `volatile` can make it address-taken, and all of these are hacks; the permuter's best (174) is exactly that alias. Measured so far: retyping (u8/s32/u32, an s32 holder plus a u8 local), qualifiers (const/register), conversion widths, switch, nested-if and snapshot spellings, and the order of the element read.
+- e9a088: the target needs pushX/pushZ in a uopt block after the last use of the clamp/8 CSE temp ($f0, 0xc6c-0xc88).
+  - Any empty guard there matches, so the site is a pure block split.
+  - Measured: real loops (also with a per-role scale local), copies, interleaving, statement order, and moving the pushes after the callback (ruled out by the spills).
+  - A do-while(0) statement macro is still a tagged do-while(0) (3D20 PUTC precedent, Q1191). No ordinary C construct that splits the block without code is known.
 
 ## Evidence
 - Target 0x84c `lbu t8,343(sp)` and 0x92c `lbu t5,343(sp)`; no `addiu rN,sp,0x154..0x157` anywhere in the function.
 - Target FP: `lwc1 $f0,232(sp)` (worldX, pushX) at 0x9c8 before the renderFlags branch at 0x9e0 and `lwc1 $f2,224(sp)` (worldZ, pushZ) in the `b 0xcb4` delay slot; in the else arm div.s $f0 at 0xc6c, normal[0]/[2] scaled in $f12/$f14 (0xc78/0xc88), pushX/pushZ computed into $f0/$f2 at 0xc90/0xc9c, spilled to 104/100(sp) around `jal actorAppendCallbackS32`.
 - Target loop at 0x9f0-0xa24: s0/s2/s3/s1 walkers, and the bound `addiu t4,sp,200` is rebuilt inside the loop (LFTR of the counted loop).
+- Target 0xc98 `swc1 $f0,104(sp)` and 0xca8 `swc1 $f2,100(sp)` (pushX/pushZ homes) around `jal actorAppendCallbackS32` at 0xca4, reloaded at 0xcac/0xcb0: the pushes are computed before the call.
+- Target scaledNormal[0..2] stores at 0xbb4/0xbbc/0xbc8 (112/116/120(sp)): `scaledNormal[1]` is stored although unused, which is behaviour, not a dead store.
+- The node loops after `if (hit != 0)` exist twice in the target (heads at 0xcd8 and 0xd44).
