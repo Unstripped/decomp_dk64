@@ -217,7 +217,7 @@ void bossMadJackStep(void) {
             }
         } else {
             turnSpeed = gBehaviourWorkState->unk2E - 2;
-            if (turnSpeed >= -0x31) {
+            if (turnSpeed > -0x32) {
                 gBehaviourWorkState->unk2E = turnSpeed;
             } else {
                 gBehaviourWorkState->unk2E = -0x32;
