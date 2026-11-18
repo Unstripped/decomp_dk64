@@ -180,77 +180,74 @@ tail:
         }
     }
     if (gCurrentActor->state == 0) {
-        i = 0;
-        if (gActorGlobalState.volumeTriggerQueueCount > 0) {
-            do {
-                if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
-                    endOnTrigger = 1;
-                    triggerKind = ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
-                    switch (challengeType) {
-                    case 0:
-                        if (counter->countLeft != 0) {
-                            if (counter->countLeft >= 2) {
-                                messageText = textTableGetString(0x1A, 0xF, 1);
-                                msgBuf = heapAlloc(strlen(messageText) + 5);
-                                heapFreeDeferred(msgBuf);
-                                _sprintf(msgBuf, "%d %s", counter->countLeft, messageText);
-                            } else {
-                                msgBuf = textTableGetString(0x1A, 0x10, 1);
-                            }
-                            textSpawnMarkerChecked(0, 0, 0x8C, msgBuf, 0, 0x28, 8, 8);
-                            endOnTrigger = 0;
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
+                endOnTrigger = 1;
+                triggerKind = ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
+                switch (challengeType) {
+                case 0:
+                    if (counter->countLeft != 0) {
+                        if (counter->countLeft >= 2) {
+                            messageText = textTableGetString(0x1A, 0xF, 1);
+                            msgBuf = heapAlloc(strlen(messageText) + 5);
+                            heapFreeDeferred(msgBuf);
+                            _sprintf(msgBuf, "%d %s", counter->countLeft, messageText);
+                        } else {
+                            msgBuf = textTableGetString(0x1A, 0x10, 1);
                         }
-                        break;
-                    case 16:
-                        if (counter->counterShown == 0 && triggerKind != 0x28) {
-                            textSpawnMarkerChecked(0, 0, 0x8C, textTableGetString(0x1A, 0x17, 1), 0, 0x28, 8, 8);
-                            endOnTrigger = 0;
-                        }
-                        if (triggerKind == 0x28) {
-                            endOnTrigger = 0;
-                        }
-                        break;
-                    case 2:
-                        if (slotQueueGetValue(0xB, 0) < targetCount) {
-                            if (counter->countLeft >= 2) {
-                                messageText = textTableGetString(0x1A, 0x11, 1);
-                                msgBufCount = heapAlloc(strlen(messageText) + 5);
-                                _sprintf(msgBufCount, "%d %s", targetCount - slotQueueGetValue(0xB, 0), messageText);
-                            } else {
-                                msgBufCount = textTableGetString(0x1A, 0x12, 1);
-                            }
-                            textSpawnMarkerChecked(0, 0, 0x8C, msgBufCount, 0, 0x28, 8, 8);
-                            endOnTrigger = 0;
-                        }
-                        break;
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 11:
-                    case 15:
+                        textSpawnMarkerChecked(0, 0, 0x8C, msgBuf, 0, 0x28, 8, 8);
                         endOnTrigger = 0;
-                        break;
-                    case 12:
-                    case 13:
+                    }
+                    break;
+                case 16:
+                    if (counter->counterShown == 0 && triggerKind != 0x28) {
+                        textSpawnMarkerChecked(0, 0, 0x8C, textTableGetString(0x1A, 0x17, 1), 0, 0x28, 8, 8);
                         endOnTrigger = 0;
-                        if (triggerKind != 0x12) {
-                            if (triggerKind == 0x27) {
-                                gCurrentActor->unk15F += 1;
-                                if (gCurrentActor->unk15F >= 3) {
-                                    csModelStateSetFirstByte(2, 0xA);
-                                }
-                            } else {
-                                bonusEndLose(1, 1);
-                            }
+                    }
+                    if (triggerKind == 0x28) {
+                        endOnTrigger = 0;
+                    }
+                    break;
+                case 2:
+                    if (slotQueueGetValue(0xB, 0) < targetCount) {
+                        if (counter->countLeft >= 2) {
+                            messageText = textTableGetString(0x1A, 0x11, 1);
+                            msgBufCount = heapAlloc(strlen(messageText) + 5);
+                            _sprintf(msgBufCount, "%d %s", targetCount - slotQueueGetValue(0xB, 0), messageText);
+                        } else {
+                            msgBufCount = textTableGetString(0x1A, 0x12, 1);
                         }
-                        break;
+                        textSpawnMarkerChecked(0, 0, 0x8C, msgBufCount, 0, 0x28, 8, 8);
+                        endOnTrigger = 0;
                     }
-                    if (endOnTrigger != 0) {
-                        bonusEndWin(1, 0xE);
-                        spawnNodesSetRespawnHold(0);
+                    break;
+                case 7:
+                case 8:
+                case 9:
+                case 11:
+                case 15:
+                    endOnTrigger = 0;
+                    break;
+                case 12:
+                case 13:
+                    endOnTrigger = 0;
+                    if (triggerKind != 0x12) {
+                        if (triggerKind == 0x27) {
+                            gCurrentActor->unk15F += 1;
+                            if (gCurrentActor->unk15F >= 3) {
+                                csModelStateSetFirstByte(2, 0xA);
+                            }
+                        } else {
+                            bonusEndLose(1, 1);
+                        }
                     }
+                    break;
                 }
-            } while (++i < gActorGlobalState.volumeTriggerQueueCount);
+                if (endOnTrigger != 0) {
+                    bonusEndWin(1, 0xE);
+                    spawnNodesSetRespawnHold(0);
+                }
+            }
         }
     }
     if (gCurrentActor->state == 0) {
