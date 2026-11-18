@@ -32,24 +32,6 @@
 #include "proto/global/7130.h"
 #include "proto/global/FE40.h"
 
-
-extern u16 sSfxFlagTable[];
-
-u8 sfxGetBankIndex(s16 sfxId) {
-    return (sSfxFlagTable[sfxId] & 6) >> 1;
-}
-
-u8 sfxGetChannelIndex(s16 sfxId) {
-    return (sSfxFlagTable[sfxId] & 0x78) >> 3;
-}
-
-extern u8 sSfxMode;
-void sfxSetMode(mode)
-u8 mode;
-{
-    sSfxMode = mode;
-}
-
 typedef struct {
     s16 map;
     s16 chunk;
@@ -59,12 +41,178 @@ typedef struct {
     u8 pad9;
 } AmbientSfxEntry;
 
-extern u8 sSfxAreaAmbientActive;
-extern u8 gAmbientIndoors;
-extern u8 D_80770DD8[];
+s16 D_807454F0[176] = {
+    0x0, 0x4650, 0x6590, 0x59D8, 0x7530, 0x6D60, 0x7FFF, 0x7FFF,
+    0x6590, 0x688F, 0x58EF, 0x688F, 0x7FFF, 0x688F, 0x4650, 0x7FFF,
+    0x3E80, 0x4650, 0x55F0, 0x7FFF, 0x7FFF, 0x4650, 0x4650, 0x2710,
+    0x4650, 0x7D00, 0x7FFF, 0x7FFF, 0x5DC0, 0x6590, 0x7FFF, 0x7FFF,
+    0x7530, 0x4650, 0x7FFF, 0x6D60, 0x7FFF, 0x6D60, 0x7FFF, 0x4650,
+    0x4650, 0x4650, 0x7FFF, 0x4650, 0x4650, 0x7FFF, 0x7FFF, 0x36B0,
+    0x4650, 0x4650, 0x4650, 0x4650, 0x6D60, 0x5DC0, 0x7148, 0x4650,
+    0x6590, 0x5FB4, 0x6D60, 0x7FFF, 0x7FFF, 0x6D60, 0x6D60, 0x5DC0,
+    0x5DC0, 0x7FFF, 0x4650, 0x7FFF, 0x5DC0, 0x7FFF, 0x5DC0, 0x4650,
+    0x4650, 0x4650, 0x5DC0, 0x7FFF, 0x7FFF, 0x6590, 0x6590, 0x6590,
+    0x6590, 0x6590, 0x6590, 0x6590, 0x55F0, 0x4650, 0x4650, 0x4650,
+    0x4650, 0x4650, 0x4650, 0x4650, 0x4650, 0x4650, 0x4650, 0x4650,
+    0x5DC0, 0x4650, 0x4650, 0x4650, 0x4650, 0x4650, 0x61A8, 0x4650,
+    0x4650, 0x6D60, 0x55F0, 0x4650, 0x4650, 0x55F0, 0x6D60, 0x4650,
+    0x6590, 0x7FFF, 0x4650, 0x4650, 0x61A8, 0x7530, 0x5DC0, 0x5DC0,
+    0x5DC0, 0x7FFF, 0x6D60, 0x5DC0, 0x6D60, 0x6D60, 0x6D60, 0x6D60,
+    0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60,
+    0x6D60, 0x7FFF, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x7530,
+    0x7FFF, 0x7148, 0x7530, 0x5DC0, 0x6D60, 0x6D60, 0x7FFF, 0x7FFF,
+    0x61A8, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60, 0x6D60,
+    0x6D60, 0x7530, 0x6D60, 0x4650, 0x6590, 0x7148, 0x5DC0, 0x5DC0,
+    0x5DC0, 0x5DC0, 0x5DC0, 0x5DC0, 0x7FFF, 0x7FFF, 0x7FFF, 0x0,
+};
+u8 sSfxAreaAmbientActive = 0;
+u8 sSfxMode = 0;
+u16 sSfxFlagTable[176] = {
+    0x0, 0x101, 0x100, 0x188, 0x189, 0x100, 0x100, 0x440,
+    0x189, 0x8C2, 0x8C2, 0x8C2, 0x8C2, 0x8C2, 0x100, 0xA34,
+    0x19A, 0x19A, 0x8C4, 0x109, 0xABD, 0x101, 0x637, 0x637,
+    0x647, 0x100, 0x100, 0x188, 0x100, 0x100, 0x18A, 0x100,
+    0x63F, 0x63F, 0x1D4, 0x63F, 0x198, 0x192, 0x914, 0x100,
+    0x8CD, 0x85E, 0x89D, 0x854, 0x854, 0x444, 0x8C5, 0x635,
+    0x188, 0x100, 0x100, 0x18A, 0x18A, 0x100, 0x89A, 0x100,
+    0x101, 0x98, 0x190, 0x934, 0x108, 0x188, 0x18B, 0x100,
+    0x100, 0x445, 0x925, 0x447, 0x101, 0x4C5, 0x188, 0x19A,
+    0x192, 0x190, 0x100, 0x900, 0x63D, 0x100, 0x100, 0x100,
+    0x100, 0x188, 0x188, 0x101, 0x193, 0x102, 0x118, 0x118,
+    0x100, 0x188, 0x100, 0x101, 0x100, 0x100, 0x100, 0x100,
+    0x912, 0x100, 0x100, 0x100, 0x100, 0x1CA, 0x108, 0x100,
+    0x1AA, 0x101, 0x100, 0x19A, 0x190, 0x101, 0x109, 0x101,
+    0x101, 0x100, 0x892, 0x892, 0x100, 0x188, 0x100, 0x100,
+    0x100, 0x100, 0x100, 0x101, 0x198, 0x110, 0x100, 0x4BC,
+    0x43E, 0x100, 0x100, 0x100, 0x100, 0x101, 0x100, 0x100,
+    0x100, 0x100, 0x100, 0x100, 0x100, 0x101, 0x100, 0x445,
+    0x647, 0x647, 0x645, 0x645, 0x100, 0x100, 0x100, 0x645,
+    0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100,
+    0x101, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100,
+    0x100, 0x188, 0x1D8, 0x18A, 0x645, 0x18, 0x108, 0x0,
+};
+f32 D_807457B8[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+struct GfSndState *D_807457C8 = NULL;
+s32 D_807457CC = 0;
+struct GfSndState *D_807457D0[2] = { NULL, NULL };
+u8 D_807457D8 = 0;
+struct GfSndState *D_807457DC = NULL;
+s32 D_807457E0 = 0;
+struct GfSndState *gSfxFreeSlotHandles[20] = { NULL };
+u8 sSfxFreeSlotCursor = 0;
+u8 D_80745838 = 0;
+s8 gSfxVolume = 0x28;
+s8 gMusicVolume = 0x28;
+s8 gAudioOutputMode = 0;
+struct GfSndState *sSoundSlotHandles[22] = { NULL };
+f32 D_807458A0[15] = {
+    0.2f, 0.22f, 0.24f, 0.27f, 0.29f,
+    0.32f, 0.37f, 0.42f, 0.47f, 0.52f,
+    0.6f, 0.7f, 0.8f, 1.0f, 1.0f,
+};
+s16 sSfxChannelSounds[12] = { 0 };
+f32 sSfxChannelVolumes[12] = { 0.0f };
+s16 sSfxChannelStates[12] = { 0 };
+s32 sSfxChannelMasks[4][12] = { 0 };
+AmbientSfxEntry sAmbientSfxTable[29] = {
+    { 0x7, 0, 0x1, 0x1E, 0, 0 },
+    { 0x7, 2, 0x0, 0x0, 1, 0 },
+    { 0x7, 3, 0xA0, 0x0, 0, 0 },
+    { 0x7, 6, 0x0, 0x0, 1, 0 },
+    { 0x7, 7, 0x1, 0x0, 0, 0 },
+    { 0x7, 8, 0x0, 0x0, 1, 0 },
+    { 0x7, 10, 0x0, 0x0, 1, 0 },
+    { 0x7, 14, 0xA1, 0x0, 0, 0 },
+    { 0x7, 15, 0x0, 0x0, 1, 0 },
+    { 0x7, 16, 0x0, 0x0, 1, 0 },
+    { 0x7, 18, 0x0, 0x0, 1, 0 },
+    { 0x26, 0, 0x0, 0x0, 1, 0 },
+    { 0x26, 4, 0x0, 0x0, 0, 0 },
+    { 0x26, 7, 0x0, 0x0, 1, 0 },
+    { 0x26, 9, 0x0, 0x0, 1, 0 },
+    { 0x26, 10, 0x0, 0x0, 1, 0 },
+    { 0x26, 11, 0x0, 0x0, 1, 0 },
+    { 0x26, 12, 0x0, 0x0, 0, 0 },
+    { 0x1E, 1, 0x0, 0x0, 1, 0 },
+    { 0x1E, 3, 0x0, 0x0, 1, 0 },
+    { 0x1E, 6, 0x0, 0x0, 1, 0 },
+    { 0x1E, 7, 0x0, 0x0, 1, 0 },
+    { 0x1E, 9, 0x0, 0x0, 0, 0 },
+    { 0x1E, 12, 0x0, 0x0, 0, 0 },
+    { 0x1E, 14, 0x0, 0x0, 0, 0 },
+    { 0x1E, 17, 0x0, 0x0, 1, 0 },
+    { 0x1A, 5, 0x34, 0x34, 1, 0 },
+    { 0x1A, 9, 0x0, 0x0, 0, 0 },
+    { 0x1A, 23, 0x33, 0x33, 1, 0 },
+};
+
+u8 D_80770560[4];
+f32 D_80770568[4];
+f32 D_80770578[4];
+f32 D_80770588;
+u8 D_8077058C[3];
+f32 D_80770590;
+f32 D_80770594;
+u8 D_80770598[4];
+Actor *gSfxSourceActor[22];
+s16 gSfxSourceModelSlot[24];
+s16 gSfxSourceVoice[24];
+s16 gSfxSourceListIndex[24];
+f32 D_80770688[22];
+u8 D_807706E0[24];
+u8 D_807706F8[24];
+s16 D_80770710[24];
+s16 gSfxVoiceSourceCount[24];
+u8 D_80770770[24];
+u8 D_80770788[24];
+s16 gSfxVoiceSources[22][22];
+f32 D_80770B68[22];
+f32 D_80770BC0[22];
+f32 D_80770C18[22];
+f32 D_80770C70[22];
+u8 D_80770CC8[24];
+u8 D_80770CE0[24];
+s8 D_80770CF8[24];
+s16 D_80770D10[24];
+s16 D_80770D40[24];
+f32 D_80770D70[22];
+u8 D_80770DC8;
+u8 gAmbientIndoors;
+u8 D_80770DCA;
+u8 D_80770DCB;
+f32 D_80770DCC;
+f32 D_80770DD0;
+f32 D_80770DD4;
+u8 D_80770DD8[4];
+f32 D_80770DDC;
+f32 D_80770DE0;
+f32 D_80770DE4;
+f32 D_80770DE8;
+f32 D_80770DEC;
+f32 D_80770DF0;
+f32 D_80770DF4;
+struct GfSndState *D_80770DF8[16];
+u32 D_80770E38[16];
+f32 D_80770E78[16];
+f32 D_80770EB8[16];
+f32 D_80770EF8[16];
+
+u8 sfxGetBankIndex(s16 sfxId) {
+    return (sSfxFlagTable[sfxId] & 6) >> 1;
+}
+
+u8 sfxGetChannelIndex(s16 sfxId) {
+    return (sSfxFlagTable[sfxId] & 0x78) >> 3;
+}
+
+void sfxSetMode(mode)
+u8 mode;
+{
+    sSfxMode = mode;
+}
+
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
-extern AmbientSfxEntry sAmbientSfxTable[];
 
 void sfxStartAreaAmbient(void) {
     u8 i;
@@ -100,43 +248,22 @@ void sfxPlayCurrent(u8 unused0, u8 unused1, u8 unused2) {
     sfxStartAreaAmbient();
 }
 
-extern s16 sSfxChannelSounds[];
-extern f32 sSfxChannelVolumes[];
-extern s16 sSfxChannelStates[];
-extern s32 sSfxChannelMasks[][12];
-extern u8 D_80770560[];
-extern f32 D_80770568[];
 extern N_CSPlayer *gSeqPlayers[];
-
-/* The two stack arrays are block-copied from these static initialisers (D_80745B20 = -1s, D_80745B24 = 0s):
- * a struct-typed local makes the compiler emit one lw/sw copy and keep &bankChannel in a callee-saved register. */
-typedef struct {
-    s8 b[4];
-} SfxSignedBytes4;
-typedef struct {
-    u8 b[4];
-} SfxUnsignedBytes4;
-extern SfxSignedBytes4 D_80745B20;
-extern SfxUnsignedBytes4 D_80745B24;
-
 
 void sfxUpdateChannels(void) {
     u8 i;
     u8 j;
     u8 channel;
     u8 bank;
-    SfxSignedBytes4 bankChannel;
-    SfxUnsignedBytes4 seqState;
+    s8 bankChannel[4] = { -1, -1, -1, -1 };
+    u8 seqState[4] = { 0, 0, 0, 0 };
     s16 sfxId;
     u8 vol;
     s32 sel;
 
-    bankChannel = D_80745B20;
-    seqState = D_80745B24;
-
     if (sSfxAreaAmbientActive != 0) {
         for (i = 0; i < 4; i++) {
-            seqState.b[i] = alCSPGetState(&gSeqPlayers[i]->al);
+            seqState[i] = alCSPGetState(&gSeqPlayers[i]->al);
         }
 
         for (i = 0; i < 12; i++) {
@@ -144,7 +271,7 @@ void sfxUpdateChannels(void) {
             if (sfxId != 0) {
                 channel = sfxGetChannelIndex(sfxId);
                 bank = sfxGetBankIndex(sfxId);
-                if (sfxId == D_80770560[bank] && seqState.b[bank] == 1) {
+                if (sfxId == D_80770560[bank] && seqState[bank] == 1) {
                     if (sSfxChannelStates[i] == 1) {
                         sSfxChannelStates[i] = 2;
                     }
@@ -164,7 +291,7 @@ void sfxUpdateChannels(void) {
                     }
                 }
                 if (!(sSfxFlagTable[sfxId] & 0x100) && sSfxChannelStates[i] == 2) {
-                    if (seqState.b[sfxGetBankIndex(sfxId)] == 0 || sfxId != D_80770560[bank]) {
+                    if (seqState[sfxGetBankIndex(sfxId)] == 0 || sfxId != D_80770560[bank]) {
                         sfxStopChannel(sfxId, 0);
                     }
                 }
@@ -176,17 +303,17 @@ void sfxUpdateChannels(void) {
             if (sfxId != 0) {
                 if (sSfxFlagTable[sfxId] & 0x80) {
                     for (j = 0; j < 4; j++) {
-                        bankChannel.b[j] = -1;
+                        bankChannel[j] = -1;
                     }
                 }
-                bankChannel.b[sfxGetBankIndex(sfxId)] = i;
+                bankChannel[sfxGetBankIndex(sfxId)] = i;
             }
         }
 
         for (i = 0; i < 4; i++) {
-            s8 idx = bankChannel.b[i];
-            if (seqState.b[i] != 0) {
-                if (seqState.b[i] == 1) {
+            s8 idx = bankChannel[i];
+            if (seqState[i] != 0) {
+                if (seqState[i] == 1) {
                     if (idx == -1) {
                         seqSetTargetVolume(i, 0.0f);
                         if (D_80770568[i] < 0.1 || D_80770560[i] == 0x4B) {
@@ -215,11 +342,6 @@ void sfxUpdateChannels(void) {
     }
 }
 
-extern s16 sSfxChannelSounds[];
-extern f32 sSfxChannelVolumes[];
-extern s16 sSfxChannelStates[];
-extern s32 sSfxChannelMasks[][12];
-
 void sfxAllocateChannel(s32 sfxId, f32 volume) {
     u8 channel;
     u8 i;
@@ -240,7 +362,6 @@ void sfxAllocateChannel(s32 sfxId, f32 volume) {
     }
 }
 
-extern u8 D_80770560[];
 void sfxStopChannel(sfxId, stopSeq)
 s32 sfxId;
 u8 stopSeq;
@@ -289,8 +410,6 @@ u8 slot;
     }
 }
 
-extern f32 D_80770568[];
-
 f32 sfxGetChannelVolume(sfxId)
 s32 sfxId;
 {
@@ -310,9 +429,6 @@ void sfxSetChannelTempo(s32 sfxId, f32 scale) {
     }
 }
 
-extern f32 D_80770DDC;
-extern f32 D_80770DE0;
-extern f32 D_80770DE4;
 f32 sqrtf(f32);
 #pragma intrinsic(sqrtf)
 
@@ -394,11 +510,6 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
     return level;
 }
 
-extern f32 D_80770DE8;
-extern f32 D_80770DEC;
-f32 D_80770DF0;
-f32 D_80770DF4;
-
 f32 sfxUpdateDistanceVolumeAndPan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 directionality)
 {
     f32 level;
@@ -444,39 +555,160 @@ typedef struct {
 } AmbientAudioParam;
 
 
-extern AmbientEmitter D_80745F74[];
-extern AmbientEmitter D_80745FD8[];
-extern AmbientEmitter D_80746010[];
-extern AmbientEmitter D_8074603C[];
-extern AmbientEmitter D_80746074[];
-extern AmbientEmitter D_807460AC[];
-extern AmbientEmitter D_807460E4[];
-extern AmbientEmitter D_80746170[];
-extern AmbientEmitter D_807461E0[];
-extern AmbientEmitter D_80746244[];
-extern AmbientEmitter D_8074627C[];
-
-extern AmbientAudioParam D_80745B28[];
+AmbientAudioParam D_80745B28[15] = {
+    { 0x106, 0xFF, 0x5A, 0.7f, 1.0f },
+    { 0x11D, 0xFF, 0xC8, 0.3f, 1.0f },
+    { 0x11B, 0x1E, 0x64, 4.0f, 1.0f },
+    { 0x1E, 0xFF, 0x5A, 1.7f, 1.0f },
+    { 0x11B, 0x64, 0x64, 0.7f, 1.0f },
+    { 0x105, 0xB4, 0x50, 2.0f, 1.0f },
+    { 0x138, 0x8C, 0x46, 0.2f, 1.0f },
+    { 0x105, 0xFF, 0x5A, 2.0f, 1.0f },
+    { 0x138, 0x28, 0x5A, 0.2f, 1.0f },
+    { 0x138, 0x5A, 0x5A, 0.7f, 0.595f },
+    { 0x12C, 0x3C, 0x5A, 0.7f, 1.8f },
+    { 0x808, 0x5A, 0x5A, 0.3f, 1.0f },
+    { 0x808, 0x3C, 0x6E, 0.7f, 1.0f },
+    { 0x138, 0x3C, 0x4B, 0.7f, 1.0f },
+    { 0x138, 0x3C, 0x3C, 0.7f, 1.0f },
+};
+MapAudioEntry gMapAudioTable[230] = {
+    { 0x0, 0x0, 1 }, { 0x6, 0x0, 1 }, { 0x15, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x5, 0x64, 1 }, { 0x2, 0x32, 6 },
+    { 0x58, 0xC8, 1 }, { 0x1, 0x0, 1 }, { 0x64, 0x32, 1 }, { 0x5, 0x96, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x5, 0x64, 1 }, { 0x5, 0x64, 1 }, { 0x58, 0x0, 1 }, { 0x1D, 0x32, 6 }, { 0x15, 0x64, 1 }, { 0x71, 0x0, 25 },
+    { 0x58, 0x0, 1 }, { 0x1A, 0x64, 1 }, { 0x15, 0x64, 1 }, { 0x1A, 0x64, 1 }, { 0x1A, 0x64, 1 }, { 0x1A, 0x64, 1 },
+    { 0x1A, 0x64, 1 }, { 0x1F, 0x32, 1 }, { 0x1C, 0x32, 25 }, { 0x58, 0x0, 1 }, { 0x8A, 0x32, 1 }, { 0x1C, 0x32, 1 },
+    { 0x38, 0x0, 1 }, { 0x5, 0x32, 1 }, { 0x58, 0x0, 1 }, { 0x5, 0x96, 1 }, { 0x0, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x31, 0x32, 1 }, { 0x32, 0x0, 1 }, { 0xE, 0x0, 6 }, { 0x58, 0x0, 1 }, { 0x55, 0x0, 1 }, { 0x37, 0x0, 1 },
+    { 0x35, 0x0, 1 }, { 0x4E, 0x0, 7 }, { 0x4F, 0x0, 1 }, { 0x50, 0x0, 1 }, { 0x4E, 0x0, 7 }, { 0x4D, 0x0, 7 },
+    { 0x44, 0x0, 1 }, { 0x3F, 0x32, 1 }, { 0x58, 0x0, 1 }, { 0x5B, 0xC8, 25 }, { 0x5D, 0x0, 7 }, { 0x40, 0x0, 1 },
+    { 0x5C, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x5E, 0x0, 5 }, { 0x5F, 0x0, 5 }, { 0x5F, 0x0, 5 }, { 0x5E, 0x0, 5 },
+    { 0x63, 0x0, 7 }, { 0x5E, 0x0, 5 }, { 0x5F, 0x0, 5 }, { 0x62, 0x0, 1 }, { 0x63, 0x0, 1 }, { 0x58, 0x0, 5 },
+    { 0x58, 0x0, 5 }, { 0x58, 0x0, 5 }, { 0x58, 0x0, 5 }, { 0x58, 0x0, 5 }, { 0x62, 0x0, 1 }, { 0x62, 0x0, 1 },
+    { 0x53, 0x46, 1 }, { 0x40, 0x0, 1 }, { 0x58, 0x0, 5 }, { 0x58, 0x0, 5 }, { 0x0, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x14, 1 }, { 0x58, 0x14, 1 }, { 0x86, 0x0, 1 }, { 0x1, 0x0, 1 }, { 0x58, 0x32, 6 }, { 0x64, 0x0, 1 },
+    { 0x67, 0x0, 6 }, { 0x67, 0x0, 6 }, { 0x67, 0x0, 6 }, { 0x69, 0x0, 6 }, { 0x88, 0x50, 6 }, { 0x77, 0x0, 1 },
+    { 0x76, 0x0, 5 }, { 0x76, 0x0, 5 }, { 0x76, 0x0, 5 }, { 0x76, 0x0, 5 }, { 0x76, 0x0, 5 }, { 0x67, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x70, 0x32, 1 }, { 0x67, 0x0, 6 }, { 0x58, 0x0, 1 }, { 0x67, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x8C, 0x32, 1 }, { 0x58, 0x46, 1 }, { 0x40, 0x0, 1 },
+    { 0x87, 0x64, 1 }, { 0xA8, 0x0, 1 }, { 0x1C, 0x0, 1 }, { 0x64, 0x0, 1 }, { 0x87, 0x64, 1 }, { 0x8E, 0x64, 1 },
+    { 0x96, 0x50, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x79, 0x32, 1 }, { 0x0, 0x32, 1 }, { 0x0, 0x0, 1 }, { 0x64, 0x0, 1 }, { 0x40, 0x0, 1 },
+    { 0x40, 0x0, 1 }, { 0x40, 0x0, 1 }, { 0x40, 0x0, 1 }, { 0x40, 0x0, 1 }, { 0x40, 0x0, 1 }, { 0x40, 0x0, 1 },
+    { 0x40, 0x0, 1 }, { 0x81, 0x64, 1 }, { 0x8D, 0x1E, 1 }, { 0x58, 0x0, 1 }, { 0x8B, 0x32, 1 }, { 0x9D, 0x46, 1 },
+    { 0x89, 0x14, 1 }, { 0x83, 0x0, 1 }, { 0x9C, 0x1E, 1 }, { 0x7B, 0x0, 5 }, { 0x0, 0x0, 1 }, { 0x82, 0x0, 1 },
+    { 0x85, 0x0, 1 }, { 0x84, 0x0, 1 }, { 0x7B, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x99, 0x0, 1 }, { 0x4E, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x7E, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0xA3, 0x0, 1 }, { 0xA5, 0x0, 1 }, { 0xA4, 0x0, 1 }, { 0x6F, 0x28, 1 }, { 0xA8, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0xA8, 0x0, 1 }, { 0x9B, 0x46, 1 }, { 0x9A, 0x32, 1 }, { 0xA6, 0x0, 1 }, { 0x64, 0x0, 1 }, { 0x64, 0x0, 1 },
+    { 0x0, 0x0, 1 }, { 0x64, 0x0, 1 }, { 0x76, 0x1E, 5 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x64, 0x0, 1 },
+    { 0x64, 0x0, 1 }, { 0x64, 0x0, 1 }, { 0x64, 0x0, 1 }, { 0x64, 0x0, 1 }, { 0x0, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x0, 0x0, 1 }, { 0x58, 0x1E, 1 }, { 0x64, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+    { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
+};
+AmbientEmitter D_80745F74[7] = {
+    { 1538, 281, 307, 1024, 100, 0x7F, 0x1E, 0x1, 0x26 },
+    { 1506, 281, 1281, 2035, 100, 0x7F, 0x1E, 0xA0, 0x26 },
+    { 2506, 285, 1691, 503, 100, 0x7F, 0x1E, 0xA0, 0x26 },
+    { 2629, 540, 2933, 1288, 100, 0x7F, 0x1E, 0x1, 0x26 },
+    { 793, 288, 2294, 3837, 130, 0x7F, 0x1E, 0xA0, 0x26 },
+    { 1611, 281, 2179, 4077, 100, 0x7F, 0x1E, 0xA0, 0x26 },
+    { 1710, 225, 3386, 2048, 130, 0x7F, 0x1E, 0xA1, 0x26 },
+};
+AmbientEmitter D_80745FD8[4] = {
+    { 1945, 121, 874, 3100, 100, 0x7F, 0x25, 0x0, 0x0 },
+    { 2685, 121, 1523, 0, 100, 0x7F, 0x25, 0x0, 0x0 },
+    { 3541, 121, 2957, 2048, 100, 0x7F, 0x25, 0x0, 0x0 },
+    { 3204, 113, 4437, 0, 100, 0x7F, 0x25, 0x0, 0x0 },
+};
+AmbientEmitter D_80746010[3] = {
+    { 2382, 1621, 2573, 138, 100, 0x7F, 0x3E, 0x0, 0x26 },
+    { 2054, 1621, 3533, 1512, 100, 0x7F, 0x3E, 0x0, 0x26 },
+    { 2037, 1437, 1477, 2421, 100, 0x0, 0x3E, 0x0, 0x0 },
+};
+AmbientEmitter D_8074603C[4] = {
+    { 1578, 41, 2268, 0, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 1018, 41, 1583, 3072, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 2183, 41, 1583, 1024, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 1578, 41, 899, 2048, 100, 0xFF, 0x0, 0x0, 0x0 },
+};
+AmbientEmitter D_80746074[4] = {
+    { 3363, 1264, 1062, 1137, 120, 0x0, 0x33, 0x0, 0x0 },
+    { 4357, 1336, 936, 3140, 120, 0x0, 0x33, 0x0, 0x0 },
+    { 142, 7, 1351, 1024, 100, 0x0, 0x34, 0x0, 0x0 },
+    { 1098, 7, 1308, 3072, 100, 0x0, 0x34, 0x0, 0x0 },
+};
+AmbientEmitter D_807460AC[4] = {
+    { 1348, 4139, 3419, 3072, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 809, 3763, 2492, 0, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 1338, 2073, 2718, 4000, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 2157, 1548, 4138, 2248, 100, 0xFF, 0x0, 0x0, 0x0 },
+};
+AmbientEmitter D_807460E4[10] = {
+    { 1757, 5, 3369, 22, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 481, 5, 1903, 3562, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 1027, 5, 1362, 1600, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 473, 6, 1411, 2581, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 1002, 5, 1937, 419, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 2821, 5, 1865, 3646, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 2733, 5, 1138, 2390, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 2588, 7, 1534, 3071, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 3294, 5, 1539, 844, 100, 0xFF, 0x0, 0x0, 0x0 },
+    { 2695, 5, 3194, 1023, 100, 0xFF, 0x0, 0x0, 0x0 },
+};
+AmbientEmitter D_80746170[8] = {
+    { 1754, 179, 1982, 2844, 100, 0xC8, 0x0, 0x0, 0x0 },
+    { 1622, 179, 1556, 625, 100, 0xC8, 0x0, 0x0, 0x0 },
+    { 412, 179, 1650, 3663, 100, 0xC8, 0x0, 0x0, 0x0 },
+    { 1284, 179, 2700, 1991, 100, 0xC8, 0x0, 0x0, 0x0 },
+    { 3267, 166, 2503, 887, 100, 0xC8, 0x0, 0x0, 0x0 },
+    { 3567, 166, 3015, 2696, 100, 0xC8, 0x0, 0x0, 0x0 },
+    { 2711, 201, 1619, 1934, 100, 0xC8, 0x0, 0x0, 0x0 },
+    { 3082, 204, 1230, 4073, 100, 0xC8, 0x0, 0x0, 0x0 },
+};
+AmbientEmitter D_807461E0[7] = {
+    { 356, 1651, 3909, 4097, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 1905, 1453, 1071, 0, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 2368, 1396, 652, 1980, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 2474, 1245, 2369, 1138, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 1644, 1255, 2801, 125, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 4308, 1074, 1526, 4005, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 4160, 1020, 547, 1889, 100, 0x7F, 0x0, 0x0, 0x0 },
+};
+AmbientEmitter D_80746244[4] = {
+    { 2076, 477, 3750, -1, 980, 0x0, 0x6E, 0x0, 0x0 },
+    { 2843, 477, 1385, -1, 1420, 0x0, 0x6D, 0x0, 0x0 },
+    { 947, 477, 2401, -1, 600, 0x0, 0x6F, 0x0, 0x0 },
+    { 3610, 477, 3302, -1, 630, 0x0, 0x70, 0x0, 0x0 },
+};
+AmbientEmitter D_8074627C[3] = {
+    { 1358, 18, 772, 2275, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 2027, 212, 1182, 1024, 100, 0x7F, 0x0, 0x0, 0x0 },
+    { 1323, 38, 1701, 0, 100, 0x7F, 0x0, 0x0, 0x0 },
+};
+u8 D_807462A8[69][2] = {
+    { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x4 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 },
+    { 0x0, 0x0 }, { 0x5A, 0x0 }, { 0x50, 0x0 }, { 0x64, 0x0 }, { 0x3C, 0x0 }, { 0x5A, 0x0 }, { 0x32, 0x0 }, { 0x50, 0x0 },
+    { 0x50, 0x0 }, { 0x64, 0x0 }, { 0x1E, 0x0 }, { 0x46, 0x0 }, { 0x5A, 0x0 }, { 0x55, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 },
+    { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x50, 0x0 }, { 0x3C, 0x0 }, { 0x50, 0x0 },
+    { 0x5A, 0x0 }, { 0x3C, 0x0 }, { 0x0, 0x0 }, { 0x50, 0x0 }, { 0x0, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 },
+    { 0x5A, 0x0 }, { 0x82, 0x4 }, { 0x1E, 0x0 }, { 0x28, 0x0 }, { 0x5A, 0x0 }, { 0x46, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 },
+    { 0x50, 0x0 }, { 0x50, 0x0 }, { 0x0, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x64, 0x0 }, { 0x0, 0x0 }, { 0x0, 0x0 },
+    { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x0, 0x0 }, { 0x28, 0x0 }, { 0x28, 0x0 }, { 0x28, 0x0 }, { 0x28, 0x0 }, { 0x28, 0x0 },
+    { 0x28, 0x0 }, { 0x28, 0x0 }, { 0x46, 0x0 }, { 0x3C, 0x0 }, { 0x28, 0x0 },
+};
 
 extern SchedStruct gScheduler;
 extern ALBank *D_8076D1F8;
 extern ALBank *D_8076D1FC;
-extern struct GfSndState *D_807457DC;
-extern u8 D_80745838;
-extern u8 D_8077058C[];
-extern u8 D_8077058E;
-extern u8 D_80770DC8;
-extern u8 D_80770DCA;
-extern u8 D_80770DCB;
-extern f32 D_80770DCC;
-extern f32 D_80770DD0;
-extern f32 D_80770DD4;
 extern u8 D_80770DD9;
-struct GfSndState *D_80770DF8[16];
-u32 D_80770E38[16];
-f32 D_80770E78[16];
-f32 D_80770EB8[16];
-f32 D_80770EF8[16];
 extern PlayerState *gActivePlayerState;
 
 
@@ -814,7 +1046,7 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
-        if (D_80770DC8) {}  // FAKE: dead read stops &D_80770DC8 being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static D_80770DC8 retires it once 7130 owns 0x80770560-0x80770DF0 (Q0981)
+        if (D_80770DC8) {}  // FAKE: dead read stops &D_80770DC8 being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static would retire it (Q0981) but IDO places .bss in first-reference order (Q0565) and gAmbientIndoors/D_80770DD8/D_80770DDC-DF4 above it are used by earlier functions, so the static lands after D_80770EF8
         D_8077058C[0] = 0;
     }
     if (D_8077058C[0] != 0) {
@@ -846,8 +1078,6 @@ void sfxUpdateLevelAmbient(void) {
         n_alSndpStop(D_807457DC);
     }
 }
-
-
 
 void seqUpdateUnderwaterAudio(s32 seqIndex) {
     if (D_80745838 != 0) {
@@ -887,12 +1117,6 @@ void seqUpdateUnderwaterAudio(s32 seqIndex) {
     }
 }
 
-extern s16 gSfxSourceVoice[];
-extern f32 D_80770B68[];
-extern f32 D_80770BC0[];
-extern f32 D_80770C18[];
-extern f32 D_80770C70[];
-
 void sfxSetVolumeAndPan(u8 source, f32 pitch, f32 rate) {
 
     if (source != -1) {
@@ -906,15 +1130,11 @@ void sfxSetVolumeAndPan(u8 source, f32 pitch, f32 rate) {
     }
 }
 
-extern u8 D_80770CE0[];
-
 void sfxSetChannelPriority(u8 source, u8 volume) {
     if (source != -1) {
         D_80770CE0[gSfxSourceVoice[source]] = volume;
     }
 }
-
-extern s16 D_80770710[];
 
 
 void sfxPlayActorSound(Actor *actor, s16 sfxId, u8 range, u8 exclusive, u8 slot, u8 volume, f32 pitch, s8 node) {
@@ -926,20 +1146,6 @@ void sfxPlayActorSound(Actor *actor, s16 sfxId, u8 range, u8 exclusive, u8 slot,
     }
     actor->soundSlots[slot] = sfxSlotAllocateActor(actor, sfxId, range, exclusive, volume, pitch, node);
 }
-extern struct GfSndState *sSoundSlotHandles[];
-extern u8 D_807460AE[][2];
-extern s16 gSfxSourceListIndex[];
-extern u8 D_807706E0[];
-extern u8 D_807706F8[];
-extern s16 gSfxVoiceSourceCount[];
-extern u8 D_80770788[];
-extern s16 gSfxVoiceSources[][22];
-extern u8 D_80770CC8[];
-extern s8 D_80770CF8[];
-extern s16 D_80770D10[];
-extern s16 D_80770D40[];
-extern f32 D_80770D70[];
-extern Actor *gSfxSourceActor[];
 
 u8 sfxSlotAllocateActor(Actor *actor, s16 sfxId, u8 range, u8 exclusive, u8 volume, f32 pitch, s8 node) {
     u8 source;
@@ -986,7 +1192,7 @@ u8 sfxSlotAllocateActor(Actor *actor, s16 sfxId, u8 range, u8 exclusive, u8 volu
     if (range != 0) {
         D_80770788[source] = range;
     } else {
-        D_80770788[source] = D_807460AE[D_80770710[voice]][0];
+        D_80770788[source] = D_807462A8[D_80770710[voice] - 0xFD][0];
     }
     D_80770CE0[voice] = volume;
     D_80770D10[voice] = -1;
@@ -1002,7 +1208,6 @@ u8 sfxSlotAllocateActor(Actor *actor, s16 sfxId, u8 range, u8 exclusive, u8 volu
     gSfxSourceActor[source] = actor;
     return source;
 }
-extern s16 gSfxSourceModelSlot[];
 
 u8 sfxSlotAllocateSource(s16 modelSlot, s16 sfxId, u8 range, u8 exclusive, u8 volume, f32 pitch, s8 node) {
     u8 source;
@@ -1049,7 +1254,7 @@ u8 sfxSlotAllocateSource(s16 modelSlot, s16 sfxId, u8 range, u8 exclusive, u8 vo
     if (range != 0) {
         D_80770788[source] = range;
     } else {
-        D_80770788[source] = D_807460AE[D_80770710[voice]][0];
+        D_80770788[source] = D_807462A8[D_80770710[voice] - 0xFD][0];
     }
     D_80770CE0[voice] = volume;
     D_80770D10[voice] = -1;
@@ -1100,7 +1305,6 @@ void sfxSlotFreeSource(s16 source) {
 
 
 extern u8 D_80750190;
-extern u8 D_80770770[];
 
 void audioResetAll(void) {
     u8 i;
@@ -1142,7 +1346,7 @@ void audioResetAll(void) {
     sSfxAreaAmbientActive = 0;
     gAmbientIndoors = 0;
     D_80745838 = 0;
-    D_80770DD9 = 0xFF;
+    D_80770DD8[1] = 0xFF;
     for (i = 0; i < 22; i++) {
         gSfxSourceActor[i] = NULL;
         gSfxSourceModelSlot[i] = -1;
@@ -1161,9 +1365,6 @@ void audioResetAll(void) {
 
 extern ModelSlot *gModelSlots;
 
-extern f32 D_80770590;
-extern f32 D_80770594;
-extern f32 D_80770688[];
 extern u8 gPlayerCount;
 
 
@@ -1268,7 +1469,7 @@ void sfxUpdateSourceGroups(void) {
                     D_80770DE8 = 0.0f;
                     D_80770DEC = 0.0f;
                     if (D_80770710[i] >= 0xFD && D_80770710[i] < 0x142) {
-                        factor = D_807460AE[D_80770710[i]][1];
+                        factor = D_807462A8[D_80770710[i] - 0xFD][1];
                     } else {
                         factor = 0.3f;
                     }
@@ -1892,11 +2093,6 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
     return -1;
 }
 
-extern struct GfSndState *D_807457D0[];
-extern u8 D_807457D8;
-extern struct GfSndState *gSfxFreeSlotHandles[];
-extern u8 sSfxFreeSlotCursor;
-
 void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behind) {
     s32 vol;
     f32 pan;
@@ -1916,8 +2112,8 @@ void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behi
         pitch = (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0)) + (pitch - ((u32)spread / 255.0));
     }
 
-    if (D_8077058E >= 21) {
-        reverb = (D_8077058E * 100) / 255;
+    if (D_8077058C[2] >= 21) {
+        reverb = (D_8077058C[2] * 100) / 255;
     }
     if (behind != 0) {
         reverb |= 0x80;
@@ -1951,8 +2147,8 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
 
     if (i > 0) {
         osSetThreadPri(NULL, 26);
-        if (D_8077058E >= 21) {
-            fx = ((((D_8077058E * 100) / 255) < (fx & 0x7F)) ? (fx & 0x7F) : ((D_8077058E * 100) / 255)) | (fx & 0x80);
+        if (D_8077058C[2] >= 21) {
+            fx = ((((D_8077058C[2] * 100) / 255) < (fx & 0x7F)) ? (fx & 0x7F) : ((D_8077058C[2] * 100) / 255)) | (fx & 0x80);
         }
 
         if (sfxId < 0x800) {
@@ -1976,8 +2172,6 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
 
     return -1;
 }
-
-extern struct GfSndState *D_807457C8;
 
 void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 spread, u8 range) {
     s32 dx, dy, dz;
@@ -2020,8 +2214,8 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
     pan = (1.0f - sinApprox(pan)) * 63.5;
     if (D_80745838 != 0) {
         reverb = 30;
-    } else if (D_8077058E >= 21) {
-        reverb = (D_8077058E * 100) / 255;
+    } else if (D_8077058C[2] >= 21) {
+        reverb = (D_8077058C[2] * 100) / 255;
     }
     if (D_807457C8 != 0) {
         n_alSndpStop(D_807457C8);
@@ -2105,8 +2299,8 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
 
         pitch = ((u32)pitchByte * pitch) / 127.0;
 
-        if (D_8077058E >= 21) {
-            fx = (D_8077058E * 100) / 255;
+        if (D_8077058C[2] >= 21) {
+            fx = (D_8077058C[2] * 100) / 255;
         }
 
         angle = (1.0f - sinApprox(angle)) * 63.5;
@@ -2123,7 +2317,6 @@ extern s32 D_8000DDCC;
 extern s32 sSeqRomOffsets[];
 extern void *D_8076BF38[];
 extern ALCSeq D_8076BF48[];
-extern u8 D_80770598[];
 
 
 void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
@@ -2170,11 +2363,6 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     alCSPPlay(&gSeqPlayers[seqIndex]->al);
 }
 
-extern s8 gMusicVolume;
-extern s8 gSfxVolume;
-extern s16 D_807454F0[];
-extern f32 D_807457B8[];
-
 void seqUpdateVolume(s32 seqIndex) {
     f32 volume = gMusicVolume;
     s32 mode = sSfxFlagTable[D_80770560[seqIndex]] & 0xC00;
@@ -2195,8 +2383,6 @@ void seqSetChannelVolumeScale(s32 seqIndex, f32 scale) {
     D_807457B8[seqIndex] = scale;
     seqUpdateVolume(seqIndex);
 }
-
-extern f32 D_80770578[];
 
 void seqUpdateVolumeFades(void) {
     s8 i;
@@ -2235,8 +2421,6 @@ void seqSetVolumeInstant(s32 seqIndex, f32 volume) {
     seqUpdateVolume(seqIndex);
 }
 
-extern f32 D_80770588;
-
 void seqPlayWithDefaultVolume(s32 seqIndex, u8 seqId) {
     seqLoadAndPlay(seqIndex, seqId, D_80770588);
 }
@@ -2245,8 +2429,8 @@ void seqLoadAndPlayWithReverb(s32 seqIndex, u8 seqId, f32 volume) {
     f32 pan, vol;
 
     seqLoadAndPlay(seqIndex, seqId, volume);
-    pan = ((f64)(u32)D_8077058E * 0.3) / 255.0;
-    vol = (((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0;
+    pan = ((f64)(u32)D_8077058C[2] * 0.3) / 255.0;
+    vol = (((f64)(u32)D_8077058C[2] * 0.35) / 255.0) + 1.0;
     if (seqIndex != 0) {
         if (sSfxFlagTable[D_80770560[seqIndex]] & 1) {
             alCSPSetChlPanVolume(&gSeqPlayers[seqIndex]->al, pan, vol);
