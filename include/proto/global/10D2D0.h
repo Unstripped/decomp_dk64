@@ -11,7 +11,7 @@ Gfx *healthHudDraw(Gfx *, PlayerInventory *, KongInventory *, PlayerStruct *);
 void hudDrawItemWithAlpha(struct HealthHudInit *);
 #endif
 #ifndef PROTO_SKIP_healthApplyPendingDelta
-void healthApplyPendingDelta(s32, PlayerStruct *, PlayerInventory *, s32);
+void healthApplyPendingDelta(s32, PlayerStruct *, PlayerInventory *, KongInventory *);
 #endif
 #ifndef PROTO_SKIP_healthHudUpdateDraw
 Gfx *healthHudUpdateDraw(Gfx *, s16, PlayerStruct *);
