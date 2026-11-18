@@ -1,18 +1,26 @@
 # menuHandleHighScoreNameEntryInput (menu, src/menu/3E10.c)
 ## Sites
-menu:8002EF68:other:8f795c other: the comma assignment places the hold-frame store in the target schedule.
-menu:8002EF68:dead-if:a43a4a dead-if: repeated column reads retain the column-address candidate and its colour.
-menu:8002EF68:dead-if:6fbc84 dead-if: first `row == 0xF` extends the row/constant web; base key 969b12.
-menu:8002EF68:dead-if:6fbc84#2 dead-if: second row test completes the same lifetime constraint; base key 969b12#2.
-menu:8002EF68:other:0b7fb5 other: base key 085a79. A typed `MenuHighScoreEntry *entry` role local retires the byte-pointer cast; the split `entry = table; entry += row;` is a codegen-chosen respelling of `&table[row]` and stays tagged (lead ruling, Q0816 precedent).
+menu:8002EF68:other:8f795c other -> proposed `// ORIG:` (2026-11-17 CleanmenuInitMainScreen): the comma store is behaviour. The target stores D_800339C0 on the holdFrames != 1 path BEFORE the 0x10 test (sb v1 at 0x7290, slti at,v1,16 at 0x7294) and stores it again at the block head (sb v1 at 0x72a0): the path holdFrames != 1 && >= 0x10 stores twice. `(D_800339C0 = holdFrames) >= 0x10` reloads the byte for the test (lb t8 / slti at,t8,16: 73 rows); a store before the if moves the sb above `li at,1` (13 rows); an `else` store or `if (holdFrames != 1)` store adds blocks (64-158 rows).
+menu:8002EF68:dead-if:a43a4a dead-if: its two-block dead && at the press-block head keeps the block-head store `D_800339C0 = holdFrames` a direct `ustr` (lui at / sb v1 at 0x72a0) so the D_800339C0 lda web {30|0} ends at block 16 (adjsave 0, uncoloured), and puts D_80033F61 value/lda uses into the hold logic (lui a1 hoisted to 0x7264; {524|0} coloured before holdFrames, so holdFrames takes v1 and pressed v0). Without it: lda {30|0} live 13-18, adjsave 0.5, coloured v1 (62 rows).
+menu:8002EF68:dead-if:6fbc84 dead-if: with #2, two compares with 15 give constant {15|0} adjsave 0.5 -> v1 (li v1,15 at 0x72b8) and split the >= 0x10 block so the 15 store stays a direct `ustr` to S-var {30|1}; they also raise row (a0) above table (a2). Base key 969b12.
+menu:8002EF68:dead-if:6fbc84#2 dead-if: second compare of the same pair (base key 969b12#2); either one alone: 52 rows on the pointer-local body.
+menu:8002EF68:other:0b7fb5 other: FIXED by header request: MenuHighScoreEntry `u8 initials[4]` (layout unchanged); `p = &table[row].initials[D_80033F61];` gives the base-first `addu t3,a2,t1` at 0x72e4 and drops the `entry` local (shadow fdiff OK).
 ## Attempts
 - Previous rounds: direct `&table[row].initial0`, indexed variants, individual/coupled steer removal, uopt traces and long permutes all failed (see supplied history).
 - 2026-11-15 HackmenuHandleHighScoreNameEntryInput openai-codex/gpt-5.6-sol:high: `entry = table; entry += row; p = &entry->initial0 + D_80033F61` -> whole-file fdiff exit 0; at merge, `entry = &table[row]`, `entry = table + row`, `p = &table[row].initial0 + D_80033F61` each 10 rows.
 - 2026-11-15 HackmenuHandleHighScoreNameEntryInput openai-codex/gpt-5.6-sol:high: switch/fallthrough hold handling, named column locals, parity switch, and coupled remaining-steer removal -> no match.
+- 2026-11-17 CleanmenuInitMainScreen anthropic/claude-opus-5-5: array initials (file-local view first, then shadow actor.h): `&table[row].initials[col]` full=0 (0b7fb5 fixed); `(table + row)->initial0` 1 row.
+- 2026-11-17 CleanmenuInitMainScreen: hold-store grid (comma / assign-in-test / else-store / store-before-if) x (15 block: dead tests, `holdFrames = 0xF; D = holdFrames`, `D = 0xF`, `D = holdFrames = 0xF`, `holdFrames = D = 0xF`, `D = 0xF; holdFrames = 0xF`) x (a43a4a kept/removed): only comma + both dead-test kinds = 0; `> 0xF` spellings compile identically to `>= 0x10`.
+- 2026-11-17 CleanmenuInitMainScreen: `s8 *hold = &D_800339C0;` used for every counter access (ordinary C, 450 precedent): all dead tests removed 83 rows but shape 7 (every D_800339C0 access direct as in the target, D_80033F61 lui hoisted); with a43a4a kept and the 15 pair removed 58 rows shape 0 (row a2/table a0 swapped, 15 in t8 not v1); with all steers 0. Recipe scan (widths, declswap, float) on both: no zero (best 58).
+- 2026-11-17 CleanmenuInitMainScreen: `pressed = 0` at the else-block top (56), in an else arm (62), holdFrames ternary (62), column value locals at else/fade top (175-178), column pointer local for every D_80033F61 access (85-87).
+- 2026-11-17 CleanmenuInitMainScreen: function-local `static s8` for D_800339C0 (used only here, Q0995 pattern): same profile as the pointer local (all removed 83 text rows; all steers kept text 0, only the 8 .bss relocations differ). It would also need a menu .data carve (the counter sits in the shared `[0xEF50, data, 0]` blob at 0x800339C0).
+- 2026-11-17 CleanmenuInitMainScreen: permuter (hack-free weights, -j 2, 900 s) from the removal body (comma kept, dead tests removed, `&table[row]`): base 2637, best 800 (a long alias of holdFrames reused for gMenuHighScoreGame + 6). From the pointer-local initials[] body: base 1015, best 215 (pressed reused for `*hold + 1` or for gMenuHighScoreGame): steers only.
+- 2026-11-17 CleanmenuInitMainScreen: with `entry` gone the `s32 pad` local is no longer needed (objdiff OK without it): dropped.
 ## Untried ideas
-None in natural C after direct/indexed/compound pointer forms, coupled lifetime rewrites, switch forms, and declaration variants.
+- A natural second reference to constant 15 and to row inside the >= 0x10 block (on the pointer-local body the 15 pair only orders row a0 ahead of table a2 and gives li v1,15).
+- Something live across the hold logic that takes v0 before holdFrames (the dead && supplies the D_80033F61 value {524|0}, coloured v0 then deleted with the dead test); the permuter only found pressed reuse.
 ## Evidence
-- Target row address at text 0x72e4 requires the target operand order; direct typed indexing reverses that `addu` pair.
-- Splitting the typed cursor update into assignment plus compound addition preserves the target `sll/subu` scale and `addu` operand order (base-first); the single-expression forms reverse it.
-- The two row-test keys change because their expression now reuses the role-named `row`; deleting either still changes allocation (Q0469/Q0502).
-- Relevant guidance: Q0282, Q0469, Q0502, Q0602, Q0604, Q0813.
+- Hold logic: beqz t5 at 0x7260 with `lui a1,%hi(D_80033F61)` in its delay slot (0x7264); holdFrames v1 (lb/addiu/sll/sra 0x726c-0x727c, move v1,zero 0x7280); beq v1,at(1) 0x7284 with pressed=0 (move v0,zero) in the slot; sb v1 D_800339C0 0x7290; slti 0x7294; press head sb v1 0x72a0; slti 0x72a4; pressed = buttons (lw v0,52(sp) 0x72ac); li v1,15 0x72b8; sb v1 in the bnez slot 0x72c8.
+- Row address: sll/subu/sll a0 (row*6) 0x72d4-0x72e0, `addu t3,a2,t1` (table first) 0x72e4, `addu v1,t3,t2` (+col) 0x72ec, `addiu v1,v1,2` 0x72f4.
+- uopt (zdbug 5/6, base): holdFrames {68|0} v1, pressed {1447|0} v0, row {1303|0} a0, D_80033F61 lda {46|0} a1, table {1575|0} a2, const 15 {15|0} v1, D_80033F60 lda {1617|0} t0; D_800339C0 lda {30|0} uncoloured (adjsave 0).
+- Relevant guidance: Q0175, Q0282, Q0469, Q0502, Q0602, Q0604, Q0783, Q0813, Q0816, Q0922, Q0979, Q0995, Q1154.
