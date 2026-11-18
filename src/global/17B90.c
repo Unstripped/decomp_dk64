@@ -565,10 +565,10 @@ void controllerAnimSetState(Actor *actor, s16 animId, f32 animSpeed, f32 blend) 
 }
 
 void controllerAnimSetFromTable(Actor *actor, u16 animIndex, f32 animSpeed, u8 flags) {
-    u16 x = animIndex;
-    u16 idx = (u16)(7 * x + actor->actorType - 2);
-    if (x) {} // FAKE: dead test makes the copy of animIndex a ring temp (move t6,a1) and the sum v0
-    controllerAnimSetDirect(actor, gActorScriptAnimTable[idx], animSpeed, flags);
+    u16 tableIndex = animIndex * 7 + actor->actorType - 2;
+
+    animIndex = gActorScriptAnimTable[tableIndex];
+    controllerAnimSetDirect(actor, animIndex, animSpeed, flags);
 }
 
 void controllerAnimSetDirect(Actor *actor, u16 animId, f32 animSpeed, u8 flags) {
