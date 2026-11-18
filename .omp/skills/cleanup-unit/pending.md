@@ -221,7 +221,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   behaviourFairyInitPlayerScale goto, jetpac/1460 jetpacGridAddTiledSprite, boot/1630 noExpPakThread, 8F4B0 lightUpdateFromActorLighting +
   playerCameraUpdateFromTarget (new agent name: CleanlightUpdateFromActorLightingb was cancelled on a model fallback, nothing merged).
 - Decl consistency: 13980 `extern s8 D_80744510` (lb 0x620) vs 450.c `u8 D_80744510[28]`. ok-fine: architecture/camera "Remaining
-  hacks" (3 camComputeEyeFocus gotos, sStepEyeX..sStepLookZ statics) and playbooks/cleanup-merge-and-record numbers are stale.
+  hacks" (3 camComputeEyeFocus gotos, sStepEyeX..sStepLookZ statics) are stale.
 - HELD names (close applied every func_/D_ and function rename of the 17f + 18 lists that rename.py accepted): every struct FIELD
   proposal (17f PlayerState/PlayerStruct/ActorGlobalState/ModelSlot/ModelAnim*/Jetpac*/HealthHud lists, 18 PlayerState unk78/unk7C/unk80;
   a field rename needs a lead review of every touched function); slash-form multi-symbol lists (17f D_807444A8/AC/B0/B4 letterbox,
