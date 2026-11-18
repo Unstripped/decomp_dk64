@@ -3415,15 +3415,16 @@ void playerStateTransformHold(void) {
     gActivePlayerState->unkAC += 0.02;
     if (gActivePlayerState->unkAC > 1.0) {
         if (gActivePlayerState->damageSource != NULL) {
-            gActivePlayerState->unk98 = mathAtan2(gActivePlayerState->damageSource->x - gActivePlayerState->unk9C, gActivePlayerState->damageSource->z - gActivePlayerState->unkA0) * 4096.0f / 6.2831855f;
+            dx = gActivePlayerState->damageSource->x - gActivePlayerState->unk9C;
+            dz = gActivePlayerState->damageSource->z - gActivePlayerState->unkA0;
+            gActivePlayerState->unk98 = mathAtan2(dx, dz) * 4096.0f / 6.2831855f;
             if ((s16)gActivePlayerState->unk98 == gCurrentActor->yaw) {
                 playerResumeLocomotion(gCurrentActor);
             }
         }
         gActivePlayerState->unkAC = 1.0f;
     }
-    dx = gActivePlayerState->unkAC; // FAKE: reusing dx for the blend factor keeps dx in callee-saved $f20
-    gCurrentActor->x = gActivePlayerState->unk9C + (gActivePlayerState->unkA4 - gActivePlayerState->unk9C) * dx;
+    gCurrentActor->x = gActivePlayerState->unk9C + (gActivePlayerState->unkA4 - gActivePlayerState->unk9C) * gActivePlayerState->unkAC;
     gCurrentActor->z = gActivePlayerState->unkA0 + (gActivePlayerState->unkA8 - gActivePlayerState->unkA0) * gActivePlayerState->unkAC;
     playerApplyMotion();
     playerSelectWalkRunState(gCurrentActor, gActivePlayerState->unk94, gActivePlayerState->unk94, 0);
