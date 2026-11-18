@@ -209,7 +209,9 @@ typedef struct AnimInitData {
     /* 0x0C */ void *unkC;
     /* 0x10 */ void *unk10; // s16 animation node list (animListInit)
     /* 0x14 */ struct ControllerSubNode *segmentNodes;
-    /* 0x18 */ u8 pad18[8];
+    /* 0x18 */ u8 pad18[4];
+    /* 0x1C */ s16 height; // model height; actorCheckPlayerProximityVertical scales it by sub4->scaleY
+    /* 0x1E */ u8 pad1E[2];
     /* 0x20 */ u8 boneCount;
     /* 0x21 */ u8 displayListCount;
 } AnimInitData; // size = 0x24

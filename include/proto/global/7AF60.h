@@ -85,6 +85,6 @@ u8 actorCheckTargetOnSurfaceOrSmaller(Actor *, Actor *, ActorCollisionList *);
 s32 func_80676C64(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorListContainsId
-s32 actorListContainsId();
+s32 actorListContainsId(ActorCollisionList *, u8);
 #endif
 #endif

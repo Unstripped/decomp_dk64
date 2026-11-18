@@ -7,12 +7,6 @@
 #include "proto/global/7AF60.h"
 #include "proto/global/CEAE0.h"
 
-// Model header reached through Actor.animState.
-typedef struct ActorModelHeader {
-    u8 pad0[0x1C];
-    s16 unk1C;
-} ActorModelHeader;
-
 extern u8 D_807F6902;
 extern u8 gPlayerCount;
 extern PlayerStruct *gPlayerSlots;
@@ -54,7 +48,7 @@ u8 actorIsFacingTarget(Actor *actor, Actor *target, ActorCollisionList *list) {
 }
 
 u8 actorIsTargetAbovePitchThreshold(Actor *actor, Actor *target, ActorCollisionList *list) {
-    return (f64)mathCalculatePitchAngle(actor->x, actor->y, actor->z, target->x, target->y, target->z, 0) > 0.7;
+    return mathCalculatePitchAngle(actor->x, actor->y, actor->z, target->x, target->y, target->z, 0) > 0.7;
 }
 
 u8 actorIsTargetFallingFromAbove(Actor *actor, Actor *target, ActorCollisionList *list) {
@@ -114,7 +108,6 @@ s32 actorCheckPlayerProximityVertical(Actor *actor, Actor *player, ActorCollisio
     f32 topY;
     f32 dist;
     f32 threshold;
-    u32 type;
 
     if (player->collisionFlags & 1) {
         PlayerState *ps = player->customState;
@@ -127,15 +120,14 @@ s32 actorCheckPlayerProximityVertical(Actor *actor, Actor *player, ActorCollisio
         return 0;
     }
 
-    height = actor->sub4->scaleY * (f32)((ActorModelHeader *)actor->animState)->unk1C;
+    height = actor->sub4->scaleY * ((AnimInitData *)actor->animState)->height;
     topY = actor->y + height;
     if (player->y < topY) {
         dist = topY - player->y;
     } else {
         dist = -(topY - player->y);
     }
-    type = actor->actorType;
-    switch (type) {
+    switch (actor->actorType) {
         case 0x13:
         case 0x1A:
         case 0x55:
@@ -244,18 +236,14 @@ s32 func_80676C64(Actor *actor, Actor *target, ActorCollisionList *list) {
     return 0;
 }
 
-s32 actorListContainsId(list, id)
-ActorCollisionList *list;
-u8 id;
-{
+s32 actorListContainsId(ActorCollisionList *list, u8 id) {
     ActorCollisionEntry *entries = list->entries;
-    s32 i = 0;
+    s32 i;
 
-    while (i < list->count) {
+    for (i = 0; i < list->count; i++) {
         if (entries[i].id == id) {
             return 1;
         }
-        i++;
     }
     return 0;
 }
