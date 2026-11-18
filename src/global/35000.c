@@ -19,18 +19,21 @@ extern RenderEntry *D_807F5FF8;
 extern RenderEntry *D_807F5FFC;
 
 void renderEntryListsReset(void) {
-    D_807F5FF0 = 0;
-    D_807F5FF4 = 0;
-    D_807F5FF8 = 0;
-    D_807F5FFC = 0;
+    D_807F5FF0 = NULL;
+    D_807F5FF4 = NULL;
+    D_807F5FF8 = NULL;
+    D_807F5FFC = NULL;
 }
 
-s32 renderEntryIsTranslucent(u8 renderType, u8 *entryData) {
+s32 renderEntryIsTranslucent(u8 renderType, void *object) {
+    RenderQuadModelObj *quad;
+
     if (renderType == 2) {
-        if (entryData[0x4E] & 2) {
+        quad = object;
+        if (quad->flags & 2) {
             return 0;
         }
-        if (entryData[0x4E] & 1) {
+        if (quad->flags & 1) {
             return 1;
         }
         return 0;
@@ -49,7 +52,7 @@ s32 renderEntryIsTranslucent(u8 renderType, u8 *entryData) {
 
 void renderEntryListFreeTranslucent(void) {
     renderEntryListFree(D_807F5FF4);
-    D_807F5FF4 = 0;
+    D_807F5FF4 = NULL;
 }
 
 
@@ -355,7 +358,7 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *list, f32 camX, f32 camY
 
 extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern u8 D_807F6009;
-extern u8 D_2000180[];
+extern Mtx D_2000180;
 
 
 Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f32 camY, f32 camZ, s32 renderMask, s16 layer, u8 playerIndex) {
@@ -365,42 +368,40 @@ Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f3
 
     ok = 1;
     gDPPipeSync(glist++);
-    if (list != NULL) {
-        do {
-            type = list->unk24;
-            model = list->unk0;
-            if ((renderMask & 0x20) == 0 && type != 0 && type != 5) {
-                ok = 0;
+    while (list != NULL) {
+        type = list->unk24;
+        model = list->unk0;
+        if ((renderMask & 0x20) == 0 && type != 0 && type != 5) {
+            ok = 0;
+        }
+        if ((renderMask & 0x20000) == 0 && type == 5) {
+            ok = 0;
+        }
+        if ((renderMask & 0x10000) == 0 && type == 0 && (!(((Actor *)model)->flags & 0x40000000) || (gGlobalPauseFlags & 2))) {
+            ok = 0;
+        }
+        if (ok != 0) {
+            switch (type) {
+            case 0:
+                glist = renderActorEntryBuildDisplayList(gGfxCurrentFrameBuffer, model, glist, playerIndex);
+                gSPMatrix(glist++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                D_807F6009 = 0;
+                break;
+            case 1:
+                glist = renderModelAnimatedSlot(model, glist, list->unk4, list->unk8, list->unkC, 1, layer, playerIndex);
+                D_807F6009 = 1;
+                break;
+            case 2:
+                glist = renderModelQuadGfx(model, glist, camX, camY, camZ, 1, layer, playerIndex);
+                break;
+            case 5:
+                glist = effectGridBuildDisplayList(model, glist, layer);
+                break;
             }
-            if ((renderMask & 0x20000) == 0 && type == 5) {
-                ok = 0;
-            }
-            if ((renderMask & 0x10000) == 0 && type == 0 && (!(((Actor *)model)->flags & 0x40000000) || (gGlobalPauseFlags & 2))) {
-                ok = 0;
-            }
-            if (ok != 0) {
-                switch (type) {
-                case 0:
-                    glist = renderActorEntryBuildDisplayList(gGfxCurrentFrameBuffer, model, glist, playerIndex);
-                    gSPMatrix(glist++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    D_807F6009 = 0;
-                    break;
-                case 1:
-                    glist = renderModelAnimatedSlot(model, glist, list->unk4, list->unk8, list->unkC, 1, layer, playerIndex);
-                    D_807F6009 = 1;
-                    break;
-                case 2:
-                    glist = renderModelQuadGfx(model, glist, camX, camY, camZ, 1, layer, playerIndex);
-                    break;
-                case 5:
-                    glist = effectGridBuildDisplayList(model, glist, layer);
-                    break;
-                }
-            } else {
-                ok = 1;
-            }
-            list = list->unk14;
-        } while (list != NULL);
+        } else {
+            ok = 1;
+        }
+        list = list->unk14;
     }
     gDPPipeSync(glist++);
     return glist;
@@ -528,41 +529,40 @@ Gfx *renderActorEntryBuildDisplayList(FrameMatrices *frame, Actor *actor, Gfx *g
 
 
 void actorBuildModelMatrix(Actor *actor, f32 *dst) {
-    f32 sinA;
-    f32 cosA;
-    f32 sinB;
-    f32 cosB;
-    f32 sinC;
-    f32 cosC;
+    f32 cosPitch;
+    f32 sinPitch;
+    f32 cosRoll;
+    f32 sinRoll;
+    f32 cosYaw;
+    f32 sinYaw;
     f32 u;
     f32 us;
-    f32 pad0;
-    f32 t20;
+    f32 pad[2];
 
-    sinA = mathCosF(actor->pitch);
-    cosA = mathSinF(actor->pitch);
-    sinB = mathCosF(actor->roll);
-    cosB = mathSinF(actor->roll);
-    sinC = mathCosF(actor->yaw);
-    cosC = mathSinF(actor->yaw);
+    cosPitch = mathCosF(actor->pitch);
+    sinPitch = mathSinF(actor->pitch);
+    cosRoll = mathCosF(actor->roll);
+    sinRoll = mathSinF(actor->roll);
+    cosYaw = mathCosF(actor->yaw);
+    sinYaw = mathSinF(actor->yaw);
     u = actor->sub4->scaleX;
-    us = u * sinA;
-    u = u * cosA;
-    *dst++ = us * sinC + u * (cosB * cosC);
-    *dst++ = u * sinB;
-    *dst++ = (f32)u * (cosB * sinC) - us * cosC;
+    us = u * cosPitch;
+    u = u * sinPitch;
+    *dst++ = us * cosYaw + u * (sinRoll * sinYaw);
+    *dst++ = u * cosRoll;
+    *dst++ = -(us * sinYaw) + u * (sinRoll * cosYaw);
     *dst++ = 0.0f;
     u = actor->sub4->scaleY;
-    us = u * sinA;
-    u = u * cosA;
-    *dst++ = (f32)us * (cosB * cosC) - u * sinC;
-    *dst++ = us * sinB;
-    *dst++ = u * cosC + us * (cosB * sinC);
+    us = u * cosPitch;
+    u = u * sinPitch;
+    *dst++ = -(u * cosYaw) + us * (sinRoll * sinYaw);
+    *dst++ = us * cosRoll;
+    *dst++ = u * sinYaw + us * (sinRoll * cosYaw);
     *dst++ = 0.0f;
     u = actor->sub4->scaleZ;
-    *dst++ = u * sinB * cosC;
-    *dst++ = -u * cosB;
-    *dst++ = u * sinB * sinC;
+    *dst++ = u * cosRoll * sinYaw;
+    *dst++ = -u * sinRoll;
+    *dst++ = u * cosRoll * cosYaw;
     *dst++ = 0.0f;
     *dst++ = actor->x;
     *dst++ = actor->y;
@@ -582,42 +582,41 @@ void actorBuildModelMatrix(Actor *actor, f32 *dst) {
 
 
 
-void actorBuildModelMatrixFromAngles(Actor *actor, f32 *dst, f32 angleA, f32 angleB, f32 angleC) {
-    f32 sinA;
-    f32 cosA;
-    f32 sinB;
-    f32 cosB;
-    f32 sinC;
-    f32 cosC;
+void actorBuildModelMatrixFromAngles(Actor *actor, f32 *dst, f32 pitch, f32 roll, f32 yaw) {
+    f32 cosPitch;
+    f32 sinPitch;
+    f32 cosRoll;
+    f32 sinRoll;
+    f32 cosYaw;
+    f32 sinYaw;
     f32 u;
     f32 us;
-    f32 pad0;
-    f32 t20;
+    f32 pad[2];
 
-    sinA = mathCosF((s16)(s32)angleA);
-    cosA = mathSinF((s16)(s32)angleA);
-    sinB = mathCosF((s16)(s32)angleB);
-    cosB = mathSinF((s16)(s32)angleB);
-    sinC = mathCosF((s16)(s32)angleC);
-    cosC = mathSinF((s16)(s32)angleC);
+    cosPitch = mathCosF(pitch);
+    sinPitch = mathSinF(pitch);
+    cosRoll = mathCosF(roll);
+    sinRoll = mathSinF(roll);
+    cosYaw = mathCosF(yaw);
+    sinYaw = mathSinF(yaw);
     u = actor->sub4->scaleX;
-    us = u * sinA;
-    u = u * cosA;
-    *dst++ = us * sinC + u * (cosB * cosC);
-    *dst++ = u * sinB;
-    *dst++ = (f32)u * (cosB * sinC) - us * cosC;
+    us = u * cosPitch;
+    u = u * sinPitch;
+    *dst++ = us * cosYaw + u * (sinRoll * sinYaw);
+    *dst++ = u * cosRoll;
+    *dst++ = -(us * sinYaw) + u * (sinRoll * cosYaw);
     *dst++ = 0.0f;
     u = actor->sub4->scaleY;
-    us = u * sinA;
-    u = u * cosA;
-    *dst++ = (f32)us * (cosB * cosC) - u * sinC;
-    *dst++ = us * sinB;
-    *dst++ = u * cosC + us * (cosB * sinC);
+    us = u * cosPitch;
+    u = u * sinPitch;
+    *dst++ = -(u * cosYaw) + us * (sinRoll * sinYaw);
+    *dst++ = us * cosRoll;
+    *dst++ = u * sinYaw + us * (sinRoll * cosYaw);
     *dst++ = 0.0f;
     u = actor->sub4->scaleZ;
-    *dst++ = u * sinB * cosC;
-    *dst++ = -u * cosB;
-    *dst++ = u * sinB * sinC;
+    *dst++ = u * cosRoll * sinYaw;
+    *dst++ = -u * sinRoll;
+    *dst++ = u * cosRoll * cosYaw;
     *dst++ = 0.0f;
     *dst++ = actor->x;
     *dst++ = actor->y;
@@ -629,30 +628,30 @@ void actorBuildModelMatrixFromAngles(Actor *actor, f32 *dst, f32 angleA, f32 ang
 void actorUpdateModelMatrix(Actor *actor, u8 concat) {
     f32 tempMf[4][4];
     f32 padMf[4][4];
-    s16 angle;
-    s16 angDelta;
-    s16 calcAngleB;
-    s16 calcAngleC;
-    s16 x;
-    s16 y;
+    s16 relYaw;
+    s16 tilt;
+    s16 roll;
+    s16 yaw;
+    s16 pitch;
+    s16 pad;
 
     if (actor->flags & 1) {
-        angle = (actor->yaw - actor->floorSlopeYaw) & 0xFFF;
-        if (angle >= 0x801) {
-            angle -= 0x1000;
+        relYaw = (actor->yaw - actor->floorSlopeYaw) & 0xFFF;
+        if (relYaw >= 0x801) {
+            relYaw -= 0x1000;
         }
-        angDelta = (0x400 - actor->floorSlopePitch) & 0xFFF;
-        calcAngleB = (s32)(mathCosF(angle) * (f32)angDelta);
-        calcAngleB = (calcAngleB + actor->roll) & 0xFFF;
-        x = (s32)(mathSinF(angle) * (f32)angDelta);
-        x = (x + actor->pitch) & 0xFFF;
-        calcAngleC = actor->yaw;
+        tilt = (0x400 - actor->floorSlopePitch) & 0xFFF;
+        roll = mathCosF(relYaw) * tilt;
+        roll = (roll + actor->roll) & 0xFFF;
+        pitch = mathSinF(relYaw) * tilt;
+        pitch = (pitch + actor->pitch) & 0xFFF;
+        yaw = actor->yaw;
         if (concat != 0) {
-            actorBuildModelMatrixFromAngles(actor, (f32 *)tempMf, x, calcAngleB, calcAngleC);
+            actorBuildModelMatrixFromAngles(actor, (f32 *)tempMf, pitch, roll, yaw);
             guMtxCatF(actor->modelMtx, tempMf, actor->modelMtx);
             return;
         }
-        actorBuildModelMatrixFromAngles(actor, (f32 *)actor->modelMtx, x, calcAngleB, calcAngleC);
+        actorBuildModelMatrixFromAngles(actor, (f32 *)actor->modelMtx, pitch, roll, yaw);
         return;
     }
     if (concat != 0) {

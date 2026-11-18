@@ -8,7 +8,7 @@
 void renderEntryListsReset(void);
 #endif
 #ifndef PROTO_SKIP_renderEntryIsTranslucent
-s32 renderEntryIsTranslucent(u8, u8 *);
+s32 renderEntryIsTranslucent(u8, void *);
 #endif
 #ifndef PROTO_SKIP_renderEntryListFreeTranslucent
 void renderEntryListFreeTranslucent(void);
