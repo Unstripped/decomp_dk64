@@ -25,18 +25,19 @@
 
 typedef struct RaceRouteEvent { // per-route event row: applied when the racer reaches its waypoint (zone entry)
     s16 waypoint;
-    u8 pad2[2];
     f32 gravity;
     u8 action;
-    u8 pad9[3];
 } RaceRouteEvent;
 
 
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
-extern RaceRouteEvent D_8002FB10[];
-extern RaceRouteEvent D_8002FB70[];
+RaceRouteEvent D_8002FB10[8] = {
+    { 0x10, -360.0f, 0 }, { 0x11, -19.0f, 0 }, { 0x17, -20.0f, 1 }, { 0x1B, -360.0f, 0 },
+    { 0x1C, -17.0f, 0 }, { 0x33, -20.0f, 1 }, { 0x38, -20.0f, 2 }, { 0x3C, -20.0f, 2 },
+};
+RaceRouteEvent D_8002FB70[3] = { { 0x26, -20.0f, 1 }, { 0x28, -20.0f, 2 }, { 0x32, -20.0f, 2 } };
 
 void raceOpponentFollowWaypoints(void) {
     f32 speedDelta;
@@ -156,7 +157,7 @@ typedef struct RaceCoinRacerActor {
 
 
 extern Actor *gPrimaryPlayerActor;
-extern s32 raceResultCamPathIds[];
+s32 raceResultCamPathIds[5] = { 4, 1, 3, 2, 0 };
 
 
 f32 sqrtf(f32);

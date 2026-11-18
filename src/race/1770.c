@@ -195,8 +195,8 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
 }
 
 extern u8 gSparkEffectSprite[];
-extern void *D_8002FBB0[4];
-extern u8 gLightSlotNext;
+void *D_8002FBB0[4] = { 0 };
+u8 gLightSlotNext = 0;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     s16 angle;
     f32 dist;

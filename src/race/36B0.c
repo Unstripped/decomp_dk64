@@ -201,8 +201,10 @@ void raceTriggerBoostParticles(void) {
     }
 }
 
-extern RaceCurvePoint D_8002FBD0[];
-extern RaceVec3f D_8002FC00[];
+RaceCurvePoint D_8002FBD0[6] = {
+    { -1000.0f, 0.7f }, { -200.0f, 1.2f }, { -70.0f, 1.2f }, { 0.0f, 1.2f }, { 500.0f, 1.2f }, { 1000.0f, 2.4f },
+};
+RaceVec3f D_8002FC00[1] = { { 0.7f, 1.2f, 2.4f } };
 void raceAiUpdateSpeedAndLane(void) {
     RaceParticipant *state;
     RacePathState *cursor;
@@ -359,7 +361,7 @@ void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
     D_80770BC0[idx] = 1.0f;
 }
 
-extern s32 raceCarResultCamPathIds[];
+s32 raceCarResultCamPathIds[5] = { 2, 1, 4, 3, 0 };
 
 void raceOpponentCarBehaviorUpdate(void) {
     s32 pad70[2];

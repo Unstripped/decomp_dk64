@@ -28,7 +28,11 @@
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
 
-extern s32 D_8002FC5C[];
+RaceCurvePoint D_8002FC20[6] = {
+    { -1000.0f, 0.8f }, { -150.0f, 1.0f }, { -70.0f, 1.0f }, { 90.0f, 1.0f }, { 100.0f, 1.0f }, { 200.0f, 2.5f },
+};
+RaceVec3f D_8002FC50 = { 0.8f, 1.0f, 2.5f };
+s32 D_8002FC5C[5] = { 3, 0, 1, 2, 0 };
 
 // Competitor racers (raceCompetitorMotionUpdate): the participant record at 0x174 and the motion state
 // the shared 936B0 racer helpers step at 0x178.
@@ -172,8 +176,6 @@ void raceCompetitorMotionUpdate(void) {
 }
 
 extern s16 gTextNumberArg; // ORIG: this file declares it s16: the target keeps li t5,10 (0xf80, stored by sh at 0xfb8) apart from the idx * 10 sll/addu/sll at 0xf30-0xf3c, which the shared u16 extern in text.h merges into a multu
-extern RaceCurvePoint D_8002FC20[];
-extern RaceVec3f D_8002FC50;
 
 f32 raceRacerSteerTowardWaypoint(void) {
     s32 idx;

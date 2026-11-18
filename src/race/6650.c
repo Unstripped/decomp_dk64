@@ -33,8 +33,10 @@ extern u8 gPlayerCount;
 extern Actor *gSpawnedActor;
 extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
-extern RaceCurvePoint D_8002FC70[];
-extern RaceVec3f D_8002FCA0;
+RaceCurvePoint D_8002FC70[6] = {
+    { -1000.0f, 0.7f }, { -100.0f, 1.1f }, { -70.0f, 1.1f }, { 90.0f, 1.1f }, { 80.0f, 1.1f }, { 150.0f, 2.0f },
+};
+RaceVec3f D_8002FCA0 = { 0.7f, 1.1f, 2.0f };
 
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void actorInitFromSpawnPoint(void *, void *);
@@ -351,7 +353,7 @@ void racePlayIntroCameraCutscene(RaceParticipant *racerState, RaceTarget *target
     racePlayTireScreechSfx();
 }
 
-extern s32 D_8002FCAC[];
+s32 D_8002FCAC[5] = { 3, 0, 1, 2, 0 };
 
 s32 raceGetFinishCameraId(RaceParticipant *racerState, RaceParticipant *chased) {
     return D_8002FCAC[raceCheckLapCompletionThreshold(racerState, chased, 10)];

@@ -279,7 +279,7 @@ Gfx *raceInitHudDisplayList(Gfx *dl, RaceParticipant *tracker) {
     return dl;
 }
 
-extern s32 sRacePlaceTextIds[];
+s32 sRacePlaceTextIds[5] = { 4, 5, 6, 7, 8 };
 
 Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     RaceParticipant *managerData;
@@ -487,7 +487,7 @@ void raceInitBeetleRaceManager(void) {
 }
 
 extern Actor *gCurrentActor;
-extern s32 D_8002FCD4[];
+s32 D_8002FCD4[4] = { 0, 1, 2, 3 };
 
 void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     RaceParticipant *managerData;

@@ -50,7 +50,13 @@ segments:
       - [0x6650, c, 6650]
       - [0x7BD0, c, 7BD0]
       - [0xA960, c, A960]
-      - [0xBB10, data, 0]
+      - [0xBB10, .data, 0] # route events, raceResultCamPathIds (0x8002FB10-0x8002FBB0)
+      - [0xBBB0, .data, 1770] # D_8002FBB0 light effects, gLightSlotNext (0x8002FBB0-0x8002FBD0)
+      - [0xBBD0, .data, 36B0] # speed curve, raceCarResultCamPathIds (0x8002FBD0-0x8002FC20)
+      - [0xBC20, .data, 52B0] # speed curve, D_8002FC50, D_8002FC5C (0x8002FC20-0x8002FC70)
+      - [0xBC70, .data, 6650] # speed curve, D_8002FCA0, D_8002FCAC (0x8002FC70-0x8002FCC0)
+      - [0xBCC0, .data, 7BD0] # sRacePlaceTextIds, D_8002FCD4 (0x8002FCC0-0x8002FCF0)
+      - [0xBCF0, .data, A960] # sRaceRouteTable (0x8002FCF0-0x8002FD00)
       - [0xBD00, .rodata, 0]
       - [0xBDD0, .rodata, 1770]
       - [0xBE70, .rodata, 36B0]

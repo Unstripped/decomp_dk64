@@ -24,7 +24,7 @@ typedef struct RaceRouteTable {
     /* 0x0C */ RaceWaypoint *items2;
 } RaceRouteTable;
 
-extern RaceRouteTable *sRaceRouteTable;
+RaceRouteTable *sRaceRouteTable = NULL;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern PlayerStruct *gPlayerSlots;
