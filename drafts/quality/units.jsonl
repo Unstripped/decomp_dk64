@@ -1019,3 +1019,4 @@
 {"type": "unit", "t": "2026-11-18T04:11:50Z", "unit": "2026-11-17: cleanup CleanfaultDrawRegs", "commit": "dd3501780846cee3129e71496d5c92126597c8a7"}
 {"type": "unit", "t": "2026-11-18T04:16:22Z", "unit": "2026-11-17: cleanup CleanmapChunksApplyLights", "commit": "7b8cdfb7273636138aedb6a6dc6c7dac751b9585"}
 {"type": "unit", "t": "2026-11-18T04:17:49Z", "unit": "2026-11-17: cleanup CleanmodelEmitterSpawnJitterParticle", "commit": "2921ed32e4d8e007f20aa807ea19658f1ed13bf8"}
+{"type": "unit", "t": "2026-11-18T04:20:21Z", "unit": "2026-11-17: cleanup CleanscreenBlurApply", "commit": "4a8bee9e84299e0a6fa7934781d60574017abb57"}

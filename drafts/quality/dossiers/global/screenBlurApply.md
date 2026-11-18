@@ -1,11 +1,12 @@
 # screenBlurApply (global, src/global/2DE90.c)
 ## Sites
-global:8062A3F0:other:757606 other: `idx++;` before the g/b stores, which use idx - 1; puts the three byte-pointer IV increments (addiu v0/v1/a0 at 0x13b8-0x13c0) ahead of sb vg/vb at -1(v1)/-1(a0) (0x13c8/0x13d0), after sb vr,0(v0) at 0x1398
+global:8062A3F0:other:757606 other (FIXED 2026-11-17 CleanscreenBlurApply): `idx++;` before the g/b stores, which used idx - 1; put the three byte-pointer IV increments (addiu v0/v1/a0 at 0x13b8-0x13c0) ahead of sb vg/vb at -1(v1)/-1(a0) (0x13c8/0x13d0), after sb vr,0(v0) at 0x1398. Replaced by `for (i = 0; i < D_80747B28 / 2; i++, idx++)` with the stores in channel order.
 ## Attempts
 2026-11-11 r17 CleanGlobal2DE90 opus-5-5:low: three order steers tagged, two dropped after diagnosis; reconstruct (for loops) 4743; permute joint runs
 2026-11-11 r17 Rev17L opus-5-5:low: diagnose (stores before idx++ move the sb out of the loop tail), permute best 10 keeps early increment
-2026-11-14 HackscreenWipeStart opus-5-5:high: stores then idx++ (12), src++ before idx++ (2, addiu s1 order), b[idx++] (8), pointer cursors per channel (244), chained r[idx] = vr = (12-27), src++ in the for header (12), r[idx++] = vr + g/b idx - 1 (0, same steer); as1probe keep: the -1 offsets are already in ugen output; permuter 900 s from the natural body: best 10 changes behaviour
+2026-11-14 HackscreenWipeStart opus-5-5:high: stores then idx++ (12), src++ before idx++ (2, addiu s1 order), b[idx++] (8), pointer cursors per channel (244), chained r[idx] = vr = (12-27), src++ in the for header (12), r[idx++] = vr + g/b idx - 1 (0, same steer); as1probe keep: the -1 offsets are already in ugen output for the hacked body; permuter 900 s from the natural body: best 10 changes behaviour
+2026-11-17 CleanscreenBlurApply anthropic/claude-opus-5-5: idx++ in the loop-1 for step `i++, idx++` -> fdiff 0 (all body orders tried: original order, pix = *src++ with channel order, init inside or outside the header, idx++ before i++, step split over two physical lines: all 0); idx++ last in the body or joined onto the sumB line 12; idx gone with r[D_80747B28 / 2 + i] 249; 2D ring[3][0x34] 252; while (src < end) 200. Loops 2/3: idx++ in the for step 0 (idx++ at body end 3), `*dst++ =` 0, loop 2 uniform `sumX -= x[idx]; x[idx] = vX; sumX += vX` 0 (sum-first uniform 4). Sum inits sumR/sumG/sumB 12, chained 22, B/G/R 22 (t4/t5 tie): kept R/B/G. Condition through `lut` instead of D_80747B2C 25.
 ## Untried ideas
-none natural found: the target's ugen order needs the index increment between the r store and the g/b stores
+none open: no hack site left.
 ## Evidence
-Loop 1: 0x1370-0x137c IV inits r/g/b + half (v0/v1/a0), 0x1398 sb t6,0(v0), 0x13b8-0x13c4 addiu v0/v1/a0/s1, 0x13c8 sb t8,-1(v1), 0x13d0 sb t6,-1(a0). Stack arrays b sp+100, g sp+152, r sp+204.
+Loop 1: 0x1370-0x137c IV inits r/g/b + half (v0/v1/a0), 0x1384 addiu t2 (i), 0x1398 sb t6,0(v0), 0x13b8-0x13c4 addiu v0/v1/a0/s1, 0x13c8 sb t8,-1(v1), 0x13d0 sb t6,-1(a0). Stack arrays b sp+100, g sp+152, r sp+204. ugen (as1probe keep) of the for-step body: all three sb at offset 0, then i++ and the three advances under the for line .loc 145 before blt; as1 hoists the advances over the g/b sb rewriting offsets to -1. With idx++ as a body statement (own .loc) the advances stay after the stores (0x2b8-0x2c4 in that build).
