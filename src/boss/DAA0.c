@@ -70,7 +70,7 @@ void bossSpawnerUpdate(void) {
     f32 r;
     s32 level;
     s32 k;
-    s32 i;
+    s32 i; // FAKE: the loop counter reused as the case 0/1 step threshold and the light magnitude: one merged uopt range keeps all three in $t0 (a separate threshold or magnitude local recolours the function)
     BossSpawnerState *state;
     s8 prevSubState;
     s8 hitPlayer;
@@ -79,9 +79,9 @@ void bossSpawnerUpdate(void) {
     s8 topReached;
     BossFollowerLink *link;
     s32 cutsceneId;
-    f32 x;
-    f32 z;
-    s16 j;
+    f32 x; // FAKE: the case 1 player offset reused as the light position: a separate dx/dz pair recolours the offsets ($f12/$f0 -> $f2/$f12 at 0x3f0) and grows the frame 0x80 -> 0x88
+    f32 z; // FAKE: the case 1 player offset reused as the light position (see x)
+    s16 j; // FAKE: the case 7 loop counter reused as the case 0 repeat limit: the merged range colours the limit $a1 (0x650/0x668/0x6a0), a separate limit takes $v0
     static s8 sLightPulseTimer = 0;
     static s8 D_80035B6C = 0;
     static s16 sBounceLimit = 0;
