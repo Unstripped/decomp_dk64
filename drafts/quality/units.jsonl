@@ -1133,3 +1133,4 @@
 {"type": "unit", "t": "2026-11-18T11:45:10Z", "unit": "2026-11-17: cleanup CleanmapCellFindAtPoint", "commit": "511cfeac28731033ad8f32245a6e2b81a7cd32c3"}
 {"type": "unit", "t": "2026-11-18T11:46:39Z", "unit": "2026-11-17: cleanup PolishglobalE4090", "commit": "c365d62c75afd4653387c79426e02484969ebc9c"}
 {"type": "unit", "t": "2026-11-18T11:53:16Z", "unit": "2026-11-17: cleanup CleanplayerInputUpdateMoveTargetClamped2", "commit": "cd0af1f12882666897202b7fa75ed10849e55691"}
+{"type": "unit", "t": "2026-11-18T12:06:42Z", "unit": "2026-11-17: cleanup CleanmenuUpdateElementTargetAndColor", "commit": "4308fe28a6191953d5e525db79c101a8440fb941"}
