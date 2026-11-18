@@ -1099,3 +1099,4 @@
 {"type": "unit", "t": "2026-11-18T09:46:45Z", "unit": "2026-11-17: cleanup CleanactorAllocate", "commit": "fcc52ff62b42af74d88bfe765d581ff09f7d136a"}
 {"type": "unit", "t": "2026-11-18T09:53:23Z", "unit": "2026-11-17: cleanup CleanschedStartTask", "commit": "ff1903f8b2034d1a6da0dc6890e49615fdff37e7"}
 {"type": "unit", "t": "2026-11-18T09:54:47Z", "unit": "2026-11-17: cleanup CleanmodelSlotBuildTriangleBuffer", "commit": "0685a368487d0c2f2fcc65beabe591d07ab20dc1"}
+{"type": "unit", "t": "2026-11-18T10:04:34Z", "unit": "2026-11-17: cleanup CleanraceGetWaypointSegmentFraction", "commit": "2b33cd6ed2fcad01637d439f9de377349af58b50"}
