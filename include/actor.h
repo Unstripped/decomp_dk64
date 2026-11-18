@@ -1253,7 +1253,7 @@ extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
 extern SpawnNode *gBehaviourAnimState;
 extern SpawnNode *gBehaviourExtraState;
-extern SpawnEntry gSpawnEntryTable[];
+extern const SpawnEntry gSpawnEntryTable[];
 extern Zone *gBehaviourZone; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
 extern ZoneTable *gZoneTable;
 extern SpawnNodeList *gSpawnNodeList;

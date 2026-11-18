@@ -6,7 +6,7 @@
 #include "boss.h"
 struct BossB_Struct_800278F4;
 #ifndef PROTO_SKIP_bossInitScriptData
-void bossInitScriptData(u8 *);
+void bossInitScriptData(const u8 *);
 #endif
 #ifndef PROTO_SKIP_bossLerpCoords
 void bossLerpCoords(struct BossB_Struct_800278F4 *, f32, s16, s16);

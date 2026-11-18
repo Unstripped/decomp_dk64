@@ -804,7 +804,7 @@ u8 spawnNodeIdForActor(Actor *actor) {
 Actor *spawnNodeSpawnById(s16 id, s16 x, s16 y, s16 z, s16 yaw, s16 speed, s16 speedY) {
     s16 i;
     SpawnNode *node;
-    SpawnEntry *entry;
+    const SpawnEntry *entry;
 
     node = gSpawnNodeList->nodes;
     for (i = 0; i < gSpawnNodeList->count; i++, node++) {
@@ -934,7 +934,7 @@ void spawnNodesUpdate(void) {
     u8 active;
     s32 bestDistSq;
     s16 p;
-    SpawnEntry *entry;
+    const SpawnEntry *entry;
     f32 dz;
     f32 dx;
     s32 distSq;

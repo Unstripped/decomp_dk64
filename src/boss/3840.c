@@ -27,7 +27,7 @@
 #include "proto/global/7130.h"
 
 
-void bossInitScriptData(u8 *data) {
+void bossInitScriptData(const u8 *data) {
     s16 i;
     u8 (*dst)[2];
 

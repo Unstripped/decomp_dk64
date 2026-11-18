@@ -180,7 +180,7 @@ void behaviourUpdateShadowAlpha(void) {
     u8 shadowAlpha;
     u8 shadowWidth;
     u8 shadowDepth;
-    SpawnEntry *entry;
+    const SpawnEntry *entry;
     ActorSub4 *sub;
 
     if (!(gCurrentActor->flags & 0x1000000) && (gCurrentActor->flags & 4)) {
