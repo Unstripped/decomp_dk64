@@ -99,6 +99,186 @@ typedef struct CritterGroups {
     /* 0x04 */ CritterGroup *groups;
 } CritterGroups;
 
+typedef struct CritterZoneRow {
+    CritterZoneShape shape;
+    s16 yOffset;
+    s16 pad16;
+} CritterZoneRow;
+
+typedef struct { s16 v[3]; } CritterType3TexIds;
+typedef struct { s16 v[4]; } CritterType2TexIds;
+
+// This TU's .data (0x800297F0-0x80029F80), in address order: IDO emits .data in definition order.
+// Type 3 critter wing quads (func_80024C88).
+Vtx D_800297F0[4] = {
+    {{ { -28, 28, -20 }, 0, { 1024, 1024 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { -28, 28, 20 }, 0, { 1024, 0 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 0, 20 }, 0, { 0, 0 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 0, -20 }, 0, { 0, 1024 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+};
+Vtx D_80029830[4] = {
+    {{ { 0, 0, -20 }, 0, { 0, 1024 }, { 0xA5, 0xA5, 0xA5, 0xFF } }},
+    {{ { 0, 0, 20 }, 0, { 0, 0 }, { 0xA5, 0xA5, 0x78, 0xFF } }},
+    {{ { 28, 28, 20 }, 0, { 1024, 0 }, { 0xA5, 0xA5, 0xA5, 0xFF } }},
+    {{ { 28, 28, -20 }, 0, { 1024, 1024 }, { 0xA5, 0xA5, 0xA5, 0xFF } }},
+};
+// Type 1 critter (func_800247F4): body 0-5 (critterType1BodyDL), wings 6-9 and 7-12.
+Vtx critterType1Vtx[13] = {
+    {{ { 0, 9, 12 }, 0, { 285, 493 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -4, 33 }, 0, { -13, 305 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 13, -6, 12 }, 0, { 286, 265 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { -13, -6, 12 }, 0, { 286, 265 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -21, 13 }, 0, { 268, 48 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -13, -40 }, 0, { 1028, 160 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 13, -6, 12 }, 0, { 157, 105 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -13, -40 }, 0, { 1024, 0 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 5, 93, -22 }, 0, { 646, 1598 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 18, 83, 31 }, 0, { -215, 1451 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { -18, 83, 31 }, 0, { -215, 1451 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { -5, 93, -22 }, 0, { 646, 1598 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { -13, -6, 12 }, 0, { 157, 105 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+};
+// Type 2 critter (func_8002516C).
+Vtx critterType2TailVtx[4] = {
+    {{ { 0, -4, 0 }, 0, { 975, 436 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -24, -31 }, 0, { 1512, 94 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 26, -31 }, 0, { 1512, 944 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 5, 0 }, 0, { 975, 589 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+};
+Vtx critterType2BodyVtx[9] = {
+    {{ { -9, 1, 10 }, 0, { 335, 512 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -26, -14 }, 0, { 756, 49 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -21, 10 }, 0, { 332, 138 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 28, -14 }, 0, { 756, 975 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 5, -27 }, 0, { 975, 589 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 9, 1, 10 }, 0, { 335, 512 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, -4, -27 }, 0, { 975, 436 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 23, 10 }, 0, { 332, 886 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 1, 29 }, 0, { 14, 512 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+};
+// Type 4 critter (func_800255C4).
+Vtx critterType4Vtx[11] = {
+    {{ { -19, 13, 6 }, 0, { 418, 222 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 0, 23, -26 }, 0, { 938, 376 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { -18, 0, -17 }, 0, { 797, 16 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 29, -11 }, 0, { 691, 477 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { -23, 0, 0 }, 0, { 505, 16 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 0, 31 }, 0, { -3, 16 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 26, 11 }, 0, { 331, 428 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 0, 0, -31 }, 0, { 1024, 16 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 18, 0, -17 }, 0, { 797, 16 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+    {{ { 19, 13, 6 }, 0, { 418, 222 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
+    {{ { 23, 0, 0 }, 0, { 505, 16 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
+};
+// Render state shared by every critter type's setup list.
+Gfx D_80029AC0[11] = {
+    gsDPPipeSync(),
+    gsDPSetCycleType(G_CYC_1CYCLE),
+    gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2),
+    gsDPSetCombineMode(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM),
+    gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH),
+    gsDPSetTextureLOD(G_TL_TILE),
+    gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
+    gsDPSetTextureDetail(G_TD_CLAMP),
+    gsDPSetTextureFilter(G_TF_BILERP),
+    gsDPSetTextureLUT(G_TT_NONE),
+    gsSPEndDisplayList(),
+};
+// Per-type setup lists selected by critterRenderGroup (type 3, types 0/1).
+Gfx D_80029B18[3] = {
+    gsSPDisplayList(D_80029AC0),
+    gsSPClearGeometryMode(G_CULL_BOTH),
+    gsSPEndDisplayList(),
+};
+Gfx D_80029B30[2] = {
+    gsSPDisplayList(D_80029AC0),
+    gsSPEndDisplayList(),
+};
+Gfx critterType1BodyDL[7] = {
+    gsSP2Triangles(0, 1, 2, 0, 3, 1, 0, 0),
+    gsSP2Triangles(4, 1, 3, 0, 4, 2, 1, 0),
+    gsSP2Triangles(0, 2, 5, 0, 3, 0, 5, 0),
+    gsSP2Triangles(4, 3, 5, 0, 2, 4, 5, 0),
+    gsDPPipeSync(),
+    gsSPClearGeometryMode(G_CULL_BOTH),
+    gsSPEndDisplayList(),
+};
+// Setup lists for types 2 and 4.
+Gfx D_80029B78[2] = {
+    gsSPDisplayList(D_80029AC0),
+    gsSPEndDisplayList(),
+};
+Gfx D_80029B88[3] = {
+    gsSPDisplayList(D_80029AC0),
+    gsSPSetGeometryMode(G_CULL_BACK),
+    gsSPEndDisplayList(),
+};
+CritterGroups *critterGroups = NULL;
+CritterZone *critterPlayerZone = NULL;
+void *critterCurrentTexture = NULL;
+// Player proximity zone per character (gPlayerCharacterId) and group row (critterUpdateGroups).
+CritterZoneRow critterPlayerZoneRows[8][5] = {
+    {
+        { { 15, 225, 14, 40, 0, 0, 55, 3025 }, 20, 0 },
+        { { 20, 400, 24, 40, 0, 0, 60, 3600 }, 0, 0 },
+        { { 15, 225, 16, 30, 0, 0, 45, 2025 }, 12, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+    {
+        { { 15, 225, 12, 40, 0, 0, 55, 3025 }, 14, 0 },
+        { { 20, 400, 24, 40, 0, 0, 60, 3600 }, 0, 0 },
+        { { 15, 225, 14, 30, 0, 0, 45, 2025 }, 10, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+    {
+        { { 18, 324, 16, 40, 0, 0, 58, 3364 }, 20, 0 },
+        { { 20, 400, 24, 40, 0, 0, 60, 3600 }, 0, 0 },
+        { { 18, 324, 18, 30, 0, 0, 48, 2304 }, 12, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+    {
+        { { 15, 225, 16, 40, 0, 0, 55, 3025 }, 20, 0 },
+        { { 20, 400, 24, 40, 0, 0, 60, 3600 }, 0, 0 },
+        { { 15, 225, 18, 30, 0, 0, 45, 2025 }, 12, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+    {
+        { { 21, 441, 24, 40, 0, 0, 61, 3721 }, 24, 0 },
+        { { 20, 400, 24, 40, 0, 0, 60, 3600 }, 0, 0 },
+        { { 21, 441, 28, 30, 0, 0, 51, 2601 }, 18, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+    {
+        { { 21, 441, 24, 40, 0, 0, 61, 3721 }, 24, 0 },
+        { { 20, 400, 24, 40, 0, 0, 60, 3600 }, 0, 0 },
+        { { 21, 441, 28, 30, 0, 0, 51, 2601 }, 18, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+    {
+        { { 30, 900, 28, 40, 0, 0, 70, 4900 }, 30, 0 },
+        { { 20, 400, 24, 40, 0, 0, 60, 3600 }, 0, 0 },
+        { { 30, 900, 32, 30, 0, 0, 60, 3600 }, 22, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+    {
+        { { 15, 225, 12, 40, 0, 0, 55, 3025 }, 14, 0 },
+        { { 20, 400, 24, 20, 0, 0, 40, 1600 }, -10, 0 },
+        { { 15, 225, 14, 30, 0, 0, 45, 2025 }, 10, 0 },
+        { { 14, 196, 12, 20, 0, 0, 34, 1156 }, 8, 0 },
+        { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
+    },
+};
+CritterType3TexIds D_80029F6C = { { 0x77, 0x78, 0x79 } }; // critterInitGroupType3
+CritterType2TexIds D_80029F74 = { { 0x7C, 0x7D, 0x7E, 0x7F } }; // critterInitGroupType2
+f32 critterScaleFactor = 2.0f;
+
 void critterSetTargetSpeed(CritterObj *obj, CritterGroup *grp, f32 baseSpeed) {
     switch (grp->type) {
     case 0:
@@ -150,9 +330,6 @@ void critterInitGroupType01(CritterGroup *grp) {
     }
 }
 
-typedef struct { s16 v[3]; } CritterType3TexIds;
-extern CritterType3TexIds D_80029F6C;
-
 void critterInitGroupType3(CritterGroup *grp) {
     CritterObj *obj;
     s32 i;
@@ -171,8 +348,6 @@ void critterInitGroupType3(CritterGroup *grp) {
         obj->tex[0] = 0;
     }
 }
-typedef struct { s16 v[4]; } CritterType2TexIds;
-extern CritterType2TexIds D_80029F74;
 
 void critterInitGroupType2(CritterGroup *grp) {
     CritterObj *obj;
@@ -268,9 +443,6 @@ void critterUpdateObjType1(CritterObj *obj) {
 }
 
 extern u8 gGfxBufferIndex;
-extern Vtx critterType1Vtx[];
-extern Gfx critterType1BodyDL;
-extern void *critterCurrentTexture;
 
 Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     f32 rotMtx[4][4];
@@ -282,7 +454,7 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     critterBuildMatrix(obj);
     gSPMatrix(gdl++, &obj->mtx[0][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPVertex(gdl++, critterType1Vtx, 6, 0);
-    gSPDisplayList(gdl++, &critterType1BodyDL);
+    gSPDisplayList(gdl++, critterType1BodyDL);
     gDPLoadTextureBlock(gdl++, obj->tex[1], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 48, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 6, G_TX_NOLOD, G_TX_NOLOD);
     matrixMakeRotationZ(rotMtx, -flapAngle);
     guMtxF2L(rotMtx, &obj->mtx[1][gGfxBufferIndex]);
@@ -315,9 +487,6 @@ void critterUpdateObjType3(CritterObj *obj) {
     }
     critterUpdateAudio(obj);
 }
-
-extern Vtx D_800297F0[];
-extern Vtx D_80029830[];
 
 Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
     f32 rotMtx[4][4];
@@ -392,9 +561,6 @@ void critterUpdateObjType2(CritterObj *obj) {
     critterUpdateAudio(obj);
 }
 
-extern Vtx critterType2TailVtx[];
-extern Vtx critterType2BodyVtx[];
-
 Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
     f32 tailMtx[4][4];
     f32 finTransMtx[4][4];
@@ -441,8 +607,6 @@ void critterUpdateObjType4(CritterObj *obj) {
     }
     critterUpdateAudio(obj);
 }
-
-extern Vtx critterType4Vtx[];
 
 Gfx *func_800255C4(Gfx *gdl, CritterObj *obj) {
     if (critterCurrentTexture != obj->tex[0]) {
@@ -530,10 +694,6 @@ void critterBuildMatrix(CritterObj *obj) {
     guMtxF2L(transMtx, &obj->mtx[0][gGfxBufferIndex]);
 }
 
-extern Gfx D_80029B18;
-extern Gfx D_80029B30;
-extern Gfx D_80029B78;
-extern Gfx D_80029B88;
 extern s32 gMapChunkCount;
 
 Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
@@ -549,19 +709,19 @@ Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
     switch (grp->type) {
     case 0:
     case 1:
-        gSPDisplayList(gdl++, &D_80029B30);
+        gSPDisplayList(gdl++, D_80029B30);
         drawFn = func_800247F4;
         break;
     case 3:
-        gSPDisplayList(gdl++, &D_80029B18);
+        gSPDisplayList(gdl++, D_80029B18);
         drawFn = func_80024C88;
         break;
     case 2:
-        gSPDisplayList(gdl++, &D_80029B78);
+        gSPDisplayList(gdl++, D_80029B78);
         drawFn = func_8002516C;
         break;
     case 4:
-        gSPDisplayList(gdl++, &D_80029B88);
+        gSPDisplayList(gdl++, D_80029B88);
         drawFn = func_800255C4;
         break;
     }
@@ -646,7 +806,6 @@ void critterPlaceInZone(CritterZone *zone, CritterObj *obj, u8 isRandom) {
 }
 
 extern Actor *gActivePlayerActor;
-extern CritterZone *critterPlayerZone;
 
 void critterUpdateZoneProximity(CritterObj *obj) {
     f32 lim;
@@ -964,13 +1123,6 @@ void critterDispatchAll(CritterGroup *grp) {
     }
 }
 
-typedef struct CritterZoneRow {
-    CritterZoneShape shape;
-    s16 yOffset;
-    s16 pad16;
-} CritterZoneRow;
-extern CritterZoneRow critterPlayerZoneRows[][5];
-
 void critterUpdateGroups(CritterGroups *groups) {
     s32 i;
     CritterGroup *grp;
@@ -996,8 +1148,6 @@ void critterUpdateGroups(CritterGroups *groups) {
         }
     }
 }
-
-extern CritterGroups *critterGroups;
 
 void critterLoadData(u8 *data) {
     s32 groupIdx;
@@ -1076,8 +1226,6 @@ void critterCleanup(CritterGroup *grp) {
     grp->objs = NULL;
     grp->count = 0;
 }
-
-extern f32 critterScaleFactor;
 
 void critterInitGroup(CritterGroup *grp) {
     CritterObj *obj;

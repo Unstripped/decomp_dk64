@@ -23,8 +23,11 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 
-
-
+// This TU's .data (0x80029F80-0x80029FA0); IDO pads it to 16 bytes after D_80029F90.
+s8 D_80029F80 = 0; // progress through D_80029F90
+s8 D_80029F84 = 0;
+u16 D_80029F88[4] = { U_CBUTTONS, R_CBUTTONS, D_CBUTTONS, L_CBUTTONS }; // unreferenced
+u16 D_80029F90[4] = { U_JPAD, D_JPAD, L_JPAD, R_JPAD }; // button sequence read by critterBananaFairyUpdate
 
 void critterSetDigitFrames(s32 val) {
     s32 digit;
@@ -48,9 +51,6 @@ extern s16 D_807446D0[];
 extern s8 D_807446E0[];
 extern s8 D_807446EE;
 extern u16 gLevelCollectibleCounts[];
-extern u16 D_80029F90[];
-extern s8 D_80029F80;
-extern s8 D_80029F84;
 extern f32 D_8002A1B0;
 extern u8 D_8071FE08[];
 extern u8 D_80720A7C[];

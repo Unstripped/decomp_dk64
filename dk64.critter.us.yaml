@@ -47,7 +47,9 @@ segments:
       - [0x3340, c, 3340]
       - [0x4840, c, 4840]
       - [0x5110, c, 5110]
-      - [0x57F0, data, 0]
+      - [0x57F0, .data, 0] # vertices, display lists, critterGroups, critterPlayerZoneRows, critterScaleFactor (0x800297F0-0x80029F80)
+      - [0x5F80, .data, 3340] # D_80029F80, D_80029F84, button sequences D_80029F88/D_80029F90 (0x80029F80-0x80029FA0)
+      - [0x5FA0, .data, 5110] # D_80029FA0, D_80029FA4, D_80029FA8 (0x80029FA0-0x80029FB0)
       - [0x5FB0, .rodata, 0]
       - [0x60B0, .rodata, 3340]
       - [0x6170, .rodata, 4840]

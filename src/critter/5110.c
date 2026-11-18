@@ -17,14 +17,15 @@ typedef struct CritterBattleArenaState {
     s16 timeLimit;
 } CritterBattleArenaState;
 
+// This TU's .data (0x80029FA0-0x80029FB0). Global code (80150, 936B0, F9450) also decrements D_80029FA0.
+s8 D_80029FA0 = 0;
+u16 D_80029FA4 = 0;
+s8 D_80029FA8 = 0;
 
 s32 critterBitwiseNot(s32 val) {
     return ~val;
 }
 
-extern s8 D_80029FA0;
-extern u16 D_80029FA4;
-extern s8 D_80029FA8;
 extern u8 gGameMode;
 extern u8 D_807655F0[];
 extern s32 gCurrentMap;
