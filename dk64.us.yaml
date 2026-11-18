@@ -195,20 +195,21 @@ segments:
       - [0xFAE0, .data, 30E0] # method, exit_code (0x8000EEE0-0x8000EEE8 + 8-byte TU pad)
       - [0xFAF0, .data, 3630] # strtokSavePtr (0x8000EEF0-0x8000EEF4 + 12-byte TU pad)
       - [0xFB00, .data, libultra/io/vimgr]
-      - [0xFB20, data, libultra/io/vitbl]
+      - [0xFB20, .data, libultra/io/vitbl] # osViModeTable[56] (0x8000EF20-0x800100A0)
       - [0x10CA0, .data, libultra/os/initialize]
       - [0x10CC0, .data, libultra/io/aisetnextbuf]
       - [0x10CD0, .data, libultra/io/controller]
-      - [0x10CE0, data, libultra/os/thread]
+      - [0x10CE0, .data, libultra/os/thread] # __osThreadTail..__osFaultedThread (0x800100E0-0x800100F8 + 8-byte TU pad)
+      - [0x10D00, data, libultra/os/exceptasm] # D_80010100: exceptasm.s's own data (0x80010100-0x80010130)
       - [0x10D30, .data, libultra/io/vi]
       - [0x10DA0, .data, libultra/os/timerintr]
       - [0x10DB0, .data, libultra/io/pimgr]
       - [0x10DE0, .data, libultra/io/siacs]
       - [0x10DF0, .data, libultra/io/contramread]
       - [0x10E00, .data, libultra/io/piacs]
-      - [0x10E10, data, libultra/vimodes/vimodepallan1]
-      - [0x10E60, data, libultra/vimodes/vimodempallan1]
-      - [0x10EB0, data, libultra/vimodes/vimodentsclan1]
+      - [0x10E10, .data, libultra/vimodes/vimodepallan1] # osViModePalLan1 (0x80010210-0x80010260)
+      - [0x10E60, .data, libultra/vimodes/vimodempallan1] # osViModeMpalLan1 (0x80010260-0x800102B0)
+      - [0x10EB0, .data, libultra/vimodes/vimodentsclan1] # osViModeNtscLan1 (0x800102B0-0x80010300)
       - [0x10F00, .data, libultra/io/contpfs]
       - [0x10F10, .data, 3D20]
       - [0x10F60, .rodata, 3D20]
