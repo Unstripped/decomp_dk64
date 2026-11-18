@@ -1200,3 +1200,4 @@
 {"type": "unit", "t": "2026-11-18T18:48:07Z", "unit": "2026-11-18: cleanup CleancsCmdCameraVectorTargetUpdateb", "commit": "ebd6fa5aa746db2555e0de5662bb1a5d211e65c2"}
 {"type": "unit", "t": "2026-11-18T18:55:18Z", "unit": "2026-11-18: cleanup CleanmapChunksInitFromMapDatab", "commit": "84e331bdc66033bedd5523af88c4394e52e67e34"}
 {"type": "unit", "t": "2026-11-18T18:57:36Z", "unit": "2026-11-18: cleanup CleanbossMadJackStep", "commit": "d3002753d03669139b00d8a60486c8cfc2d5199c"}
+{"type": "unit", "t": "2026-11-18T18:59:58Z", "unit": "2026-11-18: cleanup CleanactorSetBoxEnableByIdb", "commit": "4d486e314985f2ebaee280107e7c2ca45eb92366"}
