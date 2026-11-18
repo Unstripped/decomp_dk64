@@ -1071,3 +1071,4 @@
 {"type": "unit", "t": "2026-11-18T07:59:18Z", "unit": "2026-11-17: cleanup CleanmapBspPlaneSideTest", "commit": "c33bc8208e854178ce5caba7470a49b40e13b9ac"}
 {"type": "unit", "t": "2026-11-18T08:01:22Z", "unit": "2026-11-17: cleanup CleanactorBoneChainSwingUpdate", "commit": "0ae1a37289e68152fd175a6fedeee2fff947d98e"}
 {"type": "unit", "t": "2026-11-18T08:07:25Z", "unit": "2026-11-17: cleanup CleanaudioThreadInit", "commit": "6c68621a7038d978351d3066af3788704fc1a752"}
+{"type": "unit", "t": "2026-11-18T08:15:19Z", "unit": "2026-11-17: cleanup CleaneffectSpriteRenderPool", "commit": "3462da3401597b0fb3b0b4d1b3c0863aa3d5cfcf"}
