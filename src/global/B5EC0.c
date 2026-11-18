@@ -20,6 +20,8 @@
 extern Actor *gCurrentActor;
 extern s32 sEffectSparkConfig;
 
+s32 D_80750600[5] = { 3, 4, 1, 2, 0 };
+
 void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     f32 x;
     f32 y;
@@ -261,7 +263,6 @@ void actorSetAnimStartFrame(u8 frame) {
 }
 
 extern u8 gCurrentWorldId;
-extern s32 D_80750600[];
 
 
 void func_806B1DD4(u8 mode) {

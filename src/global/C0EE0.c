@@ -46,7 +46,7 @@ typedef struct EnemyGridActor {
     /* 0x178 */ EnemyGridState *gridState;
 } EnemyGridActor;
 
-extern s8 D_80750650;
+s8 D_80750650 = 0;
 extern s8 gEnemyGridCells[16];
 
 void enemyGridStateStep(void) {

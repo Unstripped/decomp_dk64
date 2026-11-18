@@ -39,6 +39,17 @@ extern s16 gSfxSourceVoice[];
 extern f32 gSfxVoicePitch[];
 extern f32 D_80770BC0[];
 
+// The fairy cutscene's spawn order: entry i (counted down from 10) is the spawn-node id - 0x22 of the i-th child.
+typedef struct FairySpawnOrder {
+    u8 nodeOffset[11];
+} FairySpawnOrder;
+
+u8 D_80750620[8] = { 0x08, 0x05, 0x04, 0x07, 0x06, 0x01, 0x00, 0x00 }; // unreferenced; ends at D_80750628
+u8 D_80750628[16] = {
+    0x00, 0x08, 0x01, 0x01, 0x08, 0x04, 0x08, 0x06, 0x01, 0x02, 0x03, 0x05, 0x07, 0x00, 0x00, 0x00,
+};
+FairySpawnOrder gFairySpawnOrder = { { 0x00, 0x07, 0x05, 0x08, 0x06, 0x04, 0x01, 0x03, 0x02, 0x0A, 0x09 } };
+
 
 void behaviourArmadilloPatrol(void) {
     u16 animFlags = 0;
@@ -261,8 +272,6 @@ void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
     randX = randomNonNegative();
     effectCreateAtPosition(gPuffSprites[((randSprite >> 15) % 1000) % 3], ((randScale >> 15) % 256) * 0.001953125 + 0.5, ((randX >> 15) % 6) + (gCurrentActor->x - 3.0f), gCurrentActor->y + yOffset, ((randomNonNegative() >> 15) % 6) + (gCurrentActor->z - 3.0f));
 }
-
-extern u8 D_80750628[];
 
 s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 z) {
     f32 modelMtx[4][4];
@@ -716,15 +725,8 @@ void behaviourFairyPlaySound(void) {
     sfxAllocateChannel(0x3B, 1.0f);
 }
 
-// The fairy cutscene's spawn order: entry i (counted down from 10) is the spawn-node id - 0x22 of the i-th child.
-typedef struct FairySpawnOrder {
-    u8 nodeOffset[11];
-} FairySpawnOrder;
-
 extern PlayerState *gActivePlayerState;
 extern s32 gGlobalCutsceneFlags;
-
-extern FairySpawnOrder gFairySpawnOrder;
 
 void behaviourFairyWanderUpdate(void) {
     s16 i;
