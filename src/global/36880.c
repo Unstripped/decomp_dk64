@@ -2262,38 +2262,35 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
     ModelType1ObjAddrs *seg;
     ModelAssetHeader *obj;
     ModelSlotAsset *textures;
-    u32 temp;
+    u32 head;
     u32 cmds;
-    u32 count;
+    u32 tail;
     TexAnimNode *node;
     u8 res;
-    s16 flags; // FAKE: s16 width for the u8 unk8C copy steers it into a3 (target lbu a3,140(t9) at 0x44; u8 gives t0)
     u32 size0;
     u32 size1;
 
-    temp = (u32)slot->unk24;
+    obj = slot->unk24;
     seg = slot->unk20;
     textures = slot->unk20;
-    obj = (ModelAssetHeader *)temp;
-    obj->unk8 = gFrameCounter;
-    flags = slot->unk8C;
-    if (!(flags & 0x20)) {
+    slot->unk24->unk8 = gFrameCounter; // FAKE: store spelled as a re-read through slot->unk24 instead of obj; the target has ONE lw v0,36(a0) at 0x24 for both obj and the store (sw t8,8(v0) at 0x34, move s1,v0 at 0x40): the spelling only numbers that load candidate ahead of the slot->unk20 load
+    if (!(slot->unk8C & 0x20)) {
         if (!(obj->unk0 & 0x10) || force != 0) {
-            temp = (u32)seg; // FAKE: dead redefinition keeps obj's early web (v0) separate from obj (Q0546)
-            slot->unk8C = flags | 0x20;
+            slot->unk8C |= 0x20;
             obj->unk3C++;
             if (obj->modelKind == 1) {
-                count = seg->segmentData - seg->displayListB;
+                tail = seg->segmentData - seg->displayListB;
                 cmds = seg->displayListA;
-                temp = (seg->displayListB - cmds) >> 3; // FAKE: reuses obj's early pointer local for the command count so the B-A diff shares its colour v0 (pre-existing, now tagged; a dedicated count0 local swaps v0/v1: obj early web v1, displayListB v0)
-                count = count >> 3;
+                head = seg->displayListB - cmds;
+                head >>= 3;
+                tail >>= 3;
                 node = ((ModelType1ObjAddrs *)slot->unk20)->texAnims; // ORIG: the target reloads slot (lw t6,72(sp) at 0x90) and slot->unk20 (lw t7,32(t6) at 0xA0) for texAnims instead of reading seg (s0)
-                size0 = temp * 8;
-                temp = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
+                size0 = head * 8;
+                head = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
                 res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
                 cmds = seg->displayListB;
-                size1 = count * 8;
-                count = 0; // FAKE: dead store keeps size1 a variable instead of a propagated expression
+                size1 = tail * 8;
+                tail = 0; // FAKE: dead store keeps size1 a variable instead of a propagated expression
                 res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, force);
                 if (node != NULL) {
                     cmds = seg->displayListACopy;
@@ -2305,12 +2302,10 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
                 if (res != 0) {
                     obj->unk0 &= ~0x10;
                 }
+            } else if (textures->texAnims != NULL || forceLoad != 0) {
+                modelSlotLoadAssetTextures(obj, textures);
             } else {
-                if (textures->texAnims != NULL || forceLoad != 0) {
-                    modelSlotLoadAssetTextures(obj, textures);
-                } else {
-                    modelSlotClearAssetTextures(obj, textures);
-                }
+                modelSlotClearAssetTextures(obj, textures);
             }
         }
     }
