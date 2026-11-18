@@ -138,11 +138,8 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
 
 ## Session 2026-11-17e close leftovers (CleanupLead3; supersedes the 2026-11-17d list)
-- `rank`: 182 hack functions (304 sites), 14 with 3+ strength-3 attempts; the 48 entries Q1203-Q1250 staled 15 sites / 6 reviews
-  (next=review/diagnose: hudPauseMenuRender, camComputeEyeFocus, csCmdExec, arcadeDrawHud/Stage3Background, 1A60, 90D80). Two
-  prepared briefs not dispatched: `.scratch/briefs/HackactorTriggerPlayerKnockbackSound2.md`, `HackkongChainInit3.md` (re-snapshot).
 - Polish: 103AB0 playerViewDrawScopeCrosshair `(u16)targetKind` redundant under the ANSI u16 prototype (dd98f7bb).
-- Types items: shared `extern KongInventory *gCurrentKongInventory;` in actor.h for 7 per-file externs (103AB0 19A00 42630 7CA80 D5E10 E4090 EFDC0; measure the stale cost first); CsState/CsStateFull merge (above; 138 478F0 handlers); `gCsCondFlag` s8 (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split.
+- Types items: jetpac 0x8002BA80 Gfx split (gCurrentKongInventory 196d0644, gCsCondFlag 23d2164d and the CsState merge 11134d9a LANDED).
 - HELD names: RaceParticipant.unk35 phase; PlayerStruct.rect[4] scissor fields; ModelSlot.unk8C stateFlags; PlayerState.unk50 gravityDelayFrames (D5E10 use first);
   BehaviourWorkState.unk2E sfxCooldown (dry-run touches 11 unread files); race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed); gMinigameCoinCount (above).
 
@@ -212,5 +209,25 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
     `DropBounceState *state`.
   Hunks and evidence: .scratch/PolishglobalF9450/header-request.md. gridBuildNodeLists / gridCollectActorsInRange carry
   `views blocked` until it lands.
+
+## Session 2026-11-18 close leftovers (Lead20261118; closed at turn 4 on a provider model fallback)
+- NEXT TypesOwner batch (director: one batch, not now): (1) PlayerState 0x220..0x228 `f32 unk220[3]` (removes 478F0
+  csCmdCameraVectorTargetUpdate abbd3b; request .scratch/CleancsCmdCameraVectorTargetUpdateb/header-request.md, patches
+  fix/actor_h.patch + fix/D5E10.patch + fix/E4090.patch, fix copies fix/{478F0,D5E10,E4090}.c at 2291c741, shadow_fdiff.sh; users D5E10
+  playerInputHandleBButtonPunch/func_806DF280, E4090 playerInputCheckBButtonTarget; field TYPE change: measure the PlayerState stale cost
+  first, gate with the 478F0 body); (2) JetpacSprite (jetpac.h) == TextureDescriptor (render.h) field for field: merge them, then retype
+  dlAppendTextureLoad's `void *texture` (callers arcade/0.c, jetpac/1460.c:151; CleandlAppendTextureLoadb).
+- READY hack items, not dispatched (re-set base at dispatch, `.scratch/Lead20261118/items/*.json` + mkbrief.py): BDEE0
+  behaviourFairyInitPlayerScale goto, jetpac/1460 jetpacGridAddTiledSprite, boot/1630 noExpPakThread, 8F4B0 lightUpdateFromActorLighting +
+  playerCameraUpdateFromTarget (new agent name: CleanlightUpdateFromActorLightingb was cancelled on a model fallback, nothing merged).
+- Decl consistency: 13980 `extern s8 D_80744510` (lb 0x620) vs 450.c `u8 D_80744510[28]`. ok-fine: architecture/camera "Remaining
+  hacks" (3 camComputeEyeFocus gotos, sStepEyeX..sStepLookZ statics) and playbooks/cleanup-merge-and-record numbers are stale.
+- HELD names (close applied every func_/D_ and function rename of the 17f + 18 lists that rename.py accepted): every struct FIELD
+  proposal (17f PlayerState/PlayerStruct/ActorGlobalState/ModelSlot/ModelAnim*/Jetpac*/HealthHud lists, 18 PlayerState unk78/unk7C/unk80;
+  a field rename needs a lead review of every touched function); slash-form multi-symbol lists (17f D_807444A8/AC/B0/B4 letterbox,
+  D_800297F0/D_80029830 critter wing vtx, D_807F5D80.. wipe, D_807F6178/7C env, 10130 func_8060B750/7C4/7D0/6CC); uncertain/optional
+  ones (D_80753A08/A18 head heights, effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn/effectSpawnActorScale, gMenuBonusTimer ->
+  gHelmTimer, modelAnimEntrySet*); D_80035B38 (boss/DAA0, saves gPrimaryPlayerActor->unk144: `gBossSavedPlayerUnk144` refused as
+  address-shaped). Lists: `.scratch/Lead20261118/names_close.tsv` (applied: names_applied.tsv).
 
 ## OPEN functions: `uv run tools/quality.py rank` (full) or `status --file <f>`; round-34 snapshot `.scratch/r34_post_knowledge.txt`.

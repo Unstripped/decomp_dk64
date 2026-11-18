@@ -23,13 +23,14 @@ recorded the moment it reports; close once per session. AGENTS.md rules always a
 
 ## 0. Model
 
-Use the model the user named for every worker spawn (`task` `model`; none named: ask once). A `task` without a model
-parameter inherits the lead's model and thinking level: check each worker's session jsonl (`model_change`, `thinking_level_change`;
-17c: all `:high`) and tell the user if it differs. Never run `ledger.py plan`/`route`, never write
-`.scratch/routes/`, never use workpools routed by `.omp/extensions/decomp-router.ts`. Pass the
-spawned workers' selector (`provider/model:level`, e.g. `anthropic/claude-opus-5-5:xhigh`) to `merge_record.py --model`,
-read from the harness (`history://<agent>`, turn metadata), never from the report (a gpt worker reported opus, 2026-11-16c):
-fix a wrong one in dossiers through a lead `--copy-dir`. `rank` orders functions by the strongest model that tried them.
+Use the model the user named for every worker spawn (`task` `model`; none named: ask once). A `task` without a model parameter inherits
+the lead's model and thinking level: check each worker's session jsonl (`model_change`, `thinking_level_change`) and tell the user if it
+differs. Fallback: before merging, grep the jsonl for `resolvedModelIsFallback` (provider limits swap the model mid-run, 2026-11-18 →
+gpt-6.1-terra); cancel a running fallen-back worker and stop dispatching; one that already reported merges only after re-verifying its
+copy, with `--model <fallback selector>` and unit "<…> (mixed opus→<fallback> at <time>)". Never run `ledger.py plan`/`route`, write
+`.scratch/routes/` or use `.omp/extensions/decomp-router.ts` workpools. Pass the workers' selector (`provider/model:level`, e.g.
+`anthropic/claude-opus-5-5:xhigh`) to `merge_record.py --model`, read from the harness, never from the report (a gpt worker reported
+opus, 2026-11-16c; fix a wrong one through a lead `--copy-dir`). `rank` orders functions by the strongest model that tried them.
 
 ## 1. Ingest
 
@@ -48,8 +49,7 @@ fix a wrong one in dossiers through a lead `--copy-dir`. `rank` orders functions
 
 ## 2. Queue (rolling)
 
-Keep up to 6 workers plus one `TypesOwner` running. Never two agents on one src file; a file listed
-in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatched.
+Keep up to 6 workers plus one `TypesOwner` running. Never two agents on one src file; a file in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatched.
 - **Coverage first.** Until `report` shows `reviewed` equal to functions minus blocked ones (none since 2026-11-17d), dispatch
   only polish workers on `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review`
   (met once all are in flight). A blocked item waits for a director ruling: write the exact decision options (dispatch.md).
@@ -60,20 +60,16 @@ in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatch
 ## 3. Dispatch
 
 1. Base = `git rev-parse HEAD` at dispatch; `python3 tools/merge_drafts.py snapshot src/<seg>/<f>.c`.
-2. Fill the WHOLE [brief-hack.md](brief-hack.md) or [brief-polish.md](brief-polish.md) into `.scratch/briefs/<Agent>.md`.
-   Names: `Clean<FUNC>` (first function of the item), `Polish<seg><file>`, `TypesOwner`. Task context: "Read
-   `.scratch/briefs/<Agent>.md` FIRST and follow it exactly". A long history goes in `.scratch/briefs/<Agent>-history-<FUNC>.txt`.
-   Never start an agent name with "Hack": a precaution against security-sounding names (2026-11-17e saw some workers on another model; cause unverified).
-3. Hack items carry each function's `uv run tools/quality.py history <FUNC>` and its dossier path
-   `drafts/quality/dossiers/<seg>/<FUNC>.md` (if any) in the brief.
-4. Files of 100+ functions take 2–4 polish turns (per-turn request budgets): merge and record
-   between passes and send the agent back with the new base.
+2. Fill the WHOLE [brief-hack.md](brief-hack.md) or [brief-polish.md](brief-polish.md) into `.scratch/briefs/<Agent>.md`. Names: `Clean<FUNC>`
+   (first function of the item; `b` suffix if `.scratch/<name>` exists), `Polish<seg><file>`, `TypesOwner`; never a name starting "Hack" (17e:
+   some ran on another model). Task context: "Read `.scratch/briefs/<Agent>.md` FIRST and follow it exactly"; a long history goes in `<Agent>-history-<FUNC>.txt`.
+3. Hack items carry each function's `uv run tools/quality.py history <FUNC>` and dossier path `drafts/quality/dossiers/<seg>/<FUNC>.md` (if any).
+4. Files of 100+ functions take 2–4 polish turns (per-turn request budgets): merge and record between passes, send the agent back with the new base.
 
 ## 4. Types stream
 
-See [types-stream.md](types-stream.md). Workers never edit `include/`: they write the hunk to
-`.scratch/<A>/header-request.md` and message the lead, which forwards it to `TypesOwner`
-(`write agent://TypesOwner`) and gates its batches.
+See [types-stream.md](types-stream.md). Workers never edit `include/`: they write the hunk to `.scratch/<A>/header-request.md` and message
+the lead, which forwards it to `TypesOwner` (`write agent://TypesOwner`) and gates its batches (no batch open: pending.md, 478F0 abbd3b).
 
 ## 5. Merge
 
@@ -89,8 +85,9 @@ As each worker reports:
    [--keymap .scratch/<A>/keymap.txt] [--stage include/proto/<seg>/<f>.h] src/<seg>/<f>.c`. It gates
    (`merge_gate.sh --commit`), records at the base, `make expected`, sweeps, re-records at the merge
    commit (`--skip-missing`), records copy-only lines, carries, files dossiers, commits
-   `drafts/quality`. Read `MERGE_RECORD_OK`; on `MERGE_RECORD_FAIL: <step>` fix that step by hand and
-   run the remaining steps (its docstring lists them); never pipe it.
+   `drafts/quality`. Read `MERGE_RECORD_OK`; on `MERGE_RECORD_FAIL: <step>` fix that step by hand and run the remaining steps
+   (docstring); never pipe it. Then grep its log for `restored deleted local declaration` and diff src against the copy:
+   merge_drafts' restore check has false positives (a `case 'c':` char literal re-added `int c;`, fixed d22166c1).
 3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to
    `.scratch/s<YYYY-MM-DD>-knowledge-queue.md`; §6 files them once.
 4. Signature bundles (stand-in `PROTO_SKIP_`), worker header-request bundles (strip into a lead clean dir, `git apply` the
@@ -108,9 +105,12 @@ As each worker reports:
    in a test whose values the target uses, one macro for every recomputation, function-local statics, a selector local at its use,
    a local holding one field read for use (Q0601), a pointer local to a global used for EVERY access, a per-role local in a dropped
    local's or pads' slot, declaration order chosen for the frame (9BF30), a subject-first symmetric `==` of two fields in fresh
-   view-retype code (F0D0), bare truth tests, a flag's natural unsigned type, a mask written at its field's width. Steers: a trailing/
-   `else` continue, an empty `default:`, a dead clamp keeper, a constant-valued local (any name), a redundant alias (a second copy of
-   a value already in a local: a swap needing one is rejected), a value cast chosen for codegen, an operand-order/width/view respelling,
+   view-retype code (F0D0), bare truth tests, a flag's natural unsigned type, a mask written at its field's width, a byte-view local
+   used for every offset access beside the typed pointer (55B20 `u8 *file`), a constant-valued local the target converts or uses at run
+   time in a way no literal reproduces (Q0814: CEAE0 `li`/`mtc1`/`cvt.s.w`, every literal folds to `lui`), `/ 2.0` where the file
+   family halves that way and `* 0.5` fails (126260). Steers: a trailing/`else` continue, an empty `default:`, a dead clamp keeper,
+   any other constant-valued local, a redundant alias (a second copy of a value already in a local: a swap needing one is rejected),
+   a value cast chosen for codegen, an operand-order/width/view respelling,
    a single-use local whose only effect is a frame word (copy-propagated, `{ s32 _g; }` there matches too: a pad, 36880 1a2082).
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
    the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
