@@ -194,19 +194,20 @@ typedef struct { s32 offset; s16 minX; s16 minZ; s16 maxX; s16 maxZ; } MapChunkC
 
 void mapChunksInitFromMapData(MapFileHeader *data) {
     s32 i;
-    s32 off;
-    s32 base;
+    s32 collOff;
+    s32 dlBase;
     u8 *p;
+    u8 *file;
     u32 total;
     s32 n;
-    s32 chunkOff;
+    s32 chunksOff;
     s32 cellsOff;
     s32 boxesOff;
     s32 vecsOff;
     s32 portalsOff;
     s32 relocsOff;
     s32 entryOff;
-    u8 buf[0xE2C];
+    u8 buf[0xE28];
     s32 count;
     s32 k;
     s32 size;
@@ -215,57 +216,56 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
     gMapHasCellLitChunks = 0;
     D_807F70AB = 0;
     if (gMapChunkCount != 0) {
-        p = (u8 *)data;
+        file = (u8 *)data;
         gMapFogDist = data->fogDist;
         sMapChunkScaleMtx = heapAlloc(0x40);
         guScale(sMapChunkScaleMtx, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         cellsOff = data->cellsOff;
-        gMapCellCount = *(s32 *)(p + cellsOff);
-        gMapCells = (struct MapCell *)(p + cellsOff + 4);
+        gMapCellCount = *(s32 *)(file + cellsOff);
+        gMapCells = (struct MapCell *)(file + cellsOff + 4);
         boxesOff = data->boxesOff;
-        gMapCellBoxes = (struct MapBox *)(p + boxesOff + 4);
+        gMapCellBoxes = (struct MapBox *)(file + boxesOff + 4);
         vecsOff = data->vecsOff;
-        gMapGridTriangleVerts = (MapGridVectors *)(p + vecsOff);
+        gMapGridTriangleVerts = (MapGridVectors *)(file + vecsOff);
         if (data) {}  // FAKE: uopt block boundary (boxes holder gets a0, no call in its block)
-        off = data->collOff;
-        chunkOff = data->chunksOff;
-        base = data->dlBase;
+        collOff = data->collOff;
+        chunksOff = data->chunksOff;
+        dlBase = data->dlBase;
         portalsOff = data->portalsOff;
-        gMapPortalSlotCount = *(s32 *)(p + portalsOff);
-        gMapPortalSlots = (MapATpSlot *)(p + portalsOff + 4);
+        gMapPortalSlotCount = *(s32 *)(file + portalsOff);
+        gMapPortalSlots = (MapATpSlot *)(file + portalsOff + 4);
         gMapPortalVisible = heapAlloc(gMapPortalSlotCount);
         relocsOff = data->relocsOff;
-        gMapPortalCount = *(s32 *)(p + relocsOff);
-        gMapPortals = (MapPortal *)(p + relocsOff + 4);
+        gMapPortalCount = *(s32 *)(file + relocsOff);
+        gMapPortals = (MapPortal *)(file + relocsOff + 4);
         for (i = 0; i < gMapPortalCount; i++) {
             if (gMapPortals[i].dl0 != -1) {
-                gMapPortals[i].dl0 += (s32)(p + base);
-                if ((u32)data == (u32)gMapPortals[i].dl1) {} // FAKE: keep the pointer reload on the store path and data above the -1 constant in uopt priority
+                gMapPortals[i].dl0 += (s32)(file + dlBase);
             }
             if (gMapPortals[i].dl1 != -1) {
-                gMapPortals[i].dl1 += (s32)(p + base);
+                gMapPortals[i].dl1 += (s32)(file + dlBase);
             }
         }
-        gMapChunks = heapAlloc(gMapChunkCount * 0x1C8);
-        p = (u8 *)data + chunkOff;
+        gMapChunks = heapAlloc(gMapChunkCount * sizeof(MapChunk));
+        p = file + chunksOff;
         for (n = 0; n < gMapChunkCount; n++) {
             count = 0;
             gMapChunks[n].state = 0;
             gMapChunks[n].playerMask = 0;
-            gMapChunks[n].opaqueList = 0;
-            gMapChunks[n].translucentList = 0;
-            gMapChunks[n].sprites = 0;
+            gMapChunks[n].opaqueList = NULL;
+            gMapChunks[n].translucentList = NULL;
+            gMapChunks[n].sprites = NULL;
             gMapChunks[n].streamFlags = 4;
             gMapChunks[n].baseVtx = (u8 *)(*(s32 *)(p + 0x2C) + D_807F5DE8);
             gMapChunks[n].curVtx = gMapChunks[n].baseVtx;
-            lightSetTargetColor(p[0] / 255.0, p[1] / 255.0, p[2] / 255.0, (s16)n);
-            lightCopyTargetColors((s16)n);
+            lightSetTargetColor(p[0] / 255.0, p[1] / 255.0, p[2] / 255.0, n);
+            lightCopyTargetColors(n);
             gMapChunks[n].noSprites = p[3];
             p += 0xC;
             gMapChunks[n].kind = p[-8];
             gMapChunks[n].lightMode = *(s32 *)(p - 4);
             if (*(s32 *)p != -1) {
-                *(s32 *)p += (s32)((u8 *)data + base);
+                *(s32 *)p += (s32)(file + dlBase);
             }
             gMapChunks[n].layerDl0 = *(s32 *)p;
             p += 8;
@@ -276,7 +276,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
                 mapChunkBuildCellTable(gMapChunks[n].layerDl0, gMapChunks[n].layerSize0, buf, &count, 0, n);
             }
             if (*(s32 *)p != -1) {
-                *(s32 *)p += (s32)((u8 *)data + base);
+                *(s32 *)p += (s32)(file + dlBase);
             }
             gMapChunks[n].layerDl1 = *(s32 *)p;
             p += 8;
@@ -287,7 +287,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
                 mapChunkBuildCellTable(gMapChunks[n].layerDl1, size, buf, &count, 1, n);
             }
             if (*(s32 *)p != -1) {
-                *(s32 *)p += (s32)((u8 *)data + base);
+                *(s32 *)p += (s32)(file + dlBase);
             }
             gMapChunks[n].layerDl2 = *(s32 *)p;
             p += 8;
@@ -298,7 +298,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
                 mapChunkBuildCellTable(gMapChunks[n].layerDl2, size, buf, &count, 2, n);
             }
             if (*(s32 *)p != -1) {
-                *(s32 *)p += (s32)((u8 *)data + base);
+                *(s32 *)p += (s32)(file + dlBase);
             }
             gMapChunks[n].layerDl3 = *(s32 *)p;
             p += 8;
@@ -315,23 +315,23 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
             gMapChunks[n].litVtx[0] = NULL;
             gMapChunks[n].litVtx[1] = NULL;
             entryOff = n * sizeof(MapChunkCollEntry);
-            gMapChunks[n].collStart = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->offset + ((s32)data + off));
-            gMapChunks[n].collEnd = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))[1].offset + ((s32)data + off));
-            gMapChunks[n].minX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->minX;
-            gMapChunks[n].minZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->minZ;
-            gMapChunks[n].maxX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->maxX;
-            gMapChunks[n].maxZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + entryOff))->maxZ;
+            gMapChunks[n].collStart = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)file + collOff + 4) + entryOff))->offset + ((s32)file + collOff));
+            gMapChunks[n].collEnd = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)file + collOff + 4) + entryOff))[1].offset + ((s32)file + collOff));
+            gMapChunks[n].minX = ((MapChunkCollEntry *)((u8 *)((s32)file + collOff + 4) + entryOff))->minX;
+            gMapChunks[n].minZ = ((MapChunkCollEntry *)((u8 *)((s32)file + collOff + 4) + entryOff))->minZ;
+            gMapChunks[n].maxX = ((MapChunkCollEntry *)((u8 *)((s32)file + collOff + 4) + entryOff))->maxX;
+            gMapChunks[n].maxZ = ((MapChunkCollEntry *)((u8 *)((s32)file + collOff + 4) + entryOff))->maxZ;
             gMapChunks[n].lastSeenFrame = -1;
             if (count != 0) {
-                gMapChunks[n].cells = heapAlloc(count * 0x24);
-                memcpy(gMapChunks[n].cells, buf, count * 0x24);
+                gMapChunks[n].cells = heapAlloc(count * sizeof(MapChunkCell));
+                memcpy(gMapChunks[n].cells, buf, count * sizeof(MapChunkCell));
                 for (i = 0; i < count; i++) {
                     gMapChunks[n].cells[i].layerMask = 0xFF;
                 }
             }
             gMapChunks[n].cellCount = count;
         }
-        gMapGridTrianglePlanes = heapAlloc(gMapPortalSlotCount / 2 * 0x30);
+        gMapGridTrianglePlanes = heapAlloc(gMapPortalSlotCount / 2 * sizeof(MapGridPoint));
         for (k = 0; k < gMapPortalSlotCount / 2; k++) {
             mapGridTriangleBuildPlane(k, &gMapGridTrianglePlanes[k]);
         }
