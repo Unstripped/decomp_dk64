@@ -2027,7 +2027,7 @@ Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
                 continue;
             }
             found = 0;
-            node = gMapCells; p = (Gfx *)&gMapChunks[chunk].cells[i]; do { // LAYOUT: keeps lh a0 before lw v0 // FAKE: reusing the gfx parameter p as the cell pointer preserves its parameter precolor
+            node = gMapCells; p = (Gfx *)&gMapChunks[chunk].cells[i]; do { // FAKE: the gfx parameter p reused as the cell pointer keeps a0-a2 out of its web (cell in a3); the join with do { keeps lh a0 before lw v0 (swapped order on the line fails)
                 if (((MapChunkCell *)p)->id == node->id) {
                     found = 1;
                 } else {
@@ -2041,7 +2041,7 @@ Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
             if ((((MapChunkCell *)p)->layerMask & (1 << layer)) == 0) {
                 continue;
             }
-            gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapChunks[chunk].cells[i].vtx[layer]));
+            gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[chunk].cells[i].vtx[layer]));
             gDPPipeSync(gfx++);
             gSPDisplayList(gfx++, osVirtualToPhysical((void *)gMapChunks[chunk].cells[i].dl[layer]));
             gDPPipeSync(gfx++);
