@@ -1284,7 +1284,6 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
     i = 0;
     dot = node->unk4C * x + node->unk50 * y + node->unk54 * z + node->unk58;
     len = sqrtf(node->unk4C * node->unk4C + node->unk50 * node->unk50 + node->unk54 * node->unk54);
-    if (dot && dot) {}  // FAKE: offsets the dx use the guard below adds (dot stays whole in $f30); without that guard it changes nothing
     dist = dot / len;
     absd = dist;
     if (dist < 0.0) {
@@ -1300,7 +1299,7 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
         dx = D_807F5E20[i][0] - x;
         dy = D_807F5E20[i][1] - y;
         dz = D_807F5E20[i][2] - z;
-        if (dx) {}  // FAKE: block split after dz drops dx/dy/dz below d (d $f0, dx $f2, dy $f12, dz $f14); if (1) {} here alone matches both
+        if (1) {}  // FAKE: no-code block split after dz: dx/dy/dz drop below d (d $f0, dx $f2, dy $f12, dz $f14); replaces the dx guard and the dot guard that compensated its extra use
         d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
             t = dot / d;
