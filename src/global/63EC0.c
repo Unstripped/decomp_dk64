@@ -128,8 +128,8 @@ void effectWaterInitNodes(MapFileHeader *mapData) {
             break;
         }
 
-        gridDimX = ((s32)(base[i].maxX - base[i].minX) / base[i].gridStep) + 1;
-        gridDimZ = ((s32)(base[i].maxZ - base[i].minZ) / base[i].gridStep) + 1;
+        gridDimX = ((base[i].maxX - base[i].minX) / base[i].gridStep) + 1;
+        gridDimZ = ((base[i].maxZ - base[i].minZ) / base[i].gridStep) + 1;
         node->vtxCount = (gridDimX + 1) * (gridDimZ + 1);
 
         node->meshVtx[0] = heapAlloc(node->vtxCount * sizeof(Vtx));
