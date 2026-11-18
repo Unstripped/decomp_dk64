@@ -231,6 +231,8 @@ segments:
       - [0x14C450, data]
       - [0x14C9D0, .data, 2F550] # D_80747CD0 (cameraStepAspectScale's static f32, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad); 16-aligned, no other 2F550 data
       - [0x14C9E0, data]
+      - [0x14CDD0, .data, 478F0] # D_807480D0..D_807482EC (0x807480D0-0x807482F0, no pad): cutscene-command data, defined in src/global/478F0.c in address order before each first user; sHubItemsFrames/sHubItemsCycle (0x80748170/0x80748178) are csCmdHubWorldItemsAdjust's function-local statics, D_8074817C an unreferenced word; 16-aligned after 42630's D_807480BC, next TU data starts 16-aligned at 0x807482F0
+      - [0x14CFF0, data]
       - [0x1551E0, .data, ACDC0] # D_807504E0..D_807505F8 (0x807504E0-0x807505FA + 6-byte TU pad): pause-menu tables; sPauseSaveCooldown, D_807505D8, D_807505F8 are function-local statics of hudPauseMenuUpdate, hudPauseMenuBuildPage, hudDrawTwoOptionMenu, laid out in source order after the file-scope tables (defined above the functions)
       - [0x155300, data]
       - [0x155360, .data, C1E70] # D_80750660..D_807506B8 (0x80750660-0x807506C0, no pad): ring-node data; sRingSequence/sRingSequencePos (0x807506A8/0x807506B4) are actorNodeRingUpdate's function-local statics, laid out in source order between D_807506A4 and D_807506B8

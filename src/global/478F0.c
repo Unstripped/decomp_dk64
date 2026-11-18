@@ -446,9 +446,9 @@ void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
     modelSlotSetNodeFrame(csId, 1, q->frame, 0);
 }
 
-extern s16 D_807480D0;
-extern s16 D_807480D4;
-extern s16 D_807480D8;
+s16 D_807480D0 = 0xFF;
+s16 D_807480D4 = 0;
+s16 D_807480D8 = 0;
 
 void csCmdNodeSpotLight(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x1;
@@ -472,7 +472,7 @@ typedef struct CsFlicker {
 } CsFlicker;
 
 extern u8 gGameMode;
-extern f32 D_807480DC;
+f32 D_807480DC = 900.0f;
 extern u8 D_8077058C;
 extern u8 gAmbientIndoors;
 extern f32 D_80770DCC;
@@ -620,8 +620,8 @@ void csCmdSplineLights(CsState *cs, s16 csId, s16 b, s16 c) {
     csSplineLightStep(p + 1, 4, 0x18, 0.8f);
 }
 
-extern f32 D_807480E0;
-extern f32 D_807480E4;
+f32 D_807480E0 = 20.0f;
+f32 D_807480E4 = 35.0f;
 
 void csCmdNodeSpotLightFov(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x2;
@@ -668,8 +668,8 @@ void csCmdRandomPointEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern f32 D_807480E8;
-extern u8 D_807480EF;
+f32 D_807480E8 = 0.3f;
+u8 D_807480EC[4] = { 0, 0, 0, 0x96 };
 extern u8 D_80720CD8[];
 
 void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -684,7 +684,7 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetCallback(effectFallUpdate);
             effectSetDuration(-1);
             effectSetDepth(1);
-            effectSetColor(0xFF, 0xFF, 0xFF, D_807480EF);
+            effectSetColor(0xFF, 0xFF, 0xFF, D_807480EC[3]);
             effectCreateAtPosition(D_80720CD8, D_807480E8, gMinecartTrackPoints[b][idx].x, gMinecartTrackPoints[b][idx].y,
                           gMinecartTrackPoints[b][idx].z);
         }
@@ -943,16 +943,17 @@ typedef struct CsPointHitState {
 } CsPointHitState;
 
 
-extern u8 D_80748108;
-extern s32 D_807480F4;
-extern s32 D_807480F8;
-extern s32 D_807480FC;
-extern s32 D_80748100;
-extern f32 D_80748104;
-extern s32 D_8074810C;
-extern s32 D_80748110;
-extern s32 D_80748114;
-extern f32 D_807480F0;
+f32 D_807480F0 = 700.0f;
+s32 D_807480F4 = 0x320;
+s32 D_807480F8 = 0xA;
+s32 D_807480FC = 0x14;
+s32 D_80748100 = 0xC8;
+f32 D_80748104 = 0.5f;
+u8 D_80748108 = 0;
+s32 D_8074810C = 0x50;
+s32 D_80748110 = 0x28;
+s32 D_80748114 = 3;
+f32 D_80748118 = 80.0f;
 f32 sqrtf(f32);
 
 void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -1165,18 +1166,21 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern f32 D_8074811C;
-extern f32 D_80748120;
-extern f32 D_80748124;
-extern f32 D_80748128;
-extern s32 D_8074812C;
-extern s32 D_80748130;
-extern f32 D_80748140;
-extern f32 D_80748144;
-extern s32 D_80748148;
-extern f32 D_8074814C;
-extern s32 D_80748150;
-extern u8 D_80748154[];
+f32 D_8074811C = 40.0f;
+f32 D_80748120 = 600.0f;
+f32 D_80748124 = 150.0f;
+f32 D_80748128 = 0.5f;
+s32 D_8074812C = 0x258;
+s32 D_80748130 = 0x1F4;
+s32 D_80748134 = 0x190;
+f32 D_80748138 = 3.0f;
+s32 D_8074813C = 0x64;
+f32 D_80748140 = 7.0f;
+f32 D_80748144 = 1.5f;
+s32 D_80748148 = 0xA;
+f32 D_8074814C = 60.0f;
+s32 D_80748150 = 0x1C2;
+u8 D_80748154[20] = { 0, 0, 0, 2, 0, 0xC8, 0, 0, 0, 0xC8, 0, 0, 0, 0xFF, 0, 0, 0, 0xFF, 0, 0 };
 extern u8 D_80720BE8[];
 
 void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -1378,8 +1382,8 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     effectCreateAtPosition(D_80720DE0, 1.0f, x, y + 10, z);
 }
 
-extern u8 D_80748168[];
-extern f32 D_8074816C;
+u8 D_80748168[4] = { 0, 0, 0, 0x78 };
+f32 D_8074816C = 3.0f;
 
 void csCmdSpawnFallingSparkles(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1878,53 +1882,47 @@ void csCmdSpawnFallingWhiteSparks(CsState *cs, s16 csId, s16 b, s16 c) {
 extern u8 gCurrentWorldId;
 extern u8 D_807446F0[];
 extern s16 D_80744710[];
-extern s8 D_80748170[];
-extern s8 D_80748178;
 extern s16 D_807505AE[];
 
 void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
+    static s8 sHubItemsFrames[8] = { 1, 2, 3, 4 };
+    static s8 sHubItemsCycle = 0;
     s32 idx;
-    s32 base;
-    s8 v;
+    s32 slot;
     s8 add;
-    s32 base2;
+    s32 frame;
 
     if (b == 0) {
         idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
         if (idx >= 8) {
             idx = 0;
         }
-        base = D_807446F0[idx];
-        if (D_807505AE[base]) {} // FAKE: early read of D_807505AE[base] keeps base spilled across flagGet
+        slot = D_807446F0[idx];
         if (flagGet(D_80744710[idx], 0)) {
             modelSlotSetNodeFrame(csId, 1, 0xB, 0);
             modelSlotSetNodeFrame(csId, 2, 0xB, 0);
         } else if (mapHasCollectedSufficientItems()) {
-            modelSlotSetNodeFrame(csId, 1, D_80748170[base], 0);
-            modelSlotSetNodeFrame(csId, 2, D_80748170[base], 0);
+            modelSlotSetNodeFrame(csId, 1, sHubItemsFrames[slot], 0);
+            modelSlotSetNodeFrame(csId, 2, sHubItemsFrames[slot], 0);
         } else {
             modelSlotSetNodeFrame(csId, 1, 0xA, 0);
             modelSlotSetNodeFrame(csId, 2, 0xA, 0);
         }
     } else {
-        v = D_80748178 + 1;
-        if (gCurrentWorldId && gCurrentWorldId) {} // FAKE: dead read of gCurrentWorldId keeps D_80748178 in v1 (v0 without it)
-        if (v >= 0x15) {
-            v = 0;
+        sHubItemsCycle++;
+        if (sHubItemsCycle >= 0x15) {
+            sHubItemsCycle = 0;
         }
-        idx = v >> 2;
-        base2 = D_80748170[idx];
-        if (D_807446F0[base]) {} // FAKE: dead read steers the else-arm temp numbering
-        D_80748178 = v;
-        if (idx > 0 && flagGet(D_807505AE[idx], 0) == 0) {
+        slot = sHubItemsCycle >> 2;
+        frame = sHubItemsFrames[slot];
+        if (slot > 0 && flagGet(D_807505AE[slot], 0) == 0) {
             add = 5;
         } else {
             add = 0;
         }
-        idx = base2;
+        idx = frame;
         idx += add;
         modelSlotSetNodeFrame(csId, 1, idx, 0);
-        if (D_80748178 == 0) {} // FAKE: re-read keeps D_80748178 addressed via lui/%lo instead of a CSE'd address register
         modelSlotSetNodeFrame(csId, 2, idx, 0);
     }
 }
@@ -2061,7 +2059,25 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-extern s16 D_80748180[][2];
+s32 D_8074817C = 0;
+s16 D_80748180[16][2] = {
+    { 0x28, 0x19 },
+    { 0x29, 0x1F },
+    { 0x2A, 0x1B },
+    { 0x2B, 0x26 },
+    { 0x2C, 0x1C },
+    { 0x2D, 0x28 },
+    { 0x2E, 0x27 },
+    { 0x2F, 0x24 },
+    { 0x30, 0x1A },
+    { 0x31, 0x25 },
+    { 0x32, 0x23 },
+    { 0x33, 0x1E },
+    { 0x34, 0x1D },
+    { 0x35, 0x21 },
+    { 0x36, 0x22 },
+    { 0x37, 0x20 },
+};
 
 // cs->data: s32[2] heap block: [0] steps counted in sequence, [1] the previous cs->unk48[0] (-1: none yet).
 void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2123,7 +2139,21 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-extern s16 D_807481C0[][2];
+s16 D_807481C0[13][2] = {
+    { 0x3F, 0x32 },
+    { 0x42, 0x1E },
+    { 0x44, 0xA },
+    { 0x46, 1 },
+    { 0x47, 0x1E },
+    { 0x49, 0xA },
+    { 0x4B, 1 },
+    { 0x40, 0x28 },
+    { 0x43, 0x14 },
+    { 0x45, 6 },
+    { 0x41, 0x28 },
+    { 0x48, 0x14 },
+    { 0x4A, 6 },
+};
 
 void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 key;
@@ -2148,9 +2178,7 @@ void csCmdSetParam49(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern s16 gCsModelIds[];
-extern s16 D_807481F4[];
-extern s16 D_807481F6[];
-extern u8 D_80748212[];
+s16 D_807481F4[16] = { 0x53, 0x52, 0x55, 0x56, 0x5A, 0x5E, 0x5D, 0x59, 0x58, 0x5C, 0x5B, 0x57, 0x50, 0x54, 0x51, 0x4F };
 
 void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *st;
@@ -2174,11 +2202,11 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
                 i++;
             }
         }
-        if (&D_807481F4[i] < (s16 *)D_80748212) {
+        if (&D_807481F4[i] < &D_807481F4[15]) {
             csModelStateTrySetByte(D_807481F4[i + 1], 0xA, 0);
             csSetObjectTrackParam(gModelSlots[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].unk7C, 0, 0);
         }
-        if (&D_807481F4[i] >= D_807481F6) {
+        if (&D_807481F4[i] >= &D_807481F4[1]) {
             csModelStateTrySetByte(D_807481F4[i - 1], 0x14, 0);
         }
         st[1] = cs->unk48[1];
@@ -2223,7 +2251,7 @@ void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
 void csCmdNop(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
-extern u8 D_80748214[];
+u8 D_80748214[24] = { 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x27, 0x1E, 0x1F, 0x21, 0x20, 0x22, 0x24, 0x23, 0x25, 0 };
 
 void csCmdFindSlotIdMatch(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 found;
@@ -2379,8 +2407,28 @@ typedef struct CsNodePair {
     /* 0x0 */ s16 a;
     /* 0x2 */ s16 b;
 } CsNodePair;
-extern s16 D_8074822C[][2];
-extern CsNodePair D_80748244[];
+s16 D_8074822C[6][2] = {
+    { 1, 4 },
+    { 2, 7 },
+    { 3, 6 },
+    { 5, 9 },
+    { 8, 0xB },
+    { 0xA, 0xC },
+};
+CsNodePair D_80748244[15] = {
+    { 0x15, 0x16 },
+    { 0x17, 0x18 },
+    { 0xD, 0xE },
+    { 0xF, 0x10 },
+    { 5, 6 },
+    { 7, 8 },
+    { 0x11, 0x12 },
+    { 0x13, 0x14 },
+    { 9, 0xA },
+    { 0xB, 0xC },
+    { 1, 2 },
+    { 3, 4 },
+};
 
 void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *p;
@@ -2668,9 +2716,14 @@ void csCmdSetAudioUnk3(CsState *cs, s16 csId, s16 b, s16 c) {
     spawnNodesSetRespawnHold(3);
 }
 
-extern f32 D_80748280[];
-extern f32 D_8074828C[];
-extern f32 D_807482A4;
+f32 D_80748280[3] = { 0.3f, 0.3f, 0.6f };
+f32 D_8074828C[3] = { 1.0f, 1.0f, 1.0f };
+s32 D_80748298 = 0x1000000;
+s32 D_8074829C = 0;
+s32 D_807482A0 = 0;
+f32 D_807482A4 = 0.01f;
+s32 D_807482A8 = 0;
+s32 D_807482AC = 0;
 extern s32 gMapChunkCount;
 void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 r, g, bl;
@@ -3164,7 +3217,7 @@ typedef struct {
 extern f32 D_807F61FC;
 extern f32 D_807F6200;
 extern f32 D_807F6204;
-extern s16 D_807482B0;
+s16 D_807482B0 = 0;
 
 void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad0;
@@ -3320,15 +3373,16 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern s32 D_807482B4;
-extern s32 D_807482B8;
-extern s32 D_807482BC;
-extern s32 D_807482C0;
-extern s32 D_807482C4;
-extern s32 D_807482C8;
-extern f32 D_807482CC;
-extern s32 D_807482D0;
-extern f32 D_807482D8;
+s32 D_807482B4 = 0x50;
+s32 D_807482B8 = 1;
+s32 D_807482BC = 0x1E;
+s32 D_807482C0 = 0x19;
+s32 D_807482C4 = 0x82;
+s32 D_807482C8 = 5;
+f32 D_807482CC = 0.08f;
+s32 D_807482D0 = 2;
+s32 D_807482D4 = 2;
+f32 D_807482D8 = 0.95f;
 
 typedef struct {
     s32 phase;
@@ -3683,7 +3737,7 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
 }
 
 typedef struct { u8 b[4]; } CsPat4;
-extern CsPat4 D_807482DC;
+CsPat4 D_807482DC = { { 4, 3, 2, 1 } };
 
 void csCmdSeqMatchPattern4(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat4 pat = D_807482DC;
@@ -3692,7 +3746,7 @@ void csCmdSeqMatchPattern4(CsState *cs, s16 csId, s16 val, s16 c) {
 }
 
 typedef struct { u8 b[5]; } CsPat5;
-extern CsPat5 D_807482E0;
+CsPat5 D_807482E0 = { { 2, 3, 1, 1, 2 } };
 
 void csCmdSeqMatchPattern5(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat5 pat = D_807482E0;
@@ -3701,7 +3755,7 @@ void csCmdSeqMatchPattern5(CsState *cs, s16 csId, s16 val, s16 c) {
 }
 
 typedef struct { u8 b[3]; } CsPat3;
-extern CsPat3 D_807482E8;
+CsPat3 D_807482E8 = { { 3, 4, 1 } };
 
 void csCmdSeqMatchPattern3(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat3 pat = D_807482E8;
@@ -3709,7 +3763,7 @@ void csCmdSeqMatchPattern3(CsState *cs, s16 csId, s16 val, s16 c) {
     csSeqMatch(cs, csId, val, pat.b, 3, 7, 0x14);
 }
 
-extern CsPat4 D_807482EC;
+CsPat4 D_807482EC = { { 3, 2, 1, 0 } };
 
 void csCmdSeqMatchPattern4B(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat4 pat = D_807482EC;
