@@ -301,10 +301,7 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
 
     for (i = 0; i < gBillboardQueueCount; i++) {
         if (layer == gBillboardQueue[i].layer) {
-            BillboardData *bb;
-
             gDPPipeSync(gdl++);
-            bb = &gBillboardQueue[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
             if (blendMode != 0 && (gBillboardQueue[i].renderFlags & 1)) {
                 gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
                 blendMode = 0;
@@ -353,8 +350,8 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
                     break;
                 }
             }
-            gSPMatrix(gdl++, osVirtualToPhysical(&bb->matrices[gGfxBufferIndex]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-            gSPVertex(gdl++, osVirtualToPhysical(&bb->verts[gGfxBufferIndex][0]), 4, 0);
+            gSPMatrix(gdl++, osVirtualToPhysical(&gBillboardQueue[i].matrices[gGfxBufferIndex]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            gSPVertex(gdl++, osVirtualToPhysical(&gBillboardQueue[i].verts[gGfxBufferIndex][0]), 4, 0);
             gSP2Triangles(gdl++, 0, 3, 1, 0, 0, 2, 3, 0);
             gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
         }
