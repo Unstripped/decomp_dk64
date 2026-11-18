@@ -7,6 +7,9 @@
 - other 82a569 (cutsceneId as light level): FIXED. `s32 level` in the old pad slot, used for raw level and the `(i << 4) & 0xFF` intensity.
 - dead-if f9b7c2 (`if (D_80035B68 == 0) {}` case 1): FIXED via Q0498: D_80035B68/D_80035B6C become function-local statics (only user). Object differs only in relocations (.data+0x68/+0x6c instead of the two global symbols); `fdiff --reloc-ok` RELOC-EQUIV OK, raw words equal except LO16 addends, .data/.rodata bytes identical.
 - dead-if 3e88fe (was 0e256f, `if (level && level) {}`): KEPT tagged. The guard splits the block after `level = (i << 4) & 0xFF`, so the first lightAdd's `(u8)level` args are a global copy-propagation product with a late candidate bit (base trace: `ucvtl{and}` bit 443 after `ucvtl{level}` bit 427). spilltemps then gives the call-crossing intensity temp the second slot 0x44 (`sw v0,68(sp)` at 0xeec, `lw v0,68(sp)` at 0xf3c); 0x48 is held by the lower bit. Without the guard same-block forwarding (Q0499) substitutes the expression into the args (double `andi`, v0 home 0x48).
+- other 39fa37 (`s32 i`, tagged 2026-11-18, pre-existing): loop counter (t0, home 0x70 spills 0xb8/0xd4, 0x2ec/0x2f4), case 0/1 step threshold (li t0 0x640/0x664/0x770/0x784/0x798) and light magnitude (move t0,v0 0xe60) share one uopt range in t0; never stored to the home outside the loops.
+- other 926eea (`s16 j`, tagged 2026-11-18, pre-existing): case 7 loop counter (a1, home 0x52 at 0xc60/0xc6c) and case 0 repeat limit (li a1 0x650/0x668, slt at,t3,a1 0x6a0): merged bit 227 adjsave 14.67 forbidden [1 3] -> $a1; a split limit (adjsave 1.5) takes $v0.
+- other 9b9b60 / df676c (`f32 x`/`f32 z`, tagged 2026-11-18, pre-existing; the 2026-11-14 a0a7fe fix made them shared): case 1 player offset ($f12/$f0 at 0x3f0/0x3f4) and light position; a dx/dz split grows the frame 0x80 -> 0x88 and recolours the offsets to $f2/$f12.
 
 ## Attempts (2026-11-14, HackbossSpawnerUpdate, anthropic/claude-opus-5-5:high)
 - int / double literal args for prototyped f32 params -> fdiff 0 (all four proto sites)
@@ -29,8 +32,14 @@
 - spilltemps emulation (dossier untried idea 2) from `uopt_trace.sh -l 4` node regions: in the target the light-block nodes carry only bit 406 (`(i << 4) & 0xFF`, region from its def through the guard nodes to the call-block entry) and bit 443 (ucvtl{and}, call-block entry to the second lightAdd); they share one node, so 406 holds the first slot 0x48 and 443 takes 0x44. In the `i <<= 4` body (full 2) those nodes carry only bit 424 (ucvtl{i}, live bb169 + bb173), so it takes 0x48. The target therefore needs a second, lower-bit region item in the light block, which only exists when the masked intensity crosses a block boundary before its cvtl use; no other region item (gCurrentActor bit 2, umpy{k}{2} bit 407, the x/z loads) reaches those nodes.
 - natural block-end candidates (untried idea 1), deadsweep full: if/else abs + `i <<= 4` 5; x/z moved ahead of `i <<= 4` 18; if/else abs + masked level 26; x/z moved ahead of the masked level def 23; abs spelled `if (i < 0) i = -i` + `i <<= 4` 2. variants.py scan of the `i <<= 4` copy: 195 variants, best 2. sweep: 0 hits (classify class 2).
 
+## Attempts (2026-11-18, CleanbossFollowerActorUpdateb, strength-3, base 2291c741)
+- 3e88fe: mask at the u8 call arguments (`i <<= 4` + `i & 0xFF` args 32; `level = i << 4` + `level & 0xFF` args 39); plain removal 23.
+- review found the register-only reuses of i (loop counter / step threshold / magnitude), j (repeat limit / loop counter) and x/z (case 1 offset / light position); tagged. Splits with the guard kept: stepLimit s16 (0x64 hole) 411, s32 427; magnitude s8/s16 418, u8 417, s32 438; repeatLimit s8/s16 in the 0x64 hole 8 (a1 -> v0), variants.py scan of it 200 variants best 8; dx/dz 56-58 (frame 0x88).
+- reconstruct (all role locals, no guard): s32 locals 134 (frame 0x90), narrow locals packed 152.
+
 ## Untried ideas
 - none left in straight-line C: the 0xe80-0xf24 block has no branch, and a block boundary there without emitted code is a dead guard (or label/loop steer) by construction.
+- repeatLimit split is 8 lines (v0 for a1 only): a natural use that forbids v0 across 0x650-0x6a0 in case 0 (none found).
 
 ## Evidence
 - D_80035B38 (u8) is compared with -1 in case 0 (`lbu t6` 0x24c, `li at,-1` 0x224, `bnel t6,at` 0x250): the target performs the always-false compare, so `D_80035B38 == -1` is original code, not a steer.

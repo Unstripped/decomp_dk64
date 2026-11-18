@@ -19,12 +19,19 @@ boss:80032B08:dead-if:2cf154 `if (link->unk5 && link->unk5) {}` between the tint
 - Q0163 arithmetic on the per-role form (separate animId/oppSide, deadsweep full 9): adjsave = refs / (((nlive-2)>>2)+2). oppSide bit 144: refs 2+2+1 over bb40/41/42, div 2 -> 2.5; index umpy{oppSide}{2} bit 152: 3 uses + 1 def in bb42, div 1 -> 4.0. animId bit 62: 3 refs over bb11/12 -> 1.5. Shared id: 8 refs over 5 blocks, div 2 -> 4.0, ties the index and wins on bit order.
 - A per-role match needs +3 refs on oppSide within 2 more blocks (only the else-arm anim id has that shape) or a second block in the index range bb42 (0x153c-0x15d8, straight-line; 9bbff8 did this, index 4/2 = 2.0).
 - Measured (deadsweep full): ternary clamp `oppSide = oppSide >= 4 ? oppSide - 4 : oppSide` 9; oppSide def above the unk144 store 12; same-role side local (else arm `side = link->slot`, calls spelled `side + 0x66B`) 120 (side stays $v0, sum to $t2); same-role side local shared by the fire block and the mirrored arm 102 (fire-block umpy{side}{2} becomes a coloured $v1 temp instead of ugen $t9); function-scope animId shared by both anim-id calls (0x10fc, 0x11d0) 152. variants.py scan of the per-role copy: 53 variants, best 9. sweep: 0 hits.
+2026-11-18 2026-11-18: cleanup CleanbossFollowerActorUpdateb CleanbossFollowerActorUpdateb (strength-3 attempt, base 2291c741), d51071 only:
+- per-role animId/oppSide copy re-measured: 9 lines (trace -l 6: umpy{oppSide}{2} bit 152 coloured reg 1 before oppSide bit 144 reg 2).
+- else-arm anim id inline (no animId local) 10; arms swapped (`if (link->mirrored != 0)`, mirrored arm first) 231 (block layout); Q1198 narrow packing N/A (the per-role copy keeps frame 0x38 and every home).
+- permuter perm_perrole from the per-role copy, 900 s, baseline 65: 9 score-0 outputs, every one declares ONE local for the else-arm anim id and the mirrored-arm opposite side (the d51071 merge itself); output-15-1 adds a dead `if (!link->slot) {}`. No natural zero.
+- review: `(s16)` roll conversion (s32) 130, none 263: the (s16) conversion is real (trunc.w.d -> addiu -> sh).
 
 ## Untried ideas
-(none left that are natural C; the BossSpawnState/BossFollowerLink merge was applied by PolishBossDAA0Names on 2026-11-14, so that idea is closed)
+(none left that are natural C; the BossSpawnState/BossFollowerLink merge was applied by PolishBossDAA0Names on 2026-11-14, so that idea is closed; 2026-11-18: the permuter from the per-role body only rediscovers the merge)
 ## Evidence
 Priorities (uopt_trace -l 5, base copy): id bit 62 adjsave 4.0 -> reg 1 ($v0), live bb40/41/42 + bb11/12; index bit 150 adjsave 4.0 -> reg 2 ($v1), live bb42, forbidden [1 3]. Per-role copy: index bit 152 4.0 -> $v0; oppSide bit 144 2.5 -> $v1 (forbidden [1 3]).
 Fire block (0x13c8): `lb v0,20(t6)` is a coloured load candidate but its `sll t9,v0,1` index is a ugen ring temp; a side local there turns the index into a coloured $v1 candidate.
 Else-arm anim id: 0x11c4 lb v0,4(t0); 0x11d0 addiu v0,v0,1643 (same $v0 as the mirrored-arm opposite side at 0x1520 lb v0,20(t2); addiu v0,v0,2; join sll v1,v0,1 at 0x1538, bnezl delay-slot copy 0x1530). Both regions coloured $v0 by one merged uopt range in the matching copy.
 Target 0x1518-0x15d0: lb v0,20(t2); addiu v0,v0,2; slti at,v0,4; bnezl at,0x153c / sll v1,v0,1; addiu v0,v0,-4; sll v1,v0,1; li a1,35 at 0x156c; sb a1,362(t4) 0x15c0; sb a1,363(t5) 0x15c8; li t6,70 / sb t6,364(t9).
 Second unk5 test reloads link->unk5 into t6 (lb t6,5(t0) at 0x132c/0x134c), so the dead test adds no code.
+Permuter zeros (2026-11-18, perm_perrole): all re-merge animId/oppSide; the shared-range tie (Q0924) is the only zero form found by hand or permuter.
+Main (non-mirrored) arm reloads parentState (lw 48(sp)) and parentState->side for each of x/z/yaw (lb at 0x1490/0x14cc/0x1500) after every gCurrentActor store, so no side local fits there; only the fire block (0x13c8) and the mirrored arm load the side once.
