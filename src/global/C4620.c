@@ -754,7 +754,7 @@ void func_806C1B50(void) {
                 default:
                     goto done;
             }
-            if ((f32)thr < gCurrentActor->sub4->model->frame) {
+            if (thr < gCurrentActor->sub4->model->frame) {
                 effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, kind, 0);
                 gCurrentActor->unk155 = 0;
             }
