@@ -1089,3 +1089,4 @@
 {"type": "unit", "t": "2026-11-18T09:19:09Z", "unit": "2026-11-17: cleanup CleanplayerWeaponSpawnProjectile", "commit": "1d4b145ab6321d19b640e1aad359e6d40e4d422e"}
 {"type": "unit", "t": "2026-11-18T09:20:34Z", "unit": "2026-11-17: cleanup CleanrenderEntryListSortByDistance", "commit": "e41e440df731a830f9fb42b45c8b1ef449be01ab"}
 {"type": "unit", "t": "2026-11-18T09:23:31Z", "unit": "2026-11-17: cleanup CleanscriptOpApplyMotionFriction", "commit": "eb852f33cf7e523a4475f1c47daf2841d175738b"}
+{"type": "unit", "t": "2026-11-18T09:27:17Z", "unit": "2026-11-17: cleanup CleanproxPathActorFollowSpline", "commit": "c86ee097e307cd6a661ee90717b3fbecd04c0855"}
