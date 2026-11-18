@@ -1,0 +1,27 @@
+# schedHandleRetrace (global, src/global/13980.c)
+## Sites
+global:8060F254:dead-if:44aef6 dead-if: `if (D_80744510 && D_80744510) {}` after osViBlack(1); with D_80746858 a file-scope global it shaped the lda D_80746858 {455} web (removal alone: full 77 / text 67). FIXED 2026-11-17 by the sViModeDelay static.
+global:8060F254:dead-if:0d977f dead-if: `if (gFramebuffers && gFramebuffers) {}` after `D_80744510 = 2`; same lda web (removal alone: full 68 / text 64). FIXED 2026-11-17 by the static.
+global:8060F254:dead-if:db1f28 dead-if: `if (D_80746858 == 0) {}` in the cmdQ else arm; kept lda D_80746858 {455} split into cands 111/129/130 (adjsave 0.0/-3.33/-1.40) uncoloured so every access has its own lui (removal alone: full 23 / text 17). FIXED 2026-11-17 by the static.
+global:8060F254:dead-if:13e9cd dead-if: `if (msg == (OSMesg)-1) {}` after osRecvMesg; with 13e9cd#2 gives the -1 constant {1618} two loop occurrences: cand 123 (static body; 124 on the global body) adjsave 5.0 -> s2 (`li s2,-1` at 0x7b4), sc stays s3. Removed: sc -> s2, text 23. OPEN (kept FAKE).
+global:8060F254:dead-if:13e9cd#2 dead-if: second `if (msg == (OSMesg)-1) {}` after the if/else join; the second -1 occurrence. Removed alone: text 23. OPEN (kept FAKE).
+## Attempts
+2026-11-10 round 10 CleanGlobal13980 anthropic/claude-opus-5-5:low: uopt_trace -l6 of every site, permuter, plain punned-cast fix (TaskNode *)msg, reconstruct (score 2742) -> nohit on all dead ifs
+2026-11-12 round 26 CleanGlobal13980 anthropic/claude-opus-5-5: diagnose 13e9cd (li s2,-1 unused, both -1 uses needed), reconstruct from asm (no dead reads), views TaskNode.unk50 -> client/msgQ, permute all sites (best only adds `if (!sc && !sc && !sc) {}`) -> nohit
+2026-11-12 round 26 Rev26A anthropic/claude-opus-5-5:low: db1f28 else-branch D_80746858 read removal (lda web into s0) -> nohit
+2026-11-13 round 38 CleanGlobal13980 anthropic/claude-opus-5-5:xhigh: uopt l5/l6 of 13e9cd/13e9cd#2/db1f28 ({1618} cand 124 s2; {1082} cands 111/129/130), reconstruct recon_hr1.c score 1986, permuter (best=0 only via no-op product; dead if (client->next)) -> nohit
+2026-11-14 OwnerSchedRetraceCount anthropic/claude-opus-5-5:high: SchedStruct.unk284 -> retraceCount (views fixed)
+2026-11-17 2026-11-17: cleanup CleanschedHandleRetrace CleanschedHandleRetrace: D_80746858 -> function-local `static s16 sViModeDelay = 0;` (only reader; .data +0x38 unchanged) -> 44aef6, 0d977f, db1f28 removed, fdiff --reloc-ok 0 (raw-word proof: only HI16/LO16 D_80746858+0 -> .data+0x38, .data bytes equal); all 32 removal subsets on the static body: any subset keeping both -1 tests = text 0, any dropping one = text 23
+2026-11-17 same unit: permuter perm_nat from the natural static body (no -1 tests), hack-free weights, -j 2, 900 s, base 423 -> best 240 (output-240-1 only inserts a dead `if (!client->kind) {}` in the else arm), no zero
+2026-11-17 same unit: `if (i == -1) {}` / `if ((s32)sc == -1) {}` at both -1 positions match, `n == -1` text 52, i + msg mixed text 23 (typed web, Q0463); `s32 pad` removal text 3
+2026-11-17 same unit: -1 tests as call-result tests: recv-result + else-arm send-result `== -1` matches (text 0); recv alone / send alone / recv + msg-at-end / `recv == -1 || msg == -1` text 23; variants scan of the natural body (no -1 tests): 31 variants, no zero
+## Untried ideas
+A lead ruling on `// ORIG` for the call-result spelling (`if (osRecvMesg(...) == -1) {}` / `if (osSendMesg(...) == -1) {}`): the same idiom is ORIG in schedMain case 0x29F (0x4f0 `li at,-1; bnel v0,at`), and the target's `li s2,-1` at 0x7b4 is the hoisted operand of exactly two such tests (this unit)
+A third -1 consumer that is real code in the loop (none found in the target: s2 is never read after 0x7b4)
+## Evidence
+0x5d4 frame 0x58; s0 = &D_80744510 at 0x610/0x614 (lb 0x620, sb 0x6a8), reused for &D_807F04E0 at 0x6cc, then i (0x7a4)
+D_80746858 (.data+0x38, s16) every access its own lui: lh t0 0x638, lh t1 0x650, lh t8 0x6b0, sh t9 0x6bc via lui at 0x6b4 (function-local static pattern Q0995/Q0922/Q1125)
+cmdQ loop 0x7a0-0x824: n = validCount spilled to 72(sp) (sw 0x7b0, lw 0x80c/0x818), s1 = &sc->cmdQ, s0 = i, s3 = sc, msg at 84(sp); `li s2,-1` at 0x7b4 and s2 never read again (only save 0x5e0 / restore 0x8bc)
+uopt l5 (static body): -1 {1618} cand 123 adjsave 5.0 forbidden [1-5,14,15] -> 16 (s2); without the -1 tests sc {1517} cand 0 -> 16 (s2) instead of 17 (s3)
+A single empty `if (call() == -1) {}` in the loop leaves no compare and no li (t_r1 object): the empty `==` test is deleted after code motion; two occurrences make code motion hoist the constant first
+The -1 lever is the occurrence count of ONE typed constant web (Q0463): two s32 tests (`i == -1`, `(s32)sc == -1`, or the osRecvMesg/osSendMesg results) or two pointer tests (`msg == (OSMesg)-1`) in the loop match; one s32 + one pointer test scores text 23 like a single test
