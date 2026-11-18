@@ -24,8 +24,8 @@ void dlAppendTextureLoad(Gfx **glistp, void *texture) {
     gTextureFlipT = 0;
     height = gCurrentTexture->rectHeight + gCurrentTexture->t;
     width = gCurrentTexture->width;
-    uls = ult = 0;  // FAKE: constant tile-origin locals (pre-existing): uopt keeps width - uls and uls << 2 unfolded in the gDPLoadTextureTile expansions, so case 1 spills only its SetTileSize gfx temp (sp+0x74); literal 0s fold in cfe and spill the LoadSync and LoadTile temps instead (sp+0x84/0x80, score 547 with s32 pad[2] holding the frame) (Q0145, Q0599, Q0764)
-    lrs = width; lrt = height;  // FAKE: copy locals for the tile lower-right corner (gDPLoadTextureTile lrs/lrt): two extra uses of width/height in block 0 lift its uopt adjsave over the gCurrentTexture address and keep the switch selector temp out of t1 (replaces a dead width test; copy-temp steer per ladder) (Q0406, Q0523)
+    uls = ult = 0;  // FAKE: constant tile-origin locals (pre-existing): defined in block 0 and propagated only by uopt, their loads in each tile path (uls in the first SetTile, uls/ult in LoadTile) reach the 20-load cut (varreflimit, Q0556) so uopt splits the tile block inside LoadTile: its gfx temp spans both nodes (a1) and only the SetTileSize gfx temp spills (sp+0x74); literal 0s (or the same assignment inside the tile branch, folded locally) move the cut past LoadTile and spill the LoadSync and LoadTile temps instead (sp+0x84/0x80, score 547-680) (Q0145, Q0599, Q0764)
+    lrs = width; lrt = height;  // FAKE: copy locals for the tile lower-right corner (gDPLoadTextureTile lrs/lrt): after copy propagation each case counts one more width use in its second tile node (LoadTile to SetTileSize), raising width from 23/12 to 26/12 over the gCurrentTexture address (25/12) so width keeps a3 and the address t0; without them the two swap (score 52) (replaces a dead width test, Q0938) (Q0406, Q0523)
 
     switch (gCurrentTexture->type) {
     case 1:
