@@ -2357,11 +2357,9 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/D_80033BE0.s")
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/D_80033BE4.s")
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/D_80033BE8.s")
+const char D_80033BE0[4] = "-";
+const char D_80033BE4[4] = "  -";
+const char D_80033BE8[8] = "    -";
 
 extern s8 D_80033F60;
 extern s8 D_80033F61;

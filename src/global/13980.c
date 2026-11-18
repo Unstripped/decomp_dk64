@@ -438,9 +438,8 @@ void schedSendMesgTimed(OSMesgQueue *mq, OSMesg msg, s32 flags) {
     osSendMesg(mq, msg, flags);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13980/D_80757184.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13980/D_80757188.s")
+const char D_80757184[4] = "";
+const char D_80757188[12] = "WARNING!!";
 
 typedef struct {
     u8 op;
@@ -478,9 +477,7 @@ DlOpInfo D_8074685C[27] = {
     { 0xE5, "RECTFLIP", 16, 1 },
     { 0xE4, "TEXRECT", 16, 1 },
 };
-extern char D_80757184[];
-extern char D_80757188[];
-char *D_80746A0C[2] = { D_80757184, D_80757188 };
+const char *D_80746A0C[2] = { D_80757184, D_80757188 };
 
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
