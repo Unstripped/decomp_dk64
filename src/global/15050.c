@@ -375,7 +375,6 @@ s32 heapReleasePool(s32 idx) {
     HeapBlock *tail;
     u8 *start;
     s32 ok;
-    s32 count;
     u16 bs;
     s32 tailEnd;
     s32 poolEnd;
@@ -383,26 +382,22 @@ s32 heapReleasePool(s32 idx) {
     ok = 1;
     start = gHeapPools[idx].start;
     if (idx != 0) {
-        if (start && start) {} // FAKE: two extra uses lift start (a3) above the bs conversion (t0) in uopt colouring
-        count = gHeapPoolCount;
-        if (count >= 2) {
+        if (gHeapPoolCount >= 2) {
             bs = gHeapPools[idx].blockSize;
             if (bs != 0) {
                 tail = gHeapPools[idx].freeList;
                 blk = tail->next;
-                if (blk != NULL) {
-                    do {
-                        tail = blk;
-                        if (blk->prev != blk->physPrev) {
-                            ok = 0;
-                            break;
-                        }
-                        blk = tail->next;
-                    } while (blk != NULL);
+                while (blk != NULL) {
+                    tail = blk;
+                    if (blk->prev != blk->physPrev) {
+                        ok = 0;
+                        break;
+                    }
+                    blk = tail->next;
                 }
                 tailEnd = bs + (s32)tail;
                 tailEnd += 0x20;
-                if (tailEnd == 0) {} // FAKE: second use keeps the tailEnd sum a coloured candidate in a0
+                if (tailEnd == (s32)start) {} // FAKE: second use keeps the tailEnd sum a coloured candidate in a0; the start use ties start with the bs conversion so start keeps a3 and bs t0
                 poolEnd = gHeapPools[idx].size + (s32)start;
                 if (tailEnd != poolEnd) {
                     ok = 0;
@@ -411,7 +406,7 @@ s32 heapReleasePool(s32 idx) {
                 ok = 0;
             }
             if (ok != 0 && start == (u8 *)gHeapPools[idx].freeList) {
-                gHeapPoolCount = count - 1;
+                gHeapPoolCount--;
                 if (bs != 0) {
                     gHeapBlockPoolCount--;
                 }
@@ -422,11 +417,10 @@ s32 heapReleasePool(s32 idx) {
                 gHeapPools[idx].size = gHeapPools[gHeapPoolCount].size;
                 gHeapPools[idx].blockSize = gHeapPools[gHeapPoolCount].blockSize;
                 heapSortPools();
-                return 0;
+            } else {
+                return idx;
             }
-            return idx;
         }
-        if (gHeapPools[idx].owner) {} // FAKE: block boundary keeps v0 = 0 out of the entry block (bnezl delay slot at the count exit)
     }
     return 0;
 }
