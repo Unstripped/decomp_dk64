@@ -1191,25 +1191,25 @@ void transformBarrelUpdate(void) {
     f32 nodeY;
     f32 nodeZ;
     PlayerState *playerState;
-    s32 ret;
+    s32 listId;
     s16 i;
     s16 entry;
     s16 entryCount = sizeof(D_8074E7BC) / sizeof(D_8074E7BC[0]);
     u8 found;
     Actor *player;
     PlayerState *activePlayerState;
-    s32 hide;
-    s32 channel;
+    u8 hide;
+    s16 channel;
     PlayerState *riderState;
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         entry = 0;
         found = 0;
-        ret = actorListFindIdByActor(gCurrentActor);
+        listId = actorListFindIdByActor(gCurrentActor);
         state->refillCount = 0;
         do {
-            if (gCurrentMap == D_8074E7BC[entry].map && ret == D_8074E7BC[entry].listId) {
+            if (gCurrentMap == D_8074E7BC[entry].map && listId == D_8074E7BC[entry].listId) {
                 found = 1;
                 state->refillCount = D_8074E7BC[entry].count;
             } else {
@@ -1247,15 +1247,15 @@ void transformBarrelUpdate(void) {
             sfxAllocateChannel(0xF, 1.0f);
         }
         if (state->setsFlag != 0) {
-            ret = -1;
+            s32 flag = -1;
 
             if (gCurrentActor->actorType == 0x12) {
-                ret = 0xF;
+                flag = 0xF;
             } else if (gCurrentActor->actorType == 0x81) {
-                ret = 0x10;
+                flag = 0x10;
             }
-            if (ret >= 0) {
-                flagSet(ret, 1, 1);
+            if (flag >= 0) {
+                flagSet(flag, 1, 1);
             }
             playerState->unk1FD = 1;
         }
@@ -2077,14 +2077,16 @@ void tagBarrelActorUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x262, 0xFF, 0x64, 1);
         }
         if (sub->timer == 0) {
+            f32 growthLeft;
+
             gCurrentActor->sub4->scaleX += 0.005;
             gCurrentActor->sub4->scaleY += 0.005;
             gCurrentActor->sub4->scaleZ += 0.005;
             if (gCurrentActor->sub4->scaleX >= 0.15) {
                 gCurrentActor->state = 0xB;
             }
-            scaleFactor = (0.15 - gCurrentActor->sub4->scaleX) / 0.13;
-            sub->spinSpeed = scaleFactor * 400.0f;
+            growthLeft = (0.15 - gCurrentActor->sub4->scaleX) / 0.13;
+            sub->spinSpeed = growthLeft * 400.0f;
             gCurrentActor->yaw += sub->spinSpeed;
         }
         break;
