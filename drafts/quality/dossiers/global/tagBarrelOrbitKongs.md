@@ -1,10 +1,10 @@
 # tagBarrelOrbitKongs (global, src/global/80150.c)
 
 ## Sites
-global:80682AB4:dead-store:d45e68 dead-store: first def of the dead u8 `u` chain; without it u is live-in (lbu v1,107(sp), adjsave 1.0 -> 3.0); with it the chain is emitted by ugen in $3 and deleted by as1.
-global:80682AB4:other:b38837 other: chain line 2; the chain burns 15 ugen ring allocations ($9..$13,$14,$15,$24,$25,$8..$13) so the loop's trunc scratch is $14 and `mfc1 t7,$f16` at 0x77c4.
-global:80682AB4:other:1cc068 other: chain line 3 (same role).
-global:80682AB4:other:c2023d other: chain line 4; the final self-copy (`u = u` also works) is what stops uopt deleting the chain.
+global:80682AB4:dead-store:d45e68 dead-store: REMOVED 2026-11-18 with the whole chain (see Attempts): first def of the dead u8 `u` chain; it kept uopt from deleting the chain, whose 15 ugen ring allocations as1 then deleted.
+global:80682AB4:other:b38837 other: REMOVED 2026-11-18 (chain line 2): the chain's 15 pre-loop ring allocations shifted the loop's trunc scratch to $14 and `mfc1 t7,$f16` at 0x77c4; the real source shifts it inside the loop instead.
+global:80682AB4:other:1cc068 other: REMOVED 2026-11-18 (chain line 3, same role).
+global:80682AB4:other:c2023d other: REMOVED 2026-11-18 (chain line 4, the `u = (u32)u` self-copy that kept the dead tree alive in uopt).
 global:80682AB4:other:8074ea other: REMOVED (byte-pointer walk) by retyping the definition and a for loop over arg->kongs[i].
 
 ## Attempts
@@ -24,9 +24,12 @@ global:80682AB4:other:8074ea other: REMOVED (byte-pointer walk) by retyping the 
 2026-11-17 same: one-statement forms `u = u = E8;` / `u = (u8)(u = E8);` / `u = u = <the real 3-line chain merged>;` -> full=0 (alt copy alt_compact_80150.c, one FAKE line instead of four; not applied: not plausible original code, needs a director ruling).
 2026-11-17 same: 150-body stage grid (baseYaw s16/s32 x stage casts (s16)(s32)/(s32)/(u16)(s32)/(s16)/(u16) x stage-2 tmp none/s16/s32) -> best full=9 (s32 baseYaw, (s16)(s32) stage 1, (u16)(s32) stage 2); hack-free-weights permuter from it (-j 2, 900 s, ~21k iterations): base 444, best 225 = baseYaw back to s16 with the (u16) stage-2 cast (full=37, 14 pre-loop allocs), no zero.
 2026-11-17 same: review cleanups kept (fdiff 0): `(f32)` on the timer quotient, both stages' `(s32)`, both `(f64)glow` and the `(u32)` on the unk15F store dropped (casts 18 -> 12), `glow -= 0.6; glow *= 2.5;`; not kept: ternary clamp instead of `clamped` full=83, loop yaw without `(s16)` full=32, `glow < 0.0f` full=39.
+2026-11-18 cleanup CleantagBarrelOrbitKongsb CleantagBarrelOrbitKongsb anthropic/claude-opus-5-5: FIXED all 4 sites. The chain-free loop's narrowings of the slot angle: inner `(s16)(s32)`/`(s16)(double)` or an `s16 offset` local -> mfc1 renamed t4 (2 deleted allocations), `(u16)(s32)` -> t3 (1), `(u16)(double)` / u16 local -> unsigned cvt sequence (full=65), `(u16)baseYaw` -> uopt hoists the mask and as1 drops stage 2's sll/sra (full=46), `(u16)(sum)` -> addu one register short (full=33), nested `(s16)(((s16)(...) & 0xFFF) + baseYaw)` -> 3 deleted (full=33).
+2026-11-18 same: the slot angle normalised like both baseYaw stages, `x = (s16)(4096.0 - (i * 819.2)) & 0xFFF;` into an s16 then `yaw = (s16)(x + baseYaw) & 0xFFF;` -> full=0 three ways: reusing `yaw` (pad kept), an `s16 offset` local after the others (pad kept), `s16 slotYaw` declared first replacing `s32 pad` (kept: whole-file fdiff 0). Not used: `s32` offset (addu operands swap, full=33), `yaw = (s16)(baseYaw + yaw)` (full=1), dropping the pad with no new local (frame, full=6).
+2026-11-18 same: variants.py scan of the fixed body: zeros only for comparison mirrors, `4096.0f`, `0.0`, yaw u16/s32 and declaration swaps (no hack-relevant variant).
 
 ## Untried ideas
-None natural left in the ring model: the window 0x77a8-0x77c4 holds no target ring instruction, so a fix needs uopt-surviving dead code (only self-copied deep narrowing trees found). A different original function structure not visible in the asm (e.g. an inlined helper with a dead tail) is speculation (own).
+None needed: no hack sites left.
 
 ## Evidence
 Target .text 0x7774-0x777c `andi t1,t0,0xfff; sll t2,t1,16; sra s5,t2,16` and 0x77a0-0x77a8 `andi t8,t7,0xfff; sll t9,t8,16; sra s5,t9,16`: both baseYaw stages store an s16 after the mask.
@@ -36,3 +39,6 @@ Window 0x77a8-0x77c4 (and the preheader 0x7744-0x774c `move s1,zero; move s3,s4;
 Target 0x7748 `move s3,s4`, 0x77b0 `lw s2,8(s3)`, 0x7814 `addiu s3,s3,4`: uopt's strength-reduced arg->kongs[i] walk with s4 = the TagBarrelData * parameter.
 Target 0x76b8 `swc1 $f4,0x70(sp)`: centerX's slot needs one 4-byte local declared before it.
 Target 0x76e4 `bgez t6`: the timer conversion is unsigned (u32 -> f32), so `(u32)arg->timer` is behaviour.
+2026-11-18 ugen listing of the fixed body (as1probe keep): pre-loop 15 ring allocations (unchanged); loop `trunc.w.d $f16,$f8,$9` (#16), `mfc1 $10`, `sll $11`, `sra $12`, `and $13,4095`, `sll $14`, `sra $15` (#22), `addu $16,$15,$21`, `sll $24`/`sra $25` (the sum's `(s16)`), `and $8`, `sll $9`, `sra $10` -> s0. as1 deletes #18-#22 (the sum's `& 0xFFF` demands 12 bits, through addu) and renames mfc1 to $15 (t7, 0x77c4), then deletes #23/#24 and renames addu to $25 (t9, 0x77cc).
+Correction of the 2026-11-17 ring pinning: a visible register that is an as1 rename target (Q0374) pins the LAST deleted allocation of its chain, not its own; the loop mfc1 t7 pins #22 (of 16..22), so the window 0x77a8-0x77c4 needed no hidden code.
+`s16 slotYaw` declared first takes the 0x74 word `s32 pad` reproduced (centerX stays at 0x70).
