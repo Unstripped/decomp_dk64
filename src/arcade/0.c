@@ -1107,7 +1107,7 @@ ArcadeGirderSpan D_8004A7C8[] = {
 void arcadeDrawStage3Background(Gfx **glistp) {
     s32 i;
     s32 j;
-    s32 pad[1];
+    s32 count;
     Gfx *glist;
     ArcadeGirderSpan *pt;
 
@@ -1132,11 +1132,10 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    pt = D_8004A7C8;
-    do {
+    count = sizeof(D_8004A7C8) / sizeof(D_8004A7C8[0]); // FAKE: constant-valued array-count bound local (Q0780); assigned here, not as its initialiser (69)
+    for (pt = D_8004A7C8; pt < D_8004A7C8 + count; pt++) {
         arcadeDrawGirderSpan(&glist, pt->startX, pt->endX, pt->y);
-        pt++;
-    } while (pt < (ArcadeGirderSpan *)((s32)D_8004A7C8 + 0x54)); // FAKE: (s32) address arithmetic end pointer steers codegen (&D_8004A7C8[21]: text=16)
+    }
     for (i = 0; i < 6; i++) {
         if (gArcadeFrozen == 0 && D_8004C724 == 5) {
             D_8004BC88[i].y += D_8004BC88[i].vy;
@@ -4028,7 +4027,7 @@ void arcadeDrawHud(Gfx **glistp) {
         }
         arcadeSetTextPosition(0xE0, 0x30);
         if (gArcadeBonusTimer > 0) {
-            i = gArcadeBonusTimer; // FAKE: lives-loop counter i reused for the clamped bonus timer keeps it in a3 (dedicated local or inline ternary: 29-98)
+            i = gArcadeBonusTimer; // FAKE: lives-loop counter i reused for the clamped bonus timer: the clamp lengthens the range of i, so the i*32+864 IV colours v0 first and i a3 (dedicated u8/s32 local with buf[0x4C]: 13/25)
         } else {
             i = 0;
         }
