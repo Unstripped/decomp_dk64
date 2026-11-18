@@ -1156,3 +1156,4 @@
 {"type": "unit", "t": "2026-11-18T13:13:07Z", "unit": "2026-11-17: cleanup Polishglobal8D3E0", "commit": "4115fa4e3732165469c470e898e71ccae15fd00d"}
 {"type": "unit", "t": "2026-11-18T13:20:21Z", "unit": "2026-11-17: cleanup Polishjetpac3480", "commit": "a7822e3fcb7b2a3b4fd5b2dc7c17f40539879b97"}
 {"type": "unit", "t": "2026-11-18T13:20:59Z", "unit": "2026-11-17: cleanup Polishglobal41090", "commit": "11e839fae70c3038d31e330e99df406d6195c7ed"}
+{"type": "unit", "t": "2026-11-18T13:21:46Z", "unit": "2026-11-17: cleanup PolishglobalAA960b", "commit": "afae36b68f1f5411498f9c3c0309cc224e4d4bb9"}
