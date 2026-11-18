@@ -6,10 +6,10 @@
 #include "proto/jetpac/3060.h"
 #include "proto/jetpac/3480.h"
 
-
 extern s32 D_8002DC68[];
+
 s32 jetpacRandSpawnX(void) {
-    return (s32)((jetpacRandFloat() * 200.0f) + 90.0f);
+    return jetpacRandFloat() * 200.0f + 90.0f;
 }
 
 s32 jetpacRandItemX(void) {
@@ -27,12 +27,12 @@ s32 jetpacItemOverlapsBox(JetpacItem *item, f32 x1, f32 y1, f32 x2, f32 y2, s32 
     }
 
     if (isOffset == 0) {
-        left += (f32)item->unk24;
-        top += (f32)item->unk28;
+        left += item->unk24;
+        top += item->unk28;
     }
 
     if (item->unk1C >= 2) {
-        if (jetpacCheckAabbOverlapWrapped(left, top, item->unk8 + (f32)item->unk2C, item->unkC + (f32)item->unk30, x1, y1, x2, y2)) {
+        if (jetpacCheckAabbOverlapWrapped(left, top, item->unk8 + item->unk2C, item->unkC + item->unk30, x1, y1, x2, y2)) {
             return 1;
         }
     }
@@ -65,31 +65,26 @@ void jetpacInitRocketParts(JetpacPlayer *player) {
     player->items[1].unkC = 80.0f;
 }
 
-
-
-
-extern JetpacState jetpacPlayer;
-
 void jetpacRocketItemUpdate(JetpacItem *item) {
-    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
-    JetpacPlayerActor *player;
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
+    JetpacPlayerActor *jetman;
 
     if (item->unk1C == 0) {
         return;
     }
-    if (inner->unkC >= 8) {
+    if (player->unkC >= 8) {
         return;
     }
-    if (item->unk34 < 0x14) {
+    if (item->unk34 < 20) {
         item->unk34++;
         return;
     }
     if (item->unk1C == 1) {
         item->unk1C = 2;
     }
-    player = &jetpacPlayer.player;
+    jetman = &jetpacGame.player;
     if (item->unk38 == 0) {
-        if (item->unk14 > 0.0f && player->state != 4) {
+        if (item->unk14 > 0.0f && jetman->state != 4) {
             s32 hit = jetpacCheckLedgeCollision(item->unk24 + item->unk8 + item->unk10, item->unk28 + item->unkC + item->unk14,
                                                 item->unk2C + item->unk8 + item->unk10, item->unk30 + item->unkC + item->unk14, 0);
             if (hit >= 0) {
@@ -99,23 +94,23 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
                 item->unkC += item->unk14;
             }
         }
-        if (player->state == 3) {
+        if (jetman->state == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->unk8 + item->unk24, item->unkC + item->unk28, item->unk8 + item->unk2C, item->unkC + item->unk30,
-                              player->x + player->boxX1, player->y + player->boxY1, player->x + player->boxX2,
-                              player->y + player->boxY2)) {
+                              jetman->x + jetman->boxX1, jetman->y + jetman->boxY1, jetman->x + jetman->boxX2,
+                              jetman->y + jetman->boxY2)) {
                 item->unk38 = 1;
-                inner->score += item->unk3C;
+                player->score += item->unk3C;
                 jetpacPlaySound(4);
             }
         }
     }
     if (item->unk38 == 1) {
-        if (player->state == 4) {
+        if (jetman->state == 4) {
             item->unk38 = 0;
             item->unk14 = 0.8f;
         } else {
-            item->unk8 = (player->x - 2 * player->vx + player->boxX1) + (player->boxX2 - player->boxX1 - item->unk2C + item->unk24) * 0.5;
-            item->unkC = player->y - player->vy + player->boxY2 - item->unk30;
+            item->unk8 = (jetman->x - 2 * jetman->vx + jetman->boxX1) + (jetman->boxX2 - jetman->boxX1 - item->unk2C + item->unk24) * 0.5;
+            item->unkC = jetman->y - jetman->vy + jetman->boxY2 - item->unk30;
             if (jetpacIsOverRocket(item->unk8)) {
                 item->unk8 = 168.0f;
                 item->unk14 = 0.8f;
@@ -125,30 +120,29 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
     }
     if (item->unk38 == 2) {
         item->unkC += item->unk14;
-        if (inner->unkC < 2) {
-            f32 lim = 0x98 - inner->unkC * 16;
-            if (lim <= item->unkC) {
-                item->unkC = lim;
-                inner->unkC++;
+        if (player->unkC < 2) {
+            f32 landY = 152 - player->unkC * 16;
+            if (item->unkC >= landY) {
+                item->unkC = landY;
+                player->unkC++;
                 jetpacPlaySound(2);
-                if (inner->unkC < 2) {
-                    inner->currentItem--;
+                if (player->unkC < 2) {
+                    player->currentItem--;
                 } else {
-                    jetpacSpawnFuelPod(inner);
+                    jetpacSpawnFuelPod(player);
                 }
             }
-        } else if (168.0f <= item->unkC) {
-            inner->unkC++;
+        } else if (item->unkC >= 168.0f) {
+            player->unkC++;
             jetpacPlaySound(2);
-            if (inner->unkC < 8) {
-                jetpacSpawnFuelPod(inner);
+            if (player->unkC < 8) {
+                jetpacSpawnFuelPod(player);
             } else {
                 item->unk1C = 0;
             }
         }
     }
 }
-
 
 typedef struct {
     u8 rgba[4];
@@ -159,18 +153,18 @@ J3Color D_8002DCE8 = {{255, 255, 255, 1}};
 void jetpacDrawItem(JetpacItem *item, s32 mode) {
     s32 x;
     s32 y;
-    JetpacPlayer *inner;
+    JetpacPlayer *player;
     J3Color color;
     s32 i;
 
     color = D_8002DCE8;
-    inner = &jetpacGame.players[jetpacGame.activePlayer];
+    player = &jetpacGame.players[jetpacGame.activePlayer];
     if (item->unk1C >= 2) {
-        x = (s32)item->unk8;
-        y = (s32)jetpacRoundFloat(item->unkC);
+        x = item->unk8;
+        y = jetpacRoundFloat(item->unkC);
         if (mode < 3) {
             for (i = 0; i < 2; i++, y += 8) {
-                if ((inner->unkC < 8 && inner->unkC + mode * 2 + i >= 8) || (inner->unkC == 8 && (jetpacGame.stateTimer & 0x10))) {
+                if ((player->unkC < 8 && player->unkC + mode * 2 + i >= 8) || (player->unkC == 8 && (jetpacGame.stateTimer & 0x10))) {
                     color.rgba[1] = 0;
                 }
                 if (item->sprites[i] != NULL) {
@@ -182,7 +176,6 @@ void jetpacDrawItem(JetpacItem *item, s32 mode) {
         }
     }
 }
-
 
 extern JetpacSprite D_8002D968[];
 
@@ -209,29 +202,28 @@ void jetpacSpawnBonusItem(JetpacPlayer *player) {
     item = &player->bonus;
     bonusItem.sprites[0] = &D_8002D968[bonusItem.unk40];
     *item = bonusItem;
-    item->unk8 = (f32)jetpacRandItemX();
+    item->unk8 = jetpacRandItemX();
     player->unk144 = jetpacRandSpawnX();
 }
 
-
 void jetpacBonusItemUpdate(JetpacItem *item) {
-    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
     s32 flashTime;
     s32 colorTime;
     s32 blinkTime;
-    JetpacPlayerActor *player;
+    JetpacPlayerActor *jetman;
 
-    if (inner->unkC == 0) {
+    if (player->unkC == 0) {
         return;
     }
-    if (item->unk34 < inner->unk144) {
+    if (item->unk34 < player->unk144) {
         item->unk34++;
         return;
     }
     if (item->unk1C == 1) {
         item->unk1C = 2;
     }
-    player = &jetpacPlayer.player;
+    jetman = &jetpacGame.player;
     if (item->unk38 == 0) {
         if (item->unk14 > 0.0f) {
             s32 hit = jetpacCheckLedgeCollision(item->unk24 + item->unk8 + item->unk10, item->unk28 + item->unkC + item->unk14,
@@ -243,16 +235,16 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
                 item->unkC += item->unk14;
             }
         }
-        if (jetpacGame.gameState == 2 && player->state == 3) {
+        if (jetpacGame.gameState == 2 && jetman->state == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->unk8 + item->unk24, item->unkC + item->unk28, item->unk8 + item->unk2C, item->unkC + item->unk30,
-                              player->x + player->boxX1, player->y + player->boxY1, player->x + player->boxX2,
-                              player->y + player->boxY2)) {
+                              jetman->x + jetman->boxX1, jetman->y + jetman->boxY1, jetman->x + jetman->boxX2,
+                              jetman->y + jetman->boxY2)) {
                 if (item->unk40 == 6) {
                     flagSet(0x62, 1, 2);
                 }
-                inner->score += item->unk3C;
+                player->score += item->unk3C;
                 jetpacPlaySound(3);
-                jetpacSpawnBonusItem(inner);
+                jetpacSpawnBonusItem(player);
                 return;
             }
         }
@@ -261,9 +253,9 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
     switch (item->unk40) {
     case 6:
         item->unk34++;
-        flashTime = item->unk34 - inner->unk144;
-        if (flashTime >= 0x97) {
-            jetpacSpawnBonusItem(inner);
+        flashTime = item->unk34 - player->unk144;
+        if (flashTime >= 151) {
+            jetpacSpawnBonusItem(player);
             return;
         }
         flashTime = flashTime % 24;
@@ -279,12 +271,12 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
         break;
     case 1:
         item->unk34++;
-        colorTime = item->unk34 - inner->unk144;
-        if (colorTime >= 0x1C) {
-            colorTime -= 0x1C;
-            item->unk34 = inner->unk144;
+        colorTime = item->unk34 - player->unk144;
+        if (colorTime >= 28) {
+            colorTime -= 28;
+            item->unk34 = player->unk144;
         }
-        if (colorTime < 0x1C) {
+        if (colorTime < 28) {
             colorTime = colorTime / 4 + 1;
             if (colorTime & 1) {
                 item->color[2] = 0xFF;
@@ -316,10 +308,10 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
     case 3:
     case 4:
         item->unk34++;
-        blinkTime = item->unk34 - inner->unk144;
-        if (blinkTime >= 0x18) {
-            blinkTime -= 0x18;
-            item->unk34 = inner->unk144;
+        blinkTime = item->unk34 - player->unk144;
+        if (blinkTime >= 24) {
+            blinkTime -= 24;
+            item->unk34 = player->unk144;
         }
         if (blinkTime < 12) {
             item->color[0] = 0;
@@ -334,41 +326,39 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
     }
 }
 
-
-
 extern JetpacItem D_8002DD38;
 
 void jetpacSpawnFuelPod(JetpacPlayer *player) {
     JetpacItem fuelPod = D_8002DD38;
-    fuelPod.unk8 = (f32)jetpacRandItemX();
+    fuelPod.unk8 = jetpacRandItemX();
     player->items[3] = fuelPod;
     player->currentItem = 3;
 }
 
-
 s32 jetpacBoxOverlapsItems(f32 x1, f32 y1, f32 x2, f32 y2) {
-    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
     s32 i;
     JetpacItem *item;
 
-    if (inner->unkC < 2) {
-        item = inner->items;
-        for (i = 0; i < 2 - inner->unkC; i++, item++) {
+    if (player->unkC < 2) {
+        item = player->items;
+        for (i = 0; i < 2 - player->unkC; i++, item++) {
             if (jetpacItemOverlapsBox(item, x1, y1, x2, y2, 1)) {
                 return 1;
             }
         }
     }
 
-    if (jetpacItemOverlapsBox(&inner->items[3], x1, y1, x2, y2, 0)) {
+    if (jetpacItemOverlapsBox(&player->items[3], x1, y1, x2, y2, 0)) {
         return 1;
     }
-    if (jetpacItemOverlapsBox(&inner->bonus, x1, y1, x2, y2, 0)) {
+    if (jetpacItemOverlapsBox(&player->bonus, x1, y1, x2, y2, 0)) {
         return 1;
     }
 
     return 0;
 }
+
 void jetpacItemsUpdate(void) {
     JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
     JetpacItem *item = player->items;
@@ -380,20 +370,21 @@ void jetpacItemsUpdate(void) {
         }
     }
 }
+
 void jetpacDrawBonusItem(void) {
-    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
-    inner->bonus.unk48(&inner->bonus, 5);
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
+    player->bonus.unk48(&player->bonus, 5);
 }
 
 void jetpacPlaceRocketOnPad(void) {
-    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
-    JetpacItem *item = inner->items;
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
+    JetpacItem *item = player->items;
     s32 i;
 
-    inner->unkC = 8;
+    player->unkC = 8;
     for (i = 0; i < 3; i++, item++) {
         item->unk8 = 168.0f;
-        item->unkC = (f32)(i * 16) + 136.0f;
+        item->unkC = i * 16 + 136.0f;
     }
 }
 
@@ -402,7 +393,7 @@ extern struct GfSndState *D_80770DF8[];
 void jetpacUpdateRocketFlight(void) {
     s32 i;
     JetpacItem *item;
-    f32 spd;
+    f32 speed;
     f32 y;
     f32 t;
     f32 pos;
@@ -411,7 +402,7 @@ void jetpacUpdateRocketFlight(void) {
 
     y = item->unkC; t = (y - -8.0f) / 144.0f; t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t); // LAYOUT: one line so as1 issues lwc1 $f12 (y) after the -8.0f mtc1
     if (jetpacGame.gameState == 1) {
-        if (D_80770DF8[1] == 0) {
+        if (D_80770DF8[1] == NULL) {
             jetpacPlaySound(1);
         }
         t = t * 0.059466f;
@@ -421,15 +412,15 @@ void jetpacUpdateRocketFlight(void) {
         if (y >= 136.0f) {
             for (i = 0; i < 3; i++, item++) {
                 item->unk8 = 168.0f;
-                item->unkC = (f32)(i * 16) + 136.0f;
+                item->unkC = i * 16 + 136.0f;
             }
             jetpacStopSound(1);
             jetpacSetState(2);
             return;
         }
-        spd = 0.4f;
+        speed = 0.4f;
     } else if (jetpacGame.gameState == 4) {
-        if (D_80770DF8[0] == 0) {
+        if (D_80770DF8[0] == NULL) {
             jetpacPlaySound(0);
         }
         t = 1.0f - t;
@@ -442,10 +433,10 @@ void jetpacUpdateRocketFlight(void) {
             jetpacStartStage();
             return;
         }
-        spd = -0.4f;
+        speed = -0.4f;
     }
 
-    pos = y + spd;
+    pos = y + speed;
     for (i = 0; i < 3; i++) {
         item->unkC = pos;
         pos += 16.0f;
@@ -453,21 +444,21 @@ void jetpacUpdateRocketFlight(void) {
     }
 }
 
-
 void jetpacPlaceRocketAboveScreen(void) {
-    JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
-    JetpacItem *item = inner->items;
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
+    JetpacItem *item = player->items;
     s32 i;
 
-    inner->unkC = 2;
+    player->unkC = 2;
     for (i = 0; i < 3; i++, item++) {
         item->unk8 = 168.0f;
-        item->unkC = (f32)(i * 16) + -8.0f;
+        item->unkC = -8.0f + i * 16;
     }
 }
 
 extern J3Color D_8002DD88;
 extern JetpacSprite D_8002DC38[];
+
 void jetpacDrawRocket(void) {
     JetpacItem *item;
     s32 pad;
@@ -478,9 +469,9 @@ void jetpacDrawRocket(void) {
     flameColor = D_8002DD88;
     if (item->unkC < 116.0f) {
         s32 mod = ((s32)item->unkC / 3) % 2;
-        s32 idx = (mod > 0) ? mod : -mod;
+        s32 frame = (mod > 0) ? mod : -mod;
 
-        jetpacGridAddTiledSprite(&D_8002DC38[idx], (s32)item->unk8, (s32)((item->unkC + 48.0f) + 4.0f), flameColor.rgba, 0);
+        jetpacGridAddTiledSprite(&D_8002DC38[frame], item->unk8, item->unkC + 48.0f + 4.0f, flameColor.rgba, 0);
     }
 
     for (i = 0; i < 3; i++, item++) {
@@ -491,11 +482,11 @@ void jetpacDrawRocket(void) {
 extern void *D_8002D190[];
 
 void jetpacSetRocketSpriteFrames(JetpacPlayer *player) {
-    s32 x = player->stage / 4;
+    s32 rocket = player->stage / 4;
     s32 i;
 
     for (i = 0; i < 6; i++) {
-        D_8002D1A0[i].frame = D_8002D190[x % 4];
+        D_8002D1A0[i].frame = D_8002D190[rocket % 4];
     }
 }
 
@@ -503,8 +494,8 @@ void jetpacInitLedge(JetpacLedge *ledge, s32 x1, s32 y1, s32 length, u8 r, u8 g,
     ledge->unk30 = length;
     ledge->unk8 = 0.0f;
     ledge->unkC = 0.0f;
-    ledge->x = (f32)x1;
-    ledge->y = (f32)y1;
+    ledge->x = x1;
+    ledge->y = y1;
     ledge->color[0] = r;
     ledge->color[1] = g;
     ledge->color[2] = b;
@@ -513,16 +504,16 @@ void jetpacInitLedge(JetpacLedge *ledge, s32 x1, s32 y1, s32 length, u8 r, u8 g,
     ledge->boxX1 = x1;
     ledge->boxX2 = (length * 8) + x1 + 16; ledge->boxY2 = y1 + 12; // LAYOUT: one line so as1 schedules boxX2 computation before boxY2 store
 }
-extern JetpacLedge jetpacLedges[];
 
 void jetpacInitLedges(void) {
-    jetpacInitLedge(jetpacLedges, 0xC0, 0x30, 4, 0, 0xBE, 0);
-    jetpacInitLedge(&jetpacLedges[1], 0x20, 0x48, 4, 0, 0xBE, 0);
-    jetpacInitLedge(&jetpacLedges[2], 0x78, 0x60, 2, 0, 0xBE, 0);
-    jetpacInitLedge(&jetpacLedges[3], 0, 0xB8, 0x1E, 0xBE, 0xBE, 0);
+    jetpacInitLedge(&jetpacGame.ledges[0], 192, 48, 4, 0, 0xBE, 0);
+    jetpacInitLedge(&jetpacGame.ledges[1], 32, 72, 4, 0, 0xBE, 0);
+    jetpacInitLedge(&jetpacGame.ledges[2], 120, 96, 2, 0, 0xBE, 0);
+    jetpacInitLedge(&jetpacGame.ledges[3], 0, 184, 30, 0xBE, 0xBE, 0);
 }
+
 s32 jetpacCheckLedgeCollision(f32 x1, f32 y1, f32 x2, f32 y2, s32 isItem) {
-    JetpacLedge *ledge = jetpacLedges;
+    JetpacLedge *ledge = jetpacGame.ledges;
     s32 i;
 
     for (i = 0; i < 4; i++, ledge++) {
@@ -538,24 +529,22 @@ s32 jetpacCheckLedgeCollision(f32 x1, f32 y1, f32 x2, f32 y2, s32 isItem) {
 }
 
 s32 jetpacCheckLedgeEdge(s32 ledgeIndex, s32 x1, s32 x2) {
-    JetpacLedge *l = jetpacGame.ledges + ledgeIndex;
+    JetpacLedge *ledge = &jetpacGame.ledges[ledgeIndex];
 
-    if (x1 < l->boxX1) {
-        if (x2 < l->boxX1) {
+    if (x1 < ledge->boxX1) {
+        if (x2 < ledge->boxX1) {
             return -2;
         }
         return -1;
     }
-    if (l->boxX2 < x2) {
-        if (l->boxX2 < x1) {
+    if (x2 > ledge->boxX2) {
+        if (x1 > ledge->boxX2) {
             return 2;
         }
         return 1;
     }
     return 0;
 }
-
-
 
 extern JetpacSprite D_8002DE68;
 extern JetpacSprite D_8002DE80;
@@ -566,19 +555,19 @@ void jetpacDrawLedges(void) {
     s32 j;
     s32 x;
     s32 y;
-    JetpacLedge *l;
+    JetpacLedge *ledge;
 
     for (i = 0; i < 4; i++) {
-        l = &jetpacGame.ledges[i];
-        x = l->x;
-        y = l->y;
-        jetpacGridAddTiledSprite(&D_8002DE68, x, y, l->color, 0);
+        ledge = &jetpacGame.ledges[i];
+        x = ledge->x;
+        y = ledge->y;
+        jetpacGridAddTiledSprite(&D_8002DE68, x, y, ledge->color, 0);
         x += 8;
-        for (j = 0; j < l->unk30; j++) {
-            jetpacGridAddTiledSprite(&D_8002DE80, x, y, l->color, 0);
+        for (j = 0; j < ledge->unk30; j++) {
+            jetpacGridAddTiledSprite(&D_8002DE80, x, y, ledge->color, 0);
             x += 8;
         }
-        jetpacGridAddTiledSprite(&D_8002DE98, x, y, l->color, 0);
+        jetpacGridAddTiledSprite(&D_8002DE98, x, y, ledge->color, 0);
     }
 }
 
