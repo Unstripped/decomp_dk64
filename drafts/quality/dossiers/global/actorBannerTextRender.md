@@ -18,9 +18,14 @@
   - variants.py scan on the plain form: 38 variants, best 3 (no zero).
   - permuter 900 s -j 2 from `(u8)sel` with hack-free weights (33.5k iterations, base 200, best 30, no zero): best = `u8 sel` (fdiff 5: load v0, copy a3, colours swapped); 39/64 = u8 copy-alias chains (steers).
   - Review: dropped m2c conversion casts (`(f64)` on f32 fields/width, `(f32)` on assignments, `(s16)` on textDrawStringVtx arguments); fdiff OK.
+- 2026-11-18 cleanup CleanactorBannerTextRenderb (anthropic/claude-opus-5-5): the B2CE0 xjp-copy rule (2026-11-18 knowledge queue, Cleanfunc_806AE588) measured here.
+  - Diagnostic case test of sel in the xjp-reached 0x1E-0x26 arm (`centered = (sel == 0x1E) + 1`, not target code): uopt does build the xjp copy (`move v0,a3`), but ugen places it after the range branch (after `beqz at`, before `sll t9`) and only the arm compare reads it (`xori t0,v0,0x1e`); the xjp operand stays `addiu t9,a3,-30` and the case-0 test `bnez a3` (49). The target's copy is in the blez delay slot (0x1954) and only the dispatch reads it (0x1958, 0x197c). The target's arms compare nothing, so no natural case test exists.
+  - `register s32 sel` 3 and a block-scope `{ s32 sel = actor->unk15F; switch (sel) ... }` 3: same as plain, the dispatch reads a3.
+  - Field form with sel's slot kept as an untagged pad: 49, the frame is still -264 (so the +8 is not sel's slot), and the registers are load v1, copy a3, temp v0. A hybrid (sel for bodies, field selector) is a re-read spelling the 2026-11-18 ruling excludes: the target loads unk15F once (0x1948).
+  - variants.py scan on the plain form: 38 variants, best 3 (no zero). quality.py sweep: plain/recipe nohit.
 
 ## Untried ideas
-- None natural left: every expression uopt keeps as its own candidate and ugen lowers to `move` is a no-op operator (`^ 0`, `| 0`); conversions are folded (`(s32)` of u32) or lowered to `and` (`(u8)`).
+- None natural left: every expression uopt keeps as its own candidate and ugen lowers to `move` is a no-op operator (`^ 0`, `| 0`); conversions are folded (`(s32)` of u32) or lowered to `and` (`(u8)`). uopt's own xjp copy (B2CE0 rule) needs a case-arm compare of sel and lands after the range branch.
 
 ## Evidence
 - Target 0x1948 `lbu a3,351(t8)`; 0x1950 `blez a3`; 0x1954 `move v0,a3`; 0x1958 `addiu t9,v0,-30`; 0x197c `bnez v0`; bodies use a3 (0x1998 `sll t1,a3,2`, 0x19c0 `andi t2,a3,0x80`, 0x1a70 `move a2,a3`).
