@@ -25,9 +25,12 @@
 - 2026-11-17 HackeepromSaveRecords9: 3c3a54 permuter (first on this site), base = every other tag kept, 3c3a54 removed: 900 s, base 1882, best 0: every zero swaps the steer (`if (D_807467C0) {}`, `if (!D_807467C0) {}`, `if (sEepromImage) {}` after the poll, or a redundant u16 alias `new_var = sector` after bzero used as the write-loop start).
 - 2026-11-17 HackeepromSaveRecords9: reconstruct hack-free + `s32 pad` + one-expression unsigned arm 0 + `i++` before the CRC call = 152 (best hack-free so far; +`(u32)sector << 3` 155; without the `i++` 173).
 
+- 2026-11-17 2026-11-17: cleanup CleaneepromValidateSaveSlots anthropic/claude-opus-5-5 (17f): D_807ECEA0 retyped to the scalar `s16 D_807ECEA0;` file-wide (fixes eepromValidateSaveSlots 2e4194). Here the sprintf is written `X + sEepromSlotBuffer` (base-first `sEepromSlotBuffer + X` gives addu a0,s1,t8 vs the target addu a0,t8,s1 at 0x1b84, fdiff 1; `&sEepromSlotBuffer[X]` and `&X[sEepromSlotBuffer]` also 1); under the array the order was free (array-load operand first, Q0737). Offset-first is this TU's forced pointer-sum spelling: `a + workingData` at 0x1c18 and 0x1d1c (base-first fdiff 1 each), `data = off + sEepromImage` at 0x14b8 in eepromValidateSaveSlots.
+- Same unit, scalar body: removals 6b7e71 179/164, 081ad7 46/30, a1ca65 118/118, 3c3a54 117/125, all four 172/157 (identical to the array body; base-first sprintf adds 1 to each). 081ad7 keeps its text: `if (D_807ECEA0) {}` (scalar value read) and `if (&D_807ECEA0) {}` both fdiff 0. Hack-free reconstruct on the scalar: plain 172, + `s32 pad` 166, + unsigned one-expression arm 0 173, + `i++` before the CRC call 152, + `(u32)sector << 3` 155 (the retype is neutral for every hack-free form). Tags of 6b7e71 and 081ad7 reworded to their register effects.
+
 ## Untried ideas
 - 6b7e71: a form that keeps `i++` after the CRC call yet modifies `i` or `height` between a's def and its use (the `i++`-before-call form proves the kill reproduces the target's v1 `a`).
-- 081ad7 / tie: a construct after bzero that uopt counts as a use of `&D_807ECEA0` (an unrelated dead block there scores 46) and that emits no code; nothing else separates the identical &D_807ECEA0 / -8 ranges.
+- 081ad7 / tie: a construct after bzero that uopt counts as a use of `&D_807ECEA0` (an unrelated dead block there scores 46) and that emits no code; nothing else separates the identical &D_807ECEA0 / -8 ranges. The scalar retype does not change the tie (no code after bzero reads D_807ECEA0).
 - 3c3a54: real control flow that leaves an empty conditional block between the poll-loop exit and the halted test (the break/guard/switch/return/merged-tail forms above all fail).
 
 ## Evidence
@@ -36,3 +39,4 @@
 - 0x1bf4-0x1c1c: CRC loop: `multu s0,t3` (a) issued before `move v0,t3` (height), a narrowed into v1 as a variable, len narrowed through a1 (`andi t8,a1; move a1,t8`), b's `multu t5,t3` with t5 = i + 1 computed at 0x1bd0; i++ at 0x1c40-0x1c54 after the call.
 - 0x1c64/0x1c88: arm 0 reloads unsigned -64 through `at` (signed -64 web s3 is live across arm 0 and used again at 0x1d5c/0x1d70, so arm 0's masks are a different, uncoloured candidate).
 - 0x1db0/0x1db4: two separate `sll ..,s1,3` (address and size); 0x1dc8 `move s4,s1`; 0x1e2c `slti at,s4,256`; 0x1e38 `andi s2,s1,0xffff` in the loop-entry block after the halted check.
+- 0x1b84: `addu a0,t8,s1` (sprintf destination: t8 = signature offset, s1 = &sEepromSlotBuffer); 0x1c18 `addu a0,v1,s5` and 0x1d1c `addu a0,v1,s5` (a + workingData, s5 = sp+2144); 0x1d8c `addu a0,t9,s5` (bzero destination). D_807ECEA0 reads: lh 0(s7) at 0x1b30, 0x1bcc (loop head), 0x1c60, 0x1cac, 0x1d50; displacement 0 everywhere.
