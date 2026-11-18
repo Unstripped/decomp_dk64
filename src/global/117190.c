@@ -262,7 +262,7 @@ typedef struct DemoEntry {
     /* 0x2 */ u16 maxTime; // caps gMenuStateTimer
 } DemoEntry; // size = 0x4
 
-extern DemoEntry gMenuDemoEntries[];
+extern const DemoEntry gMenuDemoEntries[];
 
 
 void menuSetupDemoPlayback(void) {
@@ -482,7 +482,9 @@ Gfx *menuDrawDemoHeaderText(Gfx *dl) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/117190/gMenuDemoEntries.s")
+const DemoEntry gMenuDemoEntries[5] = {
+    { 4, 0, 0x1E0 }, { 0, 0, 0x294 }, { 1, 0, 0x1E0 }, { 3, 0, 0x258 }, { 2, 0, 0x258 },
+};
 
 extern s16 gScreenWidth;
 

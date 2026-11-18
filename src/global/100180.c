@@ -115,15 +115,14 @@ void textBlitDash(u8 *dst) {
                   &phase, 0x30);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/D_8075DC20.s")
-
 typedef struct { u8 b[0x39]; } FcDStr39;
 typedef struct { u8 b[0x30]; } FcDStr30;
 typedef struct { u8 b[0x3A]; } FcDStr3A;
 
 extern FcDStr39 D_80754A64;
 extern FcDStr30 D_80754AA0;
-extern FcDStr3A D_8075DC20;
+
+const FcDStr3A D_8075DC20 = { "ABCDEFGHIJKLMNOPQRSTUVWXYZ.-?{}:=0123456789<>m)!@#$%^&cab" };
 
 s32 textMapCharToGlyph(s16 font, u8 *ch) {
     s8 yoff;

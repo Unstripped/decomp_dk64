@@ -60,9 +60,11 @@ s32 menuOtherKongHasUpgrade(MenuShopState *state, s32 bitOffset) {
     return found;
 }
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/D_80033A50.s")
+const u16 D_80033A50[5][4] = {
+    { 0, 11, 15, 20 }, { 0, 12, 16, 21 }, { 0, 14, 19, 22 }, { 0, 13, 17, 23 }, { 0, 13, 18, 24 },
+};
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/D_80033A78.s")
+const u16 D_80033A78[4] = { 0, 25, 26, 27 };
 
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
@@ -552,8 +554,6 @@ void menuUpdateShopPurchaseStep(MenuShopState *state, u8 *inventory) {
     }
 }
 
-extern u16 D_80033A50[][4];
-extern u16 D_80033A78[];
 extern u16 D_800334E4[];
 
 void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagId) {

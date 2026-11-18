@@ -921,13 +921,13 @@ void func_8060E430(u16 bit, u8 value, u8 index) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/D_80757020.s")
+const char D_80757020[4] = "7.2";
+const char D_80757024[30] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.- ";
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/D_80757024.s")
+const MenuHighScoreEntry D_80757044[5] = {
+    { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
+};
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/D_80757044.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/D_80757064.s")
-
-
-
+const MenuHighScoreEntry D_80757064[5] = {
+    { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
+};

@@ -1647,7 +1647,7 @@ typedef struct EfKongScriptIds {
     u16 values[5];
 } EfKongScriptIds;
 
-extern EfKongScriptIds D_8075D380;
+extern const EfKongScriptIds D_8075D380;
 
 void playerStateSpawnParticles(void) {
     EfKongScriptIds spawnParams;
@@ -1950,4 +1950,4 @@ void func_806F0930(void) {
     actorScriptExecute(gActivePlayerActor);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/D_8075D380.s")
+const EfKongScriptIds D_8075D380 = { { 10, 11, 12, 13, 14 } };

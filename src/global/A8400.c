@@ -18,7 +18,7 @@ void func_806A3700(Actor *key, void *data) {
 }
 
 extern u8 gGfxBufferIndex;
-extern u16 D_8075A740;
+extern const u16 D_8075A740[];
 
 
 void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGlyph *glyph) {
@@ -33,7 +33,7 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGly
     f32 scale;
 
     dl = *gdl;
-    str.h = D_8075A740;
+    str.h = D_8075A740[0];
     text = &glyph->text;
     guMtxIdentF(mtx);
     if ((text->attr != 0) && (glyph->fade != 0)) {
@@ -632,4 +632,4 @@ void textBoxUpdate(void) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/D_8075A740.s")
+const u16 D_8075A740[4] = { 0 };
