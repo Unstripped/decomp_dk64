@@ -96,43 +96,25 @@ void faultPrintf(const char *fmt, ...) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_8075FFF0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760004.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760018.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760028.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760038.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760048.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760054.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760064.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760078.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_8076008C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_807600A0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_807600B4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_807600CC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_807600E0.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_807600F8.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_8076010C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760124.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_8076013C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/D_80760150.s")
+const char D_8075FFF0[20] = "CLIP ARRAY OVERFLOW";
+const char D_80760004[20] = "MAIN STACK OVERFLOW";
+const char D_80760018[13] = "DFS OVERFLOW";
+const char D_80760028[14] = "OUT OF MEMORY";
+const char D_80760038[15] = "DATABASE ERROR";
+const char D_80760048[10] = "DMA ERROR";
+const char D_80760054[13] = "LOOKUP ERROR";
+const char D_80760064[17] = "TOO MANY OBJECTS";
+const char D_80760078[17] = "KILL SOUND ERROR";
+const char D_8076008C[19] = "STORED STATE ERROR";
+const char D_807600A0[18] = "MATRIX COPY ERROR";
+const char D_807600B4[23] = "DELAYED KILLS OVERFLOW";
+const char D_807600CC[20] = "LOCK STACK OVERFLOW";
+const char D_807600E0[23] = "POSTFUNCTIONS OVERFLOW";
+const char D_807600F8[17] = "SIGNALS OVERFLOW";
+const char D_8076010C[22] = "SORT LIST EARLY ERROR";
+const char D_80760124[21] = "SORT LIST LATE ERROR";
+const char D_8076013C[19] = "DISPLAY LIST ERROR";
+const char D_80760150[22] = "OBJECT EXIST OVERFLOW";
 
 typedef struct {
     s32 unk0;

@@ -1639,18 +1639,11 @@ s32 actorInitStaticMeshFlag(s32 unused) {
     return 1;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759260.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759268.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759270.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759278.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759280.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759288.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759290.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7CA80/D_80759298.s")
+const char D_80759260[7] = "DONKEY";
+const char D_80759268[6] = "DIDDY";
+const char D_80759270[6] = "LANKY";
+const char D_80759278[5] = "TINY";
+const char D_80759280[7] = "CHUNKY";
+const char D_80759288[7] = "KRUSHA";
+const char D_80759290[6] = "RAMBI";
+const char D_80759298[9] = "ENGUARDE";

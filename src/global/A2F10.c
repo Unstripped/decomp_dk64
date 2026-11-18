@@ -465,23 +465,15 @@ void renderScaledSprite(Gfx *dl, Actor *actor) {
                   (s32)actor->x, (s32)actor->y, scale, scale, 0, 0.0f);
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A410.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A418.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A420.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A428.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A430.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A438.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A440.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A444.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A44C.s")
+const char D_8075A410[7] = "DONKEY";
+const char D_8075A418[6] = "DIDDY";
+const char D_8075A420[6] = "LANKY";
+const char D_8075A428[5] = "TINY";
+const char D_8075A430[7] = "CHUNKY";
+const char D_8075A438[5] = "KING";
+const char D_8075A440[3] = "K.";
+const char D_8075A444[5] = "ROOL";
+const char D_8075A44C[5] = "KONG";
 
 extern char *D_80750338[];
 

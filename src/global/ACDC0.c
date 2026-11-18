@@ -94,11 +94,11 @@ extern s8 gMpWinnerIndex;
 
 f32 sqrtf(f32);
 
-extern char D_8075AA80[], D_8075AA88[], D_8075AA90[], D_8075AA94[], D_8075AA9C[], D_8075AAA4[], D_8075AAAC[];
-extern char D_8075AAB4[], D_8075AABC[], D_8075AAC4[], D_8075AACC[], D_8075AAD4[], D_8075AADC[], D_8075AAE4[];
+extern const char D_8075AA80[], D_8075AA88[], D_8075AA90[], D_8075AA94[], D_8075AA9C[], D_8075AAA4[], D_8075AAAC[];
+extern const char D_8075AAB4[], D_8075AABC[], D_8075AAC4[], D_8075AACC[], D_8075AAD4[], D_8075AADC[], D_8075AAE4[];
 extern s32 D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
 
-char *sLevelNames[14] = {
+const char *sLevelNames[14] = {
     D_8075AA80, D_8075AA88, D_8075AA90, D_8075AA94, D_8075AA9C, D_8075AAA4, D_8075AAAC,
     D_8075AAB4, D_8075AABC, D_8075AAC4, D_8075AACC, D_8075AAD4, D_8075AADC, D_8075AAE4,
 };
@@ -536,33 +536,20 @@ Gfx *hudSetupTextState(Gfx *dl) {
     return dl;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AA80.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AA88.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AA90.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AA94.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AA9C.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAA4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAAC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAB4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AABC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAC4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AACC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAD4.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AADC.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAE4.s")
+const char D_8075AA80[7] = "JUNGLE";
+const char D_8075AA88[7] = "TEMPLE";
+const char D_8075AA90[4] = "TOY";
+const char D_8075AA94[6] = "WRECK";
+const char D_8075AA9C[7] = "FOREST";
+const char D_8075AAA4[8] = "CRYSTAL";
+const char D_8075AAAC[7] = "SPOOKY";
+const char D_8075AAB4[6] = "WORLD";
+const char D_8075AABC[8] = "HIDEOUT";
+const char D_8075AAC4[6] = "BONUS";
+const char D_8075AACC[6] = "MULTI";
+const char D_8075AAD4[6] = "STORY";
+const char D_8075AADC[5] = "TEST";
+const char D_8075AAE4[7] = "SHARED";
 
 
 extern u8 gCurrentWorldId;
