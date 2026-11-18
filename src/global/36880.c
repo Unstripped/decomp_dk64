@@ -1006,14 +1006,11 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     u8 *animFrame;
     u8 *boneTable;
     s8 lastBone;
-    s32 off;
-    s32 pad2;
-    s32 pad3;
+    s32 pad[2];
 
-    off = slot * 0x90; // FAKE: dead store keeps slot * 0x90 in v0 and the gModelSlots load in v1 (addu t6,v1,v0 / addu s6,v0,v1)
-    anim = gModelSlots[slot].unk78;
     lastBone = -1;
     buf = &gModelSlots[slot].unk48;
+    anim = gModelSlots[slot].unk78;
     if (anim != NULL) {
         animFrame = anim->frames[gGfxBufferIndex];
     } else {
