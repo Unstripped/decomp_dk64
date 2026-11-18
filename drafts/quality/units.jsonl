@@ -1110,3 +1110,4 @@
 {"type": "unit", "t": "2026-11-18T10:22:05Z", "unit": "2026-11-17: cleanup CleanplayerInputRegisterAnimatedEffect", "commit": "d77f03ef552dd6108b660e548938f62cdf092e6f"}
 {"type": "unit", "t": "2026-11-18T10:24:17Z", "unit": "2026-11-17: cleanup CleanzbufferReadDepth", "commit": "69e4c3b15de86e22df6918f2518cd8fa91bdb898"}
 {"type": "unit", "t": "2026-11-18T10:25:11Z", "unit": "2026-11-17: cleanup CleanplayerStateApproachVelocity", "commit": "08f1223b1c634d4965c237f11991886a7b73cb79"}
+{"type": "unit", "t": "2026-11-18T10:33:33Z", "unit": "2026-11-17: cleanup CleancsCmdPlayerProximityPointCheck", "commit": "8716a2d32be32f0d56494c74312076d3c92cf401"}
