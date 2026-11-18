@@ -3057,6 +3057,8 @@ void camTurnYawToward(CamState *st, s16 speed, s16 targetYaw) {
     st->unkB2 &= 0xFFF;
 }
 
+#define CAM_SQ(x) ((x) * (x))
+
 void camUpdateFollowBlend(Actor *camActor) {
     CamState *st = camActor->customState;
     Actor *target = st->followActor;
@@ -3065,11 +3067,9 @@ void camUpdateFollowBlend(Actor *camActor) {
     f32 scale;
     f32 speedRatio;
     f32 base;
-    s32 dist;
+    s32 distSq;
     f64 distScale;
     f64 clampedScale;
-    f32 dz;
-    f32 dx;
 
     switch (st->mode) {
         case 6:
@@ -3085,10 +3085,8 @@ void camUpdateFollowBlend(Actor *camActor) {
         case 3:
         case 11:
             if (target->attachMode == 1) {
-                dz = target->z - st->eyeGoalZ;
-                dx = target->x - st->eyeGoalX;
-                dist = dz * dz + dx * dx;
-                distScale = dist * 0.001;
+                distSq = CAM_SQ(target->z - st->eyeGoalZ) + CAM_SQ(target->x - st->eyeGoalX);
+                distScale = distSq * 0.001;
                 clampedScale = (distScale > 1.0) ? 1.0 : distScale;
                 gCamEyeBlendRate = clampedScale * -0.8 + 1.0;
             } else {
@@ -3176,7 +3174,6 @@ void camUpdateFollowBlend(Actor *camActor) {
             case 1:
             case 4:
             case 5:
-            dist++; // FAKE: dead increment makes uopt colour dist $v0 (else $t0)
             case 10:
             case 12:
             case 13:
