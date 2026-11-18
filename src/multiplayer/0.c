@@ -238,8 +238,8 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
         viewport = controllerState->viewports[i];
         alpha = 0xFF;
         if (gPlayerSlots[i].unk2EA != 0) {
-            alpha = gPlayerSlots[i].actor->alpha & 0xFF; // FAKE: redundant early alpha load (overwritten below) keeps alpha in v1 and the lh in a0 (else: alpha in a0, beqzl at shape)
-            if (gPlayerSlots[i].actor->alpha >= 0x100) {
+            alpha = gPlayerSlots[i].actor->alpha;
+            if (alpha >= 0x100) {
                 alpha = 0xFF;
             } else {
                 alpha = gPlayerSlots[i].actor->alpha & 0xFF;
@@ -253,7 +253,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
         if (gSplitScreenMode == 0) {
             glyphX = viewport->right - 0x30;
         } else {
-            glyphX = (s16) ((f32) (i + 1) * spacing - 20.0);
+            glyphX = (i + 1) * spacing - 20.0;
         }
         y = viewport->top + 8;
         if (inventory->health < 0) {
