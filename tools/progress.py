@@ -7,6 +7,11 @@ Matched includes compiled C and the handwritten files in handwritten_asm.json;
 both categories are reported separately. Only ELF function bytes are counted,
 not alignment padding or data embedded in assembly.
 
+Data (.data + .rodata input sections from the map, raw assets and the ROM header
+excluded) is counted separately: C, ROM-extracted includes (data_inc.us.txt),
+handwritten-asm data (registry objects) and asm (other splat asm plus data
+still included via GLOBAL_ASM in a C file).
+
 Usage:
   tools/dk python3 tools/progress.py [--json] [segment]
   tools/dk python3 tools/progress.py --readme   # rewrite README.md progress section
@@ -79,6 +84,182 @@ def parse_map_text_sections(map_path: Path):
         if size > 0:
             sections.append((addr, size, obj))
     return sections
+
+
+def parse_map_data_sections(map_path: Path):
+    """Return (section, addr, size, obj) for every non-empty .data/.rodata input section.
+
+    Rows before the "Linker script and memory map" line (the Discarded input sections
+    block) are ignored.
+    """
+    if not map_path.is_file():
+        raise FileNotFoundError(f"Map file not found: {map_path}")
+
+    content = map_path.read_text(encoding="utf-8", errors="replace")
+    marker = content.find("Linker script and memory map")
+    if marker >= 0:
+        content = content[marker:]
+    pattern = re.compile(
+        r"^\s*(\.data|\.rodata)\s*\n?\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)\s+(build/[^\n]+\.o)",
+        re.MULTILINE,
+    )
+    sections = []
+    for m in pattern.finditer(content):
+        size = int(m.group(3), 16)
+        if size > 0:
+            sections.append((m.group(1), int(m.group(2), 16), size, m.group(4).strip()))
+    return sections
+
+
+_DIRECTIVE_SIZES = {".word": 4, ".float": 4, ".short": 2, ".half": 2, ".byte": 1, ".double": 8}
+_STRING_ESCAPE = re.compile(r"\\([0-7]{1,3}|.)")
+
+
+def _split_operands(text: str) -> list[str]:
+    """Comma-separated directive operands, ignoring commas inside string literals."""
+    operands, cur, in_str, i = [], "", False, 0
+    while i < len(text):
+        ch = text[i]
+        if in_str and ch == "\\" and i + 1 < len(text):
+            cur += text[i:i + 2]
+            i += 2
+            continue
+        if ch == '"':
+            in_str = not in_str
+        if ch == "," and not in_str:
+            operands.append(cur.strip())
+            cur = ""
+        else:
+            cur += ch
+        i += 1
+    if cur.strip():
+        operands.append(cur.strip())
+    return operands
+
+
+def _string_length(literal: str) -> int:
+    """Byte length of a quoted gas string literal; every escape counts as one byte."""
+    body = literal.strip()
+    if body.startswith('"') and body.endswith('"'):
+        body = body[1:-1]
+    return len(_STRING_ESCAPE.sub("x", body))
+
+
+def asm_data_size(s_path: Path) -> int:
+    """Bytes a splat data `.s` emits: sized directives, strings, `.space` and `.align`."""
+    size = 0
+    for raw in s_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = re.sub(r"/\*.*?\*/", "", raw).strip()
+        m = re.match(r"(\.[a-z0-9_]+)\s*(.*)$", line)
+        if not m:
+            continue
+        directive, rest = m.group(1), m.group(2)
+        if directive in _DIRECTIVE_SIZES:
+            size += _DIRECTIVE_SIZES[directive] * len(_split_operands(rest))
+        elif directive in (".asciz", ".ascii"):
+            extra = 1 if directive == ".asciz" else 0
+            size += sum(_string_length(op) + extra for op in _split_operands(rest))
+        elif directive == ".space":
+            size += int(_split_operands(rest)[0], 0)
+        elif directive == ".align":
+            align = 1 << int(rest, 0)
+            size = (size + align - 1) // align * align
+    return size
+
+
+def read_data_inc(manifest: Path) -> list[dict]:
+    """Rows of data_inc.us.txt: `seg name vram size width file`, `#` comments."""
+    rows = []
+    if not manifest.is_file():
+        return rows
+    for lineno, line in enumerate(manifest.read_text(encoding="utf-8").splitlines(), 1):
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        parts = line.split()
+        if len(parts) != 6:
+            raise ValueError(f"{manifest}:{lineno}: expected 6 columns, got {len(parts)}")
+        seg, name, vram, size, width, file = parts
+        rows.append({
+            "line": lineno, "seg": seg, "name": name, "vram": int(vram, 0),
+            "size": int(size, 0), "width": int(width, 0), "file": file,
+        })
+    return rows
+
+
+def handwritten_registry_objects(repo_root: Path) -> set[str]:
+    """`build/<path>.o` for every asm path in handwritten_asm.json."""
+    return {
+        f"build/{Path(path).with_suffix('.o').as_posix()}"
+        for path in json.loads((repo_root / "handwritten_asm.json").read_text(encoding="utf-8"))
+        if path.startswith("asm/")
+    }
+
+
+def global_asm_paths(c_path: Path) -> list[str]:
+    """Every `#pragma GLOBAL_ASM` path in a C file."""
+    content = c_path.read_text(encoding="utf-8", errors="replace")
+    return re.findall(r"#pragma\s+GLOBAL_ASM\s*\(\s*[\"']([^\"']+)[\"']\s*\)", content)
+
+
+def compute_segment_data(name: str, elf_path: Path, map_path: Path, repo_root: Path):
+    """Initialised data bytes (.data + .rodata) of a segment by origin.
+
+    c: compiled from C; extracted: C arrays initialised from ROM-extracted includes
+    (data_inc.us.txt); handwritten: asm objects registered in handwritten_asm.json;
+    asm: other splat asm, plus data still included via GLOBAL_ASM in a C file.
+    Raw objects (build/assets/*, the ROM header) are not counted.
+    """
+    handwritten_objects = handwritten_registry_objects(repo_root)
+    func_names = {s["name"] for s in read_elf_symbols(elf_path) if s["type"] == 2}
+    inc_rows = read_data_inc(repo_root / "data_inc.us.txt")
+    totals = {"c": 0, "extracted": 0, "handwritten": 0, "asm": 0}
+    seen_c = set()
+    for _section, _addr, size, obj in parse_map_data_sections(map_path):
+        if obj.startswith("build/assets/") or obj == "build/asm/header.o":
+            continue
+        if obj in handwritten_objects:
+            totals["handwritten"] += size
+        elif obj.startswith("build/asm/"):
+            totals["asm"] += size
+        elif obj.startswith("build/src/"):
+            totals["c"] += size
+            c_rel = Path(obj).relative_to("build").with_suffix(".c")
+            if c_rel in seen_c:
+                continue
+            seen_c.add(c_rel)
+            c_file = repo_root / c_rel
+            if not c_file.is_file():
+                continue
+            for asm_path in global_asm_paths(c_file):
+                if Path(asm_path).stem in func_names:
+                    continue
+                moved = asm_data_size(repo_root / asm_path)
+                totals["c"] -= moved
+                totals["asm"] += moved
+            for row in inc_rows:
+                if row["file"] == c_rel.as_posix():
+                    totals["c"] -= row["size"]
+                    totals["extracted"] += row["size"]
+    return data_keys(totals)
+
+
+def data_keys(totals: dict) -> dict:
+    """Result keys for data byte totals {c, extracted, handwritten, asm}."""
+    total = sum(totals.values())
+    done = totals["c"] + totals["extracted"] + totals["handwritten"]
+    return {
+        "data_c_bytes": totals["c"],
+        "data_extracted_bytes": totals["extracted"],
+        "data_handwritten_bytes": totals["handwritten"],
+        "data_asm_bytes": totals["asm"],
+        "data_total_bytes": total,
+        "data_percent": (done / total * 100.0) if total > 0 else 0.0,
+    }
+
+
+def data_done(r: dict) -> int:
+    return r["data_c_bytes"] + r["data_extracted_bytes"] + r["data_handwritten_bytes"]
 
 
 def read_elf_sections(data: bytes) -> tuple[str, list[dict]]:
@@ -195,11 +376,7 @@ def iter_segment_functions(elf_path: Path, map_path: Path, repo_root: Path):
     obj_secs = sorted(parse_map_text_sections(map_path))
     starts = [a for a, _, _ in obj_secs]
     c_unmatched_cache = {}
-    handwritten_objects = {
-        f"build/{Path(path).with_suffix('.o').as_posix()}"
-        for path in json.loads((repo_root / "handwritten_asm.json").read_text(encoding="utf-8"))
-        if path.startswith("asm/")
-    }
+    handwritten_objects = handwritten_registry_objects(repo_root)
 
     for s in read_elf_symbols(elf_path):
         # STT_FUNC = 2, size > 0, shndx < 0xFF00 (not ABS / COMMON / UNDEF)
@@ -267,6 +444,7 @@ def compute_segment_progress(name: str, elf_path: Path, map_path: Path, repo_roo
         "total_funcs": total_funcs,
         "code": matched_bytes,
         "code/total": total_bytes,
+        **compute_segment_data(name, elf_path, map_path, repo_root),
     }
 
 
@@ -305,8 +483,12 @@ def render_markdown(results, total_row) -> str:
         "",
         progress_bar(total_row["percent"], 40),
         "",
-        "| Segment | Contents | Progress | C bytes | Handwritten bytes | Matched / total bytes | Functions |",
-        "|---|---|---|--:|--:|--:|--:|",
+        f"**Data: {total_row['data_percent']:.2f}%** of initialised data bytes (.data + .rodata) "
+        "are C, ROM-extracted (`tools/data_inc.py`) or handwritten-asm data "
+        f"({data_done(total_row):,} / {total_row['data_total_bytes']:,} bytes)",
+        "",
+        "| Segment | Contents | Progress | C bytes | Handwritten bytes | Matched / total bytes | Functions | Data |",
+        "|---|---|---|--:|--:|--:|--:|--:|",
     ]
     for r in results + [total_row]:
         name = "**Total**" if r is total_row else f"`{r['name']}`"
@@ -315,7 +497,8 @@ def render_markdown(results, total_row) -> str:
             f"| {name} | {notes} | {progress_bar(r['percent'])} {r['percent']:.1f}% "
             f"| {r['c_matched_bytes']:,} | {r['handwritten_bytes']:,} "
             f"| {r['matched_bytes']:,} / {r['total_bytes']:,} "
-            f"| {r['matched_funcs']:,} / {r['total_funcs']:,} |"
+            f"| {r['matched_funcs']:,} / {r['total_funcs']:,} "
+            f"| {r['data_percent']:.1f}% ({data_done(r):,} / {r['data_total_bytes']:,}) |"
         )
     lines.append(README_END)
     return "\n".join(lines)
@@ -399,6 +582,10 @@ def main():
         "total_funcs": total_total_funcs,
         "code": total_matched_bytes,
         "code/total": total_total_bytes,
+        **data_keys({
+            key: sum(r[f"data_{key}_bytes"] for r in results)
+            for key in ("c", "extracted", "handwritten", "asm")
+        }),
     }
 
     if args.readme:
@@ -416,17 +603,17 @@ def main():
     # Text table output, with handwritten bytes separate from compiled C.
     print(
         f"{'Segment':<15s} {'C Bytes':>9s} {'Hand ASM':>9s} "
-        f"{'Matched / Total Bytes':>23s}   {'Percent':>7s}   {'Matched / Total Funcs':>21s}"
+        f"{'Matched / Total Bytes':>23s}   {'Percent':>7s}   {'Matched / Total Funcs':>21s}   {'Data':>7s}"
     )
     for r in results + [total_row]:
         if r is total_row:
-            print("-" * 105)
+            print("-" * 116)
         name = "Total" if r is total_row else r["name"]
         bytes_str = f"{r['matched_bytes']:>7d} / {r['total_bytes']:>7d}"
         funcs_str = f"{r['matched_funcs']:>5d} / {r['total_funcs']:>5d}"
         print(
             f"{name:<15s} {r['c_matched_bytes']:>9d} {r['handwritten_bytes']:>9d} "
-            f"{bytes_str:>23s}   {r['percent']:>6.2f}%   {funcs_str:>21s}"
+            f"{bytes_str:>23s}   {r['percent']:>6.2f}%   {funcs_str:>21s}   {r['data_percent']:>6.2f}%"
         )
 
 

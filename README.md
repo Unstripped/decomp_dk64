@@ -10,27 +10,29 @@ This repository contains no game data. You need your own copy of the ROM to buil
 
 ## Progress
 
-Percentages count matched C plus approved handwritten-assembly function bytes out of all function bytes in each code segment. C and handwritten bytes are reported separately. Assets (textures, models, text), alignment padding, and data embedded in text are not counted; see [ROADMAP.md](ROADMAP.md).
+Code and data are counted separately. Code percentages count matched C plus approved handwritten-assembly function bytes out of all function bytes in each code segment; C and handwritten bytes are reported separately. Data percentages count the initialised `.data` and `.rodata` bytes of each code segment that are C, ROM-extracted includes, or data of registered handwritten assembly. Assets (textures, models, text), alignment padding between objects, and `.bss` are not counted; see [ROADMAP.md](ROADMAP.md).
 
 <!-- progress:start -->
 **Overall: 100.00%** of code bytes matched (1,737,680 / 1,737,680 bytes, 4,499 / 4,499 functions)
 
 `████████████████████████████████████████`
 
-| Segment | Contents | Progress | C bytes | Handwritten bytes | Matched / total bytes | Functions |
-|---|---|---|--:|--:|--:|--:|
-| `boot` | boot, libultra, inflate | `████████████████████` 100.0% | 47,692 | 6,092 | 53,784 / 53,784 | 229 / 229 |
-| `global` | main game code | `████████████████████` 100.0% | 1,308,040 | 15,408 | 1,323,448 / 1,323,448 | 3,601 / 3,601 |
-| `multiplayer` | `ovl02`, multiplayer modes | `████████████████████` 100.0% | 12,132 | 0 | 12,132 / 12,132 | 31 / 31 |
-| `minecart` | `ovl03`, minecart rides | `████████████████████` 100.0% | 19,332 | 0 | 19,332 / 19,332 | 25 / 25 |
-| `bonus` | `ovl04`, bonus barrels | `████████████████████` 100.0% | 38,972 | 0 | 38,972 / 38,972 | 47 / 47 |
-| `race` | `ovl05`, races | `████████████████████` 100.0% | 47,836 | 0 | 47,836 / 47,836 | 113 / 113 |
-| `critter` | `ovl06`, critter minigames | `████████████████████` 100.0% | 22,496 | 0 | 22,496 / 22,496 | 55 / 55 |
-| `boss` | `ovl07`, boss fights | `████████████████████` 100.0% | 71,780 | 0 | 71,780 / 71,780 | 79 / 79 |
-| `arcade` | `ovl08`, Donkey Kong arcade | `████████████████████` 100.0% | 57,880 | 0 | 57,880 / 57,880 | 98 / 98 |
-| `jetpac` | `ovl09`, Jetpac | `████████████████████` 100.0% | 28,788 | 0 | 28,788 / 28,788 | 108 / 108 |
-| `menu` | `ovl10`, main menu / file select | `████████████████████` 100.0% | 61,232 | 0 | 61,232 / 61,232 | 113 / 113 |
-| **Total** |  | `████████████████████` 100.0% | 1,716,180 | 21,500 | 1,737,680 / 1,737,680 | 4,499 / 4,499 |
+**Data: 24.83%** of initialised data bytes (.data + .rodata) are C, ROM-extracted (`tools/data_inc.py`) or handwritten-asm data (64,796 / 260,960 bytes)
+
+| Segment | Contents | Progress | C bytes | Handwritten bytes | Matched / total bytes | Functions | Data |
+|---|---|---|--:|--:|--:|--:|--:|
+| `boot` | boot, libultra, inflate | `████████████████████` 100.0% | 47,692 | 6,092 | 53,784 / 53,784 | 229 / 229 | 10.6% (1,152 / 10,864) |
+| `global` | main game code | `████████████████████` 100.0% | 1,308,040 | 15,408 | 1,323,448 / 1,323,448 | 3,601 / 3,601 | 45.0% (52,980 / 117,744) |
+| `multiplayer` | `ovl02`, multiplayer modes | `████████████████████` 100.0% | 12,132 | 0 | 12,132 / 12,132 | 31 / 31 | 48.0% (192 / 400) |
+| `minecart` | `ovl03`, minecart rides | `████████████████████` 100.0% | 19,332 | 0 | 19,332 / 19,332 | 25 / 25 | 67.5% (432 / 640) |
+| `bonus` | `ovl04`, bonus barrels | `████████████████████` 100.0% | 38,972 | 0 | 38,972 / 38,972 | 47 / 47 | 89.5% (1,504 / 1,680) |
+| `race` | `ovl05`, races | `████████████████████` 100.0% | 47,836 | 0 | 47,836 / 47,836 | 113 / 113 | 69.3% (1,120 / 1,616) |
+| `critter` | `ovl06`, critter minigames | `████████████████████` 100.0% | 22,496 | 0 | 22,496 / 22,496 | 55 / 55 | 20.5% (512 / 2,496) |
+| `boss` | `ovl07`, boss fights | `████████████████████` 100.0% | 71,780 | 0 | 71,780 / 71,780 | 79 / 79 | 70.8% (3,816 / 5,392) |
+| `arcade` | `ovl08`, Donkey Kong arcade | `████████████████████` 100.0% | 57,880 | 0 | 57,880 / 57,880 | 98 / 98 | 1.1% (1,136 / 100,832) |
+| `jetpac` | `ovl09`, Jetpac | `████████████████████` 100.0% | 28,788 | 0 | 28,788 / 28,788 | 108 / 108 | 4.5% (688 / 15,264) |
+| `menu` | `ovl10`, main menu / file select | `████████████████████` 100.0% | 61,232 | 0 | 61,232 / 61,232 | 113 / 113 | 31.3% (1,264 / 4,032) |
+| **Total** |  | `████████████████████` 100.0% | 1,716,180 | 21,500 | 1,737,680 / 1,737,680 | 4,499 / 4,499 | 24.8% (64,796 / 260,960) |
 <!-- progress:end -->
 
 Refresh after a matching build with `tools/dk python3 tools/progress.py --readme`.
@@ -39,7 +41,7 @@ Refresh after a matching build with `tools/dk python3 tools/progress.py --readme
 
 [`handwritten_asm.json`](handwritten_asm.json) is the maintained registry of assembly files that are complete in their original handwritten form: boot/libultra routines, non-ABI math helpers, and RSP microcode. Each entry maps a generated `asm/...s` path to its classification reason. Only function symbols from those files count as matched; unlisted assembly and C functions still using `GLOBAL_ASM`/`INCLUDE_ASM` remain unmatched.
 
-Add an entry only after confirming the whole file is handwritten, rather than compiler-generated C awaiting decompilation. Keep the assembly generated by `make setup`/`make split`; the registry contains metadata, not game data. Refresh progress after the matching ROM gate. `--json` exposes `c_matched_bytes`/`c_matched_funcs` and `handwritten_bytes`/`handwritten_funcs`; `matched_bytes`/`matched_funcs`, `percent`, and `code` include both categories.
+Add an entry only after confirming the whole file is handwritten, rather than compiler-generated C awaiting decompilation. Keep the assembly generated by `make setup`/`make split`; the registry contains metadata, not game data. Refresh progress after the matching ROM gate. `--json` exposes `c_matched_bytes`/`c_matched_funcs` and `handwritten_bytes`/`handwritten_funcs`; `matched_bytes`/`matched_funcs`, `percent`, and `code` include both categories. Data: `data_c_bytes`, `data_extracted_bytes`, `data_handwritten_bytes`, `data_asm_bytes`, `data_total_bytes` and `data_percent`.
 
 ## Building
 
