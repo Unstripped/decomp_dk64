@@ -1075,3 +1075,4 @@
 {"type": "unit", "t": "2026-11-18T08:21:32Z", "unit": "2026-11-17: cleanup CleangfxDrawMapBackground", "commit": "a9800a8796f8546430e61929ef22792a77f137fa"}
 {"type": "unit", "t": "2026-11-18T08:23:20Z", "unit": "2026-11-17: cleanup CleanpathPlaybackAdvance", "commit": "1d46de5bb1b4aee4735421cb15730dfddbcb8102"}
 {"type": "unit", "t": "2026-11-18T08:33:52Z", "unit": "2026-11-17: cleanup CleansfxStartAreaAmbient", "commit": "758923156cb20e48d5a5c1f4951fca433a7b5f8d"}
+{"type": "unit", "t": "2026-11-18T08:35:54Z", "unit": "2026-11-17: cleanup CleandlAppendTextureLoad", "commit": "af4f64dd569cb71d76779fd15c0d2d4ab74500b9"}
