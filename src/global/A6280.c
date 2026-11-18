@@ -231,7 +231,7 @@ void actorPlaySoundVariantAndFinish(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-static void stub_806A1FD0(void) {
+void stub_806A1FD0(void) {
 }
 
 typedef struct ActorSinkState {

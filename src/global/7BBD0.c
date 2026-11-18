@@ -3,10 +3,1120 @@
 
 #include "actor.h"
 #include "sched.h"
+#include "proto/global/201B0.h"
 #include "proto/global/2F550.h"
+#include "proto/global/42630.h"
 #include "proto/global/70FD0.h"
+#include "proto/global/7AF60.h"
 #include "proto/global/7BBD0.h"
 #include "proto/global/7CA80.h"
+#include "proto/global/80150.h"
+#include "proto/global/89250.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/936B0.h"
+#include "proto/global/9BF30.h"
+#include "proto/global/9CE20.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/A2F10.h"
+#include "proto/global/A6280.h"
+#include "proto/global/A7710.h"
+#include "proto/global/A8400.h"
+#include "proto/global/AA960.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/B1F60.h"
+#include "proto/global/B2CE0.h"
+#include "proto/global/B5EC0.h"
+#include "proto/global/B6C50.h"
+#include "proto/global/B7490.h"
+#include "proto/global/BA790.h"
+#include "proto/global/BB300.h"
+#include "proto/global/BC3B0.h"
+#include "proto/global/BD820.h"
+#include "proto/global/BDEE0.h"
+#include "proto/global/C0EE0.h"
+#include "proto/global/C1E70.h"
+#include "proto/global/C2A90.h"
+#include "proto/global/C4620.h"
+#include "proto/global/C8C10.h"
+#include "proto/global/CB230.h"
+#include "proto/global/CBEA0.h"
+#include "proto/global/CEAE0.h"
+
+// This TU's .data (0x8074AC10-0x8074DA2C + 4-byte TU pad), in address order: the per-actor-type
+// tables, defined between 7A510's data (ends with a 4-byte TU pad at 0x8074AC0C) and 7CA80's
+// (starts 16-aligned at 0x8074DA30 after gActorTypeInitIndex's 4-byte TU pad). The tentative owner is
+// 7BBD0: 7AF60 and 7BA00 sit between 7A510 and 7CA80 too, and none of these lists' pointers reaches a
+// 7BBD0 function.
+
+// Collision interaction lists and pattern tables reached through D_8074C604 (the unlabelled ones are
+// reached only through other unreferenced tables).
+CollisionInteractionEntry D_8074AC10[1] = { { -1, -1, NULL, 9, 5, 0 } };
+CollisionInteractionEntry D_8074AC1C[1] = { { -1, -1, NULL, 1, 0, 0 } };
+CollisionInteractionEntry D_8074AC28[1] = { { -1, -1, NULL, 1, 5, 0 } };
+CollisionInteractionEntry D_8074AC34[1] = { { -1, -1, NULL, 9, 0, 0 } };
+CollisionInteractionEntry D_8074AC40[1] = { { -1, -1, NULL, 4, 5, 0 } };
+CollisionInteractionEntry D_8074AC4C[1] = { { -1, -1, NULL, 1, 0, 0 } };
+CollisionInteractionEntry D_8074AC58[6] = {
+    { -2789, -1, (CollisionFilterFn)actorCheckPlayerSmallerThanAttacker, 6, 2, 2 },
+    { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 6, 3, 2 },
+    { -1, 132, (CollisionFilterFn)actorIsBelowTargetStationary, 1, 3, 2 },
+    { -1, 2912, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
+    { -1, -1, (CollisionFilterFn)func_80676788, 1, 5, 2 },
+    { -1, -1, NULL, 1, 2, 0 },
+};
+CollisionInteractionEntry D_8074ACA0[1] = { { -1, -1, NULL, 9, 5, 0 } };
+CollisionInteractionEntry D_8074ACAC[1] = { { -1, -1, NULL, 10, 5, 0 } };
+CollisionInteractionEntry D_8074ACB8[4] = {
+    { -3813, -1, (CollisionFilterFn)actorCheckPlayerSmallerThanAttacker, 6, 2, 2 },
+    { -1, -1, (CollisionFilterFn)playerIsGiantLandingOnEnemy, 1, 13, 2 },
+    { -1, -1, (CollisionFilterFn)playerIsGiantGroundedAgainstEnemy, 1, 5, 1 },
+    { -1, -1, NULL, 1, 2, 0 },
+};
+CollisionInteractionEntry D_8074ACE8[1] = { { -1, -1, NULL, 1, 2, 0 } };
+CollisionTableEntry D_8074ACF4[15] = {
+    { -1, D_8074AC58 }, { 108, D_8074AC1C }, { 263, D_8074AC34 }, { 99, D_8074ACAC },
+    { 44, D_8074AC1C }, { -3, D_8074ACA0 }, { 246, D_8074AC1C }, { -2, D_8074ACB8 },
+    { 293, D_8074AC1C }, { 294, D_8074AC1C }, { 295, D_8074AC1C }, { -8, D_8074ACE8 },
+    { 319, D_8074AC1C }, { 307, D_8074AC1C }, { 0, D_8074AC4C },
+};
+CollisionInteractionEntry D_8074AD6C[1] = { { -1, -1, NULL, 4, 0, 0 } };
+CollisionTableEntry D_8074AD78[2] = { { -1, D_8074AD6C }, { 0, NULL } };
+CollisionInteractionEntry D_8074AD88[1] = { { -1, -1, NULL, 4, 0, 0 } };
+CollisionTableEntry D_8074AD94[2] = { { -3, D_8074AD88 }, { 0, NULL } };
+CollisionTableEntry D_8074ADA4[2] = { { -1, D_8074AC34 }, { 0, NULL } };
+CollisionInteractionEntry D_8074ADB4[4] = {
+    { 1, -1, (CollisionFilterFn)func_80676730, 4, 0, 2 },
+    { 2, -1, (CollisionFilterFn)func_806767E0, 4, 0, 2 },
+    { 4, -1, (CollisionFilterFn)func_8067675C, 4, 0, 2 },
+    { -1, -1, NULL, 1, 0, 0 },
+};
+CollisionTableEntry D_8074ADE4[3] = { { -1, D_8074ADB4 }, { 252, D_8074AC1C }, { 0, NULL } };
+CollisionInteractionEntry D_8074ADFC[2] = {
+    { -1, -1, (CollisionFilterFn)func_80676730, 9, 15, 2 },
+    { -1, -1, NULL, 1, 0, 0 },
+};
+CollisionTableEntry D_8074AE14[2] = { { -1, D_8074ADFC }, { 0, NULL } };
+CollisionInteractionEntry D_8074AE24[1] = { { -1, -1, (CollisionFilterFn)func_80676730, 1, 0, 0 } };
+CollisionInteractionEntry D_8074AE30[2] = {
+    { -1, -1, (CollisionFilterFn)func_80676730, 9, 5, 2 },
+    { -1, -1, NULL, 1, 0, 0 },
+};
+CollisionTableEntry D_8074AE48[3] = { { 319, D_8074AE24 }, { -1, D_8074AE30 }, { 0, NULL } };
+CollisionInteractionEntry D_8074AE60[2] = {
+    { 2, -1, NULL, 1, 0, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074AE78[2] = { { -1, D_8074AE60 }, { 0, NULL } };
+CollisionInteractionEntry D_8074AE88[1] = { { -1, -1, NULL, 1, 5, 0 } };
+CollisionInteractionEntry D_8074AE94[1] = { { -1, -1, NULL, 9, 5, 0 } };
+CollisionInteractionEntry D_8074AEA0[1] = { { -1, -1, NULL, 1, 5, 0 } };
+CollisionTableEntry D_8074AEAC[6] = {
+    { -1, D_8074AEA0 }, { 186, D_8074AE88 }, { 327, D_8074AE94 }, { 328, D_8074AE94 },
+    { 331, D_8074AE94 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074AEDC[2] = {
+    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 1 },
+    { -1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
+};
+CollisionInteractionEntry D_8074AEF4[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 0 } };
+CollisionInteractionEntry D_8074AF00[2] = {
+    { -1, 2, (CollisionFilterFn)func_806767E0, 9, 0, 2 },
+    { -1, -1, (CollisionFilterFn)func_806767E0, 9, 5, 0 },
+};
+CollisionInteractionEntry D_8074AF18[2] = {
+    { -1, -1, (CollisionFilterFn)func_8067675C, 9, 0, 2 },
+    { -1, -1, NULL, 9, 5, 0 },
+};
+CollisionInteractionEntry D_8074AF30[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 0 } };
+CollisionTableEntry D_8074AF3C[5] = {
+    { -1, D_8074AEDC }, { 19, D_8074AEF4 }, { 26, D_8074AEF4 }, { 21, D_8074AEF4 },
+    { 0, NULL },
+};
+CollisionTableEntry D_8074AF64[6] = {
+    { 6, D_8074AEDC }, { -1, D_8074AF30 }, { 19, D_8074AEF4 }, { 26, D_8074AEF4 },
+    { 21, D_8074AEF4 }, { 0, NULL },
+};
+CollisionTableEntry D_8074AF94[9] = {
+    { -1, D_8074AEDC }, { 19, D_8074AEF4 }, { 26, D_8074AEF4 }, { 263, D_8074AC34 },
+    { -3, D_8074AF00 }, { 21, D_8074AEF4 }, { 185, D_8074AC34 }, { 236, D_8074AF18 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074AFDC[3] = {
+    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 1 },
+    { 2, -1, (CollisionFilterFn)actorGiantKongInReach, 1, 9, 2 },
+    { 1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
+};
+CollisionInteractionEntry D_8074B000[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 0 } };
+CollisionTableEntry D_8074B00C[4] = {
+    { 6, D_8074AFDC }, { -1, D_8074B000 }, { -3, D_8074AC28 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B02C[2] = {
+    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 1 },
+    { -1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
+};
+CollisionInteractionEntry D_8074B044[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 0 } };
+CollisionTableEntry D_8074B050[3] = { { 6, D_8074B02C }, { -1, D_8074B044 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B068[2] = {
+    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 1 },
+    { -1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
+};
+CollisionInteractionEntry D_8074B080[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 0 } };
+CollisionTableEntry D_8074B08C[3] = { { 6, D_8074B068 }, { -1, D_8074B080 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B0A4[2] = {
+    { 1, -1, NULL, 1, 2, 2 },
+    { 2, -1, (CollisionFilterFn)actorListHasId2TargetVulnerable, 4, 6, 0 },
+};
+CollisionInteractionEntry D_8074B0BC[2] = {
+    { 1, -1, (CollisionFilterFn)func_806767E0, 5, 5, 1 },
+    { 1, -1, (CollisionFilterFn)func_806767E0, 1, 14, 0 },
+};
+CollisionTableEntry D_8074B0D4[3] = { { -1, D_8074B0A4 }, { 67, D_8074B0BC }, { 0, NULL } };
+CollisionInteractionEntry D_8074B0EC[2] = {
+    { 1, -1, NULL, 4, 6, 2 },
+    { 2, -1, NULL, 4, 7, 0 },
+};
+CollisionTableEntry D_8074B104[2] = { { 2, D_8074B0EC }, { 0, NULL } };
+CollisionInteractionEntry D_8074B114[3] = {
+    { -1, -1, (CollisionFilterFn)actorTargetIsGiantKong, 1, 2, 2 },
+    { -1, -1, (CollisionFilterFn)actorTargetIsMiniKong, 1, 2, 2 },
+    { -1, -1, (CollisionFilterFn)actorTargetIsVulnerable, 4, 6, 0 },
+};
+CollisionTableEntry D_8074B138[3] = { { -1, D_8074B114 }, { -3, D_8074AC28 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B150[2] = {
+    { 1, -1, (CollisionFilterFn)actorTargetIsVulnerable, 4, 6, 2 },
+    { 2, -1, NULL, 1, 0, 0 },
+};
+CollisionTableEntry D_8074B168[2] = { { -1, D_8074B150 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B178[2] = {
+    { 1, -1, (CollisionFilterFn)actorTargetIsVulnerable, 4, 6, 2 },
+    { 2, -1, NULL, 1, 0, 0 },
+};
+CollisionTableEntry D_8074B190[2] = { { 6, D_8074B178 }, { 0, NULL } };
+CollisionTableEntry D_8074B1A0[2] = { { 5, D_8074B178 }, { 0, NULL } };
+CollisionTableEntry D_8074B1B0[2] = { { 3, D_8074B178 }, { 0, NULL } };
+CollisionTableEntry D_8074B1C0[2] = { { 4, D_8074B178 }, { 0, NULL } };
+CollisionTableEntry D_8074B1D0[2] = { { 2, D_8074B178 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B1E0[3] = {
+    { 1, -1, (CollisionFilterFn)actorTargetIsVulnerable, 4, 6, 2 },
+    { 2, -1, NULL, 1, 2, 2 },
+    { 4, -1, NULL, 1, 0, 0 },
+};
+CollisionTableEntry D_8074B204[2] = { { -1, D_8074B1E0 }, { 0, NULL } };
+CollisionTableEntry D_8074B214[1] = { { 0, NULL } };
+CollisionInteractionEntry D_8074B21C[3] = {
+    { 1, 72, NULL, 4, 0, 2 },
+    { 2, -1, (CollisionFilterFn)func_80676C64, 9, 3, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074B240[5] = {
+    { -1, D_8074B21C }, { 26, D_8074AC28 }, { 19, D_8074AC28 }, { -3, D_8074AC28 },
+    { 0, NULL },
+};
+CollisionTableEntry D_8074B268[2] = { { -1, D_8074AC28 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B278[2] = {
+    { 2, -1, NULL, 1, 5, 2 },
+    { -1, -1, NULL, 1, 2, 0 },
+};
+CollisionTableEntry D_8074B290[2] = { { -1, D_8074B278 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B2A0[8] = {
+    { 1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 6, 3, 2 },
+    { 1, 2560, (CollisionFilterFn)actorIsFacingTarget, 6, 0, 2 },
+    { -1, 1024, NULL, 9, 0, 2 },
+    { 1, 488, NULL, 6, 8, 2 },
+    { 1, 16, NULL, 6, 10, 2 },
+    { 2, -1, NULL, 1, 2, 2 },
+    { -1, -1, (CollisionFilterFn)actorCheckTargetOnSurfaceOrSmaller, 1, 2, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionInteractionEntry D_8074B300[4] = {
+    { 4, -1, NULL, 1, 5, 2 },
+    { 8, -1, (CollisionFilterFn)func_8067675C, 6, 5, 2 },
+    { 8, -1, NULL, 1, 5, 2 },
+    { -1, -1, NULL, 6, 5, 0 },
+};
+CollisionTableEntry D_8074B330[5] = {
+    { -1, D_8074B2A0 }, { 26, D_8074AC10 }, { 19, D_8074AC10 }, { -3, D_8074B300 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074B358[1] = { { -1, -1, NULL, 1, 1, 0 } };
+CollisionTableEntry D_8074B364[3] = { { -1, D_8074B2A0 }, { 115, D_8074AC1C }, { 0, NULL } };
+CollisionTableEntry D_8074B37C[3] = { { -1, D_8074AC28 }, { -3, D_8074AC28 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B394[1] = { { -1, -1, NULL, 1, 2, 0 } };
+CollisionInteractionEntry D_8074B3A0[2] = {
+    { -1, 132, (CollisionFilterFn)actorIsTargetFallingFromAbove, 1, 3, 2 },
+    { -1, -1, NULL, 1, 2, 0 },
+};
+CollisionTableEntry D_8074B3B8[3] = { { -1, D_8074B394 }, { -3, D_8074AC28 }, { 0, NULL } };
+CollisionTableEntry D_8074B3D0[3] = { { -1, D_8074B3A0 }, { -3, D_8074AC28 }, { 0, NULL } };
+CollisionTableEntry D_8074B3E8[2] = { { -1, D_8074B394 }, { 0, NULL } };
+CollisionInteractionEntry D_8074B3F8[2] = {
+    { 2, -1, NULL, 1, 5, 2 },
+    { -1, -1, NULL, 2, 2, 0 },
+};
+CollisionTableEntry D_8074B410[3] = { { -1, D_8074B3F8 }, { -3, D_8074B300 }, { 0, NULL } };
+CollisionTableEntry D_8074B428[4] = {
+    { -1, D_8074B394 }, { -3, D_8074B300 }, { 273, D_8074B300 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B448[7] = {
+    { -1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 6, 3, 2 },
+    { -1, 8, NULL, 6, 8, 2 },
+    { -1, 1024, NULL, 9, 0, 2 },
+    { -1, 2560, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
+    { -1, 488, NULL, 6, 8, 2 },
+    { -1, -1, (CollisionFilterFn)actorCheckTargetOnSurfaceOrSmaller, 1, 2, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionInteractionEntry D_8074B49C[1] = { { -1, -1, NULL, 4, 5, 0 } };
+CollisionInteractionEntry D_8074B4A8[2] = {
+    { -1, -1, (CollisionFilterFn)actorCheckTargetOnSurfaceOrSmaller, 1, 2, 2 },
+    { -1, -1, NULL, 4, 5, 0 },
+};
+CollisionTableEntry D_8074B4C0[5] = {
+    { -1, D_8074B448 }, { 26, D_8074AC10 }, { 19, D_8074AC10 }, { -3, D_8074B300 },
+    { 0, NULL },
+};
+CollisionTableEntry D_8074B4E8[10] = {
+    { -1, D_8074B4A8 }, { 48, D_8074AC10 }, { 43, D_8074AC10 }, { 42, D_8074AC10 },
+    { 36, D_8074AC10 }, { 38, D_8074AC10 }, { 41, D_8074AC10 }, { 171, D_8074AC10 },
+    { 26, D_8074AC10 }, { 0, NULL },
+};
+CollisionTableEntry D_8074B538[6] = {
+    { -1, D_8074B4A8 }, { 41, D_8074AC10 }, { 171, D_8074AC10 }, { 26, D_8074AC10 },
+    { -3, D_8074B49C }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B568[8] = {
+    { -1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 5, 3, 2 },
+    { -1, 32, NULL, 4, 2, 2 },
+    { -1, 1024, NULL, 9, 2, 2 },
+    { -1, 2560, (CollisionFilterFn)actorIsFacingTarget, 4, 2, 2 },
+    { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 4, 2, 2 },
+    { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 5, 2, 2 },
+    { 2, -1, (CollisionFilterFn)func_80676730, 1, 12, 2 },
+    { -1, -1, NULL, 2, 2, 0 },
+};
+CollisionTableEntry D_8074B5C8[7] = {
+    { -1, D_8074B568 }, { 41, D_8074B300 }, { 171, D_8074B300 }, { 26, D_8074AC10 },
+    { -3, D_8074AC40 }, { 252, D_8074AC34 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B600[11] = {
+    { 1, 2560, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
+    { 1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 6, 2, 2 },
+    { 1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 6, 3, 2 },
+    { 1, 1056, NULL, 6, 2, 2 },
+    { 1, 2888, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
+    { 2, -1, NULL, 2, 2, 2 },
+    { 4, -1, NULL, 1, 5, 2 },
+    { 8, 3680, NULL, 4, 2, 2 },
+    { 8, -1, NULL, 2, 2, 2 },
+    { -1, -1, (CollisionFilterFn)actorCheckTargetOnSurfaceOrSmaller, 1, 2, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionInteractionEntry D_8074B684[2] = {
+    { 1, -1, NULL, 6, 5, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionInteractionEntry D_8074B69C[2] = {
+    { 1, -1, NULL, 9, 5, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074B6B4[6] = {
+    { -1, D_8074B600 }, { -8, D_8074AC1C }, { 26, D_8074B69C }, { 19, D_8074B69C },
+    { -3, D_8074B684 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B6E4[2] = {
+    { 1, -1, NULL, 6, 5, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074B6FC[6] = {
+    { -1, D_8074AC28 }, { 41, D_8074B6E4 }, { 171, D_8074B6E4 }, { 26, D_8074AC10 },
+    { -3, D_8074B49C }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B72C[2] = {
+    { 2, -1, (CollisionFilterFn)func_806767E0, 4, 1, 2 },
+    { -1, -1, NULL, 1, 1, 0 },
+};
+CollisionTableEntry D_8074B744[3] = { { -1, D_8074B72C }, { -3, D_8074B49C }, { 0, NULL } };
+CollisionInteractionEntry D_8074B75C[9] = {
+    { -1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 7, 3, 2 },
+    { -1, 1056, NULL, 6, 2, 2 },
+    { -1, 2560, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
+    { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 6, 2, 2 },
+    { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 7, 2, 2 },
+    { -1, 16, NULL, 6, 10, 2 },
+    { 2, -1, (CollisionFilterFn)func_80676788, 1, 5, 2 },
+    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 5, 2 },
+    { -1, -1, NULL, 2, 2, 0 },
+};
+CollisionInteractionEntry D_8074B7C8[1] = { { -1, -1, NULL, 6, 5, 0 } };
+CollisionTableEntry D_8074B7D4[5] = {
+    { -1, D_8074B75C }, { 26, D_8074AC10 }, { 19, D_8074AC10 }, { -3, D_8074B7C8 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074B7FC[9] = {
+    { -1, 3072, NULL, 9, 2, 2 },
+    { -1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 5, 3, 2 },
+    { -1, 32, NULL, 4, 2, 2 },
+    { -1, 512, (CollisionFilterFn)actorIsFacingTarget, 4, 2, 2 },
+    { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 4, 2, 2 },
+    { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 5, 2, 2 },
+    { 2, -1, (CollisionFilterFn)func_80676788, 1, 5, 2 },
+    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 5, 2 },
+    { -1, -1, NULL, 2, 2, 0 },
+};
+CollisionTableEntry D_8074B868[6] = {
+    { -1, D_8074B7FC }, { 41, D_8074AC10 }, { 171, D_8074AC10 }, { 26, D_8074AC10 },
+    { -3, D_8074B49C }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B898[11] = {
+    { -1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 5, 3, 2 },
+    { -1, 32, (CollisionFilterFn)func_80676730, 4, 2, 2 },
+    { -1, 1024, NULL, 9, 2, 2 },
+    { -1, 2560, (CollisionFilterFn)actorListHasId1FacingTarget, 4, 2, 2 },
+    { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 4, 2, 2 },
+    { -1, 328, (CollisionFilterFn)actorListHasId1FacingTarget, 5, 2, 2 },
+    { 4, -1, (CollisionFilterFn)func_806767E0, 1, 13, 2 },
+    { 4, -1, (CollisionFilterFn)func_8067675C, 1, 13, 2 },
+    { 2, -1, (CollisionFilterFn)func_806767E0, 1, 12, 2 },
+    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 12, 2 },
+    { -1, -1, NULL, 1, 2, 0 },
+};
+CollisionInteractionEntry D_8074B91C[4] = {
+    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 2 },
+    { -1, -1, (CollisionFilterFn)func_8067675C, 1, 1, 2 },
+    { 8, -1, (CollisionFilterFn)func_80676730, 9, 5, 2 },
+    { -1, -1, (CollisionFilterFn)func_80676730, 1, 5, 0 },
+};
+CollisionTableEntry D_8074B94C[6] = {
+    { -1, D_8074B898 }, { 41, D_8074B91C }, { 171, D_8074B91C }, { 26, D_8074AC10 },
+    { -3, D_8074B49C }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074B97C[10] = {
+    { 1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 7, 3, 2 },
+    { -1, 1056, NULL, 6, 2, 2 },
+    { -1, 2560, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
+    { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 6, 2, 2 },
+    { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 7, 2, 2 },
+    { 2, -1, (CollisionFilterFn)func_806767E0, 1, 11, 2 },
+    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 11, 2 },
+    { 4, -1, (CollisionFilterFn)func_806767E0, 1, 12, 2 },
+    { 4, -1, (CollisionFilterFn)func_8067675C, 1, 12, 2 },
+    { -1, -1, NULL, 2, 2, 0 },
+};
+CollisionTableEntry D_8074B9F4[6] = {
+    { -1, D_8074B97C }, { 26, D_8074AC10 }, { 19, D_8074AC10 }, { 67, D_8074AC10 },
+    { -3, D_8074B7C8 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074BA24[3] = {
+    { -1, 1024, NULL, 9, 2, 2 },
+    { -1, 8, NULL, 2, 8, 2 },
+    { -1, -1, NULL, 1, 4, 0 },
+};
+CollisionInteractionEntry D_8074BA48[1] = { { -1, -1, NULL, 6, 5, 0 } };
+CollisionInteractionEntry D_8074BA54[1] = { { -1, -1, NULL, 2, 5, 0 } };
+CollisionTableEntry D_8074BA60[5] = {
+    { -1, D_8074BA24 }, { 41, D_8074BA48 }, { 171, D_8074BA48 }, { -3, D_8074BA54 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074BA88[1] = { { -1, -1, NULL, 9, 4, 0 } };
+CollisionTableEntry D_8074BA94[6] = {
+    { -1, D_8074BA88 }, { 29, D_8074AC1C }, { 41, D_8074BA48 }, { 171, D_8074BA48 },
+    { -3, D_8074BA48 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074BAC4[1] = { { -1, -1, NULL, 4, 5, 0 } };
+CollisionInteractionEntry D_8074BAD0[1] = { { -1, -1, NULL, 4, 0, 0 } };
+CollisionTableEntry D_8074BADC[3] = { { -1, D_8074BAC4 }, { 29, D_8074BAD0 }, { 0, NULL } };
+CollisionTableEntry D_8074BAF4[2] = { { -1, D_8074AC1C }, { 0, NULL } };
+CollisionInteractionEntry D_8074BB04[1] = { { -1, -1, NULL, 9, 5, 0 } };
+CollisionTableEntry D_8074BB10[3] = { { -1, D_8074BB04 }, { 29, D_8074AC1C }, { 0, NULL } };
+CollisionInteractionEntry D_8074BB28[1] = { { -1, -1, NULL, 4, 0, 0 } };
+CollisionInteractionEntry D_8074BB34[1] = { { -1, -1, NULL, 5, 5, 0 } };
+CollisionTableEntry D_8074BB40[4] = {
+    { 302, D_8074BB28 }, { 312, D_8074BB34 }, { 305, D_8074BB34 }, { 0, NULL },
+};
+CollisionTableEntry D_8074BB60[2] = { { 312, D_8074BB34 }, { 0, NULL } };
+CollisionTableEntry D_8074BB70[2] = { { 312, D_8074BB34 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BB80[1] = { { -1, -1, NULL, 4, 0, 0 } };
+CollisionTableEntry D_8074BB8C[2] = { { 307, D_8074BB80 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BB9C[1] = { { -1, -1, NULL, 4, 0, 0 } };
+CollisionTableEntry D_8074BBA8[2] = { { 322, D_8074BB9C }, { 0, NULL } };
+CollisionTableEntry D_8074BBB8[5] = {
+    { -1, D_8074B448 }, { 26, D_8074AC10 }, { 19, D_8074AC10 }, { -3, D_8074B300 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074BBE0[1] = { { -1, -1, NULL, 1, 5, 0 } };
+CollisionTableEntry D_8074BBEC[5] = {
+    { -1, D_8074BBE0 }, { 26, D_8074AC10 }, { 19, D_8074AC10 }, { -3, D_8074B300 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074BC14[1] = { { -1, -1, NULL, 1, 12, 0 } };
+CollisionTableEntry D_8074BC20[2] = { { -1, D_8074BC14 }, { 0, NULL } };
+CollisionTableEntry D_8074BC30[5] = {
+    { -1, D_8074BBE0 }, { 26, D_8074B684 }, { 19, D_8074B684 }, { -3, D_8074B684 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074BC58[3] = {
+    { 1, -1, NULL, 4, 0, 2 },
+    { 2, 3944, NULL, 5, 1, 2 },
+    { 2, -1, NULL, 1, 1, 0 },
+};
+CollisionTableEntry D_8074BC7C[2] = { { -1, D_8074BC58 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BC8C[4] = {
+    { -1, -1, (CollisionFilterFn)func_8067675C, 6, 5, 2 },
+    { -1, -1, (CollisionFilterFn)func_806767B4, 6, 5, 2 },
+    { -1, -1, (CollisionFilterFn)func_80676788, 6, 5, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionInteractionEntry D_8074BCBC[2] = {
+    { -1, -1, NULL, 1, 2, 1 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074BCD4[6] = {
+    { -1, D_8074BCBC }, { 26, D_8074BC8C }, { 89, D_8074BC8C }, { 30, D_8074AC1C },
+    { -3, D_8074AC28 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074BD04[3] = {
+    { 4, -1, (CollisionFilterFn)func_80676C64, 4, 3, 2 },
+    { 4, -1, (CollisionFilterFn)func_80676730, 1, 2, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionInteractionEntry D_8074BD28[2] = {
+    { 2, -1, (CollisionFilterFn)func_80676730, 6, 5, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074BD40[3] = { { -1, D_8074BD04 }, { -3, D_8074BD28 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BD58[2] = {
+    { -1, -1, (CollisionFilterFn)actorIsTargetBelowNode, 1, 13, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionInteractionEntry D_8074BD70[2] = {
+    { 2, -1, NULL, 6, 5, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074BD88[4] = {
+    { -1, D_8074BD58 }, { 26, D_8074BD70 }, { -3, D_8074AC28 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074BDA8[4] = {
+    { 4, 2560, (CollisionFilterFn)actorTargetIsLargeMode, 7, 2, 2 },
+    { 4, 64, (CollisionFilterFn)actorTargetIsLargeMode, 7, 2, 2 },
+    { 4, -1, (CollisionFilterFn)actorTargetIsLargeMode, 1, 2, 2 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074BDD8[4] = {
+    { -1, D_8074BDA8 }, { 26, D_8074BD70 }, { -3, D_8074AC28 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074BDF8[2] = {
+    { -1, -1, (CollisionFilterFn)func_8067675C, 5, 2, 2 },
+    { -1, -1, NULL, 1, 2, 0 },
+};
+CollisionInteractionEntry D_8074BE10[1] = { { -1, -1, NULL, 4, 5, 0 } };
+CollisionInteractionEntry D_8074BE1C[2] = {
+    { -1, -1, NULL, 1, 2, 1 },
+    { -1, -1, NULL, 1, 5, 0 },
+};
+CollisionTableEntry D_8074BE34[5] = {
+    { 9, D_8074BDF8 }, { -1, D_8074BE1C }, { 319, D_8074ACE8 }, { -3, D_8074BE10 },
+    { 0, NULL },
+};
+CollisionInteractionEntry D_8074BE5C[1] = { { -1, -1, NULL, 4, 2, 0 } };
+CollisionTableEntry D_8074BE68[3] = { { 216, D_8074BE5C }, { -3, D_8074AC1C }, { 0, NULL } };
+CollisionInteractionEntry D_8074BE80[1] = { { -1, -1, NULL, 1, 5, 0 } };
+CollisionTableEntry D_8074BE8C[2] = { { 41, D_8074BE80 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BE9C[1] = { { -1, -1, NULL, 1, 5, 0 } };
+CollisionTableEntry D_8074BEA8[2] = { { 171, D_8074BE9C }, { 0, NULL } };
+CollisionInteractionEntry D_8074BEB8[1] = { { -1, -1, NULL, 4, 5, 0 } };
+CollisionTableEntry D_8074BEC4[2] = { { 35, D_8074BEB8 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BED4[1] = { { -1, -1, NULL, 1, 2, 0 } };
+CollisionTableEntry D_8074BEE0[2] = { { -1, D_8074BED4 }, { 0, NULL } };
+CollisionTableEntry D_8074BEF0[2] = { { -1, D_8074AC28 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BF00[1] = { { -1, -1, NULL, 5, 2, 0 } };
+CollisionTableEntry D_8074BF0C[3] = { { -1, D_8074BF00 }, { 180, D_8074AC40 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BF24[1] = { { -1, -1, NULL, 4, 5, 0 } };
+CollisionTableEntry D_8074BF30[2] = { { 36, D_8074BF24 }, { 0, NULL } };
+CollisionTableEntry D_8074BF40[2] = { { 38, D_8074BF24 }, { 0, NULL } };
+CollisionTableEntry D_8074BF50[2] = { { 43, D_8074BF24 }, { 0, NULL } };
+CollisionTableEntry D_8074BF60[2] = { { 42, D_8074BF24 }, { 0, NULL } };
+CollisionTableEntry D_8074BF70[2] = { { 48, D_8074BF24 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BF80[2] = {
+    { 1, -1, NULL, 4, 5, 2 },
+    { 2, -1, NULL, 4, 0, 0 },
+};
+CollisionTableEntry D_8074BF98[2] = { { -1, D_8074BF80 }, { 0, NULL } };
+CollisionTableEntry D_8074BFA8[2] = { { -2, D_8074AC28 }, { 0, NULL } };
+CollisionInteractionEntry D_8074BFB8[6] = {
+    { 4, -1, NULL, 5, 0, 2 },
+    { 8, -1, (CollisionFilterFn)func_80676788, 5, 2, 2 },
+    { 2, -1, NULL, 4, 4, 2 },
+    { -1, -1, (CollisionFilterFn)actorTargetIsLargeMode, 1, 2, 2 },
+    { -1, -1, NULL, 1, 2, 1 },
+    { -1, -1, NULL, 2, 5, 0 },
+};
+CollisionTableEntry D_8074C000[4] = {
+    { 25, D_8074AC1C }, { -1, D_8074BFB8 }, { -3, D_8074AC28 }, { 0, NULL },
+};
+CollisionInteractionEntry D_8074C020[1] = { { -1, -1, NULL, 9, 13, 0 } };
+CollisionTableEntry D_8074C02C[2] = { { -8, D_8074C020 }, { 0, NULL } };
+CollisionInteractionEntry D_8074C03C[1] = { { -1, -1, NULL, 1, 5, 0 } };
+CollisionInteractionEntry D_8074C048[2] = {
+    { 2, -1, (CollisionFilterFn)func_80676730, 6, 5, 2 },
+    { -1, -1, NULL, 5, 5, 0 },
+};
+CollisionTableEntry D_8074C060[3] = { { -1, D_8074C03C }, { -3, D_8074C048 }, { 0, NULL } };
+CollisionInteractionEntry D_8074C078[2] = {
+    { -1, 4088, NULL, 4, 2, 2 },
+    { -1, -1, NULL, 1, 2, 0 },
+};
+CollisionTableEntry D_8074C090[2] = { { -1, D_8074C078 }, { 0, NULL } };
+
+// Per-actor-type update functions, called by 7CA80 (one more entry than actor types).
+void (*D_8074C0A0[345])(void) = {
+    actorStub7CA80_00,
+    actorStub7CA80_02,
+    playerUpdateSoundEffect0,
+    playerUpdateSoundEffect1,
+    playerUpdateSoundEffect2,
+    playerUpdateSoundEffect3,
+    playerUpdateSoundEffect4,
+    playerUpdateSoundEffect5,
+    playerUpdateSoundEffect6,
+    playerUpdateSoundEffect7,
+    actorVolumeTriggersUpdate,
+    actorSpawnNodesUpdate,
+    actorCutsceneDispatchEvents,
+    func_8068B930,
+    func_8068B9B4,
+    func_8068BA2C,
+    actorStub7CA80_03,
+    movingLaunchBarrelUpdate,
+    transformBarrelWrapperUpdateC,
+    actorTransformCameraUpdateC,
+    func_80641F68,
+    tagBarrelRotateUpdate,
+    tagBarrelCheckProximity,
+    launchBarrelUpdate,
+    actorNumberedTargetUpdate,
+    tagBarrelUpdateAndCheckRecoil,
+    actorTransformCameraUpdateB,
+    tagBarrelCheckProximity1A,
+    tagBarrelActorUpdate,
+    (void (*)(void))0x80024890 /* minecartUpdateHeadlightAndSpeed (minecart) */,
+    projectileSpawnParticleEffect2,
+    func_806998F0,
+    actorSpotLightUpdate,
+    projectileBehaviourEntryB,
+    (void (*)(void))0x800277F8 /* bonusTargetGameUpdate (bonus) */,
+    projectileDespawnOrExplode,
+    projectileHomingUpdate,
+    func_8068EF54,
+    projectileBeamUpdate,
+    func_80699914,
+    tagBarrelUpdateRecoilState0,
+    projectileBounceExplodeScaledUpdate,
+    projectileMultiplayerUpdate,
+    projectileMatrixRotationUpdate,
+    actorApplyTransformAndRender,
+    actorBounceFadeInSpinUpdateType1,
+    (void (*)(void))0x80027F14 /* bonusTurtleTroubleGameUpdate (bonus) */,
+    actorHealthDropUpdate,
+    projectileRotatingUpdate,
+    rocketbarrelUpdate,
+    projectileBounceExplodeGreenUpdate,
+    func_806A615C,
+    func_806A61D0,
+    actorKongDropUpdate,
+    func_806A6230,
+    projectileParticleSpawnerTick,
+    transformBarrelWrapperUpdateA,
+    transformBarrelWrapperUpdateB,
+    actorSpotLightUpdateEntry,
+    projectileSpawnParticleEffect3,
+    func_8069B3FC,
+    actorUpdateTimerBarAndRange,
+    (void (*)(void))0x80024B00 /* minecartReverseTrackBehaviour (minecart) */,
+    func_8069D058,
+    func_8069D078,
+    func_8069D098,
+    func_8069D0B8,
+    func_8069D0D8,
+    projectileBehaviourEntryA,
+    projectileBehaviourEntryC,
+    textUpdateThreeDigitCounter,
+    actorTriggerRampWithSfx,
+    actorUpdateSfxAndGround,
+    cannonUpdate,
+    projectileHomingParticleUpdate,
+    effectSpawnAttachedSpriteColoredType3,
+    effectSpawnAttachedSpriteColoredType6,
+    effectSpawnAttachedSpriteColoredType4,
+    effectSpawnAttachedSpriteColoredType2,
+    effectSpawnAttachedSpriteColoredType5,
+    (void (*)(void))0x80024914 /* minecartUpdatePhysics (minecart) */,
+    projectileSparkleUpdateGold,
+    projectileFallBounceUpdate,
+    actorSagSingleUpdate,
+    tagBarrelCheckPlayerState,
+    textMarkerUpdateMatrixWrapper,
+    actorSpawnRingBurstAndUpdate,
+    (void (*)(void))0x80024FD0 /* minecartPlayerCartJunctionBehaviour (minecart) */,
+    textUpdateTwoDigitCounter,
+    projectileChaseTargetUpdate,
+    actorUpdateSpinAndVelocityWrapperA,
+    actorPathCollectibleUpdateFBC,
+    actorFallAndBurstUpdate,
+    actorUpdateSpinAndVelocityWrapperB,
+    actorClearSubState,
+    hudPauseMenuUpdate,
+    transformBarrelInitScale,
+    tagBarrelInitDrawDistanceAndState,
+    tagBarrelWrapperUpdateA,
+    projectileSpawnParticleEffect,
+    tagBarrelSpawnType13A,
+    tagBarrelSpawnType13B,
+    tagBarrelSpawnType13C,
+    tagBarrelSpawnType13D,
+    tagBarrelSpawnType13E,
+    tagBarrelSpawnType13F,
+    actorMirrorParentModelY,
+    tagBarrelCheckDespawn,
+    projectileSpawnParticleEffectWithScale,
+    actorSeekTargetUpdate,
+    actorKongDropPersistentUpdate,
+    actorPathCollectibleUpdateF98,
+    actorPathCollectibleUpdate1028,
+    actorPathCollectibleUpdate1004A,
+    actorPathCollectibleUpdateFE0,
+    actorFinishInRange,
+    projectileBehaviourEntryD,
+    actorSparkCutsceneUpdate,
+    func_806A62D4,
+    func_806A6348,
+    func_806A63A8,
+    func_806A5FA4,
+    effectSpawnA6230Wrapper,
+    actorMirrorParentModelAxis,
+    (void (*)(void))0x8002A398 /* bonusPerilPathPanicGameUpdate (bonus) */,
+    (void (*)(void))0x80029364 /* bonusLightFlashGameUpdate (bonus) */,
+    (void (*)(void))0x8002AED8 /* bonusBigBugBashGameUpdate (bonus) */,
+    (void (*)(void))0x8002BF98 /* bonusSearchlightSeekGameUpdate (bonus) */,
+    effectActorSparkleTick,
+    transformBarrelUpdateNear,
+    actorSpawnEffectAndTick,
+    func_806BF218,
+    transformBarrelWrapperUpdateD,
+    actorTransformCameraUpdateA,
+    tagBarrelUpdateStateCheck,
+    actorPlaySoundVariantAndFinish,
+    tagBarrelWrapperUpdateB,
+    tagBarrelWrapperUpdateC,
+    (void (*)(void))0x80027448 /* critterBananaFairyUpdate (critter) */,
+    actorSinkAndDespawn,
+    actorLargeDropUpdate,
+    actorStubCBEA0_02,
+    actorStubCBEA0_03,
+    actorStubCBEA0_04,
+    actorStubCBEA0_05,
+    stub_806A1FD0,
+    actorPlaceModelAtCamera,
+    actorPathCollectibleUpdate1004B,
+    func_806A112C,
+    actorTransformCameraUpdateD,
+    tagBarrelSpawnType95,
+    actorStubCBEA0_12,
+    actorStubCBEA0_13,
+    actorStubCBEA0_14,
+    actorStubCBEA0_15,
+    actorStubCBEA0_16,
+    actorHintTextUpdate,
+    actorStubCBEA0_18,
+    actorStubCBEA0_19,
+    actorStubCBEA0_20,
+    actorStubCBEA0_21,
+    actorStubCBEA0_22,
+    actorStubCBEA0_23,
+    (void (*)(void))0x80027DC0 /* critterBananaFairyRewardUpdate (critter) */,
+    enemyGridStateStep,
+    (void (*)(void))0x80031AA0 /* bossSpawnerUpdate (boss) */,
+    (void (*)(void))0x80032B08 /* bossFollowerActorUpdate (boss) */,
+    tagBarrelPeerUpdate,
+    (void (*)(void))0x80028120 /* critterFlutterFlyUpdate (critter) */,
+    projectileChaseReflectUpdate,
+    actorOrbitPlayerMidpointUpdate,
+    projectileImpactExplosionUpdate,
+    actorStub7CA80_04,
+    camNoop201B0,
+    func_8067B280,
+    func_806B640C,
+    hudCountdownTimerUpdate,
+    func_806A36F4,
+    func_806AD54C,
+    (void (*)(void))0x8003575C /* bossShockwaveTriggerDamage (boss) */,
+    (void (*)(void))0x800280BC /* minecartUpdateObstacleType1 (minecart) */,
+    behaviourEnemyFlySwoop,
+    func_806B63E0,
+    behaviourFlyPatrolState,
+    (void (*)(void))0x80024CB0 /* menuDispatchAction (menu) */,
+    (void (*)(void))0x800254D0 /* bossArmydilloStep (boss) */,
+    (void (*)(void))0x800284C0 /* bonusTargetUpdate (bonus) */,
+    behaviourProjectileEnemyUpdate,
+    playerCameraUpdateFromTarget,
+    (void (*)(void))0x800270E0 /* menuUpdateCrankyShopActor (menu) */,
+    (void (*)(void))0x80027738 /* menuUpdateFunkyShopActor (menu) */,
+    (void (*)(void))0x800275FC /* menuUpdateCandyShopActor (menu) */,
+    (void (*)(void))0x80024690 /* raceOpponentBehaviourUpdate (race) */,
+    func_806C3A8C,
+    behaviourEnemyBatUpdate,
+    behaviourEnemyFlyStep,
+    func_806C1640,
+    func_806C1734,
+    func_806C19F4,
+    func_806C1B50,
+    func_806C1CCC,
+    func_806C1E44,
+    actorPhotoUpdate,
+    func_806B904C,
+    (void (*)(void))0x80033AF0 /* bossMainStep (boss) */,
+    func_806B75F4,
+    behaviourFlyPatrolState2,
+    actorTargetGameHostUpdate,
+    func_806B761C,
+    func_806B7660,
+    actorUpdateLockOnCursor,
+    func_806B6958,
+    func_806AD7AC,
+    actorUpdatePeriodicParticleEmitter,
+    (void (*)(void))0x8002835C /* minecartUpdateObstacleType2 (minecart) */,
+    (void (*)(void))0x800286EC /* minecartUpdateObstacleType3 (minecart) */,
+    (void (*)(void))0x80029468 /* bossMadJackStep (boss) */,
+    actorPhotoUpdateEntry,
+    (void (*)(void))0x8002570C /* bonusReelGameUpdate (bonus) */,
+    (void (*)(void))0x800261B8 /* bonusReelUpdate (bonus) */,
+    func_806B8878,
+    (void (*)(void))0x8002DCE0 /* bossUpdateAttachment (boss) */,
+    (void (*)(void))0x8002E82C /* bossPhaseTick (boss) */,
+    func_806B8898,
+    behaviourAmbushEnemyUpdate,
+    func_806C1300,
+    func_806BDEC8,
+    (void (*)(void))0x8002FF74 /* bossKRoolTinyStep (boss) */,
+    behaviourFairyInitPlayerScale,
+    (void (*)(void))0x80030888 /* bossKRoolTinyUpdateMinion (boss) */,
+    behaviourFairyIdle4,
+    behaviourFairyWanderUpdate,
+    textMarkerUpdate,
+    actorPerMapCarrierUpdate,
+    bananaDeliveryNpcUpdate,
+    behaviourArmadilloPatrol,
+    (void (*)(void))0x8002A92C /* bossPufftossStep (boss) */,
+    behaviourTumbleDebrisUpdate,
+    behaviourMeleePatrolEnemyUpdate,
+    actorPlaySoundAndFinish,
+    func_806C6B50,
+    b5ec0SetMode4,
+    b5ec0SetMode2,
+    b5ec0SetMode3,
+    b5ec0SetMode0,
+    b5ec0SetMode1,
+    func_806C6BC8,
+    func_806C226C,
+    actorPhotoSubjectUpdate,
+    func_806C6BA0,
+    actorGatedTargetGameHostUpdate,
+    (void (*)(void))0x8002C964 /* bossKutOutStep (boss) */,
+    func_806BE8BC,
+    (void (*)(void))0x80032550 /* menuLightSpotlightActorUpdate (menu) */,
+    actorScriptedUpdate,
+    actorLightPulseUpdate,
+    (void (*)(void))0x80024158 /* bonusControllerUpdate (bonus) */,
+    actorUpdateAimedProjectileEmitter,
+    actorShockwaveUpdate,
+    behaviourSearchlightGuardUpdate,
+    actorUpdateBannerFade,
+    behaviourFlyPatrolState3,
+    behaviourArmoredEnemyUpdate,
+    projectileSpriteRingUpdate,
+    actorPresentBeforePlayerUpdate,
+    effectActorGrowthTick,
+    (void (*)(void))0x8002904C /* critterUpdateText (critter) */,
+    behaviourSwimLungeUpdate,
+    behaviourSwimShooterUpdate,
+    behaviourFairyIdle1,
+    behaviourFairyIdle2,
+    behaviourFairyIdle3,
+    timedSmokeTargetHostUpdate,
+    smokeTargetChaserUpdate,
+    projectileSparkleUpdateSilver,
+    actorNodeRingUpdate,
+    func_806AD9F4,
+    actorBehaviourNoop,
+    projectileActorUpdate,
+    actorShadowFollowUpdate,
+    actorFollowLinkedNodeFadeUpdate,
+    (void (*)(void))0x8002D230 /* bossKRoolDkStep (boss) */,
+    actorFollowParentPulseUpdate,
+    (void (*)(void))0x800265F0 /* minecartFollowerBehaviour (minecart) */,
+    (void (*)(void))0x80026DA8 /* minecartFollowerChildBehaviour (minecart) */,
+    behaviourEnemyFlyIdle,
+    behaviourTimedScriptCycleUpdate,
+    (void (*)(void))0x80027778 /* minecartUpdateFollower (minecart) */,
+    func_806ADDD8,
+    behaviourSimplePatrolEnemyUpdate,
+    actorSwellBurstUpdate,
+    behaviourExplosiveAwareEnemyUpdate,
+    (void (*)(void))0x8002DE04 /* bossKRoolDiddyStep (boss) */,
+    (void (*)(void))0x8002EA7C /* bossKRoolLankyStep (boss) */,
+    (void (*)(void))0x8002F100 /* bossDogadonStep (boss) */,
+    (void (*)(void))0x80030EC4 /* bossKRoolChunkyStep (boss) */,
+    actorStub7CA80_05,
+    (void (*)(void))0x80024E38 /* bonusMazeChallengeUpdate (bonus) */,
+    actorStub7CA80_06,
+    textBoxUpdate,
+    (void (*)(void))0x8002881C /* bonusTurtleTroubleSnakeUpdate (bonus) */,
+    (void (*)(void))0x80028E3C /* bonusTurtleTroubleTurtleUpdate (bonus) */,
+    (void (*)(void))0x80026F04 /* raceVehicleBehaviorUpdate (race) */,
+    (void (*)(void))0x80028440 /* raceOpponentCarBehaviorUpdate (race) */,
+    (void (*)(void))0x80028AD0 /* raceCameraBehaviorUpdate (race) */,
+    (void (*)(void))0x800274C0 /* raceProjectileBehaviorUpdate (race) */,
+    (void (*)(void))0x8002D778 /* raceManagerBehaviorUpdate (race) */,
+    (void (*)(void))0x800294A8 /* raceCompetitorMotionUpdate (race) */,
+    (void (*)(void))0x8002A0AC /* raceOpponentRacerBehaviorUpdate (race) */,
+    effectActorShrinkTick,
+    func_806A8070,
+    (void (*)(void))0x8002DC24 /* raceFinishBannerBehaviorUpdate (race) */,
+    (void (*)(void))0x80029054 /* raceObstacleCarBehaviorUpdate (race) */,
+    actorChildEffectUpdate,
+    (void (*)(void))0x8003264C /* menuUpdateLightFadeActor (menu) */,
+    (void (*)(void))0x8002E484 /* racePlayerTrackerBehaviorUpdate (race) */,
+    tagBarrelInteractiveUpdate,
+    tagBarrelUpdateSelectedKong,
+    (void (*)(void))0x80026094 /* mpUpdate (multiplayer) */,
+    actorUpdatePlayerInteraction,
+    (void (*)(void))0x80027988 /* menuUpdateTransformedWidgets (menu) */,
+    cutsceneRestoreUpdate,
+    (void (*)(void))0x8002AE9C /* raceParticipantMotionUpdate (race) */,
+    (void (*)(void))0x8002B964 /* raceOpponentRacerMotionUpdate (race) */,
+    (void (*)(void))0x80027DEC /* menuUpdateOverlayWidgetActor (menu) */,
+    actorScaleGrowthUpdate,
+    (void (*)(void))0x8002FEBC /* menuInit (menu) */,
+    (void (*)(void))0x8002A010 /* bonusLightFlashTargetUpdate (bonus) */,
+    (void (*)(void))0x8002AAA4 /* bonusPerilPathPanicKlaptrapUpdate (bonus) */,
+    (void (*)(void))0x8002AD10 /* bonusPerilPathPanicFairyUpdate (bonus) */,
+    (void (*)(void))0x8002B920 /* bonusBigBugBashFlyUpdate (bonus) */,
+    (void (*)(void))0x8002C8EC /* bonusSearchlightSeekTargetUpdate (bonus) */,
+    (void (*)(void))0x8002BE44 /* bonusBigBugBashSwatterShadowUpdate (bonus) */,
+    (void (*)(void))0x80032024 /* menuUpdateKioskPodActor (menu) */,
+    actorRingUpdate,
+    (void (*)(void))0x80024EF0 /* menuUpdateProgressGrid (menu) */,
+    (void (*)(void))0x80029118 /* critterBattleArenaUpdate (critter) */,
+    (void (*)(void))0x8002CB18 /* menuCharacterSelectUpdateActor (menu) */,
+    bannerTextUpdate,
+    (void (*)(void))0x8002D2F0 /* bonusScoreHudUpdate (bonus) */,
+    behaviourEnemyFlyReturn,
+    (void (*)(void))0x80028C18 /* menuMainScreenNoop (menu) */,
+    hudTextScreenUpdate,
+    hudTwoOptionMenuUpdate,
+    actorStub7CA80_01,
+};
+CollisionTableSlot D_8074C604[344] = {
+    { NULL, 0 }, { NULL, 0 }, { D_8074ACF4, 0 }, { D_8074ACF4, 0 },
+    { D_8074ACF4, 0 }, { D_8074ACF4, 0 }, { D_8074ACF4, 0 }, { D_8074ACF4, 0 },
+    { D_8074ACF4, 0 }, { D_8074ACF4, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074B104, 0 }, { D_8074B168, 0 }, { D_8074AF3C, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074B138, 0 },
+    { D_8074ADA4, 0 }, { D_8074B190, 0 }, { D_8074AF94, 0 }, { NULL, 0 },
+    { D_8074B204, 0 }, { D_8074BAF4, 0 }, { D_8074AE48, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074AEAC, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074B1A0, 0 }, { D_8074BE8C, 0 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074AE78, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074B1B0, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 1 },
+    { D_8074B1C0, 0 }, { D_8074B1D0, 0 }, { D_8074AD94, 0 }, { D_8074AE48, 0 },
+    { NULL, 0 }, { D_8074B00C, 0 }, { NULL, 0 }, { D_8074B08C, 0 },
+    { D_8074B08C, 0 }, { D_8074B08C, 0 }, { D_8074B08C, 0 }, { D_8074B050, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074B0D4, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { D_8074BF0C, 0 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074B00C, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074AE48, 0 }, { NULL, 0 }, { D_8074BF30, 0 },
+    { D_8074BF98, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074B190, 0 }, { NULL, 0 }, { D_8074B204, 0 }, { D_8074AE14, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074B204, 0 },
+    { D_8074AE48, 0 }, { D_8074ADE4, 0 }, { NULL, 0 }, { D_8074BF40, 0 },
+    { D_8074BF50, 0 }, { D_8074BF60, 0 }, { D_8074BF70, 0 }, { D_8074B3B8, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074AD78, 0 }, { D_8074B168, 0 }, { D_8074B00C, 0 }, { NULL, 0 },
+    { D_8074B168, 0 }, { D_8074AF94, 0 }, { D_8074B204, 0 }, { D_8074B3B8, 0 },
+    { D_8074B204, 0 }, { D_8074B204, 0 }, { D_8074B3B8, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074B3B8, 0 }, { NULL, 0 }, { D_8074BF60, 0 },
+    { NULL, 0 }, { D_8074AF3C, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074B3B8, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074B138, 0 },
+    { D_8074C090, 0 }, { D_8074AE48, 0 }, { D_8074AE48, 0 }, { D_8074BEA8, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074BA94, 1 },
+    { NULL, 0 }, { NULL, 0 }, { D_8074B330, 1 }, { NULL, 0 },
+    { D_8074BADC, 1 }, { D_8074BC20, 1 }, { D_8074BA60, 1 }, { D_8074BBEC, 1 },
+    { D_8074B3B8, 0 }, { D_8074BCD4, 1 }, { NULL, 1 }, { D_8074B5C8, 1 },
+    { NULL, 0 }, { D_8074B3B8, 0 }, { D_8074B3B8, 0 }, { D_8074B3B8, 0 },
+    { D_8074BC7C, 1 }, { D_8074B3B8, 1 }, { D_8074BC30, 1 }, { D_8074BBEC, 1 },
+    { D_8074B3B8, 1 }, { D_8074B3B8, 1 }, { D_8074B3B8, 1 }, { D_8074B3B8, 1 },
+    { D_8074B3B8, 1 }, { D_8074B3D0, 1 }, { NULL, 0 }, { D_8074BEE0, 1 },
+    { D_8074BD88, 1 }, { D_8074B4C0, 1 }, { D_8074BBEC, 1 }, { D_8074B3B8, 1 },
+    { D_8074B538, 1 }, { D_8074B4E8, 1 }, { NULL, 1 }, { D_8074B4C0, 1 },
+    { D_8074B330, 1 }, { D_8074BEF0, 1 }, { D_8074BB10, 1 }, { D_8074BADC, 1 },
+    { D_8074BE34, 1 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 1 }, { NULL, 0 }, { D_8074C02C, 1 }, { NULL, 1 },
+    { D_8074B330, 1 }, { NULL, 1 }, { D_8074B3B8, 1 }, { D_8074C060, 1 },
+    { NULL, 1 }, { D_8074C060, 1 }, { D_8074B6B4, 1 }, { D_8074B3B8, 1 },
+    { NULL, 0 }, { D_8074B3B8, 1 }, { D_8074B3B8, 1 }, { D_8074B868, 1 },
+    { D_8074BDD8, 1 }, { NULL, 1 }, { D_8074B7D4, 1 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074B9F4, 1 }, { D_8074B9F4, 1 }, { D_8074B9F4, 1 },
+    { D_8074B9F4, 1 }, { D_8074B9F4, 1 }, { D_8074B744, 1 }, { D_8074B3B8, 1 },
+    { D_8074B3B8, 1 }, { D_8074B3B8, 1 }, { D_8074B3B8, 1 }, { D_8074B330, 1 },
+    { D_8074B3B8, 1 }, { D_8074B3B8, 1 }, { NULL, 1 }, { D_8074BFA8, 0 },
+    { NULL, 0 }, { D_8074BEF0, 1 }, { NULL, 0 }, { D_8074B7D4, 1 },
+    { NULL, 0 }, { D_8074BBEC, 1 }, { D_8074B7D4, 1 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074B410, 1 },
+    { D_8074B410, 1 }, { D_8074B6B4, 1 }, { D_8074B6B4, 1 }, { D_8074B6B4, 1 },
+    { D_8074B428, 1 }, { D_8074B364, 1 }, { NULL, 0 }, { D_8074B3B8, 1 },
+    { D_8074B330, 1 }, { D_8074B3B8, 1 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { D_8074C000, 1 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074B268, 0 }, { D_8074BBEC, 1 }, { D_8074B290, 1 }, { NULL, 0 },
+    { D_8074B330, 1 }, { D_8074B330, 1 }, { D_8074B330, 1 }, { D_8074B94C, 1 },
+    { D_8074C000, 1 }, { D_8074C000, 1 }, { D_8074C000, 1 }, { D_8074C000, 1 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074BEC4, 1 }, { NULL, 1 }, { D_8074BB60, 1 }, { D_8074BB40, 1 },
+    { NULL, 1 }, { D_8074BB70, 1 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074BB8C, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { D_8074B3B8, 1 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074BE68, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { D_8074BBA8, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+    { D_8074BBEC, 1 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
+};
+ActorTypeStat D_8074D0C4[344] = {
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 2 }, { 0, 0 }, { 0, 3 }, { 0, 0 },
+    { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 0 }, { 0, 1 },
+    { 0, 2 }, { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 1, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 1 },
+    { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 },
+    { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 1 },
+    { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 1 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 1, 0 },
+    { 0, 0 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 1, 0 }, { 5, 0 }, { 1, 0 }, { 1, 0 },
+    { 0, 0 }, { 4, 0 }, { 1, 0 }, { 3, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 1, 0 }, { 3, 0 }, { 5, 0 }, { 3, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 },
+    { 1, 0 }, { 1, 0 }, { 0, 1 }, { 1, 0 }, { 5, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 },
+    { 1, 0 }, { 1, 0 }, { 1, 0 }, { 3, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 },
+    { 5, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 1, 0 }, { 1, 0 },
+    { 1, 0 }, { 1, 0 }, { 1, 0 }, { 10, 0 }, { 16, 0 }, { 10, 0 }, { 1, 0 }, { 1, 0 },
+    { 0, 0 }, { 1, 0 }, { 1, 0 }, { 3, 0 }, { 65, 0 }, { 1, 0 }, { 3, 0 }, { 0, 0 },
+    { 0, 0 }, { 15, 0 }, { 15, 0 }, { 15, 0 }, { 15, 0 }, { 15, 0 }, { 1, 0 }, { 1, 0 },
+    { 3, 0 }, { 1, 0 }, { 1, 0 }, { 6, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 },
+    { 0, 0 }, { 1, 0 }, { 0, 0 }, { 3, 0 }, { 0, 0 }, { 3, 0 }, { 3, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 1, 0 }, { 3, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 },
+    { 5, 0 }, { 1, 1 }, { 0, 0 }, { 1, 0 }, { 5, 0 }, { 1, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 70, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 },
+    { 1, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, { 70, 0 }, { 70, 0 }, { 70, 0 }, { 70, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 },
+    { 1, 0 }, { 1, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 1, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 },
+    { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 0 },
+    { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 1, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 },
+};
+u16 D_8074D624[344] = {
+    0x0010, 0x0010, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
+    0x0001, 0x0001, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
+    0x0010, 0x0008, 0x0008, 0x0008, 0x0010, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0020, 0x0004, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0004, 0x0004, 0x0020, 0x0004, 0x0008,
+    0x0008, 0x0004, 0x0004, 0x0004, 0x0004, 0x0008, 0x0008, 0x0008,
+    0x0004, 0x0008, 0x0004, 0x0008, 0x0008, 0x0008, 0x0008, 0x0004,
+    0x0008, 0x0008, 0x0008, 0x0004, 0x0008, 0x0008, 0x0020, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0004, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0020, 0x0004, 0x0008, 0x0008, 0x0010, 0x0008, 0x0008, 0x0020,
+    0x0008, 0x0004, 0x0008, 0x0008, 0x0008, 0x0008, 0x0020, 0x0010,
+    0x0008, 0x0008, 0x0008, 0x0004, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0004, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0008, 0x0010, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0008, 0x0002, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0008, 0x0008, 0x0002, 0x0008, 0x0008, 0x0008, 0x0008,
+    0x0008, 0x0004, 0x0004, 0x0004, 0x0010, 0x0010, 0x0010, 0x0002,
+    0x0010, 0x0010, 0x0002, 0x0008, 0x0002, 0x0002, 0x0002, 0x0002,
+    0x0040, 0x0080, 0x0002, 0x0002, 0x0010, 0x0040, 0x0040, 0x0040,
+    0x0002, 0x0040, 0x0002, 0x0002, 0x0040, 0x0040, 0x0040, 0x0040,
+    0x0040, 0x0040, 0x0008, 0x0002, 0x0080, 0x0002, 0x0002, 0x0040,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002,
+    0x0080, 0x0008, 0x0008, 0x0008, 0x0002, 0x0008, 0x0008, 0x0002,
+    0x0002, 0x0008, 0x0002, 0x0002, 0x0080, 0x0002, 0x0002, 0x0040,
+    0x0010, 0x0040, 0x0002, 0x0002, 0x0080, 0x0002, 0x0002, 0x0008,
+    0x0040, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0040,
+    0x0002, 0x0040, 0x0040, 0x0080, 0x0040, 0x0040, 0x0040, 0x0008,
+    0x0010, 0x0002, 0x0008, 0x0002, 0x0010, 0x0002, 0x0002, 0x0004,
+    0x0008, 0x0008, 0x0010, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002,
+    0x0040, 0x0002, 0x0004, 0x0040, 0x0002, 0x0040, 0x0004, 0x0008,
+    0x0008, 0x0080, 0x0008, 0x0002, 0x0008, 0x0002, 0x0008, 0x0004,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0080, 0x0080, 0x0080, 0x0080,
+    0x0010, 0x0010, 0x0010, 0x0010, 0x0002, 0x0002, 0x0002, 0x0002,
+    0x0010, 0x0002, 0x0010, 0x0010, 0x0002, 0x0002, 0x0002, 0x0020,
+    0x0002, 0x0002, 0x0040, 0x0020, 0x0040, 0x0008, 0x0010, 0x0010,
+    0x0008, 0x0040, 0x0020, 0x0002, 0x0010, 0x0008, 0x0010, 0x0002,
+    0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0002, 0x0010,
+    0x0010, 0x0002, 0x0010, 0x0010, 0x0002, 0x0002, 0x0010, 0x0010,
+};
+u8 gActorTypeInitIndex[344] = {
+    1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3,
+    1, 2, 2, 2, 3, 2, 2, 2, 4, 2, 2, 2, 2, 2, 4, 2,
+    2, 2, 2, 4, 4, 2, 4, 2, 2, 4, 4, 2, 2, 2, 2, 4,
+    4, 2, 4, 4, 4, 4, 4, 4, 2, 2, 2, 4, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4,
+    2, 4, 2, 2, 3, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 3,
+    2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 4, 4,
+    4, 4, 4, 2, 2, 2, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2,
+    4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2,
+    2, 2, 2, 4, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 1, 3, 2, 2,
+    3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 3, 2, 2, 4, 2, 2, 2, 2, 2, 2, 3, 2, 2, 3,
+    2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    3, 4, 2, 2, 3, 2, 2, 4, 2, 2, 4, 2, 2, 2, 2, 2,
+    2, 2, 4, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 1, 3, 1, 3, 2, 2, 2, 2,
+    3, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 3, 2,
+    2, 2, 2, 2, 3, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3,
+    3, 2, 3, 3, 2, 2, 3, 3,
+};
 
 extern u8 D_807FB600;
 extern u8 D_807FB5FF;

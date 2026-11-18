@@ -1289,6 +1289,38 @@ typedef struct ActorCollisionList {
     ActorCollisionEntry *entries;
 } ActorCollisionList;
 
+// Per-actor-type collision tables (D_8074C604, defined in 7BBD0.c, read by 7A510.c): a slot's table
+// is a list of attacker patterns ending with pattern 0, each naming a list of interactions whose
+// last entry has chain 0.
+typedef s32 (*CollisionFilterFn)(Actor *, Actor *, ActorCallbackNode *);
+
+typedef struct CollisionInteractionEntry {
+    s16 targetMask;
+    s16 attackerMask;
+    CollisionFilterFn filter;
+    u8 phase;
+    u8 event;
+    u8 chain;
+    u8 padB;
+} CollisionInteractionEntry;
+
+typedef struct CollisionTableEntry {
+    s16 pattern;
+    CollisionInteractionEntry *entries;
+} CollisionTableEntry;
+
+typedef struct CollisionTableSlot {
+    CollisionTableEntry *table;
+    u8 unk4;
+    u8 pad5[3];
+} CollisionTableSlot;
+
+// Per-actor-type health and damage (D_8074D0C4, defined in 7BBD0.c).
+typedef struct ActorTypeStat {
+    s16 health;
+    s16 damage;
+} ActorTypeStat;
+
 typedef struct MpSettings {
     s32 unk0;
     s32 gameMode;

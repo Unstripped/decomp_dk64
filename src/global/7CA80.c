@@ -82,14 +82,6 @@ extern ActorCallbackNode *D_807FBFE0[];
 extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
-static void actorStub7CA80_00(void);
-static void actorStub7CA80_01(void);
-static void actorStub7CA80_02(void);
-static void actorStub7CA80_03(void);
-static void actorStub7CA80_04(void);
-static void actorStub7CA80_05(void);
-static void actorStub7CA80_06(void);
-
 extern u16 gModelCacheCount;
 extern void *gActorScriptIndexTable;
 extern void *gActorScriptAnimTable;
@@ -411,13 +403,13 @@ void actorUpdateSpawnsWrapper(void) {
     actorListUpdateSpawns();
 }
 
-static void actorStub7CA80_00(void) {}
-static void actorStub7CA80_01(void) {}
-static void actorStub7CA80_02(void) {}
-static void actorStub7CA80_03(void) {}
-static void actorStub7CA80_04(void) {}
-static void actorStub7CA80_05(void) {}
-static void actorStub7CA80_06(void) {}
+void actorStub7CA80_00(void) {}
+void actorStub7CA80_01(void) {}
+void actorStub7CA80_02(void) {}
+void actorStub7CA80_03(void) {}
+void actorStub7CA80_04(void) {}
+void actorStub7CA80_05(void) {}
+void actorStub7CA80_06(void) {}
 
 ActorCallbackNode *D_807FBFE0[4];
 

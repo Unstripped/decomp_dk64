@@ -46,6 +46,27 @@ void actorFreeImmediate(Actor *);
 #ifndef PROTO_SKIP_actorUpdateSpawnsWrapper
 void actorUpdateSpawnsWrapper(void);
 #endif
+#ifndef PROTO_SKIP_actorStub7CA80_00
+void actorStub7CA80_00(void);
+#endif
+#ifndef PROTO_SKIP_actorStub7CA80_01
+void actorStub7CA80_01(void);
+#endif
+#ifndef PROTO_SKIP_actorStub7CA80_02
+void actorStub7CA80_02(void);
+#endif
+#ifndef PROTO_SKIP_actorStub7CA80_03
+void actorStub7CA80_03(void);
+#endif
+#ifndef PROTO_SKIP_actorStub7CA80_04
+void actorStub7CA80_04(void);
+#endif
+#ifndef PROTO_SKIP_actorStub7CA80_05
+void actorStub7CA80_05(void);
+#endif
+#ifndef PROTO_SKIP_actorStub7CA80_06
+void actorStub7CA80_06(void);
+#endif
 #ifndef PROTO_SKIP_actorGlobalCallbacksReset
 void actorGlobalCallbacksReset(void);
 #endif

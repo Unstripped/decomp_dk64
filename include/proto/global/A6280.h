@@ -20,6 +20,9 @@ void actorFinishInRange(void);
 #ifndef PROTO_SKIP_actorPlaySoundVariantAndFinish
 void actorPlaySoundVariantAndFinish(void);
 #endif
+#ifndef PROTO_SKIP_stub_806A1FD0
+void stub_806A1FD0(void);
+#endif
 #ifndef PROTO_SKIP_actorSinkAndDespawn
 void actorSinkAndDespawn(void);
 #endif
