@@ -1184,3 +1184,4 @@
 {"type": "unit", "t": "2026-11-18T16:51:45Z", "unit": "2026-11-18: cleanup CleaneffectBuildGridVerticesb", "commit": "956a68e1c492879399415d515b521ad8e70c5545"}
 {"type": "unit", "t": "2026-11-18T16:53:11Z", "unit": "2026-11-18: cleanup CleanactorCheckAlwaysFalseb", "commit": "f908e52cadfda4cf5ff5b39aac739c0969d2d264"}
 {"type": "unit", "t": "2026-11-18T17:05:37Z", "unit": "2026-11-18: cleanup CleanactorTriggerPlayerKnockbackSoundb", "commit": "a1d5bac255c34cee1320cffe92af8709f2e0ec7e"}
+{"type": "unit", "t": "2026-11-18T17:06:54Z", "unit": "2026-11-18: cleanup CleancommandApplyToLightb", "commit": "a3a7199f031d0ed9e92219e573b1c3cf539b04c1"}
