@@ -623,7 +623,7 @@ typedef struct Zone {
     /* 0x12 */ u8 pad12[2];
     /* 0x14 */ ZoneEntry *entries;
     /* 0x18 */ u8 id;
-    /* 0x19 */ s8 unk19;
+    /* 0x19 */ u8 unk19;
     /* 0x1A */ u8 pad1A[2];
     /* 0x1C */ Actor *occupant;
     /* 0x20 */ u8 unk20;

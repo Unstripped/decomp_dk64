@@ -251,15 +251,6 @@ void behaviourPickRandomTargetY(void) {
     gBehaviourWorkState->targetY = rnd % (maxY - minY + 1) + minY;
 }
 
-// Zone.unk19 is s8; this site reads it as u8 (lbu), so the view stays.
-typedef struct ZoneByteView {
-    /* 0x00 */ u8 pad0[0x19];
-    /* 0x19 */ u8 unk19;
-} ZoneByteView;
-
-#define CURRENT_ZONE_BYTES ((ZoneByteView *)D_807FDCA0)
-
-
 u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floorYOffset) {
     f32 area;
     s16 zoneYaw;
@@ -289,7 +280,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     if (!(gBehaviourAnimState->flags & 0x200)) {
         collisionSetQueryMode(2);
     }
-    if (CURRENT_ZONE_BYTES->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->flags & 0x10))) {
+    if (D_807FDCA0->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->flags & 0x10))) {
         collisionSetQueryMode(1);
     }
     if (flags & 0x4000) {
@@ -323,7 +314,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     }
     if (!(flags & 8)) {
         actorUpdateFloorContactAndTilt(gCurrentActor, floorYOffset);
-    } else if (CURRENT_ZONE_BYTES->unk19 != 1 && (flags & 0x10)) {
+    } else if (D_807FDCA0->unk19 != 1 && (flags & 0x10)) {
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->prevY, gCurrentActor->z, &gCurrentActor->floorY);
     }
     if (!(flags & 0x2000)) {
@@ -340,10 +331,9 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     if (state == 0x37 && (gBehaviourAnimState->flags & 0x10)) {
         if (polygonContainsPoint2D(gCurrentActor->x, gCurrentActor->z, D_807FDCA0) == 0) {
             gCurrentActor->speedXZ = ((gCurrentActor->speedXZ >= 0.0f) ? 1 : -1) * 30;
-            return 0;
+        } else {
+            gBehaviourWorkState->flags |= 0x4000;
         }
-        gBehaviourWorkState->flags |= 0x4000;
-        if (0) {} // FAKE: dead guard keeps a uopt block boundary
         return 0;
     }
     if (polygonContainsPoint2D(gCurrentActor->x, gCurrentActor->z, D_807FDCA0) != 0) {
@@ -900,11 +890,11 @@ u8 patrolPathStep(u8 state, u8 flags) {
     u8 next;
     u8 idx;
     u8 nextKey;
-    s32 v;
+    s16 angle;
+    s32 faceKey;
 
-    idx = gBehaviourWorkState->waypointIndex;
-    dir = idx & 0x80;
-    idx &= 0x7F;
+    dir = gBehaviourWorkState->waypointIndex & 0x80;
+    idx = gBehaviourWorkState->waypointIndex & 0x7F;
     key = gBehaviourAnimState->path[idx][0];
     type = gBehaviourAnimState->path[idx][1];
     x = D_807FDCA0->entries[key].x;
@@ -913,7 +903,6 @@ u8 patrolPathStep(u8 state, u8 flags) {
     moved = ((gCurrentActor->x - x) * (gCurrentActor->x - x)) + ((gCurrentActor->z - z) * (gCurrentActor->z - z)) <
             (D_807FDCA0->entries[key].radius * D_807FDCA0->entries[key].radius);
     if ((flags & 1) && gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
-        if (gBehaviourWorkState) {} // FAKE: two uopt blocks in idx's live range drop its priority below key's (key t2, idx t3)
         gBehaviourWorkState->unk20++;
         if (gBehaviourWorkState->unk20++ > 0x10) {
             moved = 1;
@@ -924,12 +913,11 @@ u8 patrolPathStep(u8 state, u8 flags) {
     }
     switch (state) {
         case 0x49:
-            v = idx + 1;
-            next = (v < gBehaviourExtraState->pathCount) ? v : 0;
-            v = gBehaviourAnimState->path[next][0];
-            v = mathAngleBetweenPoints2D(D_807FDCA0->entries[v].x, D_807FDCA0->entries[v].z, x, z);
-            gCurrentActor->moveYaw = v;
-            gCurrentActor->yaw = v;
+            next = (idx + 1 < gBehaviourExtraState->pathCount) ? idx + 1 : 0;
+            faceKey = gBehaviourAnimState->path[next][0];
+            angle = mathAngleBetweenPoints2D(D_807FDCA0->entries[faceKey].x, D_807FDCA0->entries[faceKey].z, x, z);
+            gCurrentActor->moveYaw = angle;
+            gCurrentActor->yaw = angle;
         case 0x42:
         case 0x5B:
             gBehaviourWorkState->targetX = x;
@@ -982,9 +970,9 @@ u8 patrolPathStep(u8 state, u8 flags) {
         switch (type) {
             case 1:
                 nextKey = gBehaviourAnimState->path[idx][0];
-                v = patrolGetTargetAngle();
-                gCurrentActor->moveYaw = v;
-                gCurrentActor->yaw = v;
+                angle = patrolGetTargetAngle();
+                gCurrentActor->moveYaw = angle;
+                gCurrentActor->yaw = angle;
                 gCurrentActor->x = D_807FDCA0->entries[nextKey].x;
                 gCurrentActor->y = D_807FDCA0->entries[nextKey].y;
                 gCurrentActor->z = D_807FDCA0->entries[nextKey].z;
