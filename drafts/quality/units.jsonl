@@ -1130,3 +1130,4 @@
 {"type": "unit", "t": "2026-11-18T11:29:24Z", "unit": "2026-11-17: cleanup CleangfxSwapGeometryModeCullBits", "commit": "cca0103be64f3dd6554ddb316d41dabe8a150feb"}
 {"type": "unit", "t": "2026-11-18T11:30:19Z", "unit": "2026-11-17: cleanup CleanmenuInitFileSummary", "commit": "362dfbc13708bf3ac5cc75ea8171b2f67b9df7a0"}
 {"type": "unit", "t": "2026-11-18T11:42:04Z", "unit": "2026-11-17: cleanup CleandisplayListResolveTextureImages", "commit": "3c2aad0d3da514fa46248fa37eebe2ab131ed0e3"}
+{"type": "unit", "t": "2026-11-18T11:45:10Z", "unit": "2026-11-17: cleanup CleanmapCellFindAtPoint", "commit": "511cfeac28731033ad8f32245a6e2b81a7cd32c3"}
