@@ -1657,19 +1657,22 @@ void playerInputHandleAButtonJump(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
-        gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
-        gCurrentActor->speedXZ = INPUT_MIN(gCurrentActor->speedXZ, gActivePlayerState->targetSpeed);
-        gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
-        gActivePlayerState->airAccel = 20.0f;
-        gCurrentActor->state = 0x17;
-        gCurrentActor->unk155 = 0;
-        gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
-        gActivePlayerState->unk50 = 0;
-        actorScriptStartByIndex(gCurrentActor, 0x10);
-        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
-        if (!gActivePlayerState->targetSpeed) {} // FAKE: dead test, steers uopt candidate priority
+    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+        return;
     }
+    if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->floorSlopeFactor != 0.0f)) {
+        return;
+    }
+    gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
+    gCurrentActor->speedXZ = INPUT_MIN(gCurrentActor->speedXZ, gActivePlayerState->targetSpeed);
+    gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
+    gActivePlayerState->airAccel = 20.0f;
+    gCurrentActor->state = 0x17;
+    gCurrentActor->unk155 = 0;
+    gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
+    gActivePlayerState->unk50 = 0;
+    actorScriptStartByIndex(gCurrentActor, 0x10);
+    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
 }
 
 void playerInputHandleAButtonState17(void) {
@@ -2048,18 +2051,23 @@ void playerInputHandleAButtonKong(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (gPlayerCharacterId[gCurrentPlayerIndex] != 6) &&
-        (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
-        if (gActivePlayerState->unk20 > 70.0f) {
-            gCurrentActor->state = 0x1D;
-            gCurrentActor->unk155 = 0;
-            gActivePlayerState->jumpVelocityY = D_8075378C[gCurrentCharacterIndex];
-            gActivePlayerState->unk50 = 0;
-            actorScriptStartByIndex(gCurrentActor, 0x1A);
-            if (!gCurrentActor) {} // FAKE: dead test, steers uopt candidate priority
-            gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
-            return;
-        }
+    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+        return;
+    }
+    if (gPlayerCharacterId[gCurrentPlayerIndex] == 6) {
+        return;
+    }
+    if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->floorSlopeFactor != 0.0f)) {
+        return;
+    }
+    if (gActivePlayerState->unk20 > 70.0f) {
+        gCurrentActor->state = 0x1D;
+        gCurrentActor->unk155 = 0;
+        gActivePlayerState->jumpVelocityY = D_8075378C[gCurrentCharacterIndex];
+        gActivePlayerState->unk50 = 0;
+        actorScriptStartByIndex(gCurrentActor, 0x1A);
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    } else {
         gCurrentActor->state = 0x3E;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_8075371C[gCurrentCharacterIndex];
