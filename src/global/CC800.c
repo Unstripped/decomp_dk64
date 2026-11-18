@@ -294,8 +294,7 @@ void kongChainInit(s32 mode, KongChain *chains, u32 kind) {
             node->springX.angle = 0.0;
             node->springX.offset = offsets[j] * sign;
             node->springX.velocity = 0.0;
-            // LAYOUT: one source line; splitting it reorders the three stores
-            node->springY.velocity = 0.0f; node->springY.offset = 0.0f; node->springY.angle = 0.0f;
+            node->springY.velocity = 0.0f; node->springY.offset = 0.0f; node->springY.angle = 0.0f; // FAKE: three springY stores on one line in reverse field order steer the as1 store schedule (split 4, other one-line orders 20-42)
         }
         chain++;
         sign = -sign;
