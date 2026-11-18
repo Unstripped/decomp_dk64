@@ -838,7 +838,8 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     f64 val;
     f32 diff;
     f32 t;
-    struct { u8 pad[3]; u8 cb; f32 cc; } spS; // FAKE: address-taken aggregate makes the final read of cb reload after the call (lbu t5)
+    f32 floorY;
+    u8 hit;
     f32 threshold;
     s32 padB[1];
     u8 closer;
@@ -847,8 +848,8 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     s32 iz;
     s32 ix;
 
-    spS.cb = 0;
-    spS.cc = 999999.0f;
+    hit = 0;
+    floorY = 999999.0f;
     cell = ((s32)z / D_807F9452) * D_807F9454 + (s32)x / D_807F9450;
     cur = *yInOut;
     threshold = (f32)((f64)*yInOut + 4.0);
@@ -858,13 +859,13 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     }
     if (D_807F9454 <= x / D_807F9450 || x < 0.0) {
         if (gCurrentMap == 0x57 && actor != NULL) {
-            return collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, yInOut);
+            return collisionTestHardcodedFloorPlane(&floorY, threshold, cur, yInOut);
         }
         return 0;
     }
     if (D_807F9456 <= z / D_807F9452 || z < 0.0) {
         if (gCurrentMap == 0x57 && actor != NULL) {
-            return collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, yInOut);
+            return collisionTestHardcodedFloorPlane(&floorY, threshold, cur, yInOut);
         }
         return 0;
     }
@@ -936,10 +937,10 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                     if (!(tri->flags & 1)) {
                         collisionCheckSlopeAngle(*yInOut * 6.0f, (f32)h2, 1, actor, 0);
                         collisionGetFloorTriangleNormal(*yInOut * 6.0f, (f32)h2, 1, tri->slopeType);
-                        closer = collisionPickCloserFloor(spS.cc, (f32)h2, threshold, 1);
+                        closer = collisionPickCloserFloor(floorY, (f32)h2, threshold, 1);
                         if (collisionCheckTriangleWindingS16(tri) != 0 && closer != 0) {
-                            spS.cb = 1;
-                            spS.cc = (f32)h2;
+                            hit = 1;
+                            floorY = (f32)h2;
                             hitTri = tri;
                             D_807F94B5 = tri->tintPath & 0xF;
                             if (h2 < (f64)(*yInOut * 6.0f)) {
@@ -962,7 +963,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                             }
                             D_807F94B1 = tri->surface;
                             if (tri->flags & 2) {
-                                *yInOut = spS.cc / 6.0f;
+                                *yInOut = floorY / 6.0f;
                                 if (!(tri->flags & 8)) {
                                     D_807F94AB = 1;
                                 }
@@ -1001,8 +1002,8 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
         }
         tri++;
     }
-    if (spS.cb != 0) {
-        *yInOut = spS.cc / 6.0f;
+    if (hit) {
+        *yInOut = floorY / 6.0f;
         if (!(hitTri->flags & 8)) {
             D_807F94AB = 1;
         }
@@ -1014,12 +1015,12 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
         }
     }
     if (gCurrentMap == 0x57 && actor != NULL) {
-        spS.cb |= collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, yInOut);
+        hit |= collisionTestHardcodedFloorPlane(&floorY, threshold, cur, yInOut);
     }
     if (actor != NULL) {
         actor->floorTriangle = NULL;
     }
-    return spS.cb;
+    return hit;
 }
 
 
