@@ -7,6 +7,8 @@
     (`lw $8,224($22); lw $9,228($22); move $5,$9`): as1 deletes the dead high-word `lw` and folds the
     `move`, so the line's own code is identical, but t0/t1 are burned and D_807563B8 moves t0 -> t2
     (and every later ring temp by two).
+  - Lead ruling 2026-11-18: stays FAKE, not ORIG. Both spellings end in the same `lw a1,228(s6)` at
+    0x400; they differ only in register numbering (the ring), which is regalloc evidence.
 
 ## Attempts
 - 2026-11-14 U HackfaultDrawRegs, fdiff lines:
@@ -28,11 +30,23 @@
     v0, the chain reload leaves the ring, the t0/t1 pair skips t9: D_807563B8 in v0 (target t0, 0x404),
     D_807FF018 in t9 (target t1, 0x418). An unrelated reused local: a steer, and still not 0.
   - Parameter `a0` renamed `thread` (fdiff 0).
+- 2026-11-18 cleanup CleanfaultDrawRegsb anthropic/claude-opus-5-5 (score = variants.py full / fdiff):
+  - Of the registers this function prints, only ra is a u64 slot: pc is the u32 field
+    (`lw a1,252(s6)` at 0x3f0), so no consistent low-word view exists in the base.
+  - u32 register-array view for both prints, `u32 *regs = (u32 *)&thread->context;` with `regs[63]`
+    (pc) and `regs[57]` (ra low): fdiff 0, but a `punned-cast` site (ucde1d) with magic indices.
+  - Game-local view `FaultContext` (`FaultGpr` = `u32 hi, lo` for each of the 31 u64 slots, then
+    `u32 sr, pc, ...`), `ctx = (FaultContext *)&thread->context;`, `ctx->pc`, `ctx->ra.lo`: fdiff 0 and no
+    AST site, but still a view chosen for codegen. Kept as header-request candidates only.
+  - Pun through `((u32 *)&thread->context.ra)[1]` without the ctx local: 11.
+  - as1probe keep confirms the ugen records: pun `lw $5,228($22)`; `(u32)` adds the 224/228 pair and
+    `move $5,$9`, with D_807563B8 in `$10` (t2).
 
 ## Untried ideas
-- None that stays natural C: a 32-bit view of the saved ra needs a types change in the shared SDK
-  header `include/PR/os_thread.h` (`u64 gp, sp, s8, ra;`), and a union there would rename every
-  `context.ra` user (createthread.c, faultUnwindStack). A file-local view struct is still a pun.
+- None that stays natural C. A 32-bit view would need a header type: a game-local context view with
+  u32 halves (its only user would be faultDrawRegs, since faultUnwindStack needs the u64 reads, as the
+  pairs at 0x668/0x674 show), or an `__OSfp`-style union in the SDK header `include/PR/os_thread.h`
+  (renames every `context.a0/sp/ra` user: createthread.c 30-32, faultUnwindStack 228-229; not measured).
 
 ## Evidence
 - Target 0x3fc: `jal faultPrintf` with `lw a1,228(s6)` in the delay slot; s6 = &a0->context (0x3c4).

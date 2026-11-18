@@ -1202,3 +1202,4 @@
 {"type": "unit", "t": "2026-11-18T18:57:36Z", "unit": "2026-11-18: cleanup CleanbossMadJackStep", "commit": "d3002753d03669139b00d8a60486c8cfc2d5199c"}
 {"type": "unit", "t": "2026-11-18T18:59:58Z", "unit": "2026-11-18: cleanup CleanactorSetBoxEnableByIdb", "commit": "4d486e314985f2ebaee280107e7c2ca45eb92366"}
 {"type": "unit", "t": "2026-11-18T19:01:40Z", "unit": "2026-11-18: cleanup CleancollisionCheckTriangleWindingF32", "commit": "1a4d84776a54c6eb4b78432d351b87ac791c0fab"}
+{"type": "unit", "t": "2026-11-18T19:08:46Z", "unit": "2026-11-18: cleanup CleanfaultDrawRegsb", "commit": "bc2f912ea8c07ffaa6839bab12da4d6d8104beeb"}
