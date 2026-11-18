@@ -1526,15 +1526,15 @@ typedef struct CsLookAt {
     /* 0x40 */ f32 y;
 } CsLookAt;
 
+#define RAND_FRACTION(n) ((f32)((randomNonNegative() >> 15) % (n)) / (f64)(n))
+
 void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
-    u32 pad[20];
-    void *dm = &cs; // FAKE: address-taken cs stays in its stack home and is reloaded at every use
+    u32 pad[21];
     f32 rx;
     f32 rz;
     f32 x;
     f32 y;
     f32 z;
-    f32 t;
     CsLookAt *m;
 
     if (cs->data == NULL && (cs->unk9A & 1)) {
@@ -1544,23 +1544,22 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         m->y -= 10.0;
         guRotateF(m->mtx, gCsRotY, 0.0f, 1.0f, 0.0f);
     }
-    if ((cs->unk9A & 1) && (randomLcgNext() / 10000U) % 20U == 0) {
-        m = cs->data;
-        t = (randomNonNegative() >> 15) % 100;
-        rx = t / 100.0;
-        t = (randomNonNegative() >> 15) % 100;
-        rz = t / (f64)100; // FAKE: int-converted divisor is a separate f64 constant web from 100.0 (100.0 drops 4 bytes)
-        guMtxXFMF(m->mtx, rx * 100.0 + -50.0, 0.0f, rz * 150.0 + -75.0, &x, &y, &z);
-        x *= gCsScale;
-        z *= gCsScale;
-        x += gCsPosX;
-        z += gCsPosZ;
-        effectSetDepth(1);
-        effectSetSpeed(2);
-        effectSetDuration(-1);
-        effectSetCallback(effectWobbleRiseUpdate);
-        effectCreateAtPosition(D_8071FC40, 0.0f, x, m->y, z);
+    if (!(cs->unk9A & 1) || (randomLcgNext() / 10000U) % 20U != 0) {
+        return;
     }
+    m = cs->data;
+    rx = RAND_FRACTION(100);
+    rz = RAND_FRACTION(100);
+    guMtxXFMF(m->mtx, rx * 100.0 + -50.0, 0.0f, rz * 150.0 + -75.0, &x, &y, &z);
+    x *= gCsScale;
+    z *= gCsScale;
+    x += gCsPosX;
+    z += gCsPosZ;
+    effectSetDepth(1);
+    effectSetSpeed(2);
+    effectSetDuration(-1);
+    effectSetCallback(effectWobbleRiseUpdate);
+    effectCreateAtPosition(D_8071FC40, 0.0f, x, m->y, z);
 }
 
 typedef union CsAngleCounter {
