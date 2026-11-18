@@ -49,13 +49,11 @@ extern u8 D_80750AD4;
 
 void actorTriggerRampWithSfx(void) {
     Actor *actor;
-    Actor **p;
     s16 i;
     s16 *event;
     u32 flags;
 
     actor = gCurrentActor;
-    p = &gCurrentActor; // FAKE: re-read of gCurrentActor through a pointer (actor = *p below)
     if (!(actor->flags & 0x10)) {
         actor->flags &= ~4;
         controllerAnimSetStateIfChanged(gCurrentActor, 0x407, 0.0f, 0.0f);
@@ -92,10 +90,10 @@ void actorTriggerRampWithSfx(void) {
             actor = gCurrentActor;
         }
     }
-    if (0.0f == actor->sub4->model->speed) {
+    if (actor->sub4->model->speed == 0.0f) {
         actor->flags &= ~4;
-        actor = *p;
     }
+    actor = gCurrentActor;
     actorUpdateModelMatrix(actor, 0);
 }
 
