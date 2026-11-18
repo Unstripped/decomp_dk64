@@ -63,7 +63,7 @@ in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatch
 2. Fill the WHOLE [brief-hack.md](brief-hack.md) or [brief-polish.md](brief-polish.md) into `.scratch/briefs/<Agent>.md`.
    Names: `Clean<FUNC>` (first function of the item), `Polish<seg><file>`, `TypesOwner`. Task context: "Read
    `.scratch/briefs/<Agent>.md` FIRST and follow it exactly". A long history goes in `.scratch/briefs/<Agent>-history-<FUNC>.txt`.
-   Never start an agent name with "Hack" (provider classifiers can serve such workers a fallback model).
+   Never start an agent name with "Hack": a precaution against security-sounding names (2026-11-17e saw some workers on another model; cause unverified).
 3. Hack items carry each function's `uv run tools/quality.py history <FUNC>` and its dossier path
    `drafts/quality/dossiers/<seg>/<FUNC>.md` (if any) in the brief.
 4. Files of 100+ functions take 2–4 polish turns (per-turn request budgets): merge and record
