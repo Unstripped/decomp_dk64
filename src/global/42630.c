@@ -210,53 +210,51 @@ void csScriptLoad(s16 *scriptData) {
 
     n = *scriptData;
     p = scriptData + 1;
-    if (n != 0) {
-        do {
-            id = *p;
-            p++;
-            slot = hashTableLookup(gCsModelIds[id]);
-            if (slot != -1) {
-                gModelSlots[slot].unk7C = heapAlloc(0xA4);
-                csStateInit(gModelSlots[slot].unk7C);
-                gModelSlots[slot].unk7C->unkA0 = NULL;
-                m = p[0];
-                tail = &gModelSlots[slot].unk7C->unkA0;
-                gModelSlots[slot].unk7C->unk9C = p[1];
-                p += 2;
-                while (m != 0) {
-                    node = heapAlloc(0x50);
-                    *tail = node;
-                    node->unk4C = NULL;
-                    c1 = *p;
-                    p++;
-                    len1 = c1 * 4;
-                    tail = &node->unk4C;
-                    node->unk0 = c1;
-                    memcpy(node->unk2, p, len1 * 2);
-                    p += len1;
-                    c2 = *p;
-                    p++;
-                    len2 = c2 * 4;
-                    node->unk2A = c2;
-                    memcpy(node->unk2C, p, len2 * 2);
-                    p += len2;
-                    m--;
-                }
-            } else {
-                m = p[0];
-                p += 2;
-                while (m != 0) {
-                    c1 = *p;
-                    p++;
-                    p += c1 * 4;
-                    c2 = *p;
-                    p++;
-                    p += c2 * 4;
-                    m--;
-                }
+    while (n != 0) {
+        id = *p;
+        p++;
+        slot = hashTableLookup(gCsModelIds[id]);
+        if (slot != -1) {
+            gModelSlots[slot].unk7C = heapAlloc(sizeof(CsState));
+            csStateInit(gModelSlots[slot].unk7C);
+            gModelSlots[slot].unk7C->unkA0 = NULL;
+            m = p[0];
+            tail = &gModelSlots[slot].unk7C->unkA0;
+            gModelSlots[slot].unk7C->unk9C = p[1];
+            p += 2;
+            while (m != 0) {
+                node = heapAlloc(sizeof(CsNode));
+                *tail = node;
+                node->unk4C = NULL;
+                c1 = *p;
+                p++;
+                len1 = c1 * 4;
+                tail = &node->unk4C;
+                node->unk0 = c1;
+                memcpy(node->unk2, p, len1 * 2);
+                p += len1;
+                c2 = *p;
+                p++;
+                len2 = c2 * 4;
+                node->unk2A = c2;
+                memcpy(node->unk2C, p, len2 * 2);
+                p += len2;
+                m--;
             }
-            n--;
-        } while (n != 0);
+        } else {
+            m = p[0];
+            p += 2;
+            while (m != 0) {
+                c1 = *p;
+                p++;
+                p += c1 * 4;
+                c2 = *p;
+                p++;
+                p += c2 * 4;
+                m--;
+            }
+        }
+        n--;
     }
     D_807F693F = 0;
     gCsFlagBits = 0;
@@ -1505,7 +1503,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol == 0) {
             vol = 0xFF;
         }
-        i = cmd->b & 0x7F; // FAKE: reuses the loop index i for the spread argument; a dedicated local (in pad's slot) recolours csCmdExec
+        i = cmd->b & 0x7F; // the spread, in i as in case 0x7E
         sfxPlayFromTargetSlot(csId, cmd->a, vol, pitch, i, c, 0.3f);
         break;
     case 0x7E:
