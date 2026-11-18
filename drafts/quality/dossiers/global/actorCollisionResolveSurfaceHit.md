@@ -82,13 +82,19 @@
     - `clamp / 8.0f` on the current body: 18 (the earlier "2" was not reproduced).
     - Classification as a Q0908 guard: `if (1) {}`, `if (otherBounds) {}` and `if (clamp) {}` in place of the do-while all give 0, while a bare `;` gives 16. So the site is a label-only block split ending the div.s $f0 block (0xc6c-0xc88), the shape of D5E10 finding 2.
     - Permuter, only the do-while removed (pun kept), hack-free weights, 900 s at -j 2: base 100, best 0. Both zeros (and every output under 100) put an empty dead guard in its place (`if (otherBounds) {}`, `if (!hitRadius && !hitRadius) {}`, `if (normal) {}`, ...).
+- 2026-11-18 U CleanactorCollisionResolveSurfaceHitb (cleanup session 2026-11-18, anthropic/claude-opus-5-5): both sites nohit; copy unchanged (fdiff 0, uninit 0, cfe warnings 0). The copy sweep (--copy-of) found 0 hits.
+  - 94c1f4 (pun removed, plain `flag != 0` in both tests):
+    - `(void)&flag;` as the first statement: 122, the same as plain. cfe drops the statement, so no LDA of flag reaches uopt (Q1026).
+    - A third read as a dead guard in the e9a088 slot: bare `if (flag) {}` and `if (!flag) {}` give 122. `if (flag != 0) {}` gives 3: uopt -l5 stretches ucvt{flag} (cand 24) to bb 38 and splits it 24/314. Piece 314 (bb 4..38) is not coloured, so the value goes through a new spill home: `sw t8,88(sp)` after the lbu at 0x84c, and `lw t5,88(sp)` at 0x92c instead of `lbu t5,343(sp)`.
+    - The same guard with a bare first test: 129. `flag > 0` in both tests: 122.
+  - Both sites at once: one dead guard in the do-while slot, `if (&flag) {}` or `if (*(u8 *)&flag != 0) {}`, with both tests plain gives fdiff 0 (FAKE 2 -> 1). The two levers are independent: the slot needs only a codeless block boundary, and the pun needs one LDA of flag that survives cfe. An empty if keeps its LDA through uopt but emits no ugen code. Lead ruling (Lead20261118): rejected. It is an always-true address test with no target backing (unlike the 9DD70 switch, whose case values the target's li webs back), so both tags stay.
 
 ## Untried ideas
-- 94c1f4: none left in this TU. The target performs no by-reference use of `flag`. Only dead code (`(void)&flag`, an unused `u8 *p = &flag`, Q0191) or `volatile` can make it address-taken, and all of these are hacks; the permuter's best (174) is exactly that alias. Measured so far: retyping (u8/s32/u32, an s32 holder plus a u8 local), qualifiers (const/register), conversion widths, switch, nested-if and snapshot spellings, and the order of the element read.
+- 94c1f4: none left in this TU. The target performs no by-reference use of `flag`. Only dead code or `volatile` can make it address-taken, and all of these are hacks. `(void)&flag;` does not work at all (cfe drops it: 122). An unused `u8 *p = &flag` (Q0191) is the permuter's best (174), and an address test in a dead guard works (0, but it is a hack). Measured so far: retyping (u8/s32/u32, an s32 holder plus a u8 local), qualifiers (const/register), conversion widths, `> 0`, switch, nested-if and snapshot spellings, the order of the element read, and a third read of flag as a dead guard.
 - e9a088: the target needs pushX/pushZ in a uopt block after the last use of the clamp/8 CSE temp ($f0, 0xc6c-0xc88).
   - Any empty guard there matches, so the site is a pure block split.
   - Measured: real loops (also with a per-role scale local), copies, interleaving, statement order, and moving the pushes after the callback (ruled out by the spills).
-  - A do-while(0) statement macro is still a tagged do-while(0) (3D20 PUTC precedent, Q1191). No ordinary C construct that splits the block without code is known.
+  - A do-while(0) statement macro is still a tagged do-while(0) (3D20 PUTC precedent, Q1191). No ordinary C construct that splits the block without code is known. A single dead guard merging this split with the 94c1f4 lever matches but was ruled implausible (2026-11-18). Only a construct the target backs (the 9DD70 standard) could replace both sites.
 
 ## Evidence
 - Target 0x84c `lbu t8,343(sp)` and 0x92c `lbu t5,343(sp)`; no `addiu rN,sp,0x154..0x157` anywhere in the function.
@@ -97,3 +103,5 @@
 - Target 0xc98 `swc1 $f0,104(sp)` and 0xca8 `swc1 $f2,100(sp)` (pushX/pushZ homes) around `jal actorAppendCallbackS32` at 0xca4, reloaded at 0xcac/0xcb0: the pushes are computed before the call.
 - Target scaledNormal[0..2] stores at 0xbb4/0xbbc/0xbc8 (112/116/120(sp)): `scaledNormal[1]` is stored although unused, which is behaviour, not a dead store.
 - The node loops after `if (hit != 0)` exist twice in the target (heads at 0xcd8 and 0xd44).
+- Target 72..99(sp) is never addressed: the frame has room for a uopt spill home. A third `flag != 0` read uses 88(sp) there.
+- func_80673708 (77B90 handwritten asm) returns `lbu v0,D_807FB5FC`, so the file-local `u8` return type is real. 70FD0's `s32` declaration plus `& 0xFF` belongs to that file.
