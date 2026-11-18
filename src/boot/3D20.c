@@ -78,7 +78,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     double rnd;
     int c;
     int *q1;
-    int pad[5];
+    int pad[6];
     double tmp;
     double etmp;
     double ernd;
@@ -94,8 +94,8 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                 PUTC(*f++);
             }
         } else {
-            c = *++f;
-            if ((c ^ 0) == '%') { // FAKE: operand order of the compare
+            f++;
+            if (*f == '%') {
                 f++;
                 PUTC('%');
             } else {
@@ -109,9 +109,8 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                 ll = 0;
                 lg = 0;
                 sh = 0;
-                while (c == ' ' || c == '+' || c == '-' || c == '#' || c == '0') {
-                    f++;
-                    switch (c) {
+                while (*f == ' ' || *f == '+' || *f == '-' || *f == '#' || *f == '0') {
+                    switch (*f++) {
                     case ' ':
                         space = 1;
                         break;
@@ -128,43 +127,41 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         padChar = '0';
                         break;
                     }
-                    c = *f;
                 }
                 if (minus) {
                     padChar = ' ';
                 }
-                if (c == '*') {
+                if (*f == '*') {
                     width = va_arg(ap, int);
                     if (width < 0) {
                         width = -width;
                         minus = 1;
                     }
-                    c = *++f;
+                    f++;
                 } else {
-                    while (c >= '0' && c <= '9') {
-                        width = width * 10 + c - '0';
-                        c = *++f;
+                    while (*f >= '0' && *f <= '9') {
+                        width *= 10;
+                        width += *f++ - '0';
                     }
                 }
-                if (c == '.') {
-                    c = *++f;
-                    if (c == '*') {
+                if (*f == '.') {
+                    f++;
+                    if (*f == '*') {
                         prec = va_arg(ap, int);
                         if (prec < 0) {
                             prec = -1;
                         }
-                        c = *++f;
-                    } else if (c >= '0' && c <= '9') {
+                        f++;
+                    } else if (*f >= '0' && *f <= '9') {
                         prec = 0;
-                        while (c >= '0' && c <= '9') {
-                            prec = prec * 10 + c - '0';
-                            c = *++f;
+                        while (*f >= '0' && *f <= '9') {
+                            prec *= 10;
+                            prec += *f++ - '0';
                         }
                     }
                 }
-                while (c == 'h' || c == 'l' || c == 'L' || c == 'Z' || c == 'q') {
-                    f++;
-                    switch (c) {
+                while (*f == 'h' || *f == 'l' || *f == 'L' || *f == 'Z' || *f == 'q') {
+                    switch (*f++) {
                     case 'h':
                         sh = 1;
                         break;
@@ -185,7 +182,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         ll = 1;
                         break;
                     }
-                    c = *f;
                 }
                 conv = *f++;
                 switch (conv) {
