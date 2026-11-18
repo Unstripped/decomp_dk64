@@ -1078,3 +1078,4 @@
 {"type": "unit", "t": "2026-11-18T08:35:54Z", "unit": "2026-11-17: cleanup CleandlAppendTextureLoad", "commit": "af4f64dd569cb71d76779fd15c0d2d4ab74500b9"}
 {"type": "unit", "t": "2026-11-18T08:40:48Z", "unit": "2026-11-17: cleanup CleanenemyAggroStateUpdate", "commit": "d13edd4356c0e956688fcb5820b2d365055a8d49"}
 {"type": "unit", "t": "2026-11-18T08:50:23Z", "unit": "2026-11-17: cleanup CleancommandApplyToLight", "commit": "1c430b2058db523f08c75d396c944c6b40537fdd"}
+{"type": "unit", "t": "2026-11-18T08:54:12Z", "unit": "2026-11-17: cleanup CleantextDrawStringVtx", "commit": "d25a9bbe024782f136e80d4e855ad633299ab70b"}
