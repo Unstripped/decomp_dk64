@@ -1,1 +1,2 @@
 # ROM-extracted C initialisers (tools/data_inc.py gen, run by `make split`): seg name vram size width file
+boot sNoExpPakImageGz 0x8000DE88 0xE81 1 src/boot/1630.c

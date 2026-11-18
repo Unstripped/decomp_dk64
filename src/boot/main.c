@@ -7,14 +7,17 @@
 
 
 // Index into osViModeTable per osTvType: {OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1}.
-// Probably a local initialiser originally; its data is still in the boot asm data blob.
+// Probably a local initialiser originally: its template is the TU's last .data object.
 typedef struct {
     u32 v[3];
 } ViModeIdx;
 
-extern s8 sBootResetState;
-extern u32 sAudioFreq;
-extern ViModeIdx sBootViMode;
+s8 sBootResetState = 0;
+u32 sAudioFreq = 0;
+u32 D_8000DCB8[3] = { 0 }; // unreferenced
+SegmentTableEntry gSegmentTable[18] = { 0 };
+ViModeIdx sBootViMode = { { OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1 } };
+
 extern OSMesgQueue sResetMesgQueue;
 extern OSMesg sResetMesgBuf[10];
 

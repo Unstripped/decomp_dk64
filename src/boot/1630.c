@@ -20,16 +20,20 @@ typedef struct {
     u32 w[3];
 } Words3;
 
-extern u8 sNoExpPakImageGz[];
-extern FbPair sNoExpPakFramebuffers;
-extern VsyncDelays sNoExpPakVsyncDelays;
-extern Words3 sNoExpPakUnusedWords;
-extern u8 sNoExpPakTextLine1[];
-extern u8 sNoExpPakTextLine2[];
-extern u8 sNoExpPakTextLine3[];
-extern u8 sNoExpPakTextLine4[];
-extern u8 sNoExpPakTextLine5[];
-extern u8 sNoExpPakTextLine6[];
+u32 D_8000DE80[2] = { 0 }; // unreferenced
+// gzip stream of the 64x64 image noExpPakThread unpacks; ROM-extracted (data_inc.us.txt).
+u8 sNoExpPakImageGz[0xE81] = {
+#include "boot/sNoExpPakImageGz.inc.c"
+};
+FbPair sNoExpPakFramebuffers = { { (u16 *)0x80200000, (u16 *)0x80100000 } };
+VsyncDelays sNoExpPakVsyncDelays = { { 120, 60 } };
+Words3 sNoExpPakUnusedWords = { { OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1 } }; // main's sBootViMode triple
+u8 sNoExpPakTextLine1[0x1C] = "       Nhf EXPANSION PAK}";
+u8 sNoExpPakTextLine2[0x18] = "          NOT INSTALLED";
+u8 sNoExpPakTextLine3[0x20] = "THE Nhf EXPANSION PAK ACCESSORY";
+u8 sNoExpPakTextLine4[0x24] = "MUST BE INSTALLED IN THE Nhf~ FOR";
+u8 sNoExpPakTextLine5[0x24] = "THIS GAME[ SEE THE Nhf EXPANSION";
+u8 sNoExpPakTextLine6[0x1C] = "   PAK INSTRUCTION BOOKLET[";
 
 
 void noExpPakScreen(void) {

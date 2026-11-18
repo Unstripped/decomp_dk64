@@ -189,7 +189,11 @@ segments:
       - [0xDBC0, c, libultra/os/yieldthread]
       - [0xDC10, c, libultra/io/contpfs]
       - [0xE790, asm, libultra/libc/bcmp]
-      - [0xE8B0, data, E8B0_data]
+      - [0xE8B0, .data, main] # sBootResetState, sAudioFreq, D_8000DCB8 (unreferenced), gSegmentTable, sBootViMode (0x8000DCB0-0x8000DE80)
+      - [0xEA80, .data, 1630] # D_8000DE80 (unreferenced), sNoExpPakImageGz (data_inc), framebuffers, vsync delays, unused words, six text lines (0x8000DE80-0x8000EDDC + 4-byte TU pad)
+      - [0xF9E0, .data, 1CC0] # inflate tables border..dbits (0x8000EDE0-0x8000EEDC + 4-byte TU pad)
+      - [0xFAE0, .data, 30E0] # method, exit_code (0x8000EEE0-0x8000EEE8 + 8-byte TU pad)
+      - [0xFAF0, .data, 3630] # strtokSavePtr (0x8000EEF0-0x8000EEF4 + 12-byte TU pad)
       - [0xFB00, .data, libultra/io/vimgr]
       - [0xFB20, data, libultra/io/vitbl]
       - [0x10CA0, .data, libultra/os/initialize]

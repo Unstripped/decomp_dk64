@@ -12,6 +12,9 @@
 #define ORIG_NAME 0x08    // original file name present
 #define COMMENT 0x10      // file comment present
 
+s32 method = DEFLATED;
+s32 exit_code = 0;
+
 void gunzip(u8 **inBufPtr, u8 **outBufPtr, void *huftStorage) {
     inbuf = *inBufPtr;
     slide = *outBufPtr;
