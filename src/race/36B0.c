@@ -364,21 +364,20 @@ extern s32 D_8002FC0C[];
 
 void raceOpponentCarBehaviorUpdate(void) {
     s32 pad70[2];
-    u8 *flagPtr;
+    u8 *bumpCooldown;
     RaceTarget *aux;
     s32 count;
     Actor *targetActor;
     RaceParticipant *state;
     RacePathState *cursor;
-    u32 cursorVal;
-    s32 phase;
+    u8 stunTimer;
     s32 idx;
-    s32 statePhase;
-    s32 cam;
+    s32 pathId;
+    s32 pad44[2];
 
     state = ((RaceCarActor *)gCurrentActor)->participant;
     cursor = ((RaceCarActor *)gCurrentActor)->path;
-    flagPtr = ((RaceCarActor *)gCurrentActor)->bumpCooldown;
+    bumpCooldown = ((RaceCarActor *)gCurrentActor)->bumpCooldown;
     aux = ((RaceCarActor *)gCurrentActor)->raceTarget;
     targetActor = state->actor;
     behaviourFrameBegin();
@@ -408,13 +407,13 @@ void raceOpponentCarBehaviorUpdate(void) {
         cursor->stunTimer = 0x1E;
         cursor->shakeRoll = 0.0f;
     }
-    if (*flagPtr != 0) {
-        (*flagPtr)--;
+    if (*bumpCooldown != 0) {
+        (*bumpCooldown)--;
     }
-    cursorVal = cursor->stunTimer;
-    if (cursorVal != 0) {
-        if (cursorVal > 10.0f) {
-            cursor->shakeRoll = (cursorVal - 10.0f) * 204.8f;
+    stunTimer = cursor->stunTimer;
+    if (stunTimer != 0) {
+        if (stunTimer > 10.0f) {
+            cursor->shakeRoll = (stunTimer - 10.0f) * 204.8f;
         } else {
             cursor->shakeRoll = 0.0f;
         }
@@ -426,27 +425,22 @@ void raceOpponentCarBehaviorUpdate(void) {
     }
     if (state->raceStatus < 5) {
         racePathFollowStep(cursor, state, 1);
-        gCurrentActor->y += 50.0f * mathSinF((s16)(cursor->shakeRoll * 0.5f));
+        gCurrentActor->y += 50.0f * mathSinF(cursor->shakeRoll * 0.5f);
     } else {
         gCurrentActor->speedXZ = 0.0f;
     }
     raceUpdateOpponentEnginePitch(gCurrentActor->speedXZ);
     if (state->raceStatus == 0) {
-        phase = state->unk35;
-        statePhase = state->unk35;
-        cursorVal = statePhase; // FAKE: stunTimer local reused as the selector; switch (statePhase) puts the unk35 load in v0 and the selector in v1
-        switch (cursorVal) {
+        switch (state->unk35) {
         case 0:
             if (gCurrentActor->flags & 0x02000000) {
-                state->unk35 = state->unk35 + 1;
-                phase = state->unk35;
+                state->unk35++;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
                 state->unk35++;
-                phase = state->unk35;
             }
             break;
         case 2:
@@ -454,10 +448,9 @@ void raceOpponentCarBehaviorUpdate(void) {
                 currentActorClearFlag();
                 state->unk35++;
             }
-            phase = state->unk35;
             break;
         }
-        if (phase < 3) {
+        if (state->unk35 < 3) {
             raceSetIntroCutscenePhase(targetActor);
         } else {
             raceClearIntroCutscenePhase(targetActor);
@@ -468,8 +461,8 @@ void raceOpponentCarBehaviorUpdate(void) {
     } else if (state->raceStatus == 4) {
         if (state->unk35 == 0) {
             if (flagGet(0x8B, 0) == 0) {
-                cam = D_8002FC0C[raceCheckLapCompletionThreshold(state, aux->participant, 0xA)];
-                camStartPath(gCurrentActor, cam, 1);
+                pathId = D_8002FC0C[raceCheckLapCompletionThreshold(state, aux->participant, 0xA)];
+                camStartPath(gCurrentActor, pathId, 1);
                 currentActorClearFlag();
             } else {
                 mapCheckAutoTransition();
@@ -477,20 +470,17 @@ void raceOpponentCarBehaviorUpdate(void) {
             state->unk35++;
         }
     } else if (state->raceStatus == 5) {
-        statePhase = state->unk35;
-        switch (statePhase) {
+        switch (state->unk35) {
         case 0:
             if (flagGet(0x8B, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
-                idx = 0;
                 gCurrentActor->pitch = 0;
                 gCurrentActor->roll = 0;
-                do {
+                for (idx = 0; idx < 2; idx++) {
                     if (gCurrentActor->soundSlots[idx] != -1) {
                         sfxStopSlotSound(gCurrentActor, idx);
                     }
-                    idx += 1;
-                } while (idx != 2);
+                }
             }
             state->unk35++;
             break;
