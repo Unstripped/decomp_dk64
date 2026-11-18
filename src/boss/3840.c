@@ -145,8 +145,7 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     case 0x5C:
         {
             u8 *p = BOSS_ACTOR->typeState;
-            *p = script[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            *p = script[scriptState->scriptPos++];
         }
         break;
     case 0x5A:
@@ -250,8 +249,7 @@ patrol:
         didLoop = 1;
         break;
     case 0x65:
-        gBehaviourWorkState->timer = script[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        gBehaviourWorkState->timer = script[scriptState->scriptPos++];
         didLoop = 1;
         break;
     case 0x67:
@@ -277,8 +275,7 @@ patrol:
         BOSS_ACTOR->base.unk155 = 0;
         goto patrol;
     case 0x41:
-        gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos++];
         advanceScript = 0;
         BOSS_ACTOR->base.state = 0x42;
         BOSS_ACTOR->base.unk155 = 0;
@@ -296,8 +293,7 @@ patrol:
             break;
         case 1:
             if (BOSS_ACTOR->base.state == 0x49) {
-                gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos++];
             } else {
                 bossPickRandomWaypoint(scriptState, script);
             }
@@ -322,8 +318,7 @@ patrol:
         break;
     }
     if (advanceScript != 0) {
-        BOSS_ACTOR->base.state = script[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        BOSS_ACTOR->base.state = script[scriptState->scriptPos++];
         BOSS_ACTOR->base.unk155 = 0;
     }
     return didLoop;
