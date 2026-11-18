@@ -2573,7 +2573,7 @@ typedef struct TagBarrelData {
 
 
 void tagBarrelOrbitKongs(TagBarrelData *arg) {
-    s32 pad;
+    s16 slotYaw;
     f32 centerX = gCurrentActor->x;
     f32 centerY = gCurrentActor->y - 10.0f;
     f32 centerZ = gCurrentActor->z;
@@ -2583,20 +2583,16 @@ void tagBarrelOrbitKongs(TagBarrelData *arg) {
     f32 clamped;
     s16 baseYaw;
     s16 yaw;
-    u8 u;
     Actor *kong;
 
     blend = (u32)arg->timer / 20.0f;
     baseYaw = gCurrentActor->yaw;
     baseYaw = (s16)(baseYaw + (819.2 * arg->selected)) & 0xFFF;
     baseYaw = (s16)(baseYaw - (819.2 * blend) * arg->direction) & 0xFFF;
-    u = ((u8)(s32)(baseYaw & 0x7FFF) & 0xFFF); // FAKE: dead narrowing chain burns ugen ring temps (loop-start register ring)
-    u = ((u8)((s16)(u & 0xFFF) & 0xFFFF) & 0x7FFF); // FAKE: ring temps
-    u = (s32)(((u8)(u & 0xFFFF) & 0xFF) & 0x7FFF); // FAKE: ring temps
-    u = (u32)u; // FAKE: ring temps
     for (i = 0; i < 5; i++) {
         kong = arg->kongs[i];
-        yaw = (s16)((s32)(4096.0 - (i * 819.2)) + baseYaw) & 0xFFF;
+        slotYaw = (s16)(4096.0 - (i * 819.2)) & 0xFFF;
+        yaw = (s16)(slotYaw + baseYaw) & 0xFFF;
         kong->x = (mathSinF(yaw) * 45.0f) + centerX;
         kong->z = (mathCosF(yaw) * 45.0f) + centerZ;
         kong->y = centerY;
