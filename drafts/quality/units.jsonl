@@ -1125,3 +1125,4 @@
 {"type": "unit", "t": "2026-11-18T11:12:33Z", "unit": "2026-11-17: cleanup CleanactorMoveWithinZone", "commit": "9717916816676505d2570fb333f93aa915cc1976"}
 {"type": "unit", "t": "2026-11-18T11:14:56Z", "unit": "2026-11-17: cleanup CleanplayerInputHandleAButtonJump", "commit": "549442c4dcf98574a7444243488db811893ce5cd"}
 {"type": "unit", "t": "2026-11-18T11:24:52Z", "unit": "2026-11-17: cleanup CleanraceOpponentCarBehaviorUpdate", "commit": "9b281e43594b932ce00ef50ac3a4172fb77ba84c"}
+{"type": "unit", "t": "2026-11-18T11:26:14Z", "unit": "2026-11-17: cleanup CleantagBarrelIsSpecial", "commit": "0ff237c947a3e73f90b1950328f0cb9d34ac9a89"}
