@@ -307,14 +307,10 @@ void arcadeDispatchState(Gfx **glistp) {
 }
 
 
-typedef struct ArcadeBlankInitial {
-    u8 letter;
-} ArcadeBlankInitial;
-ArcadeBlankInitial D_8004A794 = { ' ' };
 void arcadeInsertHighScore(s32 rank) {
     s32 i;
     s32 j;
-    ArcadeBlankInitial blank = D_8004A794;
+    u8 blank[1] = { ' ' };
 
     for (i = 4; i > rank; i--) {
         D_8004A74C[i] = D_8004A74C[i - 1];
@@ -323,7 +319,7 @@ void arcadeInsertHighScore(s32 rank) {
         }
     }
     D_8004A74C[rank] = D_8004A748;
-    for (i = 0; i < 3; i++) D_8004A778[rank][i] = blank.letter;  // LAYOUT: body on the for line
+    for (i = 0; i < 3; i++) D_8004A778[rank][i] = blank[0];  // LAYOUT: body on the for line
 }
 
 extern ArcadeEntity D_8004A698;
@@ -658,23 +654,6 @@ extern TextureDescriptor D_8004BB30[];
 extern TextureDescriptor D_8004BB60[];
 extern TextureDescriptor D_8004BB90[];
 extern TextureDescriptor D_8004BBC0[];
-typedef struct ArcadeTitleBitmap {
-    s32 words[12];
-} ArcadeTitleBitmap;
-ArcadeTitleBitmap D_8004A798 = { {
-    0x019D2975,
-    0x0155AA45,
-    0x0155EE77,
-    0x01556A42,
-    0x019D2972,
-    0x00000000,
-    0x00000000,
-    0x0035E938,
-    0x003DAD60,
-    0x0039AF6C,
-    0x0035AB64,
-    0x0035E938,
-} };
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
 extern u8 gGfxBufferIndex;
@@ -873,24 +852,36 @@ void arcadeDrawTitleText(Gfx **glistp) {
     s32 row;
     s32 j;
     Gfx *glist;
-    ArcadeTitleBitmap titleBitmap;
+    s32 titleBitmap[12] = {
+        0x019D2975,
+        0x0155AA45,
+        0x0155EE77,
+        0x01556A42,
+        0x019D2972,
+        0x00000000,
+        0x00000000,
+        0x0035E938,
+        0x003DAD60,
+        0x0039AF6C,
+        0x0035AB64,
+        0x0035E938,
+    };
     s32 i;
 
-    titleBitmap = D_8004A798;
     glist = *glistp;
     D_8004C719 = 8;
     D_8004C71A = 8;
     D_8004C6D4.word = 0x400;
-    if (D_8004C6DC & 0x182) D_8004C6D0 = D_80032C20;
+    if (D_8004C6DC & 0x182) D_8004C6D0 = D_80032C20; // LAYOUT: then-arm store on the if line (as1 .loc; split onto its own line: text=2)
     else D_8004C6D0 = D_80032DF8;
     dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < 12; i++) {
-        row = titleBitmap.words[i];
+        row = titleBitmap[i];
         for (j = 0; j < 25; j++) {
             if ((1 << j) & row) {
-                dlAppendTextureRectangle(&glist, 0x3E0 - (j << 5), (s32)((f64)(i * 8 + 0x3F) * 4.0));
+                dlAppendTextureRectangle(&glist, 0x3E0 - (j << 5), (i * 8 + 0x3F) * 4.0);
             }
         }
     }
@@ -1272,12 +1263,6 @@ void arcadeSpawnStage1Entities(void) {
     D_8004C708 = 7;
 }
 
-typedef struct ArcadePosTable {
-    u8 b[16];
-} ArcadePosTable;
-ArcadePosTable D_8004A81C = { {
-    0x6C, 0xD0, 0xD4, 0xD0, 0x6C, 0xAA, 0xD4, 0xAA, 0x6C, 0x84, 0xD4, 0x84, 0x6C, 0x5D, 0xD4, 0x5D,
-} };
 extern ArcadeEntity D_8004A578;
 extern ArcadeEntity D_8004A618;
 extern ArcadeEntity D_8004A658;
@@ -1288,9 +1273,17 @@ void arcadeSpawnStage2Entities(void) {
     s32 bit;
     s32 idx;
     s32 i;
-    ArcadePosTable tbl;
+    u8 pos[8][2] = {
+        { 0x6C, 0xD0 },
+        { 0xD4, 0xD0 },
+        { 0x6C, 0xAA },
+        { 0xD4, 0xAA },
+        { 0x6C, 0x84 },
+        { 0xD4, 0x84 },
+        { 0x6C, 0x5D },
+        { 0xD4, 0x5D },
+    };
 
-    tbl = D_8004A81C;
     bit = 1;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4D8;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4B8;
@@ -1302,8 +1295,8 @@ void arcadeSpawnStage2Entities(void) {
     for (i = 0; i < 8; i++) {
         idx = arcadeFindFreeEntity();
         D_8004BCD0[idx] = D_8004A658;
-        D_8004BCD0[idx].x = tbl.b[i * 2];
-        D_8004BCD0[idx].y = tbl.b[i * 2 + 1];
+        D_8004BCD0[idx].x = pos[i][0];
+        D_8004BCD0[idx].y = pos[i][1];
         D_8004BCD0[idx].param = bit;
         bit = bit * 2;
     }
