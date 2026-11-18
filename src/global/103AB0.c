@@ -384,7 +384,12 @@ s16 zbufferDepthToDistance(s16 depth) {
 }
 
 typedef struct {
-    s32 words[16]; /* (shift, offset) pairs per 3-bit exponent */
+    s32 shift;
+    s32 offset;
+} ZbufferDecodeEntry;
+
+typedef struct {
+    ZbufferDecodeEntry entries[8]; /* indexed by the 3-bit depth exponent */
 } ZbufferDecodeTable;
 extern ZbufferDecodeTable D_80754BC4;
 extern u16 *gGfxDepthBuffer;
@@ -392,24 +397,22 @@ extern u16 *gGfxDepthBuffer;
 u16 zbufferReadDepth(s16 x, s16 y) {
     ZbufferDecodeTable table;
     u16 z;
+    u16 exponent;
     u16 mantissa;
-    s32 *entry;
     u16 *depth;
-    s32 result;
-    ZbufferDecodeTable *tablePtr;
+    u32 result;
 
     table = D_80754BC4;
-    tablePtr = &table; // FAKE: pointer temp steers the table address registers
     depth = gGfxDepthBuffer;
     if (x < gPlayerSlots->rect[0] || gPlayerSlots->rect[2] < x || y < gPlayerSlots->rect[1] || gPlayerSlots->rect[3] < y) {
         return 0xFFFF;
     }
     depth += gScreenWidth * y + x;
     z = *depth;
-    entry = tablePtr->words + (((z >> 13) & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 7) * 2); // FAKE: no-op masks advance the ugen temp ring (Q0374)
-    mantissa = z >> 2;
-    result = ((mantissa & 0x7FF) << entry[0]) + entry[1];
-    return (u32)result >> 3;
+    exponent = (z >> 13) & 7;
+    mantissa = (z >> 2) & 0x7FF;
+    result = (mantissa << table.entries[exponent].shift) + table.entries[exponent].offset;
+    return result >> 3;
 }
 
 extern s16 D_807FD800;
