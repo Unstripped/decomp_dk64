@@ -589,19 +589,12 @@ void actorSetAnimForMoveTier(s16 threshold, s16 animLow, s16 animMid, s16 animHi
 
 
 void actorShowTextOnceWhenNear(u16 actionId, u8 actionParam, s16 flagId) {
-    f32 dx;
-    f32 dy;
-    f32 dz;
-    s32 near;
+    u8 near;
 
-    dx = gPrimaryPlayerActor->x - gCurrentActor->x;
-    dy = gPrimaryPlayerActor->y - gCurrentActor->y;
-    dz = gPrimaryPlayerActor->z - gCurrentActor->z;
-    near = 0;
-    if (dx * dx + dy * dy + dz * dz < 4900.0f) {
-        near = 1;
-    }
-    if ((u8)near) { // FAKE: u8 truncation of the s32 flag reproduces the original andi test
+#define SQ(x) ((x) * (x))
+    near = SQ(gPrimaryPlayerActor->x - gCurrentActor->x) + SQ(gPrimaryPlayerActor->y - gCurrentActor->y) +
+           SQ(gPrimaryPlayerActor->z - gCurrentActor->z) < 4900.0f;
+    if (near) {
         if (!flagGet(flagId, 2)) {
             resQueueAttachActor(gCurrentActor, actionId, actionParam);
             flagSet(flagId, 1, 2);
