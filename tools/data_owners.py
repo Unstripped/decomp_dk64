@@ -7,11 +7,13 @@
 build/dk64.us.map/.elf) and every object the map names, so it works on a mixed C/asm
 tree (tools/rodata_owners.py needs an all-asm split). Run after `tools/dk make`.
 
-Data objects: every symbol inside a .data/.rodata input section of a build/asm/**
-object, plus the labels a C file still includes via GLOBAL_ASM; `--all` adds every
-symbol in build/src/** data sections. An object's size runs to the next symbol or its
-section end. `--range` takes VRAMs, or segment file offsets (the yaml's) below
-0x80000000.
+Data objects: every symbol inside a .data/.rodata input section of the map's objects.
+Listed: those of build/asm/** objects plus the labels a C file still includes via
+GLOBAL_ASM; `--all` lists the C-defined ones too (they always take part in owner
+propagation, so a C pointer table passes its owners to asm targets). An object's size
+runs to the next symbol or its section end, capped by its .size. `--range` takes VRAMs,
+or segment file offsets (the yaml's) below 0x80000000. A RUN never bridges an
+unlisted object.
 
 Owners: the src stems (.c/.s basename) whose .text relocations (R_MIPS_32, HI16/LO16)
 hit the object; an object without one inherits the owners of the data objects whose
@@ -206,14 +208,14 @@ def main() -> int:
         offsets = sorted(syms)
         for k, off in enumerate(offsets):
             s = syms[off]
-            if obj.startswith("build/src/") and not args.all and s["name"] not in pragma_labels:
-                continue
+            # C-defined objects stay in the graph (their pointers propagate ownership); only listed with --all.
+            listed = args.all or not obj.startswith("build/src/") or s["name"] in pragma_labels
             end = offsets[k + 1] if k + 1 < len(offsets) else size
             if s["size"]:
                 end = min(end, off + s["size"])
             objects.append({"addr": addr + off, "size": end - off, "name": s["name"], "obj": obj,
                             "sec": sec, "text": set(), "via": set(), "p": False, "F": False,
-                            "k": len(objects)})
+                            "k": len(objects), "listed": listed})
     obj_starts = [o["addr"] for o in objects]
 
     def find(addr):
@@ -311,7 +313,7 @@ def main() -> int:
                 kinds[cur] = {"float": "f", "double": "d", "asciz": "s", "ascii": "s"}.get(k.group(1), "w")
 
     lo, hi = parse_range(args.range, args.seg) if args.range else (0, 0xFFFFFFFF)
-    shown = [o for o in objects if lo <= o["addr"] < hi]
+    shown = [o for o in objects if lo <= o["addr"] < hi and o["listed"]]
 
     def order_key(s):
         return (text_order.get(s, 1 << 30), s)
@@ -327,7 +329,9 @@ def main() -> int:
     runs = []
     for o in shown:
         key = frozenset(owners[index[id(o)]])
-        if runs and runs[-1]["key"] == key and runs[-1]["last"]["sec"] == o["sec"]:
+        # An unlisted (C) object between two listed ones ends the run: no bridging over omitted ranges.
+        if (runs and runs[-1]["key"] == key and runs[-1]["last"]["sec"] == o["sec"]
+                and o["k"] == runs[-1]["last"]["k"] + 1):
             runs[-1]["end"] = o["addr"] + o["size"]
             runs[-1]["last"] = o
         else:
