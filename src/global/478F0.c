@@ -1122,7 +1122,6 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 cnt;
     s32 start;
     s32 hit;
-    TargetVec3f *v;
     PlayerStruct *pl;
     f32 dx;
     f32 dy;
@@ -1143,10 +1142,9 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     while (hit == 0 && start != *p) {
         pl = gPlayerSlots;
-        v = *p + gMinecartTrackPoints[0]; // FAKE: index-first sum puts the track base in t1/t2 and the *p * 12 mflo in t3 (0x3c54-0x3c70); base-first or &[0][*p] gives mflo t1, base t2/t3 (pre-existing, now tagged)
-        dz = pl->camZ - v->z;
-        dx = pl->camX - v->x;
-        dy = pl->camY - v->y;
+        dz = pl->camZ - gMinecartTrackPoints[0][*p].z;
+        dx = pl->camX - gMinecartTrackPoints[0][*p].x;
+        dy = pl->camY - gMinecartTrackPoints[0][*p].y;
         if (sqrtf(dz * dz + (dx * dx + dy * dy)) < D_807480F0) {
             hit = 1;
             effectSetDepth(1);
@@ -1154,8 +1152,7 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetSpeed(0);
             effectSetCallback(effectLightGrowShrinkUpdate);
             effectSetMaxDistance(0x320);
-            v = *p + gMinecartTrackPoints[0]; // FAKE: index-first sum keeps *p in t6, the track base in t4/t5 and mflo t7 (0x3ce8-0x3d00); base-first or &[0][*p] gives *p t4, base t6/t7, mflo t5 (pre-existing, now tagged)
-            effectCreateAtPosition(D_80720BC4, 2.5f, v->x, v->y, v->z);
+            effectCreateAtPosition(D_80720BC4, 2.5f, gMinecartTrackPoints[0][*p].x, gMinecartTrackPoints[0][*p].y, gMinecartTrackPoints[0][*p].z);
         } else {
             (*p)++;
             if (*p == cnt) {
