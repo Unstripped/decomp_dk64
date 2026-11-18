@@ -397,10 +397,10 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
 
     if (isGfx == 0) {
         task = sc->audioListHead;
-        if (sc->audioListHead == NULL) {  // FAKE: tests the field, not task (task == NULL / head copy variants fdiff=1)
+        if (task == NULL) {
             return;
         }
-        sc->audioListHead = task->next;
+        sc->audioListHead = sc->audioListHead->next;
         if (sc->audioListHead == NULL) {
             sc->audioListTail = (TaskNode *)&sc->audioListHead;
         }
