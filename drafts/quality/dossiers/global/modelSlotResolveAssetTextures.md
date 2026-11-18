@@ -1,12 +1,13 @@
 # modelSlotResolveAssetTextures (global, src/global/36880.c)
 ## Sites
-global:80636D38:volatile:8d1318 volatile (REMOVED 2026-11-16): `ModelSlotAsset *volatile textures` copy of seg gave the else-arm `sw s0,60(sp)` home and `lw 60(sp)` reloads (0x178/0x198/0x1ac). Replaced by `textures = slot->unk20` as its own local (CSE shares the one `lw s0,32(a0)`; textures stays uncoloured) plus `s16 flags`.
-global:80636D38:other:75aced other (now ORIG): `node = ((ModelType1ObjAddrs *)slot->unk20)->texAnims` — the target reloads slot (`lw t6,72(sp)` at 0x90) and slot->unk20 (`lw t7,32(t6)` at 0xA0); `seg->texAnims` scores full=48. Cast stays while ModelSlot.unk20 is `void *` (model.h H1/H2 regeneration).
-global:80636D38:dead-store:afe8f9 dead-store: `temp = (u32)seg;` kills copy propagation of `obj = temp`, so obj's early uses (unk8 store, unk0 load) stay temp's web v0 and later ones obj's s1 with `move s1,v0` at 0x40 (Q0546).
-(copy-only key, see ledger-copy-only.txt) other: `temp = (seg->displayListB - cmds) >> 3;` reuses obj's early pointer local for the command count; temp's webs share one colour, so the B-A diff (`subu v0,v1,a0` at 0xA4) and obj's early web are both v0. A dedicated count0 local swaps v0/v1 (obj early v1, displayListB v0).
-global:80636D38:dead-store:28cb6a dead-store: `temp = 0;` after `size0 = temp * 8` keeps size0 a declared variable (home 36(sp), t1) instead of a copy-propagated expression temploc (Q0550).
-global:80636D38:dead-store:2c2a64 dead-store: `count = 0;` after `size1 = count * 8` keeps size1 a declared variable (home 32(sp), t1 at 0xE4) (Q0550).
-global:80636D38:dead-if:bb36c3 dead-if (EXHAUSTED): `if (seg->displayListA == 0) {}` keeps seg live past the last call so it stays in s0.
+global:80636D38:volatile:8d1318 volatile (REMOVED 2026-11-16): `ModelSlotAsset *volatile textures` copy of seg gave the else-arm `sw s0,60(sp)` home and `lw 60(sp)` reloads (0x178/0x198/0x1ac). Replaced by `textures = slot->unk20` as its own local (CSE shares the one `lw s0,32(a0)`; textures stays uncoloured).
+global:80636D38:other:75aced other (now ORIG): `node = ((ModelType1ObjAddrs *)slot->unk20)->texAnims`: the target reloads slot (`lw t6,72(sp)` at 0x90) and slot->unk20 (`lw t7,32(t6)` at 0xA0); `seg->texAnims` scores full=48 (also on the 2026-11-18 body). Cast stays while ModelSlot.unk20 is `void *` (model.h H1/H2 regeneration).
+global:80636D38:other:27ae6f other (FIXED 2026-11-18): `s16 flags` width for the u8 unk8C copy. Gone with the flags local: `if (!(slot->unk8C & 0x20))` ... `slot->unk8C |= 0x20;` keeps the byte load CSEd from bb0 to the ori; its ucvt widening (bit 17) takes a3 (`lbu a3,140(t9)` at 0x44) because v0/v1 hold the two entry-block CSEs and a0-a2 are forbidden.
+global:80636D38:dead-store:afe8f9 dead-store (FIXED 2026-11-18): `temp = (u32)seg;` killed copy propagation of `obj = temp` (Q0546). Gone with temp: the early v0 web is the CSEd slot->unk24 load shared by `obj = slot->unk24` and `slot->unk24->unk8 = gFrameCounter` (now `// ORIG`, offsets 0x24/0x34/0x40).
+global:80636D38:other:b13178 other (FIXED 2026-11-18): `temp = (seg->displayListB - cmds) >> 3;` reused obj's early pointer local for the command count. It was a PRIORITY steer: uopt compute_save gives adjsave = (loads+stores) / bucket(liveunits + reachingbbs), bucket(n>2) = ((n-2)>>2)+2, ties to the lower candidate bit. A lone temp copy (bit 0) scores 4/2 = 2.0 and loses v0 to the slot->unk20 CSE (3/1 = 3.0); the count web lifted it to 6/2 = 3.0. Replaced by the per-role `head` refined in place (17f twin lever) plus the CSE store spelling above (bit 4, 3/1 = 3.0, numbered before the slot->unk20 CSE at bit 8).
+global:80636D38:dead-store:cb1852 dead-store (was 28cb6a `temp = 0;`): `head = 0;` after `size0 = head * 8` keeps size0 a declared variable (home 36(sp), t1) instead of a copy-propagated expression temploc (Q0550).
+global:80636D38:dead-store:bb8452 dead-store (was 2c2a64 `count = 0;`): `tail = 0;` after `size1 = tail * 8` keeps size1 a declared variable (home 32(sp), t1 at 0xE4) (Q0550).
+global:80636D38:dead-if:bb36c3 dead-if (EXHAUSTED, class 1): `if (seg->displayListA == 0) {}` keeps seg live past the last call so it stays in s0.
 ## Attempts
 2026-11-09..2026-11-14 (263 events, rounds Clean36880 .. RereviewModelAudio): see `uv run tools/quality.py history modelSlotResolveAssetTextures` (permuter, uopt traces, natural rewrites, Q0546/Q0547/Q0549/Q0550).
 2026-11-16 HackmodelSlotResolveAssetTextures anthropic/claude-opus-5-5:high:
@@ -16,13 +17,20 @@ global:80636D38:dead-if:bb36c3 dead-if (EXHAUSTED): `if (seg->displayListA == 0)
 - c-form + result local: `s32 ret; ret = call(); res = res | ret;` restores `or v1,v1,v0` but costs a declared slot (0x50); ret u8/s8/s16/u16 x flags s16/u8/s8/u16 x 3 positions x 3 or-forms (144): best full=17 (ring t2/t9 vs t9/t8 after call 2). Without `cmds` (direct fields) + s32 ret (10 decl orders): best full=48, homes exact but a0/t0 colours shift from 0x48.
 - multi-op sizes on the base body: `size0 = ((seg->displayListB - cmds) >> 3) * 8` without temp: shape 0, full=33 (v0/v1 swap); `& ~7`: 18 (li at,-8/and); `temp / 8 * 8`: 40; size1 forms: 31..57.
 - dedicated count0 local (temp kept only for obj): full=8, v0/v1 swap -> temp's count reuse is a colour steer (tagged).
+2026-11-18 CleanmodelSlotResolveAssetTextures (lever survey row 3): FAKE 6 -> 3, fdiff 0.
+- survey probe v1 `count0 = seg->displayListB - cmds; count0 >>= 3;` reproduced: full=4 shape=0, only obj's early web differs (v1 for v0 at 0x24/0x34/0x40/0x54). uopt -l5/-l6 traces: base order 50(a0) 0(temp v0, 3.0) 9(slot->unk20 CSE v1, 3.0); v1 order 50 54(count0 v0, 4.0) 9(v0, 3.0) ... 0(temp v1, 2.0).
+- on v1: 12 bb0 orders of temp/seg/textures/obj: 4 (8) or 7 (textures before temp); textures as a copy of seg / seg as a copy of textures / no textures local: 46/46/57; textures or seg after the unk8 store: 92; temp typed void * / ModelAssetHeader * / s32: 4; variants scan best 4; one dead read of temp 2.5 (full=16).
+- permuter on v1 (hack-free weights, -j 2, 900 s, baseline 20): 13 zeros, all with a steer (temp = flags / force / !(flags & 0x20) / 0x20 copies, count0 folded back into temp, or the kill moved into bb0). The kill-in-bb0 zero showed the fix shape: an early web that ends in bb0 scores 3/1 = 3.0.
+- FIX: `obj = slot->unk24;` first, `slot->unk24->unk8 = gFrameCounter;` after the seg/textures loads (store CSEs with the obj load: 0 for this order; seg first 7, obj between seg and textures 4, store before obj 116), no temp, no kill, no flags local (a flags local on this body: s16 0, u8/u16 4, s8 1, s32/u32 33), per-role `head`/`tail` refined in place, head declared where temp was; else-if arm.
+- remaining steers on the fixed body: head = 0 removal 33, tail = 0 removal 31, both 33, dead test 64 (any combo 64); size0 without head ((B - cmds) >> 3) * 8 29, head << 3 33, & ~7 55, size0 refined in place 56; c-form 33, with `res = res | call` 3 (same or-order residue as 2026-11-16); natural reconstruct full=70.
 ## Untried ideas
-- A natural reason for one local holding both slot->unk24 and the command count (a generic `u32`/`void *` scratch in the original?), which would explain afe8f9 + the reuse together (Q0507).
-- c-form with the cfe temp slot absorbed: a declaration layout that drops one 4-byte register-only local (seg/obj/temp/cmds) while keeping the ugen ring (m-series lost it through the cmds web).
+- c-form with the cfe temp slot absorbed: the eight declared words (seg, obj, textures, head, cmds, tail, node, res) all sit at fixed top-relative homes, so the cfe temp of `res |=` has no free word; only a form whose `|` keeps res first without a cfe temp would retire both dead stores.
+- bb36c3: real control flow after the fourth call that keeps seg live (the class 1 dead test is a block split).
 ## Evidence
 - 0x1C `lw s0,32(a0)` (seg) then 0x2C `sw s0,60(sp)` (textures home); else arm reloads 60(sp) at 0x178, 0x198 (jal delay), 0x1ac (jal delay).
-- 0x24 `lw v0,36(a0)`, 0x34 `sw t8,8(v0)`, 0x40 `move s1,v0`, 0x54 `lw t3,0(v0)`: obj early web v0, later s1.
-- 0x44 `lbu a3,140(t9)` flags in a3 (Q0549).
+- 0x24 `lw v0,36(a0)`, 0x34 `sw t8,8(v0)`, 0x40 `move s1,v0`, 0x54 `lw t3,0(v0)`: the store goes through the fresh slot->unk24 load, obj lives in s1. ugen emits `lw 0($17)` for obj->unk0 (as1probe keep t.s); as1 forwards the move source to v0.
+- 0x44 `lbu a3,140(t9)` byte in a3; 0x68/0x70 `ori t6,a3,0x20` (no second lbu: the field read is CSEd).
 - 0x90 `lw t6,72(sp)`, 0xA0 `lw t7,32(t6)`, 0xAC `lw a2,184(t7)`: node read through a reloaded slot->unk20.
-- 0xA4 `subu v0,v1,a0`, 0xA8 `srl t4,v0,3`, 0xB8 `sll t1,t4,3`, 0xBC `sw t1,36(sp)` (size0), 0xC0 `sw t5,48(sp)` (count), 0xD4 `lw t0,48(sp)`, 0xE0 `sll t1,t0,3`, 0xE4 `sw t1,32(sp)` (size1).
+- 0xA4 `subu v0,v1,a0`, 0xA8 `srl t4,v0,3`, 0xB8 `sll t1,t4,3`, 0xBC `sw t1,36(sp)` (size0), 0xC0 `sw t5,48(sp)` (tail), 0xD4 `lw t0,48(sp)`, 0xE0 `sll t1,t0,3`, 0xE4 `sw t1,32(sp)` (size1).
 - `or v1,v1,v0` (res first) at 0x104, 0x134, 0x150; res byte home 43(sp); node home 44(sp).
+- uopt trace, fixed body: obj bit 0 -> s1 (1.5); slot->unk24 uilod bit 4 bb0 (2 loads, 1 store) 3.0 -> v0; slot->unk20 uilod bit 8 3.0 -> v1; unk8C ucvt bit 17 1.5 -> a3.
