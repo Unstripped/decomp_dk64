@@ -96,9 +96,10 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
     s32 slot;
     s32 modelAsset;
     u16 preMapModelCount;
-    s32 flag; // FAKE: reused as the lightSetColor chunk index below (unrelated quantity); a separate local grows the frame 0x60 -> 0x68
+    u8 checkSaved;
+    s32 chunk;
 
-    flag = 0;
+    checkSaved = 0;
     actorListBuildLookupTable();
     slot = mapFindSlotIndex(gCurrentMap);
     if (slot == -1) {
@@ -106,7 +107,7 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
         case 0:
             D_807F6010 = modelData;
             preMapModelCount = modelTypeCountBeforeMap(gCurrentWorldId);
-            flag = 1;
+            checkSaved = 1;
             break;
         case 1:
             modelData = D_807F6010;
@@ -122,21 +123,19 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
     } else {
         modelAsset = playerGetModelAssetId();
     }
-    modelSlotsLoadMap(modelEntries, modelAsset, flag, preMapModelCount, mapGetHubWorldIndex(gCurrentWorldId, 1));
+    modelSlotsLoadMap(modelEntries, modelAsset, checkSaved, preMapModelCount, mapGetHubWorldIndex(gCurrentWorldId, 1));
     csTimerQueueFire(gCurrentLevelIndex);
     actorListSpawnFromRecords(records);
     if (slot != -1) {
         if (D_8076A160[slot].records != NULL) {
             modelSlotsApplyRecords(D_8076A160[slot].records, D_8076A160[slot].recordSize);
         }
-        if (gMapChunkCount > 0) {
-            flag = 0; do { lightSetColor( // LAYOUT: init + call on one line steers as1 order of the hoisted ldc1 vs addu
-                D_8076A160[slot].rgb[flag][0] / 255.0,
-                D_8076A160[slot].rgb[flag][1] / 255.0,
-                D_8076A160[slot].rgb[flag][2] / 255.0,
-                flag);
-                flag++;
-            } while (flag < gMapChunkCount);
+        for (chunk = 0; chunk < gMapChunkCount; chunk++) {
+            lightSetColor(
+                D_8076A160[slot].rgb[chunk][0] / 255.0,
+                D_8076A160[slot].rgb[chunk][1] / 255.0,
+                D_8076A160[slot].rgb[chunk][2] / 255.0,
+                chunk);
         }
     }
 }
