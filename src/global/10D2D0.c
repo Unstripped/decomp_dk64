@@ -230,13 +230,11 @@ extern s8 D_80744504;
 Gfx *healthHudDrawAll(Gfx *glist) {
     s16 playerIndex;
     u16 flags;
-    PlayerStruct *slot;
 
     for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
-        slot = (PlayerStruct *)((s32)gPlayerSlots + playerIndex * 0x2F0); // FAKE: integer-address slot for base-first addu (typed forms CSE with the call argument)
-        if (slot->active) {
-            flags = slot->unk2E2;
-            if (!(flags & 0x20) && (((slot->unk2E4 || flags) && !D_80744504) || (flags & 0x10))) {
+        if (gPlayerSlots[playerIndex].active) {
+            flags = gPlayerSlots[playerIndex].unk2E2;
+            if (!(flags & 0x20) && (((gPlayerSlots[playerIndex].unk2E4 || flags) && !D_80744504) || (flags & 0x10))) {
                 glist = healthHudUpdateDraw(glist, playerIndex, &gPlayerSlots[playerIndex]);
             }
         }
