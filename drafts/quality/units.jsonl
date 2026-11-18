@@ -1208,3 +1208,5 @@
 {"type": "unit", "t": "2026-11-18T19:16:50Z", "unit": "2026-11-18: cleanup CleanheapReleasePoolb", "commit": "5334c27b83282d676da8c7e64982082350db4f38"}
 {"type": "unit", "t": "2026-11-18T19:20:18Z", "unit": "2026-11-18: cleanup Cleanfunc_806C1B50b", "commit": "2b2e9dad653c7b4e30a1205a7ab810183074daec"}
 {"type": "unit", "t": "2026-11-18T19:34:39Z", "unit": "2026-11-18: cleanup CleanplayerWeaponCalculateTrajectory22", "commit": "87d69d7c3cc53a7630fb649f145472c118d941d2"}
+{"type": "unit", "t": "2026-11-18T20:11:37Z", "unit": "2026-11-18: cleanup Lead20261118 close carry", "commit": "e495654ce6aa180a00ed8d4ebcd9258884db5ecb"}
+{"type": "unit", "t": "2026-11-18T20:12:15Z", "unit": "2026-11-18: cleanup Lead20261118 close sweep", "commit": "e495654ce6aa180a00ed8d4ebcd9258884db5ecb"}
