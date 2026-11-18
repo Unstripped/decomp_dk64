@@ -369,8 +369,7 @@ void effectBuildGridVertices(EffectNode *effect) {
 
     node = effect->grid;
     vertexIndex = 0;
-    if (node->width == 0) {} // FAKE: gives width the first candidate index (a1)
-    if (node->height == 0) {} // FAKE: gives height the second candidate index (a2)
+    if (node->width == 0 || node->height == 0) {} // FAKE: numbers the width then height ucvt webs first (a1, a2)
     node = effect->grid; // FAKE: kill splits the width/height webs so they reload in the arms
     x = -(node->width * node->cellW) / 2;
     startX = x;
