@@ -62,7 +62,7 @@ void frameTimingReset(s32 mapId) {
 }
 
 extern u32 gFrameDelta;
-extern u8 D_80745290;
+u8 D_80745290 = 0;
 // The scheduler thread increments retraceCount; frame timing polls it, so these reads must not be cached.
 #define SCHED_RETRACE_COUNT (*(volatile s32 *)&gScheduler.retraceCount)
 
