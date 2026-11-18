@@ -38,40 +38,32 @@ extern Vtx *gActorTargetVerts;
 extern void *gActorTargetTexture;
 extern u8 *gMapPortalVisible;
 
-#define TARGET_VTX(offset) ((Vtx *)((u8 *)gActorTargetVerts + (offset)))
-
 void actorTargetTableLoad(MapFileHeader *header) {
-    s32 j;
-    s32 start[3];
-    s32 i;
-    s32 vtxOffset;
     u8 *base;
+    s32 i;
+    s32 j;
+    s32 vtxIndex;
 
     base = (u8 *)header;
-    start[0] = 0;
+    vtxIndex = 0;
     gActorTargetCount = *(s32 *)(base + header->unk50);
     if (gActorTargetCount != 0) {
         gActorTargetQuads = (ActorTargetQuad *)(base + header->unk50 + 4);
         gActorTargetStates = heapAlloc(gActorTargetCount * sizeof(ActorTargetDistanceEntry));
         gActorTargetVerts = heapAlloc(gActorTargetCount * sizeof(Vtx) * 4);
-        i = 0;
-        if (gActorTargetCount > 0) {
-            vtxOffset = start[0] * sizeof(Vtx); // FAKE: zero stored to a stack array and reloaded (sw/lw 0x18(sp)) seeds the vertex offset
-            do {
-                for (j = 0; j < 4; j++) {
-                    TARGET_VTX(vtxOffset)->v.ob[0] = gActorTargetQuads[i].x[j];
-                    TARGET_VTX(vtxOffset)->v.ob[1] = gActorTargetQuads[i].y[j];
-                    TARGET_VTX(vtxOffset)->v.ob[2] = gActorTargetQuads[i].z[j];
-                    TARGET_VTX(vtxOffset)->v.tc[0] = (s32)(gActorTargetQuads[i].texCoords[j][0] * 50.0f) << 5;
-                    TARGET_VTX(vtxOffset)->v.tc[1] = (s32)(gActorTargetQuads[i].texCoords[j][1] * 50.0f) << 5;
-                    vtxOffset += sizeof(Vtx);
-                }
+        for (i = 0; i < gActorTargetCount; i++) {
+            for (j = 0; j < 4; j++) {
+                gActorTargetVerts[vtxIndex].v.ob[0] = gActorTargetQuads[i].x[j];
+                gActorTargetVerts[vtxIndex].v.ob[1] = gActorTargetQuads[i].y[j];
+                gActorTargetVerts[vtxIndex].v.ob[2] = gActorTargetQuads[i].z[j];
+                gActorTargetVerts[vtxIndex].v.tc[0] = (s32)(gActorTargetQuads[i].texCoords[j][0] * 50.0f) << 5;
+                gActorTargetVerts[vtxIndex].v.tc[1] = (s32)(gActorTargetQuads[i].texCoords[j][1] * 50.0f) << 5;
+                vtxIndex++;
+            }
 
-                gActorTargetStates[i].centerX = (gActorTargetQuads[i].x[0] + gActorTargetQuads[i].x[1] + gActorTargetQuads[i].x[2] + gActorTargetQuads[i].x[3]) * 0.25;
-                gActorTargetStates[i].centerY = (gActorTargetQuads[i].y[0] + gActorTargetQuads[i].y[1] + gActorTargetQuads[i].y[2] + gActorTargetQuads[i].y[3]) * 0.25;
-                gActorTargetStates[i].centerZ = (gActorTargetQuads[i].z[0] + gActorTargetQuads[i].z[1] + gActorTargetQuads[i].z[2] + gActorTargetQuads[i].z[3]) * 0.25;
-                i++;
-            } while (i < gActorTargetCount);
+            gActorTargetStates[i].centerX = (gActorTargetQuads[i].x[0] + gActorTargetQuads[i].x[1] + gActorTargetQuads[i].x[2] + gActorTargetQuads[i].x[3]) * 0.25;
+            gActorTargetStates[i].centerY = (gActorTargetQuads[i].y[0] + gActorTargetQuads[i].y[1] + gActorTargetQuads[i].y[2] + gActorTargetQuads[i].y[3]) * 0.25;
+            gActorTargetStates[i].centerZ = (gActorTargetQuads[i].z[0] + gActorTargetQuads[i].z[1] + gActorTargetQuads[i].z[2] + gActorTargetQuads[i].z[3]) * 0.25;
         }
         gActorTargetTexture = assetLoad(7, 0x3C7, 1, 0);
     }
