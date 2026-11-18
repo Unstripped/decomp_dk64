@@ -267,9 +267,9 @@ tail:
             }
             /* fallthrough */
         case 0:
-            if ((((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508)) != counter->countLeft) {
+            if (MAX(0, targetCount - D_80744508) != counter->countLeft) {
                 func_806FDAB8(counter->labelTextId, 3.1415927f);
-                counter->countLeft = ((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508);
+                counter->countLeft = MAX(0, targetCount - D_80744508);
             }
             goto render;
         case 7:
@@ -292,9 +292,9 @@ tail:
             }
             /* fallthrough */
         case 2:
-            if ((((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0))) != counter->countLeft) {
+            if (MAX(0, targetCount - slotQueueGetValue(0xB, 0)) != counter->countLeft) {
                 func_806FDAB8(counter->labelTextId, 3.1415927f);
-                counter->countLeft = ((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0));
+                counter->countLeft = MAX(0, targetCount - slotQueueGetValue(0xB, 0));
             }
 render:
             if (counter->setupStep >= 2) {
