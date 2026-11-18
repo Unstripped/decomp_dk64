@@ -779,7 +779,6 @@ s32 scriptOpApplyMotionFriction(Actor *actor) {
     AnimSlot *motion;
     f32 target;
     f32 currentF;
-    s16 current;
 
     if (actor->sub4->waitOnLayer != 0) {
         motion = actor->sub4->layer;
@@ -789,11 +788,10 @@ s32 scriptOpApplyMotionFriction(Actor *actor) {
     sScriptPc++;
     scriptReadU8(&imm);
     scriptReadU8(&imm2);
-    current = motion->frameIndex;
-    if ((u32)current == imm) { // FAKE: u32 cast of the s16 frame index makes uopt emit bne a0(imm),v1(current), not bne v1,a0
-        currentF = (f32)current;
+    if (motion->frameIndex == imm) {
+        currentF = (f32)motion->frameIndex;
         target = motion->frame;
-        motion->jumpFrom = current;
+        motion->jumpFrom = motion->frameIndex;
         motion->jumpTo = imm2;
         motion->flags |= 8;
         if (currentF < target) {
@@ -804,7 +802,7 @@ s32 scriptOpApplyMotionFriction(Actor *actor) {
         motion->nextFrameIndex = imm2;
         actor->sub4->scriptWaitFlags |= 0x20;
     } else {
-        motion->frameIndex = (current + imm2) - imm;
+        motion->frameIndex = (motion->frameIndex + imm2) - imm;
         motion->nextFrameIndex = (motion->nextFrameIndex + imm2) - imm;
         motion->frame += imm2 - imm;
     }
