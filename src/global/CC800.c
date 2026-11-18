@@ -35,6 +35,62 @@ extern s16 gCurrentCharacterIndex;
 
 extern s16 gLevelCollectibleCounts[];
 
+typedef struct ChainOffsets8 {
+    /* 0x00 */ f32 offsetX[8];
+} ChainOffsets8;
+
+typedef struct ChainOffsets11 {
+    /* 0x00 */ f32 offsetX[11];
+} ChainOffsets11;
+
+typedef struct ChainOffsets4 {
+    /* 0x00 */ f32 offsetX[4];
+} ChainOffsets4;
+
+FillRectEntry D_80750840[22] = {
+    { 1, 0, 7, 0, 0, 0, 319, 9 }, { 1, 0, 7, 0, 0, 10, 9, 239 }, { 1, 0, 7, 0, 309, 10, 319, 239 },
+    { 1, 0, 7, 0, 10, 229, 309, 239 }, { 2, 0, 7, 0, 0, 0, 319, 11 }, { 2, 0, 7, 0, 0, 12, 11, 239 },
+    { 2, 0, 7, 0, 307, 12, 319, 239 }, { 2, 0, 7, 0, 12, 227, 307, 239 }, { 2, 0, 2, 0, 12, 119, 306, 121 },
+    { 2, 0, 1, 0, 159, 12, 161, 226 }, { 2, 0, 4, 0, 159, 12, 306, 121 }, { 2, 0, 4, 0, 12, 119, 161, 226 },
+    { 3, 0, 4, 0, 0, 119, 320, 121 }, { 3, 0, 4, 0, 159, 12, 161, 121 }, { 3, 0, 4, 0, 159, 119, 306, 226 },
+    { 3, 0, 1, 0, 159, 119, 306, 121 }, { 3, 0, 1, 0, 159, 12, 161, 226 }, { 3, 0, 2, 0, 12, 119, 306, 121 },
+    { 3, 0, 2, 0, 159, 119, 161, 226 }, { 4, 0, 7, 0, 12, 119, 306, 119 }, { 4, 0, 7, 0, 159, 12, 161, 226 },
+    { -1, 0, 0, 0, 0, 0, 0, 0 },
+};
+G00Entry D_80750948[30] = {
+    { 1, 0, 7, 0, 10, 10, 309, 229 }, { 1, 1, 7, 0, 10, 10, 309, 229 }, { 2, 0, 2, 0, 12, 12, 307, 119 },
+    { 2, 0, 2, 1, 12, 121, 307, 227 }, { 2, 0, 1, 0, 12, 12, 159, 227 }, { 2, 0, 1, 1, 161, 12, 307, 227 },
+    { 2, 0, 4, 0, 12, 12, 159, 119 }, { 2, 0, 4, 1, 161, 121, 307, 227 }, { 2, 1, 7, 0, 12, 12, 307, 227 },
+    { 2, 1, 7, 1, 12, 12, 307, 227 }, { 3, 0, 4, 0, 12, 12, 159, 119 }, { 3, 0, 4, 1, 161, 12, 307, 119 },
+    { 3, 0, 4, 2, 12, 121, 159, 227 }, { 3, 0, 1, 0, 12, 12, 159, 227 }, { 3, 0, 1, 1, 161, 12, 307, 119 },
+    { 3, 0, 1, 2, 161, 121, 307, 227 }, { 3, 0, 2, 0, 12, 12, 307, 119 }, { 3, 0, 2, 1, 12, 121, 159, 227 },
+    { 3, 0, 2, 2, 161, 121, 307, 227 }, { 3, 1, 7, 0, 12, 12, 307, 227 }, { 3, 1, 7, 1, 12, 12, 307, 227 },
+    { 3, 1, 7, 2, 12, 12, 307, 227 }, { 4, 0, 7, 0, 12, 12, 159, 119 }, { 4, 0, 7, 1, 161, 12, 307, 119 },
+    { 4, 0, 7, 2, 12, 121, 159, 227 }, { 4, 0, 7, 3, 161, 121, 307, 227 }, { 4, 1, 7, 0, 12, 12, 307, 227 },
+    { 4, 1, 7, 1, 12, 12, 307, 227 }, { 4, 1, 7, 2, 12, 12, 307, 227 }, { 4, 1, 7, 3, 12, 12, 307, 227 },
+};
+s32 gPlayTimeBaseSeconds = 0;
+u8 gViewportCount = 1;
+u8 gSplitScreenMode = 0;
+u8 D_80750ABC = 2;
+u8 gActivePlayerCount = 1;
+s16 gMinigameCoinCount = 0;
+u16 gTextNumberArg = 0;
+u8 gPlayerStateSaved = 0;
+u8 gMultiplayerReducedEffects = 0;
+u8 D_80750AD4 = 1;
+ChainOffsets8 sChainOffsets8 = { {
+    0.5890486f, -1.3744469f, -0.5890486f, -0.19634955f,
+    0.0f, 0.3926991f, 0.7853982f, 0.98174775f,
+} };
+ChainOffsets11 sChainOffsets11 = { {
+    0.36826447f, 0.53232545f, 0.46600294f, 0.17976892f,
+    -0.65624374f, -0.40491644f, -0.62133723f, -0.6510078f,
+    -0.8255408f, -0.37350044f, -0.31939524f,
+} };
+ChainOffsets4 sChainOffsets4 = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+s32 D_80750B34[5] = { 2, 4, 5, 6, 7 };
+
 void collectibleCountsClear(void) {
     s16 i;
 
@@ -75,10 +131,6 @@ void playerMountBarrel(Actor *rider, Actor *target) {
     linked->target = target;
 }
 
-extern u8 gViewportCount;
-extern u8 gSplitScreenMode;
-extern u8 gActivePlayerCount;
-
 extern PlayerStruct *gPlayerSlots;
 
 void playerSetupViewports(void) {
@@ -98,9 +150,6 @@ void playerSetupViewports(void) {
         gSplitScreenMode = 0;
     }
 }
-
-extern G00Entry D_80750948[];
-extern u8 D_80750ABC;
 
 G00Entry *cameraFindViewportEntry(u8 playerIndex) {
     u8 i;
@@ -122,7 +171,6 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
 extern OSContPad gControllerPads[];
 extern u32 D_8074458C[];
 extern f32 gGfxFarClip;
-extern u8 gMultiplayerReducedEffects;
 extern u32 gGlobalCutsceneFlags;
 extern u16 D_807FD570;
 
@@ -231,22 +279,6 @@ void cameraSetViewportYRange(s16 top, s16 bottom) {
     p->rect[3] = bottom;
     p->unk280 = (f32)p->unk278 / (f32)p->unk27A;
 }
-
-typedef struct ChainOffsets8 {
-    /* 0x00 */ f32 offsetX[8];
-} ChainOffsets8;
-
-typedef struct ChainOffsets11 {
-    /* 0x00 */ f32 offsetX[11];
-} ChainOffsets11;
-
-typedef struct ChainOffsets4 {
-    /* 0x00 */ f32 offsetX[4];
-} ChainOffsets4;
-
-extern ChainOffsets8 sChainOffsets8;
-extern ChainOffsets11 sChainOffsets11;
-extern ChainOffsets4 sChainOffsets4;
 
 void kongChainInit(s32 mode, KongChain *chains, u32 kind) {
     f32 pad;
@@ -807,7 +839,6 @@ s32 playerAddHealthDelta(u8 playerIndex, s8 delta) {
     return 0;
 }
 
-extern u8 gPlayerStateSaved;
 extern s32 D_807FD56C;
 
 void playerResetSpawnGlobals(void) {
@@ -838,8 +869,6 @@ void playerResetSpawnGlobals(void) {
     D_807FD56C = 0;
 }
 
-
-extern s32 D_80750B34[];
 
 void playerSpawnMapActors(s32 mapId) {
     s32 i;

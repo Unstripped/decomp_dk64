@@ -107,18 +107,6 @@ TintKeyframe gTintKeyframes[] = {
     { 0x0000, 0xFF, 0x00, 0x00 },
 };
 
-// Split-screen divider rectangle (D_80750840, terminated by players == -1); coordinates in low-res pixels.
-typedef struct {
-    s8 players; // player count it applies to; 2 = any multiplayer count
-    u8 splitMode;
-    u8 viewMask;
-    u8 pad3;
-    s16 x0;
-    s16 y0;
-    s16 x1;
-    s16 y1;
-} FillRectEntry;
-
 extern FillRectEntry D_80750840[];
 extern u8 gSplitScreenMode;
 extern u8 D_80750ABC;

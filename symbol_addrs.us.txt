@@ -3139,7 +3139,6 @@ csCmdStepMultiModelAnimations = 0x8064AC28; // type:func
 csCmdSetPositionPreset = 0x8064B9E0; // type:func
 csCmdSpawnBurstColoredLights = 0x8064E65C; // type:func
 gPlayerStateHandlers = 0x80750B50;
-gPlayerStateFlags = 0x80750B54;
 
 // Batch 3: Cutscene commands and player locomotion/climbing states
 csCmdStepSequenceProgress = 0x80649BF0; // type:func

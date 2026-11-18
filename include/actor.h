@@ -1225,6 +1225,19 @@ typedef struct G00Entry {
     /* 0xA */ s16 bottom;
 } G00Entry;
 
+// Split-screen divider rectangle (D_80750840, defined in CC800, read by gfxDrawSplitScreenDividers;
+// terminated by players == -1); coordinates in low-res pixels.
+typedef struct {
+    s8 players; // player count it applies to; 2 = any multiplayer count
+    u8 splitMode;
+    u8 viewMask;
+    u8 pad3;
+    s16 x0;
+    s16 y0;
+    s16 x1;
+    s16 y1;
+} FillRectEntry;
+
 // Spawn position (raceGridSpawnPoint).
 typedef struct G01Pos {
     /* 0x0 */ s16 x;

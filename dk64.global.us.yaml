@@ -247,7 +247,11 @@ segments:
       - [0x155320, .data, BDEE0] # D_80750620[8], D_80750628[16], gFairySpawnOrder (0x80750620-0x80750643 + 13-byte TU pad); D_80750620 is unreferenced, its TU start is the 16-aligned address below the unaligned D_80750628
       - [0x155350, .data, C0EE0] # D_80750650 (s8 + 15-byte TU pad)
       - [0x155360, .data, C1E70] # D_80750660..D_807506B8 (0x80750660-0x807506C0, no pad): ring-node data; sRingSequence/sRingSequencePos (0x807506A8/0x807506B4) are actorNodeRingUpdate's function-local statics, laid out in source order between D_807506A4 and D_807506B8
-      - [0x1553C0, data]
+      - [0x1553C0, .data, C2A90] # D_807506C0[16] (0x807506C0-0x807506D0, no pad); A6280 also reads it but its data lies before C1E70's
+      - [0x1553D0, .data, CBEA0] # gBannerTextSteps[22]..D_80750828[4] (0x807506D0-0x80750838 + 8-byte TU pad): banner text steps/fade table/margins; D_807506D5 was a split label (lineCount of entry 0)
+      - [0x155540, .data, CC800] # D_80750840[22]..D_80750B34[5] (0x80750840-0x80750B48 + 8-byte TU pad; D_80750B48 was playerSpawnMapActors's loop-end label): D_80750840 (split-screen divider rects) is read only by 109660, sits before CC800's own D_80750948 (tentative: CBEA0 would be layout-neutral too); the shared viewport/player-count globals between them are CC800's
+      - [0x155850, .data, CEAE0] # gPlayerStateHandlers[138] {handler, flags} (handlers in D5E10 and the menu overlay), unreferenced D_80750FA0[2], gPlayerLargeModeScale (0x80750B50-0x80750FAC + 4-byte TU pad); the split label gPlayerStateFlags (0x80750B54, entry 0's flags) folded into gPlayerStateHandlers[i].flags
+      - [0x155CB0, .data, D5E10] # D_80750FB0..D_80750FE0[4] (0x80750FB0-0x80750FF0, no pad); D_80750FB8[2] unreferenced
       - [0x155CF0, .data, E4090] # gButtonRemapTable, D_80750FF4..D_80751000, gPlayerInputHandlers[107][17] (0x80750FF0-0x80752C70, no pad); 16-aligned after D5E10's D_80750FE0[4]; the table's words make playerInputUpdateCannonAim's entry label address-taken (Q0552)
       - [0x157970, .data, EFDC0] # gPlayerStateCallbacks[93] (0x80752C70-0x80752DE4) + 12-byte TU pad; 16-aligned after E4090's gPlayerInputHandlers; the word pointing at playerStateSetFlagsByActorType makes its entry label address-taken (Q0552)
       - [0x157AF0, data]

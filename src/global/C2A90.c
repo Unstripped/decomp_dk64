@@ -33,6 +33,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 
+u8 D_807506C0[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
 
 u8 func_806BDD90(void) {
@@ -209,8 +210,6 @@ void bananaDeliveryNpcUpdate(void) {
     currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-
-extern u8 D_807506C0[];
 
 void func_806BE674(u8 spawn) {
     s16 i;

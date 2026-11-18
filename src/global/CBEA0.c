@@ -7,6 +7,40 @@
 #include "proto/global/90D80.h"
 #include "proto/global/CBEA0.h"
 
+typedef struct BannerTextStep {
+    /* 0x0 */ s16 duration;
+    /* 0x2 */ s16 gap;
+    /* 0x4 */ s8 side;
+    /* 0x5 */ s8 lineCount;
+} BannerTextStep;
+
+typedef union ViewportMargins {
+    s32 word;
+    u8 margin[4];
+} ViewportMargins;
+
+BannerTextStep gBannerTextSteps[22] = {
+    { 120, 90, 0, 1 }, { 160, 90, 1, 4 }, { 160, 90, 3, 4 }, { 160, 90, 1, 4 },
+    { 160, 140, 3, 4 }, { 120, 90, 0, 1 }, { 160, 90, 3, 4 }, { 160, 90, 1, 4 },
+    { 160, 140, 3, 2 }, { 160, 140, 0, 2 }, { 120, 90, 0, 1 }, { 160, 90, 1, 4 },
+    { 160, 90, 3, 4 }, { 160, 140, 1, 4 }, { 120, 90, 0, 1 }, { 160, 130, 1, 4 },
+    { 160, 100, 3, 2 }, { 120, 90, 0, 1 }, { 160, 90, 1, 4 }, { 160, 90, 3, 4 },
+    { 160, 90, 1, 4 }, { -1, -1, -1, -1 },
+};
+s8 gBannerTextStepIndex = -2;
+s16 gBannerTextLine = 0;
+f32 D_8075075C[46] = {
+    0.0f, 1.0f, 0.25f, 0.9f, 0.5f, 0.8f, 0.5f, 0.7f,
+    0.5f, 0.6f, 0.4f, 0.6f, 0.3f, 0.7f, 0.2f, 0.8f,
+    0.1f, 0.9f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+    0.2f, 0.8f, 0.4f, 0.7f, 0.6f, 0.8f, 0.8f, 0.9f,
+    1.0f, 1.0f, 1.0f, 1.1f, 1.0f, 1.0f,
+};
+ViewportMargins gBannerViewportMargins = { 0 };
+f32 D_80750818[4] = { 110.0f, 150.0f, 110.0f, 150.0f };
+f32 D_80750828[4] = { 60.0f, 80.0f, 60.0f, 80.0f };
+
 void actorStubCBEA0_00(void) {
 }
 
@@ -85,19 +119,7 @@ void actorStubCBEA0_24(void) {
 void actorStubCBEA0_25(void) {
 }
 
-typedef struct BannerTextStep {
-    /* 0x0 */ s16 duration;
-    /* 0x2 */ s16 gap;
-    /* 0x4 */ s8 side;
-    /* 0x5 */ s8 lineCount;
-} BannerTextStep;
-
-extern BannerTextStep gBannerTextSteps[];
-
 extern Actor *gCurrentActor;
-extern s8 gBannerTextStepIndex;
-extern s16 gBannerTextLine;
-extern f32 D_8075075C[];
 extern s16 D_807FC8E0;
 extern s16 gBannerShowTimer;
 extern s16 gBannerGapTimer;
@@ -180,15 +202,6 @@ void bannerTextUpdate(void) {
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
-typedef union ViewportMargins {
-    s32 word;
-    u8 margin[4];
-} ViewportMargins;
-
-extern ViewportMargins gBannerViewportMargins;
-extern f32 D_80750818[];
-extern f32 D_80750828[];
-
 
 Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     f32 sx;

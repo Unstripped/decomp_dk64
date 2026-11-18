@@ -49,6 +49,22 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 
+typedef struct NmD5E10aTbl {
+    s16 unk0[3];
+} NmD5E10aTbl;
+
+NmD5E10aTbl D_80750FB0 = { { 0x1C, 0x86, 0x6B } };
+s32 D_80750FB8[2] = { 0, 30 }; // unreferenced
+f32 D_80750FC0 = 0.2f;
+s32 D_80750FC4 = -100;
+s32 D_80750FC8 = 5;
+s32 D_80750FCC = 5;
+s32 D_80750FD0 = 5;
+u8 D_80750FD4 = 2;
+f32 D_80750FD8 = 80.0f;
+s32 D_80750FDC = 50;
+s32 D_80750FE0[4] = { 2, 4, 6, 5 };
+
 // The player's actor is larger than the shared Actor: its component data continues at 0x178.
 typedef struct ActorExt {
     /* 0x000 */ Actor base;
@@ -359,12 +375,6 @@ void playerStateGameOver(void) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-
-typedef struct NmD5E10aTbl {
-    s16 unk0[3];
-} NmD5E10aTbl;
-
-extern NmD5E10aTbl D_80750FB0;
 
 void playerStateSquishDeath(void) {
     s32 out;
@@ -1540,13 +1550,6 @@ void playerStateTurnDecel(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_80750FC0;
-extern s32 D_80750FC4;
-extern s32 D_80750FC8;
-extern s32 D_80750FCC;
-extern s32 D_80750FD0;
-extern u8 D_80750FD4;
-extern f32 D_80750FD8;
 extern void *gPuffSprites[];
 extern f32 D_8075352C[];
 
@@ -4495,8 +4498,6 @@ void playerStateCutsceneTransition(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s32 D_80750FDC;
-
 void playerStateCutscenePause(void) {
     if (gCurrentActor->unk155 == 0) {
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
@@ -4553,8 +4554,6 @@ typedef struct G20Light {
     /* 0x1C */ u8 pad1C[2];
     /* 0x1E */ u8 allFairies; // all 20 banana fairies found
 } G20Light;
-
-extern s32 D_80750FE0[];
 
 void playerStateDialogueWait(void) {
     G20Light *light;

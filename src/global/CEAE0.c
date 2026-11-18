@@ -26,6 +26,7 @@
 #include "proto/global/8CA50.h"
 #include "proto/global/CC800.h"
 #include "proto/global/CEAE0.h"
+#include "proto/global/D5E10.h"
 #include "proto/global/E4090.h"
 #include "proto/global/EFDC0.h"
 #include "proto/global/F56F0.h"
@@ -38,6 +39,156 @@ extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
+
+// Player state table (indexed by Actor.state): handler and its flags.
+typedef struct PlayerStateFn {
+    /* 0x0 */ void (*fn)(void);
+    /* 0x4 */ s16 flags;
+    /* 0x6 */ s16 pad6;
+} PlayerStateFn;
+
+PlayerStateFn gPlayerStateHandlers[138] = {
+    { playerStateCarried, 0x1 },
+    { playerInputUpdate0, 0x1 },
+    { playerInputUpdateCaseC, 0x210 },
+    { playerInputUpdateCaseD, 0x210 },
+    { playerInputUpdateCase10, 0x110 },
+    { playerInputUpdateCase11, 0x110 },
+    { playerInputUpdate1, 0x1 },
+    { playerInputUpdateByMap, 0x40 },
+    { playerInputUpdate5D, 0x40 },
+    { playerInputUpdate5E, 0x40 },
+    { playerInputUpdateNode3, 0x40 },
+    { playerInputUpdateNode2, 0x40 },
+    { playerStateClimbTree, 0x30 },
+    { playerStateClimbLadder, 0x28 },
+    { playerStateSkidTurn, 0 },
+    { playerStateSlideCameraInit, 0 },
+    { playerStateSlide, 0 },
+    { playerStateSlideSteep, 0 },
+    { playerStateSlideMedium, 0 },
+    { playerStateSlideGentle, 0 },
+    { playerStateSlideFall, 0 },
+    { playerStateSlideBrake, 0 },
+    { playerStateSlideReverse, 0 },
+    { playerStateLongJump, 0xA0 },
+    { playerInputUpdate5, 0 },
+    { playerStateDoubleJump, 0xA0 },
+    { playerStateFlapGlide, 0xA0 },
+    { playerStateHover, 0xA0 },
+    { playerStateGroundPound, 0xA0 },
+    { playerStateDive, 0xA0 },
+    { playerStateFallDamageLand, 0xA0 },
+    { playerStateFallDamageHard, 0xA0 },
+    { playerStateFallDamageCrouch, 0xA0 },
+    { playerStateSlideRecover, 0 },
+    { playerStateBackflip, 0xA0 },
+    { playerInputUpdate1AndCheckLocomotion, 0 },
+    { playerStateSlopeSlide, 0 },
+    { playerStateTurnDecel, 0 },
+    { playerStateRunDecel, 0 },
+    { playerStateWalkDecel, 0 },
+    { playerStateBrake, 0 },
+    { playerStateSlopeSlideByCharacter, 0 },
+    { playerStateApproachVelocity, 0xA0 },
+    { playerStateSteepSlide, 0 },
+    { playerStateScriptTransition, 0 },
+    { playerInputUpdate1WithZeroUnk4, 0 },
+    { playerStateDecelMotion, 0 },
+    { playerStateSlopeSlideArc, 0 },
+    { playerInputUpdate8, 0 },
+    { playerStateSwimTurn, 0x400 },
+    { playerStateSwimTread, 0x400 },
+    { playerStateSwimIdle, 0x400 },
+    { playerStateSwimDrown, 0x400 },
+    { playerStateSwimPaddle, 0x400 },
+    { playerStateSwimStroke, 0x401 },
+    { playerStateSwimBackwards, 0x400 },
+    { playerStateRidingActor, 0x40 },
+    { playerStateSwimSink, 0x401 },
+    { playerInputUpdateNoop, 0x401 },
+    { playerStateSwimDrift, 0x401 },
+    { playerStateUnderwaterPaddle, 0 },
+    { playerInputUpdate1FullPhysics, 0 },
+    { playerStateUnderwaterRamp, 0xA0 },
+    { playerStateUnderwaterSink, 0 },
+    { playerStateUnderwaterLand, 0 },
+    { playerStateLaunchAir, 0 },
+    { playerStateFreezeIdle, 0 },
+    { playerStateFreezeIdleCopy, 0 },
+    { playerStateEnterFallOnCheck, 0 },
+    { playerStateDamageFallTumble, 0 },
+    { playerStateHoldMoveRamp, 0x8 },
+    { playerStateHoldPickup, 0 },
+    { playerStateHoldWalk, 0 },
+    { playerStateHoldRun, 0 },
+    { playerStateHoldIdle, 0 },
+    { playerStateHoldPutDown, 0 },
+    { playerStateHoldJump, 0 },
+    { playerStateHoldThrow, 0 },
+    { playerStateSurfaceSwim, 0 },
+    { playerStateSurfaceTreadWater, 0 },
+    { playerStateSurfaceSwimStroke, 0 },
+    { playerStateSurfacePaddleTurn, 0xA0 },
+    { playerStateTagBarrelPadEnter, 0 },
+    { playerStateTagBarrelFade, 0 },
+    { playerStateStationaryInteraction, 0 },
+    { playerStateTransformHold, 0 },
+    { playerInputUpdate12, 0 },
+    { playerStateAttachedCallbackFall, 0x40 },
+    { func_806DCA7C, 0x80 },
+    { playerStateAttachedCallbackFallCheck, 0x40 },
+    { playerStateKnockbackBounce, 0x80 },
+    { playerStateBounceRecover, 0 },
+    { playerStateLandRecover, 0 },
+    { playerStateClimbTop, 0x10 },
+    { playerStateSlideDownLadder, 0 },
+    { playerStateCrouch, 0 },
+    { playerStateCrawl, 0 },
+    { playerStateCrouchJump, 0 },
+    { playerStateMinecart, 0 },
+    { playerStateVineSwing, 0 },
+    { playerInputUpdateCase4, 0 },
+    { playerInputUpdateCase5, 0 },
+    { playerStateSurfaceSwimSprint, 0x400 },
+    { playerStateCutsceneIdle, 0 },
+    { playerStateKnockbackTumble, 0 },
+    { playerInputUpdate61, 0x40 },
+    { playerStateBarrelBlast, 0 },
+    { playerInputUpdate62, 0 },
+    { playerInputUpdateWaitC9, 0 },
+    { playerInputUpdate63, 0x40 },
+    { playerStatePonytailTwirl, 0 },
+    { playerStatePonytailFloat, 0 },
+    { playerStateDamageFall, 0 },
+    { playerStateDeathTransition, 0 },
+    { playerStateExitTransition, 0 },
+    { playerStateGameOver, 0 },
+    { playerStateSquishDeath, 0 },
+    { playerInputUpdate64, 0x40 },
+    { playerStateTransformSparkles, 0 },
+    { playerInputUpdate1InitScript0, 0 },
+    { playerStateThrowCarried, 0 },
+    { playerStateResumeFromCutscene, 0 },
+    { playerStateCutsceneTransition, 0 },
+    { playerStateCutscenePause, 0 },
+    { playerInputUpdate65, 0 },
+    { playerInputUpdate66, 0 },
+    { playerStateUnderwaterSwim, 0 },
+    { playerStateUnderwaterSwimming, 0 },
+    { playerStateUnderwaterTurn, 0 },
+    { playerStateUnderwaterCharge, 0 },
+    { playerStateSurfaceDiving, 0 },
+    { playerStateDialogueWait, 0 },
+    { playerStateDialogueHold, 0 },
+    { (void (*)(void))0x80031B08 /* menuUpdateKioskActor (menu) */, 0 },
+    { (void (*)(void))0x80031A5C /* menuActorStateDispatch (menu) */, 0 },
+    { func_806DF1A0, 0 },
+    { func_806DF280, 0 },
+    { NULL, 0 },
+};
+f32 D_80750FA0[2] = { 0.0f, 60.0f }; // unreferenced
+f32 gPlayerLargeModeScale = 0.3f;
 
 void playerUpdateSoundEffect0(void) {
     playerUpdateCommon(0);
@@ -80,12 +231,9 @@ void playerUpdateSoundEffect5(void) {
     playerWeaponSpawnMuzzleFlash(gCurrentActor, 5);
 }
 
-extern s16 gPlayerStateFlags[][4];
-
-
 void playerCheckAndResetCarriedActor(Actor *actor) {
     u8 state = actor->state;
-    s16 flags = gPlayerStateFlags[state][0];
+    s16 flags = gPlayerStateHandlers[state].flags;
 
     if (flags & 0x200) {
         playerLeaveViewMode(actor, (u8)(state != 2));
@@ -253,13 +401,6 @@ void playerUpdateSlopeSlidePhysics(void) {
     }
 }
 
-typedef struct PlayerStateFn {
-    /* 0x0 */ void (*fn)(void);
-    /* 0x4 */ s32 pad4;
-} PlayerStateFn;
-
-
-extern PlayerStateFn gPlayerStateHandlers[];
 extern s32 D_8076A090;
 extern s32 D_8076A094;
 extern s32 D_8076A098;
@@ -313,7 +454,7 @@ void playerUpdateCommon(s32 mode) {
         }
     }
     playerCheckQueueDropCallback();
-    flags = gPlayerStateFlags[gCurrentActor->state][0];
+    flags = gPlayerStateHandlers[gCurrentActor->state].flags;
     if (flags & 8) {
         gCurrentActor->flags2 |= 2;
     } else {
@@ -586,7 +727,7 @@ void playerUpdateScaleAndPhysics(void) {
             gPlayerPadState[gCurrentPlayerIndex].pressedButtons |= 2;
             gPlayerPadState[gCurrentPlayerIndex].heldButtons |= 0x2000;
         }
-        if (!(gPlayerStateFlags[gCurrentActor->state][0] & 0x300) && !(gActivePlayerState->stateFlags & 0x14000) && camIsCutsceneActive() == 0 && !(gActivePlayerState->stateFlags2 & 0x10)) {
+        if (!(gPlayerStateHandlers[gCurrentActor->state].flags & 0x300) && !(gActivePlayerState->stateFlags & 0x14000) && camIsCutsceneActive() == 0 && !(gActivePlayerState->stateFlags2 & 0x10)) {
             slotQueueAddValue(5, gActivePlayerState->playerIndex, -1);
         }
     } else {
@@ -721,14 +862,14 @@ void playerCheckLandingSfx(void) {
         }
         if (gCurrentActor->floorSlopeFactor != 0.0f && gActivePlayerState->unkC2 >= 0x15 && gCurrentActor->state != 0x17) {
             if (mathAngleDistance(gCurrentActor->floorTiltYaw, gCurrentActor->yaw) < 0x200) {
-                if (gPlayerStateFlags[gActivePlayerActor->state][0] & 0x200) {
+                if (gPlayerStateHandlers[gActivePlayerActor->state].flags & 0x200) {
                     playerLeaveViewMode(gCurrentActor, 0);
                 }
                 playerStateQueueCallback(0x21, NULL, gCurrentPlayerIndex);
                 return;
             }
             if (mathAngleDistance(gCurrentActor->floorTiltYaw, gCurrentActor->moveYaw) < 0x400 || gCurrentActor->speedXZ < 15.0f) {
-                if (gPlayerStateFlags[gActivePlayerActor->state][0] & 0x200) {
+                if (gPlayerStateHandlers[gActivePlayerActor->state].flags & 0x200) {
                     playerLeaveViewMode(gCurrentActor, 0);
                 }
                 playerStateQueueCallback(0x22, NULL, gCurrentPlayerIndex);
@@ -1222,7 +1363,7 @@ void playerApplyDeceleration(void) {
 
 
 s16 actorGetStateFlags(Actor *actor) {
-    s16 flags = gPlayerStateFlags[actor->state][0];
+    s16 flags = gPlayerStateHandlers[actor->state].flags;
     return flags;
 }
 
@@ -2283,8 +2424,6 @@ void playerInitNormalMoveParams(void) {
     playerSetTerminalVelocity578();
 }
 
-extern f32 gPlayerLargeModeScale;
-
 void playerSetLargeModeScale(f32 scale) {
     if (scale != 0.0f) {
         gPlayerLargeModeScale = scale;
@@ -2575,7 +2714,7 @@ s32 playerCanCollideWithActor(Actor *actor) {
     s32 result = 1;
 
     if (actor->collisionFlags & 1) {
-        if (gPlayerStateFlags[actor->state][0] & 0x400) {
+        if (gPlayerStateHandlers[actor->state].flags & 0x400) {
             result = 0;
         }
     }
