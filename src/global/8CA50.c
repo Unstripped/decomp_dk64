@@ -99,27 +99,21 @@ void animListUpdate(Actor *actor) {
 }
 
 void animNodeAdvanceTime(AnimNode *node) {
-    s16 endFrame;
     s32 frameDelta;
 
     switch (node->direction) {
     case 0: {
-        f32 subframe;
         s32 loopCount;
-        s16 loopLimit;
 
         node->subframe += node->speed;
-        subframe = node->subframe;
-        frameDelta = (s32)subframe;
+        frameDelta = (s32)node->subframe;
         node->frame += frameDelta;
-        node->subframe = subframe - (f32)frameDelta;
-        endFrame = node->endFrame;
-        if (node->frame >= endFrame) {
-            loopCount = node->frame / endFrame;
-            loopLimit = node->loopLimit;
+        node->subframe -= frameDelta;
+        if (node->frame >= node->endFrame) {
+            loopCount = node->frame / node->endFrame;
             node->loopCount += loopCount;
-            if (node->loopCount >= loopLimit && loopLimit != -1) {
-                node->frame = endFrame - 1;
+            if (node->loopCount >= node->loopLimit && node->loopLimit != -1) {
+                node->frame = node->endFrame - 1;
                 node->finished = 1;
                 node->subframe = 1.0f;
                 if (node->loopMode == 1) {
@@ -128,7 +122,7 @@ void animNodeAdvanceTime(AnimNode *node) {
             } else {
                 switch (node->loopMode) {
                 case 0:
-                    node->frame = node->frame % endFrame;
+                    node->frame = node->frame % node->endFrame;
                     if (node->frame < node->startFrame) {
                         node->frame = node->startFrame;
                     }
@@ -136,7 +130,7 @@ void animNodeAdvanceTime(AnimNode *node) {
                 case 1:
                     if (loopCount != 0) {
                         node->direction = 1;
-                        node->frame = endFrame - 1;
+                        node->frame = node->endFrame - 1;
                         node->subframe = 1.0f;
                     }
                     break;
@@ -146,26 +140,19 @@ void animNodeAdvanceTime(AnimNode *node) {
         break;
     }
     case 1: {
-        f32 subframe;
         s32 negFrame;
-        s16 loopLimit;
         s32 loopCount;
-        s32 inc;
 
         node->subframe -= node->speed;
-        subframe = node->subframe;
-        if (subframe < 0.0) {
-            u32 step = (s32)subframe - 1; // FAKE: u32 width stops uopt reassociating frame + (x - 1) to (frame + x) - 1, keeping x - 1 one value (v0) for the addu and cvt.s.w at 0x43c-0x44c
-            node->frame += step;
-            node->subframe = subframe - (f32)(s32)step;
+        if (node->subframe < 0.0) {
+            frameDelta = (s32)node->subframe - 1;
+            node->frame += frameDelta;
+            node->subframe -= frameDelta;
         }
         if (node->frame < 0) {
             negFrame = -node->frame;
-            endFrame = node->endFrame;
-            loopLimit = node->loopLimit;
-            loopCount = negFrame / endFrame;
-            node->loopCount = node->loopCount + loopCount + 1;
-            if (node->loopCount >= loopLimit && loopLimit != -1) {
+            node->loopCount += negFrame / node->endFrame + 1;
+            if (node->loopCount >= node->loopLimit && node->loopLimit != -1) {
                 node->frame = 0;
                 node->finished = 1;
                 node->subframe = 0.0f;
@@ -175,15 +162,14 @@ void animNodeAdvanceTime(AnimNode *node) {
             } else {
                 switch (node->loopMode) {
                 case 0:
-                    node->frame = negFrame % (endFrame - 1);
+                    node->frame = negFrame % (node->endFrame - 1);
                     if (node->frame != 0) {
-                        node->frame = (endFrame - node->frame) - 1;
+                        node->frame = (node->endFrame - node->frame) - 1;
                     }
                     break;
                 case 1:
-                    inc = loopCount + 1;
-                    if (inc) {} // FAKE: second read keeps loopCount + 1 a coloured candidate (v0, beql delay slot at 0x4f8) instead of a ugen temp (t2)
-                    if (inc) {
+                    loopCount = negFrame / node->endFrame + 1;
+                    if (loopCount != 0) {
                         node->frame = 0;
                         node->direction = 0;
                         if (node->frame < node->startFrame) {
