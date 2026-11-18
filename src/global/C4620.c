@@ -718,8 +718,8 @@ void func_806C19F4(void) {
 extern u8 D_8071FB34;
 
 void func_806C1B50(void) {
-    u8 kind;
-    u32 thr;
+    u8 bone;
+    u32 minFrame;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
@@ -732,22 +732,22 @@ void func_806C1B50(void) {
         if ((gCurrentActor->flags & 4) && gCurrentActor->unk155 != 0) {
             switch (gCurrentActor->sub4->model->animId) {
                 case 0x23E:
-                    kind = 0xD;
-                    thr = 7;
+                    bone = 0xD;
+                    minFrame = 7;
                     break;
                 case 0x23F:
-                    kind = 0xE;
-                    thr = 7;
+                    bone = 0xE;
+                    minFrame = 7;
                     break;
                 case 0x240:
-                    kind = 0x11;
-                    thr = 3;
+                    bone = 0x11;
+                    minFrame = 3;
                     break;
                 default:
                     goto done;
             }
-            if (thr < gCurrentActor->sub4->model->frame) {
-                effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, kind, 0);
+            if (minFrame < gCurrentActor->sub4->model->frame) {
+                effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, bone, 0);
                 gCurrentActor->unk155 = 0;
             }
         }
