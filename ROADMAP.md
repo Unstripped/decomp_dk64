@@ -176,25 +176,26 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Session 2026-11-17e (rolling hack queue from 3ffe1656, director mode; CleanupLead → CleanupLead2 → CleanupLead3 hand-offs via dispatch.md)** — strength-3 (`:xhigh`) hack items over `rank`, 33 worker reports merged and recorded (4 through lead copies, 1 signature bundle) plus TypesOwner10 batches 10-11 (actor.h, cutscene.h/model.h `CsState`), the rrs `u32 siz` bundle and an arcade `.data` carve: vsprintf (5 → 2), 68EA0 (3 → 0), 7A510 (2 → 0), 70FD0 (5 → 1, the m2c `actorYaw` local read inline), 6AD90 (Q0927 refuted: separate `u8 hit` tested bare), 3C10 (1 → 0, `gPlayerStateSaved` u8 with its CC800 extern), 936B0 (5 → 3: `projectileFindHomingTarget` K&R → ANSI retires the caller cast; a squared-distance accumulator), 36880 (early `continue`), arcade/0 (three `.data` templates as local initialisers); rulings: sibling-arm same-role reuse ordinary, register sharing and frame layout are not ORIG, value spellings and redundant aliases stay steers, a frame-word-only local is a pad (no hack swap). Close: `D_807F61F0` → `gCsCountdown`; knowledge Q1203-Q1250 (48 new entries; superseded claims filed as new entries). FAKE 303 → 277, proto-steer 3 → 1, goto 27 → 27.
 - [x] **Session 2026-11-17f (rolling hack/polish queue, director mode, CleanupLead17f; not closed)** — FAKE 277 → 180 over hack and polish reports; its knowledge queue and name lists were filed at the 2026-11-18 close.
 - [x] **Session 2026-11-18 (rolling hack queue from db5d9d75, director mode, Lead20261118; closed on a provider model fallback)** — 43 merges/records (M1-M43) of strength-3 (`:xhigh`) hack items plus TypesOwner11 batch 12 and lead retags: FAKE 180 → 164 (fixes include a2dc63 run-time `cvt.s.w` constant local ruled ordinary under Q0814, 55B20 `u8 *file` per-role byte view, three 6AD90 `f32 cross[1]` FAKE → ORIG with store-without-reload offsets; +7 pre-existing steers newly tagged in DAA0/15050), 249 symbols named (e495654c), 217 knowledge entries Q1251-Q1467 + 31 dated corrections from the 17f and 18 queues (0dabbd5c). Rulings for merged tagged constructs, load counts, width evidence, `[1]`-array ORIG and the model-fallback protocol are in the cleanup-unit skill.
-- [ ] Paused after session 2026-11-18. `quality.py report` shows reviewed 4,079/4,270 and exhausted 4,075/4,270: the new knowledge entries staled the rungs of the functions they name (next session's leftovers, `rank` / `rank --polish`). 109 hack sites are open. READY items, the next TypesOwner batch (PlayerState `unk220[3]`, JetpacSprite → TextureDescriptor) and held names are in `drafts/cleanup/pending.md`.
+- [x] **Session 2026-11-18b (rolling coverage queue from 4e14b5c5, director mode, Lead20261118b; 2 resumed turns)** — carried 2,550 reviews across the static-data campaign (3eac1a73: reviewed 1,036 → 3,496), then 38 merges (M1-M38): polish bundles to full coverage, TypesOwner12 batch_13 (PlayerState `unk220[3]` removed 478F0 abbd3b; JetpacSprite = TextureDescriptor alias, `dlAppendTextureLoad(Gfx **, TextureDescriptor *)`), hack items with fresh rungs on the post-data bodies; fixes 15050 71b822 (size refined in place) and 36880 cb1852/bb8452 (`u8` callee return); 13 pre-existing steers tagged; empty-`default:` ORIG retags (vsprintf 0x139c, EFDC0 +0x16c) by director ruling; 283 symbols named (7a1f8709, carry 813473fb); knowledge Q1475-Q1516 (f60e3e75).
+- [ ] Paused after session 2026-11-18b. `quality.py report` shows reviewed 4,238/4,270 and exhausted 4,183/4,270: the 42 new knowledge entries and 28 carry-skipped rename users are the next session's leftovers (`rank` / `rank --polish`). Open hack functions, the deferred EffectNode `wobbleRise` header request, 450.c type items and held names are in `drafts/cleanup/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-18 close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-18b close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 164 | 583 |
-| FAKE dead-if | 52 | 263 |
+| FAKE | 170 | 583 |
+| FAKE dead-if | 51 | 263 |
 | FAKE proto-steer | 1 | 134 |
-| FAKE other kinds | 111 | 186 |
-| ORIG (cited target offset) | 103 | 0 |
-| LAYOUT | 79 | 47 |
+| FAKE other kinds | 118 | 186 |
+| ORIG (cited target offset) | 107 | 0 |
+| LAYOUT | 80 | 47 |
 | goto | 25 | 39 |
 | proto-type (`// PROTO:`) | 1 | 0 |
 | protos mismatch | 6 | 1,202 |
-| reviewed / exhausted functions | 4,079 / 4,075 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,238 / 4,183 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 4 | 1,890 |
 | uninit warnings (clint checks every function) | 249 | 122 |
-| `func_` definitions | 234 | 457 |
+| `func_` definitions | 210 | 457 |
 | m2c names | 1 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
