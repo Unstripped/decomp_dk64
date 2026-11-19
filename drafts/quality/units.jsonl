@@ -1283,3 +1283,4 @@
 {"type": "unit", "t": "2026-11-19T09:01:38Z", "unit": "2026-11-18c: cleanup CleanraceOpponentFollowWaypointsb", "commit": "934dd989f7d514dd712dbc60d96a3e596762cfc5"}
 {"type": "unit", "t": "2026-11-19T09:07:27Z", "unit": "2026-11-18c: cleanup CleanactorCheckAlwaysFalsec", "commit": "dc5b9f55017be5a4bb21c9d543775d898fbd7396"}
 {"type": "unit", "t": "2026-11-19T09:09:43Z", "unit": "2026-11-18c: cleanup CleanmapBspPlaneDistanceCheck", "commit": "c37808d598da0b0d1b317eb1c80790cbe277524a"}
+{"type": "unit", "t": "2026-11-19T09:12:51Z", "unit": "2026-11-18c: cleanup CleaneffectWaterInitNodesb", "commit": "98ce0480c9b4667707672923c053e2f379c7b598"}
