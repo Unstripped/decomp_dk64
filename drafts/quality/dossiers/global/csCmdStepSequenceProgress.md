@@ -1,7 +1,7 @@
 # csCmdStepSequenceProgress (global, src/global/478F0.c)
 
 ## Sites
-global:80649BF0:other:a8d972 (was 060cc5) other: `eq = cs->unk48[0] == st[1] + 1;` temp: the eq var candidate is coloured reg 1 ($v0) by uopt and interferes with `ok`, so `ok` takes $v1 (target `move v1,zero` 0x706c, `li v1,1` 0x7088/0x70a0, `beqz v1` 0x70a4); inline, ok gets $v0 (fdiff 1, 4 diff lines). KEPT (FAKE).
+global:80649BF0:other:a8d972 (was 060cc5) other (removed): the `eq = cs->unk48[0] == st[1] + 1;` temp. The eq var candidate was coloured reg 1 ($v0) by uopt and interfered with `ok`, so `ok` took $v1 (target `move v1,zero` 0x706c, `li v1,1` 0x7088/0x70a0, `beqz v1` 0x70a4); inline, ok gets $v0 (fdiff 1, 4 diff lines). FIXED 2026-11-19 (CleancsCmdBobbingLightsb): a u8 0/1 parity flag `odd = st[1] & 1; if (odd)` replaces it (see Attempts).
 global:80649BF0:other:68b5d7 other (removed): `(*st).prev` ordered the loop-1 compare `bnel t4,a0` at 0x70e0 (table load first). Fixed by `s32 *st` with `st[1]`.
 global:80649BF0:other:fb80a0 other (removed): punned `*((u8 *)cs + 0x48)` ordered the loop-2 compare `bnel t5,a0` at 0x7138. Fixed by `cs->unk48[0]` (header request: CsState 0x48 as `u8 unk48[2]`).
 
@@ -28,12 +28,29 @@ global:80649BF0:other:fb80a0 other (removed): punned `*((u8 *)cs + 0x48)` ordere
   13 with the eq temp kept. So `found = 0` belongs to the else arm, and as1 fills the delay slot from it.
 - sweep at the base: 0 hits (plain, recipe).
 
+2026-11-19 CleancsCmdBobbingLightsb anthropic/claude-opus-5-5:xhigh (cleanup session 2026-11-18c, base 9de100e7): eq site.
+- Diagnose re-run on the current body: eq-free 4 lines. `uopt_trace.sh` -l6 at the base: eq cand 29 reg 1, ok cand 20 reg 2
+  ($v1); eq-free: ok cand 20 reg 1 ($v0).
+- Ruling read from the asm: the eq boolean is never materialised (0x7090-0x7098 `addiu t7,a0,1; lbu t6,72(t5); bne t6,t7`
+  compares the operands), so eq is not a temp holding a value the target uses. It stays a steer.
+- FIXED: a u8 parity flag `odd = st[1] & 1; if (odd) {...} else {...}` in the eq-free body gives whole-file fdiff 0 and FAKE 2 -> 1 in the file.
+  The target computes and tests that value (`andi t1,a0,1` 0x7054, `beqz t1` 0x7068). It is a selector local at its use,
+  with the 0/1 flag's natural unsigned type (rulings; `found` is the function's other u8 flag, `sb zero,27(sp)` 0x7110).
+  - Mechanism: odd cand 23 (M -6, `ucvt` of `uand{st[1]}{1}`) gets reg 1 and is forward-substituted at reemission, so
+    the andi lands in temp t1. ok cand 20 gets reg 2 ($v1).
+  - Widths: u8 0, u16 0. s8/s16 27 (shape 2), s32 25 and u32 25: these materialise `andi v0,a0,1` and `beqz v0`
+    (2026-11-14's s32 `odd` 25 was this case).
+  - u8 placement: before or after `ok = 0`, declared beside eq's old slot, after found, last, or block-local in the
+    else: all 0.
+- sweep on the final copy: the site is gone, and the AST finds no untagged site for odd.
+
 ## Untried ideas
-- A natural boolean that is assigned a compare and tested by the next branch inside bb 5-11 (the only vanishing kind): none found; the original may have had such a temp (no code to cite, so not ORIG).
+- (Resolved 2026-11-19: an unsigned narrow 0/1 flag holding `st[1] & 1` vanishes like the compare var did.)
 - csCmdModelStepAnimation 2177 `(*st).lastValue` vs `(u8)cs->unk44[2]` (not this worker's function): with this header, `cs->unk48[1]` (same lbu 0x49) may give the target order with `st->lastValue` (untested).
 
 ## Evidence
 - 0x7018-0x7044: st in v1/t0, prev `lw a0,4(v1)`; 0x7054 `andi t1,a0,1`; odd 0x7074-0x707c `lbu t3,72(t2); addiu t4,t3,1; bne t4,a0`; even 0x708c-0x7098 `lbu t6,72(t5); addiu t7,a0,1; bne t6,t7`; ok = $v1 (0x706c, 0x7088, 0x70a0, 0x70a4).
+- 0x7054 `andi t1,a0,0x1` sits in the -1 test's delay slot and goes to a temp register, not a coloured one. 0x7068 `beqz t1` is the parity test.
 - loop 1: `lh t4,0(v1); bnel t4,a0` 0x70dc-0x70e0, i in $v0 (`addiu v0,v0,1`); loop 2: `lbu a0,72(a1)` hoisted 0x7130, `lh t5,0(v1); bnel t5,a0` 0x7134-0x7138.
 - found (u8) spilled to sp+0x1b across the jal, st to sp+0x1c.
 - The target keeps `addiu v0,v0,1` (i) in loop 1 and `move v0,zero` at 0x710c though loop 2 uses only the pointer v1: i's colour is fixed, so any candidate added before 0x70a4 must be one uopt later drops (the eq var does).

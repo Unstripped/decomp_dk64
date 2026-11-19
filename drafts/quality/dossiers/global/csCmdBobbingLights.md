@@ -52,10 +52,23 @@
     - A local operand is ordered by its own load in the statement, not by the earlier umpy. The operand-order lever needs
       inline expressions, not locals.
   - sweep at the base: 0 hits (plain, recipe).
+- 2026-11-19 CleancsCmdBobbingLightsb anthropic/claude-opus-5-5:xhigh (cleanup session 2026-11-18c, base 9de100e7):
+  - Diagnose re-run on the current body: the macro body scores 0 and the plain `p[k].y` lerps score 18. `as1probe ucode --cfe` of the plain
+    body (`.scratch/CleancsCmdBobbingLightsb/ap_plain/cfe.txt`) pushes the addend p0.y first (`lod p; ldc 0; add; ldc 4;
+    add; ilod f32; cvt f64 f32`), then the blend, p1, p0, sub, mpy, add (Q1273).
+  - Non-empty-stack lever, refuted. A store whose address is pushed first would put the lerp on a non-empty stack, which
+    keeps source order. But cfe emits the value first even for `cs->data = ang` (`lod ang; lod cs; swp; istr`). A local
+    `TargetVec3f pos; pos.y = <plain lerp>; fy = pos.y;` is a direct str with no address push: 18.
+  - Compound `fy = p[k].y; fy += t * (p[k + 1].y - p[k].y);`: 37. The arrow spelling of the same form is also 37.
+  - sweep at the base and on the final copy: 0 hits (plain, recipe). The macro line is unchanged. Its only users are this
+    function's lines 192, 198 and 204.
 
 ## Untried ideas
 - A spelling that reads the three y values without a subscript or `*` and still folds their offsets into one base: only `(base + k)->y` is known. A file-local six-point view (`tl->p3.y`) would fold too, but it is a view.
 - The struct-pair view (`{TargetVec3f lo, hi;}`) still needs `(pair + 1)` or a pair pointer variable per light (addiu shape, as for lo/hi).
+- The ucode stack is empty at every statement and argument start (Q1285). A local-struct store and the `cs->data = ang`
+  istr both push the value before any address (2026-11-19). Untested: an istr whose address holds a subscript or `*`, but
+  the target stores no lerp result, so that form is moot. Only the operand tree can order the addend after the product.
 ## Evidence
 - Target 0x8C4 cvt.d.s $f4,$f0 / 0x8CC mul.d $f6,$f4,$f20 / 0x8E0 add.d $f8,$f6,$f20: the blend is allocated first.
 - 0x8D8 lwc1 $f10,16(s0) / 0x8DC sub.s $f16 / 0x8E4 cvt.d.s $f18: dy is allocated second.
