@@ -78,7 +78,7 @@ extern s16 gCarryMinFallSpeed;
 extern f32 gDefaultAccelY;
 extern s16 D_80750338;
 extern s32 gMinecartTrackCount;
-extern u8 gSparkEffectSprite[];
+extern EffectGridAsset gSparkEffectSprite;
 extern struct GfSndState *gSfxFreeSlotHandles[];
 extern s16 gSfxSourceVoice[];
 extern f32 gSfxVoicePitch[];
@@ -130,7 +130,7 @@ void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThresho
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
         effectSetSpeed((s32)gCurrentActor);
         effectSetCallback(effectTimedLightIntensityFade);
-        sMinecartWheelEffect = effectCreateAtActorBone(gSparkEffectSprite, 0.4f, gCurrentActor, side + 7, 2);
+        sMinecartWheelEffect = effectCreateAtActorBone(&gSparkEffectSprite, 0.4f, gCurrentActor, side + 7, 2);
     }
 }
 

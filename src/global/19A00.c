@@ -60,49 +60,49 @@ extern s32 sScriptContinueRunning;
 typedef s32 (*ActorScriptCommand)(Actor *);
 typedef void (*ScriptCommandFn)(Actor *);
 
-extern u8 D_8071FBC8[];
-extern u8 D_8071FC0C[];
-extern u8 D_8071FC40[];
-extern u8 D_8071FC58[];
-extern u8 D_8071FC8C[];
-extern u8 D_8071FCC0[];
-extern u8 D_8071FF18[];
-extern u8 D_80720268[];
-extern u8 D_807208F0[];
-extern u8 D_80720914[];
-extern u8 D_80720938[];
-extern u8 D_8072095C[];
-extern u8 D_80720980[];
-extern u8 D_807209A4[];
-extern u8 D_807209C8[];
-extern u8 D_80720AD0[];
-extern u8 D_80720BE8[];
-extern u8 sEffectImpactPuffConfig[];
-extern u8 sEffectSparkConfig[];
-extern u8 D_80720B58;
+extern EffectGridAsset D_8071FBC8;
+extern EffectGridAsset D_8071FC0C;
+extern EffectGridAsset D_8071FC40;
+extern EffectGridAsset D_8071FC58;
+extern EffectGridAsset D_8071FC8C;
+extern EffectGridAsset D_8071FCC0;
+extern EffectGridAsset D_8071FF18;
+extern EffectGridAsset D_80720268;
+extern EffectGridAsset D_807208F0;
+extern EffectGridAsset D_80720914;
+extern EffectGridAsset D_80720938;
+extern EffectGridAsset D_8072095C;
+extern EffectGridAsset D_80720980;
+extern EffectGridAsset D_807209A4;
+extern EffectGridAsset D_807209C8;
+extern EffectGridAsset D_80720AD0;
+extern EffectGridAsset D_80720BE8;
+extern EffectGridAsset sEffectImpactPuffConfig;
+extern EffectGridAsset sEffectSparkConfig;
+extern EffectGridAsset D_80720B58;
 
-void *sScriptEffectSprites[] = {
-    D_807208F0,
-    D_80720914,
-    D_80720938,
-    D_8072095C,
-    D_80720980,
-    D_807209A4,
-    D_807209C8,
-    D_8071FC0C,
-    D_80720AD0,
-    D_80720268,
-    D_8071FF18,
+EffectGridAsset *sScriptEffectSprites[] = {
+    &D_807208F0,
+    &D_80720914,
+    &D_80720938,
+    &D_8072095C,
+    &D_80720980,
+    &D_807209A4,
+    &D_807209C8,
+    &D_8071FC0C,
+    &D_80720AD0,
+    &D_80720268,
+    &D_8071FF18,
     &D_80720B58,
-    D_8071FC40,
-    sEffectImpactPuffConfig,
-    D_8071FC58,
-    D_8071FC8C,
-    D_8071FCC0,
-    D_8071FF18,
-    D_80720BE8,
-    sEffectSparkConfig,
-    D_8071FBC8,
+    &D_8071FC40,
+    &sEffectImpactPuffConfig,
+    &D_8071FC58,
+    &D_8071FC8C,
+    &D_8071FCC0,
+    &D_8071FF18,
+    &D_80720BE8,
+    &sEffectSparkConfig,
+    &D_8071FBC8,
 };
 
 void (*sScriptEffectCallbacks[])() = {
@@ -769,10 +769,10 @@ s32 scriptOpUpdateMotionDelta(Actor *actor) {
     motion->jumpFrom = motion->frameIndex;
     motion->jumpTo = imm;
     motion->flags |= 8;
-    if ((f32)motion->frameIndex < motion->frame) {
-        motion->frameFrac = motion->frame - (f32)motion->frameIndex;
+    if (motion->frameIndex < motion->frame) {
+        motion->frameFrac = motion->frame - motion->frameIndex;
     } else {
-        motion->frameFrac = -(motion->frame - (f32)motion->frameIndex);
+        motion->frameFrac = -(motion->frame - motion->frameIndex);
     }
     motion->nextFrameIndex = imm;
     actor->sub4->scriptWaitFlags |= 0x20;
@@ -1804,7 +1804,7 @@ void projectileTrySpawnFromSlot(Actor *actor) {
     }
 }
 
-extern u8 D_8071FE08[];
+extern EffectGridAsset D_8071FE08;
 extern f32 sSavedLightColorR[3];
 
 
@@ -1816,7 +1816,7 @@ void scriptCmdSpawnDownwardDriftEffect(Actor *actor) {
     effectSetMode(2);
     effectSetSpeed(actor->yaw);
     effectSetDepth(1);
-    effectCreateAtActorBone(D_8071FF18, 0.4f, actor, imm, 0);
+    effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
 }
 
 void scriptCmdEnablePlayerFlag40000(Actor *actor) {
@@ -1830,14 +1830,14 @@ void scriptCmdSpawnUpwardDriftEffect(Actor *actor) {
     if (imm == 0xFF) {
         effectSetDepth(0);
         effectSetDuration(1);
-        effectCreateAtPosition(D_8071FE08, 0.7f, actor->x, actor->y + 7.0f, actor->z);
+        effectCreateAtPosition(&D_8071FE08, 0.7f, actor->x, actor->y + 7.0f, actor->z);
     } else {
         effectSetCallback(effectUpwardDriftUpdate);
         effectSetMode(2);
         effectSetSpeed((actor->yaw + 0x800) & 0xFFF);
         effectSetDepth(1);
         effectSetFlags(0x80);
-        effectCreateAtActorBone(D_8071FF18, 0.4f, actor, imm, 0);
+        effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
     }
 }
 
@@ -1849,11 +1849,11 @@ void scriptCmdSpawnSineDriftEffect(Actor *actor) {
     effectSetMode(2);
     effectSetSpeed(actor->moveYaw);
     effectSetDepth(1);
-    effectCreateAtActorBone(D_8071FF18, 0.4f, actor, imm, 0);
+    effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
 }
 
 extern s32 gGlobalCutsceneFlags;
-extern u8 gSparkEffectSprite;
+extern EffectGridAsset gSparkEffectSprite;
 
 void scriptCmdSpawnAttachedActor(Actor *actor) {
     u8 imm;

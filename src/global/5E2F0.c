@@ -358,9 +358,7 @@ void lightApplyToActors(void) {
                                          ((gLightVolumes[i].z - actor->z) * (gLightVolumes[i].z - actor->z)));
                             dist2d = (dist != 0) ? dist : 0.001f;
                             scale = (gLightVolumes[i].y - actor->y) / dist2d;
-                            if (!(scale > 0)) {
-                                scale = -scale;
-                            }
+                            scale = (scale > 0) ? scale : -scale;
                             if (scale == 0.0f) {
                                 scale = 0.1f;
                             }
@@ -398,9 +396,7 @@ void lightApplyToActors(void) {
                             dist2d = 1.0f;
                         }
                         scale = (gLightVolumes[i].y - actor->y) / dist2d;
-                        if (!(scale > 0)) {
-                            scale = -scale;
-                        }
+                        scale = (scale > 0) ? scale : -scale;
                         if (scale == 0.0f) {
                             scale = 0.1f;
                         }

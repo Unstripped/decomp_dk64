@@ -34,7 +34,7 @@ void timerQueueAdd(void *callback, u32 delay, s32 param0, s32 param1, s32 param2
     s32 checkAddress;
 
     prev = NULL;
-    node = heapAlloc(0x18);
+    node = heapAlloc(sizeof(QueuedFunction));
     expectedVal = 0xC6F0AFA9;
     checkAddress = 0x5FAFBA0C;
     piReadIo = (s32 (*)(u32, s32 *))timerQueueDecodePiCheck((s32)osPiReadIo + 0xC000FF01, &expectedVal, &checkAddress);

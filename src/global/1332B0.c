@@ -55,7 +55,7 @@ typedef struct {
     /* 0x04 */ u8 pad4[3];
     /* 0x07 */ u8 subtype; // callback subtype
     /* 0x08 */ Actor *actor;
-    /* 0x0C */ s32 (*condition)(void); // NULL: always fire
+    /* 0x0C */ u8 (*condition)(void); // NULL: always fire
 } VolumeTriggerHook; // size = 0x10
 
 extern VolumeTriggerTable D_807FDCB0;
@@ -93,7 +93,7 @@ VolumeTriggerHook gVolumeTriggerHooks[39] = {
     { { 0, 0 }, 12, { 0, 0, 0 }, 21, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 22, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 23, NULL, NULL },
-    { { 0, 0 }, 15, { 0, 0, 0 }, 1, NULL, (s32 (*)(void))func_8072E5B0 },
+    { { 0, 0 }, 15, { 0, 0, 0 }, 1, NULL, func_8072E5B0 },
     { { 0, 0 }, 12, { 0, 0, 0 }, 24, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 0, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 25, NULL, NULL },
@@ -131,7 +131,7 @@ void volumeTriggerTableLoad(s16 *data) {
 void volumeTriggerTableInit(s32 mapId) {
     VolumeTriggerHook *hook;
     s32 i;
-    s32 hookCount = 0x27;
+    s32 hookCount = sizeof(gVolumeTriggerHooks) / sizeof(gVolumeTriggerHooks[0]);
     s32 pad[2];
     Actor *actor;
     void *buf;

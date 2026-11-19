@@ -201,8 +201,8 @@ extern u8 gPlayerCount;
 typedef struct CamCueStep {
     /* 0x0 */ u32 time;
     /* 0x4 */ u8 map;
-    /* 0x5 */ u8 exit;
-    /* 0x6 */ u16 unk6;
+    /* 0x5 */ u8 cutscene;
+    /* 0x6 */ u8 pad6[2];
 } CamCueStep; // size = 0x8
 
 typedef struct CamZoneGroup {
@@ -294,7 +294,7 @@ void camCueTimerTick(void) {
     u64 t = OS_CYCLES_TO_USEC(osGetTime() - gCamCueStartTime) / 10000;
 
     if ((u32)t >= gCamCueTable[gCamCueIndex].time) {
-        menuTransitionToMap(gCamCueTable[gCamCueIndex].map, gCamCueTable[gCamCueIndex].exit);
+        menuTransitionToMap(gCamCueTable[gCamCueIndex].map, gCamCueTable[gCamCueIndex].cutscene);
         if (++gCamCueIndex >= 6) {
             gCamCueStartTime = 0;
         }
@@ -920,11 +920,9 @@ void camUpdateFollowHeight(CamState *cam) {
     }
 }
 
-extern s8 D_807FD63F[];
-
 void camUpdateFollowTargetDistance(Actor *camActor) {
     CamState *cam = camActor->customState;
-    f32 target = D_807FD63F[cam->playerIndex * 0x34] * 0.5;
+    f32 target = gPlayerPadState[cam->playerIndex].stickY * 0.5;
     s32 sel;
 
     if (!(cam->unkAC & 0x2000) && !(gGlobalOverlayFlags & 0x40)) {

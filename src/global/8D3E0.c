@@ -35,9 +35,9 @@ typedef struct ActorListFlagEntry {
     /* 0x2 */ s16 flagIndex;
 } ActorListFlagEntry;
 
-// The 8-word custom data block a spawner copies into a node's customData.
+// The 8-float custom data block a spawner copies into a node's customData.
 typedef struct ActorListCustomData {
-    s32 words[8];
+    f32 words[8];
 } ActorListCustomData;
 
 typedef struct ActorListNode {
@@ -539,14 +539,14 @@ void actorListSpawnNodePersistent(s16 actorType, f32 posX, f32 posY, f32 posZ, s
     ActorListCustomData customData;
 
     customData = D_807500B4;
-    actorListSpawnNodeInternal(actorType, posX, posY, posZ, yaw, scale, &customData, 0, 0, actorListAllocId());
+    actorListSpawnNodeInternal(actorType, posX, posY, posZ, yaw, scale, customData.words, 0, 0, actorListAllocId());
 }
 
 void actorListSpawnNodeEntryDefault(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, Actor *parentActor) {
     ActorListCustomData customData;
 
     customData = D_807500D4;
-    actorListSpawnNodeInternal(actorType - 0x10, posX, posY, posZ, yaw, scale, &customData, 1, parentActor, actorListAllocId());
+    actorListSpawnNodeInternal(actorType - 0x10, posX, posY, posZ, yaw, scale, customData.words, 1, parentActor, actorListAllocId());
 }
 
 void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, Actor *parentActor, void *customData) {
@@ -554,7 +554,7 @@ void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 ya
 }
 
 
-ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, void *customData, u8 spawnMode, Actor *parentActor, s16 targetId) {
+ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, f32 *customData, u8 spawnMode, Actor *parentActor, s16 targetId) {
     ActorListNode *node;
     s32 i;
     s32 found;
@@ -595,7 +595,7 @@ ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32
     node->radiusSq = (f32)gActorListSpawnTable[i].radius * gActorListSpawnTable[i].radius;
 
     for (i = 0; i < 8; i++) {
-        node->customData[i] = ((f32 *)customData)[i];
+        node->customData[i] = customData[i];
     }
 
     node->next = gActorListHead;
@@ -616,7 +616,6 @@ extern Actor *gSpawnedActor;
 void actorListUpdateSpawns(void) {
     s32 pad;
     ActorSpawnInfo spawnInfo;
-    Actor *actor;
     ActorListNode *node;
     s32 entryCount = sizeof(gActorListSpawnTable) / sizeof(gActorListSpawnTable[0]);
     u8 found;
@@ -626,23 +625,20 @@ void actorListUpdateSpawns(void) {
     for (node = gActorListHead; node != NULL; node = node->next) {
         if (node->spawned != 0) {
             if (node->shouldDespawn(node) != 0) {
-                actor = node->actor;
-                if (!(actor->flags & 0x200000)) {
-                    actorDeregisterActive(actor);
-                    actor = node->actor;
+                if (!(node->actor->flags & 0x200000)) {
+                    actorDeregisterActive(node->actor);
                     node->spawned = 0;
-                    node->x = actor->x;
-                    node->y = actor->y;
-                    node->z = actor->z;
-                    node->chunkIndex = actor->chunkIndex;
-                    controllerAnimFreeModel(actor, 0);
+                    node->x = node->actor->x;
+                    node->y = node->actor->y;
+                    node->z = node->actor->z;
+                    node->chunkIndex = node->actor->chunkIndex;
+                    controllerAnimFreeModel(node->actor, 0);
                     controllerAnimFreeModel(node->actor, 1);
                     controllerAnimFreeModel(node->actor, 2);
                 }
             }
         } else if (node->shouldSpawn(node) != 0) {
-            actor = node->actor;
-            if (actor == NULL) {
+            if (node->actor == NULL) {
                 i = 0;
                 found = 0;
                 target = node->actorType + 0x10;
@@ -675,10 +671,9 @@ void actorListUpdateSpawns(void) {
                 }
             } else if (node->spawned == 0) {
                 if (node->animAssetId != 0) {
-                    node->actor->animState = controllerAnimStateLoadAsset(actor, node->animAssetId, 0);
-                    actor = node->actor;
+                    node->actor->animState = controllerAnimStateLoadAsset(node->actor, node->animAssetId, 0);
                 }
-                actorRegisterActive(actor);
+                actorRegisterActive(node->actor);
                 node->spawned = 1;
             }
         }

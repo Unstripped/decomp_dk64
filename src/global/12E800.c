@@ -196,7 +196,7 @@ void behaviourUpdateShadowAlpha(void) {
 }
 
 
-extern u8 D_80720120[];
+extern EffectGridAsset D_80720120;
 extern u16 gEnemyDefeatCount;
 
 void behaviourCheckGroundImpactEffects(void) {
@@ -445,7 +445,7 @@ void behaviourSetAnimIds(s16 anim0, s16 anim1, s16 anim2) {
     gBehaviourAnimState->animId2 = anim2;
 }
 
-extern u8 D_8071FC58[];
+extern EffectGridAsset D_8071FC58;
 
 void behaviourUpdateContactAndState(s32 scriptId) {
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -617,7 +617,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetDepth(1);
                     effectSetSpeed(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
-                    effectCreateAtPosition(D_8071FC58, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
+                    effectCreateAtPosition(&D_8071FC58, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
                     if (gBehaviourWorkState->unk39 != 0) {
                         f32 t;
 
@@ -1061,7 +1061,7 @@ void behaviourSetFloorAndState40(void) {
     gEnemyDefeatCount++;
 }
 
-extern u8 D_8071FB34[];
+extern EffectGridAsset D_8071FB34;
 
 void behaviourSpawnPuffParticle(void) {
     effectCreateAtPosition(&D_8071FB34, 0.55f, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight * 0.5, gCurrentActor->z);
@@ -1072,7 +1072,7 @@ void sfxPlayAtFBD6CPosition(void) {
     effectCreateAtPosition(&D_8071FB34, 0.55f, gActorGlobalState.targetActor->x, gActorGlobalState.targetActor->y, gActorGlobalState.targetActor->z);
 }
 
-extern u8 D_8071FF18;
+extern EffectGridAsset D_8071FF18;
 
 void behaviourSpawnDropParticle(void) {
     effectSetMode(2);
