@@ -193,10 +193,8 @@ ResQueueLink *resQueueGetOrCreate(Actor *key) {
     ResQueueActorState *state;
 
     link = &sResQueueHead;
-    if ((*link != NULL) && ((*link)->key != key)) {
-        do {
-            link = &(*link)->next;
-        } while ((*link != NULL) && ((*link)->key != key));
+    while ((*link != NULL) && ((*link)->key != key)) {
+        link = &(*link)->next;
     }
     if (*link == NULL) {
         *link = heapAlloc(0x10);
@@ -227,15 +225,15 @@ void resQueueAddEntry(ResQueueLink *queue, u16 resId, u8 kindIndex) {
     }
 }
 
-void resQueueAttachActor(Actor *targetActor, u16 id, u8 count) {
+void resQueueAttachActor(Actor *targetActor, u16 resId, u8 kindIndex) {
     ResQueueActorState *state;
-    ResQueueLink *node;
+    ResQueueLink *queue;
 
-    node = resQueueGetOrCreate(targetActor);
-    state = node->actor->customState;
+    queue = resQueueGetOrCreate(targetActor);
+    state = queue->actor->customState;
     state->queueFlags = sResQueueValue;
     sResQueueValue = 0;
-    resQueueAddEntry(node, id, count);
+    resQueueAddEntry(queue, resId, kindIndex);
     targetActor->flags |= 0x2000000;
 }
 
@@ -243,10 +241,8 @@ ResNode *resNodeFindById(u16 id) {
     ResNode *node;
 
     node = sResNodeListHead;
-    if ((node != NULL) && (node->id != id)) {
-        do {
-            node = node->next;
-        } while ((node != NULL) && (node->id != id));
+    while ((node != NULL) && (node->id != id)) {
+        node = node->next;
     }
     return node;
 }
@@ -268,18 +264,16 @@ void resNodeFree(ResRow *row) {
 
     glyph = row->glyphs;
     isGrid = row->kind & 2;
-    if (glyph != NULL) {
-        do {
-            current = glyph;
-            glyph = glyph->next;
-            if (isGrid != 0) {
-                effect = current->effect;
-                if (effect != NULL) {
-                    effectFreeAndUnlink(effect);
-                }
+    while (glyph != NULL) {
+        current = glyph;
+        glyph = glyph->next;
+        if (isGrid != 0) {
+            effect = current->effect;
+            if (effect != NULL) {
+                effectFreeAndUnlink(effect);
             }
-            heapFreeDeferred(current);
-        } while (glyph != NULL);
+        }
+        heapFreeDeferred(current);
     }
     heapFreeDeferred(row);
 }
@@ -289,12 +283,10 @@ void resNodeListFree(ResQueueActorState *state) {
     ResRow *current;
 
     row = state->rows;
-    if (row != NULL) {
-        do {
-            current = row;
-            row = row->next;
-            resNodeFree(current);
-        } while (row != NULL);
+    while (row != NULL) {
+        current = row;
+        row = row->next;
+        resNodeFree(current);
     }
     state->rows = NULL;
     state->rowState = 0;
@@ -310,10 +302,8 @@ void resQueueRemove(Actor *targetActor) {
 
     link = &sResQueueHead;
     found = NULL;
-    if ((*link != NULL) && ((*link)->key != targetActor)) {
-        do {
-            link = &(*link)->next;
-        } while ((*link != NULL) && ((*link)->key != targetActor));
+    while ((*link != NULL) && ((*link)->key != targetActor)) {
+        link = &(*link)->next;
     }
     if (*link != NULL) {
         found = *link;
@@ -325,17 +315,15 @@ void resQueueRemove(Actor *targetActor) {
         resNodeListFree(state);
         resNodeDecRef(state->resId);
         entry = found->entries;
-        if (entry != NULL) {
-            do {
-                current = entry;
-                entry = entry->next;
-                heapFreeDeferred(current);
-            } while (entry != NULL);
+        while (entry != NULL) {
+            current = entry;
+            entry = entry->next;
+            heapFreeDeferred(current);
         }
         heapFreeDeferred(found);
         heapFreeDeferred(state->mtxBuf);
         actorDespawn(actor);
-        targetActor->flags &= 0xFDFFFFFF;
+        targetActor->flags &= ~0x2000000;
     }
 }
 
@@ -353,16 +341,12 @@ void resFreeRecord(ResItem *item) {
         heapFreeDeferred(data);
     }
     flags = item->flags;
-    i = 0;
     if (flags & 1) {
-        do {
+        for (i = 0; i < 1; i++) {
             resFreeRecordData(&item->variant[i]);
-            i++;
-        } while (i != 1);
+        }
         heapFreeDeferred(item->variant);
-        return;
-    }
-    if (flags & 2) {
+    } else if (flags & 2) {
         heapFreeDeferred(item->variant->data.bytes);
         heapFreeDeferred(item->variant);
     }
@@ -371,12 +355,8 @@ void resFreeRecord(ResItem *item) {
 void resFreeRecordList(ResItemList *list) {
     s32 i;
 
-    i = 0;
-    if (list->count > 0) {
-        do {
-            resFreeRecord(&list->items[i]);
-            i++;
-        } while (i < list->count);
+    for (i = 0; i < list->count; i++) {
+        resFreeRecord(&list->items[i]);
     }
     heapFreeDeferred(list->items);
 }
@@ -384,12 +364,8 @@ void resFreeRecordList(ResItemList *list) {
 void resFreeRecordListArray(ResParsedList *parsed) {
     s32 i;
 
-    i = 0;
-    if (parsed->count > 0) {
-        do {
-            resFreeRecordList(&parsed->lists[i]);
-            i++;
-        } while (i < parsed->count);
+    for (i = 0; i < parsed->count; i++) {
+        resFreeRecordList(&parsed->lists[i]);
     }
     heapFreeDeferred(parsed->lists);
     heapFreeDeferred(parsed->payload);
@@ -406,21 +382,17 @@ void resListTick(void) {
     ResNode *node;
 
     link = &sResNodeListHead;
-    if (*link != NULL) {
-        do {
-            if ((*link)->kind == 1) {
-                if ((*link)->refCount != 0) {
-                    (*link)->refCount--;
-                }
-            }
-            if ((*link)->refCount == 0) {
-                node = *link;
-                *link = node->next;
-                resNodeDestroy(node);
-            } else {
-                link = &(*link)->next;
-            }
-        } while (*link != NULL);
+    while (*link != NULL) {
+        if ((*link)->kind == 1 && (*link)->refCount != 0) {
+            (*link)->refCount--;
+        }
+        if ((*link)->refCount == 0) {
+            node = *link;
+            *link = node->next;
+            resNodeDestroy(node);
+        } else {
+            link = &(*link)->next;
+        }
     }
 }
 
@@ -457,7 +429,7 @@ ResParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
     return node->parsed;
 }
 
-extern void *D_8074E778[];
+extern const char *D_8074E780[];
 
 void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) {
     s32 pad;
@@ -480,7 +452,7 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
     flags = 0;
     width = 0;
     character = 1;
-    height = (f32)textGetFontHeight(6);
+    height = textGetFontHeight(6);
     while (*rowLink != NULL) {
         rowLink = &(*rowLink)->next;
     }
@@ -491,8 +463,8 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
     rowLines = &(*rowLink)->glyphs;
     for (i = 0; i <= length; i++) {
         if ((i == length) || ((textBytes[i] == ' ') && (character == 0))) {
-            if (((*rowLink)->width == 0.0f) || ((f64)((*rowLink)->width + (f32)width) < 124.8f)) {
-                (*rowLink)->width += (f32)width;
+            if (((*rowLink)->width == 0.0f) || ((f64)((*rowLink)->width + width) < 124.8f)) {
+                (*rowLink)->width += width;
             } else {
                 while ((line != NULL) && (line->code == ' ')) {
                     p = line;
@@ -508,7 +480,7 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
                     rowLines = &(*rowLink)->glyphs;
                     (*rowLink)->width = 0.0f;
                     for (p = line; p != NULL; p = p->next) {
-                        (*rowLink)->width += (f32)p->width;
+                        (*rowLink)->width += p->width;
                     }
                 }
             }
@@ -529,7 +501,7 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
             character = 0;
             switch (textBytes[i]) {
             case '~':
-                _sprintf(textBuffer, "%s", D_8074E778[gActivePlayerActor->actorType]);
+                _sprintf(textBuffer, "%s", D_8074E780[gActivePlayerActor->actorType - 2]);
                 break;
             case '@':
                 _sprintf(textBuffer, "%d", gTextNumberArg);
@@ -552,8 +524,6 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
     }
 }
 
-extern u8 sLanguageIndex;
-
 void textLayoutAppendCommandList(ResQueueActorState *state, ResItem *item, ResParsedList *parsed) {
     s32 i;
     s32 byteOffset;
@@ -562,16 +532,10 @@ void textLayoutAppendCommandList(ResQueueActorState *state, ResItem *item, ResPa
     u8 *text;
 
     rec = &item->variant[sLanguageIndex];
-    i = 0;
-    byteOffset = 0;
-    if (rec->count > 0) {
-        do {
-            span = (ResTextSpan *)(rec->data.bytes + byteOffset);
-            text = span->offset + parsed->payload;
-            textLayoutAppendRows(state, text, span->length);
-            i++;
-            byteOffset += sizeof(ResTextSpan);
-        } while (i < rec->count);
+    for (i = 0, byteOffset = 0; i < rec->count; i++, byteOffset += sizeof(ResTextSpan)) {
+        span = (ResTextSpan *)(rec->data.bytes + byteOffset);
+        text = span->offset + parsed->payload;
+        textLayoutAppendRows(state, text, span->length);
     }
 }
 
@@ -589,37 +553,31 @@ void resGridBuildGroups(ResQueueActorState *state, ResItem *item, ResParsedList 
 
     link = &state->rows;
     source = item->variant;
-    if (*link != NULL) {
-        do {
-            link = &(*link)->next;
-        } while (*link != NULL);
+    while (*link != NULL) {
+        link = &(*link)->next;
     }
     *link = heapAlloc(0x20);
     heapClearBlock(*link);
     (*link)->kind = 2;
-    i = 0;
     entry = &(*link)->glyphs;
-    if (source->count > 0) {
-        do {
-            cell = &source->data.cells[i];
-            effectGridGetScaledDimensions(gEffectGridAssets[cell->effectId], &width, &height);
-            if ((f64)((*link)->width + (f32)width) >= 124.8f) {
-                link = &(*link)->next;
-                *link = heapAlloc(0x20);
-                heapClearBlock(*link);
-                (*link)->kind = 2;
-                entry = &(*link)->glyphs;
-            }
-            *entry = heapAlloc(0xA8);
-            heapClearBlock(*entry);
-            (*entry)->width = width;
-            (*entry)->attr = cell->effectId;
-            (*entry)->code = cell->sub;
-            (*link)->width += (f32)(*entry)->width;
-            (*link)->height = ((f32)height < (*link)->height) ? (*link)->height : (f32)height;
-            entry = &(*entry)->next;
-            i++;
-        } while (i < source->count);
+    for (i = 0; i < source->count; i++) {
+        cell = &source->data.cells[i];
+        effectGridGetScaledDimensions(gEffectGridAssets[cell->effectId], &width, &height);
+        if ((f64)((*link)->width + width) >= 124.8f) {
+            link = &(*link)->next;
+            *link = heapAlloc(0x20);
+            heapClearBlock(*link);
+            (*link)->kind = 2;
+            entry = &(*link)->glyphs;
+        }
+        *entry = heapAlloc(0xA8);
+        heapClearBlock(*entry);
+        (*entry)->width = width;
+        (*entry)->attr = cell->effectId;
+        (*entry)->code = cell->sub;
+        (*link)->width += (*entry)->width;
+        (*link)->height = (height < (*link)->height) ? (*link)->height : height;
+        entry = &(*entry)->next;
     }
 }
 
@@ -639,10 +597,8 @@ void resApplyKind(Actor *actor, u16 resId, u8 kindIndex) {
     state->resId = resId;
     item = parsed->lists[kindIndex].items;
     for (i = 0; i < parsed->lists[kindIndex].count; i++) {
-        if (*link != NULL) {
-            do {
-                link = &(*link)->next;
-            } while (*link != NULL);
+        while (*link != NULL) {
+            link = &(*link)->next;
         }
         if (item->flags & 1) {
             textLayoutAppendCommandList(state, item, parsed);
@@ -692,7 +648,7 @@ void resQueueProcessNext(Actor *actor, Actor *key) {
     state = actor->customState;
     queue = resQueueGetOrCreate(key);
     if (queue->entries == NULL) {
-        key->flags &= 0xFDFFFFFF;
+        key->flags &= ~0x2000000;
         if (state->queueFlags & 1) {
             timerQueueAdd(camResumePathCallback, 0x1E, 0, 0, 0);
         }

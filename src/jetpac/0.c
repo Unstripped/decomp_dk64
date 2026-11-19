@@ -23,7 +23,7 @@ extern JetpacState jetpacPlayer;
 extern struct GfSndState *D_80770DF8[];
 extern ALBank *gSfxBank;
 typedef struct {
-    s16 unk0;
+    s16 pad0;
     s16 sfx;
 } JetpacSoundEntry;
 

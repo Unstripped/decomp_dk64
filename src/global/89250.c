@@ -33,8 +33,8 @@ typedef struct MultiTierRingParams {
 
 // This TU's .data (0x8074E880-0x8074E8B0), in address order; the puff sprites are sprite sheets of
 // 124780.c, and D_8074E8A8/D_8074E8AC are unreferenced.
-extern u8 D_8071FC58[], D_8071FC8C[], D_8071FCC0[];
-void *gPuffSprites[3] = { D_8071FC58, D_8071FC8C, D_8071FCC0 };
+extern EffectGridAsset D_8071FC58, D_8071FC8C, D_8071FCC0;
+void *gPuffSprites[3] = { &D_8071FC58, &D_8071FC8C, &D_8071FCC0 };
 ScaleTierTable sGrowthTierScales = { { 1.0f, 1.7f, 3.0f } };
 MultiTierRingParams sMultiTierRingActorTypes = { { -1, 0xCF, 0xD0, 0xAE } };
 s32 D_8074E8A8 = 0;
@@ -43,20 +43,20 @@ f32 D_8074E8AC = 0.3f;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern u8 gMultiplayerReducedEffects;
-extern s32 D_8071FC0C;
-extern s32 D_8071FE08;
-extern s32 D_8071FED0;
-extern s32 D_8071FF18;
-extern s32 D_8071FF40;
-extern s32 sEffectSparkConfig;
-extern s32 gSparkEffectSprite;
-extern s32 D_80720120;
-extern s32 D_80720558;
-extern s32 D_8072073C;
-extern s32 D_80720B58;
-extern s32 D_807210EC;
-extern s32 D_80721158;
-extern s32 D_8072139C;
+extern EffectGridAsset D_8071FC0C;
+extern EffectGridAsset D_8071FE08;
+extern EffectGridAsset D_8071FED0;
+extern EffectGridAsset D_8071FF18;
+extern EffectGridAsset D_8071FF40;
+extern EffectGridAsset sEffectSparkConfig;
+extern EffectGridAsset gSparkEffectSprite;
+extern EffectGridAsset D_80720120;
+extern EffectGridAsset D_80720558;
+extern EffectGridAsset D_8072073C;
+extern EffectGridAsset D_80720B58;
+extern EffectGridAsset D_807210EC;
+extern EffectGridAsset D_80721158;
+extern EffectGridAsset D_8072139C;
 
 
 void effectSpawnActorBone(Actor *owner, u8 bone, f32 scale) {
@@ -127,7 +127,7 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
     }
 }
 
-extern s32 D_8071FF58;
+extern EffectGridAsset D_8071FF58;
 
 void effectSpawnSmoke(u8 bone) {
     if (!(gFrameCounter & 0x1F)) {
@@ -200,7 +200,7 @@ void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
                    ((randomNonNegative() >> 15) % 60) + (nodeZ - 30.0f));
 }
 
-extern s32 D_8071FC40;
+extern EffectGridAsset D_8071FC40;
 
 void effectSpawnAuraBurst(u8 rate) {
     u32 i;
@@ -279,19 +279,19 @@ void effectSpawnOctagonRing(f32 scale, f32 posX, f32 posY, f32 posZ) {
 }
 
 void actorScaleGrowthUpdate(void) {
-    ScaleGrowthState *extraData = gCurrentActor->customState;
+    ScaleGrowthState *growthState = gCurrentActor->customState;
     ScaleTierTable scales = sGrowthTierScales;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        extraData->baseScaleY = gCurrentActor->sub4->scaleY;
+        growthState->baseScaleY = gCurrentActor->sub4->scaleY;
     }
-    extraData->growthTicks++;
+    growthState->growthTicks++;
     switch (gCurrentActor->state) {
     case 0:
-        gCurrentActor->sub4->scaleY = scales.arr[extraData->tierIndex] * (extraData->baseScaleY * extraData->growthTicks * 0.33333334f);
-        if (extraData->growthTicks > 3.0f) {
+        gCurrentActor->sub4->scaleY = scales.arr[growthState->tierIndex] * (growthState->baseScaleY * growthState->growthTicks * 0.33333334f);
+        if (growthState->growthTicks > 3.0f) {
             gCurrentActor->state = 1;
-            extraData->growthTicks = 0;
+            growthState->growthTicks = 0;
             animSetLoopLimit(gCurrentActor, 0, 1);
             animSetSpeed(gCurrentActor, 0, 0.5f);
         }
@@ -444,8 +444,8 @@ void effectSpawnActorScale(Actor *actor) {
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern s16 D_80753A08[];
-extern s16 D_80753A18[];
+extern s16 D_80753A0C[];
+extern s16 D_80753A1C[];
 
 void effectActorCheckGroundScaleSpawn(Actor *actor) {
     f32 headHeight;
@@ -455,9 +455,9 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
     if (actor->animState != NULL && actor->sub4 != NULL) {
         if (actor->collisionFlags == 1) {
             if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-                headHeight = D_80753A08[actor->actorType];
+                headHeight = D_80753A0C[actor->actorType - 2];
             } else {
-                headHeight = D_80753A18[actor->actorType];
+                headHeight = D_80753A1C[actor->actorType - 2];
             }
         } else {
             headHeight = actor->eyeHeight;
@@ -519,7 +519,7 @@ void particleInitDefaultState(void) {
     effectSetFlags(4);
 }
 
-extern s32 D_8071FBF4;
+extern EffectGridAsset D_8071FBF4;
 
 void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY, f32 posZ) {
     f32 fallHeight;
@@ -770,7 +770,7 @@ void effectSpawnBoneSparkAttached(u8 bone) {
     effectCreateAtActorBone(&gSparkEffectSprite, 1.0f, gCurrentActor, bone, 0);
 }
 
-extern s32 D_80720B24;
+extern EffectGridAsset D_80720B24;
 
 void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     f32 posAX;

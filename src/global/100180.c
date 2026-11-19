@@ -11,7 +11,7 @@
 typedef struct TextGlyph {
     s16 texX;
     u8 width;
-    u8 unk3;
+    u8 pad3;
 } TextGlyph;
 
 typedef struct { u8 b[0x39]; } FcDStr39;
@@ -203,7 +203,7 @@ u8 *textBlitGlyph(u8 width, u8 *dst, void *sheet, s16 texX, u8 row, u8 *phase, u
     return dst + width + (phaseBit && oddBit);
 }
 
-extern void **gTextFontSheets;
+extern u8 **gTextFontSheets;
 
 void textBlitString(u8 *dst, u8 pitch, u8 *str) {
     s32 i;
@@ -252,15 +252,15 @@ s32 textMapCharToGlyph(s16 font, u8 *ch) {
     switch (font) {
     case 0:
         switch (*ch) {
-        case 0x2E:
-        case 0x67:
-        case 0x70:
-        case 0x71:
+        case '.':
+        case 'g':
+        case 'p':
+        case 'q':
         case 0x80:
             yoff = 2;
             break;
-        case 0x61:
-        case 0x79:
+        case 'a':
+        case 'y':
             yoff = 1;
             break;
         }
@@ -286,7 +286,7 @@ s32 textMapCharToGlyph(s16 font, u8 *ch) {
         break;
     }
     case 4:
-        if (*ch == 0x40) {
+        if (*ch == '@') {
             *ch = 0x60;
         } else {
             *ch -= 0x21;
@@ -345,7 +345,6 @@ void textFontAgeSheets(void) {
 s32 textGetStringWidth(s16 font, const u8 *str) {
     s32 len;
     u8 ch;
-    s32 step;
 
     len = 0;
     if (font & 0x80) {
@@ -354,15 +353,13 @@ s32 textGetStringWidth(s16 font, const u8 *str) {
     }
     ch = *str++;
     while (ch) {
-        if (ch == 0x20) {
+        if (ch == ' ') {
             len += gTextFonts[font].spaceWidth;
-            step = gTextFonts[font].spacing;
         } else {
             textMapCharToGlyph(font, &ch);
-            step = gTextFonts[font].spacing;
             len += gTextGlyphTables[font][ch].width;
         }
-        len += step;
+        len += gTextFonts[font].spacing;
         ch = *str++;
     }
     return len;
@@ -387,26 +384,26 @@ Gfx *textLoadFontSheetGfx(Gfx *dl, u8 font, s16 line) {
     textFontLoadSheet(sheet);
     switch (font) {
     case 6:
-        gDPLoadTextureBlock(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 176, 13, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(dl++, gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 176, 13, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 0:
-        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_IA, 512, 16, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock_4b(dl++, gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_IA, 512, 16, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 1:
-        gDPLoadTextureBlock(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 76, 24, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(dl++, gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 76, 24, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 2:
-        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 512, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock_4b(dl++, gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 512, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 3:
     case 7:
-        gDPLoadTextureBlock(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(dl++, gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 4:
-        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 1024, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock_4b(dl++, gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 1024, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 5:
-        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 1024, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock_4b(dl++, gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 1024, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     }
     return dl;
@@ -473,7 +470,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, const u8 *str, u8 flags)
         ch = *str++;
         if (ch) {
             do {
-                if (ch != 0x20) {
+                if (ch != ' ') {
                     s8 yoff;
                     s16 w4;
                     s16 h4;
@@ -599,7 +596,7 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
         chr = textObj->text[0];
         if (chr) {
             do {
-                if (chr != 0x20) {
+                if (chr != ' ') {
                     textMapCharToGlyph(textObj->font, &chr);
                     if (chr >= gTextFontLineStarts[textObj->font][line - 1] && chr < gTextFontLineStarts[textObj->font][line]) {
                         gw = gTextGlyphTables[textObj->font][chr].width;
@@ -683,7 +680,7 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
         chr = textObj->text[0];
         if (chr) {
             do {
-                if (chr != 0x20) {
+                if (chr != ' ') {
                     textMapCharToGlyph(textObj->font, &chr);
                     if (chr >= gTextFontLineStarts[textObj->font][line - 1] && chr < gTextFontLineStarts[textObj->font][line]) {
                         gw = gTextGlyphTables[textObj->font][chr].width;
@@ -738,12 +735,12 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
 
 Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, const u8 *str) {
     u8 ch;
-    s32 flag;
+    s32 monospace;
 
-    flag = 0;
+    monospace = 0;
     if (font & 0x80) {
-        flag = 1;
-        font = font ^ 0x80;
+        monospace = 1;
+        font ^= 0x80;
     }
     gDPPipeSync(dl++);
     gDPSetTextureFilter(dl++, G_TF_POINT);
@@ -753,15 +750,15 @@ Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, const u8 *str) {
     dl = textLoadFontSheetGfx(dl, font, 1);
     ch = *str++;
     while (ch) {
-        if (ch != 0x20) {
+        if (ch != ' ') {
             textMapCharToGlyph(font, &ch);
             gSPTextureRectangle(dl++, x << 2, y << 2, (x + gTextGlyphTables[font][ch].width) << 2, (gTextFonts[font].height + y) << 2, 0, gTextGlyphTables[font][ch].texX << 5, 0, 0x400, 0x400);
-            if (flag != 0) {
+            if (monospace != 0) {
                 x += gTextFonts[font].fixedWidth;
             } else {
                 x += gTextGlyphTables[font][ch].width + gTextFonts[font].spacing;
             }
-        } else if (flag != 0) {
+        } else if (monospace != 0) {
             x += gTextFonts[font].fixedWidth;
         } else {
             x += gTextFonts[font].spaceWidth;
@@ -776,21 +773,17 @@ Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, const u8 *str) {
 
 s16 textGetCharAdvance(s16 font, u8 ch) {
     s16 advance;
-    TextFontInfo *info;
 
     if (font & 0x80) {
         font ^= 0x80;
         advance = gTextFonts[font].fixedWidth;
-        info = &gTextFonts[font];
     } else if (ch == ' ') {
         advance = gTextFonts[font].spaceWidth;
-        info = &gTextFonts[font];
     } else {
         textMapCharToGlyph(font, &ch);
         advance = gTextGlyphTables[font][ch].width;
-        info = &gTextFonts[font];
     }
-    advance += info->spacing;
+    advance += gTextFonts[font].spacing;
     return advance;
 }
 
