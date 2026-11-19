@@ -1989,15 +1989,11 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 ex;
     f32 ez;
     f32 negCos;
-    f32 startX;
-    f32 px;
-    f32 startY;
-    f32 py;
-    f32 startZ;
-    f32 pz;
+    f32 x[2]; // per axis, [0]: the cutscene point every spark flies to, [1]: this spark start
+    f32 y[2];
+    f32 z[2];
     void (*cb)(EffectNode *, u8 *);
 
-    if (&startX == 0 || &px == 0 || &startY == 0 || &py == 0 || &startZ == 0 || &pz == 0) {} // FAKE: address-taken: keeps the six floats in their declaration-order stack homes
     ang = gCsRotY * 4096.0f / 360.0f;
     if (c == 2) {
         effectSetDepth(0);
@@ -2008,9 +2004,9 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     p->savedX = gCsPosX;
     p->savedY = gCsPosY + 15.0;
     p->savedZ = gCsPosZ;
-    p->unk220 = mathSinF(ang);
-    p->unk224 = ang;
-    p->unk228 = mathCosF(ang);
+    p->unk220[0] = mathSinF(ang);
+    p->unk220[1] = ang;
+    p->unk220[2] = mathCosF(ang);
     if (c == 0) {
         flag = 1;
         sfxPlayOnFreeSlot(0xF2, 0x5DC0, 63.0f, 1.0f, 0, 0);
@@ -2018,32 +2014,32 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         flag = 0;
         sfxPlayOnFreeSlot(0x2EB, 0x7D00, 63.0f, 0.6f, 0, 0);
     }
-    negCos = -p->unk228;
-    sinA = p->unk220;
-    px = gCsPosX; py = gCsPosY + 15.0; pz = gCsPosZ; // LAYOUT: one line keeps as1's px/py/pz load order (Q0183)
-    ex = p->unk220 * 50.0 + px;
+    negCos = -p->unk220[2];
+    sinA = p->unk220[0];
+    x[0] = gCsPosX; y[0] = gCsPosY + 15.0; z[0] = gCsPosZ; // LAYOUT: one line keeps as1's x/y/z[0] load order (Q0183)
+    ex = x[0] + p->unk220[0] * 50.0;
     ang = 0;
     cb = effectLerpPathUpdate;
-    ez = p->unk228 * 50.0 + pz;
+    ez = z[0] + p->unk220[2] * 50.0;
     for (i = 0; i != 4; i++) {
         t = mathCosF(ang) * 100.0;
-        startX = t * negCos + ex;
-        startZ = t * sinA + ez;
-        startY = mathSinF(ang) * 100.0 + py;
+        x[1] = t * negCos + ex;
+        z[1] = t * sinA + ez;
+        y[1] = y[0] + mathSinF(ang) * 100.0;
         ang += 0x400;
         effectSetDuration(-1);
         effectSetDepth(0);
         effectSetCallback(cb);
-        obj = effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
+        obj = effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, x[0], y[0], z[0]);
         q = obj->allocation = heapAlloc(0x28);
         q->frames = (randomNonNegative() >> 15) % 5 + 10;
         q->t = 0.0f;
-        q->x = startX;
-        q->y = startY;
-        q->z = startZ;
-        q->dx = px - startX;
-        q->dy = py - startY;
-        q->dz = pz - startZ;
+        q->x = x[1];
+        q->y = y[1];
+        q->z = z[1];
+        q->dx = x[0] - x[1];
+        q->dy = y[0] - y[1];
+        q->dz = z[0] - z[1];
         q->t2 = 0.0f;
         if (flag != 0) {
             q->rate = 0.09090909f;

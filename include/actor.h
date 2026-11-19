@@ -942,9 +942,7 @@ typedef struct PlayerState {
     /* 0x218 */ f32 unk218;
     /* 0x21C */ s16 unk21C;
     /* 0x21E */ u16 unk21E;
-    /* 0x220 */ f32 unk220;
-    /* 0x224 */ f32 unk224;
-    /* 0x228 */ f32 unk228;
+    /* 0x220 */ f32 unk220[3];
     /* 0x22C */ f32 savedX;
     /* 0x230 */ f32 savedY;
     /* 0x234 */ f32 savedZ;

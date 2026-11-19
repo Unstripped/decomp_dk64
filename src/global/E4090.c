@@ -2518,9 +2518,9 @@ void playerInputHandleBButtonGun(void) {
 
 s32 playerInputCheckBButtonTarget(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) && gActorGlobalState.unk2 && (gActorGlobalState.unk14 == 8)) {
-        gActivePlayerState->unk220 = gActorGlobalState.unk4;
-        gActivePlayerState->unk224 = gActorGlobalState.unk8;
-        gActivePlayerState->unk228 = gActorGlobalState.unkC;
+        gActivePlayerState->unk220[0] = gActorGlobalState.unk4;
+        gActivePlayerState->unk220[1] = gActorGlobalState.unk8;
+        gActivePlayerState->unk220[2] = gActorGlobalState.unkC;
         playerStateQueueCallback(0x1F, 0, gCurrentPlayerIndex);
         return 1;
     }

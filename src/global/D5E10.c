@@ -3155,7 +3155,7 @@ void playerStateThrowCarried(void) {
     gCurrentActor->speedXZ = 0.0f;
     gCurrentActor->x = (gActivePlayerState->savedX - gCurrentActor->x) * 0.2 + gCurrentActor->x;
     gCurrentActor->z = (gActivePlayerState->savedZ - gCurrentActor->z) * 0.2 + gCurrentActor->z;
-    mathAngleStepToward(&gCurrentActor->yaw, mathAngleBetweenPoints2D(gActivePlayerState->unk220, gActivePlayerState->unk228, gCurrentActor->x, gCurrentActor->z), 0x32);
+    mathAngleStepToward(&gCurrentActor->yaw, mathAngleBetweenPoints2D(gActivePlayerState->unk220[0], gActivePlayerState->unk220[2], gCurrentActor->x, gCurrentActor->z), 0x32);
     playerApplyMotion();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -4677,8 +4677,8 @@ void func_806DF280(void) {
     }
     gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleX;
     gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
-    gCurrentActor->x += ps->unk220;
-    gCurrentActor->z += ps->unk228;
+    gCurrentActor->x += ps->unk220[0];
+    gCurrentActor->z += ps->unk220[2];
     gCurrentActor->pitch += 0xFF;
     gCurrentActor->pitch &= 0xFFF;
     actorUpdateModelMatrix(gCurrentActor, 0);
