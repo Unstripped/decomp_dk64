@@ -230,8 +230,8 @@ void effectSetCallback(void *callback) {
     sEffectPendingCallback = (EffectCallback)callback;
 }
 
-void effectSetFrameDelay(u8 mode) {
-    sEffectPendingFrameDelay = mode;
+void effectSetFrameDelay(u8 frameDelay) {
+    sEffectPendingFrameDelay = frameDelay;
 }
 
 void effectSetMaxDistance(s16 val) {

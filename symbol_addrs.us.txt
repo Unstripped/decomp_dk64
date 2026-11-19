@@ -4071,6 +4071,7 @@ gMainThreadHalted = 0x80744460;
 gPrevGameMode = 0x807444F4;
 gMapLoadPauseFrames = 0x80744504;
 gEnemyDefeatCount = 0x80744508;
+gMenuReturnContext = 0x80744514;
 gViModeIndexByTvType = 0x80744588;
 sViModeFirstSetup = 0x807445A4;
 gLastPauseDuration = 0x807445B0;

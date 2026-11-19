@@ -1115,7 +1115,7 @@ extern s8 D_80744520;
 extern s8 D_80744534;
 extern s8 sMenuMatchStarting;
 extern s8 D_80033F50;
-extern u8 D_80744514;
+extern u8 gMenuReturnContext;
 extern s8 sMenuCharacterAvailMask;
 extern s8 D_8074451C;
 extern u8 gSplitScreenViewMask;
@@ -1179,7 +1179,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                 gMpSettings.mapIndex = D_80744538;
                 gSplitScreenViewMask = D_8003384C[D_80744534];
                 sMenuMatchStarting = 1;
-                D_80744514 = 2;
+                gMenuReturnContext = 2;
                 mpStartMatch();
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
@@ -1974,7 +1974,6 @@ void menuInitGameOptions(Actor *actor, s32 unused) {
 }
 
 
-extern u8 D_80744514;
 extern s8 D_8074453C[];
 
 
@@ -2018,7 +2017,7 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
                         } else {
                             menuTransitionToCreditsOrMap28(1);
                         }
-                        D_80744514 = 3;
+                        gMenuReturnContext = 3;
                         break;
                     case 1:
                         switch (gMenuCheatMapCharacters[choice].map) {
@@ -2036,13 +2035,13 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
                             break;
                         default:
                             menuSetupPlayerInventory(gMenuCheatMapCharacters[choice].map, 0, gMenuCheatMapCharacters[choice].characterId, 3, 3, 1, 3);
-                            D_80744514 = 5;
+                            gMenuReturnContext = 5;
                             break;
                         }
                         break;
                     case 2:
                         menuSetupPlayerInventory(gMenuCheatLoadouts[choice].map, 0, gMenuCheatLoadouts[choice].characterId, gMenuCheatLoadouts[choice].inventory0, gMenuCheatLoadouts[choice].inventory1, gMenuCheatLoadouts[choice].inventory4, gMenuCheatLoadouts[choice].shared);
-                        D_80744514 = 4;
+                        gMenuReturnContext = 4;
                         break;
                     }
                 }
@@ -2147,7 +2146,7 @@ void menuInitCheats(Actor *actor, s32 unused) {
     s8 optionCount;
 
     state->selection = gMenuScreenSelection[10];
-    switch (D_80744514) {
+    switch (gMenuReturnContext) {
     case 0:
         break;
     default:
@@ -2306,7 +2305,7 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
         if (row < 0) {
             if (buttons & 1) {
                 menuSetupPlayerInventory(gMenuHighScoreGames[gMenuHighScoreGame].map, 0, gMenuHighScoreGames[gMenuHighScoreGame].characterId, 3, 3, 1, 3);
-                D_80744514 = gMenuHighScoreGame + 6;
+                gMenuReturnContext = gMenuHighScoreGame + 6;
             }
             if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -2640,7 +2639,7 @@ void menuInit(void) {
         gGlobalPauseFlags |= 0x10;
         menuLoadTextTable();
         menuLoadHighScores();
-        if (D_80744514 == 0) {
+        if (gMenuReturnContext == 0) {
             i = 0;
             do {
                 gMenuScreenSelection[i] = 0;
@@ -2660,7 +2659,7 @@ void menuInit(void) {
         gSpawnedActor->y = gPrimaryPlayerActor->y;
         gSpawnedActor->z = gPrimaryPlayerActor->z;
         gSpawnedActor->yaw = gPrimaryPlayerActor->yaw;
-        if (D_80744514 != 0) {
+        if (gMenuReturnContext != 0) {
             D_80033738 = 0x15;
             gPrimaryPlayerActor->state = 0x85;
             gPrimaryPlayerActor->unk155 = 0;
@@ -2670,7 +2669,7 @@ void menuInit(void) {
             D_80033F3C = 1.0f;
             kioskState->phaseFrames = 0x50;
         }
-        switch (D_80744514) {
+        switch (gMenuReturnContext) {
         case 1:
             state->screen = 1;
             break;
@@ -2685,7 +2684,7 @@ void menuInit(void) {
         case 6:
         case 7:
             state->screen = 0xC;
-            gMenuHighScoreGame = D_80744514 - 6;
+            gMenuHighScoreGame = gMenuReturnContext - 6;
             menuInsertHighScore();
             break;
         default:
@@ -2708,7 +2707,7 @@ void menuInit(void) {
         D_80033F34 = heapAlloc(0x80);
         D_80033F30 = 0;
         menuUpdateStateDispatch(gCurrentActor, 0, 0, 0);
-        D_80744514 = 0;
+        gMenuReturnContext = 0;
         controllerSetActiveMask(0xFF);
         func_8060CB9C();
     }
