@@ -525,7 +525,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         *(short *)q1 = count;
                     }
                     break;
-                default:
+                default:  // ORIG: own default block at 0x139c (lbu v1,0(t3); li a0,37; move v0,v1 before the loop test 0x13a8), reached by the bound check beqz at,0x139c at 0x4c4 and the gap jump-table entries
                     break;
                 }
             }
