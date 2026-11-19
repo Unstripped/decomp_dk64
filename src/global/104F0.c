@@ -693,7 +693,7 @@ void eepromSaveRecords(s32 recordsOnly) {
     s32 j;
     u16 sector;
     s32 offset;
-    s32 height;
+    u16 len;
     u16 idx;
     u16 a;
     u16 b;
@@ -701,6 +701,7 @@ void eepromSaveRecords(s32 recordsOnly) {
     u8 workingData[0x800];
     u8 savedData[0x800];
     volatile u8 *contReadPending; // controller-read-pending flag; this runs on eepromThreadMain while the main thread (controllerUpdate) clears it
+    s32 pad;
     contReadPending = &gContReadPending;
     if (gEepromType == 2) {
         _sprintf((((EEPROM_GLOBAL_BIT_OFFSET + 0x207) & ~7) / 8) + sEepromSlotBuffer, gSaveSignature);
@@ -709,13 +710,10 @@ void eepromSaveRecords(s32 recordsOnly) {
         if (recordsOnly == 0) {
             eepromCopySlot();
             for (i = 0; i < 4; i++) {
-                height = EEPROM_SLOT_BITS;
-                height /= 8;
-
-                a = i * height;
-                if (a) {}  // FAKE: keeps the narrowed index a a v1 variable (mflo v1; andi t4,v1,0xffff; move v1,t4 at 0x1c08-0x1c10) instead of folding it into the CRC call (Q1165)
-                b = (((i + 1) * height) / 4) - 1;
-                ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, height - 4);
+                a = i * (EEPROM_SLOT_BITS / 8);
+                b = (((i + 1) * (EEPROM_SLOT_BITS / 8)) / 4) - 1;
+                len = (EEPROM_SLOT_BITS / 8) - 4;
+                ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, len);
             }
             sector = 0;
             offset = D_807ECEA0;
@@ -739,7 +737,7 @@ void eepromSaveRecords(s32 recordsOnly) {
         while (*contReadPending != 0) {
             sleepMilliseconds(1.0f);
         }
-        if (D_807ECEA0 & ~0x3FU) {}  // FAKE: one dead read of D_807ECEA0 through the unsigned 64-byte mask after the calls: a use of &D_807ECEA0 past bzero so -8 wins the exact adjsave tie (s4 = -8, s7 = &D_807ECEA0 at 0x1b28/0x1b38, Q0900), an unsigned -64 use that keeps the arm-0 masks uncoloured (li at,-64 at 0x1c64/0x1c88, Q0555) and a block before the halted test that keeps sector s1 above its widening s4 (move s4,s1 at 0x1dc8, Q1213)
+        if (D_807ECEA0 & ~0x3FU) {}  // FAKE: one dead read of D_807ECEA0 through the unsigned 64-byte mask past memcpy: a use of &D_807ECEA0 after memcpy so -8 wins the exact adjsave tie (s4 = -8, s7 = &D_807ECEA0 at 0x1b28/0x1b38, s7 reused for &gEepromWriteInProgress at 0x1e0c, Q0900) and an unsigned -64 use after the calls that keeps the arm-0 masks uncoloured (li at,-64 at 0x1c64/0x1c88, Q0555)
         if (gMainThreadHalted != 0) {
             gEepromWriteInProgress = 0;
         } else {
