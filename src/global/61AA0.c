@@ -53,7 +53,7 @@ void renderReplaceSegment6Commands(Gfx *start, void *end) { // end: one past the
             }
         }
         if (found) {
-            gSPDisplayList(start++, 0x06000000 + i * 0x10);
+            gSPDisplayList(start++, 0x06000000 + i * sizeof(D_80748310[0]));
         } else {
             start++;
         }

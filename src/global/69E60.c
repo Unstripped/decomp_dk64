@@ -12,33 +12,35 @@ typedef struct {
     s16 slopeDivisor;
     u8 maxPitchDegAlt;
     u8 maxPitchDeg;
-    u8 pad4[2];
+    u8 unk4[2]; // two more pitch limits between maxPitchDeg and minPitchDeg (unread)
     u8 minPitchDeg;
-    u8 pad7[3];
+    u8 unk7;
+    u8 unk8; // func_80665AAC's per-surface flag
+    u8 pad9;
 } ActorTiltTableEntry;
 
-// This TU's .data (0x80748D40-0x80748E05 + 11-byte TU pad), in address order. D_80748D48 (byte 8 of
-// each entry), D_80748D4A (entry 1, read by 7CA80) and D_80748DA4 (entry 10) are interior labels.
+// This TU's .data (0x80748D40-0x80748E05 + 11-byte TU pad), in address order. D_80748D4A (entry 1,
+// read by 7CA80) is an interior label.
 ActorTiltTableEntry D_80748D40[19] = {
-    { 1, 90, 90, { 90, 90 }, 0, { 100, 0, 0 } },
-    { 32, 70, 53, { 45, 37 }, 30, { 90, 0, 0 } },
-    { 32, 60, 45, { 37, 30 }, 30, { 100, 0, 0 } },
-    { 32, 60, 45, { 37, 30 }, 30, { 100, 0, 0 } },
-    { 32, 70, 53, { 45, 37 }, 30, { 100, 0, 0 } },
-    { 32, 60, 45, { 37, 30 }, 30, { 100, 0, 0 } },
-    { 1024, 0, 90, { 90, 90 }, 70, { 100, 0, 0 } },
-    { 1024, 0, 90, { 90, 90 }, 70, { 100, 0, 0 } },
-    { 1024, 0, 90, { 90, 90 }, 70, { 100, 0, 0 } },
-    { 32, 70, 53, { 45, 37 }, 30, { 100, 0, 0 } },
-    { 8, 85, 75, { 65, 60 }, 45, { 10, 1, 0 } },
-    { 16, 75, 75, { 75, 75 }, 0, { 20, 0, 0 } },
-    { 4, 90, 80, { 75, 70 }, 70, { 100, 0, 0 } },
-    { 16, 0, 0, { 0, 0 }, 0, { 100, 0, 0 } },
-    { 1024, 0, 0, { 0, 0 }, 0, { 50, 0, 0 } },
-    { 32, 30, 20, { 15, 15 }, 30, { 90, 0, 0 } },
-    { 32, 35, 25, { 65, 30 }, 55, { 100, 0, 0 } },
-    { 8, 85, 75, { 65, 60 }, 45, { 10, 0, 0 } },
-    { 8, 85, 75, { 65, 60 }, 45, { 10, 0, 0 } },
+    { 1, 90, 90, { 90, 90 }, 0, 100, 0, 0 },
+    { 32, 70, 53, { 45, 37 }, 30, 90, 0, 0 },
+    { 32, 60, 45, { 37, 30 }, 30, 100, 0, 0 },
+    { 32, 60, 45, { 37, 30 }, 30, 100, 0, 0 },
+    { 32, 70, 53, { 45, 37 }, 30, 100, 0, 0 },
+    { 32, 60, 45, { 37, 30 }, 30, 100, 0, 0 },
+    { 1024, 0, 90, { 90, 90 }, 70, 100, 0, 0 },
+    { 1024, 0, 90, { 90, 90 }, 70, 100, 0, 0 },
+    { 1024, 0, 90, { 90, 90 }, 70, 100, 0, 0 },
+    { 32, 70, 53, { 45, 37 }, 30, 100, 0, 0 },
+    { 8, 85, 75, { 65, 60 }, 45, 10, 1, 0 },
+    { 16, 75, 75, { 75, 75 }, 0, 20, 0, 0 },
+    { 4, 90, 80, { 75, 70 }, 70, 100, 0, 0 },
+    { 16, 0, 0, { 0, 0 }, 0, 100, 0, 0 },
+    { 1024, 0, 0, { 0, 0 }, 0, 50, 0, 0 },
+    { 32, 30, 20, { 15, 15 }, 30, 90, 0, 0 },
+    { 32, 35, 25, { 65, 30 }, 55, 100, 0, 0 },
+    { 8, 85, 75, { 65, 60 }, 45, 10, 0, 0 },
+    { 8, 85, 75, { 65, 60 }, 45, 10, 0, 0 },
 };
 u8 D_80748E00 = 0;
 u8 D_80748E04 = 0;
@@ -128,7 +130,6 @@ u8 actorGetFloorSnapped(void) {
 }
 
 
-extern ActorTiltTableEntry D_80748DA4;
 extern PlayerState *gActivePlayerState;
 extern Actor *gCurrentActor;
 extern s32 gCurrentMap;
@@ -200,7 +201,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
         /* fallthrough */
     case 0xE:
         if (actor->contactFlags & 0x200) {
-            tiltEntry = &D_80748DA4;
+            tiltEntry = &D_80748D40[10];
         }
         break;
     }
@@ -210,7 +211,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     if (effectiveTilt >= 0x3F4) {
         targetTiltYaw = actor->floorSlopeYaw;
     }
-    targetPitchLimit = (s16)((tiltEntry->minPitchDeg << 12) / 360);
+    targetPitchLimit = (tiltEntry->minPitchDeg << 12) / 360;
     if (targetPitchLimit < effectiveTilt) {
         targetPitchLimit = effectiveTilt;
     }
@@ -239,17 +240,16 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     } else {
         targetPitchLimit = tiltEntry->maxPitchDegAlt;
     }
-    targetPitchLimit = (s16)((targetPitchLimit << 12) / 360);
+    targetPitchLimit = (targetPitchLimit << 12) / 360;
     if (targetPitchLimit < effectiveTilt) {
         actor->floorSlopeFactor = 0.0f;
     } else {
         actor->floorSlopeFactor = (0x400 - effectiveTilt) / tiltEntry->slopeDivisor;
     }
 }
-extern u8 D_80748D48[][10];
 
 u8 func_80665AAC(Actor *actor) {
-    return D_80748D48[actor->floorSurfaceType][0];
+    return D_80748D40[actor->floorSurfaceType].unk8;
 }
 
 void func_80665ACC(Actor *actor) {

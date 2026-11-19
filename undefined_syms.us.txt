@@ -347,7 +347,5 @@ D_80770DD9 = 0x80770DD9;
 D_80753A08 = 0x80753A08;
 D_80753A18 = 0x80753A18;
 
-/* 69E60 data interior labels (inside D_80748D40[19] defined in C: byte 8 of each 10-byte entry, entry 1 (read by 7CA80), entry 10) */
-D_80748D48 = 0x80748D48;
+/* 69E60 data interior label (inside D_80748D40[19] defined in C: entry 1, read by 7CA80) */
 D_80748D4A = 0x80748D4A;
-D_80748DA4 = 0x80748DA4;

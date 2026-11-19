@@ -38,14 +38,14 @@
 #include "proto/global/FCCD0.h"
 
 typedef struct SpritePair {
-    /* 0x0 */ void *sprites[2];
+    /* 0x0 */ EffectGridAsset *sprites[2];
 } SpritePair;
 
 // This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad); the debris sprites are sprite sheets of
 // 124780.c.
 s16 D_807503A0 = 200;
-extern u8 D_807212C8[], D_807212B0[];
-SpritePair gCarryDebrisSprites = { { D_807212C8, D_807212B0 } };
+extern EffectGridAsset D_807212C8, D_807212B0;
+SpritePair gCarryDebrisSprites = { { &D_807212C8, &D_807212B0 } };
 
 s32 actorUpdatePrevContactFlags(Actor *); // ORIG: target loads the actorType switch value into v1 right after jal actorUpdatePrevContactFlags (jal at 0x2d78, lw v1,88(s0) at 0x2d88, beq v1,at at 0x2d8c): the original TU declared the callee non-void (the shared void prototype puts it in v0)
 
@@ -205,7 +205,7 @@ typedef struct WaveState {
     /* 0x000 */ s16 animDelay;
     /* 0x002 */ u8 pad2[2];
     /* 0x004 */ f32 nodeY[28];
-    /* 0x074 */ void *trackedActors[4];
+    /* 0x074 */ Actor *trackedActors[4];
     /* 0x084 */ f32 trackedPos[4];
     /* 0x094 */ u8 trackedCount;
     /* 0x095 */ u8 pad95[3];
@@ -415,7 +415,7 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
     WaveState *slots = gCurrentActor->customState;
     s16 i;
     s32 found;
-    f64 temp;
+    f64 pos;
 
     found = 0;
     i = 0;
@@ -431,21 +431,21 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
         switch (slotMode) {
         case 0:
             slots->slotAmp[i] = 10.0f;
-            temp = (f64)forceMagnitude / 843.0;
-            if (temp > 0.0) {
-                slots->slotPos[i] = (f32)temp;
+            pos = forceMagnitude / 843.0;
+            if (pos > 0.0) {
+                slots->slotPos[i] = pos;
                 return;
             }
-            slots->slotPos[i] = (f32)-temp;
+            slots->slotPos[i] = -pos;
             return;
         case 1:
             slots->slotAmp[i] = 12.0f;
-            temp = (f64)forceMagnitude / 480.0;
-            if (temp > 0.0) {
-                slots->slotPos[i] = (f32)temp;
+            pos = forceMagnitude / 480.0;
+            if (pos > 0.0) {
+                slots->slotPos[i] = pos;
                 return;
             }
-            slots->slotPos[i] = (f32)-temp;
+            slots->slotPos[i] = -pos;
             break;
         }
     }
@@ -495,10 +495,10 @@ void actorSagSingleUpdate(void) {
     s32 i;
 
     acc = 0.0f;
-    state = (ProximityState *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x400;
-        gCurrentActor->sub4->boneOffsets = (BoneVector *)heapAlloc(0x20);
+        gCurrentActor->sub4->boneOffsets = heapAlloc(2 * sizeof(BoneVector));
         gCurrentActor->sub4->boneOffsets->bone = 1;
         gCurrentActor->sub4->boneOffsets->lastBone = 0xFF;
         gCurrentActor->sub4->boneOffsets->x = 0.0f;
@@ -511,7 +511,7 @@ void actorSagSingleUpdate(void) {
         state->sag = 0.0f;
         state->bounceAmp = 0.0f;
     }
-    for (i = 0; i < (s32)gActorGlobalState.unk39; i++) {
+    for (i = 0; i < gActorGlobalState.unk39; i++) {
         dist = sqrtf((gActorGlobalState.unk3C[i][0] * gActorGlobalState.unk3C[i][0]) + (gActorGlobalState.unk3C[i][2] * gActorGlobalState.unk3C[i][2]));
         if (dist > 1347.0f) {
             dist = 1347.0f;
@@ -519,7 +519,7 @@ void actorSagSingleUpdate(void) {
         dist = 1347.0f - dist;
         acc += dist;
         value = gActorGlobalState.unk7C[i]->speedXZ;
-        value = (f32)((f64)value * 0.1);
+        value *= 0.1;
         if (state->bounceAmp < value) {
             state->bounceAmp = value;
         }
@@ -527,31 +527,31 @@ void actorSagSingleUpdate(void) {
     if (acc > 1347.0f) {
         acc = 1347.0f;
     }
-    acc = (f32)((f64)acc / 10.0);
+    acc /= 10.0;
     if (state->sag < acc) {
-        state->sag = (f32)((f64)state->sag + ((f64)(acc - state->sag) * 0.25));
+        state->sag += (acc - state->sag) * 0.25;
         if (acc < state->sag) {
             state->sag = acc;
         }
     }
     if (acc < state->sag) {
-        state->sag = (f32)((f64)state->sag - ((f64)(state->sag - acc) * 0.5f));
+        state->sag -= (f64)(state->sag - acc) * 0.5f;
         if (state->sag < acc) {
             state->sag = acc;
         }
     }
     state->bounceTimer++;
-    if ((f64)state->bounceAmp == 0.0) {
+    if (state->bounceAmp == 0.0) {
         state->bounceTimer = 0;
     }
     if (state->prevCount != gActorGlobalState.unk39) {
         state->bounceAmp = 12.0f;
     }
-    state->bounceAmp = (f32)((f64)state->bounceAmp - ((f64)state->bounceAmp / 40.0));
-    if ((f64)state->bounceAmp < 0.5) {
+    state->bounceAmp -= state->bounceAmp / 40.0;
+    if (state->bounceAmp < 0.5) {
         state->bounceAmp = 0.0f;
     }
-    gCurrentActor->sub4->boneOffsets->y = 0.0 - (sinApprox((f32)((f64)state->bounceTimer * 0.5)) * state->bounceAmp + state->sag);
+    gCurrentActor->sub4->boneOffsets->y = 0.0 - (sinApprox(state->bounceTimer * 0.5) * state->bounceAmp + state->sag);
     state->prevCount = gActorGlobalState.unk39;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -575,7 +575,7 @@ extern s32 gCurrentMap;
 
 void actorSpotLightUpdate(void) {
     f32 targetPos[3];
-    f32 sourcePos[3];
+    s32 pad[3];
     u16 red;
     u16 green;
     u16 blue;
@@ -600,24 +600,24 @@ void actorSpotLightUpdate(void) {
         red = ((SpotLightConfig *)gCurrentActor->spawnData)->red;
         green = ((SpotLightConfig *)gCurrentActor->spawnData)->green;
         blue = ((SpotLightConfig *)gCurrentActor->spawnData)->blue;
-        red = (u16)(u32)((f64)(u32)red * (f64)lightState->brightness);
-        green = (u16)(u32)((f64)(u32)green * (f64)lightState->brightness);
-        blue = (u16)(u32)((f64)(u32)blue * (f64)lightState->brightness);
-        lightState->brightness = (f32)((f64)lightState->brightness + 0.05);
+        red *= (f64)lightState->brightness;
+        green *= (f64)lightState->brightness;
+        blue *= (f64)lightState->brightness;
+        lightState->brightness += 0.05;
         if (lightState->brightness > 1.0) {
             lightState->brightness = 1.0f;
         }
         if (gCurrentActor->flags & 0x10) {
-            if ((f64)((SpotLightConfig *)gCurrentActor->spawnData)->fovAngleA != 0.0 || (f64)((SpotLightConfig *)gCurrentActor->spawnData)->fovAngleB != 0.0) {
+            if (((SpotLightConfig *)gCurrentActor->spawnData)->fovAngleA != 0.0 || ((SpotLightConfig *)gCurrentActor->spawnData)->fovAngleB != 0.0) {
                 lightSetFovAngles(((SpotLightConfig *)gCurrentActor->spawnData)->fovAngleA, ((SpotLightConfig *)gCurrentActor->spawnData)->fovAngleB);
             }
             lightSetFlags(2);
             lightSetTargetId(gCurrentActor->chunkIndex);
             actorGetNodePos(gCurrentActor, 2, &targetPos[0], &targetPos[1], &targetPos[2]);
-            lightAdd((f32)((f64)gCurrentActor->x + 0.3), gCurrentActor->y, gCurrentActor->z, targetPos[0], targetPos[1], targetPos[2], 0.0f, 1, red, green, blue);
+            lightAdd(gCurrentActor->x + 0.3, gCurrentActor->y, gCurrentActor->z, targetPos[0], targetPos[1], targetPos[2], 0.0f, 1, red, green, blue);
         }
     } else {
-        lightState->delay = lightState->delay - 1;
+        lightState->delay--;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -815,7 +815,7 @@ typedef struct CarryObjectSpawnData {
 
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
-extern u8 D_80720340;
+extern EffectGridAsset D_80720340;
 
 
 void carryObjectUpdate(void) {

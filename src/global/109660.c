@@ -117,7 +117,7 @@ Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
 
     i = 0;
     gDPPipeSync(dl++);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
+    gDPSetRenderMode(dl++, G_RM_NOOP, G_RM_NOOP2);
     gDPSetCycleType(dl++, G_CYC_FILL);
     gDPSetFillColor(dl++, 0x10001);
     for (; D_80750840[i].players != -1; i++) {
@@ -204,7 +204,7 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, f32 rotX, f32 angle, Mtx *mtx, u8 skyTypeA,
     gDPSetCombineMode(gdl++, G_CC_SHADE, G_CC_SHADE);
     gDPSetCycleType(gdl++, G_CYC_1CYCLE);
     gSPClearGeometryMode(gdl++, 0xFFFFFF);
-    gSPSetGeometryMode(gdl++, 0x200004);
+    gSPSetGeometryMode(gdl++, G_SHADE | G_SHADING_SMOOTH);
     gSPMatrix(gdl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPViewport(gdl++, osVirtualToPhysical(&gPlayerSlots->viewport[gGfxBufferIndex]));
@@ -329,7 +329,7 @@ typedef struct RectSpan {
 } RectSpan;
 
 void gfxWrapRectSpan(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord) {
-    RectSpan temp[4];
+    RectSpan orig[4];
     s32 i;
     u8 out;
     f32 pos;
@@ -337,29 +337,29 @@ void gfxWrapRectSpan(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord) {
 
     out = 0;
     for (i = 0; i < *pCount; i++) {
-        temp[i] = spans[i];
+        orig[i] = spans[i];
     }
     for (i = 0; i < *pCount; i++) {
-        if ((temp[i].v[0][axis] < 0.0f) || (maxCoord < temp[i].v[1][axis])) {
-            pos = (temp[i].v[0][axis] < 0.0f) ? temp[i].v[0][axis] + maxCoord : temp[i].v[0][axis];
+        if ((orig[i].v[0][axis] < 0.0f) || (maxCoord < orig[i].v[1][axis])) {
+            pos = (orig[i].v[0][axis] < 0.0f) ? orig[i].v[0][axis] + maxCoord : orig[i].v[0][axis];
             spans[out].v[0][axis] = pos;
-            spans[out].v[0][axis ^ 1] = temp[i].v[0][axis ^ 1];
+            spans[out].v[0][axis ^ 1] = orig[i].v[0][axis ^ 1];
             spans[out].v[1][axis] = maxCoord;
-            spans[out].v[1][axis ^ 1] = temp[i].v[1][axis ^ 1];
-            spans[out].v[2][axis] = temp[i].v[2][axis];
-            spans[out].v[2][axis ^ 1] = temp[i].v[2][axis ^ 1];
+            spans[out].v[1][axis ^ 1] = orig[i].v[1][axis ^ 1];
+            spans[out].v[2][axis] = orig[i].v[2][axis];
+            spans[out].v[2][axis ^ 1] = orig[i].v[2][axis ^ 1];
             tex = spans[out].v[2][axis] + (maxCoord - pos);
             out++;
-            pos = (temp[i].v[0][axis] < 0.0f) ? temp[i].v[1][axis] : temp[i].v[1][axis] - maxCoord;
+            pos = (orig[i].v[0][axis] < 0.0f) ? orig[i].v[1][axis] : orig[i].v[1][axis] - maxCoord;
             spans[out].v[0][axis] = 0.0f;
-            spans[out].v[0][axis ^ 1] = temp[i].v[0][axis ^ 1];
+            spans[out].v[0][axis ^ 1] = orig[i].v[0][axis ^ 1];
             spans[out].v[1][axis] = pos;
-            spans[out].v[1][axis ^ 1] = temp[i].v[1][axis ^ 1];
+            spans[out].v[1][axis ^ 1] = orig[i].v[1][axis ^ 1];
             spans[out].v[2][axis] = tex;
-            spans[out].v[2][axis ^ 1] = temp[i].v[2][axis ^ 1];
+            spans[out].v[2][axis ^ 1] = orig[i].v[2][axis ^ 1];
             out++;
         } else {
-            spans[out] = temp[i];
+            spans[out] = orig[i];
             out++;
         }
     }
@@ -441,7 +441,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     guMtxF2L(mtxA, &D_807FD8A8[gGfxBufferIndex]);
     rotX = 6.2831855f - rotX;
     rotY = (width / height) * (6.2831855f - rotY);
-    if (D_807FD8A0 == 0) {
+    if (D_807FD8A0 == NULL) {
         D_807FD8A0 = assetLoad(0xE, assetId, 0, 0);
     }
     gSPMatrix(glist++, &D_807FD8A8[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -453,7 +453,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     gfxGetBackgroundTint(playerActor->y, &r, &g, &b);
     gDPSetPrimColor(glist++, 0, 0, r, g, b, 0xFF);
     gSPClearGeometryMode(glist++, 0xFFFFFF);
-    gSPSetGeometryMode(glist++, 0x200004);
+    gSPSetGeometryMode(glist++, G_SHADE | G_SHADING_SMOOTH);
     scrollU = rotX * 0.15915494f * gBgRotatedScale;
     scrollV = rotY * 0.15915494f * gBgRotatedScale;
     invScale = 1.0f / scale;
@@ -558,14 +558,14 @@ extern s16 gGfxScreenBottom;
 
 Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
     gDPPipeSync(glist++);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
+    gDPSetRenderMode(glist++, G_RM_NOOP, G_RM_NOOP2);
     gDPSetFillColor(glist++, 0x00010001);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
+    gDPSetCycleType(glist++, G_CYC_FILL);
     gDPSetScissor(glist++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
     gDPFillRectangle(glist++, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight - 1, gGfxScreenBottom - 1);
     gDPPipeSync(glist++);
     gDPSetScissor(glist++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
-    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
+    gDPSetCycleType(glist++, G_CYC_1CYCLE);
     return glist;
 }
 
@@ -720,7 +720,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
     default:
         gDPSetFillColor(dl++, 0x10001);
     fill:
-        gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
+        gDPSetRenderMode(dl++, G_RM_NOOP, G_RM_NOOP2);
         gDPSetCycleType(dl++, G_CYC_FILL);
         gDPFillRectangle(dl++, gPlayerSlots[player].rect[0], gPlayerSlots[player].rect[1], gPlayerSlots[player].rect[2] - 1, gPlayerSlots[player].rect[3] - 1);
         gDPPipeSync(dl++);
@@ -757,12 +757,12 @@ Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
                 return glist;
             }
             gDPPipeSync(glist++);
-            gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
+            gDPSetRenderMode(glist++, G_RM_NOOP, G_RM_NOOP2);
             gDPSetFillColor(glist++, 0x00010001);
-            gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
+            gDPSetCycleType(glist++, G_CYC_FILL);
             gDPFillRectangle(glist++, gPlayerSlots[player].rect[0], gPlayerSlots[player].rect[1], gPlayerSlots[player].rect[2] - 1, gPlayerSlots[player].rect[3] - 1);
             gDPPipeSync(glist++);
-            gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
+            gDPSetCycleType(glist++, G_CYC_1CYCLE);
         }
     } else {
         glist = gfxDrawMapBackground(glist, gPlayerSlots[player].bgRotX, gPlayerSlots[player].bgRotY, &gPlayerSlots[player].bgMtx[gGfxBufferIndex], player);

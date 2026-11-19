@@ -12,17 +12,17 @@ extern u16 gFaultBgColor;
 extern s32 gFaultCursorX;
 extern s32 gFaultCursorY;
 
-void faultFontInit(s32 a0, s32 a1, s32 a2) {
-    gFaultFramebuffer = a0;
+void faultFontInit(s32 framebuffer, s32 x, s32 y) {
+    gFaultFramebuffer = framebuffer;
     gFaultCharScale = 2;
     gFaultFgColor = 0xFFFF;
     gFaultBgColor = 1;
-    gFaultCursorX = a1;
-    gFaultCursorY = a2;
+    gFaultCursorX = x;
+    gFaultCursorY = y;
 }
 
-void faultFontSetColorMode(s32 a0) {
-    if (a0 == 0) {
+void faultFontSetColorMode(s32 mode) {
+    if (mode == 0) {
         gFaultFgColor = 0xFFFF;
     } else {
         gFaultFgColor = 0xF801;
@@ -132,13 +132,14 @@ u8 D_807563B0 = 0;
 u8 D_807563B4 = 0;
 s32 gFaultDrawCount = 0;
 
-typedef struct {
-    s32 unk0;
-    s32 unk4;
-} Ga136820Entry;
+// One unwound frame of the fault-screen stack trace: a return address and how often it repeated.
+typedef struct FaultStackEntry {
+    s32 ra;
+    s32 count;
+} FaultStackEntry;
 
 extern s32 gFaultStackTraceCount;
-extern Ga136820Entry gFaultStackTrace[];
+extern FaultStackEntry gFaultStackTrace[];
 extern u8 gFaultMessageId;
 extern s32 gFaultMessageArg0;
 extern s32 gFaultMessageArg1;
@@ -162,7 +163,7 @@ void faultDrawRegs(OSThread *thread) {
         faultPrintf("%X\n", ((s32 *)&ctx->ra)[1]); // FAKE: low-word read of the u64 ra avoids the ucvt temps that shift gFaultDrawCount from t0 to t2
         if (gFaultDrawCount >= 4) {
             for (j = 0; j < gFaultStackTraceCount; j++) {
-                faultPrintf("%X\n", gFaultStackTrace[j].unk0);
+                faultPrintf("%X\n", gFaultStackTrace[j].ra);
             }
         }
     }
@@ -177,42 +178,42 @@ void faultDrawRegs(OSThread *thread) {
     }
 }
 
-s32 unwindDecodeLoadRa(s32 a0, s32 *a1, s32 *a2) {
-    if ((a0 & 0xFFFF0000) == 0x8FBF0000) {
-        *a2 = *(s32 *)((u8 *)a1 + (s16)(a0 & 0xFFFF));
+s32 unwindDecodeLoadRa(s32 insn, s32 *sp, s32 *ra) {
+    if ((insn & 0xFFFF0000) == 0x8FBF0000) {
+        *ra = *(s32 *)((u8 *)sp + (s16)(insn & 0xFFFF));
         return 1;
     }
     return 0;
 }
 
-s32 unwindDecodeAddiuSp(s32 a0, s32 *a1) {
-    if ((a0 & 0xFFFF0000) == 0x27BD0000) {
-        s32 v = *a1;
-        v += (s16)(a0 & 0xFFFF);
-        *a1 = v;
+s32 unwindDecodeAddiuSp(s32 insn, s32 *sp) {
+    if ((insn & 0xFFFF0000) == 0x27BD0000) {
+        s32 v = *sp;
+        v += (s16)(insn & 0xFFFF);
+        *sp = v;
         return 1;
     }
     return 0;
 }
 
-s32 unwindDecodeJrRa(u32 a0, s32 *a1, s32 a2, s32 **a3) {
-    if ((a0 & 0x3FFFFFF) == 0x3E00008) {
-        unwindDecodeAddiuSp(**a3, a1);
-        if (gFaultStackTraceCount != 0 && a2 == gFaultStackTrace[gFaultStackTraceCount - 1].unk0) {
-            gFaultStackTrace[gFaultStackTraceCount - 1].unk4++;
+s32 unwindDecodeJrRa(u32 insn, s32 *sp, s32 ra, s32 **pc) {
+    if ((insn & 0x3FFFFFF) == 0x3E00008) {
+        unwindDecodeAddiuSp(**pc, sp);
+        if (gFaultStackTraceCount != 0 && ra == gFaultStackTrace[gFaultStackTraceCount - 1].ra) {
+            gFaultStackTrace[gFaultStackTraceCount - 1].count++;
         } else {
-            gFaultStackTrace[gFaultStackTraceCount].unk0 = a2;
-            gFaultStackTrace[gFaultStackTraceCount].unk4 = 1;
+            gFaultStackTrace[gFaultStackTraceCount].ra = ra;
+            gFaultStackTrace[gFaultStackTraceCount].count = 1;
             gFaultStackTraceCount++;
         }
-        *a3 = (s32 *)a2;
+        *pc = (s32 *)ra;
         return 1;
     }
     return 0;
 }
 
-void faultUnwindStack(OSThread *a0) {
-    s32 x1;
+void faultUnwindStack(OSThread *thread) {
+    s32 pad;
     s32 *pc;
     s32 r;
     s32 sp;
@@ -220,12 +221,12 @@ void faultUnwindStack(OSThread *a0) {
     s32 insn;
     s32 done;
 
-    pc = (s32 *)a0->context.pc;
-    sp = a0->context.sp;
-    ra = a0->context.ra;
+    pc = (s32 *)thread->context.pc;
+    sp = thread->context.sp;
+    ra = thread->context.ra;
     gFaultStackTraceCount = 0;
     done = 0;
-    while (pc != 0 && gFaultStackTraceCount < 18 && !done) {
+    while (pc != NULL && gFaultStackTraceCount < 18 && !done) {
         insn = *pc++;
         r = unwindDecodeJrRa(insn, &sp, ra, &pc);
         if (r == 0) {
@@ -234,7 +235,7 @@ void faultUnwindStack(OSThread *a0) {
         if (r == 0) {
             unwindDecodeAddiuSp(insn, &sp);
         }
-        done = gFaultStackTraceCount != 0 ? gFaultStackTrace[gFaultStackTraceCount - 1].unk4 >= 16 : 0;
+        done = gFaultStackTraceCount != 0 ? gFaultStackTrace[gFaultStackTraceCount - 1].count >= 16 : 0;
     }
     gFaultDrawCount++;
 }
@@ -249,19 +250,19 @@ void faultThreadMain(void *arg) {
     s32 i;
     s32 pad;
 
-    osSetEventMesg(12, &D_807FEF58, (OSMesg)0x10);
+    osSetEventMesg(OS_EVENT_FAULT, &D_807FEF58, (OSMesg)0x10);
     for (;;) {
         while (1) {
-            osRecvMesg(&D_807FEF58, &msg, 1);
+            osRecvMesg(&D_807FEF58, &msg, OS_MESG_BLOCK);
             if (D_807563B4 != 0) {
                 break;
             }
         }
         thread = __osGetCurrFaultedThread();
-        if (thread != 0) {
+        if (thread != NULL) {
             for (;;) {
                 for (i = 0; i < 2; i++) {
-                    osViBlack(0);
+                    osViBlack(FALSE);
                     gFaultFramebuffer = gFramebuffers[i];
                     faultDrawRegs(thread);
                     faultDrawRegs(thread);
@@ -272,11 +273,11 @@ void faultThreadMain(void *arg) {
 }
 
 
-void faultSetMessage(u8 a0, u32 a1, s32 a2, s32 a3) {
-    gFaultMessageId = a0;
-    gFaultMessageArg0 = a1;
-    gFaultMessageArg1 = a2;
-    gFaultMessageArg2 = a3;
+void faultSetMessage(u8 id, u32 msgArg0, s32 msgArg1, s32 msgArg2) {
+    gFaultMessageId = id;
+    gFaultMessageArg0 = msgArg0;
+    gFaultMessageArg1 = msgArg1;
+    gFaultMessageArg2 = msgArg2;
     camEndPath(0);
 }
 
@@ -284,7 +285,7 @@ extern OSMesg D_807FEF50;
 extern OSThread D_807FDDA0;
 
 void faultThreadInit(void) {
-    __osSetFpcCsr(__osGetFpcCsr() | 0x400);
+    __osSetFpcCsr(__osGetFpcCsr() | FPCSR_EZ);
     osCreateMesgQueue(&D_807FEF58, &D_807FEF50, 1);
     osCreateThread(&D_807FDDA0, 8, faultThreadMain, 0, &D_807FEF50, 0x32);
     osStartThread(&D_807FDDA0);
