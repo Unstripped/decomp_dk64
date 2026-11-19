@@ -27,10 +27,20 @@ global:806F18F4:other:2fa922 other (kept): `angle = 0x16;` then `tableIndex = re
       - tableIndex reused for the table value, with `recoilTimer - 0x16` re-read in the sign test (5 outputs). The target loads recoilTimer once (lbu at 0xf10).
       - A dead `!count && !count && !count` assigned to angle (1 output).
     - Result: nohit.
+- 2026-11-19 "2026-11-18c: cleanup CleanplayerWeaponCalculateTrajectory7b" CleanplayerWeaponCalculateTrajectory7b opus (current body, base 4a832c03; variants.py try full=):
+  - Fresh uopt -l6 of the base body: angle (-6vreg) bit 0 -> reg 1 ($v0), tableIndex (-4vreg) bit 3 -> reg 2 ($v1), slots/count bits 18/20 -> $a1/$a2; all unconstrained, coloured in bit order.
+  - Fresh uopt -l6 of the literal `recoilTimer - 0x16` body: tableIndex bit 0 -> $v0, angle bit 11 -> $v1. fdiff text=9, a pure $v0/$v1 swap (0xf10 `lbu v0` ... 0xf38 `lhu v1`).
+  - `register s32 tableIndex;` with the literal base: 9. `register u16 angle;`: 9 (Q1002).
+  - Refine in place `tableIndex = recoilTimer; tableIndex -= 0x16;`: 9 (tableIndex still first in the ucode).
+  - tableIndex assigned inside the if test: 9.
+  - variants scan on the literal body (12 variants): best 9, no zero.
+  - `u16 timer; timer = recoilTimer; tableIndex = (u8)timer - 0x16;`: whole-file fdiff 0 (trial_phantom.c). The wide timer is a phantom bit-0 candidate in $v0 that emits no code (Q1230; see the playerWeaponCalculateTrajectory4 dossier for the width table). It swaps `angle = 0x16` for a width respelling plus a value cast: not applied.
+  - Result: nohit.
 ## Untried ideas
 - None natural. The target needs the table-value variable referenced before tableIndex in the ucode while emitting no code there.
   - Code-free forms are a dead initialiser (`u16 angle = 0;`, measured 0 by CleanplayerWeaponCalculateTrajectory7, Q0592: still a tagged steer) or a reused constant (this site).
   - Any live candidate placed earlier takes $v0 in bb0 and emits code there (timer/player locals).
+  - `register` (Q1002) and refine-in-place forms leave tableIndex at bit 0 (measured 2026-11-19).
 ## Evidence
 - 0xf04 `lui t6` / 0xf08 `lw t6,0(t6)` (gActivePlayerState in a ugen temp, not a coloured local).
 - 0xf10 `lbu v1,142(t6)` and 0xf14 `addiu v1,v1,-22`: tableIndex in $v1, base folded.

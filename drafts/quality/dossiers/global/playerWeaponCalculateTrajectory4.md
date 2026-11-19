@@ -25,11 +25,29 @@
     - The pointer load becomes `lui v0; lw v0` instead of `lui t6; lw t6` (0xe68/0xe6c), and the $t ring shifts by one for the rest of the body.
   - No angle local (table read inside the rotY store): 45 (shape 19).
   - variants scan on the literal: 9, no zero.
+- 2026-11-19 "2026-11-18c: cleanup CleanplayerWeaponCalculateTrajectory7b" CleanplayerWeaponCalculateTrajectory7b opus (current body, base 4a832c03; variants.py try full=):
+  - Fresh uopt -l6 of the base body: angle (-6vreg) bit 0 -> reg 1 ($v0), index (-4vreg) bit 3 -> reg 2 ($v1), slots/count bits 21/23 -> $a1/$a2; all unconstrained, coloured in bit order.
+  - Fresh uopt -l6 of the literal `(u32)index < 4U` body: index bit 0 -> $v0, angle bit 11 -> $v1. fdiff text=9, a pure $v0/$v1 swap (0xe74 `lbu v0` ... 0xe9c `lhu v1`).
+  - `register s32 index;` / `register u16 angle;` with the literal bound: 9 each (Q1002).
+  - Refine in place `index = recoilTimer; index -= 0x14;`: 9.
+  - index assigned inside the if test: 9.
+  - variants scan on the literal body (12 variants): best 9, no zero.
+  - Timer locals by width: u8 alone 2, u16 alone 2, u8 -> u8 copy chain 2; a wide local narrowed to u8 at its use is 0: u16 -> u8 copy, s32 -> u8 copy, u16 -> s8 copy with `(u8)` at the use, `u16 timer; index = (u8)timer - 0x14;`.
+    - -l6 of the u16 -> u8 chain: t16 (-2vreg) bit 0 -> $v0 with no code (phantom, Q1230), uadd isop bit 12 -> $v1, angle bit 17 -> $v0, index var not coloured.
+    - Every 0 form swaps `angle = 4U` for a width respelling plus a value cast or redundant copy: not applied.
+  - Permuter perm_t4lit from the literal body (hack-free weights, -j 2, 900 s, base 60): best=0, 34 zero outputs, all steers:
+    - `angle = 0x14` as the subtrahend: 12.
+    - `angle = 4U` (or `4U - 1` with `>=`) as the bound: 6.
+    - `angle = 0` as the lower bound in `index >= angle`: 6.
+    - index reused for the table value, `recoilTimer - 0x14` re-spelled in the test: 8 (the target loads recoilTimer once, 0xe74).
+    - a u32 alias of `recoilTimer - 0x14` defined before index: 1.
+    - the u16 -> u8 timer copy chain (phantom first candidate): 1.
+    - Result: nohit.
 ## Untried ideas
 - None natural (see the playerWeaponCalculateTrajectory22 dossier: the $v0 holder must be referenced before index and emit no code in bb0/bb1).
 - Lead decision (open since 2026-11-14): accept `angle = ARRAY_COUNT(D_80752F30)` (one temp, two roles, Q0214) as natural, or keep the tag. The 2026-11-18 rulings (Q0814 constant-local exception, reuse = steer) point to keep.
 ## Evidence
-- D_80752F30: exactly 4 shorts, 0x80752F30-0x80752F37 (last 0xFA24); next label D_80752F38.
+- D_80752F30 (now `u16 gWeaponRecoilAnglesBone4[4]`, defined in F56F0.c line 61): exactly 4 shorts, 0x80752F30-0x80752F37 (last 0xFA24); next label D_80752F38.
 - 0xe68/0xe6c: `lui t6; lw t6` (gActivePlayerState in a ugen temp).
 - 0xe74/0xe78: `lbu v1,142(t6); addiu v1,v1,-20`.
 - 0xe90-0xe9c: `lui v0; addu v0,v0,t7; lhu v0`.

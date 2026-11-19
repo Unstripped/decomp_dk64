@@ -51,10 +51,23 @@
     - Base: angle cand 0 -> $v0, index cand 3 -> $v1. All are "assigned (unconstrained)" (first-fit in candidate order).
   - A PlayerState pointer local was not tried here: the target re-reads gActivePlayerState at 0xdc0 and 0xe0c (`lw t2/t6,0(a0)`), so one local for all reads would drop those loads.
     - On the siblings (single read) it gives the target colouring but `lw v0` for `lw t6`: 41.
+- 2026-11-19 "2026-11-18c: cleanup CleanplayerWeaponCalculateTrajectory7b" CleanplayerWeaponCalculateTrajectory7b opus (current body, base 4a832c03; variants.py try full=):
+  - Fresh uopt -l6 of the base body: angle (-6vreg) bit 0 -> reg 1 ($v0), index (-4vreg) bit 3 -> reg 2 ($v1), slots/count bits 21/23 -> $a1/$a2, &gActivePlayerState bit 45 -> $a0. All "assigned (unconstrained)", coloured in bit order.
+  - Fresh uopt -l6 of the literal `(u32)index < 7U` body: index bit 0 -> $v0, angle bit 11 -> $v1. fdiff text=10, a pure $v0/$v1 swap (0xd88 `lbu v0` for `lbu v1` ... 0xdb0 `lhu v1` for `lhu v0`).
+  - `register s32 index;` with the literal bound: 10. `register u16 angle;` with the literal bound: 10 (confirms Q1002 here).
+  - index assigned inside the if test (`(index = recoilTimer - 0x14) >= 0 && (u32)index < 7U`): 10 (a store's variable is still numbered first, Q1467).
+  - variants scan on the literal body (14 variants): best 10, no zero.
+  - `u16 timer; timer = recoilTimer; index = (u8)timer - 0x14;` with the literal `7U` bound: whole-file fdiff 0 (trial_phantom.c, all three siblings in that form).
+    - -l6: timer (-2vreg) bit 0 -> $v0 but emits no code (the lbu feeds the index expression), uadd isop bit 9 -> $v1, angle bit 14 -> $v0, index var bit 5 not coloured (propagated into the expression).
+    - A wide local narrowed back to u8 at its use is a phantom first candidate (extends Q1230). It swaps `angle = 7U` for a u16 width respelling plus a no-op `(u8)` value cast: still one steer, so not applied (no net drop).
+  - Result: nohit.
 ## Untried ideas
-- If the lead rules a habitual declaration zero-initialiser (`u16 angle = 0;`) ordinary C, it fixes this site and both siblings (4, 22) with one uniform form (measured 0/0/0). Otherwise it is a dead-store steer, the same count as `angle = 7U`.
+- If the lead rules a habitual declaration zero-initialiser (`u16 angle = 0;`) ordinary C, it fixes this site and both siblings (4, 22) with one uniform form (measured 0/0/0). Otherwise it is a dead-store steer, the same count as `angle = 7U` (Q1301: director ruled both steers).
+- No natural form is left: the table-value variable must first appear in the ucode before index (Q1467) while emitting no code before 0xda4; `register` (Q1002), widths, declaration order, timer/player locals and early-return/if-else/nested-if shapes are all measured.
+- Third steer shape for a lead ruling: a u16 timer narrowed at its use (`index = (u8)timer - 0x14;`) matches all three siblings (whole-file fdiff 0, 2026-11-19). By rulings.md it is a width respelling plus a value cast (steer), so it is an equal-count swap, not a fix.
 - If the lead accepts the angle = sizeof reuse (Q0214) as natural, the 7-entry size stays unprovable from the data (Q0838: every .data object is 4-aligned, so 7 entries plus pad equals 8 entries byte for byte).
 ## Evidence
+- At base 4a832c03 the table is defined in F56F0.c as `u16 gWeaponRecoilAnglesDual[8]` (line 60; was D_80752F20), so `ARRAY_COUNT` gives 8, not the bound 7: the sizeof-reuse form would need the definition shrunk to [7].
 - D_80752F20 is 16 bytes: 0, F830, F448, EC78, E890, E890, F448, 0000.
   - That is 7 entries plus 4-byte alignment padding, or 8 entries; the data cannot tell them apart.
   - Both static stand-ins emit the same 16 .data bytes.
