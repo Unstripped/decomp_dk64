@@ -224,7 +224,7 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     }
     i = gBannerTextSteps[gBannerTextStepIndex].side;
     tbl = &D_80750818[i];
-    v = ((f64)D_807FC8E8 - 0.5) * (f64)*tbl + (f64)(D_80750828[i] * D_807FC8EC);
+    v = (D_807FC8E8 - 0.5) * *tbl + D_80750828[i] * D_807FC8EC;
     if (v < 0) {
         v = 0;
     }
@@ -275,7 +275,7 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     guMtxCatF(mf, mf2, mf);
     guMtxF2L(mf, mtx);
     p = D_807FC8F0;
-    i = 0;
+    i = 0; // FAKE: the side index i is reused as the line counter; a separate s16/s32 counter in any declaration slot changes the s-register colouring (Q0162)
     if (gBannerTextLine > 0) {
         do {
             if (*p == 0) {

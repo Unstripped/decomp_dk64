@@ -25,7 +25,12 @@ Vtx gSpriteRingQuadVtx[4] = {
     {{ { -16, 31, 0 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
 };
 extern u8 D_80720BE8[], D_8071FE3C[], D_80720E2C[];
-void *D_807502C0[3] = { D_80720BE8, D_8071FE3C, D_80720E2C };
+
+typedef struct ProjectileTriple {
+    void *sprite[3];
+} ProjectileTriple;
+
+ProjectileTriple D_807502C0 = { { D_80720BE8, D_8071FE3C, D_80720E2C } };
 
 extern void **gSpriteRingTextures;
 
@@ -213,10 +218,6 @@ typedef struct ProjectileConfig {
     f32 type;
 } ProjectileConfig;
 
-typedef struct ProjectileTriple {
-    void *sprite[3];
-} ProjectileTriple;
-
 typedef struct ProjectileSubState {
     s32 spawnFrame;
     u8 pad4[0xE];
@@ -233,16 +234,17 @@ void projectileActorUpdate(void) {
 
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        spriteTriple = *(ProjectileTriple *)D_807502C0;
-        gCurrentActor->contactFlags &= (gCurrentActor->soundSlots[0] = -2);
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig *)gCurrentActor->spawnData)->yawRadians / 6.2831855f) * 4095.0f);
+        spriteTriple = D_807502C0;
+        gCurrentActor->soundSlots[0] = -2;
+        gCurrentActor->contactFlags &= ~1;
+        gCurrentActor->moveYaw = ((ProjectileConfig *)gCurrentActor->spawnData)->yawRadians / 6.2831855f * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileConfig *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileConfig *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 40.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        sub->type = (u8)((ProjectileConfig *)gCurrentActor->spawnData)->type;
+        sub->type = ((ProjectileConfig *)gCurrentActor->spawnData)->type;
         effectSetDuration(-1);
         effectSetMode(2);
         effectSetDepth(1);
@@ -274,7 +276,7 @@ void projectileActorUpdate(void) {
                 effectSetDepth(1);
                 effectSetSpeed(particleIdx + 0xB000000);
                 effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_8071FBA0, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 10) * 0.05) + 0.2),
+                effectCreateAtPosition(&D_8071FBA0, (randomNonNegative() >> 15) % 10 * 0.05 + 0.2,
                     gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }

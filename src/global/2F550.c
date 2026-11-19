@@ -944,11 +944,9 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
                 mapChunkFrameUpdate(camX, camY, camZ);
                 if (keepLists == 0) {
                     mapChunkClearNodeFlags(all);
-                    if (entries != NULL) {
-                        do {
-                            mapChunkUpdateEntryNode(entries);
-                            entries = entries->unk14;
-                        } while (entries != NULL);
+                    while (entries != NULL) {
+                        mapChunkUpdateEntryNode(entries);
+                        entries = entries->unk14;
                     }
                     mapChunkFreeNodeLists(all);
                     mapChunkRebuildNodeLists(camX, camY, camZ, all);
@@ -960,11 +958,9 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
             vis->visMode = 0;
             if (keepLists == 0) {
                 renderEntryListClearTouched(vis->entries);
-                if (entries != NULL) {
-                    do {
-                        vis->entries = renderEntryAddOrUpdate(vis->entries, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
-                        entries = entries->unk14;
-                    } while (entries != NULL);
+                while (entries != NULL) {
+                    vis->entries = renderEntryAddOrUpdate(vis->entries, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                    entries = entries->unk14;
                 }
                 vis->entries = renderEntryListPurgeUntouched(vis->entries);
                 vis->entries = renderEntryListSortByDistance(vis->entries, camX, camY, camZ, &closest);
@@ -973,15 +969,13 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
             }
         }
     } else {
-        if (entries != NULL) {
-            do {
-                if (mapBspPlaneSideTest(node, &side, entries->unk4, entries->unk8, entries->unkC) != 0) {
-                    listB = renderEntryAddOrUpdate(listB, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
-                } else {
-                    listA = renderEntryAddOrUpdate(listA, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
-                }
-                entries = entries->unk14;
-            } while (entries != NULL);
+        while (entries != NULL) {
+            if (mapBspPlaneSideTest(node, &side, entries->unk4, entries->unk8, entries->unkC) != 0) {
+                listB = renderEntryAddOrUpdate(listB, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+            } else {
+                listA = renderEntryAddOrUpdate(listA, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+            }
+            entries = entries->unk14;
         }
         vis->camSide = mapBspPlaneSideTest(node, &vis->visMode, camX, camY, camZ);
         if (noCull) {

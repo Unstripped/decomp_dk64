@@ -8,6 +8,12 @@
 #include "proto/global/13CB50.h"
 #include "proto/global/6710.h"
 #include "proto/global/13D170.h"
+#include "proto/global/137120.h"
+#include "proto/global/137630.h"
+#include "proto/global/137C10.h"
+#include "proto/global/13C920.h"
+#include "proto/global/15050.h"
+#include "proto/global/FE40.h"
 
 void alCSPSendMidi(); // ORIG: target passes seqPlayerSendMidi's s32 byte2 unmasked (lw t8,48(sp) at 0xc74, sw t8,16(sp) at 0xca0, no andi): the original TU had no u8 prototype for alCSPSendMidi in scope
 
@@ -20,9 +26,8 @@ extern ALCSeqMarker D_8076C328[][4];
 
 
 extern N_CSPlayer *gSeqPlayers[];
-void dmaReadAssetDecompress(u32, void *, u32 *, u8, u8, u8, void *);
 extern s32 D_8000DDCC;
-extern s32 sSeqRomOffsets;
+extern s32 sSeqRomOffsets[];
 
 extern ALHeap D_8076D1E8;
 extern u8 D_80770F50[];
@@ -31,13 +36,6 @@ extern ALBank *D_8076D1FC;
 extern u16 D_8076BF30[];
 extern void *D_8076BF38[];
 s32 D_807452B0[4] = { 0x407E, 0x11B6, 0x7B6, 0x156 };
-void alHeapInit(ALHeap *, u8 *, s32);
-void *heapAlloc(s32);
-void heapFree(void *);
-void oscSetupConfig(ALSeqpConfig *, s32);
-void n_alCSPlayerNew(N_CSPlayer *, ALSeqpConfig *);
-void configureCSPOutputMode(u8);
-void updateCSPOutputChannelMode(s32, s32);
 void func_806010A0(void);
 
 void audioInit(void) {
@@ -117,10 +115,10 @@ void func_806010A0(void) {
     s32 offset;
 
     size1 = 0x80;
-    dmaReadAssetDecompress(D_8000DDCC, &sSeqRomOffsets, &size1, 0, 0, 0, 0);
-    offset = sSeqRomOffsets;
+    dmaReadAssetDecompress(D_8000DDCC, sSeqRomOffsets, &size1, 0, 0, 0, 0);
+    offset = sSeqRomOffsets[0];
     size2 = 0x2C0;
-    dmaReadAssetDecompress(D_8000DDCC + offset, &sSeqRomOffsets, &size2, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDCC + offset, sSeqRomOffsets, &size2, 0, 0, 0, 0);
 }
 
 void seqPlayerPlay(u8 playerIndex) {

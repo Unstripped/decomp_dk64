@@ -536,8 +536,6 @@ void effectSpawnActorParticleBurst(u8 nodeIndex) {
 }
 
 void behaviourArmoredEnemyUpdate(void) {
-    s32 state;
-
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->segmentFlags = -1;
@@ -565,7 +563,6 @@ void behaviourArmoredEnemyUpdate(void) {
         gBehaviourWorkState->targetSpeed = 0;
         gCurrentActor->speedXZ = 0.0f;
     }
-    state = gCurrentActor->state;
     switch (gCurrentActor->state) {
     case 0x31:
         if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
@@ -630,16 +627,15 @@ void behaviourArmoredEnemyUpdate(void) {
             gCurrentActor->state = 0x27;
             gCurrentActor->unk155 = 0;
         }
-        state = gCurrentActor->state;
     case 0x10:
-        actorTrackBoneTowardTarget((state == 1) ? 2 : 0);
+        actorTrackBoneTowardTarget((gCurrentActor->state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        actorTrackBoneTowardTarget((state == 0x35) ? 2 : 3);
+        actorTrackBoneTowardTarget((gCurrentActor->state == 0x35) ? 2 : 3);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
@@ -662,11 +658,10 @@ void behaviourArmoredEnemyUpdate(void) {
     case 0x40:
         break;
     default:
-        behaviourUpdateContactAndState(0x2D7, state);
+        behaviourUpdateContactAndState(0x2D7, gCurrentActor->state);
         break;
     }
-    state = gCurrentActor->state;
-    switch (state) {
+    switch (gCurrentActor->state) {
     case 0x31:
     case 0x37:
     case 0x40:

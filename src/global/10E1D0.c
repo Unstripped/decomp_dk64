@@ -300,6 +300,7 @@ void meshApplyAnimation(MeshBlob *model, AnimTable *table, s32 frame) {
     MeshVertex *src;
     MeshVertex *dst;
     f32 angle;
+    f32 pivotX;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -308,7 +309,7 @@ void meshApplyAnimation(MeshBlob *model, AnimTable *table, s32 frame) {
     f32 z;
     u32 j;
 
-    idx = 0;
+    idx = 0; // LAYOUT: the init on its own line keeps as1 zeroing idx (s5) before its entry offset (s3); for (idx = 0; ...) swaps the two moves (Q0591)
     for (; table->entries[idx].kind != 0; idx++) {
         clampedFrame = frame;
         if (frame < table->entries[idx].start) {
@@ -323,14 +324,14 @@ void meshApplyAnimation(MeshBlob *model, AnimTable *table, s32 frame) {
             didx = table->entries[idx].destination;
             src = &model->vertices[sidx];
             dst = &model->vertices[didx];
-            x = src->x;
-            dx = dst->x - x;
+            pivotX = src->x;
+            dx = dst->x - pivotX;
             dy = dst->y - src->y;
             dz = dst->z - src->z;
             angle = (table->entries[idx].start - clampedFrame) * table->entries[idx].scale;
             mtxLookDirPosF(lookMtx, lookInvMtx,
                 -dx, -dy, -dz,
-                -x, -src->y, -src->z);
+                -pivotX, -src->y, -src->z);
             mtxRotateZDegF(rotMtx, angle);
             mtxMulAffineF(rotMtx, lookMtx, tmpMtx);
             mtxMulAffineF(lookInvMtx, tmpMtx, xformMtx);

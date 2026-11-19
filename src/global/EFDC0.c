@@ -1865,7 +1865,7 @@ void playerStateSetFlagsByActorType(void) {
     case 6:
         ev = 9;
         break;
-    default:
+    default: // ORIG: own default block at +0x16c..+0x190 (gPlayerSlots[gCurrentPlayerIndex] address, 10 insns) before the join +0x194, reached by the bound check beqz at +0x1c; each case keeps its own copy (playerStateSetFlagsByActorType 0x5304)
         break;
     }
     gActivePlayerActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ,
