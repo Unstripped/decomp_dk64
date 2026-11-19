@@ -81,11 +81,11 @@ void n_alSndpNew(GeSndpConfig *c) {
     ALEvent evt;
 
     gSndp->maxVoices = c->maxVoices;
-    gSndp->target = 0;
+    gSndp->target = NULL;
     gSndp->frameTime = 16000;
-    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxSounds * 72);
+    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxSounds * sizeof(GfSndState));
     gSndp->sndState = ptr;
-    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxEvents * 28);
+    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxEvents * sizeof(ALEventListItem));
     alEvtqNew(&gSndp->evtq, ptr, c->maxEvents);
     gSndpFreeList = gSndp->sndState;
     for (i = 1; i < c->maxSounds; i++) {
@@ -440,12 +440,11 @@ GfSndState *__n_allocState(void *sndp, ALSound *sound) {
         alUnlink((ALLink *)state);
         if (gSndpUsedHead) {
             state->next = gSndpUsedHead;
-            state->prev = 0;
+            state->prev = NULL;
             gSndpUsedHead->prev = state;
             gSndpUsedHead = state;
         } else {
-            state->prev = 0;
-            state->next = state->prev;
+            state->next = state->prev = NULL;
             gSndpUsedHead = state;
             gSndpUsedTail = state;
         }
@@ -457,7 +456,7 @@ GfSndState *__n_allocState(void *sndp, ALSound *sound) {
         state->pitch = 1.0f;
         state->retries = 2;
         state->flags = km->keyMax & 0xF0;
-        state->handle = 0;
+        state->handle = NULL;
         if (state->flags & 0x20) {
             state->pitchRatio = alCents2Ratio(km->keyBase * 100 - 6000);
         } else {
@@ -524,14 +523,14 @@ GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 f
     ALKeyMap *km;
     ALSound *sound;
     s16 lastId;
-    s32 delay48;
+    s32 chainDelay;
     s32 delta;
     s32 total;
     s32 val;
     GeSndEvt ev1;
     GeSndEvt ev2;
 
-    ret = 0;
+    ret = NULL;
     lastId = 0;
     total = 0;
     if (sndId) {
@@ -556,7 +555,7 @@ GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 f
                 if (state->flags & 0x10) {
                     state->flags &= ~0x10;
                     alEvtqPostEvent(&gSndp->evtq, (ALEvent *)&ev1, total + 1);
-                    delay48 = delta + 1;
+                    chainDelay = delta + 1;
                     lastId = sndId;
                 } else {
                     alEvtqPostEvent(&gSndp->evtq, (ALEvent *)&ev1, delta + 1);
@@ -577,7 +576,7 @@ GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 f
                 ev2.state = ret;
                 ev2.arg8.i = lastId;
                 ev2.arg12 = bank;
-                alEvtqPostEvent(&gSndp->evtq, (ALEvent *)&ev2, delay48);
+                alEvtqPostEvent(&gSndp->evtq, (ALEvent *)&ev2, chainDelay);
             }
         }
     }
@@ -649,7 +648,7 @@ void n_alSndpSetGroupVol(u8 idx, u16 val) {
     s32 i;
     GeSndEvt ev;
 
-    ((u16 *)gSndpGroupVol)[idx] = val;
+    gSndpGroupVol[idx] = val;
     for (i = 0; state; i++, state = state->next) {
         if ((state->sound->keyMap->keyMin & 0x1F) == idx) {
             ev.type = 0x800;

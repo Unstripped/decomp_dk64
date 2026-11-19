@@ -425,7 +425,7 @@ MpMapEntry *mpFindCurrentMapEntry(void) {
     s32 i;
     MpMapEntry *ret = NULL;
 
-    for (i = 0; (i < 4U) && (ret == NULL); i++) {
+    for (i = 0; (i < sizeof(mpMapSpawnTable) / sizeof(mpMapSpawnTable[0])) && (ret == NULL); i++) {
         if (gCurrentMap == mpMapSpawnTable[i].mapId) {
             ret = &mpMapSpawnTable[i];
         }
@@ -702,10 +702,8 @@ void mpResetMapModelStates(void) {
     s32 i;
 
     mapEntry = mpFindCurrentMapEntry();
-    i = 0;
-    while (i < 4 && mapEntry->modelIds[i] != -1) {
+    for (i = 0; i < 4 && mapEntry->modelIds[i] != -1; i++) {
         csModelStateSetFirstByte(mapEntry->modelIds[i], 0);
-        i++;
     }
 }
 

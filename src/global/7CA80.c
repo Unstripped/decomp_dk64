@@ -960,7 +960,7 @@ void actorPreTick(Actor *actor) {
 }
 
 void actorPostTick(Actor *actor) {
-    if ((void *)actorInitCollisionFromModel == (void *)gActorInitFuncs[gActorTypeInitIndex[actor->actorType]]) {
+    if ((s32 (*)(s32 *))actorInitCollisionFromModel == gActorInitFuncs[gActorTypeInitIndex[actor->actorType]]) {
         guTranslateF(actor->modelMtx, actor->x, actor->y, actor->z);
     }
     actorUpdatePositionAndSub140(actor);

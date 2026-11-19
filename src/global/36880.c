@@ -275,6 +275,13 @@ s16 modelSlotsAllocate(s32 map, u8 allocate) {
 extern s16 gCsModelIds[];
 extern s32 gModelSlotNextId;
 
+// One model's saved cutscene variables: modelSlotSerializeAll writes these after the slots, modelSlotsLoadMap
+// reads them after the map's entry list; an s32 count precedes them.
+typedef struct ModelCsVarsRecord {
+    /* 0x00 */ s32 modelIndex; // gCsModelIds index
+    /* 0x04 */ u8 vars[0x20]; // CsState.unk14
+} ModelCsVarsRecord; /* 0x24 */
+
 void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 saveFile) {
     struct RenderEntry *renderList;
     s32 entryCount;
@@ -282,10 +289,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
     u8 *pad;
     s32 i;
     s32 n;
-    struct {
-        /* 0x00 */ s32 modelIndex;
-        /* 0x04 */ u8 vars[0x20];
-    } *rec; /* 0x24-byte records after the entry list's s32 count */
+    ModelCsVarsRecord *rec;
     s32 outCount;
     u16 counter;
     s16 result;
@@ -348,7 +352,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
         func_8062D1A8();
         csScriptLoad(assetLoad(0xA, gCurrentMap, 1, 0));
         n = *(s32 *)entry;
-        rec = (void *)((s32 *)entry + 1);
+        rec = (ModelCsVarsRecord *)((s32 *)entry + 1);
         while (n--) {
             csModelStateSetVars(rec->modelIndex, rec->vars);
             rec++;
@@ -3645,7 +3649,7 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     s32 size;
     s32 i;
     ModelSlotSerializedOut *out;
-    u8 *dst;
+    ModelCsVarsRecord *rec;
 
     count = 0;
     if (gSavedMapModelData != NULL) {
@@ -3655,7 +3659,7 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     size += sizeof(s32);
     for (i = 0; i < 0x212; i++) {
         if (gCsVarsDirty[i]) {
-            size += 0x24;
+            size += sizeof(ModelCsVarsRecord);
             count++;
         }
     }
@@ -3687,15 +3691,15 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
         }
     }
     *(s32 *)out = count;
-    dst = (u8 *)out + 4;
+    rec = (ModelCsVarsRecord *)((s32 *)out + 1);
     for (i = 0; i < 0x212; i++) {
         if (gCsVarsDirty[i] != 0) {
-            *(s32 *)dst = i;
-            memcpy(dst + 4, gModelSlots[hashTableLookup(gCsModelIds[i])].unk7C->unk14, 0x20);
-            dst += 0x24;
+            rec->modelIndex = i;
+            memcpy(rec->vars, gModelSlots[hashTableLookup(gCsModelIds[i])].unk7C->unk14, sizeof(rec->vars));
+            rec++;
         }
     }
-    actorListSerialize((s32 *)dst);
+    actorListSerialize((s32 *)rec);
     *bufOut = gSavedMapModelData;
     *sizeOut = size;
 }
