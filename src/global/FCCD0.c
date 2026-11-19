@@ -394,12 +394,10 @@ void slotQueueStaggerNodeDelays(s32 slot) {
     if (slot == 8) {
         node = gSlotQueue[slot].nodes;
         delay = 0;
-        if (node != NULL) {
-            do {
-                node->delay = delay;
-                node = node->next;
-                delay += 2;
-            } while (node != NULL);
+        while (node != NULL) {
+            node->delay = delay;
+            node = node->next;
+            delay += 2;
         }
     }
 }
@@ -424,12 +422,10 @@ s32 slot;
     SlotQueueMaskNode *node = gSlotQueueMaskList;
 
     gSlotQueue[slot].pending = 0;
-    if (node != NULL) {
-        mask = ~(1 << slot);
-        do {
-            node->flags &= mask;
-            node = node->next;
-        } while (node != NULL);
+    mask = ~(1 << slot);
+    while (node != NULL) {
+        node->flags &= mask;
+        node = node->next;
     }
     slotQueueClearFlags(slot);
 }
@@ -830,14 +826,14 @@ void slotQueueInitEffectSprites(s32 slot) {
 
 void slotQueueSpawnSingleNode(s32 slot) {
     SlotQueueNode **link;
-    void *sprite;
+    SlotQueueEffectNode *effectNode;
 
     link = &gSlotQueue[slot].nodes;
     slotQueueAllocSpriteNode(link);
-    sprite = (*link)->data;
+    effectNode = (*link)->data;
     effectSetDirection(*link, slot);
     effectSpawnSprite(*link, slot, gSlotQueue[slot].x, gSlotQueue[slot].y, 0);
-    func_806F8DC4(sprite, 0, slot);
+    func_806F8DC4(&effectNode->alpha, 0, slot);
     (*link)->fade = 0;
 }
 
@@ -1092,44 +1088,40 @@ Gfx *slotQueueStateMoveToTarget(s32 slot, Gfx *gfx) {
 Gfx *slotQueueStateFadeOut(s32 slot, Gfx *gfx) {
     s32 index;
     SlotQueueNode *node;
-    s32 cnt;
+    s32 count;
     s32 done;
 
     node = gSlotQueue[slot].nodes;
     index = 0;
-    if (node != NULL) {
-        do {
-            gfx = slotQueueNodeUpdate(slot, node, index, gfx);
-            if (node->type == 1) {
-                index += 1;
-            }
-            node = node->next;
-        } while (node != NULL);
+    while (node != NULL) {
+        gfx = slotQueueNodeUpdate(slot, node, index, gfx);
+        if (node->type == 1) {
+            index++;
+        }
+        node = node->next;
     }
     if (gSlotQueue[slot].timer != 0) {
-        gSlotQueue[slot].timer = gSlotQueue[slot].timer - 1;
+        gSlotQueue[slot].timer--;
     } else {
         node = gSlotQueue[slot].nodes;
         done = 0;
-        cnt = 0;
-        if (node != NULL) {
-            do {
-                cnt += 1;
-                if (node->delay != 0) {
-                    node->delay = node->delay - 1;
-                } else {
-                    if (node->fade > 0) {
-                        node->fade = (s32)((f32)node->fade - 102.4f);
-                    }
-                    if (node->fade < 0) {
-                        node->fade = 0;
-                        done += 1;
-                    }
+        count = 0;
+        while (node != NULL) {
+            count++;
+            if (node->delay != 0) {
+                node->delay--;
+            } else {
+                if (node->fade > 0) {
+                    node->fade -= 102.4f;
                 }
-                node = node->next;
-            } while (node != NULL);
+                if (node->fade < 0) {
+                    node->fade = 0;
+                    done++;
+                }
+            }
+            node = node->next;
         }
-        if (cnt == done) {
+        if (count == done) {
             gSlotQueue[slot].state = 0;
         }
     }
@@ -1173,21 +1165,21 @@ void slotQueueSelectPlayerResource(u8 player) {
     D_80754288 = player;
 }
 
-extern s32 D_807200A0, D_807201A0, D_80720268, D_8072029C, D_807203B0, D_807203D4, D_807203F8, D_8072041C, D_80720440, D_80720488, D_807204BC, D_80720508, D_8072052C, D_80720558, D_8072057C, D_807205A0, D_807205C4, D_807205E8, D_8072060C, D_807206A8, D_807207BC, D_807207E0, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, D_807209EC, D_80720A10, D_80720A34, D_80720A58, D_80721200, D_8072121C, D_80721250, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
+extern EffectGridAsset D_807200A0, D_807201A0, D_80720268, D_8072029C, D_807203B0, D_807203D4, D_807203F8, D_8072041C, D_80720440, D_80720488, D_807204BC, D_80720508, D_8072052C, D_80720558, D_8072057C, D_807205A0, D_807205C4, D_807205E8, D_8072060C, D_807206A8, D_807207BC, D_807207E0, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, D_807209EC, D_80720A10, D_80720A34, D_80720A58, D_80721200, D_8072121C, D_80721250, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
 
 void *slotQueueGetSpriteAsset(s32 slot) {
-    void *result;
-    u32 player;
+    EffectGridAsset *result;
+    s32 kong;
 
-    result = 0;
-    player = playerGetResolvedKongId(0);
+    result = NULL;
+    kong = playerGetResolvedKongId(0);
     if (slot == 13) {
-        player = D_80754288;
+        kong = D_80754288;
     }
     switch (slot) {
     case 0:
     case 13:
-        switch (player) {
+        switch (kong) {
         case 1:
             result = &D_8072057C;
             break;
@@ -1214,7 +1206,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         break;
     case 2:
     case 3:
-        switch (player) {
+        switch (kong) {
         case 1:
             result = &D_807200A0;
             break;
@@ -1237,7 +1229,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         break;
     case 1:
     case 14:
-        switch (player) {
+        switch (kong) {
         case 1:
             result = &D_807203B0;
             break;
@@ -1260,7 +1252,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         result = &D_807207BC;
         break;
     case 7:
-        switch (player) {
+        switch (kong) {
         case 1:
             result = &D_80720878;
             break;
@@ -1292,7 +1284,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         result = &D_80720558;
         break;
     case 12:
-        switch (player) {
+        switch (kong) {
         case 1:
             result = &D_807209EC;
             break;
@@ -1352,7 +1344,7 @@ void slotQueuePushActiveMask(void) {
     while (*link != NULL) {
         link = &(*link)->next;
     }
-    alloc = heapAlloc(8);
+    alloc = heapAlloc(sizeof(SlotQueueMaskNode));
     *link = alloc;
     heapClearBlock(alloc);
     for (i = 0; i < 15; i++) {

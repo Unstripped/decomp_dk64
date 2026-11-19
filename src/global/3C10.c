@@ -71,7 +71,6 @@ u16 D_80744700[8] = { 0x08, 0xC5, 0x9A, 0x6F, 0x53, 0xC4, 0xC7, 0xCB };
 s16 D_80744710[8] = { 0x1A, 0x4A, 0x8A, 0xA8, 0xEC, 0x124, 0x13D, 0x17C };
 s32 D_80744720[5] = { 0x181, 0x6, 0x46, 0x42, 0x75 };
 u16 D_80744734[10] = { 0xA9, 0xAD, 0xAF, 0xAE, 0xB2, 0xC2, 0xC1, 0xAA, 0xAA, 0x00 };
-extern u16 D_80744736[]; /* &D_80744734[1] */
 u16 D_80744748[10] = { 0x07, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x22, 0x11, 0x00 };
 Struct8074475C D_8074475C[11] = {
     { 0x38, 0x38, 0 },
@@ -377,7 +376,7 @@ s32 func_805FEF10(s32 *outValue) {
     s32 found;
 
     found = 0;
-    for (i = 0; i < 4U && !found; i++) {
+    for (i = 0; i < sizeof(D_80744800) / sizeof(D_80744800[0]) && !found; i++) {
         found = gPrimaryPlayerActor->actorType == D_80744800[i].key;
         if (found) {
             *outValue = D_80744800[i].value;
@@ -389,11 +388,8 @@ s32 func_805FEF10(s32 *outValue) {
 s32 func_805FEF74(s32 map) {
     s32 i;
 
-    if (map == D_80744734[0]) {
-        return 1;
-    }
-    for (i = 0; i < 8; i++) {
-        if (map == D_80744736[i]) {
+    for (i = 0; i < 9; i++) {
+        if (map == D_80744734[i]) {
             return 1;
         }
     }
@@ -464,7 +460,7 @@ void mapExecuteDeathTransition(s32 unused) {
     u8 found;
     s32 world;
 
-    limit = 11;
+    limit = sizeof(D_8074475C) / sizeof(D_8074475C[0]);
     i = 0;
     exitIndex = 0;
     found = 0;
