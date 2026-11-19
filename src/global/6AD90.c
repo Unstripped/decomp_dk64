@@ -1215,36 +1215,36 @@ u8 collisionPointInTriangleXZS16(CollisionStaticTri *tri, f32 x, f32 z) {
     s32 i;
     u32 mismatch = 0;
 
-    hx = (f64)(tri->x[1] + tri->x[2]) * 0.5;
-    hz = (f64)(tri->z[1] + tri->z[2]) * 0.5;
-    midX = ((f64)tri->x[0] + hx) * 0.5;
+    hx = (tri->x[1] + tri->x[2]) * 0.5;
+    hz = (tri->z[1] + tri->z[2]) * 0.5;
+    midX = (tri->x[0] + hx) * 0.5;
     z0 = tri->z[0];
     midZ = (z0 + hz) * 0.5;
 
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
-            ex = (f64)(tri->x[1] - tri->x[0]);
-            ez = (f64)(tri->z[1] - tri->z[0]);
-            ox = (f64)tri->x[0];
+            ex = tri->x[1] - tri->x[0];
+            ez = tri->z[1] - tri->z[0];
+            ox = tri->x[0];
             oz = z0;
             break;
         case 1:
-            ex = (f64)(tri->x[2] - tri->x[0]);
-            ez = (f64)(tri->z[2] - tri->z[0]);
-            ox = (f64)tri->x[0];
+            ex = tri->x[2] - tri->x[0];
+            ez = tri->z[2] - tri->z[0];
+            ox = tri->x[0];
             oz = z0;
             break;
         case 2:
-            ex = (f64)(tri->x[2] - tri->x[1]);
-            ez = (f64)(tri->z[2] - tri->z[1]);
-            ox = (f64)tri->x[1];
-            oz = (f64)tri->z[1];
+            ex = tri->x[2] - tri->x[1];
+            ez = tri->z[2] - tri->z[1];
+            ox = tri->x[1];
+            oz = tri->z[1];
             break;
         }
 
-        sidePt = ((f64)x - ox) * ez;
-        sideRef = ((f64)z - oz) * ex;
+        sidePt = (x - ox) * ez;
+        sideRef = (z - oz) * ex;
         sideMid = ((midX - ox) * ez) - ((midZ - oz) * ex);
 
         if ((sideRef <= sidePt ? 1 : -1) != (sideMid >= 0.0 ? 1 : -1)) {
@@ -1809,7 +1809,7 @@ void collisionTransformPointToActorLocal(Actor *actor, Actor *target, CollisionB
     }
     D_807F9480 = tri->mtxOffset0;
     if (tri->mtxOffset0 == -1) {
-        memcpy(xfMtx, sub->modelMtxF, 0x40);
+        memcpy(xfMtx, sub->modelMtxF, sizeof(xfMtx));
     } else {
         guMtxL2F(xfMtx, &mtx[tri->mtxOffset0 >> 6]);
     }
@@ -1981,12 +1981,12 @@ void collisionInitTables(void) {
     dmaReadAssetDecompress(D_8000DDCC, D_807F9520, &size, 0, 0, 0, 0);
 
     for (i = 0; i < 0x20; i++) {
-        D_807F9528[i] = 0;
-        D_807F95A8[i] = 0;
+        D_807F9528[i] = NULL;
+        D_807F95A8[i] = NULL;
     }
 
     for (i = 0; i < 0x14; i++) {
-        sAssetRefBuckets[i] = 0;
+        sAssetRefBuckets[i] = NULL;
     }
 
     sDmaQueueCount = 0;
@@ -2026,16 +2026,13 @@ extern OSMesgQueue D_807656D0;
 void dmaDrainQueueAndFreeBuffer(void) {
     s32 i;
 
-    i = 0;
-    if (sDmaQueueCount > 0) {
-        do {
-            D_80746834 = 7;
-            osRecvMesg(&D_807656D0, NULL, 1);
-            D_80746834 = 0;
-            if (sDmaQueue[i].compressed != 0) {
-                assetInflateAndFree(sDmaQueue[i].dmaDst, sDmaQueue[i].buffer);
-            }
-        } while (++i < sDmaQueueCount);
+    for (i = 0; i < sDmaQueueCount; i++) {
+        D_80746834 = 7;
+        osRecvMesg(&D_807656D0, NULL, 1);
+        D_80746834 = 0;
+        if (sDmaQueue[i].compressed != 0) {
+            assetInflateAndFree(sDmaQueue[i].dmaDst, sDmaQueue[i].buffer);
+        }
     }
     if (D_80748E14 != NULL) {
         heapFree(D_80748E14);

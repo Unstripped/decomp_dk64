@@ -1310,7 +1310,7 @@ void transformBarrelUpdate(void) {
             s32 step = slotQueueGetCountStep(5) * state->refillCount;
 
             if (queued < step) {
-                slotQueueAddValue(5, playerState->playerIndex, (s16)(step - queued));
+                slotQueueAddValue(5, playerState->playerIndex, step - queued);
             }
         }
         gCurrentActor->state = 1;
@@ -1629,7 +1629,7 @@ void transformBarrelUpdate(void) {
         break;
     }
 
-    billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, (s32)(gCurrentActor->sub4->scaleX * 100.0f), (s32)(gCurrentActor->sub4->scaleZ * 100.0f), 1, 0x64, (u32)(gCurrentActor->alpha * 0.5), 0, 1.0f);
+    billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, gCurrentActor->sub4->scaleX * 100.0f, gCurrentActor->sub4->scaleZ * 100.0f, 1, 0x64, gCurrentActor->alpha * 0.5, 0, 1.0f);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -2123,7 +2123,7 @@ void tagBarrelActorUpdate(void) {
     case 11:
         sub->timer = 0x32;
         sub->spinSpeed = 0;
-        actorAppendCallback(gPrimaryPlayerActor, gCurrentActor, 0x40, 1, 0, 0);
+        actorAppendCallback(gPrimaryPlayerActor, gCurrentActor, 0x40, 1, 0, NULL);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->mountMode == 1.0) {
             angle = D_80750390;
         } else {
@@ -2177,7 +2177,7 @@ void tagBarrelActorUpdate(void) {
                 if (gCurrentMap == 0xAD) {
                     yOffset = -10.0f;
                 }
-                actorSpawnNodeEntryScaled(0x2D, gCurrentActor->x, gCurrentActor->y + yOffset, gCurrentActor->z, 0, kong, spawnFlag, 0);
+                actorSpawnNodeEntryScaled(0x2D, gCurrentActor->x, gCurrentActor->y + yOffset, gCurrentActor->z, 0, kong, spawnFlag, NULL);
                 sfxAllocateChannel(0x14, 1.0f);
                 actorDespawn(gCurrentActor);
                 break;
@@ -2458,11 +2458,11 @@ void cannonUpdate(void) {
     }
     if (gCurrentActor->state == 2 || gCurrentActor->state == 3) {
         cam = ((PlayerState *)sub->rider->customState)->camActor;
-        sub->aimYaw = sub->aimYaw - (f64)gPlayerPadState[0].stickX * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
-        sub->aimYaw = sub->aimYaw & 0xFFF;
+        sub->aimYaw -= gPlayerPadState[0].stickX * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
+        sub->aimYaw &= 0xFFF;
         sinOff = mathSinF(sub->aimYaw) * D_8074E7F4;
         cosOff = mathCosF(sub->aimYaw) * D_8074E7F4;
-        D_8074E804 = D_8074E804 - (f64)gPlayerPadState[0].stickY * 0.04 * D_8074E800;
+        D_8074E804 -= gPlayerPadState[0].stickY * 0.04 * D_8074E800;
         if (D_8074E804 > 50.0) {
             D_8074E804 = 50.0f;
         }
@@ -2561,7 +2561,7 @@ void cannonUpdate(void) {
         break;
     case 3:
         if (actorCountOwnedByClass(gCurrentActor, 4, 0) == 0) {
-            actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, NULL);
             actorAppendMoveTarget3D(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
             sub->rider->flags &= ~8;
             playerResumeLocomotion(sub->rider);
@@ -2597,7 +2597,7 @@ typedef struct TagBarrelData {
 
 
 
-void tagBarrelOrbitKongs(TagBarrelData *arg) {
+void tagBarrelOrbitKongs(TagBarrelData *orbit) {
     s16 slotYaw;
     f32 centerX = gCurrentActor->x;
     f32 centerY = gCurrentActor->y - 10.0f;
@@ -2610,20 +2610,20 @@ void tagBarrelOrbitKongs(TagBarrelData *arg) {
     s16 yaw;
     Actor *kong;
 
-    blend = (u32)arg->timer / 20.0f;
+    blend = (u32)orbit->timer / 20.0f;
     baseYaw = gCurrentActor->yaw;
-    baseYaw = (s16)(baseYaw + (819.2 * arg->selected)) & 0xFFF;
-    baseYaw = (s16)(baseYaw - (819.2 * blend) * arg->direction) & 0xFFF;
+    baseYaw = (s16)(baseYaw + (819.2 * orbit->selected)) & 0xFFF;
+    baseYaw = (s16)(baseYaw - (819.2 * blend) * orbit->direction) & 0xFFF;
     for (i = 0; i < 5; i++) {
-        kong = arg->kongs[i];
+        kong = orbit->kongs[i];
         slotYaw = (s16)(4096.0 - (i * 819.2)) & 0xFFF;
         yaw = (s16)(slotYaw + baseYaw) & 0xFFF;
         kong->x = (mathSinF(yaw) * 45.0f) + centerX;
         kong->z = (mathCosF(yaw) * 45.0f) + centerZ;
         kong->y = centerY;
-        if (i == arg->selected) {
+        if (i == orbit->selected) {
             glow = 1.0f - blend;
-        } else if (i == arg->previous) {
+        } else if (i == orbit->previous) {
             glow = blend;
         } else {
             glow = 0.0f;

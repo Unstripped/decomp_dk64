@@ -259,7 +259,7 @@ void gridBuildNodeLists(void) {
     D_807FD798 = 0;
     slotQueueInit(1);
     typeEntry = gGridTypeTable;
-    for (i = 0; i < 0x2AU; i++) {
+    for (i = 0; i < sizeof(gGridTypeTable) / sizeof(gGridTypeTable[0]); i++) {
         type = typeEntry->modelType;
         cursor = 0;
         while (modelSlotFindByType(type, &cursor, &posX, &posY, &posZ, &modelId, &mapObjectId) != 0) {
@@ -719,7 +719,7 @@ void gridSpawnAmmoCrateItems(u8 playerIndex, s16 modelSlot, Actor *player, u16 p
 s32 actorTypeIsRespawnPickup(s32 actorType) {
     s32 i;
 
-    for (i = 0; i < 7; i++) {
+    for (i = 0; i < sizeof(D_80754248) / sizeof(D_80754248[0]); i++) {
         if (actorType == D_80754248[i]) {
             return 1;
         }
@@ -730,7 +730,7 @@ s32 actorTypeIsRespawnPickup(s32 actorType) {
 s32 modelTypeIsRespawnPickup(s32 modelType) {
     s32 i;
 
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < sizeof(D_80754264) / sizeof(D_80754264[0]); i++) {
         if (modelType == D_80754264[i]) {
             return 1;
         }
@@ -740,7 +740,7 @@ s32 modelTypeIsRespawnPickup(s32 modelType) {
 
 
 void respawnPickRandomPickup(s32 *actorType, s32 *delay) {
-    *actorType = D_80754248[(randomNonNegative() >> 0xF) % 7U];
+    *actorType = D_80754248[(randomNonNegative() >> 0xF) % (sizeof(D_80754248) / sizeof(D_80754248[0]))];
     *delay = ((randomNonNegative() >> 0xF) % 32767 % 391) + 0xD2;
 }
 
@@ -1200,7 +1200,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
     player = gPlayerSlots[playerIndex].actor;
     playerState = player->customState;
     if (gPlayerInventoryTable[playerIndex].health > 0) {
-        for (typeIndex = 0; typeIndex < 0x2A; typeIndex++) {
+        for (typeIndex = 0; typeIndex < sizeof(gGridTypeTable) / sizeof(gGridTypeTable[0]); typeIndex++) {
             if (gGridTypeTable[typeIndex].actorType != 0) {
                 for (i = 0; i < gActiveActorCount; i++) {
                     actor = gActiveActors[i].actor;
