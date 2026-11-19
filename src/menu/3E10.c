@@ -3055,7 +3055,8 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             elemActor->scaleY = elemActor->scaleX;
             if (type == 7) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->y += mathSinF(t) * 10.0f;
+                radius = mathSinF(t); // FAKE: radius holds the sine: the compound += mathSinF(t) takes a cfe hidden temp word (Q0487) that the case-15 color pointer needs (frame 120, spill temps sp+52/sp+60); ACDC0 hudPauseMenuIconUpdate routes its wobble sine through its radius local sc the same way
+                elemActor->y += radius * 10.0f;
             }
             if (type == 0x12) {
                 elemActor->red = colorComponent;
@@ -3171,7 +3172,8 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             }
             if (type == 0xE) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->y += mathSinF(t) * 10.0f;
+                radius = mathSinF(t); // FAKE: radius holds the sine: the compound += mathSinF(t) takes a cfe hidden temp word (Q0487) that the case-15 color pointer needs (frame 120, spill temps sp+52/sp+60); ACDC0 hudPauseMenuIconUpdate routes its wobble sine through its radius local sc the same way
+                elemActor->y += radius * 10.0f;
             }
             if (type == 0x13 && (sMenuJoinedPlayerCount == 4 || sMenuJoinedPlayerCount == 1 || D_8076A104 == 1)) {
                 elemActor->x = -400.0f;
@@ -3231,9 +3233,11 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             sMenuElementX[idx] = -200.0f;
             sMenuElementY[idx] = -200.0f;
             if (sMenuKongUnlocked[idx] == 0) {
-                elemActor->red = (sMenuKongColors + idx)->r; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; sMenuKongColors[idx].f shares the 0x9688 sll and loses it (Q0776)
-                elemActor->green = (sMenuKongColors + idx)->g; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; sMenuKongColors[idx].f shares the 0x9688 sll and loses it (Q0776)
-                elemActor->blue = (sMenuKongColors + idx)->b; // FAKE: (p + i) lowers to ushl idx,2, which uopt keeps apart from the float subscripts' umpy idx,4: the target's own sll t3,a1,0x2 at 0x96c8; sMenuKongColors[idx].f shares the 0x9688 sll and loses it (Q0776)
+                MenuUiRgba *color = sMenuKongColors + idx;
+
+                elemActor->red = color->r;
+                elemActor->green = color->g;
+                elemActor->blue = color->b;
             }
             break;
         }
