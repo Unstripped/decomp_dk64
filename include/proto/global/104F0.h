@@ -36,7 +36,7 @@ void eepromGetSaveDataSectionOffset(s32, u8, u16 *, u8 *);
 void eepromGetGlobalFieldOffset(s32, u8, u16 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_eepromCalculateTotalModelCount
-void eepromCalculateTotalModelCount(s32, s32, u8, u16 *, s8 *);
+void eepromCalculateTotalModelCount(s32, s32, u8, u16 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_eepromGetSectorOffset
 void eepromGetSectorOffset();

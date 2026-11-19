@@ -18,8 +18,22 @@ u8 sEepromSlotBuffer[0x800];
 u8 sEepromImage[0x800];
 u8 gEepromSectorSlot[4];
 s32 D_807EDEAC;
-extern const char D_80757020[];
-extern const char D_80757024[];
+
+// Bits of one save slot: D_807ECEA0 + 0x678 rounded up to 64, then the 32-bit CRC (the slot's last word), rounded up to a byte.
+#define EEPROM_SLOT_BITS ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)
+// Bit offset of the global section after the four slots, 64-bit aligned.
+#define EEPROM_GLOBAL_BIT_OFFSET (((EEPROM_SLOT_BITS * 4) + 0x3F) & ~0x3F)
+
+const u8 D_80757020[4] = "7.2";
+const u8 D_80757024[30] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.- ";
+
+const MenuHighScoreEntry D_80757044[5] = {
+    { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
+};
+
+const MenuHighScoreEntry D_80757064[5] = {
+    { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
+};
 
 u32 D_807463C0[256] = {
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
@@ -55,7 +69,7 @@ u32 D_807463C0[256] = {
     0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF,
     0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D,
 };
-u8 *D_807467C0 = (u8 *)D_80757020; // save-signature string "7.2"
+const u8 *D_807467C0 = D_80757020; // save-signature string "7.2"
 s8 gEepromWriteInProgress = 0;
 u8 gEepromCurrentSlot = 0;
 s8 D_807467CC = 0;
@@ -112,12 +126,12 @@ void eepromDispatchCommand(s32 cmd) {
 
 
 u32 eepromCalculateCrc32(u8 *data, u16 length) {
-    u32 crc = ~0;
+    u32 crc = 0xFFFFFFFF;
 
     while (length--) {
         crc = D_807463C0[(*data++ ^ crc) & 0xFF] ^ (crc >> 8);
     }
-    return crc ^ -1;
+    return crc ^ 0xFFFFFFFF;
 }
 
 
@@ -143,9 +157,9 @@ void eepromCopySlot(void) {
     original = eepromGetSectorForSlot(gEepromCurrentSlot);
     replacement = eepromGetSectorForSlot(3);
     if (((menuIsTransitionType6() != 0) || (menuIsTransitionType7Or9() != 0)) && (original != replacement)) {
-        src = &sEepromSlotBuffer[(((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * original];
-        dst = &sEepromSlotBuffer[(((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * replacement];
-        memcpy(dst, src, ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
+        src = &sEepromSlotBuffer[(EEPROM_SLOT_BITS / 8) * original];
+        dst = &sEepromSlotBuffer[(EEPROM_SLOT_BITS / 8) * replacement];
+        memcpy(dst, src, EEPROM_SLOT_BITS / 8);
         gEepromSectorSlot[replacement] ^= gEepromSectorSlot[original];
         gEepromSectorSlot[original] ^= gEepromSectorSlot[replacement];
         gEepromSectorSlot[replacement] ^= gEepromSectorSlot[original];
@@ -323,7 +337,7 @@ void eepromGetGlobalFieldOffset(s32 field, u8 index, u16 *offset, u8 *width) {
     }
 }
 
-void eepromCalculateTotalModelCount(s32 field, s32 index, u8 count, u16 *offset, s8 *width) {
+void eepromCalculateTotalModelCount(s32 field, s32 index, u8 count, u16 *offset, u8 *width) {
     s32 i;
 
     *offset += 0x320;
@@ -343,7 +357,7 @@ unsigned char sector;
 {
     u16 base;
     base = sector;
-    base *= ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7);
+    base *= EEPROM_SLOT_BITS;
     *offset = base;
     if (field >= 0x11) {
         eepromGetGlobalFieldOffset(field, subIndex, offset, width);
@@ -357,7 +371,7 @@ unsigned char sector;
         eepromGetKongFieldOffset(field, index, subIndex, offset, width);
         return;
     }
-    eepromCalculateTotalModelCount(field, index, subIndex, offset, (s8 *)width);
+    eepromCalculateTotalModelCount(field, index, subIndex, offset, width);
 }
 
 
@@ -436,7 +450,7 @@ int save;
 
     slotId = slot;
     sector = eepromGetSectorForSlot(slotId);
-    size = ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
+    size = EEPROM_SLOT_BITS / 8;
     dst += sector * size;
     gEepromCurrentSlot = slotId;
     bzero(dst, size);
@@ -462,9 +476,6 @@ void eepromSetCurrentSlot(u8 slotId, s32 save) {
 
 extern MenuHighScoreEntry D_80744548[];
 extern MenuHighScoreEntry D_80744568[];
-
-extern const MenuHighScoreEntry D_80757044[];
-extern const MenuHighScoreEntry D_80757064[];
 
 void eepromInitConfigs(u8 mask) {
     s32 i;
@@ -538,6 +549,7 @@ void eepromValidateSaveSlots(void) {
     u8 *data;
     u8 failed;
     u8 version;
+
     failed = 0;
     memcpy(sEepromSlotBuffer, sEepromImage, 0x800);
     for (i = 0; i < 4; i++) {
@@ -546,11 +558,11 @@ void eepromValidateSaveSlots(void) {
     }
     for (i = 0; i < 4; i++) {
         ok = 1;
-        off = ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
+        off = (EEPROM_SLOT_BITS / 8) * i;
         data = off + sEepromImage;
-        idx = (((i + 1) * ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8)) / 4) - 1;
+        idx = (((i + 1) * (EEPROM_SLOT_BITS / 8)) / 4) - 1;
         stored = ((u32 *)sEepromImage)[idx];
-        len = ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
+        len = (EEPROM_SLOT_BITS / 8) - 4;
         crc = eepromCalculateCrc32(data, len);
         if (stored != crc) {
             ok = 0;
@@ -602,8 +614,8 @@ void eepromValidateSaveSlots(void) {
         gEepromSectorSlot[i] = sectorOrder[i];
     }
     globalOk = 1;
-    off = ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
-    idx = (((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
+    off = EEPROM_GLOBAL_BIT_OFFSET / 8;
+    idx = ((EEPROM_GLOBAL_BIT_OFFSET / 8) + 0x40) / 4 - 1;
     stored = ((u32 *)sEepromImage)[idx];
     crc = eepromCalculateCrc32(sEepromImage + off, 0x3C);
     if (stored != crc) {
@@ -668,15 +680,13 @@ void eepromReadAllSectors(void) {
     gEepromWriteInProgress = 0;
     D_807467CC = 1;
     if (failed == 0) {
-        failed = _strcasecmp(sEepromImage + ((((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        failed = _strcasecmp(sEepromImage + (((EEPROM_GLOBAL_BIT_OFFSET + 0x207) & ~7) / 8), D_807467C0);
     }
     if (failed != 0) {
         eepromResetAllSlots();
     }
     func_8060CB9C();
 }
-
-extern OSMesgQueue D_807ECCF0;
 
 
 void eepromSaveRecords(s32 recordsOnly) {
@@ -693,13 +703,13 @@ void eepromSaveRecords(s32 recordsOnly) {
     volatile u8 *contReadPending; // controller-read-pending flag; this runs on eepromThreadMain while the main thread (controllerUpdate) clears it
     contReadPending = &gContReadPending;
     if (D_807EDEAC == 2) {
-        _sprintf(((((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8) + sEepromSlotBuffer, D_807467C0);
+        _sprintf((((EEPROM_GLOBAL_BIT_OFFSET + 0x207) & ~7) / 8) + sEepromSlotBuffer, D_807467C0);
         memcpy(workingData, sEepromSlotBuffer, 0x800);
         memcpy(savedData, sEepromImage, 0x800);
         if (recordsOnly == 0) {
             eepromCopySlot();
             for (i = 0; i < 4; i++) {
-                height = ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7);
+                height = EEPROM_SLOT_BITS;
                 height /= 8;
 
                 a = i * height;
@@ -715,7 +725,7 @@ void eepromSaveRecords(s32 recordsOnly) {
             offset &= ~0x3FU;
             offset /= 8;
         } else {
-            offset = (((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F);
+            offset = EEPROM_GLOBAL_BIT_OFFSET;
             offset /= 8;
             sector = offset / 8;
         }
@@ -723,7 +733,7 @@ void eepromSaveRecords(s32 recordsOnly) {
         b = ((offset + 0x40) / 4) - 1;
         offset = sector << 3;
         ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, 0x3C);
-        bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
+        bzero(strlen(D_807467C0) - (0x800 - (EEPROM_GLOBAL_BIT_OFFSET / 8)) + workingData + 0x840, (0x800 - (EEPROM_GLOBAL_BIT_OFFSET / 8)) - strlen(D_807467C0) - 0x40);
         osWritebackDCacheAll();
         memcpy(&((u64 *)sEepromImage)[sector], &((u64 *)workingData)[sector], 0x800 - offset);
         while (*contReadPending != 0) {
@@ -818,10 +828,10 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     healthRefill(0);
     collectibleCountsClear();
     gPlayTimeBaseSeconds = eepromGetField(0xE, 0, 0, slot);
-    i = 0;
-    do {
-        for (j = 0; j != 5; j++)
+    for (i = 0; i != 5; i++, entry++) {
+        for (j = 0; j != 5; j++) {
             entry->unk0[j] = eepromGetField(j + 4, i, 0, slot);
+        }
         entry->coins = eepromGetField(9, i, 0, slot);
         entry->unk5 = eepromGetField(0xA, i, 0, slot);
         if (eepromGetField(0xB, i, 0, slot) != 0) {
@@ -832,9 +842,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
             gLevelCollectibleCounts[k] += entry->bananasDelivered[k] = eepromGetField(2, i, k, slot);
             entry->goldenBananas[k] = eepromGetField(3, i, k, slot);
         }
-        i++;
-        entry++;
-    } while (i != 5);
+    }
     if (fromCopy != 0) {
         eepromRefillHalfConsumables();
     }
@@ -849,7 +857,7 @@ void func_8060DEA8(void) {
 void eepromSavePlayerData(void) {
     KongInventory *entry;
     u32 total;
-    u32 value;
+    u32 saveCount;
     s32 i;
     s32 j;
     s32 k;
@@ -858,7 +866,7 @@ void eepromSavePlayerData(void) {
         if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
             entry = gPlayerInventoryTable[0].kong;
             total = playTimeGetSeconds();
-            value = func_8060C724(gEepromCurrentSlot);
+            saveCount = func_8060C724(gEepromCurrentSlot);
             if (total >= 0x400000U) {
                 total = -1;
             }
@@ -866,7 +874,7 @@ void eepromSavePlayerData(void) {
             eepromSetField(0xE, 0, 0, gEepromCurrentSlot, total);
             eepromSetField(0xC, 0, 0, gEepromCurrentSlot, gPlayerInventoryTable[0].melons);
             eepromSetField(0xF, 0, 0, gEepromCurrentSlot, gEepromCurrentSlot);
-            eepromSetField(0x10, 0, 0, gEepromCurrentSlot, value);
+            eepromSetField(0x10, 0, 0, gEepromCurrentSlot, saveCount);
             for (i = 0; i < 5; i++, entry++) {
                 for (j = 0; j < 5; j++) {
                     eepromSetField(j + 4, i, 0, gEepromCurrentSlot, entry->unk0[j]);
@@ -919,14 +927,14 @@ u8 *eepromGetSectionBuffer(u8 section) {
     case 0:
         if ((menuIsTransitionType3Or4() != 0) || (gPlayerCount >= 2)) {
             flagsClearAllBank2();
-            bzero(D_807EDEB0, ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
+            bzero(D_807EDEB0, EEPROM_SLOT_BITS / 8);
             result = D_807EDEB0;
         } else {
-            result = sEepromSlotBuffer + ((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * eepromGetSectorForSlot(gEepromCurrentSlot));
+            result = sEepromSlotBuffer + ((EEPROM_SLOT_BITS / 8) * eepromGetSectorForSlot(gEepromCurrentSlot));
         }
         break;
     case 1:
-        result = ((s32) (((((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8) + sEepromSlotBuffer;
+        result = (EEPROM_GLOBAL_BIT_OFFSET / 8) + sEepromSlotBuffer;
         break;
     }
     return result;
@@ -955,14 +963,3 @@ void func_8060E430(u16 bit, u8 value, u8 index) {
         eepromWriteBitfield(value, (offset + bit) & 0xFFFF, 1);
     }
 }
-
-const char D_80757020[4] = "7.2";
-const char D_80757024[30] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.- ";
-
-const MenuHighScoreEntry D_80757044[5] = {
-    { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
-};
-
-const MenuHighScoreEntry D_80757064[5] = {
-    { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
-};

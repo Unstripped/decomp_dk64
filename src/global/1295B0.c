@@ -28,18 +28,9 @@ extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 
-typedef struct A2PtrPair {
-    void *p[2];
-} A2PtrPair;
-
-typedef struct A2BytePair {
-    u8 b[2];
-} A2BytePair;
-
 extern ZoneTable D_807FDC80;
 extern SpawnNodeList D_807FDC88;
-extern u8 sEffectSparkConfig[];
-extern u8 D_8071FF40[];
+extern EffectGridAsset sEffectSparkConfig, D_8071FF40;
 
 ZoneTable *gZoneTable = &D_807FDC80;
 SpawnNodeList *gSpawnNodeList = &D_807FDC88;
@@ -59,8 +50,6 @@ s16 D_8075570C[68] = {
     0xDC, 0xDD, 0xDE, 0xDF, 0xE3, 0x2C, 0x70, 0x71, 0x72, 0x6B, 0xEA, 0xE9,
     0x1A, 0x1B, 0x44, 0x80, 0xEC, 0xEB, 0xC3, 0,
 };
-A2PtrPair D_80755794 = { { sEffectSparkConfig, D_8071FF40 } };
-A2BytePair D_8075579C = { { 0x01, 0x12 } };
 
 void actorSetUniformScale(Actor *actor, f32 scale) {
     actor->sub4->scaleX = scale;
@@ -90,16 +79,12 @@ s32 volumeTriggerApplyActorState(void) {
     s16 i;
 
     found = 0;
-    i = 0;
-    if (gActorGlobalState.volumeTriggerQueueCount > 0) {
-        do {
-            if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
-                found = 1;
-                gCurrentActor->state = gActorGlobalState.volumeTriggerQueueId[i][1];
-                gCurrentActor->unk155 = 0;
-            }
-            i++;
-        } while (found == 0 && i < gActorGlobalState.volumeTriggerQueueCount);
+    for (i = 0; found == 0 && i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
+            found = 1;
+            gCurrentActor->state = gActorGlobalState.volumeTriggerQueueId[i][1];
+            gCurrentActor->unk155 = 0;
+        }
     }
     return found;
 }
@@ -545,14 +530,14 @@ extern s32 gCurrentMap;
 
 void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     BehaviourWorkState *st;
-    s32 pad;
-    s16 pad2;
+    s32 yaw;
+    s16 pad;
     s16 scriptId;
-    s32 pad3;
+    s32 interval;
     u8 type;
     u8 idx;
     s16 *controllerState;
-    s32 v;
+    s32 sum;
 
     st = act->customState;
     idx = node->entryIndex;
@@ -585,11 +570,11 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     }
     actorSetTargetSpeed(act, node->targetSpeed);
     st->node = node;
-    v = act->yaw;
-    act->moveYaw = v;
+    yaw = act->yaw;
+    act->moveYaw = yaw;
     st->waypointIndex = 0;
     st->lastMoveTier = 0xFF;
-    st->targetYaw = v;
+    st->targetYaw = yaw;
     st->lastValidX = act->x;
     st->lastValidY = act->y;
     st->lastValidZ = act->z;
@@ -602,9 +587,9 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     }
     act->unk16E[0] = gSpawnEntryTable[idx].shadowScaleX;
     act->unk16E[1] = gSpawnEntryTable[idx].shadowScaleZ;
-    v = gSpawnEntryTable[idx].wanderInterval;
-    st->wanderTimer = v;
-    st->wanderInterval = v;
+    interval = gSpawnEntryTable[idx].wanderInterval;
+    st->wanderTimer = interval;
+    st->wanderInterval = interval;
     st->turnRate = gSpawnEntryTable[idx].turnRate;
     st->moveYawRate = gSpawnEntryTable[idx].moveYawRate;
     st->wanderDegrees = gSpawnEntryTable[idx].wanderDegrees;
@@ -639,11 +624,11 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
         case 0x4E:
         case 0x4F:
         case 0x83:
-            v = node->unkD + (node->spawnCount * 0xA);
-            if (v >= 0x100) {
+            sum = node->unkD + (node->spawnCount * 0xA);
+            if (sum >= 0x100) {
                 node->unkD = 0xFF;
             } else {
-                node->unkD = v;
+                node->unkD = sum;
             }
             break;
         case 0x53:
@@ -901,13 +886,13 @@ void spawnNodesProcessVolumeTriggers(void) {
     s16 i;
     SpawnNode *node;
     s16 j;
-    s16 *ptr;
+    s16 *trigger;
 
     node = gSpawnNodeList->nodes;
     for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         for (j = 0; j < gActorGlobalState.volumeTriggerQueueCount; j++) {
-            ptr = gActorGlobalState.volumeTriggerQueueId[j];
-            if (node->id == *ptr) {
+            trigger = gActorGlobalState.volumeTriggerQueueId[j];
+            if (node->id == *trigger) {
                 switch (gActorGlobalState.volumeTriggerQueueOp[j]) {
                     case 1:
                         if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].spawnArg) != 0)) {
@@ -927,7 +912,7 @@ void spawnNodesProcessVolumeTriggers(void) {
                     case 3:
                     case 4:
                         if (node->state == 5) {
-                            actorAppendCallbackMemcpy8(gCurrentActor, node->actor, 0x01000000, gActorGlobalState.volumeTriggerQueueOp[j], ptr, 0);
+                            actorAppendCallbackMemcpy8(gCurrentActor, node->actor, 0x01000000, gActorGlobalState.volumeTriggerQueueOp[j], trigger, 0);
                         }
                         break;
                 }
@@ -1168,21 +1153,16 @@ u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
 
 void spawnNodeAssignZone(SpawnNode *node) {
     s16 i;
-    Zone *entry;
+    Zone *zone;
 
-    entry = gZoneTable->zones;
-    i = 0;
-    if (gZoneTable->count > 0) {
-        do {
-            entry->occupant = NULL;
-            entry->unk20 = 0;
-            if (entry->id == node->zoneId) {
-                node->zone = entry;
-                break;
-            }
-            i++;
-            entry++;
-        } while (i < gZoneTable->count);
+    zone = gZoneTable->zones;
+    for (i = 0; i < gZoneTable->count; i++, zone++) {
+        zone->occupant = NULL;
+        zone->unk20 = 0;
+        if (zone->id == node->zoneId) {
+            node->zone = zone;
+            break;
+        }
     }
     if (node->zone == NULL) {
         node->zone = gZoneTable->zones;
@@ -1367,11 +1347,7 @@ void currentActorAnimSetFrame(u8 frame, u8 subframe) {
     animSetFrameAndSubframe(gCurrentActor, frame, subframe, 0.0f);
 }
 
-extern u8 D_8071FB34[];
-extern u8 D_8071FB54[];
-extern u8 D_8071FC0C[];
-extern u8 D_8071FC40[];
-extern u8 D_8071FC58[];
+extern EffectGridAsset D_8071FB34, D_8071FB54, D_8071FC0C, D_8071FC40, D_8071FC58;
 extern void *gPuffSprites[];
 
 
@@ -1402,7 +1378,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetSpeed(-(i * 20));
                 effectSetDepth(1);
                 effectSetMode(param);
-                effectCreateAtPosition(sEffectSparkConfig, 1.5f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
+                effectCreateAtPosition(&sEffectSparkConfig, 1.5f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
             }
             return;
         }
@@ -1480,33 +1456,30 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
             actorSpawn(0x92, 0x73);
             actorScriptStart(gSpawnedActor, 0x42A);
             return;
-        case 6: {
-            A2PtrPair configs;
-            A2BytePair durations;
-            u8 pick;
-            s16 targetX;
-            s16 targetZ;
-            s16 angle;
-
+        case 6:
             for (i = 0; i < count; i++) {
-                configs = D_80755794;
-                durations = D_8075579C;
+                void *configs[2] = { &sEffectSparkConfig, &D_8071FF40 };
+                u8 durations[2] = { 1, 0x12 };
+                u8 pick;
+                s16 targetX;
+                s16 targetZ;
+                s16 angle;
+
                 pick = (randomNonNegative() >> 0xF) % 2;
                 targetX = group->entries[param].x;
                 targetZ = group->entries[param].z;
                 angle = mathAngleBetweenPoints2D((f32)targetX, (f32)targetZ, (f32)x, (f32)z);
                 effectSetDepth(1);
-                effectSetDuration(durations.b[pick]);
+                effectSetDuration(durations[pick]);
                 effectSetCallback(effectConfettiPhysicsUpdate);
                 effectSetSpeed((angle << 16) + 3);
-                effectCreateAtPosition(configs.p[pick], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
+                effectCreateAtPosition(configs[pick], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
             }
             return;
-        }
         case 12:
             effectSetMaxDistance(0x7D0);
             effectSetMode(1);
-            effectCreateAtPosition(D_8071FC0C, param * 0.01, (f32)x, (f32)y, (f32)z);
+            effectCreateAtPosition(&D_8071FC0C, param * 0.01, (f32)x, (f32)y, (f32)z);
             return;
         case 8: {
             f32 scale;
@@ -1519,7 +1492,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 offZ = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale;
                 effectSetMaxDistance(0x7D0);
                 effectSetDepth(1);
-                effectCreateAtPosition(D_8071FB54, scale * 1.3, (f32)x + offX, (f32)y, (f32)z + offZ);
+                effectCreateAtPosition(&D_8071FB54, scale * 1.3, (f32)x + offX, (f32)y, (f32)z + offZ);
                 effectSetColor(0xD2, 0xD2, 0xD2, 0xC8);
                 effectSpawnBoneDefault(NULL, 0, scale * 1.2, (f32)x + offX, (f32)y, (f32)z + offZ, -0xB4);
             }
@@ -1545,7 +1518,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 posX = (f32)(rnd % 300);
                 posY = (f32)((randomNonNegative() >> 0xF) % 200);
                 effectEnableFade();
-                effectCreateAtPosition(D_8071FB34, count * 0.01, posX, posY, -10.0f);
+                effectCreateAtPosition(&D_8071FB34, count * 0.01, posX, posY, -10.0f);
             }
             return;
         }
@@ -1563,7 +1536,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetSpeed(0x64);
                 effectSetCallback(effectSinkBySpeedUpdate);
                 effectSetAngle(i / 7);
-                effectCreateAtPosition(D_8071FC58, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
+                effectCreateAtPosition(&D_8071FC58, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
             }
             return;
         }
@@ -1584,7 +1557,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetDuration(-1);
                 effectSetCallback(effectWobbleRiseUpdate);
                 effectSetFlags(4);
-                effectCreateAtPosition(D_8071FC40, 0.0f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
+                effectCreateAtPosition(&D_8071FC40, 0.0f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
             }
             break;
         }
