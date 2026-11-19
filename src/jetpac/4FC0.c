@@ -524,17 +524,17 @@ void jetpacActorSteerToPlayer(JetpacActor *actor) {
         dxw = dx + 256.0f;
     }
     dy = D_8002F054 + D_8002F078 - jetpacGetEntityCenterY(actor);
-    if (0.0f < dy) {
+    if (dy > 0.0f) {
         dyw = dy - 288.0;
     } else {
         dyw = dy + 192.0f;
     }
-    if (((0.0f < dx) ? dx : -dx) < ((0.0f < dxw) ? dxw : -dxw)) {
+    if (((dx > 0.0f) ? dx : -dx) < ((dxw > 0.0f) ? dxw : -dxw)) {
         rx = dx;
     } else {
         rx = dxw;
     }
-    if (((0.0f < dy) ? dy : -dy) < ((0.0f < dyw) ? dyw : -dyw)) {
+    if (((dy > 0.0f) ? dy : -dy) < ((dyw > 0.0f) ? dyw : -dyw)) {
         ry = dy;
     } else {
         ry = dyw;

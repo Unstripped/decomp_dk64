@@ -8,7 +8,7 @@
 
 typedef struct {
     u8 rgba[4];
-} J3Color;
+} JetpacColor;
 
 // .data 0x8002C570-0x8002DEB0 (sprite pixel layout: see 0.c).
 Gfx D_8002C570[1] = { gsSPEndDisplayList() };
@@ -85,7 +85,7 @@ JetpacItem D_8002DC9C = {
     2, 0, 0, 4, 16, 16, 20, 0, 100, 8,
     jetpacRocketItemUpdate, jetpacDrawItem,
 };
-J3Color D_8002DCE8 = {{255, 255, 255, 1}};
+JetpacColor D_8002DCE8 = {{255, 255, 255, 1}};
 JetpacItem D_8002DCEC = {
     {NULL, NULL},
     0.0f, 16.0f, 0.0f, 0.8f,
@@ -101,7 +101,7 @@ JetpacItem D_8002DD38 = {
     jetpacRocketItemUpdate, jetpacDrawItem,
 };
 s32 D_8002DD84 = 0; // unreferenced
-J3Color D_8002DD88 = {{255, 0, 0, 1}};
+JetpacColor D_8002DD88 = {{255, 0, 0, 1}};
 Gfx D_8002DD90[1] = { gsSPEndDisplayList() };
 u8 D_8002DD98[0x48] = {
 #include "jetpac/D_8002DD98.inc.c"
@@ -253,7 +253,7 @@ void jetpacDrawItem(JetpacItem *item, s32 mode) {
     s32 x;
     s32 y;
     JetpacPlayer *player;
-    J3Color color;
+    JetpacColor color;
     s32 i;
 
     color = D_8002DCE8;
@@ -546,7 +546,7 @@ void jetpacPlaceRocketAboveScreen(void) {
 void jetpacDrawRocket(void) {
     JetpacItem *item;
     s32 pad;
-    J3Color flameColor;
+    JetpacColor flameColor;
     s32 i;
 
     item = jetpacGame.players[jetpacGame.activePlayer].items;
