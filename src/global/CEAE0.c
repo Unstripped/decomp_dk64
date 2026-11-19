@@ -432,14 +432,16 @@ void playerUpdateCommon(s32 mode) {
     s16 flags;
     f32 projX;
     f32 projY;
-    if (gCurrentActor) {}  // FAKE: steers uopt candidate colouring (gActivePlayerActor pointer v1)
 
     attacker = gCurrentActor;
     gActivePlayerState = gCurrentActor->customState;
-    if (gDemoPlaybackState == 0) {
-        gCurrentActor->flags |= 0x400000;
-    } else {
-        gCurrentActor->flags &= ~0x400000;
+    switch (gDemoPlaybackState) {
+        case 0:
+            gCurrentActor->flags |= 0x400000;
+            break;
+        default:
+            gCurrentActor->flags &= ~0x400000;
+            break;
     }
     gCurrentActor->flags &= ~0x08000000;
     gPlayerSlots[gCurrentPlayerIndex].prevFov = gPlayerSlots[gCurrentPlayerIndex].fov;
