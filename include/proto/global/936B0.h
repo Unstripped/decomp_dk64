@@ -90,7 +90,7 @@ void projectileSpawnSpriteRing(u8, u8, f32, f32, u8, u8);
 void projectileBounceParticleUpdate(void *);
 #endif
 #ifndef PROTO_SKIP_projectileSparkleUpdate
-void projectileSparkleUpdate(s32);
+void projectileSparkleUpdate(u8);
 #endif
 #ifndef PROTO_SKIP_projectileSparkleUpdateGold
 void projectileSparkleUpdateGold(void);

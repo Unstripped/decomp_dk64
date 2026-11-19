@@ -2194,26 +2194,26 @@ typedef struct ChildEffectNodeState {
 } ChildEffectNodeState;
 
 void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
-    u16 imm;
+    u16 spriteId;
     u16 imm2;
-    u16 imm3;
+    u16 spawnArg;
     u16 imm4;
     f32 scale;
     ChildEffectNodeState *node;
 
     scale = actor->sub4->scaleY / 0.15;
-    scriptReadU16(&imm);
+    scriptReadU16(&spriteId);
     scriptReadU16(&imm2);
-    scriptReadU16(&imm3);
+    scriptReadU16(&spawnArg);
     scriptReadU16(&imm4);
-    actorSpawn(0x139, imm3);
+    actorSpawn(0x139, spawnArg);
     actorCopyPoseAndScale(gSpawnedActor, actor, actor->sub4->scaleX);
     gSpawnedActor->yaw = actor->yaw;
     gSpawnedActor->roll = actor->roll;
     gSpawnedActor->pitch = actor->pitch;
     node = gSpawnedActor->customState;
     node->yOffset = 0.0f;
-    if (imm != 0xFFFF) {
+    if (spriteId != 0xFFFF) {
         effectSetDuration(-1);
         effectSetDepth(1);
         switch (actor->actorType) {
@@ -2238,8 +2238,8 @@ void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
         }
     }
     gSpawnedActor->y -= node->yOffset;
-    if (imm != 0xFFFF) {
-        effectCreateAtActorBone(sScriptEffectSprites[imm], scale, gSpawnedActor, 1, 2);
+    if (spriteId != 0xFFFF) {
+        effectCreateAtActorBone(sScriptEffectSprites[spriteId], scale, gSpawnedActor, 1, 2);
     }
     node->unk0 = imm2;
     node->parent = actor;

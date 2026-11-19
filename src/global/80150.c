@@ -1013,9 +1013,9 @@ void throwableBarrelUpdate(void) {
     guMtxCatF(mtx, rot, gCurrentActor->modelMtx);
 }
 
-extern s32 D_8071FE64;
-extern s32 D_8071FE88;
-extern s32 D_8071FEAC;
+extern EffectGridAsset D_8071FE64;
+extern EffectGridAsset D_8071FE88;
+extern EffectGridAsset D_8071FEAC;
 
 void tagBarrelDespawnEffects(void) {
     s32 pad;

@@ -753,7 +753,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     u8 uAnim;
     u8 i;
     f32 animProgress;
-    u8 *q;
+    u8 *moveLevel;
     PlayerState *playerState;
     u32 mask;
     Actor *b;
@@ -872,8 +872,8 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         break;
     case 0x34:
         kong = playerLookupKongByActorType(cond->arg[0]);
-        q = gPlayerInventoryTable[gCurrentPlayerIndex].kong[kong].unk0;
-        if (*q >= cond->arg[1]) {
+        moveLevel = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[kong].moveLevel;
+        if (*moveLevel >= cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;

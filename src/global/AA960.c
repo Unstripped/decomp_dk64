@@ -30,7 +30,7 @@ typedef struct SfxTableEntry {
 
 // Seven sprite assets the sparkle actor picks from at random.
 typedef struct SparkleSpriteTable {
-    void *sprites[7];
+    EffectGridAsset *sprites[7];
 } SparkleSpriteTable;
 
 // This TU's .data (0x80750400-0x807504D8 + 8-byte TU pad), in address order; the sparkle sprites are
@@ -64,9 +64,9 @@ SfxTableEntry gActorSpawnSfxTable[27] = {
     { 0xAF, 0x2F, 0x2F, 1 },
     { 0, 0, 0, 0 },
 };
-extern u8 D_807208F0[], D_80720914[], D_80720938[], D_8072095C[], D_80720980[], D_807209A4[], D_807209C8[];
+extern EffectGridAsset D_807208F0, D_80720914, D_80720938, D_8072095C, D_80720980, D_807209A4, D_807209C8;
 SparkleSpriteTable sSparkleSprites = { {
-    D_807208F0, D_80720914, D_80720938, D_8072095C, D_80720980, D_807209A4, D_807209C8,
+    &D_807208F0, &D_80720914, &D_80720938, &D_8072095C, &D_80720980, &D_807209A4, &D_807209C8,
 } };
 f32 sShrinkRate = 1.2f;
 f32 sShrinkFrames = 30.0f;
@@ -808,7 +808,7 @@ void actorPathCollectibleUpdate1004B(void) {
 }
 
 
-extern u8 D_80721170;
+extern EffectGridAsset D_80721170;
 
 void effectActorSparkleTick(void) {
     s32 hasInstrument;

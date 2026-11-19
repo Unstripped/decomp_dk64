@@ -1982,7 +1982,7 @@ s32 playerCheckSlopeLaunchArc(void) {
     return 0;
 }
 
-extern u8 D_8071FF18;
+extern EffectGridAsset D_8071FF18;
 
 void playerStateSlopeSlideArc(void) {
     playerUpdateFallAndStepSounds();
@@ -2017,25 +2017,25 @@ void playerStateSlopeSlideArc(void) {
         gActivePlayerState->decelRate = D_80753548[gCurrentCharacterIndex];
         if (gCurrentActor->speedXZ > 20.0f) {
             if (randomLcgNext() % 3U == 0) {
-                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetCallback(effectSineHorizontalDriftUpdate);
                 effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 2, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetCallback(effectSineHorizontalDriftUpdate);
                 effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 3, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetCallback(effectSineHorizontalDriftUpdate);
                 effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 9, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetCallback(effectSineHorizontalDriftUpdate);
                 effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 0xA, 0);

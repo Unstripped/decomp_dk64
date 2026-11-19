@@ -1182,15 +1182,16 @@ void projectileBounceParticleUpdate(void *effectCfg) {
 
 
 extern u8 D_80720120;
-extern u8 D_80720BE8;
+extern EffectGridAsset D_80720BE8;
 
-void projectileSparkleUpdate(s32 silver) {
+void projectileSparkleUpdate(u8 silver) {
     ProjectileState *state;
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->contactFlags &= (gCurrentActor->soundSlots[0] = -2);
-        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->soundSlots[0] = -2;
+        gCurrentActor->contactFlags &= ~1;
+        gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
@@ -1201,9 +1202,9 @@ void projectileSparkleUpdate(s32 silver) {
         effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetCallback(effectGrowExpandMatrixUpdate);
-        effectSetSpeed((s32)(randomNonNegative() >> 15) % 360);
+        effectSetSpeed((randomNonNegative() >> 15) % 360);
         effectSetMaxDistance(2000);
-        switch ((u8)silver) {
+        switch (silver) {
         case 0:
             effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
             effectCreateAtActorBone(&D_80720120, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
@@ -1221,7 +1222,7 @@ void projectileSparkleUpdate(s32 silver) {
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
-    if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.unk15 != 0) || ((u32)(state->spawnFrame + 24) < gGameFrameCounter)) {
+    if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.unk15 != 0) || (state->spawnFrame + 24 < gGameFrameCounter)) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1409,10 +1410,11 @@ void projectileMultiplayerUpdate(void) {
     s32 collisionMask;
     s32 lifetime;
     s32 i;
+
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
@@ -1449,7 +1451,7 @@ void projectileMultiplayerUpdate(void) {
         actorGetFloorSnapped() != 0 ||
         ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
         gActorGlobalState.unk15 != 0 ||
-        (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter)) {
+        (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && state->spawnFrame + 1 < gGameFrameCounter)) {
         if (gMultiplayerReducedEffects == 0) {
             for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
@@ -1463,9 +1465,9 @@ void projectileMultiplayerUpdate(void) {
         actorDespawn(gCurrentActor);
     }
     if (gPlayerCount >= 2) {
-        lifetime = (s32)((f32)lifetime * 1.4f);
+        lifetime *= 1.4f;
     }
-    if ((u32)(state->spawnFrame + lifetime) < gGameFrameCounter) {
+    if (state->spawnFrame + lifetime < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2155,21 +2157,22 @@ void actorApplyTransformAndRender(void) {
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
-extern u8 D_8071FBC8;
-extern u8 D_8071FC40;
-extern u8 D_80720804;
+extern EffectGridAsset D_8071FBC8;
+extern EffectGridAsset D_8071FC40;
+extern EffectGridAsset D_80720804;
 
 
 
 void projectileParticleSpawnerTick(void) {
     ProjectileState *state;
     s32 i;
+
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
         gCurrentActor->soundSlots[0] = -2;
-        gCurrentActor->contactFlags &= -2;
-        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->contactFlags &= ~1;
+        gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         state->param = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
