@@ -25,8 +25,12 @@ boss:80032B08:dead-if:2cf154 `if (link->unk5 && link->unk5) {}` between the tint
 - permuter perm_perrole from the per-role copy, 900 s, baseline 65: 9 score-0 outputs, every one declares ONE local for the else-arm anim id and the mirrored-arm opposite side (the d51071 merge itself); output-15-1 adds a dead `if (!link->slot) {}`. No natural zero.
 - review: `(s16)` roll conversion (s32) 130, none 263: the (s16) conversion is real (trunc.w.d -> addiu -> sh).
 
+2026-11-18 2026-11-18b: cleanup CleanbossSpawnerUpdate CleanbossSpawnerUpdate anthropic/claude-opus-5-5 (base f0eac003), d51071 only:
+- body unchanged since e42248f8 except names; sweep 0 hits. sFireCooldown comment: stale "shadows the file-scope definition" clause dropped (no such definition exists).
+- adjsave by ref count on the per-role form (uopt -l5): `oppSide = parentState->side + 2` 2.5 (5 refs, div 2); two-step `oppSide = parentState->side; oppSide += 2;` 3.5 (7 refs: the field-load first def counts, Q1049) -> still 9 lines (index umpy{oppSide}{2} 4.0 colours first into $v0). Also 9: two-step + ternary clamp, two-step + `else oppSide = oppSide`, `if ((oppSide += 2) >= 4)`. Only a no-op `oppSide -= 2; oppSide -= 2;` (9 refs, 4.5, a steer) or the merged anim-id local (8 refs, Q0924) reach the 4.0 tie that bit 144 wins over bit 152 -> 0.
+
 ## Untried ideas
-(none left that are natural C; the BossSpawnState/BossFollowerLink merge was applied by PolishBossDAA0Names on 2026-11-14, so that idea is closed; 2026-11-18: the permuter from the per-role body only rediscovers the merge)
+(a natural 8th oppSide ref in the mirrored arm that emits no code: none found 2026-11-18b; none left that are natural C; the BossSpawnState/BossFollowerLink merge was applied by PolishBossDAA0Names on 2026-11-14, so that idea is closed; 2026-11-18: the permuter from the per-role body only rediscovers the merge)
 ## Evidence
 Priorities (uopt_trace -l 5, base copy): id bit 62 adjsave 4.0 -> reg 1 ($v0), live bb40/41/42 + bb11/12; index bit 150 adjsave 4.0 -> reg 2 ($v1), live bb42, forbidden [1 3]. Per-role copy: index bit 152 4.0 -> $v0; oppSide bit 144 2.5 -> $v1 (forbidden [1 3]).
 Fire block (0x13c8): `lb v0,20(t6)` is a coloured load candidate but its `sll t9,v0,1` index is a ugen ring temp; a side local there turns the index into a coloured $v1 candidate.

@@ -3,6 +3,7 @@
 ## Sites
 - proto-steer fe0889/59a070 (sfxAllocateChannel K&R): FIXED. Shared `void sfxAllocateChannel(s32, f32)` with `1.0` (double literal): built per call `lui a1,0x3f80`; `1.0f` joins the function 1.0f FP web and is passed `mfc1 a1,$f2`.
 - proto-steer 4c08f3/3cd67a (sfxPlayOnFreeSlot K&R): FIXED. Shared `s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8)` with `63.0, 1.0`: per-call `lui a2,0x427c` / `lui a3,0x3f80`. `63, 1` (int) and `63.0f, 1.0` also match; any `1.0f` fails (Q0354/Q0421). bossFollowerActorUpdate's two calls changed with it.
+- other 9b9b60/df676c: see the 2026-11-18b attempts (light position inline isolates the case-1 colouring: 9 lines).
 - other a0a7fe (dx reused for randomFloat): FIXED. `f32 r` own local; frame room comes from the old `s32 pad` slot (0x78) plus sharing one x/z float pair between case 1 (player offset) and the light block.
 - other 82a569 (cutsceneId as light level): FIXED. `s32 level` in the old pad slot, used for raw level and the `(i << 4) & 0xFF` intensity.
 - dead-if f9b7c2 (`if (D_80035B68 == 0) {}` case 1): FIXED via Q0498: D_80035B68/D_80035B6C become function-local statics (only user). Object differs only in relocations (.data+0x68/+0x6c instead of the two global symbols); `fdiff --reloc-ok` RELOC-EQUIV OK, raw words equal except LO16 addends, .data/.rodata bytes identical.
@@ -37,9 +38,19 @@
 - review found the register-only reuses of i (loop counter / step threshold / magnitude), j (repeat limit / loop counter) and x/z (case 1 offset / light position); tagged. Splits with the guard kept: stepLimit s16 (0x64 hole) 411, s32 427; magnitude s8/s16 418, u8 417, s32 438; repeatLimit s8/s16 in the 0x64 hole 8 (a1 -> v0), variants.py scan of it 200 variants best 8; dx/dz 56-58 (frame 0x88).
 - reconstruct (all role locals, no guard): s32 locals 134 (frame 0x90), narrow locals packed 152.
 
+## Attempts (2026-11-18, 2026-11-18b: cleanup CleanbossSpawnerUpdate, CleanbossSpawnerUpdate, anthropic/claude-opus-5-5, base f0eac003)
+- body since e42248f8 changed by renames only (e495654c); copy renames k -> side, cutsceneId -> kong (fdiff 0, site keys unchanged). sweep: 0 hits.
+- x/z (9b9b60/df676c): light position inline (CSE'd `gBossSideOffsetX[side] * 0.33 + gCurrentActor->x`, no x/z locals in the light block): light block 0xe80-0xfec and frame 0x80 match, only case 1 recolours: 9 lines (sub.s $f2/$f12, cvt.d.s $f0; target $f12/$f0, $f2). uopt -l5: x bit 138 adjsave 4.0 -> 2.0, z bit 143 4.0 -> 1.0, so ucvt{x} bit 148 (3.0) colours first and takes $f0; the shared range's light-block use (first f32 arg, cvt.s.d $f12 at 0xefc/0xfc8) is what gives x $f12 and both pieces their rank. Same body: z/x declaration swap 9, x/z declared first 54, case-1 dx/dz block-scoped 11 (pad[2] for the freed words 58), case-1 offsets inline 144, two-step defs (`x = p->x; x -= a->x`) 133-185; variants.py scan 195 variants best 9.
+- i (39fa37): loop-counter split (both loops on a new `s32 n`, i keeps threshold + magnitude) 438 (424 with n in r's slot and randomFloat() inline): n adjsave 27.3 forbidden [1-5] -> $a3 (target merged i 13.43, forbidden [1-6] -> $t0), i 3.0 -> $v0; threshold in r's freed slot (`s32 limit`) 423: i 17.4 -> $a3, limit 2.33 -> $v0; magnitude in r's slot 424. randomFloat() inline with `s32 pad` in r's slot alone 14.
+- j (926eea): `s16 limit` re-measured 8 (also `s8 limit` beside the s8 locals 8); limit defaulted before the phase if (`limit = 4; if (phase == 2) limit = 0xC`) 11; ternary repeat limit in the compare 32.
+- 3e88fe: guard removed on the inline-light body 32; `i <<= 4` + guard removed on it 11 = the 9 case-1 lines + the 0x44 -> 0x48 spill (`sw/lw v0` at 0xeec/0xf3c), so the CSE'd light-position temps add no lower-bit region item.
+- reconstruct: natural per-role body (LIGHT_X/LIGHT_Z macros for the light position, dx/dz in case 1, stepLimit/repeatLimit/mag role locals, i and j loop counters only, no guard): 134, frame 0x88.
+- permuter perm_xzinl from the inline-light body (9 lines), 905 s, 26885 iterations, base 65: best 40 (output-40-1) only adds a case-1 copy temp (`z = p->x - a->x; x = z;`); no zero.
+
 ## Untried ideas
 - none left in straight-line C: the 0xe80-0xf24 block has no branch, and a block boundary there without emitted code is a dead guard (or label/loop steer) by construction.
 - repeatLimit split is 8 lines (v0 for a1 only): a natural use that forbids v0 across 0x650-0x6a0 in case 0 (none found).
+- x/z: a natural case-1 spelling that gives x adjsave >= 3.0 and a $f12 preference without the light block (none found; two-step defs recolour widely).
 
 ## Evidence
 - D_80035B38 (u8) is compared with -1 in case 0 (`lbu t6` 0x24c, `li at,-1` 0x224, `bnel t6,at` 0x250): the target performs the always-false compare, so `D_80035B38 == -1` is original code, not a steer.
