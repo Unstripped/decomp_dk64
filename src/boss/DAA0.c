@@ -69,7 +69,7 @@ extern f32 gBossFollowerPlayerDistSq;
 void bossSpawnerUpdate(void) {
     f32 r;
     s32 level;
-    s32 k;
+    s32 side;
     s32 i; // FAKE: the loop counter reused as the case 0/1 step threshold and the light magnitude: one merged uopt range keeps all three in $t0 (a separate threshold or magnitude local recolours the function)
     BossSpawnerState *state;
     s8 prevSubState;
@@ -78,7 +78,7 @@ void bossSpawnerUpdate(void) {
     s8 spawnParticle;
     s8 topReached;
     BossFollowerLink *link;
-    s32 cutsceneId;
+    s32 kong;
     f32 x; // FAKE: the case 1 player offset reused as the light position: a separate dx/dz pair recolours the offsets ($f12/$f0 -> $f2/$f12 at 0x3f0) and grows the frame 0x80 -> 0x88
     f32 z; // FAKE: the case 1 player offset reused as the light position (see x)
     s16 j; // FAKE: the case 7 loop counter reused as the case 0 repeat limit: the merged range colours the limit $a1 (0x650/0x668/0x6a0), a separate limit takes $v0
@@ -136,15 +136,15 @@ void bossSpawnerUpdate(void) {
         gPrimaryPlayerActor->flags &= ~4;
         gPrimaryPlayerActor->unk144 = 1;
         if (gActorGlobalState.volumeTriggerQueueCount != 0) {
-            cutsceneId = gBossKongOrder[gBossKongsFreed];
+            kong = gBossKongOrder[gBossKongsFreed];
             gCurrentActor->segmentFlags = 0;
             for (i = 4; gBossKongsFreed < i; i--) {
                 actorSetSegmentFlag(gCurrentActor, gBossKongSegmentFlags[gBossKongOrder[i]]);
             }
             gBossKongsFreed++;
-            cutsceneId = gBossKongActorTypes[cutsceneId];
-            playerSetKongByActorType(cutsceneId);
-            playerKongStopAudioChannels(gPrimaryPlayerActor, cutsceneId);
+            kong = gBossKongActorTypes[kong];
+            playerSetKongByActorType(kong);
+            playerKongStopAudioChannels(gPrimaryPlayerActor, kong);
             gPrimaryPlayerActor->state = 0xC;
             gPrimaryPlayerActor->unk155 = 0;
             actorAppendPlayerLaunch(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
@@ -391,16 +391,16 @@ void bossSpawnerUpdate(void) {
             r = randomFloat();
             state->side += (s32)(r * 2.99f) + 1;
         }
-        k = state->side;
-        if (k >= 4) {
-            state->side = k - 4;
+        side = state->side;
+        if (side >= 4) {
+            state->side = side - 4;
         }
     }
     sLightPulseTimer++;
     if (topReached != 0) {
         level = (sLightPulseTimer & 0x1F) - 0x10;
         i = level;
-        k = state->side;
+        side = state->side;
         if (level < 0) {
             i = -level;
         }
@@ -409,16 +409,16 @@ void bossSpawnerUpdate(void) {
         }
         level = (i << 4) & 0xFF;
         if (level && level) {} // FAKE: pins the level def before the x/z loads
-        x = gBossSideOffsetX[k] * 0.33 + gCurrentActor->x;
-        z = gBossSideOffsetZ[k] * 0.33 + gCurrentActor->z;
+        x = gBossSideOffsetX[side] * 0.33 + gCurrentActor->x;
+        z = gBossSideOffsetZ[side] * 0.33 + gCurrentActor->z;
         lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
         if (state->phase == 1) {
-            k = state->side + 2;
-            if (k >= 4) {
-                k -= 4;
+            side = state->side + 2;
+            if (side >= 4) {
+                side -= 4;
             }
-            x = gBossSideOffsetX[k] * 0.33 + gCurrentActor->x;
-            z = gBossSideOffsetZ[k] * 0.33 + gCurrentActor->z;
+            x = gBossSideOffsetX[side] * 0.33 + gCurrentActor->x;
+            z = gBossSideOffsetZ[side] * 0.33 + gCurrentActor->z;
             lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
         }
     }
@@ -437,7 +437,7 @@ void bossFollowerActorUpdate(void) {
     BossSpawnerState *parentState = link->parent->customState;
     AnimSlot *anim = gCurrentActor->sub4->model;
     s32 id; // FAKE: one local for the anim id and the opposite side merges their uopt ranges (opposite side $v0 ahead of its *2 index $v1)
-    static s16 sFireCooldown = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
+    static s16 sFireCooldown = 0x78; // function-local static (its only user) keeps uopt from pointerizing D_80035B74 (Q0498)
 
     if (link->mirrored == 0) {
         f32 dx = gPrimaryPlayerActor->x - gCurrentActor->x;
