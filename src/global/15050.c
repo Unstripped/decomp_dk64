@@ -126,7 +126,8 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
         romStart = gSegmentTable[id].romStart;
         bssStart = gSegmentTable[id].bssStart;
         bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart; // FAKE: re-reads the field the bssStart local holds (target loads it once, lw v1,16(v0) at 0x170); the local spelling gives bssStart a register from its init (move t4,zero for sw zero,228(sp) at 0xac), 120 lines
-        size = (s32)gSegmentTable[id].bssStart - vram; // FAKE: same bssStart re-read (one load at 0x170; the local spelling scores 120); keeps the left-operand conversion (Q0733)
+        size = (s32)gSegmentTable[id].bssStart; // FAKE: same bssStart re-read (one load at 0x170; size = bssStart scores 120); keeps the conversion on it (Q0733: 107 without)
+        size -= vram;
     }
     gFramebuffers[0] = (size + bssSize + 0x8002403F) & ~0x3F;
     fb1 = ((size + bssSize + 0x8002403F) & ~0x3F) + fbSize;
@@ -149,8 +150,6 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
                 break;
             case 4:
                 sz = 0x61620;
-                break;
-            default: // FAKE: empty default only adds a block (Q0908 block split; replaces the dead gHeapPools[0].start guard)
                 break;
         }
         top -= sz;
