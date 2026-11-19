@@ -1242,3 +1242,4 @@
 {"type": "unit", "t": "2026-11-19T04:49:47Z", "unit": "2026-11-18b: cleanup Polishmenu0", "commit": "a7f17e589b894014428edfc032e9aa17f6bd95fe"}
 {"type": "unit", "t": "2026-11-19T04:55:09Z", "unit": "2026-11-18b: cleanup CleanbossMadJackStepb", "commit": "be25370dee5997774f2aae95b856e62ed7693561"}
 {"type": "unit", "t": "2026-11-19T04:56:51Z", "unit": "2026-11-18b: cleanup CleanactorCollisionResolveSurfaceHitc", "commit": "2cef3127d47cf5100af0e07d65410cebc73f99aa"}
+{"type": "unit", "t": "2026-11-19T04:57:01Z", "unit": "2026-11-18b: cleanup CleanactorTriggerPlayerKnockbackSoundc", "commit": "d0dab3d8590d4709f1d13b7928dfc5de511a1d77"}
