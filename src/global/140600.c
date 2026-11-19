@@ -176,7 +176,7 @@ void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) 
     fxState = alHeapDBAlloc(NULL, 0, heap, 1, sizeof(SynFx));
     *outFx = fxState;
     switch (config->fxType[busIndex]) {
-        case 6:
+        case AL_FX_CUSTOM:
             paramTable = config->params[busIndex];
             break;
         default:

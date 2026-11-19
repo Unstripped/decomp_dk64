@@ -39,15 +39,15 @@ s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType) {
 
     i = 0;
     found = 0;
-    while ((i < 14) && (found == 0)) {
-        if ((actionId == gMapActionRemapTable[i].actionId) && (subType == gMapActionRemapTable[i].subType)) {
+    while (i < 14 && !found) {
+        if (actionId == gMapActionRemapTable[i].actionId && subType == gMapActionRemapTable[i].subType) {
             found = 1;
         } else {
             i++;
         }
     }
-    if (found != 0) {
-        if ((gCurrentActor->collisionFlags & 1) && (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2)) {
+    if (found) {
+        if ((gCurrentActor->collisionFlags & 1) && gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2) {
             return 0x97;
         }
         if (actor->contactFlags & 4) {

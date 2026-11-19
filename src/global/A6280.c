@@ -133,7 +133,7 @@ void actorFollowParentPulseUpdate(void) {
 void actorNoopA6280(void) {
 }
 
-extern s32 sEffectSparkConfig;
+extern EffectGridAsset sEffectSparkConfig;
 
 
 void actorSparkCutsceneUpdate(void) {
@@ -241,14 +241,14 @@ typedef struct ActorSinkState {
     f32 baseY;
 } ActorSinkState;
 
-extern s32 D_8071FF18;
+extern EffectGridAsset D_8071FF18;
 
 
 
 void actorSinkAndDespawn(void) {
     s32 count;
-    s32 i;
-    s32 node;
+    s32 i; // FAKE: also carries the actorListLookupEntry ids beside the rider index: a separate local adds a home word (frame 0x68 -> 0x70)
+    s32 node; // FAKE: carries the actorListFindIdByActor ids before it counts bone nodes: a separate local adds a home word (frame 0x68 -> 0x70)
     u8 found;
     f32 nodeX;
     f32 nodeY;

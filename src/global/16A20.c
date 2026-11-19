@@ -24,38 +24,34 @@ u16 D_80746ACC[64] = {
 u16 D_80746B4C[5] = { 0x039A, 0x031E, 0x028C, 0x01CD, 0x0000 };
 
 s32 mathFixedPointInterp(s32 inputVal) {
-    u32 val;
     u16 *table;
     s32 shift;
     s32 mask;
     s32 index;
-    u16 cur;
+    u32 cur;
     u16 next;
     s32 masked;
 
-    mask = 7;
     if (inputVal >= 0x7FE0) {
+        mask = 7;
         shift = 3;
         table = D_80746B4C;
         inputVal -= 0x7FE0;
+    } else if (inputVal >= 0x7800) {
+        mask = 0x1F;
+        shift = 5;
+        table = D_80746ACC;
+        inputVal -= 0x7800;
     } else {
         mask = 0x1FF;
-        if (inputVal >= 0x7800) {
-            mask = 0x1F;
-            shift = 5;
-            table = D_80746ACC;
-            inputVal -= 0x7800;
-        } else {
-            shift = 9;
-            table = D_80746A50;
-        }
+        shift = 9;
+        table = D_80746A50;
     }
     index = inputVal >> shift;
     cur = table[index];
     next = table[index + 1];
     masked = inputVal & mask;
-    val = cur;
-    return val - ((s32)((val - next) * masked) >> shift);
+    return cur - ((s32)((cur - next) * masked) >> shift);
 }
 
 

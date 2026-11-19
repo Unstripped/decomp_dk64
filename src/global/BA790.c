@@ -30,7 +30,7 @@ extern u8 gGameMode;
 extern s16 gSfxSourceVoice[];
 extern s16 gSfxVoiceSoundId[];
 
-extern u8 D_80720630;
+extern EffectGridAsset D_80720630;
 
 
 s32 func_806B5A90(s32 aggroRange, s32 unused) {
@@ -38,9 +38,9 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     s16 yawDiff;
     s32 step;
     f32 lightRadius;
-    s32 x;
+    s32 x; // ORIG: the case 0x37 fade step and light step spill to this one home (sw v0/zero,64(sp) at 0x494/0x49c/0x4a0, sw t7/v1,64(sp) at 0x618/0x61c, reloaded at 0x4b8/0x620); a separate fade local moves the frame 0x50 -> 0x48
     u32 alpha;
-    s16 q;
+    s16 angle;
     s32 size;
 
     ret = 0;
@@ -118,9 +118,9 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         if (gCurrentActor->state == 0x33) {
             ret = 1;
             gCurrentActor->speedXZ = gBehaviourExtraState->unkD;
-            q = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
-            gCurrentActor->yaw = q;
-            gCurrentActor->moveYaw = q;
+            angle = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
+            gCurrentActor->yaw = angle;
+            gCurrentActor->moveYaw = angle;
         }
         break;
     case 0x38:
@@ -150,10 +150,9 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             } else {
                 size = (step * 6) & 0xFF;
             }
-            q = size;
-            alpha = (u32)((1.0 - (f64)x * 0.03125) * 230.0) & 0xFF;
+            alpha = (u32)((1.0 - x * 0.03125) * 230.0) & 0xFF;
             if (alpha != 0) {
-                billboardSubmit(gCurrentActor, 0x3C3, 0x40, 0x40, q, q, 1, 0x96, alpha, 0, 1.0f);
+                billboardSubmit(gCurrentActor, 0x3C3, 0x40, 0x40, size, size, 1, 0x96, alpha, 0, 1.0f);
             } else {
                 behaviourSetFloorAndState40();
             }
@@ -163,7 +162,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             } else {
                 x = step;
             }
-            lightRadius = ((22.0 - (f64)x) / 20.0) * 200.0;
+            lightRadius = (22.0 - x) / 20.0 * 200.0;
             if (lightRadius > 130.0) {
                 lightRadius = 200.0f;
             }
@@ -206,8 +205,8 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         case 5:
             gCurrentActor->callbackMask = 0;
             actorClearNodeFlag(gCurrentActor, 3);
-        /* fallthrough */
-    default:
+            /* fallthrough */
+        default:
             gCurrentActor->unk155++;
             break;
         }

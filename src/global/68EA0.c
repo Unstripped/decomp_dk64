@@ -24,8 +24,8 @@ extern ActorProximityEntry *gModelEmitters;
 extern s16 gModelEmitterCount;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
-extern u8 D_807213D0;
-extern u8 D_80720A7C;
+extern EffectGridAsset D_807213D0;
+extern EffectGridAsset D_80720A7C;
 
 void modelEmittersInit(void) {
     s32 count;

@@ -258,7 +258,7 @@ void effectOrbitRiseUpdate(EffectNode *effect, void *unused) {
 }
 
 
-extern u8 sEffectImpactPuffConfig;
+extern EffectGridAsset sEffectImpactPuffConfig;
 
 typedef struct {
     s16 step;
@@ -677,57 +677,66 @@ void effectWobbleRiseUpdate(EffectNode *effect, s8 *isDone) {
     f32 swayZ;
     f32 riseSpeed;
     f32 floorY;
+
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(0x20);
+        effect->allocation = heapAlloc(sizeof(WobbleRiseState));
         ((WobbleRiseState *)effect->allocation)->frame = 0;
         ((WobbleRiseState *)effect->allocation)->riseSpeed = 0.0f;
         ((WobbleRiseState *)effect->allocation)->centerX = effect->x;
         ((WobbleRiseState *)effect->allocation)->centerZ = effect->z;
-        ((WobbleRiseState *)effect->allocation)->swayRateX = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.19;
-        ((WobbleRiseState *)effect->allocation)->swayRateZ = ((f64)(randomLcgNext() % 10000U) / 10000.0) * 0.077;
+        ((WobbleRiseState *)effect->allocation)->swayRateX = (randomLcgNext() % 10000U) / 10000.0 * 0.19;
+        ((WobbleRiseState *)effect->allocation)->swayRateZ = (randomLcgNext() % 10000U) / 10000.0 * 0.077;
         if ((randomLcgNext() / 10000U) & 1) {
-            ((WobbleRiseState *)effect->allocation)->swayRateX = (f32)(0.0 - (f64)((WobbleRiseState *)effect->allocation)->swayRateX);
-            ((WobbleRiseState *)effect->allocation)->swayRateZ = (f32)(0.0 - (f64)((WobbleRiseState *)effect->allocation)->swayRateZ);
+            ((WobbleRiseState *)effect->allocation)->swayRateX = 0.0 - ((WobbleRiseState *)effect->allocation)->swayRateX;
+            ((WobbleRiseState *)effect->allocation)->swayRateZ = 0.0 - ((WobbleRiseState *)effect->allocation)->swayRateZ;
         }
         floorY = effect->y;
         collisionCheckGroundAtPoint(effect->x, effect->z, &floorY);
         if (collisionGetFloorHeight(&((WobbleRiseState *)effect->allocation)->floorY) == 0) {
             ((WobbleRiseState *)effect->allocation)->floorY = 0.0f;
         }
-        ((WobbleRiseState *)effect->allocation)->spawnFrame = (f32)gFrameCounter;
+        ((WobbleRiseState *)effect->allocation)->spawnFrame = gFrameCounter;
     }
-    swayX = sinApprox(((WobbleRiseState *)effect->allocation)->swayRateX * (f32)((WobbleRiseState *)effect->allocation)->frame);
-    swayZ = sinApprox(((WobbleRiseState *)effect->allocation)->swayRateZ * (f32)((WobbleRiseState *)effect->allocation)->frame) * 6.0f;
-    effect->x = ((WobbleRiseState *)effect->allocation)->centerX + (swayX * 6.0f);
+    swayX = sinApprox(((WobbleRiseState *)effect->allocation)->swayRateX * ((WobbleRiseState *)effect->allocation)->frame);
+    swayZ = sinApprox(((WobbleRiseState *)effect->allocation)->swayRateZ * ((WobbleRiseState *)effect->allocation)->frame) * 6.0f;
+    effect->x = ((WobbleRiseState *)effect->allocation)->centerX + swayX * 6.0f;
     effect->z = ((WobbleRiseState *)effect->allocation)->centerZ + swayZ;
     ((WobbleRiseState *)effect->allocation)->frame += 1;
-    ((WobbleRiseState *)effect->allocation)->riseSpeed = (f32)((f64)((WobbleRiseState *)effect->allocation)->riseSpeed + 0.02);
+    ((WobbleRiseState *)effect->allocation)->riseSpeed += 0.02;
     riseSpeed = ((WobbleRiseState *)effect->allocation)->riseSpeed;
-    if ((f64)riseSpeed > 1.0) {
+    if (riseSpeed > 1.0) {
         ((WobbleRiseState *)effect->allocation)->riseSpeed = 1.0f;
     }
     riseSpeed = ((WobbleRiseState *)effect->allocation)->riseSpeed;
     effect->y += riseSpeed;
     switch (effect->speed) {
     case 0:
-        effect->scaleX = (f32)(((f64)((WobbleRiseState *)effect->allocation)->frame * 0.01) + 0.01);
-        if ((f64)effect->scaleX > 0.12) effect->scaleX = 0.12f;
+        effect->scaleX = ((WobbleRiseState *)effect->allocation)->frame * 0.01 + 0.01;
+        if (effect->scaleX > 0.12) {
+            effect->scaleX = 0.12f;
+        }
         break;
     case 1:
-        effect->scaleX = (f32)(((f64)((WobbleRiseState *)effect->allocation)->frame * 0.005) + 0.05);
-        if ((f64)effect->scaleX > 0.07) effect->scaleX = 0.07f;
+        effect->scaleX = ((WobbleRiseState *)effect->allocation)->frame * 0.005 + 0.05;
+        if (effect->scaleX > 0.07) {
+            effect->scaleX = 0.07f;
+        }
         break;
     case 2:
-        effect->scaleX = (f32)(((f64)((WobbleRiseState *)effect->allocation)->frame * 0.02) + 0.02);
-        if ((f64)effect->scaleX > 0.24) effect->scaleX = 0.24f;
+        effect->scaleX = ((WobbleRiseState *)effect->allocation)->frame * 0.02 + 0.02;
+        if (effect->scaleX > 0.24) {
+            effect->scaleX = 0.24f;
+        }
         break;
     }
     effect->scaleY = effect->scaleX;
-    swayX = sinApprox((f32)((f64)((WobbleRiseState *)effect->allocation)->frame * 0.17));
-    swayZ = sinApprox((f32)((f64)((WobbleRiseState *)effect->allocation)->frame * 0.2267));
-    effect->scaleX = (f32)((f64)effect->scaleX + ((f64)swayX * 0.03));
-    effect->scaleY = (f32)((f64)effect->scaleY + ((f64)swayZ * 0.03));
-    if ((((WobbleRiseState *)effect->allocation)->spawnFrame + 100.0f) < (f32)gFrameCounter) *isDone = 1;
+    swayX = sinApprox(((WobbleRiseState *)effect->allocation)->frame * 0.17);
+    swayZ = sinApprox(((WobbleRiseState *)effect->allocation)->frame * 0.2267);
+    effect->scaleX += swayX * 0.03;
+    effect->scaleY += swayZ * 0.03;
+    if (((WobbleRiseState *)effect->allocation)->spawnFrame + 100.0f < gFrameCounter) {
+        *isDone = 1;
+    }
     if (((WobbleRiseState *)effect->allocation)->floorY <= effect->y) {
         *isDone = 1;
         effectSpawnImpactPuff(0.3f, effect->x, effect->y, effect->z);
@@ -1414,7 +1423,7 @@ void effectPuffExpandFadeUpdate(EffectNode *effect, s8 *isDone) {
     effect->scaleY = scale;
 }
 
-extern u8 sEffectSparkConfig;
+extern EffectGridAsset sEffectSparkConfig;
 
 void effectSparkSpawnUpdate(EffectNode *effect, s8 *isDone) {
     s32 pad;
@@ -1427,10 +1436,10 @@ void effectSparkSpawnUpdate(EffectNode *effect, s8 *isDone) {
             effect->alpha = 0xFF;
         }
     }
-    if ((effect->param == 3) || (effect->param == 0x11) || (effect->param == 0x15)) {
+    if (effect->param == 3 || effect->param == 0x11 || effect->param == 0x15) {
         sfxPlayAtPositionPooled(effect->x, effect->y, effect->z, 0x14F, 0xFF, 0x7F, 0x1E, 0x4B, 0.3f, 0);
     }
-    if ((effect->duration - effect->durationTimer) < 3) {
+    if (effect->duration - effect->durationTimer < 3) {
         if (effect->alpha >= 0xB) {
             effect->alpha -= 0xA;
         } else {
@@ -1438,7 +1447,7 @@ void effectSparkSpawnUpdate(EffectNode *effect, s8 *isDone) {
         }
         return;
     }
-    if (((randomNonNegative() >> 15) % 100) >= 91) {
+    if ((randomNonNegative() >> 15) % 100 >= 91) {
         effectSetMode(3);
         effectSetCallback(effectSinkBySpeedUpdate);
         effectSetSpeed(-0xA);
@@ -1555,7 +1564,7 @@ void effectWaveMotionUpdate(EffectNode *effect, s8 *isDone) {
     effect->state = 3;
 }
 
-extern u8 D_807201D4;
+extern EffectGridAsset D_807201D4;
 
 void timedLightPulse(EffectNode *effect, s8 *isDone) {
     f64 ratio;
@@ -1576,7 +1585,7 @@ void timedLightPulse(EffectNode *effect, s8 *isDone) {
     switch (phase) {
         case 0:
             timer = effect->param;
-            if ((timer == 0xA) && (effect->frameTimer == 0)) {
+            if (timer == 0xA && effect->frameTimer == 0) {
                 sfxPlayAtPositionPooled(effect->x, effect->y, effect->z, 0xE4, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
                 effectSetDuration(-1);
                 effectSetDepth(1);
@@ -1584,22 +1593,22 @@ void timedLightPulse(EffectNode *effect, s8 *isDone) {
                 effectCreateAtPosition(&D_807201D4, 0.8f, effect->x, effect->y, effect->z);
                 return;
             }
-            total = (f32)(effect->grid->frameCount * 2);
-            elapsed = (f32)((timer * 2) + effect->frameTimer);
-            ratio = (f64)((total - elapsed) / total);
-            frac = (f32)(1.0 - ratio);
+            total = effect->grid->frameCount * 2;
+            elapsed = timer * 2 + effect->frameTimer;
+            ratio = (total - elapsed) / total;
+            frac = 1.0 - ratio;
             lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 200.0f * frac, 0, 0xFF, color[1], color[2]);
             return;
         case 1:
-            total = (f32)(effect->grid->frameCount * 2);
-            elapsed = (f32)((effect->param * 2) + effect->frameTimer);
+            total = effect->grid->frameCount * 2;
+            elapsed = effect->param * 2 + effect->frameTimer;
             frac = (total - elapsed) / total;
             lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 200.0f * frac, 0, 0xFF, color[1], color[2]);
             return;
     }
 }
 
-extern u8 D_8071FB54;
+extern EffectGridAsset D_8071FB54;
 
 void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
     s32 pad;
@@ -1623,7 +1632,7 @@ void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
     groundY = effect->y;
     if (collisionCheckGroundAtPoint(effect->x, effect->z, &groundY) == 0) {
         *isDone = 1;
-    } else if ((effect->y < groundY) && (*(f32 *)effect->allocation < 0.0)) {
+    } else if (effect->y < groundY && *(f32 *)effect->allocation < 0.0) {
         *isDone = 1;
     }
     if (*isDone != 0) {
@@ -1735,7 +1744,7 @@ s16 D_80755650[18] = {
     0x01D4, 0x0078, 0x026D, 0x01EE, 0x0082, 0x02F6, 0x02E5, 0x008C, 0x0254,
     0x02C3, 0x0078, 0x02FA, 0x025A, 0x006E, 0x0312, 0x025E, 0x0096, 0x026A,
 };
-extern s32 D_8071FB08;
+extern EffectGridAsset D_8071FB08;
 
 void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
     f32 mtx[4][4];
@@ -1747,7 +1756,7 @@ void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
 
     if (effect->allocation == NULL) {
         homeIndex = (randomNonNegative() >> 0xF) % 1000 % 6;
-        effect->allocation = heapAlloc(0xE);
+        effect->allocation = heapAlloc(sizeof(WispWanderState));
         state = effect->allocation;
         state->speed = ((randomNonNegative() >> 0xF) % 5) + 10;
         home = &D_80755650[homeIndex * 3];
@@ -1769,11 +1778,12 @@ void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
     effect->x += state->speed * mathSinF(state->angle);
     effect->z += state->speed * mathCosF(state->angle);
     effect->y = mathSinF((state->speed + 0x32) * gFrameCounter) * 40.0 + (state->y + 0x28);
-    if (((randomNonNegative() >> 0xF) % 1000) >= 991) {
-        homeIndex = ((randomNonNegative() >> 0xF) % 1000) % 6;
-        state->homeX = D_80755650[homeIndex * 3];
-        state->homeY = D_80755650[(homeIndex * 3) + 1];
-        state->homeZ = D_80755650[(homeIndex * 3) + 2];
+    if ((randomNonNegative() >> 0xF) % 1000 >= 991) {
+        homeIndex = (randomNonNegative() >> 0xF) % 1000 % 6;
+        home = &D_80755650[homeIndex * 3];
+        state->homeX = home[0];
+        state->homeY = home[1];
+        state->homeZ = home[2];
     }
     lightSetFlags(1);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
@@ -1808,7 +1818,7 @@ void effectWispHomeUpdate(EffectNode *effect, s8 *isDone) {
 
     if (effect->allocation == NULL) {
         randomNonNegative();
-        state = heapAlloc(8);
+        state = heapAlloc(sizeof(WispHomeMotionState));
         effect->allocation = state;
         state->angle = 0;
         state->y = effect->y;
@@ -2653,20 +2663,20 @@ void effectLerpPathUpdate(EffectNode *effect, u8 *isDone) {
 
     if (effect->allocation != NULL) {
         state = effect->allocation;
-        state->progress = state->progress + state->progressStep;
+        state->progress += state->progressStep;
         if (state->progress >= 1.0) {
             *isDone = 0xFF;
             state->progress = 1.0f;
         }
-        effect->x = (state->deltaX * state->progress) + state->startX;
-        effect->y = (state->deltaY * state->progress) + state->startY;
-        effect->z = (state->deltaZ * state->progress) + state->startZ;
+        effect->x = state->deltaX * state->progress + state->startX;
+        effect->y = state->deltaY * state->progress + state->startY;
+        effect->z = state->deltaZ * state->progress + state->startZ;
         if (!(gFrameCounter & 3)) {
             effectSetDepth(1);
             effectSetCallback(effectShrinkFadeMatrixUpdate);
             effectCreateAtPosition(&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
         }
-        state->rotation = state->rotation + state->spinSpeed;
+        state->rotation += state->spinSpeed;
         guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
         guRotateF(tmpMtx, state->rotation, 0.0f, 0.0f, 1.0f);
         guMtxCatF(mtx, tmpMtx, mtx);

@@ -530,7 +530,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
     s16 targetZ;
 
     patrol = B7490A->typeState;
-    if ((sfxId != 0) && (gCurrentActor->state != 0x37) && (gCurrentActor->soundSlots[0] == -1)) {
+    if (sfxId != 0 && gCurrentActor->state != 0x37 && gCurrentActor->soundSlots[0] == -1) {
         sfxPlayActorSound(gCurrentActor, sfxId, 0, 0, 0, 0xFF, 1.0f, 0);
     }
     if (!(gCurrentActor->flags & 0x10)) {
@@ -539,7 +539,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
             gBehaviourExtraState->unkB = 0x28;
         }
     }
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, animId1);
         gCurrentActor->speedY = 300.0f;
         patrol->hoverHeight = 0;
@@ -553,6 +553,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
         case 0x23:
             targetX = gBehaviourTargetActor->x;
             targetZ = gBehaviourTargetActor->z;
+            /* fallthrough */
         case 2:
         case 3:
         case 7:
@@ -573,8 +574,9 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
                     gBehaviourWorkState->targetZ = gBehaviourTargetActor->z;
                     gCurrentActor->unk155++;
                     gBehaviourWorkState->timer = 0x64;
+                    /* fallthrough */
                 case 1:
-                    if ((actorFlyTowardPosition(gBehaviourWorkState, 0x23) & 1) || (gCurrentActor->y < gBehaviourWorkState->targetY + 0xF)) {
+                    if ((actorFlyTowardPosition(gBehaviourWorkState, 0x23) & 1) || gCurrentActor->y < gBehaviourWorkState->targetY + 0xF) {
                         gCurrentActor->state = gBehaviourExtraState->actorState;
                         gCurrentActor->unk155 = 0;
                     }
@@ -599,6 +601,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
                     }
                     gCurrentActor->speedY = 50.0f;
                     gCurrentActor->unk155++;
+                    /* fallthrough */
                 case 2:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x222, 0.0f);
                     break;

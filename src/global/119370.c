@@ -86,7 +86,7 @@ extern EffectGridAsset D_807214B8, D_807214D0, D_807214E8, D_80721500, D_8072151
 extern EffectGridAsset D_80721530;
 
 // Effect asset per effect-grid id (read by A8400 and 112080).
-void *gEffectGridAssets[176] = {
+EffectGridAsset *gEffectGridAssets[176] = {
     &D_8071FA80, &D_8071FAAC, &D_8071FAD8, &D_8071FAF0, &D_8071FB08, &D_8071FB34,
     &D_8071FB54, &D_8071FB88, &D_8071FBA0, &D_8071FBC8, &D_8071FBF4, &D_8071FC0C,
     &D_8071FC40, &D_8071FC58, &D_8071FC8C, &D_8071FCC0, &D_8071FCF4, &D_8071FD50,
@@ -330,7 +330,7 @@ EffectNode *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) 
     return effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
-EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags) {
+EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, f32 posZ, Actor *owner, s32 modelSlot, s32 nodeIndex, u8 flags) {
     EffectNode *effect;
     EffectGridNode *node;
     s32 found;
@@ -346,7 +346,7 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
             node = node->next;
         }
     }
-    if (found == 0) {
+    if (!found) {
         effectResetState();
         return NULL;
     }
@@ -394,8 +394,8 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
     effect->frameCount = node->width * node->height;
     effect->anchorType = flags;
     effect->owner = owner;
-    effect->boneIndex = boneIndex;
-    effect->subIndex = subIndex;
+    effect->boneIndex = modelSlot;
+    effect->subIndex = nodeIndex;
     effect->param = sEffectPendingParam;
     effect->frameDelay = sEffectPendingMode;
     effect->frameTimer = 0;

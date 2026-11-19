@@ -11,7 +11,7 @@ typedef struct MapFogEntry {
 
 // This TU's .data (0x80748B70-0x80748B94 + 12-byte TU pad).
 MapFogEntry gMapFogDistances[6] = {
-        { 72, 4, 0, 2500 },
+    { 72, 4, 0, 2500 },
     { 72, 8, 0, 2500 },
     { 72, 5, 0, 1000 },
     { 72, 0, 0, 1500 },
