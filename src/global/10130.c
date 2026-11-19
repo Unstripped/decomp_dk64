@@ -24,13 +24,13 @@ typedef struct PositionRecord {
     KongInventory inventory;
 } PositionRecord;
 
-s16 D_807463A0 = 0;
+s16 sDemoButtonCount = 0;
 s32 D_807463A4 = 0; // unreferenced
-InputRecord *D_807463A8 = NULL;
-s16 D_807463AC = 0;
-s16 D_807463B0 = 0;
-u16 D_807463B4 = 0;
-s8 D_807463B8 = 0;
+InputRecord *sDemoInputBuffer = NULL;
+s16 sDemoFrameIndex = 0;
+s16 sDemoFrameCount = 0;
+u16 sDemoButtons = 0;
+s8 gDemoPlaybackState = 0;
 
 void func_8060B430(Actor *target, PositionRecord *record) {
     target->x = record->x;
@@ -40,111 +40,111 @@ void func_8060B430(Actor *target, PositionRecord *record) {
     memcpy(&gPlayerInventoryTable[0].kong[record->kongIndex], &record->inventory, sizeof(KongInventory));
 }
 
-extern PositionRecord D_807ECE20;
+extern PositionRecord sDemoStartRecord;
 
-s16 func_8060B49C(Actor *target, s32 unused) {
-    D_807463B8 = 2;
-    func_8060B430(target, &D_807ECE20);
-    return D_807463B0;
+s16 demoPlaybackStart(Actor *target, s32 unused) {
+    gDemoPlaybackState = 2;
+    func_8060B430(target, &sDemoStartRecord);
+    return sDemoFrameCount;
 }
 
-extern u16 *D_807ECE94;
-extern InputRecord *D_807ECE98;
+extern u16 *sDemoButtonCursor;
+extern InputRecord *sDemoInputCursor;
 
-void func_8060B4D4(OSContPad *pad) {
-    if (D_807463AC < (D_807463B0 - 1)) {
-        pad->stick_x = D_807ECE98->stickX;
-        pad->stick_y = D_807ECE98->stickY;
-        if (D_807ECE98->camYawFlags & 0x8000) {
-            D_807463B4 = *D_807ECE94;
-            D_807ECE94++;
+void demoPlaybackReadPad(OSContPad *pad) {
+    if (sDemoFrameIndex < (sDemoFrameCount - 1)) {
+        pad->stick_x = sDemoInputCursor->stickX;
+        pad->stick_y = sDemoInputCursor->stickY;
+        if (sDemoInputCursor->camYawFlags & 0x8000) {
+            sDemoButtons = *sDemoButtonCursor;
+            sDemoButtonCursor++;
         }
-        pad->button = D_807463B4 & 0xEFFF;
+        pad->button = sDemoButtons & 0xEFFF;
     }
 }
 
-void func_8060B55C(s16 *outCamYaw) {
-    if (D_807463AC < (D_807463B0 - 1)) {
-        *outCamYaw = D_807ECE98->camYawFlags & 0x7FFF;
-        D_807ECE98++;
-        D_807463AC++;
+void demoPlaybackReadCamYaw(s16 *outCamYaw) {
+    if (sDemoFrameIndex < (sDemoFrameCount - 1)) {
+        *outCamYaw = sDemoInputCursor->camYawFlags & 0x7FFF;
+        sDemoInputCursor++;
+        sDemoFrameIndex++;
     } else {
-        D_807463B8 = 0;
+        gDemoPlaybackState = 0;
     }
 }
 
-extern u16 *D_807ECE90;
+extern u16 *sDemoButtonBuffer;
 
 
 
 void recordInitPositionBuffers(u8 *src) {
     s32 byteCount;
 
-    if (D_807463A8 == NULL) {
-        D_807463A8 = heapAlloc(1800 * sizeof(InputRecord));
+    if (sDemoInputBuffer == NULL) {
+        sDemoInputBuffer = heapAlloc(1800 * sizeof(InputRecord));
     }
-    D_807ECE98 = D_807463A8;
-    if (D_807ECE90 == NULL) {
-        D_807ECE90 = heapAlloc(1800 * sizeof(u16));
+    sDemoInputCursor = sDemoInputBuffer;
+    if (sDemoButtonBuffer == NULL) {
+        sDemoButtonBuffer = heapAlloc(1800 * sizeof(u16));
     }
-    D_807ECE94 = D_807ECE90;
-    byteCount = sizeof(D_807463B0);
-    memcpy(&D_807463B0, src, byteCount);
+    sDemoButtonCursor = sDemoButtonBuffer;
+    byteCount = sizeof(sDemoFrameCount);
+    memcpy(&sDemoFrameCount, src, byteCount);
     src += byteCount;
-    byteCount = D_807463B0 * sizeof(InputRecord);
-    memcpy(D_807463A8, src, byteCount);
+    byteCount = sDemoFrameCount * sizeof(InputRecord);
+    memcpy(sDemoInputBuffer, src, byteCount);
     src += byteCount;
-    byteCount = sizeof(D_807463A0);
-    memcpy(&D_807463A0, src, byteCount);
+    byteCount = sizeof(sDemoButtonCount);
+    memcpy(&sDemoButtonCount, src, byteCount);
     src += byteCount;
-    byteCount = D_807463A0 * sizeof(u16);
-    memcpy(D_807ECE90, src, byteCount);
+    byteCount = sDemoButtonCount * sizeof(u16);
+    memcpy(sDemoButtonBuffer, src, byteCount);
     src += byteCount;
-    byteCount = sizeof(D_807ECE20);
-    memcpy(&D_807ECE20, src, byteCount);
+    byteCount = sizeof(sDemoStartRecord);
+    memcpy(&sDemoStartRecord, src, byteCount);
 }
 
 
-void func_8060B6CC(void) {
-    D_807463A8 = NULL;
-    D_807ECE90 = NULL;
-    D_807463AC = 0;
-    D_807463B0 = 0;
-    D_807463A0 = 0;
-    D_807463B8 = 0;
+void demoPlaybackReset(void) {
+    sDemoInputBuffer = NULL;
+    sDemoButtonBuffer = NULL;
+    sDemoFrameIndex = 0;
+    sDemoFrameCount = 0;
+    sDemoButtonCount = 0;
+    gDemoPlaybackState = 0;
 }
 
 
-void func_8060B700(void) {
-    if (D_807463A8 != NULL) {
-        heapFree(D_807463A8);
+void demoPlaybackFree(void) {
+    if (sDemoInputBuffer != NULL) {
+        heapFree(sDemoInputBuffer);
     }
-    if (D_807ECE90 != NULL) {
-        heapFree(D_807ECE90);
+    if (sDemoButtonBuffer != NULL) {
+        heapFree(sDemoButtonBuffer);
     }
-    func_8060B6CC();
+    demoPlaybackReset();
 }
 
 
-void func_8060B750(s32 assetIndex) {
+void demoPlaybackLoad(s32 assetIndex) {
     void *assetData;
 
     assetData = assetLoad(0x11, assetIndex, 1, 1);
     recordInitPositionBuffers(assetData);
     assetFreeBuffer(assetData, 0xF8, 0x33);
-    D_807ECE98 = D_807463A8;
-    D_807ECE94 = D_807ECE90;
-    D_807463AC = 0;
-    D_807463B4 = 0;
+    sDemoInputCursor = sDemoInputBuffer;
+    sDemoButtonCursor = sDemoButtonBuffer;
+    sDemoFrameIndex = 0;
+    sDemoButtons = 0;
 }
 
 
 u8 func_8060B7C4(void) {
-    return D_807ECE20.kongIndex;
+    return sDemoStartRecord.kongIndex;
 }
 
 
 void func_8060B7D0(s32 *outMap, s32 *outExit) {
-    *outMap = D_807ECE20.map;
-    *outExit = D_807ECE20.exit;
+    *outMap = sDemoStartRecord.map;
+    *outExit = sDemoStartRecord.exit;
 }

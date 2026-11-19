@@ -12,7 +12,7 @@
 #include "proto/global/90D80.h"
 
 // This TU's .data (0x807501E0-0x80750270), in address order; D_807501E8 is 8-aligned (Vtx).
-u8 D_807501E0 = 0;
+u8 gRenderCallbackCount = 0;
 Vtx D_807501E8[4] = {
     {{ { -16, 16, 1000 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 16, 16, 1000 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
@@ -37,13 +37,13 @@ typedef struct TexCacheEntry {
 
 #define TEX_CACHE_SIZE 32
 
-extern TexCacheEntry D_807FC690[TEX_CACHE_SIZE];
+extern TexCacheEntry gTexCache[TEX_CACHE_SIZE];
 
 void texCacheReset(void) {
     s16 i;
 
     for (i = 0; i < TEX_CACHE_SIZE; i++) {
-        D_807FC690[i].framesLeft = 0;
+        gTexCache[i].framesLeft = 0;
     }
 }
 
@@ -51,7 +51,7 @@ void texCacheUpdate(void) {
     s16 i;
 
     for (i = 0; i < TEX_CACHE_SIZE; i++) {
-        TexCacheEntry *entry = &D_807FC690[i];
+        TexCacheEntry *entry = &gTexCache[i];
 
         if (entry->framesLeft != 0) {
             entry->framesLeft--;
@@ -67,7 +67,7 @@ void *texCacheFindOrLoad(u16 texId) {
     TexCacheEntry *entry;
 
     for (i = 0; i < TEX_CACHE_SIZE; i++) {
-        entry = &D_807FC690[i];
+        entry = &gTexCache[i];
         if (entry->texId == texId && entry->framesLeft != 0) {
             entry->framesLeft = 2;
             return entry->tex;
@@ -75,7 +75,7 @@ void *texCacheFindOrLoad(u16 texId) {
     }
 
     for (i = 0; i < TEX_CACHE_SIZE; i++) {
-        entry = &D_807FC690[i];
+        entry = &gTexCache[i];
         if (entry->framesLeft == 0) {
             entry->tex = assetLoad(0xE, texId, 0, 0);
             entry->framesLeft = 2;
@@ -84,8 +84,8 @@ void *texCacheFindOrLoad(u16 texId) {
         }
     }
 
-    D_807FC690[0].framesLeft = 2;
-    return D_807FC690[0].tex;
+    gTexCache[0].framesLeft = 2;
+    return gTexCache[0].tex;
 }
 
 typedef struct RenderCallbackEntry {
@@ -94,45 +94,45 @@ typedef struct RenderCallbackEntry {
     /* 0x8 */ u8 layer;
 } RenderCallbackEntry;
 
-extern RenderCallbackEntry D_807FC630[];
+extern RenderCallbackEntry gRenderCallbacks[];
 
 Gfx *renderCallbacksExecute(Gfx *glist, u8 layer) {
-    u8 count = D_807501E0;
+    u8 count = gRenderCallbackCount;
 
     if (count != 0) {
         do {
-            if (layer == D_807FC630[--count].layer) {
+            if (layer == gRenderCallbacks[--count].layer) {
                 gDPPipeSync(glist++);
-                glist = D_807FC630[count].func(glist, D_807FC630[count].actor);
+                glist = gRenderCallbacks[count].func(glist, gRenderCallbacks[count].actor);
             }
         } while (count != 0);
     }
     if (layer == 7) {
-        D_807501E0 = 0;
+        gRenderCallbackCount = 0;
     }
     return glist;
 }
 
 void renderCallbacksReset(void) {
-    D_807501E0 = 0;
+    gRenderCallbackCount = 0;
 }
 
 void renderCallbacksDisableForActor(Actor *actor) {
     u8 i;
 
-    for (i = 0; i < D_807501E0; i++) {
-        if (actor == D_807FC630[i].actor) {
-            D_807FC630[i].layer = 8;
+    for (i = 0; i < gRenderCallbackCount; i++) {
+        if (actor == gRenderCallbacks[i].actor) {
+            gRenderCallbacks[i].layer = 8;
         }
     }
 }
 
 void renderCallbacksRegister(void *func, void *actor, u8 layer) {
-    if (D_807501E0 < 8) {
-        D_807FC630[D_807501E0].func = func;
-        D_807FC630[D_807501E0].actor = actor;
-        D_807FC630[D_807501E0].layer = layer;
-        D_807501E0++;
+    if (gRenderCallbackCount < 8) {
+        gRenderCallbacks[gRenderCallbackCount].func = func;
+        gRenderCallbacks[gRenderCallbackCount].actor = actor;
+        gRenderCallbacks[gRenderCallbackCount].layer = layer;
+        gRenderCallbackCount++;
     }
 }
 

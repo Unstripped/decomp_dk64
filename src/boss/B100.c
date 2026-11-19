@@ -245,7 +245,7 @@ void bossDogadonStep(void) {
 }
 
 
-void func_8002FB7C(scaleFactor)
+void bossKRoolTinyPulseBones(scaleFactor)
 u8 scaleFactor;
 {
     BoneVector *sub;
@@ -260,7 +260,7 @@ u8 scaleFactor;
     sub->y = sub->x;
     sub->z = 1.0f;
 }
-void func_8002FC48(actor, frame)
+void bossFreezeAnimAtFrame(actor, frame)
 Actor *actor;
 u8 frame;
 {
@@ -304,7 +304,7 @@ u8 param;
 }
 
 
-void func_8002FDF8(void *leader, u8 scaleVal) {
+void bossKRoolTinyCommonStep(void *leader, u8 scaleVal) {
     s32 finalScale;
     s32 animFrame;
 
@@ -313,11 +313,11 @@ void func_8002FDF8(void *leader, u8 scaleVal) {
     } else {
         finalScale = scaleVal;
     }
-    func_8002FB7C(finalScale & 0xFF);
+    bossKRoolTinyPulseBones(finalScale & 0xFF);
     if (gActorGlobalState.bossFightPhase == 4) {
         bossActorGroupCommand(leader, 0xF, 0, 0);
         animFrame = (0xA - gCurrentActor->health) & 0xFF;
-        func_8002FC48(gCurrentActor, animFrame);
+        bossFreezeAnimAtFrame(gCurrentActor, animFrame);
         actorScriptStart(gCurrentActor, 0x415);
     }
     if (gActorGlobalState.bossFightPhase == 5 || gActorGlobalState.bossFightPhase == 4) {
@@ -363,19 +363,19 @@ void bossKRoolTinyStep(void) {
         bossKRoolTinySpawnMinion(minions, 2, 0x6F);
         scriptState->unk12 = 0;
         if (flagGet(0x51, 2)) {
-            func_8002FC48(gCurrentActor, 4);
+            bossFreezeAnimAtFrame(gCurrentActor, 4);
             gCurrentActor->unk15F = 2;
             minions[0]->unk15F = 1;
             scriptState->unk12 = 1;
         }
         if (flagGet(0x52, 2)) {
-            func_8002FC48(minions[0], 4);
+            bossFreezeAnimAtFrame(minions[0], 4);
             minions[0]->unk15F = 2;
             minions[1]->unk15F = 1;
             scriptState->unk12 = 2;
         }
         if (flagGet(0x53, 2)) {
-            func_8002FC48(minions[1], 4);
+            bossFreezeAnimAtFrame(minions[1], 4);
             minions[1]->unk15F = 2;
             minions[2]->unk15F = 1;
             scriptState->unk12 = 3;
@@ -390,7 +390,7 @@ void bossKRoolTinyStep(void) {
         gPrimaryPlayerActor->yaw = 0xFD2;
         gActivePlayerState->targetSpeed = 150.0f;
     }
-    func_8002FDF8(gCurrentActor, scriptState->phase);
+    bossKRoolTinyCommonStep(gCurrentActor, scriptState->phase);
     bossActorGroupCommand(gCurrentActor, (1 << scriptState->unk12) & 0xFF, 1, 0);
     switch (gCurrentActor->state) {
     case 0x1F:
@@ -523,7 +523,7 @@ void bossKRoolTinyUpdateMinion(void) {
         func_80724DB0(2, 1);
     }
     scaleVal = (gCurrentActor->unk15F == 1) ? leaderState->phase : 0;
-    func_8002FDF8(leader, (u8)scaleVal);
+    bossKRoolTinyCommonStep(leader, (u8)scaleVal);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

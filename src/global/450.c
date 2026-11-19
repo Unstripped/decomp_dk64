@@ -73,7 +73,7 @@ extern u8 D_2000000[];
 extern u8 D_2000180[];
 extern u8 D_2000200[];
 
-extern s8 D_807467CC;
+extern s8 gEepromLoaded;
 extern u8 gSaveIconTimer;
 extern s8 D_80746830;
 extern s32 gPlayTimeBaseSeconds;
@@ -201,7 +201,7 @@ f32 *gChunkLightTargetR;
 f32 *gChunkLightTargetG;
 f32 *gChunkLightTargetB;
 u32 D_8076A0CC;
-u8 D_8076A0D0[48];
+u8 gMenuScreenSelection[48];
 u32 D_8076A100;
 u8 D_8076A104;
 s8 gMpWinnerIndex;
@@ -280,7 +280,7 @@ void viModeSetup(u8 overlaySlot) {
 
     overlayId = 1;
     overlayParam = 0;
-    func_806003EC(gCurrentLevelIndex);
+    mapApplyLevelFlags(gCurrentLevelIndex);
     if (gCurrentMap == 0x28) {
         gHiResScale = 2;
     } else {
@@ -299,7 +299,7 @@ void viModeSetup(u8 overlaySlot) {
         gGfxScreenBottom = gHiResScale * 0xF0 - 1;
         break;
     default:
-        overlayParam = func_8060042C(gCurrentMap);
+        overlayParam = mapGetOverlayBufferSize(gCurrentMap);
         if (gGlobalOverlayFlags & 1) {
             overlayId = 7;
         } else if (gGlobalOverlayFlags & 0x1000) {
@@ -377,7 +377,7 @@ void mainResetEngineState(void) {
     controllerWaitRead();
     gFrameCounter = 0;
     gGameFrameCounter = 0;
-    D_807467CC = 0;
+    gEepromLoaded = 0;
     D_8076A0AC = 4;
     gGlobalPauseFlags = 0x30030;
     gScreenRenderFlags |= 1;
@@ -448,7 +448,7 @@ void mainThreadLoop(void *arg) {
         frameTimingUpdate();
         if (gGameMode == 0 || gGameMode == 1 || gGameMode == 7) {
             mapSearchTableUpdateVisibility();
-            func_80700BF4();
+            playerViewUpdateDepthProbes();
         }
         heapTickDeferredFrees();
         if (D_80761680 != 0x12345678) {
@@ -1015,7 +1015,7 @@ void mapLoadLevel(void) {
         playerAllocSlots(gInitialExit);
         effectResetLists();
         loadedAsset = assetLoad(0x10, gCurrentMap, 1, 1);
-        func_80724C78(loadedAsset);
+        spawnNodesInitForMap(loadedAsset);
         if (loadedAsset != NULL) {
             assetFreeBuffer(loadedAsset, 0x8DD, 2);
         }

@@ -51,7 +51,7 @@ JetpacSprite D_8002C4D0[3] = {
     { D_8002C410, 0, 24, 8, 8, 4, 1, 0, 0, 0 },
 };
 // Idle laser template: jetpacInitPlayer copies it into every laser.
-JetpacActor D_8002C518 = {
+JetpacActor jetpacLaserTemplate = {
     0.0f, 0.0f, 0.0f, 0.0f, { 255, 255, 255, 1 }, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 14, { 255, 255, 255, 1 } }, 0, 0, NULL, NULL,
 };
 
@@ -524,7 +524,7 @@ void jetpacInitPlayer(void) {
     JetpacPlayerActor *player = &jetpacGame.player;
     JetpacActor tmpl;
 
-    tmpl = D_8002C518;
+    tmpl = jetpacLaserTemplate;
     player->vx = 0.0f;
     player->vy = 0.0f;
     player->color[0] = 0xFF;

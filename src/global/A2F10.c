@@ -55,7 +55,7 @@ extern Actor *gPrimaryPlayerActor;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern u32 gFrameDelta;
-extern u8 D_80750AD4;
+extern u8 gBossRoundNumber;
 
 #define WRITE_GFX(pkt, _w0, _w1)                                               \
     {                                                                          \
@@ -584,10 +584,10 @@ void actorUpdateBannerFade(void) {
         if (gCurrentActor->unk15F == 0 && (s16)gCurrentActor->splineT == 3) {
             actorSpawn(0x104, 0);
             gSpawnedActor->splineT = gCurrentActor->moveYaw;
-            gSpawnedActor->unk15F = D_80750AD4;
+            gSpawnedActor->unk15F = gBossRoundNumber;
             gSpawnedActor->y = 80.0f;
             gSpawnedActor->x = 640.0f;
-            sfxPlayOnFreeSlot(D_80750AD4 + 0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
+            sfxPlayOnFreeSlot(gBossRoundNumber + 0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
             return;
         }
         if (gCurrentActor->unk15F >= 0x1E && gCurrentActor->unk15F < 0x25 && (s16)gCurrentActor->splineT == 5) {
@@ -715,7 +715,7 @@ void actorFallAndBurstUpdate(void) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x162, 0xE1, 0x3C, 1);
         for (i = 1; i != 7; i++) {
             actorGetNodePos(gCurrentActor, i, &pos.x, &pos.y, &pos.z);
-            effectSetAngle(i);
+            effectSetStartDelay(i);
             effectSetDepth(1);
             effectSetCallback(effectSpinBillboardingUpdate);
             effectSetColor(0xFF, 0xFF, 0xFF, 0x96);

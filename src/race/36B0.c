@@ -201,10 +201,10 @@ void raceTriggerBoostParticles(void) {
     }
 }
 
-RaceCurvePoint D_8002FBD0[6] = {
+RaceCurvePoint raceCarSpeedCurve[6] = {
     { -1000.0f, 0.7f }, { -200.0f, 1.2f }, { -70.0f, 1.2f }, { 0.0f, 1.2f }, { 500.0f, 1.2f }, { 1000.0f, 2.4f },
 };
-RaceVec3f D_8002FC00[1] = { { 0.7f, 1.2f, 2.4f } };
+RaceVec3f raceCarSpeedLevels[1] = { { 0.7f, 1.2f, 2.4f } };
 void raceAiUpdateSpeedAndLane(void) {
     RaceParticipant *state;
     RacePathState *cursor;
@@ -230,12 +230,12 @@ void raceAiUpdateSpeedAndLane(void) {
     targetCursor = ((RacePathActor *)targetActor)->path;
     raceTarget = ((RaceCarActor *)gCurrentActor)->raceTarget;
     distToTarget = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
-    targetSpeed = raceEvaluateCurveTargetSpeed(raceTarget, distToTarget, D_8002FBD0, D_8002FC00);
+    targetSpeed = raceEvaluateCurveTargetSpeed(raceTarget, distToTarget, raceCarSpeedCurve, raceCarSpeedLevels);
     laneSettled = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
     if (raceTarget->curveMode != 0) {
         leaderActor = state->actor;
         if (raceGetCompletionFraction(cursor, state, leaderActor->customState) > 0.8) {
-            raceSetPiecewiseCurveMode(raceTarget, 0, D_8002FBD0, D_8002FC00);
+            raceSetPiecewiseCurveMode(raceTarget, 0, raceCarSpeedCurve, raceCarSpeedLevels);
         }
     }
     switch (raceTarget->curveMode) {
@@ -245,14 +245,14 @@ void raceAiUpdateSpeedAndLane(void) {
     case 1:
         if (laneSettled) {
             laneRoll = (randomLcgNext() & 0xFF) < 0x14;
-            if ((D_8002FBD0[1].x < distToTarget) && (distToTarget < D_8002FBD0[2].x) && (cursor->lane != targetCursor->lane) && laneRoll) {
+            if ((raceCarSpeedCurve[1].x < distToTarget) && (distToTarget < raceCarSpeedCurve[2].x) && (cursor->lane != targetCursor->lane) && laneRoll) {
                 raceChangeLaneRelative(cursor, targetCursor->lane - cursor->lane);
-            } else if ((D_8002FBD0[3].x < distToTarget) && (distToTarget < D_8002FBD0[4].x) && (cursor->lane == targetCursor->lane) && laneRoll) {
+            } else if ((raceCarSpeedCurve[3].x < distToTarget) && (distToTarget < raceCarSpeedCurve[4].x) && (cursor->lane == targetCursor->lane) && laneRoll) {
                 raceChangeLaneRandom(cursor);
             }
             laneSettled = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
             if (laneSettled) {
-                if ((distToTarget < D_8002FBD0[1].x) || (D_8002FBD0[2].x < distToTarget)) {
+                if ((distToTarget < raceCarSpeedCurve[1].x) || (raceCarSpeedCurve[2].x < distToTarget)) {
                     foundCompetitor = 0;
                     for (nodeIndex = 2; nodeIndex < 7 && foundCompetitor == 0; nodeIndex++) {
                         if (spawnNodeHasActor(nodeIndex) != 0) {
@@ -390,7 +390,7 @@ void raceOpponentCarBehaviorUpdate(void) {
         raceTarget->distSq = 0.0f;
         cursor->waypoint = raceGetPrevWaypointIndex(count, 0);
         raceTarget->unk10 = 1;
-        raceSetPiecewiseCurveMode(raceTarget, 5, D_8002FBD0, D_8002FC00);
+        raceSetPiecewiseCurveMode(raceTarget, 5, raceCarSpeedCurve, raceCarSpeedLevels);
         state->raceStatus = 0;
         if ((flagGet(0x12, 2) == 0) && (flagGet(0x8B, 0) == 0) && (menuIsTransitionType3Or4() == 0)) {
             camStartPath(gCurrentActor, 0, 1);

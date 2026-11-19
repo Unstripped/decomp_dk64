@@ -25,8 +25,8 @@ u8 D_8002CE90[0x300] = {
 #include "jetpac/D_8002CE90.inc.c"
 };
 // Rocket pixels per four stages (jetpacSetRocketSpriteFrames).
-void *D_8002D190[4] = { D_8002C578, D_8002C880, D_8002CB88, D_8002CE90 };
-JetpacSprite D_8002D1A0[6] = {
+void *jetpacRocketPixels[4] = { D_8002C578, D_8002C880, D_8002CB88, D_8002CE90 };
+JetpacSprite jetpacRocketSprites[6] = {
     { NULL, 0, 16, 16, 8, 4, 1, 0, 0, 0 },
     { NULL, 0, 16, 16, 8, 4, 1, 0, 8, 0 },
     { NULL, 0, 16, 16, 8, 4, 1, 0, 16, 0 },
@@ -56,7 +56,7 @@ u8 D_8002D760[0x108] = {
 u8 D_8002D868[0x100] = {
 #include "jetpac/D_8002D868.inc.c"
 };
-JetpacSprite D_8002D968[8] = {
+JetpacSprite jetpacItemSprites[8] = {
     { D_8002D238, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002D340, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002D448, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
@@ -73,35 +73,35 @@ u8 D_8002DA30[0x108] = {
 u8 D_8002DB38[0x100] = {
 #include "jetpac/D_8002DB38.inc.c"
 };
-JetpacSprite D_8002DC38[2] = {
+JetpacSprite jetpacRocketFlameSprites[2] = {
     { D_8002DA30, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002DB38, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
 };
-s32 D_8002DC68[13] = { 8, 32, 40, 48, 56, 64, 88, 96, 120, 128, 136, 192, 224 };
-JetpacItem D_8002DC9C = {
+s32 jetpacItemSpawnXTable[13] = { 8, 32, 40, 48, 56, 64, 88, 96, 120, 128, 136, 192, 224 };
+JetpacItem jetpacRocketPartTemplate = {
     {NULL, NULL},
     0.0f, 0.0f, 0.0f, 0.0f,
     {255, 255, 255, 1},
     2, 0, 0, 4, 16, 16, 20, 0, 100, 8,
     jetpacRocketItemUpdate, jetpacDrawItem,
 };
-JetpacColor D_8002DCE8 = {{255, 255, 255, 1}};
-JetpacItem D_8002DCEC = {
+JetpacColor jetpacRocketPartColor = {{255, 255, 255, 1}};
+JetpacItem jetpacBonusItemTemplate = {
     {NULL, NULL},
     0.0f, 16.0f, 0.0f, 0.8f,
     {255, 0, 0, 1},
     1, 0, 0, 4, 16, 16, 0, 0, 250, 0,
     jetpacBonusItemUpdate, jetpacDrawItem,
 };
-JetpacItem D_8002DD38 = {
-    {D_8002D968, NULL},
+JetpacItem jetpacFuelPodTemplate = {
+    {jetpacItemSprites, NULL},
     0.0f, 16.0f, 0.0f, 0.8f,
     {255, 0, 255, 1},
     1, 0, 0, 4, 16, 16, 0, 0, 100, 0,
     jetpacRocketItemUpdate, jetpacDrawItem,
 };
 s32 D_8002DD84 = 0; // unreferenced
-JetpacColor D_8002DD88 = {{255, 0, 0, 1}};
+JetpacColor jetpacRocketFlameColor = {{255, 0, 0, 1}};
 Gfx D_8002DD90[1] = { gsSPEndDisplayList() };
 u8 D_8002DD98[0x48] = {
 #include "jetpac/D_8002DD98.inc.c"
@@ -112,16 +112,16 @@ u8 D_8002DDE0[0x48] = {
 u8 D_8002DE28[0x40] = {
 #include "jetpac/D_8002DE28.inc.c"
 };
-JetpacSprite D_8002DE68 = { D_8002DD98, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
-JetpacSprite D_8002DE80 = { D_8002DDE0, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
-JetpacSprite D_8002DE98 = { D_8002DE28, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacLedgeLeftSprite = { D_8002DD98, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacLedgeMidSprite = { D_8002DDE0, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacLedgeRightSprite = { D_8002DE28, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
 
 s32 jetpacRandBonusDelay(void) {
     return jetpacRandFloat() * 200.0f + 90.0f;
 }
 
 s32 jetpacRandItemX(void) {
-    return D_8002DC68[(s32)(jetpacRandFloat() * 13.0f) % 13];
+    return jetpacItemSpawnXTable[(s32)(jetpacRandFloat() * 13.0f) % 13];
 }
 
 s32 jetpacItemOverlapsBox(JetpacItem *item, f32 x1, f32 y1, f32 x2, f32 y2, s32 isOffset) {
@@ -150,13 +150,13 @@ s32 jetpacItemOverlapsBox(JetpacItem *item, f32 x1, f32 y1, f32 x2, f32 y2, s32 
 
 void jetpacInitRocketParts(JetpacPlayer *player) {
     s32 j;
-    JetpacItem defaultItem = D_8002DC9C;
+    JetpacItem defaultItem = jetpacRocketPartTemplate;
     s32 i;
 
     for (i = 0; i < 3; i++) {
         player->items[i] = defaultItem;
         for (j = 0; j < 2; j++) {
-            player->items[i].sprites[j] = &D_8002D1A0[i * 2 + j];
+            player->items[i].sprites[j] = &jetpacRocketSprites[i * 2 + j];
         }
     }
 
@@ -256,7 +256,7 @@ void jetpacDrawItem(JetpacItem *item, s32 mode) {
     JetpacColor color;
     s32 i;
 
-    color = D_8002DCE8;
+    color = jetpacRocketPartColor;
     player = &jetpacGame.players[jetpacGame.activePlayer];
     if (item->unk1C >= 2) {
         x = item->unk8;
@@ -277,7 +277,7 @@ void jetpacDrawItem(JetpacItem *item, s32 mode) {
 }
 
 void jetpacSpawnBonusItem(JetpacPlayer *player) {
-    JetpacItem bonusItem = D_8002DCEC;
+    JetpacItem bonusItem = jetpacBonusItemTemplate;
     JetpacItem *item;
     s32 count = 5;
 
@@ -289,7 +289,7 @@ void jetpacSpawnBonusItem(JetpacPlayer *player) {
     }
 
     item = &player->bonus;
-    bonusItem.sprites[0] = &D_8002D968[bonusItem.unk40];
+    bonusItem.sprites[0] = &jetpacItemSprites[bonusItem.unk40];
     *item = bonusItem;
     item->unk8 = jetpacRandItemX();
     player->unk144 = jetpacRandBonusDelay();
@@ -416,7 +416,7 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
 }
 
 void jetpacSpawnFuelPod(JetpacPlayer *player) {
-    JetpacItem fuelPod = D_8002DD38;
+    JetpacItem fuelPod = jetpacFuelPodTemplate;
     fuelPod.unk8 = jetpacRandItemX();
     player->items[3] = fuelPod;
     player->currentItem = 3;
@@ -446,7 +446,7 @@ s32 jetpacBoxOverlapsItems(f32 x1, f32 y1, f32 x2, f32 y2) {
     return 0;
 }
 
-void jetpacItemsUpdate(void) {
+void jetpacDrawItems(void) {
     JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
     JetpacItem *item = player->items;
     s32 i;
@@ -550,12 +550,12 @@ void jetpacDrawRocket(void) {
     s32 i;
 
     item = jetpacGame.players[jetpacGame.activePlayer].items;
-    flameColor = D_8002DD88;
+    flameColor = jetpacRocketFlameColor;
     if (item->unkC < 116.0f) {
         s32 mod = ((s32)item->unkC / 3) % 2;
         s32 frame = (mod > 0) ? mod : -mod;
 
-        jetpacGridAddTiledSprite(&D_8002DC38[frame], item->unk8, item->unkC + 48.0f + 4.0f, flameColor.rgba, 0);
+        jetpacGridAddTiledSprite(&jetpacRocketFlameSprites[frame], item->unk8, item->unkC + 48.0f + 4.0f, flameColor.rgba, 0);
     }
 
     for (i = 0; i < 3; i++, item++) {
@@ -568,7 +568,7 @@ void jetpacSetRocketSpriteFrames(JetpacPlayer *player) {
     s32 i;
 
     for (i = 0; i < 6; i++) {
-        D_8002D1A0[i].image = D_8002D190[rocket % 4];
+        jetpacRocketSprites[i].image = jetpacRocketPixels[rocket % 4];
     }
 }
 
@@ -639,13 +639,13 @@ void jetpacDrawLedges(void) {
         ledge = &jetpacGame.ledges[i];
         x = ledge->x;
         y = ledge->y;
-        jetpacGridAddTiledSprite(&D_8002DE68, x, y, ledge->color, 0);
+        jetpacGridAddTiledSprite(&jetpacLedgeLeftSprite, x, y, ledge->color, 0);
         x += 8;
         for (j = 0; j < ledge->unk30; j++) {
-            jetpacGridAddTiledSprite(&D_8002DE80, x, y, ledge->color, 0);
+            jetpacGridAddTiledSprite(&jetpacLedgeMidSprite, x, y, ledge->color, 0);
             x += 8;
         }
-        jetpacGridAddTiledSprite(&D_8002DE98, x, y, ledge->color, 0);
+        jetpacGridAddTiledSprite(&jetpacLedgeRightSprite, x, y, ledge->color, 0);
     }
 }
 

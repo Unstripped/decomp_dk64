@@ -298,8 +298,8 @@ s32 csFindPlayerSlotByModel(s32, s32);
 #ifndef PROTO_SKIP_csCondFindPlayerSlotByModel
 s32 csCondFindPlayerSlotByModel(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csCondTransitionState5
-u8 csCondTransitionState5(CsState *, s16, s16, s16);
+#ifndef PROTO_SKIP_csCondIsMpGameMode5
+u8 csCondIsMpGameMode5(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondDepositItem
 s32 csCondDepositItem(CsState *, s16, s16, s16);

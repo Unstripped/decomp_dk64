@@ -429,7 +429,7 @@ ResParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
     return node->parsed;
 }
 
-extern const char *D_8074E780[];
+extern const char *gCharacterNames[];
 
 void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) {
     s32 pad;
@@ -501,7 +501,7 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
             character = 0;
             switch (textBytes[i]) {
             case '~':
-                _sprintf(textBuffer, "%s", D_8074E780[gActivePlayerActor->actorType - 2]);
+                _sprintf(textBuffer, "%s", gCharacterNames[gActivePlayerActor->actorType - 2]);
                 break;
             case '@':
                 _sprintf(textBuffer, "%d", gTextNumberArg);

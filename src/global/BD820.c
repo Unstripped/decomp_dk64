@@ -25,12 +25,12 @@ void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
     effectSetCallback(effectWispWanderUpdate);
     effectSetDuration(-1);
     effectSetDepth(1);
-    effectSetAngle(lifetime);
+    effectSetStartDelay(lifetime);
     effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
 }
 
 void func_806B8BDC(s16 x, s16 y, s16 z) {
-    effectSetMode(2);
+    effectSetFrameDelay(2);
     effectSetCallback(effectSinkBySpeedUpdate);
     effectSetSpeed(-0x28);
     effectSetDepth(1);

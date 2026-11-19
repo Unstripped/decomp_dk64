@@ -216,8 +216,8 @@ ActorListSpawnEntry gActorListSpawnTable[128] = {
     { 167, 124, 0, 2000, { 0 }, (ActorListSpawnFn)actorListSpawnIfNear, (ActorListSpawnFn)actorListDespawnIfFar, "Big Cannon Barrel", 1 },
 };
 u8 sActorListOffsetsReady = 0;
-ActorListCustomData D_807500B4 = { { 0 } };
-ActorListCustomData D_807500D4 = { { 0 } };
+ActorListCustomData sActorListPersistentCustomData = { { 0 } };
+ActorListCustomData sActorListEntryDefaultCustomData = { { 0 } };
 
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
@@ -538,14 +538,14 @@ void actorListSpawnFromRecords(u8 *records) {
 void actorListSpawnNodePersistent(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale) {
     ActorListCustomData customData;
 
-    customData = D_807500B4;
+    customData = sActorListPersistentCustomData;
     actorListSpawnNodeInternal(actorType, posX, posY, posZ, yaw, scale, customData.words, 0, 0, actorListAllocId());
 }
 
 void actorListSpawnNodeEntryDefault(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, Actor *parentActor) {
     ActorListCustomData customData;
 
-    customData = D_807500D4;
+    customData = sActorListEntryDefaultCustomData;
     actorListSpawnNodeInternal(actorType - 0x10, posX, posY, posZ, yaw, scale, customData.words, 1, parentActor, actorListAllocId());
 }
 

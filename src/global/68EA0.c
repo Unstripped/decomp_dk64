@@ -133,7 +133,7 @@ void modelEmittersUpdate(void) {
 void modelEmitterSpawnJitterParticle(s16 entryIdx) {
     if (randomNonNegative() % 10000 % 12 == 0) {
         effectSetDepth(1);
-        effectSetMode(7);
+        effectSetFrameDelay(7);
         effectSetSpeed(randomNonNegative() % 10000 % 50 - 120);
         effectSetCallback(effectDriftXZUpdate);
         effectSetColor(255, 200, 200, 200);
@@ -152,7 +152,7 @@ void modelEmitterSpawnScaledParticle(s16 entryIdx) {
     if (randomNonNegative() % 10000 % 10 == 0) {
         scaleFactor = gModelEmitters[entryIdx].scale / 25.0;
         effectSetDepth(1);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetFlags(4);
         effectCreateAtPosition(&D_80720A7C, 0.4f,
             gModelEmitters[entryIdx].x + (randomNonNegative() % 10000 % 300 / 20.0 - 7.5) * scaleFactor,

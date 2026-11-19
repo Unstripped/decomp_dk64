@@ -504,7 +504,7 @@ typedef struct Actor {
     /* 0x16D */ u8 tintA;
     /* 0x16E */ u8 unk16E[6];
     // Component pointers: actorAllocate stores one pointer per entry of the type's component
-    // list (D_8074E218[type], 0 to 5 entries) from 0x174 on, the component data from the
+    // list (gActorTypeComponents[type], 0 to 5 entries) from 0x174 on, the component data from the
     // next 8-byte boundary. 0x174 is the first component; 0x178, 0x17C... are pointers only
     // for types with that many components (for 1-component types 0x178 is already the
     // component's data), so they stay in per-type views { Actor base; T *unk178; ... }.
@@ -726,7 +726,7 @@ typedef struct SpawnEntry {
     /* 0x17 */ u8 animSpeedDivisor;
 } SpawnEntry; // size = 0x18
 
-// gBehaviourWorkState: actor component 31 (D_8074DA58[31] = 0x40), the first component of every
+// gBehaviourWorkState: actor component 31 (gActorComponentSizes[31] = 0x40), the first component of every
 // actor type whose update calls behaviourFrameBegin.
 typedef struct BehaviourWorkState {
     /* 0x00 */ SpawnNode *node;
@@ -1021,7 +1021,7 @@ extern u8 gPlayerCharacterId[];
 // 0x1A-0x1D, see 104F0.c eepromInitConfigs; defaults D_80757044 / D_80757064).
 typedef struct MenuHighScoreEntry {
     /* 0x0 */ s16 score;
-    /* 0x2 */ u8 initials[4]; // initials as characters, [3] the string terminator (menuLoadHighScores writes 0); stored on EEPROM as indices into D_80746800
+    /* 0x2 */ u8 initials[4]; // initials as characters, [3] the string terminator (menuLoadHighScores writes 0); stored on EEPROM as indices into gInitialsCharset
 } MenuHighScoreEntry; /* sizeof 0x6 */
 
 // Collectible totals (0x807FC828), recomputed by hudPauseMenuRefreshTotals (ACDC0): [0] golden bananas over all
@@ -1101,7 +1101,7 @@ typedef struct CamTargetBlock {
     /* 0x18 */ f32 stepRatio;
 } CamTargetBlock;
 
-// customState of the camera actor (type 0xBC, component 4: 0x100 bytes, D_8074DA58[4]);
+// customState of the camera actor (type 0xBC, component 4: 0x100 bytes, gActorComponentSizes[4]);
 // reached as gCamActor->customState or PlayerState.camActor->customState.
 typedef struct CamState {
     /* 0x00 */ struct Actor *followActor;

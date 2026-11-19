@@ -36,11 +36,11 @@ typedef struct {
     u8 nextStage;
 } BossB_Struct_800359D0;
 
-s16 D_800359A0[5] = { 4, 3, 6, 20, 4 };
+s16 sBossRoundFirstCamPath[5] = { 4, 3, 6, 20, 4 };
 s16 D_800359AC[5] = { 45, 45, 45, 45, 45 };
-s16 D_800359B8[5] = { 4, 3, 6, 3, 4 };
-s16 D_800359C4[5] = { 11, 11, 11, 11, 11 };
-BossB_Struct_800359D0 D_800359D0[8] = {
+s16 sBossRoundRepeatCamPath[5] = { 4, 3, 6, 3, 4 };
+s16 sBossRoundTimeUpCamPath[5] = { 11, 11, 11, 11, 11 };
+BossB_Struct_800359D0 sBossStageTable[8] = {
     { 0x08, 0, 0x68, 0, 20 },
     { 0x53, 0, 0x69, 0, 20 },
     { 0x6F, 0, 0x6B, 0, 20 },
@@ -383,7 +383,7 @@ void bossStartCountdownTimer(void) {
 }
 
 extern PlayerStruct *gPlayerSlots;
-extern u8 D_80750AD4;
+extern u8 gBossRoundNumber;
 extern Gfx D_1000118;
 
 Gfx *bossDrawRoundText(Gfx *glist, Actor *actor) {
@@ -399,7 +399,7 @@ Gfx *bossDrawRoundText(Gfx *glist, Actor *actor) {
     guMtxCatF(scaleMtx, transMtx, scaleMtx);
     guMtxF2L(scaleMtx, mtx);
     gSPMatrix(glist++, mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    _sprintf(textBuf, "ROUND %d", D_80750AD4);
+    _sprintf(textBuf, "ROUND %d", gBossRoundNumber);
     gSPDisplayList(glist++, &D_1000118);
     gDPPipeSync(glist++);
     gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -460,13 +460,13 @@ void bossRoundFrame(const u8 *script) {
             if (flagGet(0x5A, 2) == 0) {
                 healthRefill(0);
             }
-            D_80750AD4++;
-            if (D_80750AD4 >= 0xD) {
+            gBossRoundNumber++;
+            if (gBossRoundNumber >= 0xD) {
                 sfxStopChannel(0x2B, 0);
                 healthRefill(0);
                 flagSet(0x55, 0, 2);
                 menuTransitionToMap(0xD7, 0);
-                D_80750AD4 = 0;
+                gBossRoundNumber = 0;
                 BOSS_ACTOR->base.state = 0x6A;
                 BOSS_ACTOR->base.unk155 = 0;
             }
@@ -501,7 +501,7 @@ void bossRoundFrame(const u8 *script) {
             bossResetAudioChannels();
             BOSS_ACTOR->base.state = 0x6A;
             BOSS_ACTOR->base.unk155 = 0;
-            camStartPath(gCurrentActor, D_800359C4[mapOffset], 1);
+            camStartPath(gCurrentActor, sBossRoundTimeUpCamPath[mapOffset], 1);
             flagSet(0x5A, 1, 2);
         }
         break;
@@ -512,19 +512,19 @@ void bossRoundFrame(const u8 *script) {
         }
         if ((flagGet(0x5D, 2) == 0) || (flagGet(0x5C, 2) != 0)) {
             bossResetAudioChannels();
-            D_80750AD4 = 1;
+            gBossRoundNumber = 1;
             if (flagGet(0x5D, 2) == 0) {
                 camStartPath(gCurrentActor, 0x19, 1);
                 flagSet(0x5D, 1, 2);
             } else {
-                camStartPath(gCurrentActor, D_800359A0[0], 1);
+                camStartPath(gCurrentActor, sBossRoundFirstCamPath[0], 1);
             }
             flagSet(0x5C, 0, 2);
             flagSet(0x55, 1, 2);
         } else {
             mapFlag = mapOffset + 0x55;
             if (flagGet(mapFlag, 2) == 0) {
-                camStartPath(gCurrentActor, D_800359A0[mapOffset], 1);
+                camStartPath(gCurrentActor, sBossRoundFirstCamPath[mapOffset], 1);
                 flagSet(mapFlag, 1, 2);
             } else if (flagGet(0x5A, 2) != 0) {
                 if (flagGet(0x5B, 2) != 0) {
@@ -536,10 +536,10 @@ void bossRoundFrame(const u8 *script) {
                     BOSS_ACTOR->base.unk155 = 0;
                     flagSet(0x5B, 1, 2);
                     menuTransitionToMap(0xD7, 1);
-                    D_80750AD4 -= 1;
+                    gBossRoundNumber -= 1;
                 }
             } else {
-                camStartPath(gCurrentActor, D_800359B8[mapOffset], 1);
+                camStartPath(gCurrentActor, sBossRoundRepeatCamPath[mapOffset], 1);
             }
         }
     }
@@ -628,22 +628,22 @@ void bossSetCannonsVisible(u8 enable) {
 
 void bossUpdateStageState(s16 *outStage) {
     s16 i = 0;
-    while (D_800359D0[i].map != 0 && gCurrentMap != D_800359D0[i].map) {
+    while (sBossStageTable[i].map != 0 && gCurrentMap != sBossStageTable[i].map) {
         i++;
     }
-    if (D_800359D0[i].map != 0 && D_800359D0[i].stage == *outStage) {
-        if (flagGet(D_800359D0[i].flag, 2) != 0) {
-            *outStage = D_800359D0[i].nextStage;
+    if (sBossStageTable[i].map != 0 && sBossStageTable[i].stage == *outStage) {
+        if (flagGet(sBossStageTable[i].flag, 2) != 0) {
+            *outStage = sBossStageTable[i].nextStage;
         }
     }
 }
 
 void bossPlayStageMusic(void) {
     s16 i = 0;
-    while (D_800359D0[i].map != 0 && gCurrentMap != D_800359D0[i].map) {
+    while (sBossStageTable[i].map != 0 && gCurrentMap != sBossStageTable[i].map) {
         i++;
     }
-    if (D_800359D0[i].map != 0) {
-        flagSet(D_800359D0[i].flag, 1, 2);
+    if (sBossStageTable[i].map != 0) {
+        flagSet(sBossStageTable[i].flag, 1, 2);
     }
 }

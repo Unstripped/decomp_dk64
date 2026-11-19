@@ -1813,7 +1813,7 @@ void scriptCmdSpawnDownwardDriftEffect(Actor *actor) {
 
     scriptReadU8(&imm);
     effectSetCallback(effectDownwardDriftUpdate);
-    effectSetMode(2);
+    effectSetFrameDelay(2);
     effectSetSpeed(actor->yaw);
     effectSetDepth(1);
     effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
@@ -1833,7 +1833,7 @@ void scriptCmdSpawnUpwardDriftEffect(Actor *actor) {
         effectCreateAtPosition(&D_8071FE08, 0.7f, actor->x, actor->y + 7.0f, actor->z);
     } else {
         effectSetCallback(effectUpwardDriftUpdate);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetSpeed((actor->yaw + 0x800) & 0xFFF);
         effectSetDepth(1);
         effectSetFlags(0x80);
@@ -1846,7 +1846,7 @@ void scriptCmdSpawnSineDriftEffect(Actor *actor) {
 
     scriptReadU8(&imm);
     effectSetCallback(effectSineDriftUpdate);
-    effectSetMode(2);
+    effectSetFrameDelay(2);
     effectSetSpeed(actor->moveYaw);
     effectSetDepth(1);
     effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
@@ -1878,10 +1878,10 @@ void scriptCmdSpawnAttachedActor(Actor *actor) {
 
 void scriptCmdSpawnBoneEffects(Actor *actor) {
     effectSetMaxDistance(0x7D0);
-    effectSetMode(3);
+    effectSetFrameDelay(3);
     effectSpawnBone(actor, 0x16, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);
     effectSetMaxDistance(0x7D0);
-    effectSetMode(3);
+    effectSetFrameDelay(3);
     effectSpawnBone(actor, 0x17, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);
 }
 
@@ -2060,7 +2060,7 @@ void scriptCmdSpawnOrbitEffects(Actor *actor) {
         effectSetCallback(effectOrbitSourceUpdate);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectSetAngle(1);
+        effectSetStartDelay(1);
         effectSetSpeed(1);
         effectSetFlags(0x20);
         effectCreateAtActorBone(sScriptEffectSprites[i], 0.2f, actor, 7, 0);
@@ -2151,7 +2151,7 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
     if (gMultiplayerReducedEffects == 0) {
         scale = imm2 * 0.00048828125f;
         effectSetDepth(1);
-        effectSetMode(imm3);
+        effectSetFrameDelay(imm3);
         effectSetDuration(imm7);
         if (!imm4) {
             x = actor->x;
@@ -2226,12 +2226,12 @@ void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
                 break;
             case 4:
             case 5:
-                effectSetMode(0);
+                effectSetFrameDelay(0);
                 scale *= 0.18;
                 node->yOffset = -1.4f;
                 break;
             case 3:
-                effectSetMode(0);
+                effectSetFrameDelay(0);
                 scale *= 0.25;
                 node->yOffset = -1.4f;
                 break;

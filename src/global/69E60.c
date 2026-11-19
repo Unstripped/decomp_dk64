@@ -21,7 +21,7 @@ typedef struct {
 
 // This TU's .data (0x80748D40-0x80748E05 + 11-byte TU pad), in address order. D_80748D4A (entry 1,
 // read by 7CA80) is an interior label.
-ActorTiltTableEntry D_80748D40[19] = {
+ActorTiltTableEntry sActorTiltTable[19] = {
     { 1, 90, 90, { 90, 90 }, 0, 100, 0, 0 },
     { 32, 70, 53, { 45, 37 }, 30, 90, 0, 0 },
     { 32, 60, 45, { 37, 30 }, 30, 100, 0, 0 },
@@ -42,8 +42,8 @@ ActorTiltTableEntry D_80748D40[19] = {
     { 8, 85, 75, { 65, 60 }, 45, 10, 0, 0 },
     { 8, 85, 75, { 65, 60 }, 45, 10, 0, 0 },
 };
-u8 D_80748E00 = 0;
-u8 D_80748E04 = 0;
+u8 sSkipFloorSnap = 0;
+u8 sFloorSnapped = 0;
 
 void actorStepPhysics(Actor *actor, s16 targetYaw, s16 facingYaw) {
     actorUpdatePrevContactFlags(actor);
@@ -122,11 +122,11 @@ void actorApplyVelocityCustom(Actor *actor, f32 speedXZ, f32 speedY) {
 }
 
 void actorSkipFloorSnap(void) {
-    D_80748E00 = 1;
+    sSkipFloorSnap = 1;
 }
 
 u8 actorGetFloorSnapped(void) {
-    return D_80748E04;
+    return sFloorSnapped;
 }
 
 
@@ -182,26 +182,26 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
             }
         }
     }
-    D_80748E04 = 0;
-    if (hasFloor && !(actor->contactFlags & 1) && (D_80748E00 == 0)) {
+    sFloorSnapped = 0;
+    if (hasFloor && !(actor->contactFlags & 1) && (sSkipFloorSnap == 0)) {
         if (actor->speedY > 0.0f) {
             actor->speedY = 0.0f;
         }
         actor->y = floorY + actor->speedY * 0.025;
-        D_80748E04 = 1;
+        sFloorSnapped = 1;
     }
-    D_80748E00 = 0;
+    sSkipFloorSnap = 0;
     easeRate = (actor->flags & 0x40000) ? 0.2 : 1.0;
     effectiveTilt = (actor->contactFlags & 1) ? actor->floorTiltPitch : 0x400;
     targetTiltYaw = actor->floorTiltYaw;
-    tiltEntry = &D_80748D40[actor->floorSlopeType];
+    tiltEntry = &sActorTiltTable[actor->floorSlopeType];
     switch (gCurrentMap) {
     case 0x52:
         gActivePlayerState->unk26 = 0x14;
         /* fallthrough */
     case 0xE:
         if (actor->contactFlags & 0x200) {
-            tiltEntry = &D_80748D40[10];
+            tiltEntry = &sActorTiltTable[10];
         }
         break;
     }
@@ -249,7 +249,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
 }
 
 u8 func_80665AAC(Actor *actor) {
-    return D_80748D40[actor->floorSurfaceType].unk8;
+    return sActorTiltTable[actor->floorSurfaceType].unk8;
 }
 
 void func_80665ACC(Actor *actor) {

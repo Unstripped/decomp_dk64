@@ -21,8 +21,8 @@ void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
 #ifndef PROTO_SKIP_func_80724C2C
 void func_80724C2C(s16);
 #endif
-#ifndef PROTO_SKIP_func_80724C78
-void func_80724C78(void *);
+#ifndef PROTO_SKIP_spawnNodesInitForMap
+void spawnNodesInitForMap(void *);
 #endif
 #ifndef PROTO_SKIP_func_80724CA4
 void func_80724CA4(s16, s16);

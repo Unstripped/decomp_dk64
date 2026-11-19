@@ -334,7 +334,7 @@ void hudPauseMenuUpdate(void) {
                     if (gPauseMenuMode == 0 && hubWorld != 7 && hubWorld != 0xD && hubWorld != 9 && sel == 0) {
                         if (hubWorld == 0xA) {
                             menuReturnToTitle();
-                        } else if (func_805FEF74(gCurrentMap) == 0) {
+                        } else if (mapIsLobby(gCurrentMap) == 0) {
                             if ((gGlobalOverlayFlags & 1) && hubWorld == 8) {
                                 flagSet(0x5C, 1, 2);
                                 mapRequestTransition(0x22, 0xC);
@@ -1119,7 +1119,7 @@ void hudPauseMenuSpawnIcon(HudEntry *hud, s32 sprite, s32 x, s32 y, f32 scale, u
     f32 len;
     f32 fy;
 
-    effectSetMode(mode);
+    effectSetFrameDelay(mode);
     effectEnableFade();
     effectSetDuration(-1);
     effectSetSpeed((s32)hud);

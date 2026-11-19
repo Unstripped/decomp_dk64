@@ -38,8 +38,8 @@ void slotQueueClearFlags();
 #ifndef PROTO_SKIP_slotQueueCancel
 void slotQueueCancel();
 #endif
-#ifndef PROTO_SKIP_func_806F8DC4
-void func_806F8DC4(u8 *, s32, s32);
+#ifndef PROTO_SKIP_slotQueueSetIconAlpha
+void slotQueueSetIconAlpha(u8 *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_countBananaFairies
 s32 countBananaFairies(void);

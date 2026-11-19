@@ -48,14 +48,14 @@ u16 D_80747CE0[20][2] = { // unreferenced
     { 0x0A, 6 }, { 0x16, 6 }, { 0x1E, 6 }, { 0x0D, 6 },
     { 0x0A, 4 }, { 0x16, 4 }, { 0x0D, 4 }, { 0x1F, 4 },
 };
-ModelMapIdValueTriple D_80747D30[5] = {
+ModelMapIdValueTriple gMapModelOverrideValues[5] = {
     { 0x69, 0x128, 2000 },
     { 0xAA, 0x129, 2000 },
     { 0xAA, 0x1A4, 2000 },
     { 0x52, 0xEC, 900 },
     { 0x22, 0x74, 900 },
 };
-ModelMapIdPair D_80747D50[8] = {
+ModelMapIdPair gMapModelFlagPairs[8] = {
     { 0x1E, 0x153 },
     { 0x1E, 0x210 },
     { 0x1E, 0x211 },
@@ -66,8 +66,8 @@ ModelMapIdPair D_80747D50[8] = {
     { 0x1E, 0x7A },
 };
 s32 gModelSlotCount = 0;
-s16 D_80747D74 = 0;
-u8 D_80747D78 = 0;
+s16 gModelSegmentStepIndex = 0;
+u8 gModelTypeCountsReady = 0;
 
 typedef struct {
     /* 0x00 */ f32 x;
@@ -95,35 +95,35 @@ extern s32 gCurrentMap;
 extern u8 gGfxBufferIndex;
 
 
-extern u8 D_807F6148;
+extern u8 gModelSkipListCount;
 
 void modelSkipListClear(void) {
-    D_807F6148 = 0;
+    gModelSkipListCount = 0;
 }
 
-extern s16 D_807F6140[];
+extern s16 gModelSkipList[];
 
 void modelSkipListAdd(s16 modelIndex) {
-    if (D_807F6148 != 4) {
-        D_807F6140[D_807F6148++] = modelIndex;
+    if (gModelSkipListCount != 4) {
+        gModelSkipList[gModelSkipListCount++] = modelIndex;
     }
 }
 
 s32 modelSkipListContains(s16 modelIndex) {
     s32 i;
 
-    for (i = 0; i < D_807F6148; i++) {
-        if (D_807F6140[i] == modelIndex) {
+    for (i = 0; i < gModelSkipListCount; i++) {
+        if (gModelSkipList[i] == modelIndex) {
             return 1;
         }
     }
     return 0;
 }
 
-extern s16 D_807F6150[];
+extern s16 gHubCountedModelCounts[];
 
 s16 modelTypeCountGet(u8 hubIndex) {
-    return D_807F6150[hubIndex];
+    return gHubCountedModelCounts[hubIndex];
 }
 
 
@@ -139,10 +139,10 @@ void modelTypeCountsInit(void) {
     ModelAssetEntry *entry;
     s32 j;
 
-    if (D_80747D78 == 0) {
-        D_80747D78 = 1;
+    if (gModelTypeCountsReady == 0) {
+        gModelTypeCountsReady = 1;
         for (i = 0; i < 8; i++) {
-            D_807F6150[i] = 0;
+            gHubCountedModelCounts[i] = 0;
         }
         for (i = 0; i != 0xDD; i++) {
             asset = assetLoad(9, i, 1, 1);
@@ -153,7 +153,7 @@ void modelTypeCountsInit(void) {
                 entry = (ModelAssetEntry *)(entries + 4);
                 for (j = 0; j < count; j++) {
                     if (modelTypeIsCounted(entry->modelType)) {
-                        D_807F6150[slot]++;
+                        gHubCountedModelCounts[slot]++;
                     }
                     entry++;
                 }
@@ -241,34 +241,34 @@ void modelAssetGetSubtables(u8 *asset, u8 **entriesOut, u8 **subtablesOut) {
     *subtablesOut = r;
 }
 
-extern s16 D_807F614A;
+extern s16 gModelSlotCapacity;
 
 s16 modelSlotsAllocate(s32 map, u8 allocate) {
     switch (map) {
         case 48:
-            D_807F614A = 0x212;
+            gModelSlotCapacity = 0x212;
             break;
         case 26:
-            D_807F614A = 0x1F4;
+            gModelSlotCapacity = 0x1F4;
             break;
         case 38:
-            D_807F614A = 0x1F4;
+            gModelSlotCapacity = 0x1F4;
             break;
         case 30:
-            D_807F614A = 0x1E5;
+            gModelSlotCapacity = 0x1E5;
             break;
         case 7:
-            D_807F614A = 0x1D1;
+            gModelSlotCapacity = 0x1D1;
             break;
         default:
-            D_807F614A = 0x1C2;
+            gModelSlotCapacity = 0x1C2;
             break;
     }
     if (allocate != 0) {
-        gModelSlots = heapAlloc(D_807F614A * 0x90);
+        gModelSlots = heapAlloc(gModelSlotCapacity * 0x90);
         heapClearBlock(gModelSlots);
     }
-    return D_807F614A;
+    return gModelSlotCapacity;
 }
 
 
@@ -538,7 +538,7 @@ s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     f32 scale;
 
     renderList = NULL;
-    if (gModelSlotCount >= D_807F614A) {
+    if (gModelSlotCount >= gModelSlotCapacity) {
         faultSetMessage(8, 0, 0, 0);
     }
     if (force == 0 && D_807F6008 != 0) {
@@ -675,9 +675,9 @@ void modelFlagsApplyMapPairs(s16 id, u8 *flags) {
     s32 i;
     s32 count;
     i = 0;
-    count = sizeof(D_80747D50) / sizeof(D_80747D50[0]);
+    count = sizeof(gMapModelFlagPairs) / sizeof(gMapModelFlagPairs[0]);
     for (; i < count; i++) {
-        if (gCurrentMap == D_80747D50[i].map && id == D_80747D50[i].id) {
+        if (gCurrentMap == gMapModelFlagPairs[i].map && id == gMapModelFlagPairs[i].id) {
             *flags |= 1;
             return;
         }
@@ -709,10 +709,10 @@ void modelApplyMapOverrideValue(s32 id, ModelAssetHeader *info) {
     s32 i;
     s32 count;
 
-    count = sizeof(D_80747D30) / sizeof(D_80747D30[0]);
+    count = sizeof(gMapModelOverrideValues) / sizeof(gMapModelOverrideValues[0]);
     for (i = 0; i < count; i++) {
-        if (gCurrentMap == D_80747D30[i].map && id == D_80747D30[i].id) {
-            info->unk1E = D_80747D30[i].val;
+        if (gCurrentMap == gMapModelOverrideValues[i].map && id == gMapModelOverrideValues[i].id) {
+            info->unk1E = gMapModelOverrideValues[i].val;
             return;
         }
     }
@@ -2251,21 +2251,21 @@ void modelSlotsStepSegmentCommands(void) {
     ModelAssetHeader *asset;
 
     if (gModelSlotCount != 0) {
-        D_80747D74++;
-        if (D_80747D74 >= gModelSlotCount) {
-            D_80747D74 = 0;
+        gModelSegmentStepIndex++;
+        if (gModelSegmentStepIndex >= gModelSlotCount) {
+            gModelSegmentStepIndex = 0;
         }
-        asset = gModelSlots[D_80747D74].unk24;
+        asset = gModelSlots[gModelSegmentStepIndex].unk24;
         if (asset->unk0 & 0x10) {
-            if ((gModelSlots[D_80747D74].unk8C & 0x20) && gFrameCounter != asset->unk8) {
-                gModelSlots[D_80747D74].unk8C &= ~0x20;
+            if ((gModelSlots[gModelSegmentStepIndex].unk8C & 0x20) && gFrameCounter != asset->unk8) {
+                gModelSlots[gModelSegmentStepIndex].unk8C &= ~0x20;
                 asset->unk3C--;
                 if (asset->unk3C != 0) {
                     restore = 0;
                 } else {
                     restore = 1;
                 }
-                seg = gModelSlots[D_80747D74].unk20;
+                seg = gModelSlots[gModelSegmentStepIndex].unk20;
                 tail = seg->segmentData - seg->displayListB;
                 start = seg->displayListA;
                 head = seg->displayListB - start;

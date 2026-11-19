@@ -34,9 +34,9 @@ extern s32 gCurrentMap;
 // This TU's .data (0x80752DF0-0x80753E94), in address order: IDO emits .data in definition order and
 // starts every object on a 4-byte boundary. Between this TU's weapon tables and gWaypointPaths sit the
 // per-kong tables (f32[7], or s16[8] with a zero pad entry) read by CEAE0, D5E10, E4090, EFDC0 and others.
-// Target chain weight per player animation, indexed by animId - 0xA2 (playerWeaponInitCrosshair);
+// Target chain weight per player animation, indexed by animId - 0xA2 (kongChainUpdateDiddy);
 // -0x80 rests the chain.
-s8 D_80752DF0[0x130] = {
+s8 gDiddyChainAnimWeights[0x130] = {
     -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80,
     -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80,  0x00,  0x00,  0x00,  0x00,  0x00, -0x80, -0x80, -0x80,
      0x00, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80, -0x80,  0x00,  0x00, -0x80,  0x00, -0x80, -0x80,
@@ -60,7 +60,7 @@ s8 D_80752DF0[0x130] = {
 u16 gWeaponRecoilAnglesDual[8] = { 0x0000, 0xF830, 0xF448, 0xEC78, 0xE890, 0xE890, 0xF448, 0x0000 };
 u16 gWeaponRecoilAnglesBone4[4] = { 0xFA24, 0xF63C, 0xF448, 0xFA24 };
 u16 gWeaponRecoilAnglesBone1[4] = { 0xFA24, 0xF63C, 0xF448, 0xFA24 };
-u16 D_80752F40[6] = { 0x0000, 0xF448, 0xEC78, 0xE890, 0xF448, 0x0000 };
+u16 gWeaponRecoilAnglesBone1XY[6] = { 0x0000, 0xF448, 0xEC78, 0xE890, 0xF448, 0x0000 };
 f32 D_80752F4C = 0.0f;
 s16 D_80752F50[8] = { 100, 100, 100, 100, 100, 100, 100, 0 }; // unreferenced
 f32 D_80752F60[7] = { 180.0f, 180.0f, 180.0f, 180.0f, 180.0f, 180.0f, 180.0f }; // unreferenced
@@ -645,7 +645,7 @@ void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *c
 void playerWeaponCalculateTrajectory23(Actor *actor, BoneRotation *slots, s32 *count) {
     u16 angle;
 
-    angle = D_80752F40[gActivePlayerState->recoilTimer];
+    angle = gWeaponRecoilAnglesBone1XY[gActivePlayerState->recoilTimer];
     slots[*count].weight = 0x7F;
     slots[*count].bone = 1;
     slots[*count].rotX = angle;
@@ -862,7 +862,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
     *count = index;
 }
 
-void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
+void kongChainUpdateDiddy(Actor *actor, BoneRotation *slots, s32 *count) {
     KongChain *state;
     KongChainNode *node;
     s32 index;
@@ -913,7 +913,7 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
         accelY = forceY - state->prevVelY;
         yawDelta = state->prevAngle - actor->yaw;
         if (actor->sub4->model->animId >= 0) {
-            target = D_80752DF0[actor->sub4->model->animId - 0xA2];
+            target = gDiddyChainAnimWeights[actor->sub4->model->animId - 0xA2];
         } else {
             target = -128.0f;
         }
@@ -1197,7 +1197,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 playerWeaponUpdateHomingTarget(actor, slots, &slotCount);
                 break;
             }
-            playerWeaponInitCrosshair(actor, slots, &slotCount);
+            kongChainUpdateDiddy(actor, slots, &slotCount);
             if (ps->recoilTimer != 0) {
                 playerWeaponCalculateTrajectory7(actor, slots, &slotCount);
             }
@@ -1333,7 +1333,7 @@ typedef struct WaypointPathTable {
     WaypointPath *paths;
 } WaypointPathTable;
 
-extern s8 D_807463B8;
+extern s8 gDemoPlaybackState;
 extern u8 gScreenRenderFlags;
 extern WaypointPath *gWaypointPathEntry;
 extern WaypointNode *gWaypointCursor;
@@ -1347,7 +1347,7 @@ void playerWaypointPathStart(u8 pathIndex, Actor *actor, void *callbackParam, s1
 
     ps = actor->customState;
     if (gWaypointPaths->count >= pathIndex) {
-        D_807463B8 = 3;
+        gDemoPlaybackState = 3;
         gScreenRenderFlags |= 0x10;
         gWaypointActor = actor;
         ps->stateFlags &= ~1;
@@ -1500,7 +1500,7 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
         eq = gWaypointIndex + 2 == gWaypointPathEntry->count;
         if (eq) {
             if (gWaypointIndex && gWaypointIndex) {}  // FAKE: same-value read keeps the gWaypointIndex load live into this arm, so it outranks eq for $v0
-            D_807463B8 = 0;
+            gDemoPlaybackState = 0;
             if (gGameMode == 0) {
                 gScreenRenderFlags &= 0xFFEF;
                 gLetterboxRetractTimer = 0xFF;

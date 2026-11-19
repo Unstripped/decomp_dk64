@@ -42,7 +42,7 @@ u8 gSpawnEntryKind[116] = {
     6, 0, 9, 4, 0, 5, 5, 3, 3, 3, 2, 0, 2, 0, 2, 2, 10, 7, 0, 4,
     2, 0, 5, 0, 0, 3, 7, 7, 7, 7, 4, 10, 2, 0, 0, 0,
 };
-s16 D_8075570C[68] = {
+s16 sSpawnControllerStateIds[68] = {
     0x3E, 0xA0, 0x21, 0x22, 0x23, 0x3A, 0x11, 0x41, 0x99, 0xC, 0x1C, 0x3B,
     0x3C, 0x25, 0x46, 0x49, 0x3A, 0x37, 0x31, 0x1D, 0x58, 0x1, 0xC, 0x6,
     0x9, 0x4, 0x17, 0x60, 0x63, 0x88, 0x5B, 0x45, 0x66, 0x99, 0x18, 0x38,
@@ -135,7 +135,7 @@ void func_80724C2C(s16 speed) {
     gCurrentActor->speedXZ = speed;
 }
 
-void func_80724C78(void *mapData) {
+void spawnNodesInitForMap(void *mapData) {
     spawnNodeListInitFromMap(mapData, gZoneTable, gSpawnNodeList);
 }
 
@@ -519,7 +519,7 @@ void actorSetPositionFromPoint(Actor *actor, SpawnNode *pt) {
 typedef struct SpawnControllerActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ void *unk178;
-    /* 0x17C */ s16 *controllerState; // the controller state id (D_8075570C entry or controllerLookupModelAssetId)
+    /* 0x17C */ s16 *controllerState; // the controller state id (sSpawnControllerStateIds entry or controllerLookupModelAssetId)
 } SpawnControllerActor;
 
 extern f32 gDefaultActorGravity;
@@ -611,7 +611,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
         case 6:
             controllerState = ((SpawnControllerActor *)act)->controllerState;
             if (act->actorType == 0xFE) {
-                *controllerState = D_8075570C[node->unkA];
+                *controllerState = sSpawnControllerStateIds[node->unkA];
             } else {
                 *controllerState = controllerLookupModelAssetId(act);
             }
@@ -1377,7 +1377,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetCallback(effectSinkBySpeedUpdate);
                 effectSetSpeed(-(i * 20));
                 effectSetDepth(1);
-                effectSetMode(param);
+                effectSetFrameDelay(param);
                 effectCreateAtPosition(&sEffectSparkConfig, 1.5f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
             }
             return;
@@ -1478,7 +1478,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
             return;
         case 12:
             effectSetMaxDistance(0x7D0);
-            effectSetMode(1);
+            effectSetFrameDelay(1);
             effectCreateAtPosition(&D_8071FC0C, param * 0.01, (f32)x, (f32)y, (f32)z);
             return;
         case 8: {
@@ -1500,11 +1500,11 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
         }
         case 9:
             for (i = 0; i < param; i++) {
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSetCallback(effectPuffRiseUpdate);
                 effectSetDepth(1);
                 effectSetSpeed(1);
-                effectSetAngle(i * 3);
+                effectSetStartDelay(i * 3);
                 effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 0xF) % 1000 % 3], count * 0.01, (f32)x, (f32)y, (f32)z);
             }
             return;
@@ -1535,7 +1535,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetDuration(2);
                 effectSetSpeed(0x64);
                 effectSetCallback(effectSinkBySpeedUpdate);
-                effectSetAngle(i / 7);
+                effectSetStartDelay(i / 7);
                 effectCreateAtPosition(&D_8071FC58, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
             }
             return;

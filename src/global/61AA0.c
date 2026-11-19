@@ -9,7 +9,7 @@
 #include "proto/global/70FD0.h"
 
 // This TU's .data (0x80748310-0x80748430): segment-6 render-mode lists, one {set, end} pair per mode.
-Gfx D_80748310[6][2] = {
+Gfx sSeg6RenderModesOverride[6][2] = {
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552078), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC192078), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC193078), gsSPEndDisplayList() },
@@ -17,7 +17,7 @@ Gfx D_80748310[6][2] = {
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC1849D8), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552048), gsSPEndDisplayList() },
 };
-Gfx D_80748370[6][2] = {
+Gfx sSeg6RenderModes[6][2] = {
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552230), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC192230), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC193078), gsSPEndDisplayList() },
@@ -25,7 +25,7 @@ Gfx D_80748370[6][2] = {
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xC184A50), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x552048), gsSPEndDisplayList() },
 };
-Gfx D_807483D0[6][2] = {
+Gfx sSeg6RenderModesFog[6][2] = {
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x5504270), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0xD184270), gsSPEndDisplayList() },
     { gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x1504A50), gsSPEndDisplayList() },
@@ -46,14 +46,14 @@ void renderReplaceSegment6Commands(Gfx *start, void *end) { // end: one past the
         s32 i = 0;
 
         while (i < 6 && !found) {
-            if (start->words.w0 == D_80748310[i][0].words.w0 && start->words.w1 == D_80748310[i][0].words.w1) {
+            if (start->words.w0 == sSeg6RenderModesOverride[i][0].words.w0 && start->words.w1 == sSeg6RenderModesOverride[i][0].words.w1) {
                 found = 1;
             } else {
                 i++;
             }
         }
         if (found) {
-            gSPDisplayList(start++, 0x06000000 + i * sizeof(D_80748310[0]));
+            gSPDisplayList(start++, 0x06000000 + i * sizeof(sSeg6RenderModesOverride[0]));
         } else {
             start++;
         }
@@ -105,13 +105,13 @@ f32 renderAdjustActorDistance(s16 actorType, f32 dist) {
 Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 fogAlpha, u8 override) {
     if (fogAlpha == 0xFF) {
         if (gSegment6Override != 0 || override) {
-            gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748310));
+            gSPSegment(gdl++, 6, osVirtualToPhysical(&sSeg6RenderModesOverride));
         } else {
-            gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748370));
+            gSPSegment(gdl++, 6, osVirtualToPhysical(&sSeg6RenderModes));
         }
     } else {
         gDPSetFogColor(gdl++, 0, 0, 0, fogAlpha);
-        gSPSegment(gdl++, 6, osVirtualToPhysical(&D_807483D0));
+        gSPSegment(gdl++, 6, osVirtualToPhysical(&sSeg6RenderModesFog));
     }
     return gdl;
 }

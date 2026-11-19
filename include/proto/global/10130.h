@@ -7,26 +7,26 @@ struct PositionRecord;
 #ifndef PROTO_SKIP_func_8060B430
 void func_8060B430(Actor *, struct PositionRecord *);
 #endif
-#ifndef PROTO_SKIP_func_8060B49C
-s16 func_8060B49C(Actor *, s32);
+#ifndef PROTO_SKIP_demoPlaybackStart
+s16 demoPlaybackStart(Actor *, s32);
 #endif
-#ifndef PROTO_SKIP_func_8060B4D4
-void func_8060B4D4(OSContPad *);
+#ifndef PROTO_SKIP_demoPlaybackReadPad
+void demoPlaybackReadPad(OSContPad *);
 #endif
-#ifndef PROTO_SKIP_func_8060B55C
-void func_8060B55C(s16 *);
+#ifndef PROTO_SKIP_demoPlaybackReadCamYaw
+void demoPlaybackReadCamYaw(s16 *);
 #endif
 #ifndef PROTO_SKIP_recordInitPositionBuffers
 void recordInitPositionBuffers(u8 *);
 #endif
-#ifndef PROTO_SKIP_func_8060B6CC
-void func_8060B6CC(void);
+#ifndef PROTO_SKIP_demoPlaybackReset
+void demoPlaybackReset(void);
 #endif
-#ifndef PROTO_SKIP_func_8060B700
-void func_8060B700(void);
+#ifndef PROTO_SKIP_demoPlaybackFree
+void demoPlaybackFree(void);
 #endif
-#ifndef PROTO_SKIP_func_8060B750
-void func_8060B750(s32);
+#ifndef PROTO_SKIP_demoPlaybackLoad
+void demoPlaybackLoad(s32);
 #endif
 #ifndef PROTO_SKIP_func_8060B7C4
 u8 func_8060B7C4(void);

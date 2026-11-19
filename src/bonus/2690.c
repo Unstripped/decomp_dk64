@@ -302,7 +302,7 @@ void bonusResetAmmo(BonusShooterState *ammo) {
         ammo->ammoIconSlide[i] = 0;
         effectEnableFade();
         effectSetDuration(-1);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetParam(i * 3);
         effectSetCallback(effectSpriteMatrixUpdate);
         effectSetSpeed((s32)&ammo->ammoIconSlide[i]);

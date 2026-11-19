@@ -99,7 +99,7 @@ OSMesgQueue *schedGetCmdQueue(SchedStruct *sc) {
     return &sc->cmdQ;
 }
 
-extern u8 D_807563B4;
+extern u8 gFaultScreenEnabled;
 extern u32 D_8076154C;
 extern u32 gFramebuffers[];
 
@@ -116,7 +116,7 @@ void schedMain(void *arg) {
 
     for (;;) {
         osRecvMesg(&sc->interruptQ, &msg, OS_MESG_BLOCK);
-        if (D_807563B4 != 0) {
+        if (gFaultScreenEnabled != 0) {
             if (D_80746830 == 0) {
                 D_8074682C--;
             }
@@ -445,7 +445,7 @@ typedef struct {
     u8 warn;
 } DlOpInfo;
 
-DlOpInfo D_8074685C[27] = {
+DlOpInfo sDlOpInfo[27] = {
     { 0xFF, "SETCIMG", 8, 0 },
     { 0xFE, "SETZIMG", 8, 0 },
     { 0xFD, "SETTIMG", 8, 0 },
@@ -474,7 +474,7 @@ DlOpInfo D_8074685C[27] = {
     { 0xE5, "RECTFLIP", 16, 1 },
     { 0xE4, "TEXRECT", 16, 1 },
 };
-const char *D_80746A0C[2] = { D_80757184, D_80757188 };
+const char *sDlDumpWarnLabels[2] = { D_80757184, D_80757188 };
 
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
@@ -601,18 +601,18 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
                 }
                 found = 0;
                 for (i = 0; i < 27; i++) {
-                    if (op == D_8074685C[i].op) {
+                    if (op == sDlOpInfo[i].op) {
                         op = i;
                         found = 1;
                         i = 27;
                     }
                 }
-                if (D_8074685C[op].warn != 0) {
+                if (sDlOpInfo[op].warn != 0) {
                     mode = 1;
                 }
                 if (found) {
-                    size = D_8074685C[op].size >> 2;
-                    faultPrintf("  %05x.:.%s...%s.\n", off, D_8074685C[op].name, D_80746A0C[colorIdx]);
+                    size = sDlOpInfo[op].size >> 2;
+                    faultPrintf("  %05x.:.%s...%s.\n", off, sDlOpInfo[op].name, sDlDumpWarnLabels[colorIdx]);
                     line++;
                     if (size <= 2) {
                         faultPrintf("  %08x..%08x............\n", cur[0], cur[1]);

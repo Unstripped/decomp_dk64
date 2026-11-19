@@ -72,13 +72,13 @@ G00Entry D_80750948[30] = {
 s32 gPlayTimeBaseSeconds = 0;
 u8 gViewportCount = 1;
 u8 gSplitScreenMode = 0;
-u8 D_80750ABC = 2;
+u8 gSplitScreenViewMask = 2;
 u8 gActivePlayerCount = 1;
 s16 gMinigameCoinCount = 0;
 u16 gTextNumberArg = 0;
 u8 gPlayerStateSaved = 0;
 u8 gMultiplayerReducedEffects = 0;
-u8 D_80750AD4 = 1;
+u8 gBossRoundNumber = 1;
 ChainOffsets8 sChainOffsets8 = { {
     0.5890486f, -1.3744469f, -0.5890486f, -0.19634955f,
     0.0f, 0.3926991f, 0.7853982f, 0.98174775f,
@@ -89,7 +89,7 @@ ChainOffsets11 sChainOffsets11 = { {
     -0.8255408f, -0.37350044f, -0.31939524f,
 } };
 ChainOffsets4 sChainOffsets4 = { { 0.0f, 0.0f, 0.0f, 0.0f } };
-s32 D_80750B34[5] = { 2, 4, 5, 6, 7 };
+s32 sRefillSlotIds[5] = { 2, 4, 5, 6, 7 };
 
 void collectibleCountsClear(void) {
     s16 i;
@@ -159,7 +159,7 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
     found = 0;
     do {
         if (gPlayerCount == D_80750948[i].unk0 && gSplitScreenMode == D_80750948[i].unk1 && playerIndex == D_80750948[i].unk3 &&
-            (D_80750948[i].unk2 & D_80750ABC)) {
+            (D_80750948[i].unk2 & gSplitScreenViewMask)) {
             found = 1;
         } else {
             i++;
@@ -591,7 +591,7 @@ void playerCycleKongDebug(void) {
     gPlayerCharacterId[gCurrentPlayerIndex] %= 8;
     gActivePlayerState->gunDrawn = 0;
     playerApplyCharacterModel(&gKongCharacterTable[gPlayerCharacterId[gCurrentPlayerIndex]]);
-    timerQueueAdd(playerInitKongActor, 0x14, gCurrentPlayerIndex, 0, 0);
+    timerQueueAdd(playerDebugMaxKongAbilities, 0x14, gCurrentPlayerIndex, 0, 0);
 }
 
 
@@ -870,17 +870,17 @@ void playerResetSpawnGlobals(void) {
 }
 
 
-void playerSpawnMapActors(s32 playerIndex) {
+void playerRefillConsumables(s32 playerIndex) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        slotQueueAddValue(D_80750B34[i], playerIndex, 9999);
+        slotQueueAddValue(sRefillSlotIds[i], playerIndex, 9999);
     }
     slotQueueInit(0);
 }
 
 
-void playerInitKongActor(s32 playerIndex, s32 unused1, s32 unused2) {
+void playerDebugMaxKongAbilities(s32 playerIndex, s32 unused1, s32 unused2) {
     s32 kong = playerGetResolvedKongId(playerIndex);
     KongInventory *kongInv = &gPlayerInventoryTable[playerIndex].kong[kong];
 
@@ -889,7 +889,7 @@ void playerInitKongActor(s32 playerIndex, s32 unused1, s32 unused2) {
     kongInv->slamLevel = 3;
     kongInv->moveLevel = 3;
     flagSet(0x179, 1, 0);
-    playerSpawnMapActors(playerIndex);
+    playerRefillConsumables(playerIndex);
 }
 
 void playerCopyCameraToEye(u8 playerIndex) {

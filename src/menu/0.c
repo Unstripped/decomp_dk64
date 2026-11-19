@@ -45,9 +45,9 @@ typedef struct MenuState {
 
 extern u8 gCurrentWorldId;
 
-u8 D_80032F50 = 0;
+u8 menuReturnFromOption = 0;
 // Cam path per hub world for menuMainStateStep steps 3-8; 0 ends the sequence.
-s32 D_80032F54[14][6] = {
+s32 menuHubCamPaths[14][6] = {
     { 3, 0, 0, 0, 0, 0 },
     { 4, 0, 0, 0, 0, 0 },
     { 6, 0, 0, 0, 0, 0 },
@@ -64,13 +64,13 @@ s32 D_80032F54[14][6] = {
     { 0, 0, 0, 0, 0, 0 },
 };
 // csModel per pending medal count (1-8).
-s32 D_800330A4[8] = { 4, 2, 3, 0x10, 0x12, 0x13, 0x14, 0x15 };
+s32 menuMedalCsModels[8] = { 4, 2, 3, 0x10, 0x12, 0x13, 0x14, 0x15 };
 // menuTransitionWithStateD target per options entry (steps 4-11).
-u8 D_800330C4[12] = { 0x75, 0x7B, 0x89, 0x8A, 0x8F, 0x92, 0x96, 0x78 };
-Mtx *D_800330D0 = NULL;
-Vtx *D_800330D4 = NULL;
-s16 D_800330D8 = 0;
-Vtx D_800330E0[20] = {
+u8 menuOptionTargetStates[12] = { 0x75, 0x7B, 0x89, 0x8A, 0x8F, 0x92, 0x96, 0x78 };
+Mtx *menuGridMtx = NULL;
+Vtx *menuFrameVtx = NULL;
+s16 menuShowProgressGrid = 0;
+Vtx menuFrameVtxTemplate[20] = {
     {{{ 120, 132, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{{ 1160, 132, -10 }, 0, { 0x2800, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{{ 1120, 180, -10 }, 0, { 0x2000, 0x800 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
@@ -92,21 +92,21 @@ Vtx D_800330E0[20] = {
     {{{ 960, 720, -10 }, 0, { 0x1000, 0x1000 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{{ 320, 720, -10 }, 0, { 0, 0x1000 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
 };
-s16 D_80033220[4] = { 0, 5, 25, 30 };
-u8 D_80033228[48] = {
+s16 menuGridEdgeY[4] = { 0, 5, 25, 30 };
+u8 menuGridRowColors[48] = {
     0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0x80, 0x00,
     0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x80, 0x80, 0x80, 0x00, 0xFF, 0xFF,
     0x00, 0xFF, 0xFF, 0x80, 0x80, 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0xFF,
     0x80, 0x80, 0x80, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00,
 };
-s8 D_80033258 = 0;
+s8 menuGridRecolored = 0;
 
 
 void menuStartNextCamPath(MenuState *menu) {
-    s32 pathId = D_80032F54[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step - 3];
+    s32 pathId = menuHubCamPaths[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step - 3];
 
     if (pathId == 0) {
-        csModelStateSetFirstByte(D_800330A4[menu->pendingMedals - 1], 9);
+        csModelStateSetFirstByte(menuMedalCsModels[menu->pendingMedals - 1], 9);
         menu->mode = 4;
         menu->step = 0;
         return;
@@ -126,10 +126,10 @@ void menuSpawnFallingEffect(MenuState *menu) {
     menu->velX = -6.55f;
     menu->velZ = 6.6f;
     menu->fallState = 0;
-    effectSetMode(0);
+    effectSetFrameDelay(0);
     effectSetDepth(1);
     effectSetDuration(-1);
-    effectSetMode(0);
+    effectSetFrameDelay(0);
     menu->fallingEffect = effectCreateAtPosition(&D_80720268, 0.3f, 181.0f, 3.0f, 82.0f);
 }
 
@@ -317,7 +317,7 @@ void menuUpdateOptionsState(MenuState *menu) {
     s32 awardFlag;
 
     changed = 0;
-    D_800330D8 = 0;
+    menuShowProgressGrid = 0;
     switch (menu->step) {
     case 2:
     case 0x37:
@@ -378,7 +378,7 @@ void menuUpdateOptionsState(MenuState *menu) {
         }
         break;
     case 3:
-        D_800330D8 = 1;
+        menuShowProgressGrid = 1;
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC000) {
             menu->step = 1;
         }
@@ -398,8 +398,8 @@ void menuUpdateOptionsState(MenuState *menu) {
             menu->step = ((menu->step - 4) & 7) + 4;
         }
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-            menuTransitionWithStateD(D_800330C4[menu->step - 4]);
-            D_80032F50 = 1;
+            menuTransitionWithStateD(menuOptionTargetStates[menu->step - 4]);
+            menuReturnFromOption = 1;
             menu->step = 0x37;
         }
         renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
@@ -428,7 +428,7 @@ void menuProcessOptionInput(MenuState *menu) {
     }
 }
 
-extern s16 D_8076AEF2;
+extern s16 gPreviousMap;
 
 
 void menuDispatchAction(void) {
@@ -447,7 +447,7 @@ void menuDispatchAction(void) {
         menu->medalCount = flagCountRange(0x1FD, 0x28, 0);
         menu->pendingMedals = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId[0]);
         menu->pendingMedals -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId[0]);
-        if (D_8076AEF2 != 0x1C) {
+        if (gPreviousMap != 0x1C) {
             if (flagGet(0x174, 0) == 0) {
                 menu->mode = 0;
                 menu->step = 0;
@@ -471,8 +471,8 @@ void menuDispatchAction(void) {
         }
         currentActorClearFlag();
         menuSpawnFallingEffect(menu);
-        returnedFromOption = D_80032F50;
-        D_80032F50 = 0;
+        returnedFromOption = menuReturnFromOption;
+        menuReturnFromOption = 0;
     }
     switch (menu->mode) {
     case 0:
@@ -504,7 +504,7 @@ void menuDispatchAction(void) {
     actorScriptedCommandUpdate();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-extern Vtx *D_80033F10;
+extern Vtx *menuGridVtx;
 
 void menuUpdateProgressGrid(void) {
     s16 *pSlideY;
@@ -519,11 +519,11 @@ void menuUpdateProgressGrid(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         *pSlideY = 0xF0;
         gCurrentActor->state = 0;
-        D_800330D0 = heapAlloc(2 * sizeof(Mtx));
-        D_800330D4 = heapAlloc(sizeof(D_800330E0));
-        memcpy(D_800330D4, D_800330E0, sizeof(D_800330E0));
+        menuGridMtx = heapAlloc(2 * sizeof(Mtx));
+        menuFrameVtx = heapAlloc(sizeof(menuFrameVtxTemplate));
+        memcpy(menuFrameVtx, menuFrameVtxTemplate, sizeof(menuFrameVtxTemplate));
         *pSlideY = -0x3E8;
-        D_80033F10 = heapAlloc(0x140 * sizeof(Vtx));
+        menuGridVtx = heapAlloc(0x140 * sizeof(Vtx));
         allMedals = flagCountRange(0x1FD, 0x28, 0) == 0x28;
         vtxIndex = 0;
         for (row = 0; row < 5; row++) {
@@ -533,35 +533,35 @@ void menuUpdateProgressGrid(void) {
                     if (allMedals != 0) {
                         colorIndex = 0x15;
                     }
-                    D_80033F10[vtxIndex].v.ob[0] = (col * 30 + 40) << 2;
-                    D_80033F10[vtxIndex].v.ob[1] = (D_80033220[edge] + row * 30 + 0x2D) << 2;
-                    D_80033F10[vtxIndex].v.ob[2] = -0xA;
-                    D_80033F10[vtxIndex].v.tc[0] = (col * 30) << 6;
-                    D_80033F10[vtxIndex].v.tc[1] = (D_80033220[edge] + row * 30) << 6;
-                    D_80033F10[vtxIndex].v.cn[0] = D_80033228[colorIndex];
-                    D_80033F10[vtxIndex].v.cn[1] = D_80033228[colorIndex + 1];
-                    D_80033F10[vtxIndex].v.cn[2] = D_80033228[colorIndex + 2];
-                    D_80033F10[vtxIndex].v.cn[3] = 0xFF;
-                    D_80033F10[vtxIndex].v.flag = 0;
+                    menuGridVtx[vtxIndex].v.ob[0] = (col * 30 + 40) << 2;
+                    menuGridVtx[vtxIndex].v.ob[1] = (menuGridEdgeY[edge] + row * 30 + 0x2D) << 2;
+                    menuGridVtx[vtxIndex].v.ob[2] = -0xA;
+                    menuGridVtx[vtxIndex].v.tc[0] = (col * 30) << 6;
+                    menuGridVtx[vtxIndex].v.tc[1] = (menuGridEdgeY[edge] + row * 30) << 6;
+                    menuGridVtx[vtxIndex].v.cn[0] = menuGridRowColors[colorIndex];
+                    menuGridVtx[vtxIndex].v.cn[1] = menuGridRowColors[colorIndex + 1];
+                    menuGridVtx[vtxIndex].v.cn[2] = menuGridRowColors[colorIndex + 2];
+                    menuGridVtx[vtxIndex].v.cn[3] = 0xFF;
+                    menuGridVtx[vtxIndex].v.flag = 0;
                     vtxIndex++;
-                    D_80033F10[vtxIndex].v.ob[0] = (col * 30 + 70) << 2;
-                    D_80033F10[vtxIndex].v.ob[1] = (D_80033220[edge] + row * 30 + 0x2D) << 2;
-                    D_80033F10[vtxIndex].v.ob[2] = 0x16;
-                    D_80033F10[vtxIndex].v.tc[0] = (col * 30 + 30) << 6;
-                    D_80033F10[vtxIndex].v.tc[1] = (D_80033220[edge] + row * 30) << 6;
-                    D_80033F10[vtxIndex].v.cn[0] = D_80033228[colorIndex++];
-                    D_80033F10[vtxIndex].v.cn[1] = D_80033228[colorIndex++];
-                    D_80033F10[vtxIndex].v.cn[2] = D_80033228[colorIndex];
-                    D_80033F10[vtxIndex].v.cn[3] = 0xFF;
-                    D_80033F10[vtxIndex].v.flag = 0;
+                    menuGridVtx[vtxIndex].v.ob[0] = (col * 30 + 70) << 2;
+                    menuGridVtx[vtxIndex].v.ob[1] = (menuGridEdgeY[edge] + row * 30 + 0x2D) << 2;
+                    menuGridVtx[vtxIndex].v.ob[2] = 0x16;
+                    menuGridVtx[vtxIndex].v.tc[0] = (col * 30 + 30) << 6;
+                    menuGridVtx[vtxIndex].v.tc[1] = (menuGridEdgeY[edge] + row * 30) << 6;
+                    menuGridVtx[vtxIndex].v.cn[0] = menuGridRowColors[colorIndex++];
+                    menuGridVtx[vtxIndex].v.cn[1] = menuGridRowColors[colorIndex++];
+                    menuGridVtx[vtxIndex].v.cn[2] = menuGridRowColors[colorIndex];
+                    menuGridVtx[vtxIndex].v.cn[3] = 0xFF;
+                    menuGridVtx[vtxIndex].v.flag = 0;
                     vtxIndex++;
                     colorIndex++;
                 }
             }
         }
-        D_80033258 = allMedals;
+        menuGridRecolored = allMedals;
     }
-    if (D_800330D8 != 0) {
+    if (menuShowProgressGrid != 0) {
         if (*pSlideY == -0x3E8) {
             sfxPlayOnFreeSlot(0x2A3, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
@@ -578,7 +578,7 @@ void menuUpdateProgressGrid(void) {
             *pSlideY = -0x3E8;
         }
     }
-    D_800330D8 = 0;
+    menuShowProgressGrid = 0;
     if (*pSlideY >= -0x3E7) {
         renderCallbacksRegister(menuDrawProgressGrid, gCurrentActor, 3);
     }
@@ -607,11 +607,11 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
     gSPMatrix(g++, D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     guTranslateF(mf, 8.0f, *pSlideY, 0.0f);
-    guMtxF2L(mf, &D_800330D0[gGfxBufferIndex]);
-    gSPMatrix(g++, &D_800330D0[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    guMtxF2L(mf, &menuGridMtx[gGfxBufferIndex]);
+    gSPMatrix(g++, &menuGridMtx[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPSetTextureFilter(g++, G_TF_POINT);
     tex = texCacheFindOrLoad(0xA3);
-    v = D_80033F10;
+    v = menuGridVtx;
     i = 0;
     allCollected = 1;
     for (y = 0; y < 150; y += 30, i++) {
@@ -642,7 +642,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     tex = texCacheFindOrLoad(0xA2);
     gDPLoadTextureBlock(g++, tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP | G_TX_NOMIRROR,
                         G_TX_WRAP | G_TX_NOMIRROR, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
-    gSPVertex(g++, osVirtualToPhysical(D_800330D4), 20, 0);
+    gSPVertex(g++, osVirtualToPhysical(menuFrameVtx), 20, 0);
     gSP2Triangles(g++, 0, 1, 2, 0, 0, 2, 3, 0);
     gSP2Triangles(g++, 4, 5, 6, 0, 4, 6, 7, 0);
     gSP2Triangles(g++, 8, 9, 10, 0, 8, 10, 11, 0);
@@ -655,13 +655,13 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
         gDPLoadTextureBlock(g++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP | G_TX_NOMIRROR,
                             G_TX_WRAP | G_TX_NOMIRROR, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
         gSP2Triangles(g++, 16, 17, 18, 0, 16, 18, 19, 0);
-        if (D_80033258 == 0) {
+        if (menuGridRecolored == 0) {
             for (k = 0; k < 0x140; k++) {
-                D_80033F10[k].v.cn[0] = 0;
-                D_80033F10[k].v.cn[1] = 0xFF;
-                D_80033F10[k].v.cn[2] = 0xFF;
+                menuGridVtx[k].v.cn[0] = 0;
+                menuGridVtx[k].v.cn[1] = 0xFF;
+                menuGridVtx[k].v.cn[2] = 0xFF;
             }
-            D_80033258 = 1;
+            menuGridRecolored = 1;
         }
     }
     gSPMatrix(g++, D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);

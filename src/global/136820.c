@@ -33,8 +33,8 @@ extern u8 gHiResScale;
 extern s16 gScreenWidth;
 
 // Fault-screen font: 6 rows per glyph from '!' (data_inc.us.txt, tools/data_inc.py).
-u8 D_80756130[0x230] = {
-#include "global/D_80756130.inc.c"
+u8 sFaultFontGlyphs[0x230] = {
+#include "global/sFaultFontGlyphs.inc.c"
 };
 
 void faultDrawGlyph(u8 c) {
@@ -45,7 +45,7 @@ void faultDrawGlyph(u8 c) {
     s32 bit;
     s32 j;
 
-    glyph = D_80756130 + (c - 33) * 6;
+    glyph = sFaultFontGlyphs + (c - 33) * 6;
     dst = (gFaultCursorX + 3) * gHiResScale * 4 + (u16 *)gFaultFramebuffer + gScreenWidth * (gFaultCursorY + 3) * gHiResScale * 6;
     for (row = 0; row != 6; row++, glyph++) {
         for (i = 0; i < gHiResScale * gFaultCharScale; i++) {
@@ -128,8 +128,8 @@ const char *gFaultMessageStrings[20] = {
     D_807600B4, D_807600CC, D_807600E0, D_807600F8,
     D_8076010C, D_80760124, D_8076013C, D_80760150,
 };
-u8 D_807563B0 = 0;
-u8 D_807563B4 = 0;
+u8 gFaultThreadStarted = 0;
+u8 gFaultScreenEnabled = 0;
 s32 gFaultDrawCount = 0;
 
 // One unwound frame of the fault-screen stack trace: a return address and how often it repeated.
@@ -240,7 +240,7 @@ void faultUnwindStack(OSThread *thread) {
     gFaultDrawCount++;
 }
 
-extern OSMesgQueue D_807FEF58;
+extern OSMesgQueue sFaultMesgQueue;
 
 extern s32 gFramebuffers[];
 
@@ -250,11 +250,11 @@ void faultThreadMain(void *arg) {
     s32 i;
     s32 pad;
 
-    osSetEventMesg(OS_EVENT_FAULT, &D_807FEF58, (OSMesg)0x10);
+    osSetEventMesg(OS_EVENT_FAULT, &sFaultMesgQueue, (OSMesg)0x10);
     for (;;) {
         while (1) {
-            osRecvMesg(&D_807FEF58, &msg, OS_MESG_BLOCK);
-            if (D_807563B4 != 0) {
+            osRecvMesg(&sFaultMesgQueue, &msg, OS_MESG_BLOCK);
+            if (gFaultScreenEnabled != 0) {
                 break;
             }
         }
@@ -281,13 +281,13 @@ void faultSetMessage(u8 id, u32 msgArg0, s32 msgArg1, s32 msgArg2) {
     camEndPath(0);
 }
 
-extern OSMesg D_807FEF50;
-extern OSThread D_807FDDA0;
+extern OSMesg sFaultMesg;
+extern OSThread sFaultThread;
 
 void faultThreadInit(void) {
     __osSetFpcCsr(__osGetFpcCsr() | FPCSR_EZ);
-    osCreateMesgQueue(&D_807FEF58, &D_807FEF50, 1);
-    osCreateThread(&D_807FDDA0, 8, faultThreadMain, 0, &D_807FEF50, 0x32);
-    osStartThread(&D_807FDDA0);
-    D_807563B0 = 1;
+    osCreateMesgQueue(&sFaultMesgQueue, &sFaultMesg, 1);
+    osCreateThread(&sFaultThread, 8, faultThreadMain, 0, &sFaultMesg, 0x32);
+    osStartThread(&sFaultThread);
+    gFaultThreadStarted = 1;
 }

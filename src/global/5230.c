@@ -1,7 +1,7 @@
 #include "common.h"
 #include "proto/global/5230.h"
 
-extern u16 D_80744734[];
+extern u16 gWorldLobbyMaps[];
 extern s32 gCurrentMap;
 #include "sched.h"
 extern SchedStruct gScheduler;
@@ -21,7 +21,7 @@ s32 frameTimingGetMapIndex(void) {
     i = 0;
     found = 0;
     while (!found && i < 8) {
-        if (gCurrentMap == D_80744734[i]) {
+        if (gCurrentMap == gWorldLobbyMaps[i]) {
             found = 1;
         } else {
             i++;

@@ -43,7 +43,7 @@ void bossMadJackSpawnShockwave(f32 scale) {
 void bossMadJackSpawnSparkles(void) {
     randomNonNegative();
     effectSetDepth(1);
-    effectSetMode(3);
+    effectSetFrameDelay(3);
     effectSetColor(0x78, 0x78, 0x78, 0xC8);
     effectSpawnBoneDefault(gCurrentActor, (((randomNonNegative() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
 }

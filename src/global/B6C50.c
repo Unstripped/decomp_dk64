@@ -104,7 +104,7 @@ void timedSmokeTargetHostUpdate(void) {
             }
             if (gCurrentActor->unk155 != 0 && actorTableContains(gBehaviourTargetActor) != 0 && gFrameCounter % 7 == 0) {
                 tint = (6 - gCurrentActor->unk155) * 30;
-                effectSetMode(3);
+                effectSetFrameDelay(3);
                 effectSetColor(tint, tint, tint, gCurrentActor->alpha);
                 effectSpawnBoneDefault(gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
             }

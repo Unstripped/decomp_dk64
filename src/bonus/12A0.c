@@ -191,7 +191,7 @@ void bonusReelGameUpdate(void) {
                 gCurrentActor->state = 3;
                 gCurrentActor->unk155 = 0;
                 effectEnableFade();
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSetDuration(-1);
                 obj->effect = effectCreateAtPosition(&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
             }

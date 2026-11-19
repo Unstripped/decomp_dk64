@@ -109,7 +109,7 @@ TintKeyframe gTintKeyframes[] = {
 
 extern FillRectEntry D_80750840[];
 extern u8 gSplitScreenMode;
-extern u8 D_80750ABC;
+extern u8 gSplitScreenViewMask;
 extern u8 gHiResScale;
 
 Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
@@ -121,7 +121,7 @@ Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
     gDPSetCycleType(dl++, G_CYC_FILL);
     gDPSetFillColor(dl++, 0x10001);
     for (; D_80750840[i].players != -1; i++) {
-        if (((D_80750840[i].players == 2) && (gPlayerCount >= 2) && (D_80750840[i].viewMask & D_80750ABC)) || ((gPlayerCount == D_80750840[i].players) && (gSplitScreenMode == D_80750840[i].splitMode) && (D_80750840[i].viewMask & D_80750ABC))) {
+        if (((D_80750840[i].players == 2) && (gPlayerCount >= 2) && (D_80750840[i].viewMask & gSplitScreenViewMask)) || ((gPlayerCount == D_80750840[i].players) && (gSplitScreenMode == D_80750840[i].splitMode) && (D_80750840[i].viewMask & gSplitScreenViewMask))) {
             gDPFillRectangle(dl++, D_80750840[i].x0 * gHiResScale, D_80750840[i].y0 * gHiResScale,
                              (D_80750840[i].x1 + 1) * gHiResScale - 1, (D_80750840[i].y1 + 1) * gHiResScale - 1);
         }
@@ -571,7 +571,7 @@ Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
 
 extern f32 gScreenFadeRate;
 extern u8 D_8076AEE0;
-extern s16 D_807FD800;
+extern s16 gViewProbeHitsFarPlane;
 
 Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
     f32 x;
@@ -625,7 +625,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
         }
         break;
     case 0x1E:
-        if (((gPlayerSlots->unk290 != 7) && (gPlayerSlots->unk290 != 6) && (gPlayerSlots->unk290 != 8) && (gPlayerSlots->unk290 != 0)) || (D_807FD800 != 0)) {
+        if (((gPlayerSlots->unk290 != 7) && (gPlayerSlots->unk290 != 6) && (gPlayerSlots->unk290 != 8) && (gPlayerSlots->unk290 != 0)) || (gViewProbeHitsFarPlane != 0)) {
             dl = gfxDrawBackgroundQuad(dl, rotX, rotY, mtx, 0, 0, ((gPrimaryPlayerActor->chunkIndex == 9) || (gPrimaryPlayerActor->chunkIndex == 0xB) || (gPrimaryPlayerActor->chunkIndex == 3)) ? 1 : 0, 9, 0.0f);
         }
         break;

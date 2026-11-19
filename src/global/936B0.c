@@ -36,7 +36,7 @@
 
 // This TU's .data (0x80750270-0x80750278 + 8-byte TU pad).
 u8 sProjectileShortLivedFlag = 0;
-f32 D_80750274 = -2.5f;
+f32 sProjectileGravity = -2.5f;
 
 // Second component (0x178) of the ridden vehicle actors (race/52B0 passes it as `motion`): the model
 // lean angles actorInterpolateAngles eases and the hop vehicleUpdateMotion consumes.
@@ -1008,7 +1008,7 @@ void actorSpawnSparkleBurst(void) {
         effectSetDepth(1);
         effectSetColor(0x8C, 0x8C, 0x8C, 0x64);
         effectSetSpeed(i * -0x14);
-        effectSetMode(3);
+        effectSetFrameDelay(3);
         effectSetCallback(effectSinkBySpeedUpdate);
         effectCreateAtPosition(&sEffectSparkConfig, 2.0f, gCurrentActor->x + dx, gCurrentActor->y + 42.0f + dy, gCurrentActor->z + dz);
     }
@@ -1198,7 +1198,7 @@ void projectileSparkleUpdate(s32 silver) {
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         effectSetDuration(1);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetCallback(effectGrowExpandMatrixUpdate);
         effectSetSpeed((s32)(randomNonNegative() >> 15) % 360);
@@ -1454,7 +1454,7 @@ void projectileMultiplayerUpdate(void) {
             for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
                 effectSetSpeed(0x05000000 + i);
-                effectSetMode(1);
+                effectSetFrameDelay(1);
                 effectSetCallback(effectRadialSprayUpdate);
                 effectCreateAtPosition(&D_80720BA0, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
@@ -2183,7 +2183,7 @@ void projectileParticleSpawnerTick(void) {
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         if (state->param != 0xA) {
-            effectSetMode(2);
+            effectSetFrameDelay(2);
             effectSetDepth(1);
             effectCreateAtPosition(&D_8071FBC8, 1.5f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
@@ -2256,7 +2256,7 @@ void projectileHomingParticleUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
-    gCurrentActor->speedY += D_80750274;
+    gCurrentActor->speedY += sProjectileGravity;
     minSpeed = gCarryMinFallSpeed;
     if (gCurrentActor->speedY < minSpeed) {
         gCurrentActor->speedY = minSpeed;
@@ -2267,7 +2267,7 @@ void projectileHomingParticleUpdate(void) {
             jitterX = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
             jitterY = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
             jitterZ = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
-            effectSetAngle(i);
+            effectSetStartDelay(i);
             effectSetDepth(1);
             if (i == 0) {
                 effectSetSpeed(0x1006E);

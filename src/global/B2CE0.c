@@ -529,7 +529,7 @@ void effectSpawnActorParticleBurst(u8 nodeIndex) {
         effectSetDepth(1);
         effectSetDuration(10);
         effectSetCallback(effectTumbleBounceUpdate);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetSpeed(0);
         effectCreateAtActorBone(&D_8072073C, scaleFactor * 0.15, gCurrentActor, nodeIndex, 0);
     }

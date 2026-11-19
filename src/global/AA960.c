@@ -162,7 +162,7 @@ void effectSpawnAttachedSprite(DropBounceState *state, void *spriteAsset, f32 sc
     }
     effectSetDuration(-1);
     effectSetDepth(1);
-    effectSetMode(2);
+    effectSetFrameDelay(2);
     state->sprite = effectCreateAtActorBone(spriteAsset, scale * 0.35, gCurrentActor, 1, 2);
 }
 
@@ -750,7 +750,7 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
                     effectSetSpeed(0x226);
                 }
                 effectSetFlags(4);
-                effectSetMode(3);
+                effectSetFrameDelay(3);
                 effectCreateAtActorBone(spriteAsset, 0.8f, gCurrentActor, 1, 2);
                 gCurrentActor->unk144 = 2;
             } else {
@@ -840,7 +840,7 @@ void effectActorSparkleTick(void) {
         effectSetDepth(1);
         effectSetCallback(&effectProximityFadeUpdate);
         effectSetSpeed(0x226);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetColor(0xFF, 0xFF, 0xFF, hasInstrument ? 0xFF : 0x7F);
         effectCreateAtActorBone(&D_80721170, 0.4f, gCurrentActor, 1, 2);
     }

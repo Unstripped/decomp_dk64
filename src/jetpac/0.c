@@ -56,7 +56,7 @@ JetpacSprite D_8002B9C0[6] = {
     { D_8002B6B8, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
     { D_8002B840, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
 };
-JetpacSoundEntry D_8002BA50[7] = { { 0, 0xA3 }, { 0, 0xA4 }, { 0, 0xA0 }, { 0, 0x9F }, { 0, 0x9E }, { 0, 0xA1 }, { 0, 0xA2 } };
+JetpacSoundEntry jetpacSoundTable[7] = { { 0, 0xA3 }, { 0, 0xA4 }, { 0, 0xA0 }, { 0, 0x9F }, { 0, 0x9E }, { 0, 0xA1 }, { 0, 0xA2 } };
 s32 jetpacBlinkPhase = 0;
 u8 jetpacInitPending = 1;
 
@@ -250,7 +250,7 @@ void jetpacStateGameplay(Gfx **glist) {
     jetpacDrawLedges();
     jetpacDrawPlayer();
     jetpacDrawActors();
-    jetpacItemsUpdate();
+    jetpacDrawItems();
     jetpacDrawBonusItem();
     jetpacDrawLasers();
     jetpacGridDraw(glist);
@@ -360,7 +360,7 @@ void jetpacPlaySound(s32 soundId) {
             n_alSndpStop(D_80770DF8[i]);
         }
     }
-    n_alSndpPlay(gSfxBank, D_8002BA50[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
+    n_alSndpPlay(gSfxBank, jetpacSoundTable[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
 }
 
 void jetpacSetSoundPitch(s32 soundId, f32 pitch) {

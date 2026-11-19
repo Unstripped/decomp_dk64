@@ -95,7 +95,7 @@ typedef struct SlotQueueMaskNode {
 } SlotQueueMaskNode;
 
 SlotQueueMaskNode *gSlotQueueMaskList = NULL;
-s32 D_80754288 = 0;
+s32 gSlotQueueResourceKong = 0;
 
 SlotQueueSlot *slotQueueGetAddress(u8 player) {
     return &gSlotQueue[player * 15];
@@ -431,7 +431,7 @@ s32 slot;
 }
 
 
-void func_806F8DC4(u8 *alpha, s32 count, s32 slot) {
+void slotQueueSetIconAlpha(u8 *alpha, s32 count, s32 slot) {
     s32 world;
     s32 kong;
 
@@ -553,7 +553,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
                 if (max < *slots[slot].value) {
                     *slots[slot].value = max;
                 }
-                if ((slot == 8) && (func_805FEF10(&flag) != 0)) {
+                if ((slot == 8) && (playerGetActorTypeFlag(&flag) != 0)) {
                     flagSet(flag, 1, 0);
                 }
                 if ((delta > 0) && (slot == 0)) {
@@ -696,7 +696,7 @@ void effectSpawnSprite(SlotQueueNode *node, s32 slot, f32 x, f32 y, s32 param) {
     if (slot == 0xE) {
         mode = 1;
     }
-    effectSetMode(mode);
+    effectSetFrameDelay(mode);
     effectSetParam(param);
     effectSetSpeed((s32)node);
     effectSetCallback(effectWaveMotionUpdate);
@@ -833,7 +833,7 @@ void slotQueueSpawnSingleNode(s32 slot) {
     effectNode = (*link)->data;
     effectSetDirection(*link, slot);
     effectSpawnSprite(*link, slot, gSlotQueue[slot].x, gSlotQueue[slot].y, 0);
-    func_806F8DC4(&effectNode->alpha, 0, slot);
+    slotQueueSetIconAlpha(&effectNode->alpha, 0, slot);
     (*link)->fade = 0;
 }
 
@@ -951,7 +951,7 @@ Gfx *slotQueueNodeUpdate(s32 slot, SlotQueueNode *node, s32 index, Gfx *gfx) {
             gfx = slotQueueDrawPlayerLabels(slot, node, gfx);
         }
     } else if ((slot == 8) || (slot == 0xA) || (slot == 0xC)) {
-        func_806F8DC4(node->data, index, slot);
+        slotQueueSetIconAlpha(node->data, index, slot);
     }
     return gfx;
 }
@@ -1162,7 +1162,7 @@ void slotQueueSelectPlayerResource(u8 player) {
     world = mapGetHubWorldIndex(gCurrentWorldId, 0);
     gSlotQueue[13].value = &gPlayerInventoryTable[0].kong[player].bananasDelivered[world];
     gSlotQueue[13].shown = *gSlotQueue[13].value;
-    D_80754288 = player;
+    gSlotQueueResourceKong = player;
 }
 
 extern EffectGridAsset D_807200A0, D_807201A0, D_80720268, D_8072029C, D_807203B0, D_807203D4, D_807203F8, D_8072041C, D_80720440, D_80720488, D_807204BC, D_80720508, D_8072052C, D_80720558, D_8072057C, D_807205A0, D_807205C4, D_807205E8, D_8072060C, D_807206A8, D_807207BC, D_807207E0, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, D_807209EC, D_80720A10, D_80720A34, D_80720A58, D_80721200, D_8072121C, D_80721250, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
@@ -1174,7 +1174,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
     result = NULL;
     kong = playerGetResolvedKongId(0);
     if (slot == 13) {
-        kong = D_80754288;
+        kong = gSlotQueueResourceKong;
     }
     switch (slot) {
     case 0:

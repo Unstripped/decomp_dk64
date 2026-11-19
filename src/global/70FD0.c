@@ -23,7 +23,7 @@
 #include "proto/global/FE40.h"
 
 // This TU's .data (0x80748E40-0x80748E42 + 14-byte TU pad).
-s16 D_80748E40 = 0;
+s16 sModelSlotExpireCursor = 0;
 
 typedef struct BufferCacheEntry {
     /* 0x00 */ void *tris;
@@ -343,15 +343,15 @@ void modelSlotExpireNextBuffers(void) {
     ModelTriBuffer *triBuf;
 
     if (gModelSlotCount != 0) {
-        D_80748E40++;
-        if (D_80748E40 >= gModelSlotCount) {
-            D_80748E40 = 0;
+        sModelSlotExpireCursor++;
+        if (sModelSlotExpireCursor >= gModelSlotCount) {
+            sModelSlotExpireCursor = 0;
         }
-        buf = &gModelSlots[D_80748E40].unk28;
+        buf = &gModelSlots[sModelSlotExpireCursor].unk28;
         if ((buf->unk15 & 1) && ((gFrameCounter - buf->unk10) >= 0x1F)) {
             dynamicBufferFree(buf);
         }
-        triBuf = &gModelSlots[D_80748E40].unk48;
+        triBuf = &gModelSlots[sModelSlotExpireCursor].unk48;
         if ((triBuf->flags & 1) && ((gFrameCounter - triBuf->timestamp) >= 0x1F)) {
             modelSlotTriBufferRelease(triBuf);
         }

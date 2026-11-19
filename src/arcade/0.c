@@ -17,7 +17,7 @@
 
 extern ArcadeEntity D_8004BCD0[];
 
-extern void *D_8004C6D0;
+extern void *gArcadeTexImage;
 typedef union ArcadeTexScale {
     s32 word;
     s16 half[2];
@@ -28,13 +28,13 @@ extern s8 gArcadeBonusTimer;
 extern u8 gArcadeFrozen;
 extern u8 gArcadePlayerIndex;
 extern u8 D_8004C721;
-extern u8 D_8004C722;
+extern u8 gArcadeStage;
 extern u8 D_8004C724;
 extern s32 D_8004C708;
 extern s32 D_8004C6DC;
 extern u8 D_8004A740;
 extern u8 gArcadeLevel;
-extern s32 D_8004A308[];
+extern s32 gArcadeConveyorSpeeds[];
 
 extern s16 D_8004C72E;
 extern s16 D_8004C732;
@@ -259,7 +259,7 @@ void arcadeDispatchState(Gfx **glistp) {
 
     if (D_8004A78C[0] != 0) {
         D_8004A78C[0] = 0;
-        D_8004C722 = 1;
+        gArcadeStage = 1;
         arcadeInitTitleScreen();
         arcadeLoadHighScores();
     }
@@ -323,7 +323,7 @@ void arcadeCheckGameOver(void) {
         D_8004A774[i] = 0x20;
     }
     D_8004C724 = 3;
-    D_8004C722 = 0;
+    gArcadeStage = 0;
     D_8004C6DC = 0;
     for (i = 0; i < 0x50; i++) {
         D_8004C720 = 0;
@@ -375,7 +375,7 @@ void arcadeInitTitleScreen(void) {
 
     D_8004C724 = 0;
     D_8004A740 = flagGet(0x63, 2);
-    D_8004C722 = 0;
+    gArcadeStage = 0;
     D_8004C6DC = 0x200;
     gArcadeFrozen = 1;
     for (e = D_8004BCD0; e < &D_8004BCD0[80]; e++) {
@@ -421,7 +421,7 @@ void arcadeTitleLoop(Gfx **glistp) {
             gArcadeLevel = D_8004C723 / 4 + 1;
         }
         D_8004C71C = gArcadeSpareLives + 1;
-        D_8004C722 = 1;
+        gArcadeStage = 1;
         D_8004C724 = 1;
         D_8004C6DC = 0;
         gArcadeFrozen = 1;
@@ -457,11 +457,11 @@ void arcadeStageIntroLoop(Gfx **glistp) {
 
 extern s32 D_8004C714;
 void arcadeSetStageMusic(void) {
-    if (D_8004C722 == 1) {
+    if (gArcadeStage == 1) {
         D_8004C714 = 0x4D;
-    } else if (D_8004C722 == 2) {
+    } else if (gArcadeStage == 2) {
         D_8004C714 = 0x4F;
-    } else if (D_8004C722 == 4) {
+    } else if (gArcadeStage == 4) {
         D_8004C714 = 0x4E;
     } else {
         D_8004C714 = -1;
@@ -498,10 +498,10 @@ void arcadeGameplayLoop(Gfx **glistp) {
     arcadeDispatchEntities();
     arcadeRenderEntities(&glist);
     if (gArcadeFrozen == 0) {
-        if (D_8004C722 == 2) {
+        if (gArcadeStage == 2) {
             arcadeSpawnStage2Enemies();
         }
-        if (D_8004C722 == 4) {
+        if (gArcadeStage == 4) {
             arcadeSpawnStage4Enemies();
         }
         if (gPadPressedButtons[0] & 0x1000) {
@@ -513,7 +513,7 @@ void arcadeGameplayLoop(Gfx **glistp) {
 }
 extern ArcadeEntity D_8004A6B8;
 extern OSContPad *D_807ECDE8;
-extern s8 D_8004A768;
+extern s8 gArcadePauseSelection;
 extern s32 D_8004C70C;
 extern u8 D_8004A744;
 
@@ -531,7 +531,7 @@ void arcadeOpenPauseMenu(void) {
             D_8004BCD0[index].y = row;
         }
     }
-    D_8004A768 = 0;
+    gArcadePauseSelection = 0;
     D_8004C70C = D_807ECDE8->stick_y;
     D_8004A744 = 0;
 }
@@ -553,16 +553,16 @@ void arcadePauseMenuLoop(Gfx **glistp) {
     arcadeDrawBackground(&glist);
     arcadeRenderEntities(&glist);
     if ((gPadPressedButtons[0] & 0x800) || (D_807ECDE8->stick_y >= 0x1F && D_8004C70C < 0x1F)) {
-        D_8004A768--;
+        gArcadePauseSelection--;
     }
     if ((gPadPressedButtons[0] & 0x400) || (D_807ECDE8->stick_y < -0x1E && D_8004C70C >= -0x1E)) {
-        D_8004A768++;
+        gArcadePauseSelection++;
     }
-    if (D_8004A768 >= 3) {
-        D_8004A768 = 0;
+    if (gArcadePauseSelection >= 3) {
+        gArcadePauseSelection = 0;
     }
-    if (D_8004A768 < 0) {
-        D_8004A768 = 2;
+    if (gArcadePauseSelection < 0) {
+        gArcadePauseSelection = 2;
     }
     D_8004C70C = D_807ECDE8->stick_y;
     if (gPadPressedButtons[0] & 0x1000) {
@@ -570,7 +570,7 @@ void arcadePauseMenuLoop(Gfx **glistp) {
         D_8004C724 = 5;
     }
     if (gPadPressedButtons[0] & 0xC000) {
-        switch (D_8004A768) {
+        switch (gArcadePauseSelection) {
         case 0:
             arcadeClearEntitiesByType1C();
             D_8004C724 = 5;
@@ -638,8 +638,8 @@ extern TextureDescriptor D_8004BB30[];
 extern TextureDescriptor D_8004BB60[];
 extern TextureDescriptor D_8004BB90[];
 extern TextureDescriptor D_8004BBC0[];
-extern u8 D_8004C719;
-extern u8 D_8004C71A;
+extern u8 gArcadeTexWidth;
+extern u8 gArcadeTexHeight;
 extern TextureDescriptor D_8004BB00[];
 extern u16 D_80032C20[];
 extern u16 D_80032DF8[];
@@ -668,7 +668,7 @@ void arcadeDrawBackground(Gfx **glistp) {
     case 1:
     case 4:
     case 5:
-        switch (D_8004C722) {
+        switch (gArcadeStage) {
         case 1:
             arcadeDrawStage1Background(&glist);
             break;
@@ -691,25 +691,25 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
     s32 i;
     Gfx *glist;
 
-    D_8004C719 = 8;
-    D_8004C71A = 4;
+    gArcadeTexWidth = 8;
+    gArcadeTexHeight = 4;
     D_8004C6D4.word = 0x400;
-    if (D_8004C722 == 2) D_8004C6D0 = D_80032B90;
-    else if (D_8004C722 == 4) D_8004C6D0 = D_80032BD8;
-    else D_8004C6D0 = D_80032B48;
-    dlInitTextureDescriptor(&D_8004BB30[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlInitTextureDescriptor(&D_8004BB60[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, 1, 0, 2, 0, 0);
-    dlInitTextureDescriptor(&D_8004BB90[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, 2, 0, 2, 0, 0);
-    dlInitTextureDescriptor(&D_8004BBC0[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, 3, 0, 2, 0, 0);
+    if (gArcadeStage == 2) gArcadeTexImage = D_80032B90;
+    else if (gArcadeStage == 4) gArcadeTexImage = D_80032BD8;
+    else gArcadeTexImage = D_80032B48;
+    dlInitTextureDescriptor(&D_8004BB30[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004BB60[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, 1, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004BB90[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, 2, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004BBC0[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, 3, 0, 2, 0, 0);
     glist = *glistp;
     dlAppendTextureLoad(&glist, &D_8004BB30[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < height / 4; i++) {
         dlAppendTextureRectangle(&glist, x * 4, (i * 4 + y + 8) * 4.0);
     }
-    D_8004C71A = height % 4;
-    if (D_8004C71A != 0) {
-        switch (D_8004C71A) {
+    gArcadeTexHeight = height % 4;
+    if (gArcadeTexHeight != 0) {
+        switch (gArcadeTexHeight) {
         case 1:
             dlAppendTextureLoad(&glist, &D_8004BB60[gGfxBufferIndex]);
             break;
@@ -852,12 +852,12 @@ void arcadeDrawTitleText(Gfx **glistp) {
     s32 i;
 
     glist = *glistp;
-    D_8004C719 = 8;
-    D_8004C71A = 8;
+    gArcadeTexWidth = 8;
+    gArcadeTexHeight = 8;
     D_8004C6D4.word = 0x400;
-    if (D_8004C6DC & 0x182) D_8004C6D0 = D_80032C20; // LAYOUT: then-arm store on the if line (as1 .loc; split onto its own line: text=2)
-    else D_8004C6D0 = D_80032DF8;
-    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    if (D_8004C6DC & 0x182) gArcadeTexImage = D_80032C20; // LAYOUT: then-arm store on the if line (as1 .loc; split onto its own line: text=2)
+    else gArcadeTexImage = D_80032DF8;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < 12; i++) {
@@ -876,11 +876,11 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     s32 i;
     Gfx *glist;
 
-    D_8004C719 = 8;
-    D_8004C71A = 0xA;
+    gArcadeTexWidth = 8;
+    gArcadeTexHeight = 0xA;
     D_8004C6D4.word = 0x492;
-    D_8004C6D0 = D_80034568;
-    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexImage = D_80034568;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     glist = *glistp;
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
@@ -959,11 +959,11 @@ void arcadeDrawStage2Background(Gfx **glistp) {
 
     glist = *glistp;
     if (D_8004C708 < 2) {
-        D_8004C719 = 2;
-        D_8004C71A = 8;
+        gArcadeTexWidth = 2;
+        gArcadeTexHeight = 8;
         D_8004C6D4.word = 0x400;
-        D_8004C6D0 = D_80032F18;
-        dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+        gArcadeTexImage = D_80032F18;
+        dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
         dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
         dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
         for (i = 0; i < 4; i++) {
@@ -973,11 +973,11 @@ void arcadeDrawStage2Background(Gfx **glistp) {
             dlAppendTextureRectangle(&glist, 0x31C, (s32)(i * 8 + 51.625 + 8.0) * 4.0);
         }
     }
-    D_8004C719 = 8;
-    D_8004C71A = 8;
+    gArcadeTexWidth = 8;
+    gArcadeTexHeight = 8;
     D_8004C6D4.word = 0x400;
-    D_8004C6D0 = D_80032C20;
-    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexImage = D_80032C20;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < 0x1C; i++) {
@@ -1095,11 +1095,11 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     ArcadeGirderSpan *pt;
 
     glist = *glistp;
-    D_8004C719 = 2;
-    D_8004C71A = 8;
+    gArcadeTexWidth = 2;
+    gArcadeTexHeight = 8;
     D_8004C6D4.word = 0x400;
-    D_8004C6D0 = D_80032F40;
-    dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexImage = D_80032F40;
+    dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (j = 5; j < 0x14; j++) {
@@ -1108,11 +1108,11 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     for (j = 5; j < 0x14; j++) {
         dlAppendTextureRectangle(&glist, 0x25C, (s32)(j * 8 + 51.625 + 8.0) * 4.0);
     }
-    D_8004C719 = 8;
-    D_8004C71A = 0xA;
+    gArcadeTexWidth = 8;
+    gArcadeTexHeight = 0xA;
     D_8004C6D4.word = 0x492;
-    D_8004C6D0 = D_80034568;
-    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexImage = D_80034568;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     count = sizeof(gArcadeStage3Girders) / sizeof(gArcadeStage3Girders[0]); // FAKE: constant-valued array-count bound local (Q0780); assigned here, not as its initialiser (69)
@@ -1147,11 +1147,11 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     Gfx *glist;
 
     glist = *glistp;
-    D_8004C719 = 8;
-    D_8004C71A = 0xA;
+    gArcadeTexWidth = 8;
+    gArcadeTexHeight = 0xA;
     D_8004C6D4.word = 0x492;
-    D_8004C6D0 = D_80032D50;
-    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexImage = D_80032D50;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0xB; i < 0x11; i++) {
@@ -1165,8 +1165,8 @@ void arcadeDrawStage4Background(Gfx **glistp) {
             dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x268);
         }
     }
-    D_8004C6D0 = D_80032CA8;
-    dlInitTextureDescriptor(&D_8004BC20[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexImage = D_80032CA8;
+    dlInitTextureDescriptor(&D_8004BC20[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BC20[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 1; i < 0x1B; i++) {
@@ -1180,8 +1180,8 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     for (i = 1; i < 0x1B; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x2F4);
     }
-    D_8004C6D0 = D_800342B8;
-    dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexImage = D_800342B8;
+    dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0xC; i < 0x10; i++) {
@@ -1334,7 +1334,7 @@ extern u16 D_80035CE8[];
 
 
 extern u8 D_8004A788[];
-extern s32 D_8004C710;
+extern s32 gArcadeHammerTimer;
 extern u8 D_8004C718;
 extern u8 gArcadeGameOver;
 
@@ -1504,11 +1504,11 @@ void arcadeInitStage(void) {
     s32 temp;
 
     D_8004C708 = 0;
-    D_8004C722 = D_8004A788[D_8004C723 & 3];
+    gArcadeStage = D_8004A788[D_8004C723 & 3];
     for (i = 0; i < 80; i++) {
         D_8004BCD0[i].type = 0;
     }
-    switch (D_8004C722) {
+    switch (gArcadeStage) {
     case 1:
         arcadeSpawnStage1Entities();
         break;
@@ -1529,17 +1529,17 @@ void arcadeInitStage(void) {
     } else {
         gArcadeBonusTimer = temp;
     }
-    D_8004C710 = 0;
+    gArcadeHammerTimer = 0;
     D_8004C718 = 0xFF;
     gArcadeGameOver = 0;
     D_8004C6DC = 0;
     gArcadeFrozen = 1;
     D_8004C6F8 = 1;
     D_8004C721 = 1;
-    D_8004A308[0] = 0;
-    D_8004A308[1] = 0;
-    D_8004A308[2] = 0;
-    D_8004A308[3] = 0;
+    gArcadeConveyorSpeeds[0] = 0;
+    gArcadeConveyorSpeeds[1] = 0;
+    gArcadeConveyorSpeeds[2] = 0;
+    gArcadeConveyorSpeeds[3] = 0;
 }
 
 s32 arcadeCheckStage1Collision(s32 posX, s32 posY) {
@@ -1793,11 +1793,11 @@ s32 arcadeCheckStage4Collision(s32 posX, s32 posY) {
 }
 
 s32 arcadeCheckPlayerCollision(s32 posX, s32 posY) {
-    if (D_8004C722 == 1) {
+    if (gArcadeStage == 1) {
         return arcadeCheckStage1Collision(posX, posY);
-    } else if (D_8004C722 == 2) {
+    } else if (gArcadeStage == 2) {
         return arcadeCheckStage2Collision(posX, posY);
-    } else if (D_8004C722 == 3) {
+    } else if (gArcadeStage == 3) {
         return arcadeCheckStage3Collision(posX, posY);
     } else {
         return arcadeCheckStage4Collision(posX, posY);
@@ -2008,11 +2008,11 @@ s32 arcadeCheckStage4Ladders(s32 posX, s32 posY) {
 }
 
 s32 arcadeCheckStageLadders(s32 posX, s32 posY) {
-    if (D_8004C722 == 1) {
+    if (gArcadeStage == 1) {
         return arcadeCheckStage1Ladders(posX, posY);
-    } else if (D_8004C722 == 2) {
+    } else if (gArcadeStage == 2) {
         return arcadeCheckStage2Ladders(posX, posY);
-    } else if (D_8004C722 == 3) {
+    } else if (gArcadeStage == 3) {
         return arcadeCheckStage3Ladders(posX, posY);
     } else {
         return arcadeCheckStage4Ladders(posX, posY);
@@ -2103,8 +2103,8 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
     frame = D_8004BCD0[entIndex].animTimer;
     if (D_8004BCD0[entIndex].state == 2) {
         if (gArcadeGameOver && gArcadeGameOver) {} // FAKE: empty guard steers regalloc
-        if (D_8004C710 != 0) {
-            if (D_8004C710 & 8) {
+        if (gArcadeHammerTimer != 0) {
+            if (gArcadeHammerTimer & 8) {
                 switch (frame & 3) {
                 case 0:
                 case 2:
@@ -2251,7 +2251,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             } else {
                 D_8004BCD0[entIndex].vx = 0.0f;
             }
-            if ((gPadPressedButtons[0] & 0xE000) && D_8004C710 == 0) {
+            if ((gPadPressedButtons[0] & 0xE000) && gArcadeHammerTimer == 0) {
                 n_alSndpPlay(gSfxBank, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 D_8004BCD0[entIndex].animTimer = 0.0f;
                 D_8004BCD0[entIndex].vy = -1.2f;
@@ -2265,7 +2265,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
         } else {
             D_8004BCD0[entIndex].vx = 0.0f;
         }
-        if (D_8004BCD0[entIndex].state != 8 && D_8004C722 == 3 &&
+        if (D_8004BCD0[entIndex].state != 8 && gArcadeStage == 3 &&
             ((76.0f < D_8004BCD0[entIndex].x && D_8004BCD0[entIndex].x < 100.0f) || (140.0f < D_8004BCD0[entIndex].x && D_8004BCD0[entIndex].x < 164.0f)) &&
             ((D_8004BCD0[entIndex].y < 116.0f && 90.0f < D_8004BCD0[entIndex].y) || 239.0f < D_8004BCD0[entIndex].y)) {
             arcadeKillPlayer();
@@ -2278,7 +2278,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
         case 2:
             for (i = 0; i < 4; i++) {
                 if (D_8004C6F8 == i) {
-                    D_8004BCD0[gArcadePlayerIndex].x += D_8004A308[i];
+                    D_8004BCD0[gArcadePlayerIndex].x += gArcadeConveyorSpeeds[i];
                 }
             }
             if (D_8004BCD0[entIndex].x <= D_8004C6F0 - 1) {
@@ -2290,7 +2290,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             if (D_8004C6EC < D_8004BCD0[entIndex].y &&
                 ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15)) &&
                 D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
-                !(D_807ECDE8->button & 0x300) && D_8004C710 == 0) {
+                !(D_807ECDE8->button & 0x300) && gArcadeHammerTimer == 0) {
                 D_8004BCD0[entIndex].state = 5;
                 D_8004BCD0[entIndex].vx = 0.0f;
                 D_8004BCD0[entIndex].y -= 1.0f;
@@ -2300,7 +2300,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                        !(D_807ECDE8->button & 0x300) &&
                        D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
                        ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14)) &&
-                       D_8004C710 == 0) {
+                       gArcadeHammerTimer == 0) {
                 D_8004BCD0[entIndex].state = 5;
                 D_8004BCD0[entIndex].vx = 0.0f;
                 D_8004BCD0[entIndex].y += 1.0f;
@@ -2320,9 +2320,9 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
         case 5:
             if (floorY == D_8004BCD0[entIndex].y &&
                 ((D_807ECDE8->button & 0x300) | (D_807ECDE8->stick_x >= 0x15) | (D_807ECDE8->stick_x < -0x14) ||
-                 (D_8004C6F8 == 2 && D_8004A308[2] != 0) ||
-                 (D_8004C6F8 == 1 && D_8004A308[1] != 0) ||
-                 (D_8004C6F8 == 3 && D_8004A308[3] != 0))) {
+                 (D_8004C6F8 == 2 && gArcadeConveyorSpeeds[2] != 0) ||
+                 (D_8004C6F8 == 1 && gArcadeConveyorSpeeds[1] != 0) ||
+                 (D_8004C6F8 == 3 && gArcadeConveyorSpeeds[3] != 0))) {
                 D_8004BCD0[entIndex].state = 2;
             } else if (floorY == D_8004BCD0[entIndex].y && (gPadPressedButtons[0] & 0xE000)) {
                 n_alSndpPlay(gSfxBank, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
@@ -2459,15 +2459,15 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
         if (D_8004C6F8 == 0 && floorY == D_8004BCD0[entIndex].y) {
             n_alSndpPlay(gSfxBank, 0x4C, 0x7FFF, 0x3F, 1.0f, 0, 0);
             arcadeStopSound(0);
-            if (D_8004C722 == 1) {
+            if (gArcadeStage == 1) {
                 i = arcadeFindEntityByType(0x16);
-            } else if (D_8004C722 == 3) {
+            } else if (gArcadeStage == 3) {
                 i = arcadeFindEntityByType(0x18);
-            } else if (D_8004C722 == 4) {
+            } else if (gArcadeStage == 4) {
                 i = arcadeFindEntityByType(0x19);
             }
             D_8004BCD0[i].state = 5;
-            if (D_8004C722 != 4) {
+            if (gArcadeStage != 4) {
                 D_8004BCD0[i].type = 0x16;
             }
             D_8004BCD0[i].animTimer = 0.0f;
@@ -2701,8 +2701,8 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
     if (D_8004BCD0[entIndex].animTimer >= 5.0f) {
         D_8004BCD0[entIndex].animTimer -= 5.0f;
     }
-    if (D_8004C722 == 2) {
-        if (D_8004C710 != 0) {
+    if (gArcadeStage == 2) {
+        if (gArcadeHammerTimer != 0) {
             if ((D_8004C6DC / 4) & 1) {
                 D_8004BCD0[entIndex].sprite = D_80036810;
             } else {
@@ -2713,7 +2713,7 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
         } else {
             D_8004BCD0[entIndex].sprite = D_800365C8;
         }
-    } else if (D_8004C710 != 0) {
+    } else if (gArcadeHammerTimer != 0) {
         if ((D_8004C6DC / 4) & 1) {
             D_8004BCD0[entIndex].sprite = D_80036CA0;
         } else {
@@ -2872,7 +2872,7 @@ void arcadeUpdateOilDrumEntity(s32 entIndex) {
                 break;
             }
             n = arcadeMinFloat(gArcadeLevel, 5.0f);
-            if (D_8004C722 == 4) {
+            if (gArcadeStage == 4) {
                 if (0x64 - n * 0x14 == D_8004BCD0[entIndex].animTimer++) {
                     if (arcadeCountEntitiesByType(2) < n) {
                         D_8004BCD0[entIndex].state = 3;
@@ -2889,7 +2889,7 @@ void arcadeUpdateOilDrumEntity(s32 entIndex) {
                 D_8004BCD0[n] = D_8004A3D8;
                 D_8004BCD0[n].state = 3;
                 D_8004BCD0[n].vy = -1.0f;
-                if (D_8004C722 == 1) {
+                if (gArcadeStage == 1) {
                     D_8004BCD0[n].vx = 0.4f;
                 } else {
                     if (D_8004BCD0[gArcadePlayerIndex].x < 160.0f) {
@@ -2918,7 +2918,7 @@ void arcadeUpdateOilDrumEntity(s32 entIndex) {
 void arcadeUpdatePaulineLower(s32 entIndex) {
     ArcadeEntity *entry = &D_8004BCD0[entIndex];
 
-    if (D_8004C722 == 2) {
+    if (gArcadeStage == 2) {
         entry->facing = D_8004BCD0[gArcadePlayerIndex].x < 160.0f;
         entry->x = 152.0f;
         if (D_8004C708 == 2) {
@@ -2936,7 +2936,7 @@ void arcadeUpdatePaulineLower(s32 entIndex) {
 void arcadeUpdatePaulineUpper(s32 entIndex) {
     ArcadeEntity *entry = &D_8004BCD0[entIndex];
 
-    if (D_8004C722 == 2) {
+    if (gArcadeStage == 2) {
         entry->facing = D_8004BCD0[gArcadePlayerIndex].x < 160.0f;
         entry->x = 152.0f;
         if (D_8004C708 == 2) {
@@ -2980,7 +2980,7 @@ void arcadeUpdateHeartEntity(s32 entIndex) {
 }
 
 void arcadeUpdateHelpSpeechBubble(s32 entIndex) {
-    if (D_8004C722 == 2) {
+    if (gArcadeStage == 2) {
         D_8004BCD0[entIndex].x = (D_8004BCD0[gArcadePlayerIndex].x >= 160.0f) * 0x28 + 0x80;
         if (D_8004C708 == 2) {
             D_8004BCD0[entIndex].facing = 0;
@@ -3003,7 +3003,7 @@ void arcadeUpdateHelpSpeechBubble(s32 entIndex) {
     }
     if (gArcadeFrozen == 0) {
         if (!(D_8004BCD0[entIndex].param++ & 0xC0)) {
-            if (D_8004C722 == 2 || D_8004C722 == 4) {
+            if (gArcadeStage == 2 || gArcadeStage == 4) {
                 D_8004BCD0[entIndex].sprite = D_8003E868;
                 return;
             }
@@ -3020,7 +3020,7 @@ void arcadeUpdateConveyorPulleys(s32 entIndex) {
 
     if (gArcadeFrozen == 0) {
         entity = &D_8004BCD0[entIndex];
-        entity->param2 += D_8004A308[entity->param];
+        entity->param2 += gArcadeConveyorSpeeds[entity->param];
         phase = entity->param2;
         if (phase < 0) {
             entity->param2 = phase + 0x2EE00;
@@ -3220,7 +3220,7 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                         D_8004BCD0[entIndex].sprite = D_80044460;
                     }
                 }
-                if (D_8004C722 != 4) {
+                if (gArcadeStage != 4) {
                     D_8004BCD0[entIndex].x = 100.0f;
                 }
                 D_8004BCD0[entIndex].y -= 0.4;
@@ -3417,7 +3417,7 @@ void arcadeUpdateDonkeyKongStage3(s32 entIndex) {
         break;
     }
     if (!(D_8004C6DC & 1)) {
-        D_8004A308[0] = (s32)D_8004BCD0[entIndex].vx;
+        gArcadeConveyorSpeeds[0] = (s32)D_8004BCD0[entIndex].vx;
         D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
     }
 }
@@ -3463,15 +3463,15 @@ void arcadeUpdateHammerEntity(u8 entIndex) {
             if (D_8004BCD0[entIndex].x - D_8004BCD0[gArcadePlayerIndex].x < 8.0f && D_8004BCD0[entIndex].x - D_8004BCD0[gArcadePlayerIndex].x > -8.0f) {
                 if (D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y < 8.0f && D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y > -8.0f) {
                     arcadeStopSound(0x49);
-                    D_8004C710 = 0x258;
+                    gArcadeHammerTimer = 0x258;
                     D_8004BCD0[entIndex].state = 2;
                 }
             }
             break;
         case 2:
             D_8004BCD0[entIndex].facing = D_8004BCD0[gArcadePlayerIndex].facing;
-            if ((D_8004C710 & 8) || D_8004BCD0[gArcadePlayerIndex].state != 2) {
-                if (D_8004C710 >= 0xF1 || (D_8004C710 & 4)) {
+            if ((gArcadeHammerTimer & 8) || D_8004BCD0[gArcadePlayerIndex].state != 2) {
+                if (gArcadeHammerTimer >= 0xF1 || (gArcadeHammerTimer & 4)) {
                     D_8004BCD0[entIndex].sprite = D_800393F8;
                 } else {
                     D_8004BCD0[entIndex].sprite = D_80039888;
@@ -3479,7 +3479,7 @@ void arcadeUpdateHammerEntity(u8 entIndex) {
                 D_8004BCD0[entIndex].x = D_8004BCD0[gArcadePlayerIndex].x;
                 D_8004BCD0[entIndex].y = D_8004BCD0[gArcadePlayerIndex].y - 16.0f;
             } else {
-                if (D_8004C710 >= 0xF1 || (D_8004C710 & 4)) {
+                if (gArcadeHammerTimer >= 0xF1 || (gArcadeHammerTimer & 4)) {
                     D_8004BCD0[entIndex].sprite = D_80039640;
                 } else {
                     D_8004BCD0[entIndex].sprite = D_80039AD0;
@@ -3508,7 +3508,7 @@ void arcadeUpdateHammerEntity(u8 entIndex) {
                     }
                 }
             }
-            if (D_8004C710-- == 1) {
+            if (gArcadeHammerTimer-- == 1) {
                 D_8004BCD0[entIndex].type = 0;
                 arcadeStopSound(0);
                 arcadeSetStageMusic();
@@ -3597,7 +3597,7 @@ void arcadeUpdateRetractableLadder(u8 entIndex) {
 
 void arcadeUpdateCementPanEntity(u8 entIndex) {
     if (gArcadeFrozen == 0) {
-        D_8004BCD0[entIndex].x += D_8004A308[D_8004BCD0[entIndex].param];
+        D_8004BCD0[entIndex].x += gArcadeConveyorSpeeds[D_8004BCD0[entIndex].param];
         if (D_8004BCD0[entIndex].x > 288.0f || D_8004BCD0[entIndex].x < 32.0f || (D_8004BCD0[entIndex].x == 160.0f && D_8004BCD0[entIndex].y == 127.0f)) {
             D_8004BCD0[entIndex].type = 0;
         }
@@ -3616,7 +3616,7 @@ void arcadeUpdateVictoryPauline(u8 entIndex) {
     D_8004BCD0[entIndex].facing = (D_8004BCD0[entIndex].param++ / 8) & 1;
 }
 
-extern u8 *D_80746800;
+extern u8 *gInitialsCharset;
 
 void arcadeUpdateNameEntryCursor(u8 entIndex) {
     if (D_8004BCD0[entIndex].state != 4) {
@@ -3659,12 +3659,12 @@ void arcadeUpdateNameEntryCursor(u8 entIndex) {
             }
             if (D_8004BCD0[entIndex].param2 == 0x1C) {
                 if (D_8004BCD0[entIndex].state != 0) {
-                    D_8004A774[--D_8004BCD0[entIndex].state] = D_80746800[0x1C];
+                    D_8004A774[--D_8004BCD0[entIndex].state] = gInitialsCharset[0x1C];
                     return;
                 }
             }
             if (D_8004BCD0[entIndex].state < 3) {
-                D_8004A774[D_8004BCD0[entIndex].state] = D_80746800[D_8004BCD0[entIndex].param2];
+                D_8004A774[D_8004BCD0[entIndex].state] = gInitialsCharset[D_8004BCD0[entIndex].param2];
                 D_8004BCD0[entIndex].state++;
             }
         }
@@ -3769,16 +3769,16 @@ void arcadeSpawnStage4Enemies(void) {
 
     i = 0;
     if ((D_8004C6DC & 1) == 0) {
-        D_8004A308[1] = 1;
-        D_8004A308[2] = -1;
+        gArcadeConveyorSpeeds[1] = 1;
+        gArcadeConveyorSpeeds[2] = -1;
         if ((D_8004C6DC / 350) & 1) {
-            D_8004A308[3] = 1;
+            gArcadeConveyorSpeeds[3] = 1;
         } else {
-            D_8004A308[3] = -1;
+            gArcadeConveyorSpeeds[3] = -1;
         }
     } else {
         do {
-            D_8004A308[i++] = 0;
+            gArcadeConveyorSpeeds[i++] = 0;
         } while (i < 4);
     }
     if (D_8004C6DC % 120 == 0 && arcadeCountEntitiesByType(4) < 5) {
@@ -3901,9 +3901,9 @@ void arcadeDrawNameRegistration(Gfx **glistp) {
 }
 
 void arcadeSetStageTextColor(s8 stageIndex) {
-    if (stageIndex == D_8004A768) {
+    if (stageIndex == gArcadePauseSelection) {
         arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
-    } else if (D_8004C722 == 2) {
+    } else if (gArcadeStage == 2) {
         arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
     } else {
         arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
@@ -3922,10 +3922,10 @@ void arcadeDrawHud(Gfx **glistp) {
     g = *glistp;
     gDPSetScissor(g++, G_SC_NON_INTERLACE, 0, 0, 320, 240);
     D_8004C6D4.word = 0x400;
-    D_8004C719 = 8;
-    D_8004C6D0 = D_8003DA90;
-    D_8004C71A = 8;
-    dlInitTextureDescriptor(&D_8004BBF0[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    gArcadeTexWidth = 8;
+    gArcadeTexImage = D_8003DA90;
+    gArcadeTexHeight = 8;
+    dlInitTextureDescriptor(&D_8004BBF0[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&g, &D_8004BBF0[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < D_8004C71C; i++) {
@@ -3950,9 +3950,9 @@ void arcadeDrawHud(Gfx **glistp) {
     arcadeDrawString(&g, buf);
     if (D_8004C724 == 5 || D_8004C724 == 4) {
         if (gArcadeGameOver != 0) {
-            if (D_8004C722 == 2) {
+            if (gArcadeStage == 2) {
                 arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
-            } else if (D_8004C722 == 4) {
+            } else if (gArcadeStage == 4) {
                 arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
             } else {
                 arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
@@ -3962,9 +3962,9 @@ void arcadeDrawHud(Gfx **glistp) {
             arcadeDrawString(&g, buf);
         }
         if (D_8004C724 == 4) {
-            if (D_8004A768 == 0 || D_8004C722 == 4) {
+            if (gArcadePauseSelection == 0 || gArcadeStage == 4) {
                 arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
-            } else if (D_8004C722 == 2) {
+            } else if (gArcadeStage == 2) {
                 arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
             } else {
                 arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
@@ -3982,13 +3982,13 @@ void arcadeDrawHud(Gfx **glistp) {
             _sprintf(buf, "EXIT DK ARCADE");
             arcadeDrawString(&g, buf);
         }
-        if (D_8004C722 == 2) {
+        if (gArcadeStage == 2) {
             if (gArcadeBonusTimer < 0xA) {
                 arcadeSetTextColor(0, 0, 0xFF, 0xFF);
             } else {
                 arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
             }
-        } else if (D_8004C722 == 4) {
+        } else if (gArcadeStage == 4) {
             if (gArcadeBonusTimer < 0xA) {
                 arcadeSetTextColor(0xF0, 0x30, 0, 0xFF);
             } else {

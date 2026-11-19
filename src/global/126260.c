@@ -10,19 +10,19 @@
 extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern u8 gLightCommandCount;
 extern u8 gLightSetIndex;
-extern s16 D_807FDB76;
-extern s16 D_807FDB78;
-extern s16 D_807FDB7A;
-extern u8 D_807FDB7C;
-extern u8 D_807FDB7D;
-extern u8 D_807FDB7E;
-extern u8 D_807FDB7F;
-extern u8 D_807FDB80;
+extern s16 gLightAngleOffset;
+extern s16 gLightDistance;
+extern s16 gLightHeightOffset;
+extern u8 gLightAmbientTint;
+extern u8 gLightDirectionalTint;
+extern u8 gLightRed;
+extern u8 gLightGreen;
+extern u8 gLightBlue;
 
-s16 D_80755680 = 0;
-f32 D_80755684 = 255.0f;
-f32 D_80755688 = 255.0f;
-f32 D_8075568C = 255.0f;
+s16 gPlayerLightHeight = 0;
+f32 gPlayerLightRed = 255.0f;
+f32 gPlayerLightBlue = 255.0f;
+f32 gPlayerLightGreen = 255.0f;
 
 typedef struct {
     s32 unk0;
@@ -52,12 +52,12 @@ extern CommandState D_807FDB60;
 extern Command *gLightCommandQueue;
 
 void commandSetParameters(s16 angleOffset, s16 distance, s16 heightOffset, u8 red, u8 green, u8 blue) {
-    D_807FDB76 = angleOffset;
-    D_807FDB78 = distance;
-    D_807FDB7A = heightOffset;
-    D_807FDB7E = red;
-    D_807FDB7F = green;
-    D_807FDB80 = blue;
+    gLightAngleOffset = angleOffset;
+    gLightDistance = distance;
+    gLightHeightOffset = heightOffset;
+    gLightRed = red;
+    gLightGreen = green;
+    gLightBlue = blue;
 }
 
 void commandSetColor(s8 red, s8 green, s8 blue) {
@@ -67,8 +67,8 @@ void commandSetColor(s8 red, s8 green, s8 blue) {
 }
 
 void commandSetFlags(s8 ambientFlag, s8 directionalFlag) {
-    D_807FDB7C = ambientFlag;
-    D_807FDB7D = directionalFlag;
+    gLightAmbientTint = ambientFlag;
+    gLightDirectionalTint = directionalFlag;
 }
 
 void commandStateInit(void) {
@@ -84,11 +84,11 @@ void commandStateInit(void) {
     commandSetFlags(1, 1);
 }
 
-void func_8072167C(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetHeight) {
-    D_80755680 += (targetHeight - D_80755680) * 0.1;
-    D_80755684 += (targetRed - D_80755684) * 0.1;
-    D_80755688 += (targetBlue - D_80755688) * 0.1;
-    D_8075568C += (targetGreen - D_8075568C) * 0.1;
+void lightEasePlayerTarget(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetHeight) {
+    gPlayerLightHeight += (targetHeight - gPlayerLightHeight) * 0.1;
+    gPlayerLightRed += (targetRed - gPlayerLightRed) * 0.1;
+    gPlayerLightBlue += (targetBlue - gPlayerLightBlue) * 0.1;
+    gPlayerLightGreen += (targetGreen - gPlayerLightGreen) * 0.1;
 }
 
 void commandQueuePush(Actor *actor, s16 x, s16 y, s16 z, u8 radius, u8 red, u8 green, u8 blue, u8 type) {
@@ -260,14 +260,14 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     }
 
     if (is_player) {
-        dest_red = D_80755684;
-        dest_green = D_8075568C;
-        dest_blue = D_80755688;
-        height_offset = D_80755680;
+        dest_red = gPlayerLightRed;
+        dest_green = gPlayerLightGreen;
+        dest_blue = gPlayerLightBlue;
+        height_offset = gPlayerLightHeight;
     } else {
-        dest_red = D_807FDB7E;
-        dest_green = D_807FDB7F;
-        dest_blue = D_807FDB80;
+        dest_red = gLightRed;
+        dest_green = gLightGreen;
+        dest_blue = gLightBlue;
         height_offset = 0;
     }
 
@@ -292,21 +292,21 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         color[2] = gChunkLightB[chunk];
     }
 
-    primary->l.col[0] = primary->l.colc[0] = (u8)((D_807FDB7C ? color[0] * scale : 1.0) * D_807FDB60.red);
-    primary->l.col[1] = primary->l.colc[1] = (u8)((D_807FDB7C ? color[1] * scale : 1.0) * D_807FDB60.green);
-    primary->l.col[2] = primary->l.colc[2] = (u8)((D_807FDB7C ? color[2] * scale : 1.0) * D_807FDB60.blue);
+    primary->l.col[0] = primary->l.colc[0] = (u8)((gLightAmbientTint ? color[0] * scale : 1.0) * D_807FDB60.red);
+    primary->l.col[1] = primary->l.colc[1] = (u8)((gLightAmbientTint ? color[1] * scale : 1.0) * D_807FDB60.green);
+    primary->l.col[2] = primary->l.colc[2] = (u8)((gLightAmbientTint ? color[2] * scale : 1.0) * D_807FDB60.blue);
 
-    secondary->l.col[0] = (u8)(s32)((D_807FDB7D ? color[0] * scale : 1.0) * dest_red);
-    secondary->l.col[1] = (u8)(s32)((D_807FDB7D ? color[1] * scale : 1.0) * dest_green);
-    secondary->l.col[2] = (u8)(s32)((D_807FDB7D ? color[2] * scale : 1.0) * dest_blue);
+    secondary->l.col[0] = (u8)(s32)((gLightDirectionalTint ? color[0] * scale : 1.0) * dest_red);
+    secondary->l.col[1] = (u8)(s32)((gLightDirectionalTint ? color[1] * scale : 1.0) * dest_green);
+    secondary->l.col[2] = (u8)(s32)((gLightDirectionalTint ? color[2] * scale : 1.0) * dest_blue);
     secondary->l.colc[0] = secondary->l.col[0];
     secondary->l.colc[1] = secondary->l.col[1];
     secondary->l.colc[2] = secondary->l.col[2];
 
-    angle = mathAngleBetweenPoints2D(x, z, gPlayerSlots[playerSlotIndex].eyeX, gPlayerSlots[playerSlotIndex].eyeZ) + D_807FDB76;
-    dx = (gPlayerSlots[playerSlotIndex].eyeX - (mathSinF(angle) * D_807FDB78)) - x;
-    dy = height_offset + D_807FDB7A;
-    dz = (gPlayerSlots[playerSlotIndex].eyeZ - (mathCosF(angle) * D_807FDB78)) - z;
+    angle = mathAngleBetweenPoints2D(x, z, gPlayerSlots[playerSlotIndex].eyeX, gPlayerSlots[playerSlotIndex].eyeZ) + gLightAngleOffset;
+    dx = (gPlayerSlots[playerSlotIndex].eyeX - (mathSinF(angle) * gLightDistance)) - x;
+    dy = height_offset + gLightHeightOffset;
+    dz = (gPlayerSlots[playerSlotIndex].eyeZ - (mathCosF(angle) * gLightDistance)) - z;
     inv_distance = 127.0f / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
     secondary->l.dir[0] = (s8)(dx * inv_distance);
     secondary->l.dir[1] = (s8)(dy * inv_distance);
@@ -319,10 +319,10 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         D_807444D8 = 10.0f;
         D_807444DC = -10.0f;
         D_807444E0 = 10.0f;
-        D_80755680 += -D_80755680 * 0.05;
-        D_80755684 += (D_807FDB7E - D_80755684) * 0.05;
-        D_80755688 += (D_807FDB7F - D_80755688) * 0.05;
-        D_8075568C += (D_807FDB80 - D_8075568C) * 0.05;
+        gPlayerLightHeight += -gPlayerLightHeight * 0.05;
+        gPlayerLightRed += (gLightRed - gPlayerLightRed) * 0.05;
+        gPlayerLightBlue += (gLightGreen - gPlayerLightBlue) * 0.05;
+        gPlayerLightGreen += (gLightBlue - gPlayerLightGreen) * 0.05;
     }
 
     for (i = 0; i < gLightCommandCount; i++) {

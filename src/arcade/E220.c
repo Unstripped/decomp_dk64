@@ -332,7 +332,7 @@ u16 D_80049348[0x7E0] = {
 };
 
 // Game tables, entity templates (copied into D_8004BCD0) and game state used by 0.c.
-s32 D_8004A308[4] = { 0 };
+s32 gArcadeConveyorSpeeds[4] = { 0 };
 s32 D_8004A318[8] = { 244, 132, 252, 170, 260, 208, 268, 247 };
 u8 D_8004A338[32] = {
     0, 0, 0, 1, 3, 3, 0, 0, 2, 3, 3, 3, 3, 0, 3, 3,
@@ -383,7 +383,7 @@ s32 gArcadeScore = 3700;
 s32 D_8004A74C[5] = { 7650, 6100, 5950, 5050, 4300 };
 s32 D_8004A760 = 7650;
 u8 gArcadeGameOver = 0;
-s8 D_8004A768 = 0;
+s8 gArcadePauseSelection = 0;
 u8 gArcadeLevel = 0;
 u8 D_8004A770 = 0;
 u8 D_8004A774[3] = { 0x20, 0x20, 0x20 };

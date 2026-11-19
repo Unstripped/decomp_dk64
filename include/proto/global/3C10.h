@@ -2,11 +2,11 @@
 #ifndef PROTO_GLOBAL_3C10_H
 #define PROTO_GLOBAL_3C10_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_805FEF10
-s32 func_805FEF10(s32 *);
+#ifndef PROTO_SKIP_playerGetActorTypeFlag
+s32 playerGetActorTypeFlag(s32 *);
 #endif
-#ifndef PROTO_SKIP_func_805FEF74
-s32 func_805FEF74(s32);
+#ifndef PROTO_SKIP_mapIsLobby
+s32 mapIsLobby(s32);
 #endif
 #ifndef PROTO_SKIP_mapGetWorldIndex
 u8 mapGetWorldIndex(u8);
@@ -92,14 +92,14 @@ s32 mapFindSlotIndex(s32);
 #ifndef PROTO_SKIP_mapFindSavedPositionSlot
 s16 mapFindSavedPositionSlot(f32 *, f32 *, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_80600340
-s32 func_80600340(s16 *, u8, s32 *);
+#ifndef PROTO_SKIP_mapFindClosestTargetNearSavedPos
+s32 mapFindClosestTargetNearSavedPos(s16 *, u8, s32 *);
 #endif
-#ifndef PROTO_SKIP_func_806003EC
-void func_806003EC(s16);
+#ifndef PROTO_SKIP_mapApplyLevelFlags
+void mapApplyLevelFlags(s16);
 #endif
-#ifndef PROTO_SKIP_func_8060042C
-s32 func_8060042C(s16);
+#ifndef PROTO_SKIP_mapGetOverlayBufferSize
+s32 mapGetOverlayBufferSize(s16);
 #endif
 #ifndef PROTO_SKIP_func_80600454
 u8 func_80600454(s16, u8 *);

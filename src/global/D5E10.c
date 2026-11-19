@@ -49,12 +49,12 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 
-// Actor types playerStateSquishDeath looks for (func_80600340) around the saved exit position.
+// Actor types playerStateSquishDeath looks for (mapFindClosestTargetNearSavedPos) around the saved exit position.
 typedef struct ActorTypeTriple {
     s16 types[3];
 } ActorTypeTriple;
 
-ActorTypeTriple D_80750FB0 = { { 0x1C, 0x86, 0x6B } };
+ActorTypeTriple sSquishDeathExitTypes = { { 0x1C, 0x86, 0x6B } };
 s32 D_80750FB8[2] = { 0, 30 }; // unreferenced
 f32 D_80750FC0 = 0.2f;
 s32 D_80750FC4 = -100;
@@ -381,7 +381,7 @@ void playerStateSquishDeath(void) {
     s32 map;
     s32 target;
     s32 pad;
-    ActorTypeTriple table = D_80750FB0;
+    ActorTypeTriple table = sSquishDeathExitTypes;
 
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     gActivePlayerState->maxSpeed = 0.0f;
@@ -398,7 +398,7 @@ void playerStateSquishDeath(void) {
     }
     if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
         if (menuIsTransitionTypeD() == 0) {
-            target = func_80600340(table.types, 3, &map);
+            target = mapFindClosestTargetNearSavedPos(table.types, 3, &map);
             actorListSetCustomFloat(map, target, 7, 2.0f);
         }
         mapTransitionToPreviousOrExit();
@@ -677,7 +677,7 @@ void playerInputUpdateCase5(void) {
     playerRegisterCameraHudRenderCallback(5);
 }
 
-extern u8 D_807463B8;
+extern u8 gDemoPlaybackState;
 
 void playerInputUpdateCaseC(void) {
     playerRegisterWeaponHudRenderCallback(0xC);
@@ -686,7 +686,7 @@ void playerInputUpdateCaseC(void) {
     if ((camIsCutsceneActive() != 0) && (gCurrentActor->soundSlots[0] != -1)) {
         sfxStopSlotSound(gCurrentActor, 0);
     }
-    if (D_807463B8 == 3) {
+    if (gDemoPlaybackState == 3) {
         playerCheckAndResetCarriedActor(gCurrentActor);
     }
 }
@@ -695,7 +695,7 @@ void playerInputUpdateCase10(void) {
     playerRegisterInstrumentHudRenderCallback(0x10);
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (D_807463B8 == 3) {
+    if (gDemoPlaybackState == 3) {
         playerCheckAndResetCarriedActor(gCurrentActor);
     }
 }
@@ -2018,25 +2018,25 @@ void playerStateSlopeSlideArc(void) {
         if (gCurrentActor->speedXZ > 20.0f) {
             if (randomLcgNext() % 3U == 0) {
                 effectSetCallback(&effectSineHorizontalDriftUpdate);
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 2, 0);
             }
             if (randomLcgNext() % 3U == 0) {
                 effectSetCallback(&effectSineHorizontalDriftUpdate);
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 3, 0);
             }
             if (randomLcgNext() % 3U == 0) {
                 effectSetCallback(&effectSineHorizontalDriftUpdate);
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 9, 0);
             }
             if (randomLcgNext() % 3U == 0) {
                 effectSetCallback(&effectSineHorizontalDriftUpdate);
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSetDepth(1);
                 effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 0xA, 0);
             }
@@ -2332,7 +2332,7 @@ void playerStateSwimStroke(void) {
             }
             if ((gActivePlayerState->stateFlags & 0x1000) && !(gFrameCounter & 3)) {
                 effectSetColor(0x64, 0x64, 0x64, 0xC8);
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSpawnBoneDefault(gCurrentActor, ((randomNonNegative() >> 15) % 32767) % 8 + 1, 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
             }
             gCurrentActor->speedXZ = 0.0f;
@@ -3657,7 +3657,7 @@ void playerStateKnockbackTumble(void) {
         px += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         py += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         pz += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetCallback(effectPuffRiseUpdate);
         effectSetSpeed((randomNonNegative() >> 15) % 100 + 0x64);

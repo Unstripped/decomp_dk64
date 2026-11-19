@@ -31,8 +31,8 @@ extern u8 sEffectPendingColorA;
 extern s32 sEffectPendingDuration;
 extern EffectCallback sEffectPendingCallback;
 extern u8 sEffectPendingDepth;
-extern s16 sEffectPendingAngle;
-extern u8 sEffectPendingMode;
+extern s16 sEffectPendingStartDelay;
+extern u8 sEffectPendingFrameDelay;
 extern u8 sEffectPendingFade;
 extern f32 sEffectPendingScaleX;
 extern f32 sEffectPendingScaleY;
@@ -40,7 +40,7 @@ extern u8 sEffectPendingHasScale;
 extern s32 sEffectPendingSpeed;
 extern s32 sEffectPendingParam;
 extern u16 sEffectPendingFlags;
-extern s16 sEffectPendingLifetime;
+extern s16 sEffectPendingChunkFilter;
 extern s16 sEffectPendingMaxDist;
 extern s16 sEffectPendingBoundsMinX;
 extern s16 sEffectPendingBoundsMinY;
@@ -218,8 +218,8 @@ void effectEnableFade(void) {
     sEffectPendingFade = 1;
 }
 
-void effectSetAngle(s16 val) {
-    sEffectPendingAngle = val;
+void effectSetStartDelay(s16 val) {
+    sEffectPendingStartDelay = val;
 }
 
 void effectSetZOffset(s16 val) {
@@ -230,8 +230,8 @@ void effectSetCallback(void *callback) {
     sEffectPendingCallback = (EffectCallback)callback;
 }
 
-void effectSetMode(u8 mode) {
-    sEffectPendingMode = mode;
+void effectSetFrameDelay(u8 mode) {
+    sEffectPendingFrameDelay = mode;
 }
 
 void effectSetMaxDistance(s16 val) {
@@ -267,8 +267,8 @@ void effectFlagsOr(u8 flagBits) {
     sEffectPendingFlags |= flagBits;
 }
 
-void effectSetLifetime(s16 val) {
-    sEffectPendingLifetime = val;
+void effectSetChunkFilter(s16 val) {
+    sEffectPendingChunkFilter = val;
 }
 
 void effectSetBounds(s16 minX, s16 minY, s16 maxX, s16 maxY) {
@@ -287,15 +287,15 @@ void effectResetState(void) {
     sEffectPendingDuration = 1;
     sEffectPendingCallback = NULL;
     sEffectPendingDepth = 0;
-    sEffectPendingMode = 1;
-    sEffectPendingAngle = 0;
+    sEffectPendingFrameDelay = 1;
+    sEffectPendingStartDelay = 0;
     sEffectPendingFade = 0;
     sEffectPendingHasScale = 0;
     minBound = gHiResScale * 10;
     sEffectPendingSpeed = 0;
     sEffectPendingParam = 0;
     sEffectPendingFlags = 0;
-    sEffectPendingLifetime = -1;
+    sEffectPendingChunkFilter = -1;
     sEffectPendingBoundsMinX = minBound;
     sEffectPendingBoundsMinY = minBound;
     sEffectPendingBoundsMaxX = gHiResScale * 0x135;
@@ -390,14 +390,14 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
     }
     effect->depth = sEffectPendingDepth;
     effect->mode = sEffectPendingFade;
-    effect->startDelay = sEffectPendingAngle;
+    effect->startDelay = sEffectPendingStartDelay;
     effect->frameCount = node->width * node->height;
     effect->anchorType = flags;
     effect->owner = owner;
     effect->boneIndex = modelSlot;
     effect->subIndex = nodeIndex;
     effect->param = sEffectPendingParam;
-    effect->frameDelay = sEffectPendingMode;
+    effect->frameDelay = sEffectPendingFrameDelay;
     effect->frameTimer = 0;
     effect->duration = sEffectPendingDuration;
     effect->durationTimer = 0;
@@ -411,7 +411,7 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
     effect->next = NULL;
     effect->callback = sEffectPendingCallback;
     effect->allocation = NULL;
-    effect->chunkFilter = sEffectPendingLifetime;
+    effect->chunkFilter = sEffectPendingChunkFilter;
     effect->chunk = -1;
     effect->flags = sEffectPendingFlags;
     effect->minX = sEffectPendingBoundsMinX;

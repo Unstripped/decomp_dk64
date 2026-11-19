@@ -2909,7 +2909,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                     for (i = 0; i != 0x14; i++) {
                         effectSetDepth(1);
                         effectSetCallback(func_8071F034);
-                        effectSetAngle(i);
+                        effectSetStartDelay(i);
                         effectCreateAtPosition(D_8072014C, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     }
                     effectSpawnBurstParticleCluster(gPrimaryPlayerActor);

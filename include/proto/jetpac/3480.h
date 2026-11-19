@@ -33,8 +33,8 @@ void jetpacSpawnFuelPod(struct JetpacPlayer *);
 #ifndef PROTO_SKIP_jetpacBoxOverlapsItems
 s32 jetpacBoxOverlapsItems(f32, f32, f32, f32);
 #endif
-#ifndef PROTO_SKIP_jetpacItemsUpdate
-void jetpacItemsUpdate(void);
+#ifndef PROTO_SKIP_jetpacDrawItems
+void jetpacDrawItems(void);
 #endif
 #ifndef PROTO_SKIP_jetpacDrawBonusItem
 void jetpacDrawBonusItem(void);

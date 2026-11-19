@@ -467,7 +467,7 @@ s32 mpUpdateScoreEffects(void) {
                 }
                 effectSetDepth(1);
                 effectSetDuration(-1);
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 effectSetColor(0xFF, 0xFF, 0xFF, 0x7F);
                 effectSetCallback(effectScaleWithOwnerUpdate);
                 playerState->scoreEffect = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].actor, boneIndex, 2);
@@ -832,7 +832,7 @@ void mpUpdate(void) {
                 vp = state->viewports[k];
                 effectEnableFade();
                 effectSetDuration(-1);
-                effectSetMode(0);
+                effectSetFrameDelay(0);
                 effectSetParam(mpHudIconTable[j].param);
                 if (j == 0) {
                     x = vp->left + 0xB;

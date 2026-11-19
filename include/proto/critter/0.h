@@ -33,26 +33,26 @@ void critterUpdateAudio(struct CritterObj *);
 #ifndef PROTO_SKIP_critterUpdateObjType1
 void critterUpdateObjType1(struct CritterObj *);
 #endif
-#ifndef PROTO_SKIP_func_800247F4
-Gfx *func_800247F4(Gfx *, struct CritterObj *);
+#ifndef PROTO_SKIP_critterDrawObjType1
+Gfx *critterDrawObjType1(Gfx *, struct CritterObj *);
 #endif
 #ifndef PROTO_SKIP_critterUpdateObjType3
 void critterUpdateObjType3(struct CritterObj *);
 #endif
-#ifndef PROTO_SKIP_func_80024C88
-Gfx *func_80024C88(Gfx *, struct CritterObj *);
+#ifndef PROTO_SKIP_critterDrawObjType3
+Gfx *critterDrawObjType3(Gfx *, struct CritterObj *);
 #endif
 #ifndef PROTO_SKIP_critterUpdateObjType2
 void critterUpdateObjType2(struct CritterObj *);
 #endif
-#ifndef PROTO_SKIP_func_8002516C
-Gfx *func_8002516C(Gfx *, struct CritterObj *);
+#ifndef PROTO_SKIP_critterDrawObjType2
+Gfx *critterDrawObjType2(Gfx *, struct CritterObj *);
 #endif
 #ifndef PROTO_SKIP_critterUpdateObjType4
 void critterUpdateObjType4(struct CritterObj *);
 #endif
-#ifndef PROTO_SKIP_func_800255C4
-Gfx *func_800255C4(Gfx *, struct CritterObj *);
+#ifndef PROTO_SKIP_critterDrawObjType4
+Gfx *critterDrawObjType4(Gfx *, struct CritterObj *);
 #endif
 #ifndef PROTO_SKIP_critterRenderSetup
 Gfx *critterRenderSetup(Gfx *);

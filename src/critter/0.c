@@ -107,20 +107,20 @@ typedef struct CritterZoneRow {
 
 // This TU's .data (0x800297F0-0x80029F80), in address order: IDO emits .data in definition order, so the
 // texIds templates of critterInitGroupType3/2 and critterScaleFactor follow with those functions below.
-// Type 3 critter wing quads (func_80024C88).
-Vtx D_800297F0[4] = {
+// Type 3 critter wing quads (critterDrawObjType3).
+Vtx critterType3LeftWingVtx[4] = {
     {{ { -28, 28, -20 }, 0, { 1024, 1024 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
     {{ { -28, 28, 20 }, 0, { 1024, 0 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
     {{ { 0, 0, 20 }, 0, { 0, 0 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
     {{ { 0, 0, -20 }, 0, { 0, 1024 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
 };
-Vtx D_80029830[4] = {
+Vtx critterType3RightWingVtx[4] = {
     {{ { 0, 0, -20 }, 0, { 0, 1024 }, { 0xA5, 0xA5, 0xA5, 0xFF } }},
     {{ { 0, 0, 20 }, 0, { 0, 0 }, { 0xA5, 0xA5, 0x78, 0xFF } }},
     {{ { 28, 28, 20 }, 0, { 1024, 0 }, { 0xA5, 0xA5, 0xA5, 0xFF } }},
     {{ { 28, 28, -20 }, 0, { 1024, 1024 }, { 0xA5, 0xA5, 0xA5, 0xFF } }},
 };
-// Type 1 critter (func_800247F4): body 0-5 (critterType1BodyDL), wings 6-9 and 7-12.
+// Type 1 critter (critterDrawObjType1): body 0-5 (critterType1BodyDL), wings 6-9 and 7-12.
 Vtx critterType1Vtx[13] = {
     {{ { 0, 9, 12 }, 0, { 285, 493 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
     {{ { 0, -4, 33 }, 0, { -13, 305 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
@@ -136,7 +136,7 @@ Vtx critterType1Vtx[13] = {
     {{ { -5, 93, -22 }, 0, { 646, 1598 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
     {{ { -13, -6, 12 }, 0, { 157, 105 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
 };
-// Type 2 critter (func_8002516C).
+// Type 2 critter (critterDrawObjType2).
 Vtx critterType2TailVtx[4] = {
     {{ { 0, -4, 0 }, 0, { 975, 436 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
     {{ { 0, -24, -31 }, 0, { 1512, 94 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
@@ -154,7 +154,7 @@ Vtx critterType2BodyVtx[9] = {
     {{ { 0, 23, 10 }, 0, { 332, 886 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
     {{ { 0, 1, 29 }, 0, { 14, 512 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
 };
-// Type 4 critter (func_800255C4).
+// Type 4 critter (critterDrawObjType4).
 Vtx critterType4Vtx[11] = {
     {{ { -19, 13, 6 }, 0, { 418, 222 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 0, 23, -26 }, 0, { 938, 376 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
@@ -169,7 +169,7 @@ Vtx critterType4Vtx[11] = {
     {{ { 23, 0, 0 }, 0, { 505, 16 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
 };
 // Render state shared by every critter type's setup list.
-Gfx D_80029AC0[11] = {
+Gfx critterRenderStateDL[11] = {
     gsDPPipeSync(),
     gsDPSetCycleType(G_CYC_1CYCLE),
     gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2),
@@ -183,13 +183,13 @@ Gfx D_80029AC0[11] = {
     gsSPEndDisplayList(),
 };
 // Per-type setup lists selected by critterRenderGroup (type 3, types 0/1).
-Gfx D_80029B18[3] = {
-    gsSPDisplayList(D_80029AC0),
+Gfx critterType3SetupDL[3] = {
+    gsSPDisplayList(critterRenderStateDL),
     gsSPClearGeometryMode(G_CULL_BOTH),
     gsSPEndDisplayList(),
 };
-Gfx D_80029B30[2] = {
-    gsSPDisplayList(D_80029AC0),
+Gfx critterType1SetupDL[2] = {
+    gsSPDisplayList(critterRenderStateDL),
     gsSPEndDisplayList(),
 };
 Gfx critterType1BodyDL[7] = {
@@ -202,12 +202,12 @@ Gfx critterType1BodyDL[7] = {
     gsSPEndDisplayList(),
 };
 // Setup lists for types 2 and 4.
-Gfx D_80029B78[2] = {
-    gsSPDisplayList(D_80029AC0),
+Gfx critterType2SetupDL[2] = {
+    gsSPDisplayList(critterRenderStateDL),
     gsSPEndDisplayList(),
 };
-Gfx D_80029B88[3] = {
-    gsSPDisplayList(D_80029AC0),
+Gfx critterType4SetupDL[3] = {
+    gsSPDisplayList(critterRenderStateDL),
     gsSPSetGeometryMode(G_CULL_BACK),
     gsSPEndDisplayList(),
 };
@@ -436,7 +436,7 @@ void critterUpdateObjType1(CritterObj *obj) {
 
 extern u8 gGfxBufferIndex;
 
-Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
+Gfx *critterDrawObjType1(Gfx *gdl, CritterObj *obj) {
     f32 rotMtx[4][4];
     f32 flapAngle;
 
@@ -480,7 +480,7 @@ void critterUpdateObjType3(CritterObj *obj) {
     critterUpdateAudio(obj);
 }
 
-Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
+Gfx *critterDrawObjType3(Gfx *gdl, CritterObj *obj) {
     f32 rotMtx[4][4];
     f32 flapAngle;
 
@@ -494,13 +494,13 @@ Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
     matrixMakeRotationZ(rotMtx, flapAngle);
     guMtxF2L(rotMtx, &obj->mtx[1][gGfxBufferIndex]);
     gSPMatrix(gdl++, &obj->mtx[1][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    gSPVertex(gdl++, D_800297F0, 4, 0);
+    gSPVertex(gdl++, critterType3LeftWingVtx, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
     matrixMakeRotationZ(rotMtx, -flapAngle);
     guMtxF2L(rotMtx, &obj->mtx[2][gGfxBufferIndex]);
     gSPMatrix(gdl++, &obj->mtx[2][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    gSPVertex(gdl++, D_80029830, 4, 0);
+    gSPVertex(gdl++, critterType3RightWingVtx, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
     gDPPipeSync(gdl++);
@@ -553,7 +553,7 @@ void critterUpdateObjType2(CritterObj *obj) {
     critterUpdateAudio(obj);
 }
 
-Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
+Gfx *critterDrawObjType2(Gfx *gdl, CritterObj *obj) {
     f32 rotMtx[4][4];
     f32 transMtx[4][4];
 
@@ -600,7 +600,7 @@ void critterUpdateObjType4(CritterObj *obj) {
     critterUpdateAudio(obj);
 }
 
-Gfx *func_800255C4(Gfx *gdl, CritterObj *obj) {
+Gfx *critterDrawObjType4(Gfx *gdl, CritterObj *obj) {
     if (critterCurrentTexture != obj->tex[0]) {
         critterCurrentTexture = obj->tex[0];
         gDPLoadTextureBlock(gdl++, critterCurrentTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0,
@@ -701,20 +701,20 @@ Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
     switch (grp->type) {
     case 0:
     case 1:
-        gSPDisplayList(gdl++, D_80029B30);
-        drawFn = func_800247F4;
+        gSPDisplayList(gdl++, critterType1SetupDL);
+        drawFn = critterDrawObjType1;
         break;
     case 3:
-        gSPDisplayList(gdl++, D_80029B18);
-        drawFn = func_80024C88;
+        gSPDisplayList(gdl++, critterType3SetupDL);
+        drawFn = critterDrawObjType3;
         break;
     case 2:
-        gSPDisplayList(gdl++, D_80029B78);
-        drawFn = func_8002516C;
+        gSPDisplayList(gdl++, critterType2SetupDL);
+        drawFn = critterDrawObjType2;
         break;
     case 4:
-        gSPDisplayList(gdl++, D_80029B88);
-        drawFn = func_800255C4;
+        gSPDisplayList(gdl++, critterType4SetupDL);
+        drawFn = critterDrawObjType4;
         break;
     }
     for (i = 0; i < grp->count; i++, obj++) {

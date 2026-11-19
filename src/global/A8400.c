@@ -15,7 +15,7 @@
 #include "proto/global/A8400.h"
 
 // This TU's .data (0x807503F0-0x807503F1 + 15-byte TU pad).
-u8 D_807503F0 = 0xB4;
+u8 sTextBoxStartAlpha = 0xB4;
 
 void func_806A3700(Actor *key, void *data) {
 }
@@ -248,7 +248,7 @@ void textBoxRowUpdateIcon(ResGlyph *glyph, ResRow *row, ResQueueActorState *stat
         effectSetDuration(-1);
         effectSetDepth(0);
         effectEnableFade();
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetBounds(state->boxLeft, state->boxTop, state->boxRight, state->boxBottom);
         cell->effect = effectCreateAtPosition(gEffectGridAssets[cell->effectId], 1.0f, state->boxLeft, state->boxTop, 1);
         if (cell->flip != 0) {
@@ -587,7 +587,7 @@ void textBoxUpdate(void) {
             state->openTimer++;
         } else {
             gCurrentActor->state = 1;
-            state->textAlpha = D_807503F0;
+            state->textAlpha = sTextBoxStartAlpha;
             resQueueProcessNext(gCurrentActor, state->key);
             renderCalcChainCenterOffset(state);
         }

@@ -90,7 +90,7 @@ extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
 extern Actor *gPrimaryPlayerActor;
 extern s32 gCurrentMap;
-extern s16 D_8076AEF2;
+extern s16 gPreviousMap;
 extern u16 gEnemyDefeatCount;
 extern s16 gMinigameCoinCount;
 s32 sBonusChallengeResources[17] = {
@@ -312,7 +312,7 @@ render:
     case 0:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            if (D_8076AEF2 == 0x11) {
+            if (gPreviousMap == 0x11) {
                 resQueueSetValue(2);
             }
             resQueueAttachActor(gCurrentActor, 0, sBonusChallengeResources[challengeType]);

@@ -161,7 +161,7 @@ void bossSpawnPuffDebris(void) {
     f32 scale;
 
     scale = gCurrentActor->sub4->scaleY / 0.15;
-    effectSetMode(2);
+    effectSetFrameDelay(2);
     effectSetCallback(effectPuffRiseUpdate);
     effectSetDepth(1);
     effectSetSpeed(1);

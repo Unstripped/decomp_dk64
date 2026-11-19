@@ -12,7 +12,7 @@
 extern u16 gModelCacheCount;
 extern PlayerState *gActivePlayerState;
 
-u8 D_80746B60 = 0;
+u8 gDemoFixedAnimRate = 0;
 u8 gDefaultModelBone[0x1C] = { 0xFF };
 
 
@@ -670,7 +670,7 @@ void controllerStepMotionWindows(Actor *actor) {
         rate = 1.0f;
     }
     anim->motionFlags &= ~1;
-    if (D_80746B60 == 0) {
+    if (gDemoFixedAnimRate == 0) {
         anim->motionFlags |= (anim->model->flags & 1);
     }
     if (anim->speedRampDuration > 0.0f) {

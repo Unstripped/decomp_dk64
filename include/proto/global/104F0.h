@@ -50,8 +50,8 @@ void eepromSetField(s32, u8, u8, u8, s32);
 #ifndef PROTO_SKIP_eepromGetField
 s32 eepromGetField(s32, u8, u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_8060C724
-s32 func_8060C724(u8);
+#ifndef PROTO_SKIP_eepromGetNextSaveCount
+s32 eepromGetNextSaveCount(u8);
 #endif
 #ifndef PROTO_SKIP_eepromClearSlotData
 void eepromClearSlotData();
@@ -110,7 +110,7 @@ u8 *eepromGetSectionBuffer(u8);
 #ifndef PROTO_SKIP_eepromReadChecksumBit
 u8 eepromReadChecksumBit(u16, u8);
 #endif
-#ifndef PROTO_SKIP_func_8060E430
-void func_8060E430(u16, u8, u8);
+#ifndef PROTO_SKIP_eepromWriteChecksumBit
+void eepromWriteChecksumBit(u16, u8, u8);
 #endif
 #endif

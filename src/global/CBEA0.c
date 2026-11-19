@@ -29,7 +29,7 @@ BannerTextStep gBannerTextSteps[22] = {
 };
 s8 gBannerTextStepIndex = -2;
 s16 gBannerTextLine = 0;
-f32 D_8075075C[46] = {
+f32 sBannerSlideKeys[46] = {
     0.0f, 1.0f, 0.25f, 0.9f, 0.5f, 0.8f, 0.5f, 0.7f,
     0.5f, 0.6f, 0.4f, 0.6f, 0.3f, 0.7f, 0.2f, 0.8f,
     0.1f, 0.9f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
@@ -38,8 +38,8 @@ f32 D_8075075C[46] = {
     1.0f, 1.0f, 1.0f, 1.1f, 1.0f, 1.0f,
 };
 ViewportMargins gBannerViewportMargins = { 0 };
-f32 D_80750818[4] = { 110.0f, 150.0f, 110.0f, 150.0f };
-f32 D_80750828[4] = { 60.0f, 80.0f, 60.0f, 80.0f };
+f32 sBannerSlideDistance[4] = { 110.0f, 150.0f, 110.0f, 150.0f };
+f32 sBannerMarginExtent[4] = { 60.0f, 80.0f, 60.0f, 80.0f };
 
 void actorStubCBEA0_00(void) {
 }
@@ -120,12 +120,12 @@ void actorStubCBEA0_25(void) {
 }
 
 extern Actor *gCurrentActor;
-extern s16 D_807FC8E0;
+extern s16 gBannerLineCount;
 extern s16 gBannerShowTimer;
 extern s16 gBannerGapTimer;
-extern f32 D_807FC8E8;
-extern f32 D_807FC8EC;
-extern u8 *D_807FC8F0;
+extern f32 gBannerSlide;
+extern f32 gBannerSquash;
+extern u8 *gBannerText;
 
 
 void bannerTextUpdate(void) {
@@ -139,23 +139,23 @@ void bannerTextUpdate(void) {
     s32 k;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        D_807FC8F0 = assetLoad(0x13, 7, 1, 1);
-        D_807FC8E0 = 0;
-        for (i = 0; D_807FC8F0[i] != 0x2A; i++) {
-            if (D_807FC8F0[i] == 0xA) {
-                D_807FC8F0[i] = 0;
-                D_807FC8E0++;
+        gBannerText = assetLoad(0x13, 7, 1, 1);
+        gBannerLineCount = 0;
+        for (i = 0; gBannerText[i] != 0x2A; i++) {
+            if (gBannerText[i] == 0xA) {
+                gBannerText[i] = 0;
+                gBannerLineCount++;
             }
         }
         if (gBannerTextStepIndex == -2) {
             gBannerGapTimer = 0x320;
             gBannerTextStepIndex = -1;
             gBannerShowTimer = 0;
-            D_807FC8E8 = 0;
+            gBannerSlide = 0;
         } else if (gBannerTextStepIndex == -1) {
             gBannerGapTimer = 0x3C;
             gBannerShowTimer = 0;
-            D_807FC8E8 = 0;
+            gBannerSlide = 0;
         }
     }
     actor = gCurrentActor;
@@ -169,7 +169,7 @@ void bannerTextUpdate(void) {
             if (gBannerTextStepIndex >= 0) {
                 gBannerTextLine += gBannerTextSteps[gBannerTextStepIndex].lineCount;
             }
-            if (gBannerTextLine >= D_807FC8E0) {
+            if (gBannerTextLine >= gBannerLineCount) {
                 gBannerTextLine = 0;
             }
             gBannerTextStepIndex++;
@@ -178,23 +178,23 @@ void bannerTextUpdate(void) {
         }
     }
     if (gBannerShowTimer < 0xB) {
-        D_807FC8E8 -= 0.1f;
-        if (D_807FC8E8 < 0.0f) {
-            D_807FC8E8 = 0.0f;
+        gBannerSlide -= 0.1f;
+        if (gBannerSlide < 0.0f) {
+            gBannerSlide = 0.0f;
         }
-        D_807FC8EC = 1;
+        gBannerSquash = 1;
     } else {
         t = gBannerTextSteps[gBannerTextStepIndex].duration - gBannerShowTimer;
         k = t & 1;
         t >>= 1;
         if (t < 0x16) {
-            e = &D_8075075C[t * 2];
+            e = &sBannerSlideKeys[t * 2];
             frac = (f32)k * 0.5;
-            D_807FC8E8 = e[0] + (e[2] - e[0]) * frac;
-            D_807FC8EC = e[1] + (e[3] - e[1]) * frac;
+            gBannerSlide = e[0] + (e[2] - e[0]) * frac;
+            gBannerSquash = e[1] + (e[3] - e[1]) * frac;
         } else {
-            D_807FC8E8 = 1.0f;
-            D_807FC8EC = 1.0f;
+            gBannerSlide = 1.0f;
+            gBannerSquash = 1.0f;
         }
     }
     renderCallbacksRegister(renderBannerText, actor, 3);
@@ -223,14 +223,14 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
         return gdl;
     }
     i = gBannerTextSteps[gBannerTextStepIndex].side;
-    tbl = &D_80750818[i];
-    v = (D_807FC8E8 - 0.5) * *tbl + D_80750828[i] * D_807FC8EC;
+    tbl = &sBannerSlideDistance[i];
+    v = (gBannerSlide - 0.5) * *tbl + sBannerMarginExtent[i] * gBannerSquash;
     if (v < 0) {
         v = 0;
     }
     margins.margin[i] = v;
     viewportSetMargins(margins.margin[1], margins.margin[3], margins.margin[0], margins.margin[2]);
-    if (D_807FC8E8 == 0.0f) {
+    if (gBannerSlide == 0.0f) {
         return gdl;
     }
     mtx = heapAlloc(0x40);
@@ -246,27 +246,27 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     sx = 1.0;
     sy = 1.0;
     if (i & 1) {
-        sx = D_807FC8EC;
+        sx = gBannerSquash;
     } else {
-        sy = D_807FC8EC;
+        sy = gBannerSquash;
     }
     guScaleF(mf, sx * 0.55, sy * 0.55, 1.0f);
     switch (i) {
     case 0:
         x = 160.0f;
-        y = *tbl * D_807FC8E8 + -55.0;
+        y = *tbl * gBannerSlide + -55.0;
         break;
     case 2:
         x = 160.0f;
-        y = 265.0 - *tbl * D_807FC8E8;
+        y = 265.0 - *tbl * gBannerSlide;
         break;
     case 1:
-        x = *tbl * D_807FC8E8 + -70.0;
+        x = *tbl * gBannerSlide + -70.0;
         x += 8.0;
         y = 120.0f;
         break;
     case 3:
-        x = 390.0 - *tbl * D_807FC8E8;
+        x = 390.0 - *tbl * gBannerSlide;
         x -= 8.0;
         y = 120.0f;
         break;
@@ -274,7 +274,7 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     guTranslateF(mf2, x * 4.0, y * 4.0, 0.0f);
     guMtxCatF(mf, mf2, mf);
     guMtxF2L(mf, mtx);
-    p = D_807FC8F0;
+    p = gBannerText;
     i = 0; // FAKE: the side index i is reused as the line counter; a separate s16/s32 counter in any declaration slot changes the s-register colouring (Q0162)
     if (gBannerTextLine > 0) {
         do {

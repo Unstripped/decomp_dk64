@@ -40,7 +40,7 @@ typedef struct CollisionNodeFlagEntry {
 
 // This TU's .data (0x80748E50-0x8074AC0C + 4-byte TU pad), in address order.
 // Node-flag sets, each a list of model nodes ending in -1.
-s8 D_80748E50[29][9] = {
+s8 sCollisionNodeFlagSets[29][9] = {
     { -1 },
     { 1, -1 },
     { 2, -1 },
@@ -71,7 +71,7 @@ s8 D_80748E50[29][9] = {
     { 1, 6, 7, 10, -1 },
     { 1, 6, 7, 8, 9, 10, 11, 13, -1 },
 };
-CollisionNodeFlagEntry D_80748F58[24] = {
+CollisionNodeFlagEntry sCollisionNodeValues[24] = {
     { 2, 11, 0, 8 },
     { 3, 14, 0, 8 },
     { 5, 10, 0, 8 },
@@ -98,7 +98,7 @@ CollisionNodeFlagEntry D_80748F58[24] = {
     { 2, 10, 0, 8 },
 };
 // Per-animation hit windows, ending with animId -1.
-CollisionThresholdEntry D_80748FE8[595] = {
+CollisionThresholdEntry sCollisionAnimThresholds[595] = {
     { 0, 0, 1000, 1, 0, 1, 0, 0 },
     { 1, 0, 1000, 1, 0, 1, 0, 0 },
     { 2, 0, 1000, 1, 0, 1, 0, 0 },
@@ -953,11 +953,11 @@ void actorCollisionCheckBoundingBoxes(Actor *actor) {
     }
 
     do {
-        if (D_80748FE8[index].animId == -1) {
+        if (sCollisionAnimThresholds[index].animId == -1) {
             done = 1;
-        } else if (animId == D_80748FE8[index].animId) {
-            if ((frame >= D_80748FE8[index].frameMin) && (frame <= D_80748FE8[index].frameMax)) {
-                entry = &D_80748FE8[index];
+        } else if (animId == sCollisionAnimThresholds[index].animId) {
+            if ((frame >= sCollisionAnimThresholds[index].frameMin) && (frame <= sCollisionAnimThresholds[index].frameMax)) {
+                entry = &sCollisionAnimThresholds[index];
                 actor->interactionType = entry->interactionType;
                 actor->damage = entry->damage;
                 if (entry->flags & 1) {
@@ -997,14 +997,14 @@ void actorCollisionUpdateNodeFlags(Actor *actor, u8 flagIndex) {
 
     func_8067618C(actor, &flagIndex);
     actorClearAllNodeFlags(actor);
-    ptr = D_80748E50[flagIndex];
+    ptr = sCollisionNodeFlagSets[flagIndex];
     if (*ptr != -1) {
         do {
             actorSetNodeFlag(actor, *ptr);
             match = 0;
             for (i = 0; i < 24 && !match;) {
-                if ((actor->actorType == D_80748F58[i].actorType) && (*ptr == D_80748F58[i].node)) {
-                    actorSetNodeValue(actor, *ptr, D_80748F58[i].value);
+                if ((actor->actorType == sCollisionNodeValues[i].actorType) && (*ptr == sCollisionNodeValues[i].node)) {
+                    actorSetNodeValue(actor, *ptr, sCollisionNodeValues[i].value);
                     match = 1;
                 } else {
                     actorSetNodeValue(actor, *ptr, 0);

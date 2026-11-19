@@ -21,7 +21,7 @@ extern const u8 D_80036768[9];
 extern const u8 D_80036774[9];
 extern const u8 D_80036780[9];
 
-const u8 *D_80035A60[4] = { D_80036750, D_80036768, D_80036774, D_80036780 };
+const u8 *sKRoolDiddyPhaseScripts[4] = { D_80036750, D_80036768, D_80036774, D_80036780 };
 u8 D_80035A70[6] = { 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F }; // unreferenced
 
 // K. Rool (Diddy phase) actor: component 1 (0x174) is gBehaviourWorkState, component 2 the script state.
@@ -73,7 +73,7 @@ void bossKRoolDiddyStep(void) {
     f32 projectileScale;
 
     scriptState = ((BossKRoolDiddyActor *)gCurrentActor)->scriptState;
-    scriptOpcodes = D_80035A60[scriptState->phase];
+    scriptOpcodes = sKRoolDiddyPhaseScripts[scriptState->phase];
     projectileScale = (gPrimaryPlayerActor->contactFlags & 1) ? 0.7 : 1.0;
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
@@ -237,7 +237,7 @@ void bossKRoolDiddyStep(void) {
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             scriptState->scriptPos = 0;
             scriptState->phase++;
-            scriptOpcodes = D_80035A60[scriptState->phase];
+            scriptOpcodes = sKRoolDiddyPhaseScripts[scriptState->phase];
             actorScriptStart(gCurrentActor, 0x406);
             actorScriptExecute(gCurrentActor);
             controllerAnimSetStateIfChanged(scriptState->linkedActor, 0x674, 0.0f, 0.0f);

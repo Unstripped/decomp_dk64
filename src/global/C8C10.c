@@ -676,8 +676,8 @@ typedef struct CutsceneRestoreState {
 extern s16 gCurrentLevelIndex;
 extern s32 D_8071FB08;
 extern s16 gPhotoSubjectDepthDist;
-extern s16 D_807FD804;
-extern s16 D_807FD806;
+extern s16 gPhotoSubjectScreenX;
+extern s16 gPhotoSubjectScreenY;
 
 void actorPhotoSubjectUpdate(void) {
     f32 screenX;
@@ -708,7 +708,7 @@ void actorPhotoSubjectUpdate(void) {
         dz = gPlayerSlots->camZ - gCurrentActor->z;
         dx = gPlayerSlots->camX - gCurrentActor->x;
         dist = sqrtf(dz * dz + dx * dx) - gPlayerSlots->nearClip;
-        if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < gPhotoSubjectDepthDist) {
+        if (gPhotoSubjectScreenX >= 0x8A && gPhotoSubjectScreenX < 0xB1 && gPhotoSubjectScreenY >= 0x61 && gPhotoSubjectScreenY < 0x88 && dist < gPhotoSubjectDepthDist) {
             if (gActivePlayerState->unk1EC != 1) {
                 if (behaviourIsTargetWithinAngle(0x1388) != 0) {
                     actorScriptStart(gCurrentActor, 0x2B6);
@@ -735,8 +735,8 @@ void actorPhotoSubjectUpdate(void) {
         sfxStopChannel(0x42, 0);
     }
     camProjectToScreen(gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z, &screenX, &screenY, 0, 1.0f, 0);
-    D_807FD804 = screenX;
-    D_807FD806 = screenY;
+    gPhotoSubjectScreenX = screenX;
+    gPhotoSubjectScreenY = screenY;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

@@ -45,12 +45,12 @@ typedef struct {
 
 // Attract-mode demo: an input recording replayed in mode 3, cycled by gMenuDemoIndex.
 typedef struct DemoEntry {
-    /* 0x0 */ u8 recordingIndex; // input-recording asset (table 0x11) loaded by func_8060B750
+    /* 0x0 */ u8 recordingIndex; // input-recording asset (table 0x11) loaded by demoPlaybackLoad
     /* 0x1 */ u8 pad1;
     /* 0x2 */ u16 maxTime; // caps gMenuStateTimer
 } DemoEntry; // size = 0x4
 
-s8 D_807552E0 = 0;
+s8 gDebugSecurityCode = 0;
 MpSettings gMpSettings = { 0, 0, 0, 3, { 0, 0, 0, 0 }, 0 };
 u16 gControllerButtonMask = 0;
 u8 gControllerStickXMask = 0;
@@ -63,15 +63,15 @@ u8 gMenuDemoActive = 0;
 u8 gMenuDemoIndex = 0;
 u8 gMenuTransitionCounter = 0;
 s8 gMenuTransitionFlag = 0;
-s32 D_80755334 = 0;
-s32 D_80755338 = 1;
-s32 D_8075533C = 0;
+s32 gMenuFramesSinceLoad = 0;
+s32 gMenuEntryCutscenePending = 1;
+s32 gMenuEntryCutscene = 0;
 MenuBonusTimer gMenuBonusTimer = { 0 };
 u16 gMenuBonusTimerThresholds[10] = { 1800, 1200, 900, 600, 300, 180, 120, 60, 30, 10 };
-s8 D_8075536C = 0;
+s8 gMenuNextExit = 0;
 TextIdPair gMenuPromptTextIds = { { 3, 2 } };
 u8 gGameOverText[12] = "GAME OVER";
-s32 D_80755384[3] = { 0x6D, 0xBE, 0xC0 };
+s32 gMpMatchMaps[3] = { 0x6D, 0xBE, 0xC0 };
 const DemoEntry gMenuDemoEntries[5] = {
     { 4, 0, 0x1E0 }, { 0, 0, 0x294 }, { 1, 0, 0x1E0 }, { 3, 0, 0x258 }, { 2, 0, 0x258 },
 };
@@ -85,10 +85,10 @@ void menuTransitionWithState(s32 map, s32 exit, u8 mode) {
 void menuTransitionRequest(s32 map, s32 cutscene, u8 mode) {
     if (menuIsTransitionActive() == 0) {
         screenSetTransitionFadeType(0);
-        menuTransitionWithState(map, D_8075536C, mode);
-        D_80755338 = 1;
-        D_8075533C = cutscene;
-        D_8075536C = 0;
+        menuTransitionWithState(map, gMenuNextExit, mode);
+        gMenuEntryCutscenePending = 1;
+        gMenuEntryCutscene = cutscene;
+        gMenuNextExit = 0;
     }
 }
 
@@ -240,18 +240,18 @@ void controllerFilterInput(OSContPad *pads) {
 
 extern u64 gPauseTimeTotal;
 extern u64 gPauseStartTime;
-extern s8 D_80746B60;
+extern s8 gDemoFixedAnimRate;
 
 void menuSeedRandom(void) {
     u64 elapsed;
 
-    func_8060B6CC();
+    demoPlaybackReset();
     if ((gMenuTargetMode == 3) || (gMenuTargetMode == 4)) {
         setRandomSeed(0x8E32B6F7U);
-        D_80746B60 = 1;
+        gDemoFixedAnimRate = 1;
     } else {
         setRandomSeed(osGetTime());
-        D_80746B60 = 0;
+        gDemoFixedAnimRate = 0;
     }
     gControllerStickXMask = 0;
     gControllerStickYMask = 0;
@@ -272,12 +272,12 @@ extern u16 gButtonsPressed;
 
 void menuSetupDemoPlayback(void) {
     if (gMenuTargetMode == 3) {
-        func_8060B750(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
+        demoPlaybackLoad(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
         gPlayerCharacterId[0] = func_8060B7C4();
     }
 }
 
-extern u8 D_807467CC;
+extern u8 gEepromLoaded;
 extern u8 gCurrentWorldId;
 extern Mtx D_807FDAC0;
 
@@ -285,9 +285,9 @@ void menuCheckMapTransitionOnLoad(void) {
     u8 blocked;
 
     blocked = flagGet(0x302, 0);
-    D_80755334 = 0;
+    gMenuFramesSinceLoad = 0;
     gMenuTransitionFlag = 0;
-    if (D_807467CC == 0) {
+    if (gEepromLoaded == 0) {
         eepromInit();
     }
     if (mapGetHubWorldIndex(gCurrentWorldId, 1) == 8 && !(gGlobalCutsceneFlags & 2) && gCurrentMap != 0xD6
@@ -299,24 +299,24 @@ void menuCheckMapTransitionOnLoad(void) {
     case 0:
         gMenuStateTimer = 0x708;
         gControllerButtonMask = 0;
-        D_80755338 = 1;
-        D_8075533C = 0;
+        gMenuEntryCutscenePending = 1;
+        gMenuEntryCutscene = 0;
         break;
     case 1:
         gMenuStateTimer = 0x708;
         gControllerButtonMask = 0x1000;
-        D_80755338 = 1;
-        D_8075533C = 0;
+        gMenuEntryCutscenePending = 1;
+        gMenuEntryCutscene = 0;
         break;
     case 2:
         gMenuStateTimer = 0x1644;
         gControllerButtonMask = 0x1000;
-        D_80755338 = 1;
-        D_8075533C = 0;
+        gMenuEntryCutscenePending = 1;
+        gMenuEntryCutscene = 0;
         break;
     case 3:
         gMenuTransitionCounter++;
-        gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
+        gMenuStateTimer = demoPlaybackStart(gPlayerSlots->actor, gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
         gMenuStateTimer = MIN(gMenuStateTimer, gMenuDemoEntries[gMenuDemoIndex].maxTime);
         gMenuDemoIndex++;
         gMenuDemoIndex %= sizeof(gMenuDemoEntries) / sizeof(gMenuDemoEntries[0]);
@@ -382,13 +382,13 @@ void menuUpdateTitleOrTransition(void) {
     s32 map;
     s32 exit;
 
-    if ((D_80755334 >= 0x5A) && (gPadPressedButtons[0] & 0x1000)) {
+    if ((gMenuFramesSinceLoad >= 0x5A) && (gPadPressedButtons[0] & 0x1000)) {
         menuReturnToTitle();
     } else if (gMenuStateTimer == 0) {
         if (gMenuTransitionCounter >= 3) {
             menuTransitionRequest(0x28, 0, 1);
         } else {
-            func_8060B750(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
+            demoPlaybackLoad(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
             func_8060B7D0(&map, &exit);
             screenSetTransitionFadeType(1);
             mapRequestTransition(map, exit);
@@ -418,7 +418,7 @@ void menuHandleCutsceneScreenTransition(void) {
     }
 }
 void menuHandleIntroScreenTransition(void) {
-    if ((D_80755334 >= 0x1E && (gButtonsPressed & 0x9000)) || gMenuStateTimer == 0) {
+    if ((gMenuFramesSinceLoad >= 0x1E && (gButtonsPressed & 0x9000)) || gMenuStateTimer == 0) {
         menuTransitionRequest(0x28, 0, 1);
     }
 }
@@ -429,21 +429,21 @@ void menuStartDemo(void) {
     s32 exit;
 
     gMenuTransitionCounter = 0;
-    func_8060B750(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
+    demoPlaybackLoad(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
     func_8060B7D0(&map, &exit);
     screenSetTransitionFadeType(1);
     menuTransitionWithState(map, exit, 3);
 }
 
 void menuHandleBonusStageTransition(void) {
-    if ((gMenuStateTimer == 0) || ((D_80755334 >= 0xA) && (gPadPressedButtons[0] & 0x1000))) {
+    if ((gMenuStateTimer == 0) || ((gMenuFramesSinceLoad >= 0xA) && (gPadPressedButtons[0] & 0x1000))) {
         menuStartDemo();
     }
 }
 
 void menuHandleDemoModeTransition(void) {
     if ((gMenuDemoActive != 0)
-        || ((gMenuCurrentMode == 1) && (D_80755334 >= 0x5A) && (gPadPressedButtons[0] & 0x1000))) {
+        || ((gMenuCurrentMode == 1) && (gMenuFramesSinceLoad >= 0x5A) && (gPadPressedButtons[0] & 0x1000))) {
         menuTransitionRequest(0x4C, 0, 2);
     }
 }
@@ -710,21 +710,21 @@ void menuTransitionToMapIfUnlocked(s32 map, s32 cutscene, s32 gate) {
 Gfx *screenStateTickAndDraw(Gfx *dl) {
     char buffer[40];
 
-    if ((D_80755338 != 0) && (gFrameCounter == 1)) {
-        D_80755338 = 0;
-        if (D_8075533C >= 0) {
-            camStartPath(NULL, D_8075533C, 1);
+    if ((gMenuEntryCutscenePending != 0) && (gFrameCounter == 1)) {
+        gMenuEntryCutscenePending = 0;
+        if (gMenuEntryCutscene >= 0) {
+            camStartPath(NULL, gMenuEntryCutscene, 1);
         }
     }
-    if (D_807552E0 != 0) {
+    if (gDebugSecurityCode != 0) {
         dl = menuOverlayGfxInit(dl);
-        _sprintf(buffer, "SECURITY %d", D_807552E0);
+        _sprintf(buffer, "SECURITY %d", gDebugSecurityCode);
         dl = hudDrawScaledText(dl, 0x280, 0x1E0, 1.0f, buffer);
     }
-    D_807552E0 = 0;
+    gDebugSecurityCode = 0;
     gDPPipeSync(dl++);
-    if (D_80755334 < 0x5A) {
-        D_80755334++;
+    if (gMenuFramesSinceLoad < 0x5A) {
+        gMenuFramesSinceLoad++;
     }
     if ((menuGetTimerFlag() != 0) && (gMenuCurrentMode != 6)) {
         menuClearTimerFlag();
@@ -866,8 +866,8 @@ void menuStartGameFromSave(s8 saveSlot) {
             exit = 1;
         }
     } else {
-        D_80755338 = 1;
-        D_8075533C = 0;
+        gMenuEntryCutscenePending = 1;
+        gMenuEntryCutscene = 0;
         map = 0x99;
         exit = 0;
     }
@@ -886,12 +886,12 @@ void mpStartMatch(void) {
         gSplitScreenMode = 1;
         map = 0x6B;
     } else {
-        map = D_80755384[gMpSettings.mapIndex];
+        map = gMpMatchMaps[gMpSettings.mapIndex];
     }
     menuTransitionWithState(map, 0, 6);
 }
 
-void menuSetFlag5324(void) {
+void menuSetDemoActive(void) {
     gMenuDemoActive = 1;
 }
 

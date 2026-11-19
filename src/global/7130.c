@@ -150,7 +150,7 @@ u8 D_80770560[4];
 f32 D_80770568[4];
 f32 D_80770578[4];
 f32 D_80770588;
-u8 gEffectSpritePoolAlpha[3];
+u8 gAmbientAudioLevels[3];
 f32 D_80770590;
 f32 D_80770594;
 u8 D_80770598[4];
@@ -894,20 +894,20 @@ void sfxUpdateLevelAmbient(void) {
             volume = 0.0f;
         }
         volume = gMapAudioTable[gCurrentMap].volume + (((255.0 - gMapAudioTable[gCurrentMap].volume) * (D_80770DC8 / 127.0) * volume) / 255.0);
-        gEffectSpritePoolAlpha[2] = volume;
+        gAmbientAudioLevels[2] = volume;
     } else {
-        gEffectSpritePoolAlpha[2] = gMapAudioTable[gCurrentMap].volume;
+        gAmbientAudioLevels[2] = gMapAudioTable[gCurrentMap].volume;
     }
 
     if (D_80745838 != 0) {
-        gEffectSpritePoolAlpha[2] = 0xFF;
+        gAmbientAudioLevels[2] = 0xFF;
     }
 
-    if (gEffectSpritePoolAlpha[1] != gEffectSpritePoolAlpha[2]) {
-        pan = (gEffectSpritePoolAlpha[2] * 0.3) / 255.0;
-        volume = ((gEffectSpritePoolAlpha[2] * 0.35) / 255.0) + 1.0;
+    if (gAmbientAudioLevels[1] != gAmbientAudioLevels[2]) {
+        pan = (gAmbientAudioLevels[2] * 0.3) / 255.0;
+        volume = ((gAmbientAudioLevels[2] * 0.35) / 255.0) + 1.0;
         if (gCurrentMap == 0xE) {
-            if (gEffectSpritePoolAlpha[2]) {
+            if (gAmbientAudioLevels[2]) {
                 seqSetVolumeInstant(0, 1.0f);
             } else {
                 seqSetVolumeInstant(0, 0.6f);
@@ -921,7 +921,7 @@ void sfxUpdateLevelAmbient(void) {
                 alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, 0.0f, 1.0f);
             }
         }
-        gEffectSpritePoolAlpha[1] = gEffectSpritePoolAlpha[2];
+        gAmbientAudioLevels[1] = gAmbientAudioLevels[2];
     }
 
     count = mapGetSoundEmitters(&soundEmitters);
@@ -1043,15 +1043,15 @@ void sfxUpdateLevelAmbient(void) {
 
     if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
         if (D_80770DC8) {}  // FAKE: dead read stops &D_80770DC8 being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static retires it (Q0981, text 0) but IDO orders .bss by symbol number mod 256 (Q1470): the static is numbered 96 after D_80770D70 and lands at .bss+0x9d8; 0x80770DC8 needs 160 more file-scope definitions
-        gEffectSpritePoolAlpha[0] = 0;
+        gAmbientAudioLevels[0] = 0;
     }
-    if (gEffectSpritePoolAlpha[0] != 0) {
+    if (gAmbientAudioLevels[0] != 0) {
         if (D_807457DC == 0) {
             n_alSndpPlay(gSfxBank, 0x125, 0, 0x3F, 1.0f, 0, &D_807457DC);
         }
         if (D_807457DC != 0) {
-            n_alSndpPostEvent(D_807457DC, 8, (gEffectSpritePoolAlpha[0] * 10767.0) / 255.0);
-            pitch = 1.0 - ((gEffectSpritePoolAlpha[2] * 0.5) / 255);
+            n_alSndpPostEvent(D_807457DC, 8, (gAmbientAudioLevels[0] * 10767.0) / 255.0);
+            pitch = 1.0 - ((gAmbientAudioLevels[2] * 0.5) / 255);
             if (gAmbientIndoors & (D_80770DD4 < 1000.0f)) {
                 angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->camYaw;
                 if (angle < 0.0f) {
@@ -1321,9 +1321,9 @@ void audioResetAll(void) {
             D_80770560[i] = 0;
         }
     }
-    gEffectSpritePoolAlpha[0] = 0;
-    gEffectSpritePoolAlpha[1] = 0;
-    gEffectSpritePoolAlpha[2] = 0;
+    gAmbientAudioLevels[0] = 0;
+    gAmbientAudioLevels[1] = 0;
+    gAmbientAudioLevels[2] = 0;
     if (transitionGetState() != 0) {
         i = 1;
     } else {
@@ -2108,8 +2108,8 @@ void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behi
         pitch = (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0)) + (pitch - ((u32)spread / 255.0));
     }
 
-    if (gEffectSpritePoolAlpha[2] >= 21) {
-        reverb = (gEffectSpritePoolAlpha[2] * 100) / 255;
+    if (gAmbientAudioLevels[2] >= 21) {
+        reverb = (gAmbientAudioLevels[2] * 100) / 255;
     }
     if (behind != 0) {
         reverb |= 0x80;
@@ -2143,8 +2143,8 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
 
     if (i > 0) {
         osSetThreadPri(NULL, 26);
-        if (gEffectSpritePoolAlpha[2] >= 21) {
-            fx = ((((gEffectSpritePoolAlpha[2] * 100) / 255) < (fx & 0x7F)) ? (fx & 0x7F) : ((gEffectSpritePoolAlpha[2] * 100) / 255)) | (fx & 0x80);
+        if (gAmbientAudioLevels[2] >= 21) {
+            fx = ((((gAmbientAudioLevels[2] * 100) / 255) < (fx & 0x7F)) ? (fx & 0x7F) : ((gAmbientAudioLevels[2] * 100) / 255)) | (fx & 0x80);
         }
 
         if (sfxId < 0x800) {
@@ -2210,8 +2210,8 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
     pan = (1.0f - sinApprox(pan)) * 63.5;
     if (D_80745838 != 0) {
         reverb = 30;
-    } else if (gEffectSpritePoolAlpha[2] >= 21) {
-        reverb = (gEffectSpritePoolAlpha[2] * 100) / 255;
+    } else if (gAmbientAudioLevels[2] >= 21) {
+        reverb = (gAmbientAudioLevels[2] * 100) / 255;
     }
     if (D_807457C8 != 0) {
         n_alSndpStop(D_807457C8);
@@ -2295,8 +2295,8 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
 
         pitch = ((u32)pitchByte * pitch) / 127.0;
 
-        if (gEffectSpritePoolAlpha[2] >= 21) {
-            fx = (gEffectSpritePoolAlpha[2] * 100) / 255;
+        if (gAmbientAudioLevels[2] >= 21) {
+            fx = (gAmbientAudioLevels[2] * 100) / 255;
         }
 
         angle = (1.0f - sinApprox(angle)) * 63.5;
@@ -2311,7 +2311,7 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
 
 extern s32 D_8000DDCC;
 extern s32 sSeqRomOffsets[];
-extern void *D_8076BF38[];
+extern void *gSeqBuffers[];
 extern ALCSeq D_8076BF48[];
 
 
@@ -2349,10 +2349,10 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
         if (len & 1) {
             len++;
         }
-        dmaReadAssetDecompress(addr, D_8076BF38[seqIndex], &len, 0x80, 0, 1, buf);
+        dmaReadAssetDecompress(addr, gSeqBuffers[seqIndex], &len, 0x80, 0, 1, buf);
     }
     heapFree(buf);
-    n_alCSeqNew(&D_8076BF48[seqIndex], D_8076BF38[seqIndex]);
+    n_alCSeqNew(&D_8076BF48[seqIndex], gSeqBuffers[seqIndex]);
     alSeqpSetSeq((ALSeqPlayer *)gSeqPlayers[seqIndex], (ALSeq *)&D_8076BF48[seqIndex]);
     resetCSPChannelStates(gSeqPlayers[seqIndex]);
     seqUpdateVolume(seqIndex);
@@ -2421,8 +2421,8 @@ void seqLoadAndPlayWithReverb(s32 seqIndex, u8 seqId, f32 volume) {
     f32 pan, vol;
 
     seqLoadAndPlay(seqIndex, seqId, volume);
-    pan = ((f64)(u32)gEffectSpritePoolAlpha[2] * 0.3) / 255.0;
-    vol = (((f64)(u32)gEffectSpritePoolAlpha[2] * 0.35) / 255.0) + 1.0;
+    pan = ((f64)(u32)gAmbientAudioLevels[2] * 0.3) / 255.0;
+    vol = (((f64)(u32)gAmbientAudioLevels[2] * 0.35) / 255.0) + 1.0;
     if (seqIndex != 0) {
         if (sSfxFlagTable[D_80770560[seqIndex]] & 1) {
             alCSPSetChlPanVolume(&gSeqPlayers[seqIndex]->al, pan, vol);

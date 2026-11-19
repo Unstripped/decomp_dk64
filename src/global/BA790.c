@@ -192,7 +192,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             effectSetDuration(5);
             effectSetDepth(1);
             effectSetColor(0xFF, 0xFF, 0xFF, 1);
-            effectSetMode(1);
+            effectSetFrameDelay(1);
             effectSetScale(-0.4f, 0.4f);
             effectSetCallback(effectSparkSpawnUpdate);
             effectCreateAtPosition(&D_80720630, 0.3f, gCurrentActor->x, gCurrentActor->floorY + 7.0f, gCurrentActor->z);

@@ -64,8 +64,8 @@ s16 zbufferDepthToDistance(s16);
 #ifndef PROTO_SKIP_zbufferReadDepth
 u16 zbufferReadDepth(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80700BF4
-void func_80700BF4(void);
+#ifndef PROTO_SKIP_playerViewUpdateDepthProbes
+void playerViewUpdateDepthProbes(void);
 #endif
 #ifndef PROTO_SKIP_lensFlareDrawSource
 Gfx *lensFlareDrawSource(Gfx *, LensFlarePoint, u8);

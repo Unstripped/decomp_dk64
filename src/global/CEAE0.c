@@ -406,11 +406,11 @@ extern s32 D_8076A094;
 extern s32 D_8076A098;
 extern s32 gCurrentMap;
 extern u8 D_80770560[4];
-extern u8 D_807463B8;
-extern s16 D_807F5FE4;
-extern s16 D_807F5FE6;
-extern s16 D_807F5FE8;
-extern s16 D_807F5FEA;
+extern u8 gDemoPlaybackState;
+extern s16 gMapBoundMinX;
+extern s16 gMapBoundMinZ;
+extern s16 gMapBoundMaxX;
+extern s16 gMapBoundMaxZ;
 extern s32 D_80720020;
 
 void func_80026D40(void *, u8);
@@ -436,7 +436,7 @@ void playerUpdateCommon(s32 mode) {
 
     attacker = gCurrentActor;
     gActivePlayerState = gCurrentActor->customState;
-    if (D_807463B8 == 0) {
+    if (gDemoPlaybackState == 0) {
         gCurrentActor->flags |= 0x400000;
     } else {
         gCurrentActor->flags &= ~0x400000;
@@ -545,7 +545,7 @@ void playerUpdateCommon(s32 mode) {
                 }
                 if (gActivePlayerState->effectObj == NULL) {
                     effectSetDuration(-1);
-                    effectSetMode(0);
+                    effectSetFrameDelay(0);
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x78);
                     effectEnableFade();
                     gActivePlayerState->effectObj = effectCreateAtPosition(&D_80720020, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
@@ -628,7 +628,7 @@ void playerUpdateCommon(s32 mode) {
     if (gActivePlayerState->transitionTimer != 0) {
         gActivePlayerState->transitionTimer--;
     }
-    if ((gCurrentActor->x < D_807F5FE4 || gCurrentActor->z < D_807F5FE6 || gCurrentActor->x > D_807F5FE8 || gCurrentActor->z > D_807F5FEA || materialType != 0) && gActivePlayerState->idleTimeoutFlag == 0 && gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
+    if ((gCurrentActor->x < gMapBoundMinX || gCurrentActor->z < gMapBoundMinZ || gCurrentActor->x > gMapBoundMaxX || gCurrentActor->z > gMapBoundMaxZ || materialType != 0) && gActivePlayerState->idleTimeoutFlag == 0 && gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
         if (gPlayerCount == 1) {
             if (flagGet(0x186, 0) == 0) {
                 mapSetPendingTransition(0xB0, 1);
@@ -675,7 +675,7 @@ extern f32 gKongAirAccel[];
 extern s16 gKongTurnRate[];
 extern f32 D_80753218[];
 extern s32 gCurrentMap;
-extern u8 D_807463B8;
+extern u8 gDemoPlaybackState;
 extern s32 D_8071FB08;
 extern s32 sEffectSparkConfig;
 
@@ -825,7 +825,7 @@ void playerUpdateScaleAndPhysics(void) {
             }
         }
     }
-    if ((gActivePlayerState->stateFlags & 0x20) || D_807463B8 == 3) {
+    if ((gActivePlayerState->stateFlags & 0x20) || gDemoPlaybackState == 3) {
         if (gCurrentMap == 0x30) {
             gActivePlayerState->targetSpeed = 200.0f;
             return;
@@ -2160,7 +2160,7 @@ void func_806CF580(void) {
 
 void playerSpawnJumpTrailEffects(void) {
     if (!(gFrameCounter & 3) && gCurrentActor->unk155 >= 5 && gCurrentActor->speedY > 30.0f) {
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetCallback(effectZSpinMatrixUpdate);
         effectCreateAtPosition(&D_8071FB08, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
@@ -2392,7 +2392,7 @@ void playerSetNormalMoveParams(void) {
         gActivePlayerState->targetSpeed = D_80753338[gCurrentCharacterIndex];
         return;
     }
-    if ((gActivePlayerState->stateFlags & 0x20) || D_807463B8 == 3) {
+    if ((gActivePlayerState->stateFlags & 0x20) || gDemoPlaybackState == 3) {
         if (gCurrentMap == 0x30) {
             gActivePlayerState->targetSpeed = 200.0f;
             return;

@@ -16,8 +16,8 @@ void commandSetFlags(s8, s8);
 #ifndef PROTO_SKIP_commandStateInit
 void commandStateInit(void);
 #endif
-#ifndef PROTO_SKIP_func_8072167C
-void func_8072167C(s16, s16, s16, s16);
+#ifndef PROTO_SKIP_lightEasePlayerTarget
+void lightEasePlayerTarget(s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_commandQueuePush
 void commandQueuePush(Actor *, s16, s16, s16, u8, u8, u8, u8, u8);

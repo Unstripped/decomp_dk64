@@ -94,7 +94,7 @@ void bossArmydilloSpawnSmoke(void) {
         effectSetSpeed(i);
         effectSetDepth(1);
         effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
-        effectSetMode(3);
+        effectSetFrameDelay(3);
         effectCreateAtPosition(sEffectSparkConfig, 2.5f, gCurrentActor->x, gCurrentActor->y + 40.0f, gCurrentActor->z);
     }
 }
@@ -1148,7 +1148,7 @@ void bossArmydilloDebrisFall(void) {
         } else {
             bone = ((randomNonNegative() >> 15) % 0x7FFF) % 7 + 0x1D;
         }
-        effectSetMode(3);
+        effectSetFrameDelay(3);
         effectSetColor(0x50, 0x50, 0x50, 0xC8);
         effectSpawnBoneDefault(gCurrentActor, bone, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
     }

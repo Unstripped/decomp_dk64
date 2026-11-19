@@ -186,7 +186,7 @@ typedef struct CamPathData {
 } CamPathData;
 
 extern u8 gGameMode;
-extern u8 D_807463B8;
+extern u8 gDemoPlaybackState;
 extern u8 gSplitScreenMode;
 extern s32 gCurrentMap;
 extern u8 gScreenRenderFlags;
@@ -490,12 +490,12 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 posX, f32 *outHeight, f
 void camUpdatePlayerYaw(CamState *st) {
     gPlayerSlots[st->playerIndex].camYaw = mathAngleBetweenPointsRad(gPlayerSlots[st->playerIndex].camX, gPlayerSlots[st->playerIndex].camZ, gPlayerSlots[st->playerIndex].focusX, gPlayerSlots[st->playerIndex].focusZ);
     st->unkA8 = gPlayerSlots[st->playerIndex].camYaw;
-    switch (D_807463B8) {
+    switch (gDemoPlaybackState) {
         case 0:
             gPlayerSlots[st->playerIndex].camYawInt = st->unkA8 * 4096.0 / 6.2831855f;
             break;
         case 2:
-            func_8060B55C(&gPlayerSlots[st->playerIndex].camYawInt);
+            demoPlaybackReadCamYaw(&gPlayerSlots[st->playerIndex].camYawInt);
             break;
         case 3:
             gPlayerSlots[st->playerIndex].camYawInt = st->unkA8 * 4096.0 / 6.2831855f;
@@ -1814,7 +1814,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
         }
         if (!(st->unkAC & 0x8000) && ret != 0 && (bestIdx != st->unkC4 || st->mode != 2) &&
             (linkId == 0xFF || (linkId != 0xFF && (linkId != st->unkFD || st->mode != 2) && !(gGlobalPauseFlags & 0x2000)))) {
-            if (D_807463B8 == 3) {
+            if (gDemoPlaybackState == 3) {
                 gGlobalPauseFlags |= 0x2000;
             } else if (!(st->unkAC & 0x100)) {
                 func_8061F18C(camActor, *eyeX, *eyeY, *eyeZ);
@@ -2693,7 +2693,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     break;
             }
         }
-        if (cam->mode != 6 && cam->mode != 9 && (!(gScreenRenderFlags & 0x10) || D_807463B8 == 3) &&
+        if (cam->mode != 6 && cam->mode != 9 && (!(gScreenRenderFlags & 0x10) || gDemoPlaybackState == 3) &&
             cam->mode != 8 && cam->mode != 7 && cam->unkEF != 0) {
             if (camEvaluateZones(camActor, eyeX, eyeY, eyeZ, focusX, focusY, focusZ) != 0) {
                 cam->mode = 2;

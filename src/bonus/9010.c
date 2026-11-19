@@ -18,9 +18,9 @@ s8 D_8002D91C[4] = { 8, 11, 12, 14 };
 s8 D_8002D920 = 0;
 s8 D_8002D924 = 0;
 s8 D_8002D928 = 0;
-s8 D_8002D92C = 0;
-s8 D_8002D930 = 0;
-extern s8 D_8002DEF0[];
+s8 sHitCount = 0;
+s8 sComboTimer = 0;
+extern s8 sHitPoints[];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 
@@ -57,11 +57,11 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
     switch (gCurrentMap) {
     case 0xBF:
         if (actor->state == 2) {
-            y = 0x1E0 - (D_8002D92C * 3 << 4);
-            for (i = -1; i < D_8002D92C; i++) {
+            y = 0x1E0 - (sHitCount * 3 << 4);
+            for (i = -1; i < sHitCount; i++) {
                 if (i >= 0) {
-                    _sprintf(buf, "HIT %d", D_8002DEF0[i]);
-                } else if (D_8002D92C >= 2) {
+                    _sprintf(buf, "HIT %d", sHitPoints[i]);
+                } else if (sHitCount >= 2) {
                     _sprintf(buf, "COMBO x2");
                 } else {
                     buf[0] = 0;
@@ -95,8 +95,8 @@ void bonusScoreHudUpdate(void) {
         camStartPath(0, 0, 1);
         gCurrentActor->state = 0;
         hud->timeLimit = 0x3C;
-        D_8002D92C = 0;
-        D_8002D930 = 0;
+        sHitCount = 0;
+        sComboTimer = 0;
         D_80744518 = 0;
         hud->scoreLabel = gfxResourceCreate(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
         hud->lapBonusLabel = gfxResourceCreate(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
@@ -136,23 +136,23 @@ void bonusScoreHudUpdate(void) {
         break;
     case 2:
         if (gCurrentActor->parentActor->state == 5) {
-            D_8002D930 = 0;
+            sComboTimer = 0;
             gCurrentActor->state = 3;
             hud->exitTimer = 0x78;
         }
         switch (gCurrentMap) {
         case 0xBF:
-            D_8002D930 -= 1;
-            if (D_8002D930 <= 0) {
-                D_8002D930 = 0;
-                if (D_8002D92C > 0) {
+            sComboTimer -= 1;
+            if (sComboTimer <= 0) {
+                sComboTimer = 0;
+                if (sHitCount > 0) {
                     s32 shift = 0;
-                    if (D_8002D92C >= 2) {
+                    if (sHitCount >= 2) {
                         shift = 1;
                     }
-                    while (D_8002D92C > 0) {
-                        D_8002D92C -= 1;
-                        hud->score += D_8002DEF0[D_8002D92C] << shift;
+                    while (sHitCount > 0) {
+                        sHitCount -= 1;
+                        hud->score += sHitPoints[sHitCount] << shift;
                     }
                 }
             }
@@ -220,12 +220,12 @@ void bonusRegisterHit(s16 targetType) {
     } else {
         points = 2;
     }
-    if (D_8002D92C < 6) {
-        D_8002DEF0[D_8002D92C] = points;
-        D_8002D92C += 1;
-        D_8002D930 = 0x14;
+    if (sHitCount < 6) {
+        sHitPoints[sHitCount] = points;
+        sHitCount += 1;
+        sComboTimer = 0x14;
     }
-    if (D_8002D92C >= 5) {
-        D_8002D930 = 0;
+    if (sHitCount >= 5) {
+        sComboTimer = 0;
     }
 }

@@ -34,8 +34,8 @@ extern u8 D_80770F50[];
 extern ALBank *gSfxBank;
 extern ALBank *D_8076D1FC;
 extern u16 D_8076BF30[];
-extern void *D_8076BF38[];
-s32 D_807452B0[4] = { 0x407E, 0x11B6, 0x7B6, 0x156 };
+extern void *gSeqBuffers[];
+s32 gSeqBufferSizes[4] = { 0x407E, 0x11B6, 0x7B6, 0x156 };
 void func_806010A0(void);
 
 void audioInit(void) {
@@ -87,10 +87,10 @@ void audioInit(void) {
     oscSetupConfig(&seqp, 0x58);
     for (i = 0; i < 4; i++) {
         D_8076BF30[i] = 0xFFFF;
-        D_8076BF38[i] = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, D_807452B0[i]);
+        gSeqBuffers[i] = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, gSeqBufferSizes[i]);
         player = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, 0x8C);
         gSeqPlayers[i] = player;
-        if (D_8076BF38[i] == NULL || (arg = player) == NULL) {
+        if (gSeqBuffers[i] == NULL || (arg = player) == NULL) {
             arg = gSeqPlayers[i];
         }
         n_alCSPlayerNew(arg, &seqp);

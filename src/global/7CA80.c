@@ -41,8 +41,8 @@ s32 (*gActorInitFuncs[10])(s32 *) = {
     (s32 (*)(s32 *))func_8067B2A0,
     (s32 (*)(s32 *))func_8067B2A8,
 };
-// Component data sizes, indexed by the component ids of the D_8074E218 lists.
-u16 D_8074DA58[117] = {
+// Component data sizes, indexed by the component ids of the gActorTypeComponents lists.
+u16 gActorComponentSizes[117] = {
     0, 624, 32, 40, 256, 64, 32, 16, 8, 8, 16, 24,
     192, 40, 8, 16, 32, 16, 8, 8, 48, 16, 16, 8,
     8, 8, 32, 24, 2112, 24, 16, 64, 48, 16, 8, 8,
@@ -54,7 +54,7 @@ u16 D_8074DA58[117] = {
     16, 48, 16, 16, 8, 8, 8, 16, 8, 16, 16, 64,
     24, 8, 16, 16, 24, 8, 48, 32, 32,
 };
-// Per-actor-type component lists (ending with 0), D_8074E218[type].
+// Per-actor-type component lists (ending with 0), gActorTypeComponents[type].
 u16 D_8074DB44[1] = { 0 };
 u16 D_8074DB48[1] = { 0 };
 u16 D_8074DB4C[3] = { 1, 72, 0 };
@@ -399,7 +399,7 @@ u16 D_8074E204[3] = { 31, 112, 0 };
 u16 D_8074E20C[2] = { 113, 0 };
 u16 D_8074E210[1] = { 0 };
 u16 D_8074E214[1] = { 0 };
-u16 *D_8074E218[344] = {
+u16 *gActorTypeComponents[344] = {
     D_8074DB44, D_8074DB48, D_8074DB4C, D_8074DB54, D_8074DB5C, D_8074DB64,
     D_8074DB6C, D_8074DB74, D_8074DB7C, D_8074DB84, D_8074DB8C, D_8074DB90,
     D_8074DB94, D_8074DB98, D_8074DB9C, D_8074DBA0, D_8074DBA4, D_8074DBA8,
@@ -470,7 +470,7 @@ extern const char D_80759280[];
 extern const char D_80759288[];
 extern const char D_80759290[];
 extern const char D_80759298[];
-const char *D_8074E780[8] = {
+const char *gCharacterNames[8] = {
     D_80759260, D_80759268, D_80759270, D_80759278,
     D_80759280, D_80759288, D_80759290, D_80759298,
 };
@@ -533,7 +533,7 @@ extern u16 gModelCacheCount;
 extern void *gActorScriptIndexTable;
 extern void *gActorScriptAnimTable;
 extern void *gActorScriptSoundTable;
-extern s32 D_807FBB38;
+extern s32 gActorNextInstanceId;
 
 void actorInit(void) {
     u16 i;
@@ -565,7 +565,7 @@ void actorInit(void) {
 
     actorTableClear();
 
-    D_807FBB38 = 0;
+    gActorNextInstanceId = 0;
     D_807FBE09 = 0;
     gActorDelayedCallbackCount = 0;
     gActivePlayerActor = NULL;
@@ -616,7 +616,7 @@ s32 func_80678014(s32 type) {
 }
 
 extern u16 D_80748D4A;
-extern u16 D_807FBB3E;
+extern u16 gSpawnedActorActiveIndex;
 
 s32 actorAllocate(type)
 u16 type;
@@ -628,13 +628,13 @@ u16 type;
     u16 headerSize;
     u16 totalDataSize;
 
-    types = D_8074E218[type];
+    types = gActorTypeComponents[type];
     headerSize = 0x174;
     totalDataSize = 0;
     if (*types != 0) {
         do {
             if (headerSize) {}  // FAKE: raises headerSize priority so it gets a1 (tds a2)
-            totalDataSize += D_8074DA58[*types];
+            totalDataSize += gActorComponentSizes[*types];
             headerSize += 4;
             types++;
         } while (*types != 0);
@@ -643,13 +643,13 @@ u16 type;
     actor = heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
-        types = D_8074E218[type];
+        types = gActorTypeComponents[type];
         ptrArray = &actor->customState;
         dataPtr = (u8 *)actor + ((u16)((headerSize + 7) & 0xFFF8));
         if (*types != 0) {
             do {
                 *ptrArray++ = dataPtr;
-                dataPtr += D_8074DA58[*types++];
+                dataPtr += gActorComponentSizes[*types++];
             } while (*types != 0);
         }
         actor->callbacks = NULL;
@@ -692,13 +692,13 @@ u16 type;
         actor->tintA = 0xF;
         actor->boundingRadius = 0;
         actor->unkB0[0] = -1;
-        actor->instanceId = D_807FBB38;
-        D_807FBB38++;
+        actor->instanceId = gActorNextInstanceId;
+        gActorNextInstanceId++;
         actorTableInsert(actor);
         actorInitHealth(actor);
         gActiveActors[gActiveActorCount].actor = actor;
         gActiveActors[gActiveActorCount].unk4 = 0;
-        D_807FBB3E = gActiveActorCount;
+        gSpawnedActorActiveIndex = gActiveActorCount;
         gActiveActorCount++;
         gSpawnedActor = actor;
         return 1;

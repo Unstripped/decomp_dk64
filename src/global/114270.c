@@ -107,10 +107,10 @@ EffectSpriteTextureSetup gEffectSpriteTextureSetups[6] = {
 
 extern PlayerStruct *gPlayerSlots;
 
-extern u8 D_807FDA1A;
+extern u8 gEffectSpriteFreeTop;
 extern u8 gEffectSpritePoolType;
 extern u8 gEffectSpritePoolLoaded;
-extern u8 D_807FDA30[];
+extern u8 gEffectSpriteFreeSlots[];
 
 void effectSpritePoolReset(void) {
     s16 i;
@@ -118,17 +118,17 @@ void effectSpritePoolReset(void) {
     gEffectSpritePool->count = 0;
     gEffectSpritePoolType = 6;
     for (i = 0; i < 0x80; i++) {
-        D_807FDA30[i] = i;
+        gEffectSpriteFreeSlots[i] = i;
     }
-    D_807FDA1A = 0x7F;
+    gEffectSpriteFreeTop = 0x7F;
     gEffectSpritePoolLoaded = 0;
 }
 
 extern void *gEffectSpriteTextures[];
-extern u8 D_807FDA18;
-extern u8 D_807FDA19;
-extern Vtx *D_807FDA20;
-extern u8 (*D_807FDA24)(EffectSpriteParticle *particle);
+extern u8 gEffectSpriteTexWidth;
+extern u8 gEffectSpriteTexHeight;
+extern Vtx *gEffectSpriteVertices;
+extern u8 (*gEffectSpriteUpdate)(EffectSpriteParticle *particle);
 
 
 void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16 spawnY, u8 initialAlpha) {
@@ -146,14 +146,14 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
         for (i = 0; i < gEffectSpriteTextureSetups[poolType].count; i++) {
             gEffectSpriteTextures[i] = assetLoad(gEffectSpriteTextureSetups[poolType].type != 0 ? 0x19 : 7, gEffectSpriteTextureSetups[poolType].images[i], 1, 1);
         }
-        D_807FDA18 = gEffectSpriteTextureSetups[poolType].width;
-        D_807FDA19 = gEffectSpriteTextureSetups[poolType].height;
-        D_807FDA20 = gEffectSpriteTextureSetups[poolType].vertices;
-        D_807FDA24 = gEffectSpriteTextureSetups[poolType].update;
+        gEffectSpriteTexWidth = gEffectSpriteTextureSetups[poolType].width;
+        gEffectSpriteTexHeight = gEffectSpriteTextureSetups[poolType].height;
+        gEffectSpriteVertices = gEffectSpriteTextureSetups[poolType].vertices;
+        gEffectSpriteUpdate = gEffectSpriteTextureSetups[poolType].update;
         gEffectSpritePoolLoaded = 1;
     }
-    idx = D_807FDA30[D_807FDA1A];
-    D_807FDA30[D_807FDA1A--] = 0xFF;
+    idx = gEffectSpriteFreeSlots[gEffectSpriteFreeTop];
+    gEffectSpriteFreeSlots[gEffectSpriteFreeTop--] = 0xFF;
     entry = &gEffectSpritePool->entries[idx];
     entry->age = 1;
     entry->x = spawnX;
@@ -271,7 +271,7 @@ u8 func_8070FCCC(EffectSpriteParticle *particle) {
         if (!(gGlobalCutsceneFlags & 8)) {
             effectSetDepth(1);
             effectSetCallback(&effectRandomYRotDecalUpdate);
-            effectSetLifetime(particle->mapChunk);
+            effectSetChunkFilter(particle->mapChunk);
             effectSetFlags(4);
             effectCreateAtPosition(&sEffectImpactPuffConfig, 0.3f, gPlayerSlots->camX - sinApprox(angle) * jitter, bound + 1.0, gPlayerSlots->camZ - cosApprox(angle) * jitter);
         }
@@ -361,13 +361,13 @@ u8 func_807103E0(EffectSpriteParticle *particle) {
 Gfx *effectSpritePoolLoadTexture(Gfx *glist, u8 textureIndex) {
     switch (gEffectSpriteTextureSetups[gEffectSpritePoolType].texSize) {
     case 1:
-        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_8b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_8b, gEffectSpriteTexWidth, gEffectSpriteTexHeight, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 2:
-        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_16b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_16b, gEffectSpriteTexWidth, gEffectSpriteTexHeight, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     case 3:
-        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_32b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(glist++, gEffectSpriteTextures[textureIndex], gEffectSpriteTextureSetups[gEffectSpritePoolType].format, G_IM_SIZ_32b, gEffectSpriteTexWidth, gEffectSpriteTexHeight, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         break;
     }
     return glist;
@@ -469,15 +469,15 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
             guMtxCatF(mtxScale, mtxTemp, mtxScale);
             guMtxF2L(mtxScale, &entry->mtx[gGfxBufferIndex]);
             gSPMatrix(glist++, &entry->mtx[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-            gSPVertex(glist++, osVirtualToPhysical(D_807FDA20), 4, 0);
+            gSPVertex(glist++, osVirtualToPhysical(gEffectSpriteVertices), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
         }
         if (entry->age != 0) {
             processed++;
-            if (D_807FDA24(entry) != 0 || entry->scale < 0.01) {
+            if (gEffectSpriteUpdate(entry) != 0 || entry->scale < 0.01) {
                 entry->age = 0;
-                D_807FDA30[++D_807FDA1A] = i;
+                gEffectSpriteFreeSlots[++gEffectSpriteFreeTop] = i;
                 gEffectSpritePool->count--;
             }
         }
@@ -487,7 +487,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
 
 
 extern f32 *gChunkLightR;
-extern u8 gEffectSpritePoolAlpha[];
+extern u8 gAmbientAudioLevels[];
 
 void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scale) {
     f32 randX;
@@ -504,7 +504,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
         D_807FDA1E = cosApprox(gPlayerSlots->camYaw) * windAngle;
         calcAlpha = densityVal * 255 / 3.9;
         clampedAlpha = calcAlpha > 255.0 ? 255.0 : calcAlpha;
-        gEffectSpritePoolAlpha[0] = clampedAlpha * alphaVal;
+        gAmbientAudioLevels[0] = clampedAlpha * alphaVal;
         if (densityVal < 1.0) {
             density *= 100.0f;
             if ((randomNonNegative() >> 15) % 32767 % 100 < density) {
@@ -643,12 +643,12 @@ s32 effectSpritePoolFadeOut(void) {
 
     pool = gEffectSpritePool;
     if (pool->count != 0) {
-        gEffectSpritePoolAlpha[0] *= 0.9;
+        gAmbientAudioLevels[0] *= 0.9;
         renderCallbacksRegister(&effectSpriteRenderPool, NULL, 1);
         return 0;
     }
     if (gEffectSpritePoolType != 6) {
-        gEffectSpritePoolAlpha[0] = 0;
+        gAmbientAudioLevels[0] = 0;
         heapFreeDeferred(pool->entries);
         for (i = 0; i < gEffectSpriteTextureSetups[gEffectSpritePoolType].count; i++) {
             assetFreeBuffer(gEffectSpriteTextures[i], 0x34A, 0x64);

@@ -17,10 +17,10 @@ typedef struct CritterBattleArenaState {
     s16 timeLimit;
 } CritterBattleArenaState;
 
-// This TU's .data (0x80029FA0-0x80029FB0). Global code (80150, 936B0, F9450) also decrements D_80029FA0.
-s8 D_80029FA0 = 0;
-u16 D_80029FA4 = 0;
-s8 D_80029FA8 = 0;
+// This TU's .data (0x80029FA0-0x80029FB0). Global code (80150, 936B0, F9450) also decrements critterArenaTargetsLeft.
+s8 critterArenaTargetsLeft = 0;
+u16 critterArenaSavedAmmo = 0;
+s8 critterArenaWon = 0;
 
 s32 critterBitwiseNot(s32 val) {
     return ~val;
@@ -50,28 +50,28 @@ void critterBattleArenaUpdate(void) {
 
     challengeState = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        D_80029FA8 = 0;
+        critterArenaWon = 0;
         camStartPath(0, 0, 1);
         ammo = *throwAmmo;
-        D_80029FA4 = ammo;
+        critterArenaSavedAmmo = ammo;
         *throwAmmo = 0;
         slotQueueSetShownValue(4, 0, 0);
         switch (gCurrentMap) {
         case 0xB1:
             challengeState->timeLimit = 0x3C;
-            D_80029FA0 = 1;
+            critterArenaTargetsLeft = 1;
             break;
         case 0xB6:
             challengeState->timeLimit = 0x3C;
-            D_80029FA0 = 1;
+            critterArenaTargetsLeft = 1;
             break;
         case 0xB4:
             challengeState->timeLimit = 0x3C;
-            D_80029FA0 = 5;
+            critterArenaTargetsLeft = 5;
             break;
         case 0xB5:
             challengeState->timeLimit = 0x3C;
-            D_80029FA0 = 5;
+            critterArenaTargetsLeft = 5;
             break;
         }
         gCurrentActor->state = 0;
@@ -113,7 +113,7 @@ void critterBattleArenaUpdate(void) {
             alignedBuf++;
         }
         dcacheFunc = (void (*)(void *, s32))critterBitwiseNot(~(s32)osWritebackDCache);
-        if (D_80029FA0 <= 0) {
+        if (critterArenaTargetsLeft <= 0) {
             gCurrentActor->state = 3;
         }
         dcacheFunc(alignedBuf, 0x10);
@@ -136,15 +136,15 @@ void critterBattleArenaUpdate(void) {
         sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
         challengeState->timer = 0x78;
         gCurrentActor->state = 0xFE;
-        D_80029FA8 = 1;
+        critterArenaWon = 1;
         break;
     case 0xFE:
         if (challengeState->timer > 0) {
             challengeState->timer--;
             if (challengeState->timer == 0) {
-                if (D_80029FA8 != 0) {
+                if (critterArenaWon != 0) {
                     if (gCurrentMap == 0xB4) {
-                        D_80029FA4 = 0x14;
+                        critterArenaSavedAmmo = 0x14;
                     }
                     switch (gCurrentMap) {
                     case 0xB1:
@@ -162,7 +162,7 @@ void critterBattleArenaUpdate(void) {
                     }
                     flagSet(rewardFlag, 1, 0);
                 }
-                ammo = D_80029FA4;
+                ammo = critterArenaSavedAmmo;
                 *throwAmmo = ammo;
                 slotQueueSetShownValue(4, 0, ammo);
                 mapFindPreviousSavedMap(&returnMap, &returnExit);
@@ -171,7 +171,7 @@ void critterBattleArenaUpdate(void) {
         }
         break;
     case 0xFF:
-        D_80029FA8 = 0;
+        critterArenaWon = 0;
         challengeState->textGfxHandle = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         challengeState->timer = 0x78;
         gCurrentActor->state = 0xFE;

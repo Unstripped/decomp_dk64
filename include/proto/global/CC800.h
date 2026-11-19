@@ -90,11 +90,11 @@ s32 playerAddHealthDelta(u8, s8);
 #ifndef PROTO_SKIP_playerResetSpawnGlobals
 void playerResetSpawnGlobals(void);
 #endif
-#ifndef PROTO_SKIP_playerSpawnMapActors
-void playerSpawnMapActors(s32);
+#ifndef PROTO_SKIP_playerRefillConsumables
+void playerRefillConsumables(s32);
 #endif
-#ifndef PROTO_SKIP_playerInitKongActor
-void playerInitKongActor(s32, s32, s32);
+#ifndef PROTO_SKIP_playerDebugMaxKongAbilities
+void playerDebugMaxKongAbilities(s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_playerCopyCameraToEye
 void playerCopyCameraToEye(u8);

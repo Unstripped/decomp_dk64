@@ -30,7 +30,7 @@ typedef struct ProjectileTriple {
     void *sprite[3];
 } ProjectileTriple;
 
-ProjectileTriple D_807502C0 = { { D_80720BE8, D_8071FE3C, D_80720E2C } };
+ProjectileTriple sProjectileSprites = { { D_80720BE8, D_8071FE3C, D_80720E2C } };
 
 extern void **gSpriteRingTextures;
 
@@ -234,7 +234,7 @@ void projectileActorUpdate(void) {
 
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        spriteTriple = D_807502C0;
+        spriteTriple = sProjectileSprites;
         gCurrentActor->soundSlots[0] = -2;
         gCurrentActor->contactFlags &= ~1;
         gCurrentActor->moveYaw = ((ProjectileConfig *)gCurrentActor->spawnData)->yawRadians / 6.2831855f * 4095.0f;
@@ -246,7 +246,7 @@ void projectileActorUpdate(void) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         sub->type = ((ProjectileConfig *)gCurrentActor->spawnData)->type;
         effectSetDuration(-1);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetMaxDistance(0x7D0);
         if (sub->type == 1) {

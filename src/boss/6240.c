@@ -146,7 +146,7 @@ void bossSpawnSparkles(void) {
     effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
     effectCreateAtPosition(D_80720120, 1.5f, sparkX, sparkY, sparkZ);
     for (i = 0; i < 4; i++) {
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetCallback(effectPuffRiseUpdate);
         effectSetDepth(1);
         effectCreateAtActorBone(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], 1.5f, gCurrentActor, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);

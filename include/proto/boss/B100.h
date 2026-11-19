@@ -6,17 +6,17 @@
 #ifndef PROTO_SKIP_bossDogadonStep
 void bossDogadonStep(void);
 #endif
-#ifndef PROTO_SKIP_func_8002FB7C
-void func_8002FB7C();
+#ifndef PROTO_SKIP_bossKRoolTinyPulseBones
+void bossKRoolTinyPulseBones();
 #endif
-#ifndef PROTO_SKIP_func_8002FC48
-void func_8002FC48();
+#ifndef PROTO_SKIP_bossFreezeAnimAtFrame
+void bossFreezeAnimAtFrame();
 #endif
 #ifndef PROTO_SKIP_bossActorGroupCommand
 void bossActorGroupCommand();
 #endif
-#ifndef PROTO_SKIP_func_8002FDF8
-void func_8002FDF8(void *, u8);
+#ifndef PROTO_SKIP_bossKRoolTinyCommonStep
+void bossKRoolTinyCommonStep(void *, u8);
 #endif
 #ifndef PROTO_SKIP_bossKRoolTinySpawnMinion
 void bossKRoolTinySpawnMinion(Actor **, u8, s32);

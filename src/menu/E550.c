@@ -106,7 +106,7 @@ void menuUpdateLightFadeActor(void) {
         }
         break;
     case 4:
-        menuSetFlag5324();
+        menuSetDemoActive();
         gCurrentActor->state++;
         break;
     }

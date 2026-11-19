@@ -55,3 +55,6 @@ sLightFlashTargetHitScripts = 0x8002D8E0;
 sLightFlashDarkSfx = 0x8002D8EC;
 sPathPanicSnapDelay = 0x8002D900;
 sSearchlightTargetSpeed = 0x8002D90C;
+sHitCount = 0x8002D92C;
+sComboTimer = 0x8002D930;
+sHitPoints = 0x8002DEF0;

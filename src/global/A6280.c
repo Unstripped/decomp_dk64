@@ -190,7 +190,7 @@ void actorSparkCutsceneUpdate(void) {
                     effectSetSpeed(i);
                     effectSetDepth(1);
                     effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
-                    effectSetMode(5);
+                    effectSetFrameDelay(5);
                     effectCreateAtPosition(&sEffectSparkConfig, driftSpeed, gCurrentActor->x, gCurrentActor->y + 50.0f, gCurrentActor->z);
                 }
             }
@@ -285,7 +285,7 @@ void actorSinkAndDespawn(void) {
             node = 1;
             if (sub->sinkTimer == 0) {
                 do {
-                    effectSetMode(2);
+                    effectSetFrameDelay(2);
                     effectSetDepth(1);
                     effectSetCallback(&effectSinkBySpeedUpdate);
                     effectSetSpeed(-0x64);

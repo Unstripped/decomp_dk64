@@ -168,25 +168,25 @@ void lightLerpColors(f32 r, f32 g, f32 b, f32 t, s16 index) {
     }
 }
 
-extern f32 D_807F7ECC;
-extern f32 D_807F7ED0;
-extern f32 D_807F7ED4;
-extern f32 D_807F7ED8;
-extern f32 D_807F7EDC;
-extern f32 D_807F7EE0;
-extern f32 D_807F7EE4;
-extern f32 D_807F7EE8;
+extern f32 gLightDefaultCosInner;
+extern f32 gLightDefaultCosOuter;
+extern f32 gLightDefaultConeScale;
+extern f32 gLightNextCosInner;
+extern f32 gLightNextCosOuter;
+extern f32 gLightNextConeScale;
+extern f32 gLightNextInnerAngle;
+extern f32 gLightNextOuterAngle;
 extern s16 gLightNextRange;
 
 void lightInitGlobals(void) {
-    D_807F7ECC = cosApprox(0.4363323152f);
-    D_807F7ED0 = cosApprox(1.134464025f);
-    D_807F7ED4 = 1.0f / (D_807F7ECC - D_807F7ED0);
-    D_807F7ED8 = D_807F7ECC;
-    D_807F7EDC = D_807F7ED0;
-    D_807F7EE0 = D_807F7ED4;
-    D_807F7EE4 = 25.0f;
-    D_807F7EE8 = 65.0f;
+    gLightDefaultCosInner = cosApprox(0.4363323152f);
+    gLightDefaultCosOuter = cosApprox(1.134464025f);
+    gLightDefaultConeScale = 1.0f / (gLightDefaultCosInner - gLightDefaultCosOuter);
+    gLightNextCosInner = gLightDefaultCosInner;
+    gLightNextCosOuter = gLightDefaultCosOuter;
+    gLightNextConeScale = gLightDefaultConeScale;
+    gLightNextInnerAngle = 25.0f;
+    gLightNextOuterAngle = 65.0f;
     gLightVolumeCount = 0;
     gLightNextFlags = 0;
     gLightNextOwnerId = -1;
@@ -204,11 +204,11 @@ void lightClearActiveCount(void) {
 }
 
 void lightSetFovAngles(f32 angleA, f32 angleB) {
-    D_807F7EE4 = angleA;
-    D_807F7EE8 = angleB;
-    D_807F7ED8 = cosApprox(angleA * 0.017453292f);
-    D_807F7EDC = cosApprox(angleB * 0.017453292f);
-    D_807F7EE0 = 1.0f / (D_807F7ED8 - D_807F7EDC);
+    gLightNextInnerAngle = angleA;
+    gLightNextOuterAngle = angleB;
+    gLightNextCosInner = cosApprox(angleA * 0.017453292f);
+    gLightNextCosOuter = cosApprox(angleB * 0.017453292f);
+    gLightNextConeScale = 1.0f / (gLightNextCosInner - gLightNextCosOuter);
 }
 
 void lightSetDistanceThreshold(s16 dist) {
@@ -247,14 +247,14 @@ void lightAdd(f32 x, f32 y, f32 z, f32 targetX, f32 targetY, f32 targetZ, f32 ra
         gLightVolumes[gLightVolumeCount].flags = gLightNextFlags;
         gLightVolumes[gLightVolumeCount].ownerId = gLightNextOwnerId;
         gLightVolumes[gLightVolumeCount].activeRadius = gLightNextActiveRadius;
-        gLightVolumes[gLightVolumeCount].outerAngle = D_807F7EE8;
-        gLightVolumes[gLightVolumeCount].innerAngle = D_807F7EE4;
-        gLightVolumes[gLightVolumeCount].cosOuter = D_807F7EDC;
-        gLightVolumes[gLightVolumeCount].cosInner = D_807F7ED8;
+        gLightVolumes[gLightVolumeCount].outerAngle = gLightNextOuterAngle;
+        gLightVolumes[gLightVolumeCount].innerAngle = gLightNextInnerAngle;
+        gLightVolumes[gLightVolumeCount].cosOuter = gLightNextCosOuter;
+        gLightVolumes[gLightVolumeCount].cosInner = gLightNextCosInner;
         gLightVolumes[gLightVolumeCount].type = type;
         gLightVolumes[gLightVolumeCount].x = x;
         gLightVolumes[gLightVolumeCount].y = y;
-        gLightVolumes[gLightVolumeCount].coneScale = D_807F7EE0;
+        gLightVolumes[gLightVolumeCount].coneScale = gLightNextConeScale;
         gLightVolumes[gLightVolumeCount].z = z;
         gLightVolumes[gLightVolumeCount].targetX = targetX;
         gLightVolumes[gLightVolumeCount].targetY = targetY;
@@ -264,11 +264,11 @@ void lightAdd(f32 x, f32 y, f32 z, f32 targetX, f32 targetY, f32 targetZ, f32 ra
         gLightVolumes[gLightVolumeCount].g = g;
         gLightVolumes[gLightVolumeCount].b = b;
         gLightVolumeCount++;
-        D_807F7ED8 = D_807F7ECC;
-        D_807F7EDC = D_807F7ED0;
-        D_807F7EE0 = D_807F7ED4;
-        D_807F7EE4 = 25.0f;
-        D_807F7EE8 = 65.0f;
+        gLightNextCosInner = gLightDefaultCosInner;
+        gLightNextCosOuter = gLightDefaultCosOuter;
+        gLightNextConeScale = gLightDefaultConeScale;
+        gLightNextInnerAngle = 25.0f;
+        gLightNextOuterAngle = 65.0f;
         gLightNextFlags = 0;
         gLightNextOwnerId = -1;
         gLightNextActiveRadius = 700;

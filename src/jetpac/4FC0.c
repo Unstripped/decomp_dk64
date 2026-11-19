@@ -42,20 +42,20 @@ u8 D_8002E5F8[0x108] = {
 u8 D_8002E700[0x100] = {
 #include "jetpac/D_8002E700.inc.c"
 };
-JetpacSprite D_8002E800[2] = {
+JetpacSprite jetpacMeteorSprites[2] = {
     { D_8002DEB8, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002DFC0, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
 };
-JetpacSprite D_8002E830 = { D_8002E0C8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
-JetpacSprite D_8002E848[2] = {
+JetpacSprite jetpacBounceSprite = { D_8002E0C8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacWanderSprites[2] = {
     { D_8002E1D0, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002E2D8, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
 };
-JetpacSprite D_8002E878 = { D_8002E3E0, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
-JetpacSprite D_8002E890 = { D_8002E468, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
-JetpacSprite D_8002E8A8 = { D_8002E4F0, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
-JetpacSprite D_8002E8C0 = { D_8002E5F8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
-JetpacSprite D_8002E8D8 = { D_8002E700, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacFighterSprite = { D_8002E3E0, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacSaucerSprite = { D_8002E468, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacHopSprite = { D_8002E4F0, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacCrossSprite = { D_8002E5F8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+JetpacSprite jetpacBlobSprite = { D_8002E700, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
 s32 jetpacSpawnTimer = 0;
 void (*jetpacActorInitTable[8])(JetpacActor *) = {
     jetpacActorInitMeteor, jetpacActorInitBounce, jetpacActorInitWander, jetpacActorInitFighter,
@@ -285,7 +285,7 @@ void jetpacActorInitMeteor(JetpacActor *actor) {
 
 void jetpacActorUpdateMeteor(JetpacActor *actor) {
     jetpacActorUpdateStraight(actor);
-    actor->sprite = &D_8002E800[(s32)actor->x % 2];
+    actor->sprite = &jetpacMeteorSprites[(s32)actor->x % 2];
 }
 
 void jetpacActorInitBounce(JetpacActor *actor) {
@@ -297,7 +297,7 @@ void jetpacActorInitBounce(JetpacActor *actor) {
         actor->vx = 1.2f;
     }
     actor->vy = -0.8f;
-    actor->sprite = &D_8002E830;
+    actor->sprite = &jetpacBounceSprite;
 }
 
 void jetpacActorUpdateBounce(JetpacActor *actor) {
@@ -381,7 +381,7 @@ void jetpacActorUpdateWander(JetpacActor *actor) {
             }
             actor->y += actor->vy;
             actor->x += actor->vx;
-            actor->sprite = &D_8002E848[(s32)(actor->x / 4) % 2];
+            actor->sprite = &jetpacWanderSprites[(s32)(actor->x / 4) % 2];
         }
         break;
     case 4:
@@ -410,7 +410,7 @@ void jetpacActorInitFighter(JetpacActor *actor) {
     } else {
         actor->vy = 0.8f;
     }
-    actor->sprite = &D_8002E878;
+    actor->sprite = &jetpacFighterSprite;
 }
 
 void jetpacActorUpdateFighter(JetpacActor *actor) {
@@ -492,7 +492,7 @@ void jetpacActorInitHoming(JetpacActor *actor) {
 
 void jetpacActorInitSaucer(JetpacActor *actor) {
     actor->boxY2 = 8;
-    actor->sprite = &D_8002E890;
+    actor->sprite = &jetpacSaucerSprite;
     jetpacActorInitHoming(actor);
 }
 
@@ -590,7 +590,7 @@ void jetpacActorInitHop(JetpacActor *actor) {
         actor->vx = 1.2f;
     }
     jetpacActorHopImpulse(actor);
-    actor->sprite = &D_8002E8A8;
+    actor->sprite = &jetpacHopSprite;
 }
 
 void jetpacActorUpdateHop(JetpacActor *actor) {
@@ -632,14 +632,14 @@ void jetpacActorUpdateHop(JetpacActor *actor) {
 
 void jetpacActorInitCross(JetpacActor *actor) {
     actor->boxY2 = 14;
-    actor->sprite = &D_8002E8C0;
+    actor->sprite = &jetpacCrossSprite;
     jetpacActorInitStraight(actor, 1.2f, 0.3f);
     actor->update = jetpacActorUpdateStraight;
 }
 
 void jetpacActorInitBlob(JetpacActor *actor) {
     actor->boxY2 = 14;
-    actor->sprite = &D_8002E8D8;
+    actor->sprite = &jetpacBlobSprite;
     jetpacActorInitHoming(actor);
 }
 

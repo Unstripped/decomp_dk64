@@ -487,7 +487,7 @@ void raceInitBeetleRaceManager(void) {
 }
 
 extern Actor *gCurrentActor;
-s32 D_8002FCD4[4] = { 0, 1, 2, 3 };
+s32 sRaceResultTextIds[4] = { 0, 1, 2, 3 };
 
 void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     RaceParticipant *managerData;
@@ -503,7 +503,7 @@ void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
                 slot = 3;
             }
             if (pair->data->isCpu == 0) {
-                pair->data->resultTextId = gfxResourceCreate(1, textTableGetString(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
+                pair->data->resultTextId = gfxResourceCreate(1, textTableGetString(0x26, sRaceResultTextIds[slot], 1), 2, 160.0f, 100.0f, 0.0f);
             }
         }
     }

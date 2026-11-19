@@ -433,7 +433,7 @@ void effectSinkZSpinUpdate(EffectNode *effect, void *unused) {
 
 void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
     effectSetDepth(1);
-    effectSetMode(3);
+    effectSetFrameDelay(3);
     effectSetCallback(&effectRandomYRotDecalUpdate);
     effectCreateAtPosition(&sEffectImpactPuffConfig, scale, x, y, z);
 }
@@ -1448,7 +1448,7 @@ void effectSparkSpawnUpdate(EffectNode *effect, s8 *isDone) {
         return;
     }
     if ((randomNonNegative() >> 15) % 100 >= 91) {
-        effectSetMode(3);
+        effectSetFrameDelay(3);
         effectSetCallback(effectSinkBySpeedUpdate);
         effectSetSpeed(-0xA);
         effectSetDepth(1);
@@ -1637,7 +1637,7 @@ void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
     }
     if (*isDone != 0) {
         sfxPlayAtPositionPooled(effect->x, effect->y, effect->z, 0xEA, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
-        effectSetMode(2);
+        effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetSpeed(1);
         effectSetCallback(timedLightPulse);

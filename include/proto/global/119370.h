@@ -31,8 +31,8 @@ void effectSetSpeed(s32);
 #ifndef PROTO_SKIP_effectEnableFade
 void effectEnableFade(void);
 #endif
-#ifndef PROTO_SKIP_effectSetAngle
-void effectSetAngle(s16);
+#ifndef PROTO_SKIP_effectSetStartDelay
+void effectSetStartDelay(s16);
 #endif
 #ifndef PROTO_SKIP_effectSetZOffset
 void effectSetZOffset(s16);
@@ -40,8 +40,8 @@ void effectSetZOffset(s16);
 #ifndef PROTO_SKIP_effectSetCallback
 void effectSetCallback(void *);
 #endif
-#ifndef PROTO_SKIP_effectSetMode
-void effectSetMode(u8);
+#ifndef PROTO_SKIP_effectSetFrameDelay
+void effectSetFrameDelay(u8);
 #endif
 #ifndef PROTO_SKIP_effectSetMaxDistance
 void effectSetMaxDistance(s16);
@@ -64,8 +64,8 @@ void effectSetFlags(s16);
 #ifndef PROTO_SKIP_effectFlagsOr
 void effectFlagsOr(u8);
 #endif
-#ifndef PROTO_SKIP_effectSetLifetime
-void effectSetLifetime(s16);
+#ifndef PROTO_SKIP_effectSetChunkFilter
+void effectSetChunkFilter(s16);
 #endif
 #ifndef PROTO_SKIP_effectSetBounds
 void effectSetBounds(s16, s16, s16, s16);

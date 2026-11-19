@@ -84,7 +84,7 @@ void particleSpawnPathTrail(void) {
                 if ((gFrameCounter % 18) == 0) {
                     for (t = 0.0f; t <= 1.0; t += node->trailStep) {
                         effectSetDepth(1);
-                        effectSetMode(3);
+                        effectSetFrameDelay(3);
                         effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
                         effectSetFlags(4);
                         effectSetCallback(effectPlayerDistanceFadeUpdate);
@@ -99,7 +99,7 @@ void particleSpawnPathTrail(void) {
                 }
                 if ((gFrameCounter % 10) == 0) {
                     effectSetDepth(1);
-                    effectSetMode(3);
+                    effectSetFrameDelay(3);
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
                     effectSetFlags(4);
                     effectSetCallback(effectSinkBySpeedUpdate);

@@ -20,7 +20,7 @@ extern const u8 D_80036678[14];
 extern const u8 D_80036688[17];
 extern const u8 D_8003669C[14];
 
-const u8 *D_80035A50[4] = { D_80036660, D_80036678, D_80036688, D_8003669C };
+const u8 *sKRoolDkPhaseScripts[4] = { D_80036660, D_80036678, D_80036688, D_8003669C };
 
 // K. Rool (DK phase) actor: component 2 (0x178) is the script state.
 typedef struct BossKRoolDkActor {
@@ -39,7 +39,7 @@ void bossKRoolDkStep(void) {
     const u8 *scriptOpcodes;
 
     scriptState = ((BossKRoolDkActor *)gCurrentActor)->scriptState;
-    scriptOpcodes = D_80035A50[scriptState->phase];
+    scriptOpcodes = sKRoolDkPhaseScripts[scriptState->phase];
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -203,7 +203,7 @@ void bossKRoolDkStep(void) {
             scriptState->scriptPos = 0;
             scriptState->loopPos = 0;
             scriptState->phase++;
-            scriptOpcodes = D_80035A50[scriptState->phase];
+            scriptOpcodes = sKRoolDkPhaseScripts[scriptState->phase];
             actorScriptStart(gCurrentActor, 0x3E3);
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;

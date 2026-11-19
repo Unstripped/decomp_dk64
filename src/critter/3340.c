@@ -23,11 +23,11 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 
-// This TU's .data (0x80029F80-0x80029FA0); IDO pads it to 16 bytes after D_80029F90.
-s8 D_80029F80 = 0; // progress through D_80029F90
-s8 D_80029F84 = 0;
+// This TU's .data (0x80029F80-0x80029FA0); IDO pads it to 16 bytes after critterFairyComboButtons.
+s8 critterFairyComboStep = 0; // progress through critterFairyComboButtons
+s8 critterFairySecretState = 0;
 u16 D_80029F88[4] = { U_CBUTTONS, R_CBUTTONS, D_CBUTTONS, L_CBUTTONS }; // unreferenced
-u16 D_80029F90[4] = { U_JPAD, D_JPAD, L_JPAD, R_JPAD }; // button sequence read by critterBananaFairyUpdate
+u16 critterFairyComboButtons[4] = { U_JPAD, D_JPAD, L_JPAD, R_JPAD }; // button sequence read by critterBananaFairyUpdate
 
 void critterSetDigitFrames(s32 val) {
     s32 digit;
@@ -98,9 +98,9 @@ void critterBananaFairyUpdate(void) {
         }
         *timerPtr = 0;
         D_8002A1B0 = 0.0f;
-        D_80029F84 = 0;
-        D_80029F80 = 0;
-    } else if (D_80029F84 != 0) {
+        critterFairySecretState = 0;
+        critterFairyComboStep = 0;
+    } else if (critterFairySecretState != 0) {
         s8 *pair = &D_807446E0[worldIndex + worldIndex];
 
         if (gPlayerCharacterId[0] == pair[1]) {
@@ -109,7 +109,7 @@ void critterBananaFairyUpdate(void) {
                 hasSecretDiscount = 1;
             }
             if (worldIndex == 7) {
-                if (D_80029F84 == 1) {
+                if (critterFairySecretState == 1) {
                     canSecretUnlock = 1;
                 } else {
                     requiredCount = D_807446E0[7 * 2];
@@ -131,7 +131,7 @@ void critterBananaFairyUpdate(void) {
             flagSet(0x17E, 1, 0);
         } else if (canSecretUnlock != 0 && dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->state == 0x24 && gPrimaryPlayerActor->unk155 == 2 && dz > -35.0) {
             if (dx > -27.0 && dx < 27.0 && (gPrimaryPlayerActor->yaw < 0x200 || gPrimaryPlayerActor->yaw >= 0xE01)) {
-                D_80029F84 = 2;
+                critterFairySecretState = 2;
                 sfxPlayOnFreeSlot(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 camStartShake(gCamActor, 0xA, 0xA);
                 gCurrentActor->unk155 = 0xA;
@@ -220,15 +220,15 @@ void critterBananaFairyUpdate(void) {
         }
         D_8002A1B0 = dist;
         if (gPadPressedButtons[0] != 0) {
-            if (gPadPressedButtons[0] & D_80029F90[D_80029F80]) {
-                D_80029F80 += 1;
-                if (D_80029F80 == 4) {
-                    D_80029F80 = 0;
+            if (gPadPressedButtons[0] & critterFairyComboButtons[critterFairyComboStep]) {
+                critterFairyComboStep += 1;
+                if (critterFairyComboStep == 4) {
+                    critterFairyComboStep = 0;
                     sfxPlayOnFreeSlot(0x1EE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
-                    D_80029F84 = 1;
+                    critterFairySecretState = 1;
                 }
             } else {
-                D_80029F80 = 0;
+                critterFairyComboStep = 0;
             }
         }
     }

@@ -65,12 +65,12 @@ typedef struct {
     ALMicroTime curTime;
 } GeSndp;
 
-extern GeSndp D_807FF080;
+extern GeSndp gSndpPlayer;
 
 GfSndState *gSndpUsedHead = NULL;
 GfSndState *gSndpUsedTail = NULL;
 GfSndState *gSndpFreeList = NULL;
-GeSndp *gSndp = &D_807FF080;
+GeSndp *gSndp = &gSndpPlayer;
 s16 gSndpVoiceCount = 0;
 
 extern s16 *gSndpGroupVol;

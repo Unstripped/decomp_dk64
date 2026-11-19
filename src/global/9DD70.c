@@ -43,7 +43,7 @@ typedef struct SpritePair {
 
 // This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad); the debris sprites are sprite sheets of
 // 124780.c.
-s16 D_807503A0 = 200;
+s16 sSpotLightRelightDelay = 200;
 extern EffectGridAsset D_807212C8, D_807212B0;
 SpritePair gCarryDebrisSprites = { { &D_807212C8, &D_807212B0 } };
 
@@ -593,7 +593,7 @@ void actorSpotLightUpdate(void) {
     }
     scriptSetActorRampTarget(gCurrentActor, ((SpotLightConfig *)gCurrentActor->spawnData)->rampTarget, 1.0f);
     if (gActorGlobalState.bossFightPhase == 4) {
-        lightState->delay = D_807503A0;
+        lightState->delay = sSpotLightRelightDelay;
         lightState->brightness = 0.0f;
     }
     if (lightState->delay == 0) {
@@ -1034,7 +1034,7 @@ void carryObjectUpdate(void) {
                 offsetX = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
                 offsetY = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
                 offsetZ = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
-                effectSetAngle(particleIdx * 2);
+                effectSetStartDelay(particleIdx * 2);
                 effectSetDepth(1);
                 if (particleIdx == 0) {
                     effectSetSpeed(0x100FA);
@@ -1056,7 +1056,7 @@ void carryObjectUpdate(void) {
                     effectSetDepth(1);
                     effectSetDuration(0x3C);
                     effectSetCallback(effectTumbleBounceUpdate);
-                    effectSetMode(2);
+                    effectSetFrameDelay(2);
                     effectSetSpeed(2);
                     effectCreateAtPosition(spritePair.sprites[(randomNonNegative() >> 15) % 2],
                                   randomFloat() * 0.5 + 0.2,

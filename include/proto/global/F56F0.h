@@ -83,8 +83,8 @@ void playerWeaponAimTarget(Actor *, BoneRotation *, s32 *);
 #ifndef PROTO_SKIP_playerWeaponSpawnProjectile
 void playerWeaponSpawnProjectile(Actor *, BoneRotation *, s32 *);
 #endif
-#ifndef PROTO_SKIP_playerWeaponInitCrosshair
-void playerWeaponInitCrosshair(Actor *, BoneRotation *, s32 *);
+#ifndef PROTO_SKIP_kongChainUpdateDiddy
+void kongChainUpdateDiddy(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCrosshairUpdate
 void playerWeaponCrosshairUpdate(Actor *, BoneRotation *, s32 *);

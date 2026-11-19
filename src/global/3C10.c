@@ -70,7 +70,7 @@ u8 D_807446F0[16] = { 0, 1, 3, 2, 4, 0, 2, 0, 0, 1, 2, 3, 4, 5, 6, 8 };
 u16 D_80744700[8] = { 0x08, 0xC5, 0x9A, 0x6F, 0x53, 0xC4, 0xC7, 0xCB };
 s16 D_80744710[8] = { 0x1A, 0x4A, 0x8A, 0xA8, 0xEC, 0x124, 0x13D, 0x17C };
 s32 D_80744720[5] = { 0x181, 0x6, 0x46, 0x42, 0x75 };
-u16 D_80744734[10] = { 0xA9, 0xAD, 0xAF, 0xAE, 0xB2, 0xC2, 0xC1, 0xAA, 0xAA, 0x00 };
+u16 gWorldLobbyMaps[10] = { 0xA9, 0xAD, 0xAF, 0xAE, 0xB2, 0xC2, 0xC1, 0xAA, 0xAA, 0x00 };
 u16 D_80744748[10] = { 0x07, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x22, 0x11, 0x00 };
 Struct8074475C D_8074475C[11] = {
     { 0x38, 0x38, 0 },
@@ -365,13 +365,13 @@ f32 D_8076AEE4;
 f32 D_8076AEE8;
 f32 D_8076AEEC;
 s16 D_8076AEF0;
-s16 D_8076AEF2;
+s16 gPreviousMap;
 u16 D_8076AEF4;
 u8 D_8076AEF6;
 u8 D_8076AEF7;
 u8 D_8076AEF8[8];
 
-s32 func_805FEF10(s32 *outValue) {
+s32 playerGetActorTypeFlag(s32 *outValue) {
     s32 i;
     s32 found;
 
@@ -385,11 +385,11 @@ s32 func_805FEF10(s32 *outValue) {
     return found;
 }
 
-s32 func_805FEF74(s32 map) {
+s32 mapIsLobby(s32 map) {
     s32 i;
 
     for (i = 0; i < 9; i++) {
-        if (map == D_80744734[i]) {
+        if (map == gWorldLobbyMaps[i]) {
             return 1;
         }
     }
@@ -418,7 +418,7 @@ u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap) {
             worldIndex = gMapHubWorldIndex[targetMap];
         }
     }
-    if (checkBossMap && func_805FEF74(targetMap)) {
+    if (checkBossMap && mapIsLobby(targetMap)) {
         worldIndex = 7;
     }
     return worldIndex;
@@ -469,7 +469,7 @@ void mapExecuteDeathTransition(s32 unused) {
         targetMap = D_8076AEF4;
         exitIndex = D_8076AEF6;
     } else {
-        if (func_805FEF74(gCurrentMap) != 0) {
+        if (mapIsLobby(gCurrentMap) != 0) {
             targetMap = gCurrentMap;
         } else {
             world = mapGetHubWorldIndex(gCurrentMap, 0);
@@ -496,7 +496,7 @@ void mapExecuteVoidTransition(void) {
 
     if (gCurrentMap != 0x22) {
         mapSlotArrayResetAll();
-        targetMap = D_80744734[mapGetHubWorldIndex(gCurrentWorldId, 0)];
+        targetMap = gWorldLobbyMaps[mapGetHubWorldIndex(gCurrentWorldId, 0)];
         exitIndex = 1;
     } else {
         targetMap = gCurrentMap;
@@ -515,7 +515,7 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
                 gPlayerCharacterId[0] = playerGetResolvedKongId(0);
             }
             gScreenRenderFlags |= 1;
-            D_8076AEF2 = gCurrentMap;
+            gPreviousMap = gCurrentMap;
             gInitialMap = map;
             gInitialExit = exitIndex;
             D_8076A0B2 = 3;
@@ -538,7 +538,7 @@ void mapRequestTransitionFast(s32 map, s32 exitIndex) {
     gGlobalPauseFlags |= 0x100;
     gInitialMap = map;
     gInitialExit = exitIndex;
-    D_8076AEF2 = gCurrentMap;
+    gPreviousMap = gCurrentMap;
     flagTempsPruneUnloadedMaps();
     mapLoadSavedSlotSpawn(map);
 }
@@ -801,7 +801,7 @@ void mapSlotArrayResetAll(void) {
 
 void mapTransitionToWorldHub(s32 index) {
     mapSlotArrayResetAll();
-    mapRequestTransition(D_80744734[index], 1);
+    mapRequestTransition(gWorldLobbyMaps[index], 1);
 }
 
 s32 mapFindSlotIndex(s32 map) {
@@ -829,7 +829,7 @@ s16 mapFindSavedPositionSlot(f32 *outX, f32 *outY, f32 *outZ) {
     return -1;
 }
 
-s32 func_80600340(s16 *typeList, u8 typeCount, s32 *outMap) {
+s32 mapFindClosestTargetNearSavedPos(s16 *typeList, u8 typeCount, s32 *outMap) {
     u8 *subtableA;
     u8 *subtableB;
     f32 posX;
@@ -846,12 +846,12 @@ s32 func_80600340(s16 *typeList, u8 typeCount, s32 *outMap) {
     return actorListFindClosestTargetIndex((s32 *)subtableB, typeList, typeCount, posX, posY, posZ);
 }
 
-void func_806003EC(s16 index) {
+void mapApplyLevelFlags(s16 index) {
     gGlobalOverlayFlags = D_8074482C[index].overlayFlags;
     gGlobalCutsceneFlags = D_8074482C[index].cutsceneFlags;
 }
 
-s32 func_8060042C(s16 index) {
+s32 mapGetOverlayBufferSize(s16 index) {
     return D_8074482C[index].overlayBufferSize;
 }
 

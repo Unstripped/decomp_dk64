@@ -75,7 +75,7 @@ void actorKongChainUpdate(void) {
         case 1:
         case 2:
         case 3:
-            playerWeaponInitCrosshair(gCurrentActor, gCurrentActor->sub4->boneRotations, &outCount);
+            kongChainUpdateDiddy(gCurrentActor, gCurrentActor->sub4->boneRotations, &outCount);
             break;
         case 9:
         case 10:
@@ -412,7 +412,7 @@ void actorScriptedCommandUpdate(void) {
             if (state->particlePath == 0xFE || (state->particlePath != 0xFF && pathPlaybackIsActive(state->particlePath) != 0)) {
                 effectSetMaxDistance(0x7D0);
                 effectSetDepth(1);
-                effectSetMode(2);
+                effectSetFrameDelay(2);
                 col = &sScriptParticleColors[state->particleColor];
                 effectSetColor(col->r, col->g, col->b, 0xFF);
                 effectSetCallback(effectSinkBySpeedUpdate);
@@ -649,7 +649,7 @@ void func_806C1734(void) {
             switch (inner->animId) {
                 case 0xBB:
                     if (30.0f < gCurrentActor->speedY && !(gFrameCounter & 3)) {
-                        effectSetMode(2);
+                        effectSetFrameDelay(2);
                         effectSetDepth(1);
                         effectSetCallback(effectShrinkFadeMatrixUpdate);
                         effectCreateAtActorBone(&D_8071FB08, 0.8f, gCurrentActor, 5, 0);
@@ -834,7 +834,7 @@ void func_806C1E44(void) {
                             if (gBehaviourWorkState->timer == 0) {
                                 gCurrentActor->unk155 = 0;
                             }
-                            effectSetMode(2);
+                            effectSetFrameDelay(2);
                             effectSetDepth(1);
                             effectSetDuration(0x28);
                             effectSetCallback(effectWobbleScaleUpdate);
@@ -1039,7 +1039,7 @@ void actorSpawnOctagonRingsByTimer(void) {
 
 void effectSpawnColoredParticleAtPoint(u8 r, u8 g, u8 b, f32 x, f32 y, f32 z, void *particleGfx, f32 scale) {
     effectSetMaxDistance(1000);
-    effectSetMode(0xFF);
+    effectSetFrameDelay(0xFF);
     effectSetParam(((randomNonNegative() >> 15) % 0x7FFF) % 11);
     effectSetColor(r, g, b, 0xFF);
     effectSetCallback(effectLinearFadeAlphaUpdate);
@@ -1291,7 +1291,7 @@ void actorScriptedUpdate(void) {
         case 0x436:
             if (!(gFrameCounter & 1)) {
                 effectSetMaxDistance(0x7D0);
-                effectSetMode(3);
+                effectSetFrameDelay(3);
                 effectSetColor(0x32, 0x32, 0x32, 0xFF);
                 effectSpawnBoneDefault(gCurrentActor, 1, 1.3f, 0, 0, 0, -0x50);
             }

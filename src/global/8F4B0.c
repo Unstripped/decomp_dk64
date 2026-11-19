@@ -127,7 +127,7 @@ set_color:
 }
 
 extern s8 D_8074452C;
-extern u16 D_80744734[];
+extern u16 gWorldLobbyMaps[];
 extern s32 gCurrentMap;
 
 s32 cutsceneTriggerCheck(s16 cutsceneId) {
@@ -142,7 +142,7 @@ s32 cutsceneTriggerCheck(s16 cutsceneId) {
     i = 0;
     found = 0;
     while (!found && i < 8) {
-        if (gCurrentMap == D_80744734[i]) {
+        if (gCurrentMap == gWorldLobbyMaps[i]) {
             found = 1;
         } else {
             i++;
@@ -585,7 +585,7 @@ void func_8068BA2C(void) {
             camStartPath(0, ptr[0], flags | 1);
             break;
         case 2:
-            func_8072167C(ptr[0], ptr[1], ptr[2], ptr[3]);
+            lightEasePlayerTarget(ptr[0], ptr[1], ptr[2], ptr[3]);
             break;
         case 3:
             hasEvent3 = 1;

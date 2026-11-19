@@ -121,7 +121,7 @@ void controllerGetReadData(OSContPad *pad) {
     gContReadPending = 0;
 }
 
-extern u8 D_807463B8;
+extern u8 gDemoPlaybackState;
 extern u8 gScreenRenderFlags;
 
 #define CtrlAHeld D_807ECD40
@@ -158,7 +158,7 @@ void controllerUpdate(void) {
             D_80746834 = 0;
             rumbleUpdate();
         }
-        switch (D_807463B8) {
+        switch (gDemoPlaybackState) {
         case 0:
             controllerFilterInput(D_807ECDE8);
             controllerLatchPad(D_807ECDE8);
@@ -166,7 +166,7 @@ void controllerUpdate(void) {
         case 2:
             controllerFilterInput(D_807ECDF4);
             controllerLatchPad(D_807ECDF4);
-            func_8060B4D4(D_807ECDE8);
+            demoPlaybackReadPad(D_807ECDE8);
             for (i = 0; i < 4; i++) {
                 if (gControllerConnectedMask & (1 << i)) {
                     D_807ECDE8[i].button |= D_807ECDF4[i].button & 0x1000;
@@ -202,7 +202,7 @@ void controllerUpdate(void) {
             mask = gControllerConnectedMask & (1 << i);
             padIdx = i;
         }
-        if (i == 0 && D_807463B8 == 2) {
+        if (i == 0 && gDemoPlaybackState == 2) {
             mask |= 1;
         }
         if (mask != 0) {
@@ -210,7 +210,7 @@ void controllerUpdate(void) {
             pressedOut = &CtrlAPressed[padIdx];
             curButtons = pad->button;
             buttons = curButtons; pressed = BUTTONS_PRESSED(curButtons, CtrlAHeld[padIdx]); CtrlAHeld[padIdx] = pad->button; // LAYOUT: one line lets as1 put move a3,a2 after sh a2,0(t0) in the bnez delay slot
-            if (D_807463B8 == 0 && (gScreenRenderFlags & 0x11)) {
+            if (gDemoPlaybackState == 0 && (gScreenRenderFlags & 0x11)) {
                 pad->button &= 0x1000;
                 pad->stick_x = 0;
                 pad->stick_y = 0;

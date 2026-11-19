@@ -139,8 +139,8 @@ TextFontInfo gTextFonts[8] = {
     { 33, 10, 32, 8, 0, 32 },
 };
 // textMapCharToGlyph's charsets; each string fills its struct exactly (no NUL).
-FcDStr39 D_80754A64 = { "ABCDEFGH,.rIJKLMNO:PQRSgTUVWXYlZ!-'?q%&bz0123456789enwsco" };
-FcDStr30 D_80754AA0 = { "ABCDEFGHIJKLMNOPQRTUVWXYZ.,!?:;'S-x1234567890()%" };
+FcDStr39 sCharsetFont1 = { "ABCDEFGH,.rIJKLMNO:PQRSgTUVWXYlZ!-'?q%&bz0123456789enwsco" };
+FcDStr30 sCharsetFont6 = { "ABCDEFGHIJKLMNOPQRTUVWXYZ.,!?:;'S-x1234567890()%" };
 
 void func_806FB480(void) {
 }
@@ -240,7 +240,7 @@ void textBlitDash(u8 *dst) {
                   &phase, 0x30);
 }
 
-const FcDStr3A D_8075DC20 = { "ABCDEFGHIJKLMNOPQRSTUVWXYZ.-?{}:=0123456789<>m)!@#$%^&cab" };
+const FcDStr3A sCharsetFont2 = { "ABCDEFGHIJKLMNOPQRSTUVWXYZ.-?{}:=0123456789<>m)!@#$%^&cab" };
 
 s32 textMapCharToGlyph(s16 font, u8 *ch) {
     s8 yoff;
@@ -267,15 +267,15 @@ s32 textMapCharToGlyph(s16 font, u8 *ch) {
         *ch -= 0x21;
         break;
     case 1:
-        charsetA = D_80754A64;
+        charsetA = sCharsetFont1;
         *ch = _strchr(charsetA.b, *ch) - charsetA.b;
         break;
     case 6:
-        charsetB = D_80754AA0;
+        charsetB = sCharsetFont6;
         *ch = _strchr(charsetB.b, *ch) - charsetB.b;
         break;
     case 2:
-        charsetC = D_8075DC20;
+        charsetC = sCharsetFont2;
         *ch = _strchr(charsetC.b, *ch) - charsetC.b;
         break;
     case 3:

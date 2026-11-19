@@ -188,9 +188,9 @@ Actor *actorFromSpawnNodeOrDefault(s16 nodeId) {
 
 
 extern struct GfSndState *gSfxFreeSlotHandles[];
-extern s8 D_8075536C;
+extern s8 gMenuNextExit;
 extern u8 D_8076AEE0;
-extern s16 D_8076AEF2;
+extern s16 gPreviousMap;
 extern ALBank *gSfxBank;
 extern ALBank *D_8076D1FC;
 
@@ -247,7 +247,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             mapTransitionToMenuOrPrevious();
             return;
         case 0x3D:
-            mapRequestTransition(D_8076AEF2, 0);
+            mapRequestTransition(gPreviousMap, 0);
             return;
         case 0x3E:
             mapRequestTransition(0x22, 0xC);
@@ -423,7 +423,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             break;
         case 0x43:
             if (camCueTimerIsRunning() == 0) {
-                D_8075536C = c;
+                gMenuNextExit = c;
                 menuTransitionToMap(a, b);
             }
             break;

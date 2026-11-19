@@ -366,7 +366,7 @@ void actorSwellBurstUpdate(void) {
                             effectSetDuration(2);
                             effectSetSpeed(i + 0x0B020000);
                             effectSetCallback(effectRadialSprayUpdate);
-                            effectSetMode(1);
+                            effectSetFrameDelay(1);
                             effectCreateAtPosition(&D_8072073C, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                         }
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3D, 0xFF, 0x7F, 0);
@@ -512,7 +512,7 @@ void actorSpawnPeriodicBoneEffect(void) {
             period = 0;
     }
     if ((period != 0) && ((gFrameCounter % period) == 0)) {
-        effectSetMode(3);
+        effectSetFrameDelay(3);
         effectSetColor(col, col, col, gCurrentActor->alpha);
         effectSpawnBoneDefault(gCurrentActor, 1, f, 0.0f, 0.0f, 0.0f, -0x50);
     }

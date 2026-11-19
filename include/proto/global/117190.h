@@ -165,8 +165,8 @@ void menuStartGameFromSave(s8);
 #ifndef PROTO_SKIP_mpStartMatch
 void mpStartMatch(void);
 #endif
-#ifndef PROTO_SKIP_menuSetFlag5324
-void menuSetFlag5324(void);
+#ifndef PROTO_SKIP_menuSetDemoActive
+void menuSetDemoActive(void);
 #endif
 #ifndef PROTO_SKIP_mpIsMatchType
 s32 mpIsMatchType(s32);

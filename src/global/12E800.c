@@ -1075,7 +1075,7 @@ void sfxPlayAtFBD6CPosition(void) {
 extern EffectGridAsset D_8071FF18;
 
 void behaviourSpawnDropParticle(void) {
-    effectSetMode(2);
+    effectSetFrameDelay(2);
     effectSetDepth(1);
     effectSetCallback(effectSinkBySpeedUpdate);
     effectSetSpeed(-0x28 - ((randomNonNegative() >> 15) % 15));

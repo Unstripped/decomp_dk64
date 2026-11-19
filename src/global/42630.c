@@ -196,7 +196,7 @@ CsCondFunc gCsCondTable[19] = {
     /* 0x07 */ (CsCondFunc)csCondCheckKongItems, // u8 return
     /* 0x08 */ csCondFindPlayerSlotByModel,
     /* 0x09 */ (CsCondFunc)csCondKongHasHubItems, // u8 return
-    /* 0x0A */ (CsCondFunc)csCondTransitionState5, // u8 return
+    /* 0x0A */ (CsCondFunc)csCondIsMpGameMode5, // u8 return
     /* 0x0B */ csCondDepositItem,
     /* 0x0C */ (CsCondFunc)csCondAudioFlag, // u8 return
     /* 0x0D */ (CsCondFunc)csCondTrue, // u8 return
@@ -206,11 +206,11 @@ CsCondFunc gCsCondTable[19] = {
     /* 0x11 */ csCondPlayerNearFixedPoint,
     /* 0x12 */ (CsCondFunc)csCondActorInFront, // u8 return
 };
-s8 D_80748094 = 0;
+s8 gCsSfxNode = 0;
 s16 D_80748098 = 7; // unreferenced
-s16 D_8074809C[8] = { 7, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0 };
-s16 D_807480AC[8] = { 0xF, 0, 0, 0, 0x1B, 0, 0, 0 };
-s16 D_807480BC[8] = { 0x1B, 0x5F, 0x8C, 0xC2, 0x101, 0x11A, 0x15D, 0 };
+s16 gHubWorldMaps[8] = { 7, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0 };
+s16 gHubWorldExits[8] = { 0xF, 0, 0, 0, 0x1B, 0, 0, 0 };
+s16 gHubWorldFlags[8] = { 0x1B, 0x5F, 0x8C, 0xC2, 0x101, 0x11A, 0x15D, 0 };
 
 // .bss 0x807F61B0-0x807F6940
 CsTimer gCsTimerQueue[8];
@@ -734,7 +734,7 @@ extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern u8 gGameMode;
-extern s16 D_8076AEF2;
+extern s16 gPreviousMap;
 
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
 
@@ -801,7 +801,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x32:
-        ret = cond->arg[0] == D_8076AEF2;
+        ret = cond->arg[0] == gPreviousMap;
         break;
     case 0x30:
         if (cond->arg[0] == gPrimaryPlayerActor->floorSlopeType) {
@@ -1297,7 +1297,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         proxPathSetEndBehavior(csId, cmd->a, sel);
         break;
     case 0x7C:
-        D_80748094 = cmd->a;
+        gCsSfxNode = cmd->a;
         break;
     case 0x7B:
         modelSlotGetNodePos(csId, 1, cmd->b, &x, &y, &z);
@@ -1536,10 +1536,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_80744824 = 2;
         playerThrowHeldActor(gActivePlayerActor);
         slot = mapGetHubWorldIndex(gCurrentMap, 0);
-        if (func_805FEF74(gCurrentMap) != 0) {
-            map = D_8074809C[slot];
-            exit = D_807480AC[slot];
-            if (flagGet(D_807480BC[slot], 0) == 0) {
+        if (mapIsLobby(gCurrentMap) != 0) {
+            map = gHubWorldMaps[slot];
+            exit = gHubWorldExits[slot];
+            if (flagGet(gHubWorldFlags[slot], 0) == 0) {
                 if (map == 0x57) {
                     exit = 0x15;
                 } else {
@@ -1575,7 +1575,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         mapTransitionExitCurrent(cmd->a, cmd->b);
         break;
     case 0x2F:
-        func_8060B49C(gActivePlayerActor, cmd->a);
+        demoPlaybackStart(gActivePlayerActor, cmd->a);
         break;
     case 0x11:
         modelAnimEntryStart(csId, cmd->a, cmd->b);
@@ -1633,7 +1633,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         if (cs->unk10[i] < 0) {
             bit = cmd->b & 2;
-            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, D_80748094);
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, gCsSfxNode);
         }
         break;
     case 0xF:
@@ -1660,8 +1660,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             vol7 = 0xFF;
         }
         i = cmd->b & 0x7F; // ORIG: the spread is spilled to i's home sp+0xBC at 0x3268 (reloaded 0x327c), the slot the case 0x76 actor loop spills its index to (0x2450/0x2460)
-        if (D_80748094 > 0) {
-            modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
+        if (gCsSfxNode > 0) {
+            modelSlotGetNodePos(csId, 1, gCsSfxNode, &sx, &sy, &sz);
             sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pitch7, i, range, 0.3f, 0);
         } else {
             sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 63.0f, (u32)pitch7 / 127.0, 0, 0);
