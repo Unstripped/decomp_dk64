@@ -50,7 +50,7 @@ JetpacSprite D_8002C4D0[3] = {
     { D_8002C410, 0, 24, 8, 8, 4, 1, 8, 0, 0 },
     { D_8002C410, 0, 24, 8, 8, 4, 1, 0, 0, 0 },
 };
-// The jetman template (jetpacInitPlayer).
+// Idle laser template: jetpacInitPlayer copies it into every laser.
 JetpacActor D_8002C518 = {
     0.0f, 0.0f, 0.0f, 0.0f, { 255, 255, 255, 1 }, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 14, { 255, 255, 255, 1 } }, 0, 0, NULL, NULL,
 };
@@ -441,7 +441,7 @@ void jetpacDrawPlayer(void) {
     f32 y;
     u8 *color;
     s32 pad;
-    s32 idx;
+    s32 frame;
     s32 draw;
     JetpacPlayerActor *player;
 
@@ -451,28 +451,28 @@ void jetpacDrawPlayer(void) {
         if (player->state == 4 && player->explosion.timer >= 8) {
             draw = 0;
         }
-        idx = jetpacGetAnimFrame(player);
+        frame = jetpacGetAnimFrame(player);
         x = player->x;
         y = D_8002F054;
         if (draw != 0) {
             color = D_8002F060;
             if (D_8002F080 == 0) {
                 x = (s16)x & 0xFFFE;
-                jetpacGridAddTiledSprite(&D_8002C3A8[idx], (s32)x, (s32)y, color, D_8002F068);
+                jetpacGridAddTiledSprite(&D_8002C3A8[frame], x, y, color, D_8002F068);
             } else {
-                jetpacGridAddTiledSprite(&D_8002C330, (s32)x, (s32)y, color, D_8002F068);
+                jetpacGridAddTiledSprite(&D_8002C330, x, y, color, D_8002F068);
                 if (D_8002F068 == 0) {
-                    if (idx == 4) {
+                    if (frame == 4) {
                         x -= 1.0f;
                     }
                     x -= 3.0f;
                 } else {
-                    if (idx == 4) {
+                    if (frame == 4) {
                         x += 1.0f;
                     }
                     x += 10.0f;
                 }
-                jetpacGridAddTiledSprite(&D_8002C348[idx], (s32)x, (s32)(y + 18.0f), color, D_8002F068);
+                jetpacGridAddTiledSprite(&D_8002C348[frame], x, y + 18.0f, color, D_8002F068);
             }
         }
         if (player->explosion.timer < 14) {
@@ -501,8 +501,6 @@ void jetpacUpdateLasers(void) {
     }
 }
 
-extern s32 D_8002F064;
-
 void jetpacPlayerStateUpdate(void) {
     if (!jetpacIsSpawnDelay()) {
         s32 state = D_8002F064;
@@ -523,31 +521,31 @@ void jetpacPlayerStateUpdate(void) {
 }
 
 void jetpacInitPlayer(void) {
-    JetpacPlayerActor *g = &jetpacGame.player;
+    JetpacPlayerActor *player = &jetpacGame.player;
     JetpacActor tmpl;
 
     tmpl = D_8002C518;
-    g->vx = 0.0f;
-    g->vy = 0.0f;
-    g->color[0] = 0xFF;
-    g->color[1] = 0xFF;
-    g->color[2] = 0xFF;
-    g->color[3] = 1;
-    g->state = 1;
-    g->timer = 0;
-    g->flip = 0;
-    g->explosion.timer = 14;
-    g->explosion.color[0] = 0xFF;
-    g->explosion.color[3] = 1;
-    g->boxY1 = 0;
-    g->boxX1 = 0;
-    g->boxX2 = 0x10; g->boxY2 = 0x18; // LAYOUT: one line makes as1 store boxY2 (0x28) before boxX2 (0x24)
-    g->flying = 1;
-    g->x = 126.0f;
-    g->y = 160.0f;
-    jetpacSetFlying(g, 0);
-    g->ledge = 3;
-    g->fireCooldown = 4;
+    player->vx = 0.0f;
+    player->vy = 0.0f;
+    player->color[0] = 0xFF;
+    player->color[1] = 0xFF;
+    player->color[2] = 0xFF;
+    player->color[3] = 1;
+    player->state = 1;
+    player->timer = 0;
+    player->flip = 0;
+    player->explosion.timer = 14;
+    player->explosion.color[0] = 0xFF;
+    player->explosion.color[3] = 1;
+    player->boxY1 = 0;
+    player->boxX1 = 0;
+    player->boxX2 = 0x10; player->boxY2 = 0x18; // LAYOUT: one line makes as1 store boxY2 (0x28) before boxX2 (0x24)
+    player->flying = 1;
+    player->x = 126.0f;
+    player->y = 160.0f;
+    jetpacSetFlying(player, 0);
+    player->ledge = 3;
+    player->fireCooldown = 4;
     {
         s32 i;
         for (i = 0; i < 4; i++) {

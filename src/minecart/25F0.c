@@ -2,6 +2,7 @@
 #include "actor.h"
 #include "sched.h"
 #include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
 #include "proto/global/126260.h"
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
@@ -54,10 +55,9 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
-extern s32 effectSinkBySpeedUpdate;
 extern void *gPuffSprites[];
-extern u8 D_80720120[];
-extern s32 D_8072030C;
+extern EffectGridAsset D_80720120;
+extern EffectGridAsset D_8072030C;
 
 extern struct MinecartElem *gMinecartJunctionTable[];
 extern u8 D_80028C34[];
@@ -144,7 +144,7 @@ s32 minecartSetTargetAheadOfPlayer(BehaviourWorkState *targetState, f32 distance
 
 void minecartSpawnRandomParticle(void) {
     effectSetSpeed(((randomNonNegative() >> 15) % 100) + 300);
-    effectSetCallback(&effectSinkBySpeedUpdate);
+    effectSetCallback(effectSinkBySpeedUpdate);
     effectSetDepth(1);
     effectSetFlags(4);
     effectCreateAtPosition(
@@ -356,7 +356,7 @@ void minecartUpdateFollower(void) {
     }
     if (gFrameCounter % 3 == 0) {
         effectSetDepth(1);
-        effectCreateAtPosition(D_80720120, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
+        effectCreateAtPosition(&D_80720120, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
     }
     gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(pointX, pointZ, gCurrentActor->x, gCurrentActor->z), 6.0f);
     gCurrentActor->moveYaw = gCurrentActor->yaw;
@@ -564,6 +564,7 @@ void minecartUpdateObstacleType2(void) {
             actorUpdateModelMatrix(gCurrentActor, 0);
             return;
         }
+        /* fallthrough */
     case 1:
         if ((gCurrentMap == 0x4D) || (gCurrentMap == 0x81) || (gCurrentMap == 0x82)) {
             minecartChooseBranchSide(cart);

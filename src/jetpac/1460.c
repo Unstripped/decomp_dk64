@@ -134,7 +134,7 @@ void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32
 void jetpacGridDraw(Gfx **glistp) {
     JetpacCell *cell;
     JetpacCellItem *item;
-    s32 item_idx;
+    s32 i;
     Gfx *g;
     s32 col;
     s32 row;
@@ -147,7 +147,7 @@ void jetpacGridDraw(Gfx **glistp) {
                 gDPSetPrimColor(g++, 0, 0, cell->color[0], cell->color[1], cell->color[2], 0xFF);
             }
             item = &cell->items[0];
-            for (item_idx = 0; item_idx < cell->count; item_idx++) {
+            for (i = 0; i < cell->count; i++) {
                 dlAppendTextureLoad(&g, item->texture);
                 dlSetTextureScaleAndFlip(0x400, 0x400, item->flip, 0);
                 dlAppendTextureRectangle(&g, (item->x + 0x20) << 2, (item->y + 0x18) << 2);

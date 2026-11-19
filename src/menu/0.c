@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -102,23 +103,23 @@ s8 D_80033258 = 0;
 
 
 void menuStartNextCamPath(MenuState *menu) {
-    s32 soundId = D_80032F54[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step - 3];
+    s32 pathId = D_80032F54[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step - 3];
 
-    if (soundId == 0) {
+    if (pathId == 0) {
         csModelStateSetFirstByte(D_800330A4[menu->pendingMedals - 1], 9);
         menu->mode = 4;
         menu->step = 0;
         return;
     }
-    if (soundId == 4) {
+    if (pathId == 4) {
         menu->fallState = 1;
     }
-    camStartPath(0, (s16)soundId, 1);
+    camStartPath(0, pathId, 1);
     menu->step++;
 }
 
 
-extern u8 D_80720268;
+extern EffectGridAsset D_80720268;
 
 void menuSpawnFallingEffect(MenuState *menu) {
     menu->velY = 11.35f;
@@ -159,7 +160,7 @@ void menuExit(void) {
 typedef struct MenuRenderActor {
     Actor base;
     /* 0x178 */ void *unk178;
-    /* 0x17C */ void *unk17C;
+    /* 0x17C */ ScriptedActorState *scriptState; // actorScriptedCommandUpdate
     /* 0x180 */ MenuState *menuState;
 } MenuRenderActor;
 extern Actor *gCurrentActor;
@@ -264,10 +265,6 @@ u8 targetState;
     }
 }
 
-#ifndef WRITE_GFX
-#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-#endif
-
 extern u8 D_1000118[];
 extern u8 D_20000C0[];
 extern u8 D_2000180[];
@@ -278,25 +275,25 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     MenuState *menu = actor->menuState;
     u8 textBuf[0x28];
 
-    WRITE_GFX(glist++, 0xDE000000, D_1000118);
-    WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    gSPDisplayList(glist++, D_1000118);
+    gDPSetCombine(glist++, 0x119623, 0xFF2FFFFF);
     if (menu->step >= 4) {
         s32 i;
-        WRITE_GFX(glist++, 0xDA380003, D_2000180);
-        WRITE_GFX(glist++, 0xDA380007, D_20000C0);
-        WRITE_GFX(glist++, 0xE7000000, 0);
+        gSPMatrix(glist++, D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPMatrix(glist++, D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+        gDPPipeSync(glist++);
         y = 0xF0;
         for (i = 0; i < 8; i++) {
             if (i + 4 == menu->step) {
-                WRITE_GFX(glist++, 0xFA000000, -1);
+                gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
             } else {
-                WRITE_GFX(glist++, 0xFA000000, -0x80);
+                gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0x80);
             }
             glist = hudDrawScaledText(glist, 0x280, y, 0.6f, textTableGetString(0x2A, i + 3, 1));
             y += 0x3C;
         }
     } else {
-        WRITE_GFX(glist++, 0xFA000000, (actor->base.unk15F & 0xFF) | ~0xFF);
+        gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, actor->base.unk15F);
         _sprintf(textBuf, "q %s", textTableGetString(0x2A, 0, 1));
         glist = textDrawStringVtx(glist, 1, 0x15E, 0x190, textBuf, 1);
         _sprintf(textBuf, "b %s", textTableGetString(0x2A, 1, 1));
@@ -329,10 +326,10 @@ void menuUpdateOptionsState(MenuState *menu) {
         if (listContainsS16(4) != 0) {
             playerSaveData = &gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]];
             for (i = 0; i < 8; i++) {
-                if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId[0]), 0) != 0) {
+                if (flagGet(flagGridIndex(0x1D5, i, gPlayerCharacterId[0]), 0) != 0) {
                     awardFlag = flagGridIndex(0x1FD, i, gPlayerCharacterId[0]);
-                    if (flagGet((s16)awardFlag, 0) == 0) {
-                        flagSet((s16)awardFlag, 1, 0);
+                    if (flagGet(awardFlag, 0) == 0) {
+                        flagSet(awardFlag, 1, 0);
                         playerSaveData->goldenBananas[i]++;
                         changed = 1;
                     }
@@ -354,14 +351,12 @@ void menuUpdateOptionsState(MenuState *menu) {
             menu->step = 3;
         } else {
             menu->allMedals = 1;
-            i = 0x1FD;
-            do {
-                if (flagGet((s16)i, 0) == 0) {
+            for (i = 0x1FD; i < 0x225; i++) {
+                if (flagGet(i, 0) == 0) {
                     menu->allMedals = 0;
                     i = 0x224;
                 }
-                i++;
-            } while (i < 0x225);
+            }
             {
                 u8 alpha = gCurrentActor->unk15F;
                 s32 remaining = 0xFF - alpha;
@@ -392,13 +387,11 @@ void menuUpdateOptionsState(MenuState *menu) {
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
             menu->step = 1;
         } else {
-            s8 stickY = gCurrentContPad->stick_y;
-            if (stickY >= 0x29 && menu->prevStickY < 0x29) {
+            if (gCurrentContPad->stick_y >= 0x29 && menu->prevStickY < 0x29) {
                 menu->step--;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                stickY = gCurrentContPad->stick_y;
             }
-            if (stickY < -0x28 && menu->prevStickY >= -0x28) {
+            if (gCurrentContPad->stick_y < -0x28 && menu->prevStickY >= -0x28) {
                 menu->step++;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
             }
@@ -443,11 +436,11 @@ void menuDispatchAction(void) {
     s32 targetState;
     s32 pad2;
     s32 camPathIndex;
-    u8 isSessionActive;
+    u8 returnedFromOption;
     MenuState *menu;
 
     targetState = -1;
-    isSessionActive = 0;
+    returnedFromOption = 0;
     menu = ((MenuRenderActor *)gCurrentActor)->menuState;
     if (!(gCurrentActor->flags & 0x10)) {
         camPathIndex = 1;
@@ -461,28 +454,24 @@ void menuDispatchAction(void) {
                 camPathIndex = 0;
                 playerWaypointPathStartPacked(gPrimaryPlayerActor, 0, 0, 0);
                 flagSet(0x174, 1, 0);
+            } else if (menu->medalCount == 0x28) {
+                menu->mode = 2;
+                menu->step = 0;
+            } else if (menu->pendingMedals == 0) {
+                menu->mode = 1;
+                menu->step = 0;
             } else {
-                if (menu->medalCount == 0x28) {
-                    menu->mode = 2;
-                    menu->step = 0;
-                } else {
-                    if (menu->pendingMedals == 0) {
-                        menu->mode = 1;
-                        menu->step = 0;
-                    } else {
-                        menu->mode = 3;
-                        menu->step = 0;
-                    }
-                }
+                menu->mode = 3;
+                menu->step = 0;
             }
-            camStartPath(0, (s16)camPathIndex, 1);
+            camStartPath(0, camPathIndex, 1);
         } else {
             menu->mode = 5;
             menu->step = 0;
         }
         currentActorClearFlag();
         menuSpawnFallingEffect(menu);
-        isSessionActive = D_80032F50;
+        returnedFromOption = D_80032F50;
         D_80032F50 = 0;
     }
     switch (menu->mode) {
@@ -499,7 +488,7 @@ void menuDispatchAction(void) {
         if (targetState < 0) {
             targetState = 7;
         }
-        if (isSessionActive != 0) {
+        if (returnedFromOption != 0) {
             targetState = 0xB;
         }
         menuTransitionStep(menu, targetState);
@@ -517,62 +506,60 @@ void menuDispatchAction(void) {
 }
 extern Vtx *D_80033F10;
 
-void *memcpy(void *, const void *, s32);
-
 void menuUpdateProgressGrid(void) {
     s16 *pSlideY;
-    s32 flag;
-    s32 n;
-    s32 r;
-    s32 j;
-    s32 k;
-    s32 idx;
+    s32 allMedals;
+    s32 vtxIndex;
+    s32 row;
+    s32 col;
+    s32 edge;
+    s32 colorIndex;
 
     pSlideY = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         *pSlideY = 0xF0;
         gCurrentActor->state = 0;
-        D_800330D0 = heapAlloc(0x80);
-        D_800330D4 = heapAlloc(0x140);
-        memcpy(D_800330D4, D_800330E0, 0x140);
+        D_800330D0 = heapAlloc(2 * sizeof(Mtx));
+        D_800330D4 = heapAlloc(sizeof(D_800330E0));
+        memcpy(D_800330D4, D_800330E0, sizeof(D_800330E0));
         *pSlideY = -0x3E8;
-        D_80033F10 = heapAlloc(0x1400);
-        flag = flagCountRange(0x1FD, 0x28, 0) == 0x28;
-        n = 0;
-        for (r = 0; r < 5; r++) {
-            for (j = 0; j < 8; j++) {
-                idx = r * 9;
-                for (k = 0; k < 4; k++) {
-                    if (flag != 0) {
-                        idx = 0x15;
+        D_80033F10 = heapAlloc(0x140 * sizeof(Vtx));
+        allMedals = flagCountRange(0x1FD, 0x28, 0) == 0x28;
+        vtxIndex = 0;
+        for (row = 0; row < 5; row++) {
+            for (col = 0; col < 8; col++) {
+                colorIndex = row * 9;
+                for (edge = 0; edge < 4; edge++) {
+                    if (allMedals != 0) {
+                        colorIndex = 0x15;
                     }
-                    D_80033F10[n].v.ob[0] = (j * 30 + 40) << 2;
-                    D_80033F10[n].v.ob[1] = (D_80033220[k] + r * 30 + 0x2D) << 2;
-                    D_80033F10[n].v.ob[2] = -0xA;
-                    D_80033F10[n].v.tc[0] = (j * 30) << 6;
-                    D_80033F10[n].v.tc[1] = (D_80033220[k] + r * 30) << 6;
-                    D_80033F10[n].v.cn[0] = D_80033228[idx];
-                    D_80033F10[n].v.cn[1] = D_80033228[idx + 1];
-                    D_80033F10[n].v.cn[2] = D_80033228[idx + 2];
-                    D_80033F10[n].v.cn[3] = 0xFF;
-                    D_80033F10[n].v.flag = 0;
-                    n++;
-                    D_80033F10[n].v.ob[0] = (j * 30 + 70) << 2;
-                    D_80033F10[n].v.ob[1] = (D_80033220[k] + r * 30 + 0x2D) << 2;
-                    D_80033F10[n].v.ob[2] = 0x16;
-                    D_80033F10[n].v.tc[0] = (j * 30 + 30) << 6;
-                    D_80033F10[n].v.tc[1] = (D_80033220[k] + r * 30) << 6;
-                    D_80033F10[n].v.cn[0] = D_80033228[idx++];
-                    D_80033F10[n].v.cn[1] = D_80033228[idx++];
-                    D_80033F10[n].v.cn[2] = D_80033228[idx];
-                    D_80033F10[n].v.cn[3] = 0xFF;
-                    D_80033F10[n].v.flag = 0;
-                    n++;
-                    idx++;
+                    D_80033F10[vtxIndex].v.ob[0] = (col * 30 + 40) << 2;
+                    D_80033F10[vtxIndex].v.ob[1] = (D_80033220[edge] + row * 30 + 0x2D) << 2;
+                    D_80033F10[vtxIndex].v.ob[2] = -0xA;
+                    D_80033F10[vtxIndex].v.tc[0] = (col * 30) << 6;
+                    D_80033F10[vtxIndex].v.tc[1] = (D_80033220[edge] + row * 30) << 6;
+                    D_80033F10[vtxIndex].v.cn[0] = D_80033228[colorIndex];
+                    D_80033F10[vtxIndex].v.cn[1] = D_80033228[colorIndex + 1];
+                    D_80033F10[vtxIndex].v.cn[2] = D_80033228[colorIndex + 2];
+                    D_80033F10[vtxIndex].v.cn[3] = 0xFF;
+                    D_80033F10[vtxIndex].v.flag = 0;
+                    vtxIndex++;
+                    D_80033F10[vtxIndex].v.ob[0] = (col * 30 + 70) << 2;
+                    D_80033F10[vtxIndex].v.ob[1] = (D_80033220[edge] + row * 30 + 0x2D) << 2;
+                    D_80033F10[vtxIndex].v.ob[2] = 0x16;
+                    D_80033F10[vtxIndex].v.tc[0] = (col * 30 + 30) << 6;
+                    D_80033F10[vtxIndex].v.tc[1] = (D_80033220[edge] + row * 30) << 6;
+                    D_80033F10[vtxIndex].v.cn[0] = D_80033228[colorIndex++];
+                    D_80033F10[vtxIndex].v.cn[1] = D_80033228[colorIndex++];
+                    D_80033F10[vtxIndex].v.cn[2] = D_80033228[colorIndex];
+                    D_80033F10[vtxIndex].v.cn[3] = 0xFF;
+                    D_80033F10[vtxIndex].v.flag = 0;
+                    vtxIndex++;
+                    colorIndex++;
                 }
             }
         }
-        D_80033258 = flag;
+        D_80033258 = allMedals;
     }
     if (D_800330D8 != 0) {
         if (*pSlideY == -0x3E8) {
@@ -614,15 +601,15 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
 
     gDPPipeSync(g++);
     gSPDisplayList(g++, D_1000118);
-    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
-    gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x03024000);
+    gDPSetCycleType(g++, G_CYC_2CYCLE);
+    gDPSetRenderMode(g++, G_RM_NOOP, G_RM_OPA_SURF2);
     gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
     gSPMatrix(g++, D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    guTranslateF(mf, 8.0f, (f32) *pSlideY, 0.0f);
+    guTranslateF(mf, 8.0f, *pSlideY, 0.0f);
     guMtxF2L(mf, &D_800330D0[gGfxBufferIndex]);
     gSPMatrix(g++, &D_800330D0[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 12, 2, 0);
+    gDPSetTextureFilter(g++, G_TF_POINT);
     tex = texCacheFindOrLoad(0xA3);
     v = D_80033F10;
     i = 0;
@@ -648,10 +635,10 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
         }
     }
     gDPPipeSync(g++);
-    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0);
+    gDPSetCycleType(g++, G_CYC_1CYCLE);
     gDPSetCombine(g++, 0x119623, 0xFF2FFFFF);
     gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-    gSPSetOtherMode(g++, G_SETOTHERMODE_H, 12, 2, 0x2000);
+    gDPSetTextureFilter(g++, G_TF_BILERP);
     tex = texCacheFindOrLoad(0xA2);
     gDPLoadTextureBlock(g++, tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP | G_TX_NOMIRROR,
                         G_TX_WRAP | G_TX_NOMIRROR, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
@@ -664,7 +651,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     if (allCollected != 0 && (gFrameCounter & 0x1F) < 20) {
         tex = texCacheFindOrLoad(0x44);
         gDPSetPrimColor(g++, 0, 0, 0, 0xFF, 0, 0xFF);
-        gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x504240);
+        gDPSetRenderMode(g++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPLoadTextureBlock(g++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP | G_TX_NOMIRROR,
                             G_TX_WRAP | G_TX_NOMIRROR, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
         gSP2Triangles(g++, 16, 17, 18, 0, 16, 18, 19, 0);
