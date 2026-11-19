@@ -176,9 +176,9 @@ f32 D_807539C0[7] = { 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f };
 s16 D_807539DC[8] = { 15, 15, 15, 15, 15, 15, 15, 0 };
 s16 D_807539EC[8] = { 500, 500, 500, 500, 500, 500, 500, 0 };
 s16 D_807539FC[8] = { 128, 128, 128, 128, 128, 128, 128, 0 };
-// 89250 reads it as D_80753A08[actorType] (absolute label in undefined_syms.us.txt)
+// 89250 reads it as D_80753A0C[actor->actorType - 2]
 s16 D_80753A0C[8] = { 18, 12, 12, 10, 18, 18, 8, 0 };
-// 89250 reads it as D_80753A18[actorType] (absolute label in undefined_syms.us.txt)
+// 89250 reads it as D_80753A1C[actor->actorType - 2]
 s16 D_80753A1C[8] = { 18, 12, 12, 2, 50, 18, 8, 0 };
 s16 D_80753A2C[8] = { 20, 20, 20, 20, 20, 20, 20, 0 };
 s16 D_80753A3C[8] = { 14, 7, 10, 8, 18, 18, 6, 0 };
