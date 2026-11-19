@@ -26,8 +26,6 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
 
-
-
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
@@ -76,7 +74,7 @@ u8 bossPickWaypointStep(BossScriptState *scriptState, BossWaypointState *waypoin
     u8 start_val;
 
     val = waypoints->current;
-    min_dist = 0x98967F;
+    min_dist = 9999999;
     start_val = val;
     for (i = 0; i < 16; i++) {
         dists[i] = (gBehaviourZone->entries[i].x - gPrimaryPlayerActor->x) * (gBehaviourZone->entries[i].x - gPrimaryPlayerActor->x) + (gBehaviourZone->entries[i].z - gPrimaryPlayerActor->z) * (gBehaviourZone->entries[i].z - gPrimaryPlayerActor->z);
@@ -172,10 +170,7 @@ void bossSpawnPuffDebris(void) {
 
 void csModelStateSetFirstByte(s16, u8); // ORIG: target sign-extends the model index (sll a0,v0,0x10 / sra t0,a0,0x10 at 0x824-0x828) but passes stateByte as a plain lbu a1,39(sp) at 0x81c (the shared (s16, s16) prototype adds sll/sra of a1 there): the original TU declared an unsigned narrow second parameter
 
-void bossSetRandomObjectPair(waypoints, stateByte)
-BossWaypointState *waypoints;
-u8 stateByte;
-{
+void bossSetRandomObjectPair(BossWaypointState *waypoints, u8 stateByte) {
     u8 idx;
     u8 val;
     if (stateByte) {
@@ -219,8 +214,7 @@ void bossSpawnObjectAtWaypoint(BossWaypointState *waypoints) {
 s32 bossCheckPlayerBelow(BossScriptState *scriptState, const u8 *scriptOpcodes) {
     if ((gPrimaryPlayerActor->y < (gCurrentActor->y - 10.0f)) && (scriptState->phase < 5)) {
         scriptState->scriptPos = scriptState->loopPos;
-        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
         gCurrentActor->unk155 = 0;
         actorScriptStart(gCurrentActor, 0);
         return 1;
@@ -307,10 +301,10 @@ void bossMainStep(void) {
             gCurrentActor->state = 0x1E;
             gCurrentActor->unk155 = 0;
             gCurrentActor->y += 650.0f;
-            gCurrentActor->flags &= 0xFFFF7FFF;
+            gCurrentActor->flags &= ~0x8000;
             waypoints->current = 0xF;
         }
-        gCurrentActor->contactFlags &= 0xFFFE;
+        gCurrentActor->contactFlags &= ~1;
         gCurrentActor->accelY = D_807502F0;
         gCurrentActor->terminalSpeedY = D_807502DC;
     }
@@ -461,7 +455,7 @@ void bossMainStep(void) {
             }
             break;
         case 11:
-            gCurrentActor->contactFlags &= 0xFFFE;
+            gCurrentActor->contactFlags &= ~1;
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gCurrentActor, 0x22C);
                 gCurrentActor->unk155++;
@@ -471,8 +465,7 @@ void bossMainStep(void) {
             camSetSecondTarget(gCamActor, gBehaviourZone->entries[17].x, gBehaviourZone->entries[17].z);
             scriptState->phase = 0;
             scriptState->scriptPos = 0;
-            gCurrentActor->state = tbl[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            gCurrentActor->state = tbl[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;
             waypoints->previous = 5;
             break;
@@ -490,8 +483,7 @@ void bossMainStep(void) {
         case 3:
             if (gPrimaryPlayerActor->state != 0x33) {
                 scriptState->scriptPos = scriptState->loopPos;
-                gCurrentActor->state = tbl[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gCurrentActor->state = tbl[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -520,7 +512,7 @@ void bossMainStep(void) {
             } else {
                 v = 0x17;
             }
-            if ((f32)(s32)v <= gCurrentActor->sub4->model->frame) {
+            if ((f32)(s32)v <= gCurrentActor->sub4->model->frame) { // FAKE: v (case 5's unk18[0] counter copy) reused for the hit frame 0x35/0x17; a separate u8 or s32 local in any declaration slot changes regalloc
                 gCurrentActor->contactFlags |= 1;
             } else {
                 gCurrentActor->contactFlags = 0;
@@ -540,8 +532,7 @@ void bossMainStep(void) {
                 bossSetAnimationByWaypoint(waypoints);
                 gCurrentActor->unk155 = 1;
             } else {
-                gCurrentActor->state = tbl[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gCurrentActor->state = tbl[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -629,8 +620,7 @@ void bossMainStep(void) {
                 gCurrentActor->unk155 = 0xA;
                 break;
             case 11:
-                gCurrentActor->state = tbl[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gCurrentActor->state = tbl[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
                 break;
             }
@@ -672,8 +662,7 @@ void bossMainStep(void) {
             scriptState->scriptPos = 0;
             scriptState->phase++;
             tbl = gBossWaypointPhaseScripts[scriptState->phase];
-            gCurrentActor->state = tbl[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            gCurrentActor->state = tbl[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -681,7 +670,7 @@ void bossMainStep(void) {
     case 0x29:
         switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->flags &= 0xFFFF7FFF;
+            gCurrentActor->flags &= ~0x8000;
             actorScriptStart(gCurrentActor, 0x231);
             scriptState->unk8[0] = (s8)tbl[scriptState->scriptPos++];
             gCurrentActor->unk155++;
@@ -700,8 +689,7 @@ void bossMainStep(void) {
             bossAdjustHealth(scriptState->unk8[0]);
             break;
         case 5:
-            gCurrentActor->state = tbl[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            gCurrentActor->state = tbl[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -718,8 +706,7 @@ void bossMainStep(void) {
                 gBehaviourWorkState->timer--;
             } else {
                 scriptState->scriptPos = scriptState->loopPos;
-                gCurrentActor->state = tbl[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gCurrentActor->state = tbl[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
             }
             break;

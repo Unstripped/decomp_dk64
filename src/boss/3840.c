@@ -22,16 +22,18 @@
 #include "proto/global/3C10.h"
 #include "proto/global/450.h"
 #include "proto/global/90D80.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/AA960.h"
 #include "proto/global/A7710.h"
 #include "proto/global/FCCD0.h"
 #include "proto/global/7130.h"
 
 typedef struct {
     u8 map;
-    u8 unk1;
+    u8 pad1;
     s16 flag;
     u8 stage;
-    u8 unk5;
+    u8 nextStage;
 } BossB_Struct_800359D0;
 
 s16 D_800359A0[5] = { 4, 3, 6, 20, 4 };
@@ -267,7 +269,7 @@ patrol:
         didLoop = 1;
         break;
     case 0x68:
-        gBehaviourWorkState->flags &= 0xFFEF;
+        gBehaviourWorkState->flags &= ~0x10;
         didLoop = 1;
         break;
     case 0x65:
@@ -352,27 +354,24 @@ void bossClearMinigame(void) {
     mapTransitionToMenuOrPrevious();
 }
 
-void sfxAllocateChannel(s32, f32);
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
-
 extern void *gPuffSprites[];
 
-void bossSpawnParticleRing(u16 flag, s16 x, s16 y, s16 z, s16 unkRot, u8 unkScale) {
-    s16 s0;
+void bossSpawnParticleRing(u16 flag, s16 x, s16 y, s16 z, s16 yaw, u8 initialState) {
+    s16 i;
 
     sfxAllocateChannel(0x36, 1.0f);
-    if (flagGet((s16)flag, 0) != 0) {
+    if (flagGet(flag, 0) != 0) {
         bossClearMinigame();
         return;
     }
-    for (s0 = 0; s0 < 6; s0++) {
+    for (i = 0; i < 6; i++) {
         effectSetCallback(effectWispHomeUpdate);
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetSpeed((s32)gBehaviourTargetActor);
         effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->x, gBehaviourTargetActor->y + (f32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z);
     }
-    actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
+    actorSpawnNodeEntryScaled(0x48, x, y, z, yaw, initialState, (s16)flag, 0);
 }
 
 
@@ -455,7 +454,7 @@ void bossRoundFrame(const u8 *script) {
     if (!(BOSS_ACTOR->base.flags & 0x10)) {
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(2, 0, 1);
-        BOSS_ACTOR->base.flags &= 0xFFFDFFFF;
+        BOSS_ACTOR->base.flags &= ~0x20000;
         if ((scriptState->phase == 0) || (BOSS_ACTOR->base.actorType != 0x126)) {
             if (flagGet(0x5A, 2) == 0) {
                 healthRefill(0);
@@ -493,8 +492,7 @@ void bossRoundFrame(const u8 *script) {
         if ((scriptState->phase != 0) && (BOSS_ACTOR->base.actorType == 0x126)) {
             hudCountdownTimerResume(BOSS_ACTOR->base.parentActor);
         }
-        BOSS_ACTOR->base.state = script[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        BOSS_ACTOR->base.state = script[scriptState->scriptPos++];
         BOSS_ACTOR->base.unk155 = 0;
         break;
     default:
@@ -549,18 +547,18 @@ void bossRoundFrame(const u8 *script) {
         if (sound->targetVolume - 0x3E8 < 0x1D4C) {
             sound->targetVolume = 0x1D4C;
         } else {
-            sound->targetVolume = sound->targetVolume - 0x3E8;
+            sound->targetVolume -= 0x3E8;
         }
     } else {
         if (sound->curVolume - 0x64 < 0x1F40) {
             sound->curVolume = 0x1F40;
         } else {
-            sound->curVolume = sound->curVolume - 0x64;
+            sound->curVolume -= 0x64;
         }
         if (sound->curVolume < sound->targetVolume + 0x3E8) {
             sound->targetVolume = sound->curVolume;
         } else {
-            sound->targetVolume = sound->targetVolume + 0x3E8;
+            sound->targetVolume += 0x3E8;
         }
     }
     n_alSndpPostEvent(sound->sndHandleA, 8, sound->targetVolume);
@@ -582,9 +580,9 @@ void bossRoundFrame(const u8 *script) {
         if (sound->curVolume + 0x4650 >= 0x8000) {
             sound->curVolume = 0x7FFF;
         } else {
-            sound->curVolume = sound->curVolume + 0x4650;
+            sound->curVolume += 0x4650;
         }
-        sound->flags &= 0xFFE0;
+        sound->flags &= ~0x1F;
     }
     if (sound->flags & 8) {
         if ((gScheduler.unk280 - sound->lastTick) >= 6U) {
@@ -595,7 +593,7 @@ void bossRoundFrame(const u8 *script) {
             switch (sound->stepCount) {
             case 0x3E:
                 sound->stepCount = 0;
-                sound->flags &= 0xFFF7;
+                sound->flags &= ~8;
             case 1:
             case 0x10:
             case 0x1D:
@@ -608,7 +606,7 @@ void bossRoundFrame(const u8 *script) {
         if (sound->curVolume + 0x4650 >= 0x8000) {
             sound->curVolume = 0x7FFF;
         } else {
-            sound->curVolume = sound->curVolume + 0x4650;
+            sound->curVolume += 0x4650;
         }
     }
     if ((scriptState->unk12 & 1) && (hudCanRender() != 0)) {
@@ -617,12 +615,7 @@ void bossRoundFrame(const u8 *script) {
 }
 
 
-void actorSetNodeFlag(void *, s32);
-void actorClearNodeFlag(void *, s32);
-
-void bossSetCannonsVisible(enable)
-u8 enable;
-{
+void bossSetCannonsVisible(u8 enable) {
     if (enable) {
         actorSetNodeFlag(gCurrentActor, 2);
         actorSetNodeFlag(gCurrentActor, 3);
@@ -639,7 +632,7 @@ void bossUpdateStageState(s16 *outStage) {
     }
     if (D_800359D0[i].map != 0 && D_800359D0[i].stage == *outStage) {
         if (flagGet(D_800359D0[i].flag, 2) != 0) {
-            *outStage = D_800359D0[i].unk5;
+            *outStage = D_800359D0[i].nextStage;
         }
     }
 }

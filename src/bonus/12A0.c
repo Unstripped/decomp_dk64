@@ -39,11 +39,6 @@ typedef struct LB3Obj {
     struct EffectNode *effect;
 } LB3Obj;
 
-typedef struct LB3Player {
-    u8 pad0[0x104];
-    void *cam;
-} LB3Player;
-
 typedef struct BonusEObj {
     Actor *controller;
     s16 spinSpeed;
@@ -105,8 +100,8 @@ void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
 
 
 void bonusReelNextRound(LB3Obj *obj) {
-    LB3Player *player = gPrimaryPlayerActor->customState;
-    camSetTarget(player->cam, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
+    PlayerState *player = gPrimaryPlayerActor->customState;
+    camSetTarget(player->camActor, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     gCurrentActor->state = 3;
     gCurrentActor->unk155 = 1;
     gCurrentActor->yawSpeed = 0;
@@ -133,7 +128,7 @@ extern struct GfSndState *gSfxFreeSlotHandles[];
 extern u8 D_80720CF0;
 
 void bonusReelGameUpdate(void) {
-    LB3Player *player;
+    PlayerState *player;
     LB3Obj *obj;
     u8 i;
     s32 startHits;
@@ -153,7 +148,7 @@ void bonusReelGameUpdate(void) {
         obj->act[2] = bonusSpawnReel(0x92, 7, 1, 0x12);
         obj->act[3] = bonusSpawnReel(0x93, 0x15, 1, 0x12);
         playerStateQueueCallback(0x49, 0, 0);
-        camSetTargetScaled(player->cam, gPrimaryPlayerActor, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
+        camSetTargetScaled(player->camActor, gPrimaryPlayerActor, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
         camStartPath(0, 1, 1);
         switch (gCurrentMap) {
         case 0x20:
@@ -234,9 +229,9 @@ void bonusReelGameUpdate(void) {
             obj->spinPhase += obj->spinStep;
             if (obj->spinPhase >= 0x800) {
                 obj->spinStep = -0x40;
-                bonusInitActors(obj, (u32)((f32)obj->firstRoundSpeed + (f32)(obj->lastRoundSpeed - obj->firstRoundSpeed) * ((f32)(obj->hitsLeft - 1) / (startHits - 1))));
+                bonusInitActors(obj, obj->firstRoundSpeed + (obj->lastRoundSpeed - obj->firstRoundSpeed) * ((f32)(obj->hitsLeft - 1) / (startHits - 1)));
                 gCurrentActor->soundSlots[0] = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                camSetTarget(player->cam, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
+                camSetTarget(player->camActor, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->spinPhase < 0x400) {
                 gCurrentActor->state = 5;
                 gCurrentActor->unk155 = 0;

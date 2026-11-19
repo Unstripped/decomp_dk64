@@ -39,7 +39,7 @@ void bossResetAudioChannels(void);
 void bossRoundFrame(const u8 *);
 #endif
 #ifndef PROTO_SKIP_bossSetCannonsVisible
-void bossSetCannonsVisible();
+void bossSetCannonsVisible(u8);
 #endif
 #ifndef PROTO_SKIP_bossUpdateStageState
 void bossUpdateStageState(s16 *);

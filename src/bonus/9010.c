@@ -30,7 +30,7 @@ typedef struct BonusScoreHud { // customState of the bonus-game score HUD actor
     u8 scoreLabel;
     s16 timeLimit;
     u8 rollTimer;
-    u8 unk7;
+    u8 pad7;
     s16 shownScore;
     s16 score;
     u8 lapBonusTimer;

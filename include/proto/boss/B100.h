@@ -2,6 +2,7 @@
 #ifndef PROTO_BOSS_B100_H
 #define PROTO_BOSS_B100_H
 #include "common.h"
+#include "actor.h"
 #ifndef PROTO_SKIP_bossDogadonStep
 void bossDogadonStep(void);
 #endif
@@ -18,7 +19,7 @@ void bossActorGroupCommand();
 void func_8002FDF8(void *, u8);
 #endif
 #ifndef PROTO_SKIP_bossKRoolTinySpawnMinion
-void bossKRoolTinySpawnMinion();
+void bossKRoolTinySpawnMinion(Actor **, u8, s32);
 #endif
 #ifndef PROTO_SKIP_bossKRoolTinyStep
 void bossKRoolTinyStep(void);

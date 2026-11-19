@@ -1036,7 +1036,7 @@ void bossArmydilloStep(void) {
             effectSpawnJointBeam(9, 0xB, 0xC, 0xC);
             break;
         case 3:
-            effectSpawnBoneWhite(gCurrentActor, ((randomNonNegative() >> 0xF) % 32767 % 20) + 9, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
+            effectSpawnBoneWhite(gCurrentActor, ((randomNonNegative() >> 15) % 32767 % 20) + 9, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->callbackMask = -1;
                 gCurrentActor->state = scriptData[state->scriptPos++];

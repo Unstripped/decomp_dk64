@@ -17,7 +17,7 @@ void bossInterpolateWaypoints(struct BossWaypointState *, f32);
 void bossSpawnPuffDebris(void);
 #endif
 #ifndef PROTO_SKIP_bossSetRandomObjectPair
-void bossSetRandomObjectPair();
+void bossSetRandomObjectPair(struct BossWaypointState *, u8);
 #endif
 #ifndef PROTO_SKIP_bossSpawnObjectAtWaypoint
 void bossSpawnObjectAtWaypoint(struct BossWaypointState *);

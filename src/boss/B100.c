@@ -6,13 +6,24 @@
 #include "proto/boss/B100.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
 #include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
 #include "proto/global/35000.h"
 #include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
 #include "proto/global/8CA50.h"
+#include "proto/global/936B0.h"
+#include "proto/global/A7710.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 extern const u8 D_800368C0[34];
 extern const u8 D_800368E4[20];
@@ -35,14 +46,6 @@ typedef struct BossKRoolTinyActor {
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
-s32 actorSpawn(s32, s32);
-void actorCopyPoseAndScale(void *, void *, f32);
-void actorScriptStart(void *, s32);
-void sfxPlayAtFBD6CPosition(void);
-
-
-
-
 extern Actor *gPrimaryPlayerActor;
 
 // Dogadon actor: component 2 (0x178) is the script state.
@@ -52,24 +55,6 @@ typedef struct BossDogadonActor {
 } BossDogadonActor;
 
 extern PlayerStruct *gPlayerSlots;
-
-
-void behaviourFrameBegin(void);
-void camSetSecondTarget(Actor *, s16, s16);
-void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
-u16 camStartPath(void *, s16, u8);
-void hudCountdownTimerSaveElapsed(void *);
-void playerWaypointPathStartLineFromActor(Actor *, s16, s16, u8);
-void csSendActorMessagePayload(s16, s16);
-void playerSetSizeMode(Actor *, u8);
-u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-void actorSetTargetSpeed(void *, s32);
-s16 mathAngleEaseToward(s16, s16, f32);
-void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void scriptSetActorRampTarget(void *, f32, f32);
-s32 currentActorTestClearFlag(void);
-void behaviourUpdateShadowAlpha(void);
 
 #define DOGADON_ACTOR ((BossDogadonActor *)gCurrentActor)
 
@@ -131,8 +116,7 @@ void bossDogadonStep(void) {
                     csSendActorMessagePayload(0, 0);
                 }
                 actorScriptStart(gCurrentActor, 0x3FF);
-                gBehaviourWorkState->timer = scriptOpcodes[scriptState->scriptPos] * 0x1E;
-                scriptState->scriptPos++;
+                gBehaviourWorkState->timer = scriptOpcodes[scriptState->scriptPos++] * 0x1E;
                 gCurrentActor->unk155++;
                 break;
             case 1:
@@ -149,8 +133,7 @@ void bossDogadonStep(void) {
                 }
                 csSendActorMessagePayload(0, 0xFF);
                 actorScriptStart(gCurrentActor, 0x3E4);
-                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
                 break;
             }
@@ -161,8 +144,7 @@ void bossDogadonStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
-            scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155++;
             /* fallthrough */
         case 1:
@@ -194,8 +176,7 @@ void bossDogadonStep(void) {
             } else {
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
                 actorScriptStart(gCurrentActor, 0x3E4);
-                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -204,8 +185,7 @@ void bossDogadonStep(void) {
     case 0x1E:
         scriptState->phase = 0;
         scriptState->scriptPos = 0;
-        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
         gCurrentActor->unk155 = 0;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         break;
@@ -216,8 +196,7 @@ void bossDogadonStep(void) {
             gCurrentActor->unk155++;
             break;
         case 2:
-            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -233,8 +212,7 @@ void bossDogadonStep(void) {
             break;
         case 2:
             actorScriptStart(gCurrentActor, 0x3E4);
-            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -282,16 +260,14 @@ u8 scaleFactor;
     sub->y = sub->x;
     sub->z = 1.0f;
 }
-void func_8002FC48(actorObj, frame)
-Actor *actorObj;
+void func_8002FC48(actor, frame)
+Actor *actor;
 u8 frame;
 {
-    animSetLoopLimit(actorObj, 0, 1);
-    animSetFinished(actorObj, 0, 1);
-    animSetFrameAndSubframe(actorObj, 0, frame, 0.0f);
+    animSetLoopLimit(actor, 0, 1);
+    animSetFinished(actor, 0, 1);
+    animSetFrameAndSubframe(actor, 0, frame, 0.0f);
 }
-
-void scriptSetActorRampTarget(void *, f32, f32);
 
 void bossActorGroupCommand(leader, mask, command, param)
 BossKRoolTinyActor *leader;
@@ -328,7 +304,7 @@ u8 param;
 }
 
 
-void func_8002FDF8(void *actorObj, u8 scaleVal) {
+void func_8002FDF8(void *leader, u8 scaleVal) {
     s32 finalScale;
     s32 animFrame;
 
@@ -339,7 +315,7 @@ void func_8002FDF8(void *actorObj, u8 scaleVal) {
     }
     func_8002FB7C(finalScale & 0xFF);
     if (gActorGlobalState.bossFightPhase == 4) {
-        bossActorGroupCommand(actorObj, 0xF, 0, 0);
+        bossActorGroupCommand(leader, 0xF, 0, 0);
         animFrame = (0xA - gCurrentActor->health) & 0xFF;
         func_8002FC48(gCurrentActor, animFrame);
         actorScriptStart(gCurrentActor, 0x415);
@@ -349,11 +325,7 @@ void func_8002FDF8(void *actorObj, u8 scaleVal) {
     }
 }
 
-void bossKRoolTinySpawnMinion(minions, slotIndex, modelId)
-Actor **minions;
-u8 slotIndex;
-s32 modelId;
-{
+void bossKRoolTinySpawnMinion(Actor **minions, u8 slotIndex, s32 modelId) {
     actorSpawn(0xE5, modelId);
     actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
     gSpawnedActor->flags |= 0x1400;
@@ -367,10 +339,6 @@ s32 modelId;
 #define KROOL_TINY_ACTOR ((BossKRoolTinyActor *)gCurrentActor)
 
 extern PlayerState *gActivePlayerState;
-
-void actorScriptStartByIndex(void *, s32);
-void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
-
 
 void bossKRoolTinyStep(void) {
     BossScriptState *scriptState;

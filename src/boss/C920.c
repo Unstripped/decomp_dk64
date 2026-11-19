@@ -232,8 +232,7 @@ void bossKRoolChunkyStep(void) {
                     scriptState->scriptPos = scriptState->loopPos;
                 }
                 bossKRoolChunkyResetPhase(scriptState);
-                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-                scriptState->scriptPos++;
+                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
                 actorScriptStart(gCurrentActor, 0x3E4);
                 bossKRoolChunkyPlayTauntSfx();
@@ -243,8 +242,7 @@ void bossKRoolChunkyStep(void) {
         break;
     case 0x28:
         bossKRoolChunkyPlayTauntSfx();
-        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
         gCurrentActor->unk155 = 0;
         break;
     case 0x27:
@@ -278,8 +276,7 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->yaw += 0x800;
             gCurrentActor->moveYaw = gCurrentActor->yaw;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
-            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -287,8 +284,7 @@ void bossKRoolChunkyStep(void) {
     case 0x1E:
         scriptState->phase = 0;
         scriptState->scriptPos = 0;
-        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-        scriptState->scriptPos++;
+        gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
         gCurrentActor->unk155 = 0;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         break;
@@ -299,8 +295,7 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->unk155++;
             break;
         case 2:
-            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
-            scriptState->scriptPos++;
+            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;
             break;
         }
