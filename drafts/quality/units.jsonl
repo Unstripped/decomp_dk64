@@ -1260,3 +1260,4 @@
 {"type": "unit", "t": "2026-11-19T07:49:53Z", "unit": "2026-11-18c: cleanup CleancsCmdExecb", "commit": "ab72c1b5778e0fcd506b1c911a7b11198f12027a"}
 {"type": "unit", "t": "2026-11-19T07:55:27Z", "unit": "2026-11-18c: cleanup CleangfxDrawMapBackgroundc", "commit": "a05ab709c9d885d01744c7ed6ea1add46b2c5d93"}
 {"type": "unit", "t": "2026-11-19T07:58:45Z", "unit": "2026-11-18c: cleanup CleandlAppendTextureLoadc", "commit": "de5010ed9f5e8e9af905782d540c4dd3b6719661"}
+{"type": "unit", "t": "2026-11-19T08:00:59Z", "unit": "2026-11-18c: cleanup Polishglobal936B0b", "commit": "80dbb033aaa0ff065ffabf3b2e93ae5881bb73d2"}
