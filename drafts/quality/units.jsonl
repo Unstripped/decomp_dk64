@@ -1253,3 +1253,4 @@
 {"type": "unit", "t": "2026-11-19T07:34:05Z", "unit": "2026-11-18c: cleanup CleancamComputeEyeFocusc", "commit": "7fb14806ada9056967313625681de2a127e403f8"}
 {"type": "unit", "t": "2026-11-19T07:34:37Z", "unit": "2026-11-18c: cleanup CleanenemyAggroStateUpdateb", "commit": "ce559b5a422ffe75d7f91b67a9c007c23803937c"}
 {"type": "unit", "t": "2026-11-19T07:35:08Z", "unit": "2026-11-18c: cleanup CleanmenuHandleHighScoreNameEntryInput", "commit": "4dd5b9307b1e02cd8d7f7c418b4f142e85a0fd1e"}
+{"type": "unit", "t": "2026-11-19T07:40:05Z", "unit": "2026-11-18c: cleanup CleanmapChunkEmitLayerDisplayListsc", "commit": "ac5bb76904f814479682ad96b33e7838326dcb02"}

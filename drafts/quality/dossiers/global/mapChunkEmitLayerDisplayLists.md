@@ -1,5 +1,6 @@
 # mapChunkEmitLayerDisplayLists (global, src/global/55B20.c)
 ## Sites
+All four sites were removed on 2026-11-18c by a natural reconstruct (fdiff 0, no FAKE; see Attempts). The site notes below describe the retired steers.
 Terms below use the compute_save formula (36880, 2026-11-18 queue): adjsave = sum((loads + stores) * freq) / bucket(live units), bucket(n) = n for n <= 2, else ((n - 2) >> 2) + 2; freq 10 in the cell loop; an exact tie goes to the lower candidate bit.
 - global:80656B98:do-while0:f1ca28 do-while0: the Gfx * parameter p is reused as the MapChunkCell * cell pointer (Q0531). The parameter web is live in the entry blocks, where a1 (chunk) and a2 (layer) arrive, so a0-a2 are forbidden and the cell pointer gets a3 (`addu a3,a1,t9`; `lh a0,0(a3)`; `lbu t4,2(a3)`). A fresh cell local scores 30 / bucket(9 units) = 10.0. That is above the e38ff4 ghost's 20 / bucket(6) = 6.67, so the cell is coloured first and takes the lowest free register, a2. The joined line `node = gMapCells; p = ...; do {` is part of this steer. It keeps `lh a0` before `lw v0`, but the swapped order on the same line scores 7, so it has no LAYOUT evidence (the tag was reworded to FAKE on 2026-11-18).
 - global:80656B98:dead-if:e38ff4 dead-if: `if (*(u32 *)&gMapCells == 0) {}`. Any dead read of an unrelated integer global works (gMapCellCount scores 3 in the fresh-cell body, the same as gMapCells). PRE places its uilod in the search preheader (block 21), so it is live over blocks 21..26: 2 points * 10 / bucket(6) = 6.67. It takes a2 with no code. Its empty-if blocks add two loop units to i (14.2 -> 11.83) and to layer*4 (6.2 -> 5.17). Layer counts 19 units in the natural body (12 / bucket(19) = 2.0). The ghost alone (n0_g) or 1bc6dd alone (n0_b) gives 21 units, still 2.0, a tie that layer wins on its lower bit (s8). Both together give 23 units, 12 / bucket(7) = 1.71: inferred, because the trace prints only the split pieces, but consistent with the base colouring layer after the -1. That is below the -1 constant's 10 / bucket(17) = 2.0, so -1 takes s8 and layer is split and left on the stack (`lbu ...,75(sp)` x3).
@@ -69,10 +70,27 @@ Terms below use the compute_save formula (36880, 2026-11-18 queue): adjsave = su
   - The best output only re-inserts a dead test on an array address, `if (!gMapChunks[chunk].cells[i].dl) {}`, between the visible and mask tests. As C that is 41 lines; `!cell->dl` 75; before the visible test 97.
   - The 330 output adds a value-named zero local and `if (!_g) {}`.
 
+2026-11-18c (session 2026-11-18c) CleanmapChunkEmitLayerDisplayListsc anthropic/claude-opus-5-5 (variants.py try, full diff lines; traces in .scratch/CleanmapChunkEmitLayerDisplayListsc/t5_*.txt, t6_*.txt):
+- **Fixed: natural body, fdiff 0, no FAKE.** Parameter named `gfx` (no `gfx = p` copy); loop body nested under `if (gMapChunks[chunk].cells[i].dl[layer] != -1)`; index search `found = 0; j = 0; do { if (gMapCells[j].id == gMapChunks[chunk].cells[i].id) found = 1; else j++; } while (found == 0);`; one test `gMapCells[j].visible && (gMapChunks[chunk].cells[i].layerMask & (1 << layer))`; no cell or node local.
+- **How it matches:**
+  - Parameter-named gfx + nesting: gfx 15.11 (s0) > `_g` temps 15.0; i 14.2 (s3); layer -6.0 uncoloured; -1 2.5 (s8). This retires 1bc6dd and 5f4853.
+  - Index search: j (cand 77, 10.0) is coloured a2, then IV elimination leaves only its `move a2,zero` record (j = 0), which as1 deletes. This retires the e38ff4 ghost.
+  - No cell local: PRE hoists the cells[i] address (cand 85, 10.0, loses the tie to j on the bit) into a3, after the IV init `lw v0,gMapCells` in ugen's stream. So as1 hoists `lui v0` above the dl beq and puts `lh a0` before `lw v0`. This retires f1ca28 and its joined line.
+  - `==` operand order: with both operands written as array reads, the source order decides. `gMapCells[j].id` first gives the target's `bnel t2,a0`; `cells[i].id` first gives `bnel a0,t2` (8). With a `cell` pointer local, both source orders give `bnel a0,t2` (8 each). `cell->id == (gMapCells + j)->id` gives `bnel t2,a0` (7, with the preheader order still wrong).
+- **Index search with a fresh `MapChunkCell *cell`:** 8 (only the preheader order and the bnel operands). The PRE-hoisted `lw gMapCells` lands after the cell chain; line joins (all, pairs, with `do {`/the `if`) and all 6 statement orders stay at 8-15. Declaration orders: all 8.
+- **Explicit base pointer + index (`node = gMapCells; node[j]`):** 95-103. The address goes through `lui a1,%hi(gMapCells)`, and cells moves to a2 and the cell pointer to t0. Element pointer in the loop (`node = &gMapCells[j]`): 18. `node = &gMapCells[j]` after the loop: 83. Pointer walk + a j counter: 76 (j dead) / 112 (j read after the loop).
+- **Pointer-walk bodies:**
+  - parameter gfx + nested dl test + `&&`: 75-76. All callee-saved registers match; what is left is cell a2 / &gMapChunks[chunk] a3 / cellCount t0 and the lw/lh order.
+  - with the ghost: 62 (layer s8);
+  - parameter gfx with continues: 111; + `| 0` 83; + `| 0` + ghost 63.
+- **Base-only measurements:**
+  - if/else-if chain for the switch: 19 (104 without the guard);
+  - first packet duplicated into both kind branches: 141/149 (uopt has no head merge);
+  - `register` on gfx or layer: no effect (32 and 99, the same as the plain removals).
+- **Q1230 copy phantoms on the fresh-cell body** (cells copy at the loop top, node copy, `mask = 1 << layer`): 3, copy-propagated. `ch = &gMapChunks[chunk]`: 90. cells copy in the search preheader: 99. An `s32 dl` local for the -1 test: 49.
+
 ## Untried ideas
-- Natural code adding about 4 non-loop units to layer's live range (pushing it to bucket 7) while the -1 stays at 17 units or fewer, for example a real dispatch between `gfx = p` and the first packet. Only dead control flow is known to give one (camFloorSnap map, 2026-11-17f).
-- A natural +16..20 points of gfx in the cell loop with no code (two refs at freq 10). Every cfe-folded spelling loses the ucvt (17f).
-- A cell variable live at function entry without the parameter web. None was found: callers pass three arguments (a3 is never set at 0x5498/0x5558/0x5710/0x57d0), so a fourth parameter is not possible.
+- None for this function: it is hack-free. Lesson for similar search loops: try the index form (`T[j]`) before a pointer walk. An IV-eliminated index is a natural no-code register holder (its `move rN,zero` init is deleted by as1).
 
 ## Evidence
 - Target 0x5efc `addu a3,a1,t9` and 0x5f00 `lh a0,0(a3)` (before `lw v0,gMapCells`), then 0x5f38 `lbu t4,2(a3)`: the cell pointer is in a3, and a2 is unused in the loop (its only use is the entry home store `sw a2,72(sp)` at 0x5da4).
@@ -80,3 +98,5 @@ Terms below use the compute_save formula (36880, 2026-11-18 queue): adjsave = su
 - Target 0x5db8/0x5dbc: the first gDPPipeSync is written through a0; gfx lives in s0 (`addiu s0,a0,8` at 0x5de0). Arm packets use s1 (`move s1,s0` in the switch delay slots 0x5df0-0x5e10).
 - Callee-saved order in the target: gfx s0 > gSPSegment `_g` s1 > gSPDisplayList `_g` s2 > i s3 > layer*4 s4 > chunk*456 s5 > 0xE7000000 s6 > &gMapChunks s7 > -1 s8; layer uncoloured.
 - Base trace: gfx 154 points / 10 = 15.4; `_g` temps 15.0; i 11.83; p web 8.25 (forbidden 1-5,14,17 -> a3); ghost 6.67 (-> a2); -1 2.0 (-> s8); layer split, -9.33 and 0.0, uncoloured.
+- Final trace (2026-11-18c body): j cand 77 adjsave 10.0 -> a2 (5); cells[i] address cand 85 10.0 -> a3 (6); &gMapChunks[chunk] cand 13 8.25 -> t0; cellCount cand 64 5.5 -> t1; gfx parameter 15.11 -> s0; i 14.2 -> s3; -1 2.5 -> s8; layer -6.0 uncoloured.
+- ugen stream of the dl-test fall-through block (as1probe keep): `move $3,$0` (found), `move $6,$0` (j, dead after IV elimination, deleted by as1), `lw $2,gMapCells`, `mul/addu $7` (cells[i]), `lh $4,0($7)`. The base had `lw $6,gMapCells` (the ghost) in place of `move $6,$0`, also deleted by as1.
