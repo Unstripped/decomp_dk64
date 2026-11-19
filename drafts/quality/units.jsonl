@@ -1273,3 +1273,4 @@
 {"type": "unit", "t": "2026-11-19T08:32:56Z", "unit": "2026-11-18c: cleanup CleancsCmdBobbingLightsb", "commit": "9030d53ee704557cd7ccfd52efeb5f1e246e6807"}
 {"type": "unit", "t": "2026-11-19T08:40:24Z", "unit": "2026-11-18c: cleanup CleanplayerWeaponCalculateTrajectory7b", "commit": "dc0d7bc8a0e661602fd9d1ddf5f2ef5d507ca540"}
 {"type": "unit", "t": "2026-11-19T08:41:08Z", "unit": "2026-11-18c: cleanup CleanheapReleasePoolc", "commit": "8f3c0da57f10c035eb944aad8135ad0007d2dc74"}
+{"type": "unit", "t": "2026-11-19T08:42:48Z", "unit": "2026-11-18c: cleanup CleankongChainInitc", "commit": "7de8545d75b7fa679a5256282d15734650b1a50d"}
