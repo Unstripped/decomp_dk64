@@ -1,6 +1,6 @@
 # gfxDrawMapBackground (global, src/global/109660.c)
 ## Sites
-global:80707980:goto:u8a880 / u8a880#2 (`goto fill;` in cases 0xD0 / 0x36): KEPT, Q0591 shared tail (re-verified 2026-11-18 at b83aabe2 and again at 6b1eb78b on the current body, jump-table rows decoded).
+global:80707980:goto:u8a880 / u8a880#2 (`goto fill;` in cases 0xD0 / 0x36): KEPT, Q0591 shared tail (re-verified 2026-11-18 at b83aabe2 and again at 6b1eb78b on the current body, jump-table rows decoded; re-verified 2026-11-19 at 290f8d57 on the body after the 15050 `gDPSetRenderMode(G_RM_NOOP)` tail respelling: same offsets, rows re-read from `.rodata` relocs).
 ## Attempts
 - round 10 (opus): nested-switch fill colour (fdiff 1, +4 insns), permute (no zero).
 - 2026-11-14 HackgfxDrawSkySprite (opus), variants.py try (lines off): if/else-if colour chain in the default arm 204; colour local with a sentinel-guarded fill block after the switch 322.
@@ -19,6 +19,11 @@ global:80707980:goto:u8a880 / u8a880#2 (`goto fill;` in cases 0xD0 / 0x36): KEPT
   - `do { switch (gCurrentMap) { ... } fill tail } while (0);` with the 17 non-fill arm `break`s as `continue` and the colour arms `break`ing into the tail after the switch: full=0 (one shared tail, one exit: the single-level join Q1208 does not cover).
   - all are steers (Q0953/Q1209 Duff, AGENTS do-while(0)); Q1209: a matching Duff form is no evidence against keeping the goto. Both gotos stay goto-hand kept.
   - review re-measures: the 0x1E `(a || b || c) ? 1 : 0` argument as a bare `||`: 19 (load-bearing); `camIsCutsceneActive()` bare: 0 (left as is, ordinary either way).
+- 2026-11-19 "2026-11-18c: cleanup CleangfxDrawMapBackgroundc" CleangfxDrawMapBackgroundc (anthropic/claude-opus-5-5), goto-hand re-run on the current body (stale after the 15050 tail respelling), variants.py try + fdiff:
+  - ONE goto for both colour cases (`case 0xD0: case 0x36: gDPSetFillColor(dl++, (gCurrentMap == 0xD0) ? 0xFFFFFFFF : 0xFFC1FFC1); goto fill;`): full=18. `&gCurrentMap` is CSE-d into v1 at 0x3088 (+1 insn `addiu v1,v1,%lo`), the arm re-reads gCurrentMap and compares; the target arms 0x382C/0x3848 load nothing and own separate jtbl rows (.rodata+0x3e0/+0x178), so two separate case bodies are the original.
+  - nested colour switch in default (outer 0xD0/0x36 labels removed), re-measured on the current body: 204 (inner range check + table, Q1413).
+  - Q1418 `do { switch ... continue ... } fill tail } while (0)` re-measured on the current body: still full=0, still a do-while0 steer (not a replacement for a Q0591 goto).
+  - sweep: 2 sites, 0 checks. Both gotos stay goto-hand kept.
 ## Untried ideas
 none. Structural count: three in-arm colour prefixes (0x382C, 0x3848, 0x38D4) share one tail (0x38F0); only the arm textually before the tail can fall in, so two forward jumps are needed. `break` targets 0x39D0, which 22 other arm exits share (21 `b 0x39d0` + `beqz t6,0x39d0` at 0x31fc), so the tail cannot be the switch end. Every goto-free jump form is now measured: a second dispatch (compares/inner switch/flag test: Q1156 no threading, 81-351), `do {} while (0)` with continue (0, steer), Duff case labels in `if (0)` (0, steer). A colour local refuted (one F7000000 store instead of three); case order fixed by the target block order.
 ## Evidence

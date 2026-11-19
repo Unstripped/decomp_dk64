@@ -1258,3 +1258,4 @@
 {"type": "unit", "t": "2026-11-19T07:48:08Z", "unit": "2026-11-18c: cleanup CleanschedHandleRetracec", "commit": "311323a986f3fde6fa06ee47f8bc25bc298be2a9"}
 {"type": "unit", "t": "2026-11-19T07:49:00Z", "unit": "2026-11-18c: cleanup CleanplayerUpdateCommon", "commit": "ebd16c6f52f903b035cdb41e5b9416b1a70bce44"}
 {"type": "unit", "t": "2026-11-19T07:49:53Z", "unit": "2026-11-18c: cleanup CleancsCmdExecb", "commit": "ab72c1b5778e0fcd506b1c911a7b11198f12027a"}
+{"type": "unit", "t": "2026-11-19T07:55:27Z", "unit": "2026-11-18c: cleanup CleangfxDrawMapBackgroundc", "commit": "a05ab709c9d885d01744c7ed6ea1add46b2c5d93"}
