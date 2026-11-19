@@ -50,28 +50,28 @@ typedef struct {
     s16 slot;
     s16 level;
     s16 price;
-} MenuM1_Entry;
+} MenuShopOffer;
 typedef struct { s16 unk0; s16 font; } MenuWidgetTextStyle;
 typedef struct {
     s32 id[2];
 } MenuTextIdPair;
 
 // Shop offers (slot, level, price), 7 per kong; menuSelectNextShopOffer's tables for shop actor types 0xBD, 0xBF, 0xBE.
-MenuM1_Entry D_80033260[35] = {
+MenuShopOffer D_80033260[35] = {
     { 0, 1, 3 }, { 0, 2, 5 }, { 0, 3, 7 }, { -1, 0, 0 }, { 1, 2, 5 }, { -1, 0, 0 }, { 1, 3, 7 },
     { 0, 1, 3 }, { 0, 2, 5 }, { 0, 3, 7 }, { -1, 0, 0 }, { 1, 2, 5 }, { -1, 0, 0 }, { 1, 3, 7 },
     { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
     { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
     { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
 };
-MenuM1_Entry D_80033334[35] = {
+MenuShopOffer D_80033334[35] = {
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
 };
-MenuM1_Entry D_80033408[35] = {
+MenuShopOffer D_80033408[35] = {
     { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
     { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
     { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
@@ -108,7 +108,7 @@ s32 menuOtherKongHasUpgrade(MenuShopState *state, s32 bitOffset) {
 
     for (i = 0; found == 0 && i != 5; i++) {
         if (i != gPlayerCharacterId[0]) {
-            found |= gPlayerInventoryTable[0].kong[i].unk0[state->itemSlot] & (1 << (bitOffset + 0x1F));
+            found |= gPlayerInventoryTable[0].kong[i].unk0[state->itemSlot] & (1 << (bitOffset - 1));
         }
     }
     return found;
@@ -242,7 +242,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
 extern u8 gCurrentWorldId;
 
 void menuSelectNextShopOffer(MenuShopState *state, u8 *inventory, s32 firstVisit) {
-    MenuM1_Entry *tbl;
+    MenuShopOffer *tbl;
     s32 found = 0;
     s32 count = 6;
     s32 i;
@@ -274,7 +274,7 @@ void menuSelectNextShopOffer(MenuShopState *state, u8 *inventory, s32 firstVisit
             switch (tbl[i].slot) {
             case 2:
             case 4:
-                if (!(inventory[tbl[i].slot] & (1 << (tbl[i].level + 0x1F)))) {
+                if (!(inventory[tbl[i].slot] & (1 << (tbl[i].level - 1)))) {
                     found = 1;
                 }
                 break;

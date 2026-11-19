@@ -160,8 +160,6 @@ extern Actor *gPrimaryPlayerActor;
 s32 raceResultCamPathIds[5] = { 4, 1, 3, 2, 0 };
 
 
-f32 sqrtf(f32);
-
 void raceOpponentBehaviourUpdate(void) {
     f32 dx;
     f32 dz;
@@ -171,8 +169,8 @@ void raceOpponentBehaviourUpdate(void) {
     u8 rowIdx;
     RaceParticipant *controller;
     RaceCoinConfig *config;
-    Actor *kid;
-    RaceParticipant *child;
+    Actor *manager;
+    RaceParticipant *managerData;
     RaceRouteEvent *routeRows;
     s32 flag;
     s32 callbackId;
@@ -183,21 +181,21 @@ void raceOpponentBehaviourUpdate(void) {
 
     controller = ((RaceCoinRacerActor *)gCurrentActor)->participant;
     config = ((RaceCoinRacerActor *)gCurrentActor)->config;
-    kid = controller->actor;
-    child = NULL;
+    manager = controller->actor;
+    managerData = NULL;
     if (gCurrentMap == 0x52) {
         routeRows = D_8002FB10;
     } else {
         routeRows = D_8002FB70;
     }
-    if (kid != NULL) {
-        child = kid->customState;
+    if (manager != NULL) {
+        managerData = manager->customState;
     }
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk144 = 0x1C;
         gCurrentActor->flags |= 0x10400;
-        gCurrentActor->flags &= 0xFFFDFFFF;
+        gCurrentActor->flags &= ~0x20000;
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
         gCurrentActor->speedXZ = 0.0f;
@@ -208,7 +206,7 @@ void raceOpponentBehaviourUpdate(void) {
         gBehaviourWorkState->timer = 0x64; // ORIG: the target stores 100 (sh t5,44(t6) at 0x7d0) before the 0 store at 0x7e0
         gBehaviourWorkState->timer = 0;
         gBehaviourWorkState->routeRow = 0;
-        gCurrentActor->flags2 &= 0xFFBF;
+        gCurrentActor->flags2 &= ~0x40;
         if (gCurrentMap == 0x52) {
             config->requiredCoins = gTextNumberArg = 0x32;
             config->reward.w = 0x103;
@@ -227,7 +225,7 @@ void raceOpponentBehaviourUpdate(void) {
         }
     }
     rowIdx = gBehaviourWorkState->routeRow;
-    if (child != NULL && controller->raceStatus < 3 && gActorGlobalState.bossFightPhase == 4) {
+    if (managerData != NULL && controller->raceStatus < 3 && gActorGlobalState.bossFightPhase == 4) {
         playerStateQueueCallback(0x33, gCurrentActor, 0);
     }
     if (controller->raceStatus < 3 && gCurrentActor->state == 2 && gActorGlobalState.bossFightPhase == 5) {
@@ -252,7 +250,7 @@ void raceOpponentBehaviourUpdate(void) {
         }
         break;
     case 0:
-        if (child != NULL && child->unk1C == 0) {
+        if (managerData != NULL && managerData->unk1C == 0) {
             gCurrentActor->state++;
             gCurrentActor->unk155 = 0;
             gCurrentActor->contactFlags |= 0x200;
@@ -427,10 +425,9 @@ void raceOpponentBehaviourUpdate(void) {
             break;
         }
         if (controller->unk35 < 3) {
-            raceSetIntroCutscenePhase(kid);
+            raceSetIntroCutscenePhase(manager);
         }
         break;
-
     case 1:
         if (controller->unk35 == 0) {
             slotQueueUpdate(0xB, 1, 0);
