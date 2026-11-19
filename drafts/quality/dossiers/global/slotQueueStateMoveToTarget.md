@@ -69,6 +69,10 @@
   - field-based pre-test `target = *v` with the call arg as a second inline read: 4 (the known form). The colours are right; ugen emits `move s0,a1` before the beqz, as1 puts it in the delay slot, and `lhu a1,0(v1)` stays above the branch. With `target = *v` re-read in the arm as well: 13. With call arg target: 16.
   - variants scan of the target-before-test body: nothing below 4.
   - permuter, 900 s, -j 2, hack-free weights, base 256 (the plain removal body: the first run from it on the current function), 33128 iterations: best 80, which is the target-before-test form. 95 routes it through the unrelated `index` local (a reuse steer).
+- 2026-11-18c U CleanslotQueueDrawLabelb (anthropic/claude-opus-5-5), 34e891, on the current body (sweep: classify class 2, cond/recipe/remove nohit):
+  - Removal re-measured at 13. Target-before-test 4: on this body `move s1,a2` also rises above the beqz and `move s0,a1` fills the delay slot, while the target has `lhu a1,0(v1)` there. A u16 pre-test target gives 10.
+  - as1probe keep+scan of the removal body: the best single ugen edit is 9 (delete the `beq`, or delete the `move $16,$5` copy). Neither has a C form, so the removal is a uopt difference, not a schedule near-miss.
+  - Hoist test (not equivalent code, only a diagnostic): with the null test replaced by `slot != 3` or `timer != 0`, the `lw` of the pointer field still rises above the branch, but `lhu a1,0(v1)` stays in the arm. So uopt never speculates a deref of a loaded pointer above any branch. Q1075's "through the tested pointer" is narrower than the real rule.
 ## Untried ideas
 - 34e891: none left in natural C. A source read of *v before the null test is required (Q1075), and the target keeps that value in one PRE expression temp (a1) through the call arg, the NULL edge and the join compare. Every spelling that gives the read a real use names a variable. Best 4: `target = *v` before the test, schedule only (`move s0,a1` lands in the beqz delay slot). Best join form 5: the `cur` body. A read through a pointer local is a different expression, so PRE cannot reuse it at the join (11-18).
 ## Evidence
