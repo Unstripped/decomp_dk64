@@ -14,6 +14,12 @@ f32 cosApprox(f32);
 // Square of an expression (squared distances); the argument is evaluated twice.
 #define SQ(x) ((x) * (x))
 
+// A function of whichever overlay is loaded at addr (every overlay links at VRAM 0x80024000), stored in
+// non-overlay data: the N64 calls the raw address. A port may predefine it (e.g. as a per-overlay thunk).
+#ifndef OVL_FN
+#define OVL_FN(type, addr) ((type)(addr))
+#endif
+
 // A point in world space (mathPickCloserTargetPoint3D, 936B0.c).
 typedef struct TargetVec3f {
     f32 x, y, z;
