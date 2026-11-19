@@ -35,6 +35,7 @@
   "asm/global/1E2D0.s": "Handwritten math entries share non-ABI integer/FP state and internal jump targets.",
   "asm/global/data/14BB20.data.s": "1E2D0.s's zero-initialised work area (2,176 bytes); only 1E2D0.s uses it.",
   "asm/global/data/15C190.rodata.s": "1E2D0.s's float constants; only 1E2D0.s reads them.",
+  "asm/global/1F9A0.s": "f32 table (0x204 words at 0x8061ACA0) in .text, read only by the hand-written 16B60.s and 1E2D0.s; data, not C.",
   "asm/global/61690.s": "Handwritten routine with 64-bit saves, multiplication, and integer-to-FP transfers.",
   "asm/global/data/15DA50.rodata.s": "61690.s's float constants; only 61690.s reads them.",
   "asm/global/77B90.s": "Handwritten 64-bit math using dmult, ld/sd, and kernel registers.",
