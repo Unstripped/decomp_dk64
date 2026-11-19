@@ -5,8 +5,9 @@
 #include "proto/global/15050.h"
 #include "proto/global/6AD90.h"
 
+// One frame of a demo input recording (asset table 0x11).
 typedef struct InputRecord {
-    s16 durationFlags;
+    s16 camYawFlags; // bits 0-14: camera yaw (4096 per turn); bit 15: the next button word applies from this frame
     s8 stickX;
     s8 stickY;
 } InputRecord;
@@ -54,7 +55,7 @@ void func_8060B4D4(OSContPad *pad) {
     if (D_807463AC < (D_807463B0 - 1)) {
         pad->stick_x = D_807ECE98->stickX;
         pad->stick_y = D_807ECE98->stickY;
-        if (D_807ECE98->durationFlags & 0x8000) {
+        if (D_807ECE98->camYawFlags & 0x8000) {
             D_807463B4 = *D_807ECE94;
             D_807ECE94++;
         }
@@ -62,9 +63,9 @@ void func_8060B4D4(OSContPad *pad) {
     }
 }
 
-void func_8060B55C(s16 *outDuration) {
+void func_8060B55C(s16 *outCamYaw) {
     if (D_807463AC < (D_807463B0 - 1)) {
-        *outDuration = D_807ECE98->durationFlags & 0x7FFF;
+        *outCamYaw = D_807ECE98->camYawFlags & 0x7FFF;
         D_807ECE98++;
         D_807463AC++;
     } else {
@@ -80,11 +81,11 @@ void recordInitPositionBuffers(u8 *src) {
     s32 byteCount;
 
     if (D_807463A8 == NULL) {
-        D_807463A8 = heapAlloc(0x1C20);
+        D_807463A8 = heapAlloc(1800 * sizeof(InputRecord));
     }
     D_807ECE98 = D_807463A8;
     if (D_807ECE90 == NULL) {
-        D_807ECE90 = heapAlloc(0xE10);
+        D_807ECE90 = heapAlloc(1800 * sizeof(u16));
     }
     D_807ECE94 = D_807ECE90;
     byteCount = sizeof(D_807463B0);

@@ -135,7 +135,7 @@ extern PlayerStruct *gPlayerSlots;
 
 void playerSetupViewports(void) {
     gPlayerCount = gActivePlayerCount;
-    gPlayerSlots = 0;
+    gPlayerSlots = NULL;
     if (gPlayerCount >= 2) {
         switch (gSplitScreenMode) {
         case 0:
@@ -169,7 +169,7 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
 }
 
 extern OSContPad gControllerPads[];
-extern u32 D_8074458C[];
+extern u32 gViModeIndexByTvType[];
 extern f32 gGfxFarClip;
 extern u32 gGlobalCutsceneFlags;
 extern u16 D_807FD570;
@@ -209,7 +209,7 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->rect[1] = e->top;
         blk->rect[2] = e->right;
         blk->rect[3] = e->bottom;
-        if (osViGetCurrentMode() == D_8074458C[osTvType + osTvType]) {
+        if (osViGetCurrentMode() == gViModeIndexByTvType[osTvType + osTvType + 1]) {
             blk->rect[0] *= 2;
             blk->rect[1] *= 2;
             blk->rect[2] += 1;
@@ -870,11 +870,11 @@ void playerResetSpawnGlobals(void) {
 }
 
 
-void playerSpawnMapActors(s32 mapId) {
+void playerSpawnMapActors(s32 playerIndex) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        slotQueueAddValue(D_80750B34[i], mapId, 0x270F);
+        slotQueueAddValue(D_80750B34[i], playerIndex, 9999);
     }
     slotQueueInit(0);
 }

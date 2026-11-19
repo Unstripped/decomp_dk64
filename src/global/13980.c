@@ -48,7 +48,7 @@ u64 D_807F0510;
 u16 D_807F0518[20];
 OSTimer gSchedAudioTimer;
 
-void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retraceCount) {
+void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 viMode, u8 retraceCount) {
     SchedConfig config;
 
     config = D_80746838;
@@ -112,8 +112,7 @@ void schedMain(void *arg) {
     s32 flag;
     SchedStruct *sc = arg;
     s32 fbIdx;
-    u32 cnt;
-    s32 pad;
+    s32 pad[2];
 
     for (;;) {
         osRecvMesg(&sc->interruptQ, &msg, OS_MESG_BLOCK);
@@ -155,9 +154,7 @@ void schedMain(void *arg) {
         }
         switch ((u32)msg) {
         case 0x29A:
-            cnt = sRetraceCount + 1;
-            sRetraceCount = cnt;
-            if (cnt % 480 == 0) {
+            if (++sRetraceCount % 480 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
             }
@@ -400,7 +397,7 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
         if (task == NULL) {
             return;
         }
-        sc->audioListHead = sc->audioListHead->next;
+        sc->audioListHead = sc->audioListHead->next; // FAKE: re-read of audioListHead (one load at 0xcf8) instead of task->next keeps the popped head in v0 (task->next moves task to s0)
         if (sc->audioListHead == NULL) {
             sc->audioListTail = (TaskNode *)&sc->audioListHead;
         }

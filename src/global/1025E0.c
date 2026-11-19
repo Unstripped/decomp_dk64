@@ -103,7 +103,7 @@ s16 gfxResourceCreate(s16 font, void *str, u8 mode, f32 posX, f32 posY, f32 posZ
     s16 i;
 
     textGetStringWidth(font, str);
-    node = heapAlloc(0x20);
+    node = heapAlloc(sizeof(TextObject));
     heapClearBlock(node);
     if (gGfxResourceList == NULL) {
         gGfxResourceList = node;
@@ -133,8 +133,8 @@ s16 gfxResourceCreate(s16 font, void *str, u8 mode, f32 posX, f32 posY, f32 posZ
     if (node->count > 0) {
         do {
             if (mode == 3) {
-                node->elems[i].x = (randomNonNegative() >> 15) % 1440 - 0x50;
-                node->elems[i].y = (randomNonNegative() >> 15) % 1120 - 0x50;
+                node->elems[i].x = (randomNonNegative() >> 15) % 1440 - 80;
+                node->elems[i].y = (randomNonNegative() >> 15) % 1120 - 80;
                 node->elems[i].rotZ = (randomNonNegative() >> 15) % 6283 / 1000.0;
                 node->easeRate = 0.1f;
             } else {

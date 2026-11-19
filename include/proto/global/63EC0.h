@@ -38,7 +38,7 @@ Gfx *effectWaterRenderSurfaces(Gfx *, s32, u8);
 Gfx *effectWaterSetScissor(Gfx *, WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectWaterBuildMeshGdl
-void effectWaterBuildMeshGdl(void *, void *, WaterSurface *);
+void effectWaterBuildMeshGdl(Gfx *, Vtx *, WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectWaterSetMeshHeightsAlpha
 void effectWaterSetMeshHeightsAlpha(Vtx *, WaterSurface *);
@@ -119,40 +119,40 @@ void effectNodeUpdateAlphaOffset(WaterSurface *);
 void effectInitTextureTable0(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildMipmapGdl
-Gfx *effectBuildMipmapGdl(Gfx *, s32, u8);
+Gfx *effectBuildMipmapGdl(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectNoopCallback1
-void effectNoopCallback1(s32);
+void effectNoopCallback1(WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTable1
 void effectInitTextureTable1(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildMipmapGdlWrapper
-void effectBuildMipmapGdlWrapper(Gfx *, s32, u8);
+Gfx *effectBuildMipmapGdlWrapper(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectNoopCallback2
-void effectNoopCallback2(s32);
+void effectNoopCallback2(WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTable2
 void effectInitTextureTable2(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildMipmapGdlDup
-Gfx *effectBuildMipmapGdlDup(Gfx *, s32, u8);
+Gfx *effectBuildMipmapGdlDup(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectNoopCallback3
-void effectNoopCallback3(s32);
+void effectNoopCallback3(WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTable3
 void effectInitTextureTable3(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildSingleTextureGdl
-Gfx *effectBuildSingleTextureGdl(Gfx *, WaterSurfaceDef **, u8);
+Gfx *effectBuildSingleTextureGdl(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTable4
 void effectInitTextureTable4(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildSingleTextureGdlDup
-Gfx *effectBuildSingleTextureGdlDup(Gfx *, WaterSurfaceDef **, u8);
+Gfx *effectBuildSingleTextureGdlDup(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTableDual
 void effectInitTextureTableDual(u8);

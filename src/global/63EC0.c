@@ -14,32 +14,18 @@
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
+// One water surface type (WaterSurfaceDef.type indexes D_80748A90).
 typedef struct EffectTableEntry {
-    void (*fn0)(u8);
-    Gfx *(*fn1)(Gfx *, WaterSurface *, u8);
-    void (*fn2)(WaterSurface *);
-    void *res0;
-    void *res1;
-    union {
-        u32 flags;
-        struct {
-            u8 loaded;
-            u8 pad15;
-            u8 drawPass;
-            u8 pad17;
-        };
-    };
-} EffectTableEntry;
-
-typedef struct TextureCacheEntry {
+    void (*loadTextures)(u8);
+    Gfx *(*buildGdl)(Gfx *, WaterSurface *, u8);
+    void (*step)(WaterSurface *);
     void *texture;
-    u8 pad4[0x14];
-} TextureCacheEntry;
-
-typedef struct EffectTableFlags {
+    void *texture2; // the CI4 palette (row 1) or the second multi-block texture (row 7)
+    u8 loaded;
     u8 heightMode;
-    u8 pad1[0x17];
-} EffectTableFlags;
+    u8 drawPass;
+    u8 pad17;
+} EffectTableEntry; // size = 0x18
 
 typedef struct EffectBufferEntry {
     /* 0x000 */ u8 state;
@@ -54,24 +40,21 @@ typedef struct EffectBufferEntry {
     /* 0x088 */ u8 bspBounds[0x1C8 - 0x88];
 } EffectBufferEntry; /* 0x1C8 */
 
-// This TU's .data (0x80748A90-0x80748B6C + 4-byte TU pad): per-type effect table rows; D_80748A94,
-// D_80748A9C and D_80748AA5 are column views of these rows (absolute lines in undefined_syms.us.txt).
+// This TU's .data (0x80748A90-0x80748B6C + 4-byte TU pad): the per-type effect table.
 EffectTableEntry D_80748A90[9] = {
-    { effectInitTextureTableRGBA32, effectBuildGdlTexture32x32RGBA, effectNodeStepUVAndPos, NULL, NULL, { 0x00000100 } },
-    { effectInitTextureTableCI4, effectBuildGdlTexture64x64CI4, effectNodeUpdateAlphaOffset, NULL, NULL, { 0x00000000 } },
-    { effectInitTextureTable0, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildMipmapGdl, (void (*)(WaterSurface *))effectNoopCallback1, NULL, NULL, { 0x00010000 } },
-    { effectInitTextureTableRGBA32, effectBuildGdlTexture32x32RGBAWithPrim, effectNodeStepUVAndPos, NULL, NULL, { 0x00000100 } },
-    { effectInitTextureTable2, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildMipmapGdlDup, (void (*)(WaterSurface *))effectNoopCallback3, NULL, NULL, { 0x00020000 } },
-    { effectInitTextureTable3, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildSingleTextureGdl, effectNodeUpdateAlphaOffset, NULL, NULL, { 0x00000100 } },
-    { effectInitTextureTable4, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildSingleTextureGdlDup, effectNodeUpdateAlphaOffset, NULL, NULL, { 0x00000000 } },
-    { effectInitTextureTableDual, effectBuildMultiBlockTextureGdl, effectNodeUpdateDualAlphaOffset, NULL, NULL, { 0x00000100 } },
-    { effectInitTextureTable1, (Gfx *(*)(Gfx *, WaterSurface *, u8))effectBuildMipmapGdlWrapper, (void (*)(WaterSurface *))effectNoopCallback2, NULL, NULL, { 0x00010000 } },
+    { effectInitTextureTableRGBA32, effectBuildGdlTexture32x32RGBA, effectNodeStepUVAndPos, NULL, NULL, 0, 0, 1, 0 },
+    { effectInitTextureTableCI4, effectBuildGdlTexture64x64CI4, effectNodeUpdateAlphaOffset, NULL, NULL, 0, 0, 0, 0 },
+    { effectInitTextureTable0, effectBuildMipmapGdl, effectNoopCallback1, NULL, NULL, 0, 1, 0, 0 },
+    { effectInitTextureTableRGBA32, effectBuildGdlTexture32x32RGBAWithPrim, effectNodeStepUVAndPos, NULL, NULL, 0, 0, 1, 0 },
+    { effectInitTextureTable2, effectBuildMipmapGdlDup, effectNoopCallback3, NULL, NULL, 0, 2, 0, 0 },
+    { effectInitTextureTable3, effectBuildSingleTextureGdl, effectNodeUpdateAlphaOffset, NULL, NULL, 0, 0, 1, 0 },
+    { effectInitTextureTable4, effectBuildSingleTextureGdlDup, effectNodeUpdateAlphaOffset, NULL, NULL, 0, 0, 0, 0 },
+    { effectInitTextureTableDual, effectBuildMultiBlockTextureGdl, effectNodeUpdateDualAlphaOffset, NULL, NULL, 0, 0, 1, 0 },
+    { effectInitTextureTable1, effectBuildMipmapGdlWrapper, effectNoopCallback2, NULL, NULL, 0, 1, 0, 0 },
 };
 s32 D_80748B68 = -2;
 
 extern WaterSurface *gEffectNodeList;
-extern TextureCacheEntry D_80748A9C[];
-extern EffectTableFlags D_80748AA5[];
 extern EffectBufferEntry *gMapChunks;
 extern u8 gGfxBufferIndex;
 extern u8 gWaterRippleActive;
@@ -161,7 +144,7 @@ void effectWaterInitNodes(MapFileHeader *mapData) {
         waterType = base[i].type;
         typeEntry = &D_80748A90[waterType];
         if (typeEntry->loaded == 0) {
-            typeEntry->fn0(waterType);
+            typeEntry->loadTextures(waterType);
             typeEntry->loaded = 1;
         }
         node->next = NULL;
@@ -214,7 +197,7 @@ void effectNodeApproachTargetPos(WaterSurface *node) {
 }
 
 u8 effectGetTableFlag(WaterSurface *node) {
-    return D_80748AA5[node->sub->type].heightMode;
+    return D_80748A90[node->sub->type].heightMode;
 }
 
 void effectUpdateNodes(void) {
@@ -394,15 +377,9 @@ Gfx *effectWaterSetScissor(Gfx *gdl, WaterSurface *water) {
     return gdl;
 }
 
-typedef struct EffectMeshBuilderEntry {
-    Gfx *(*fn)(void *, WaterSurface *, u8);
-    u8 pad4[0x14];
-} EffectMeshBuilderEntry;
-
-extern EffectMeshBuilderEntry D_80748A94[];
 extern s32 D_807F93EC;
 
-void effectWaterBuildMeshGdl(void *vtxBuf, void *rawVtx, WaterSurface *water) {
+void effectWaterBuildMeshGdl(Gfx *meshGdl, Vtx *meshVtx, WaterSurface *water) {
     s32 vtxStart;
     s32 vtxNext;
     s32 countX;
@@ -416,7 +393,7 @@ void effectWaterBuildMeshGdl(void *vtxBuf, void *rawVtx, WaterSurface *water) {
     s32 total;
 
     D_807F93EC = 0;
-    gdl = D_80748A94[water->sub->type].fn(vtxBuf, water, water->sub->type);
+    gdl = D_80748A90[water->sub->type].buildGdl(meshGdl, water, water->sub->type);
     countX = ((water->sub->maxX - water->sub->minX) / water->gridStep) + 1;
     countZ = ((water->sub->maxZ - water->sub->minZ) / water->gridStep) + 1;
     total = (countX + 1) * (countZ + 1);
@@ -426,8 +403,8 @@ void effectWaterBuildMeshGdl(void *vtxBuf, void *rawVtx, WaterSurface *water) {
     done = 0;
     do {
         segLen = (countX - x + 1) >= 17 ? 16 : (countX - x + 1);
-        gSPVertex(gdl++, osVirtualToPhysical(vtxStart * 16 + (u8 *)rawVtx), segLen, 0);
-        gSPVertex(gdl++, osVirtualToPhysical(vtxNext * 16 + (u8 *)rawVtx), segLen, 16);
+        gSPVertex(gdl++, osVirtualToPhysical(&meshVtx[vtxStart]), segLen, 0);
+        gSPVertex(gdl++, osVirtualToPhysical(&meshVtx[vtxNext]), segLen, 16);
         k = 0;
         for (i = 0; i < segLen - 1; i++) {
             gSP2Triangles(gdl++, k + 1, k, k + 16, 0, k + 16, k + 17, k + 1, 0);
@@ -478,7 +455,7 @@ void effectWaterSetMeshHeightsAlpha(Vtx *vtx, WaterSurface *water) {
     heightScale = water->sub->waveAmpZ + water->sub->waveAmpX;
     alphaMax = water->sub->alphaRange;
     alphaBase = water->sub->alphaBase;
-    flag = D_80748AA5[water->sub->type].heightMode;
+    flag = D_80748A90[water->sub->type].heightMode;
     countX = ((maxX - minX) / step) + 1;
     countZ = ((maxZ - minZ) / step) + 1;
     z = minZ;
@@ -678,7 +655,7 @@ extern OSIoMesg D_807ECE00;
 
 void effectUpdateAndDispatch(void) {
     u32 dmaBuf[6];
-    u32 pad[4];
+    u32 pad[2];
     u32 *dmaWords;
     WaterSurface *node;
     u32 romAddr;
@@ -698,9 +675,10 @@ void effectUpdateAndDispatch(void) {
     dmaWords[0] -= 0x3E0EF0F0;
     dmaWords[1] -= 0x3E0EF0F0;
     if (dmaWords[0] != 0x3050A14A || dmaWords[1] != 0xBCFCF506) {
-        dmaWords = (u32 *)randomLcgNext();
-        romAddr = randomLcgNext();
-        osPiStartDma(&D_807ECE00, 0, 0, (u32)dmaWords & 0xFFFF, (void *)((romAddr & 0xFFFFE) + 0x80500000), (randomLcgNext() & 0xFF) + 0x100, &D_807655F0);
+        // ROM check failed: DMA random ROM bytes over random RDRAM.
+        u32 devAddr = randomLcgNext();
+        u32 dramOffset = randomLcgNext();
+        osPiStartDma(&D_807ECE00, 0, 0, devAddr & 0xFFFF, (void *)((dramOffset & 0xFFFFE) + 0x80500000), (randomLcgNext() & 0xFF) + 0x100, &D_807655F0);
     }
     if (node != NULL) {
         do {
@@ -718,7 +696,7 @@ void effectUpdateAndDispatch(void) {
                     }
                 }
             }
-            D_80748A90[node->sub->type].fn2(node);
+            D_80748A90[node->sub->type].step(node);
             node = node->next;
         } while (node != NULL);
     }
@@ -857,12 +835,12 @@ void waterRippleStop(void) {
 }
 
 void effectInitTextureTableRGBA32(u8 tableIndex) {
-    D_80748A9C[tableIndex].texture = assetLoad(7, 0x3C5, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(7, 0x3C5, 1, 0);
 }
 
 Gfx *effectBuildGdlTexture32x32RGBA(Gfx *dlist, WaterSurface *node, u8 tableIndex) {
     gDPPipeSync(dlist++);
-    gDPLoadTextureBlock(dlist++, D_80748A9C[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    gDPLoadTextureBlock(dlist++, D_80748A90[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
     WRITE_GFX(dlist++, 0xFC20FE04, 0xFF13F3FF);
     WRITE_GFX(dlist++, 0xE3000A01, 0x00100000);
     WRITE_GFX(dlist++, 0xD9000000, 0);
@@ -879,7 +857,7 @@ Gfx *effectBuildGdlTexture32x32RGBA(Gfx *dlist, WaterSurface *node, u8 tableInde
 
 Gfx *effectBuildGdlTexture32x32RGBAWithPrim(Gfx *dlist, WaterSurface *node, u8 tableIndex) {
     gDPPipeSync(dlist++);
-    gDPLoadTextureBlock(dlist++, D_80748A9C[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    gDPLoadTextureBlock(dlist++, D_80748A90[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
     WRITE_GFX(dlist++, 0xFC20FE04, 0xFF0FF3FF);
     gDPSetPrimColor(dlist++, 0, 0, 0, 0, 0, node->sub->alphaBase);
     WRITE_GFX(dlist++, 0xE3000A01, 0x00100000);
@@ -911,14 +889,14 @@ void effectNodeStepUVAndPos(WaterSurface *node) {
 }
 
 void effectInitTextureTableCI4(u8 tableIndex) {
-    D_80748A90[tableIndex].res0 = assetLoad(0x19, 0x2EE, 1, 0);
-    D_80748A90[tableIndex].res1 = assetLoad(0x19, 0x2EF, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(0x19, 0x2EE, 1, 0);
+    D_80748A90[tableIndex].texture2 = assetLoad(0x19, 0x2EF, 1, 0);
 }
 
 Gfx *effectBuildGdlTexture64x64CI4(Gfx *dlist, WaterSurface *node, u8 tableIndex) {
     EffectTableEntry *entry = &D_80748A90[tableIndex];
     gDPPipeSync(dlist++);
-    gDPLoadTextureBlock_4b(dlist++, entry->res0, G_IM_FMT_CI, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
+    gDPLoadTextureBlock_4b(dlist++, entry->texture, G_IM_FMT_CI, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
     WRITE_GFX(dlist++, 0xFC121824, 0xFF33FFFF);
     WRITE_GFX(dlist++, 0xE3000A01, 0);
     WRITE_GFX(dlist++, 0xD9000000, 0);
@@ -928,7 +906,7 @@ Gfx *effectBuildGdlTexture64x64CI4(Gfx *dlist, WaterSurface *node, u8 tableIndex
     WRITE_GFX(dlist++, 0xE200001C, 0x00552230);
     WRITE_GFX(dlist++, 0xF2000000 | ((s32)node->sub->tileScrollS & 0xFFF), 0x000FC0FC);
     WRITE_GFX(dlist++, 0xF5181000, 0x0101785E);
-    gDPLoadTLUT_pal16(dlist++, 0, entry->res1);
+    gDPLoadTLUT_pal16(dlist++, 0, entry->texture2);
     gDPSetTextureLUT(dlist++, G_TT_RGBA16);
     return dlist;
 }
@@ -945,12 +923,12 @@ void effectNodeUpdateAlphaOffset(WaterSurface *node) {
 }
 
 void effectInitTextureTable0(u8 tableIndex) {
-    D_80748A9C[tableIndex].texture = assetLoad(0x19, 0xF0, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(0x19, 0xF0, 1, 0);
 }
 
-Gfx *effectBuildMipmapGdl(Gfx *glist, s32 unusedParam, u8 tableIndex) {
+Gfx *effectBuildMipmapGdl(Gfx *glist, WaterSurface *node, u8 tableIndex) {
     WRITE_GFX(glist++, 0xE7000000, 0);
-    WRITE_GFX(glist++, 0xFD100000, D_80748A9C[tableIndex].texture);
+    WRITE_GFX(glist++, 0xFD100000, D_80748A90[tableIndex].texture);
     WRITE_GFX(glist++, 0xF5100000, 0x07000000);
     WRITE_GFX(glist++, 0xE6000000, 0);
     WRITE_GFX(glist++, 0xF3000000, 0x0754F000);
@@ -972,27 +950,27 @@ Gfx *effectBuildMipmapGdl(Gfx *glist, s32 unusedParam, u8 tableIndex) {
     return glist;
 }
 
-void effectNoopCallback1(s32 unused) {
+void effectNoopCallback1(WaterSurface *node) {
 }
 
 void effectInitTextureTable1(u8 tableIndex) {
-    D_80748A9C[tableIndex].texture = assetLoad(0x19, 0xAF4, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(0x19, 0xAF4, 1, 0);
 }
 
-void effectBuildMipmapGdlWrapper(Gfx *glist, s32 unusedParam, u8 tableIndex) {
-    effectBuildMipmapGdl(glist, unusedParam, tableIndex);
+Gfx *effectBuildMipmapGdlWrapper(Gfx *glist, WaterSurface *node, u8 tableIndex) {
+    return effectBuildMipmapGdl(glist, node, tableIndex);
 }
 
-void effectNoopCallback2(s32 unused) {
+void effectNoopCallback2(WaterSurface *node) {
 }
 
 void effectInitTextureTable2(u8 tableIndex) {
-    D_80748A9C[tableIndex].texture = assetLoad(0x19, 0x75C, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(0x19, 0x75C, 1, 0);
 }
 
-Gfx *effectBuildMipmapGdlDup(Gfx *glist, s32 unusedParam, u8 tableIndex) {
+Gfx *effectBuildMipmapGdlDup(Gfx *glist, WaterSurface *node, u8 tableIndex) {
     WRITE_GFX(glist++, 0xE7000000, 0);
-    WRITE_GFX(glist++, 0xFD100000, D_80748A9C[tableIndex].texture);
+    WRITE_GFX(glist++, 0xFD100000, D_80748A90[tableIndex].texture);
     WRITE_GFX(glist++, 0xF5100000, 0x07000000);
     WRITE_GFX(glist++, 0xE6000000, 0);
     WRITE_GFX(glist++, 0xF3000000, 0x0754F000);
@@ -1014,16 +992,16 @@ Gfx *effectBuildMipmapGdlDup(Gfx *glist, s32 unusedParam, u8 tableIndex) {
     return glist;
 }
 
-void effectNoopCallback3(s32 unused) {
+void effectNoopCallback3(WaterSurface *node) {
 }
 
 void effectInitTextureTable3(u8 tableIndex) {
-    D_80748A9C[tableIndex].texture = assetLoad(7, 0x3B9, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(7, 0x3B9, 1, 0);
 }
 
-Gfx *effectBuildSingleTextureGdl(Gfx *glist, WaterSurfaceDef **pSubNode, u8 tableIndex) {
+Gfx *effectBuildSingleTextureGdl(Gfx *glist, WaterSurface *node, u8 tableIndex) {
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, D_80748A9C[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
+    gDPLoadTextureBlock(glist++, D_80748A90[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
     WRITE_GFX(glist++, 0xFC121824, 0xFF33FFFF);
     WRITE_GFX(glist++, 0xE3000A01, 0);
     WRITE_GFX(glist++, 0xD9000000, 0);
@@ -1031,18 +1009,18 @@ Gfx *effectBuildSingleTextureGdl(Gfx *glist, WaterSurfaceDef **pSubNode, u8 tabl
     WRITE_GFX(glist++, 0xE3000F00, 0x00010000);
     WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
     WRITE_GFX(glist++, 0xE200001C, 0x00552230);
-    WRITE_GFX(glist++, 0xF2000000 | ((s32)(*pSubNode)->tileScrollS & 0xFFF), 0x0007C07C);
+    WRITE_GFX(glist++, 0xF2000000 | ((s32)node->sub->tileScrollS & 0xFFF), 0x0007C07C);
     WRITE_GFX(glist++, 0xF5101000, 0x0101785E);
     return glist;
 }
 
 void effectInitTextureTable4(u8 tableIndex) {
-    D_80748A9C[tableIndex].texture = assetLoad(7, 0x3D2, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(7, 0x3D2, 1, 0);
 }
 
-Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, WaterSurfaceDef **pSubNode, u8 tableIndex) {
+Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, WaterSurface *node, u8 tableIndex) {
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, D_80748A9C[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
+    gDPLoadTextureBlock(glist++, D_80748A90[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
     WRITE_GFX(glist++, 0xFC121824, 0xFF33FFFF);
     WRITE_GFX(glist++, 0xE3000A01, 0);
     WRITE_GFX(glist++, 0xD9000000, 0);
@@ -1050,21 +1028,21 @@ Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, WaterSurfaceDef **pSubNode, u8 t
     WRITE_GFX(glist++, 0xE3000F00, 0x00010000);
     WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
     WRITE_GFX(glist++, 0xE200001C, 0x00552230);
-    WRITE_GFX(glist++, 0xF2000000 | ((s32)(*pSubNode)->tileScrollS & 0xFFF), 0x0007C07C);
+    WRITE_GFX(glist++, 0xF2000000 | ((s32)node->sub->tileScrollS & 0xFFF), 0x0007C07C);
     WRITE_GFX(glist++, 0xF5101000, 0x0101785E);
     return glist;
 }
 
 void effectInitTextureTableDual(u8 tableIndex) {
-    D_80748A90[tableIndex].res0 = assetLoad(7, 0x3BA, 1, 0);
-    D_80748A90[tableIndex].res1 = assetLoad(7, 0x3DB, 1, 0);
+    D_80748A90[tableIndex].texture = assetLoad(7, 0x3BA, 1, 0);
+    D_80748A90[tableIndex].texture2 = assetLoad(7, 0x3DB, 1, 0);
 }
 
 
 Gfx *effectBuildMultiBlockTextureGdl(Gfx *glist, WaterSurface *node, u8 tableIndex) {
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, D_80748A90[tableIndex].res0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
-    gDPLoadMultiBlock(glist++, D_80748A90[tableIndex].res1, 256, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, D_80748B68, D_80748B68);
+    gDPLoadTextureBlock(glist++, D_80748A90[tableIndex].texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    gDPLoadMultiBlock(glist++, D_80748A90[tableIndex].texture2, 256, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, D_80748B68, D_80748B68);
 
     gDPSetPrimColor(glist++, 0, node->primAlpha, 255, 255, 255, 100);
     WRITE_GFX(glist++, 0xFC272C03, 0x1FFC93FB);
