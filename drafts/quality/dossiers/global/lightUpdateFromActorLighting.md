@@ -34,6 +34,12 @@ The zero is Duff-style: the `if (0)` case-label block is the same steer as the g
 - re-measured for the block census: shared label with && and || 11, sentinel mask = 0 + one test 124, doColor flag 133, plain case-1 fallthrough 121
 - permuter with hack-free weights (-j 2, 900 s) from the 11-line shared-label body: base 1231, best 650, nohit. The best output is not equivalent: it puts `case 1:` on a bare `break`, so mode 1 never colours.
 
+2026-11-18c U CleanlightUpdateFromActorLightingc anthropic/claude-opus-5-5 (base 192b7da, goto-hand rung re-run on the current body after the f960a16f..4e14b5c5 and 7a1f8709 renames): re-measured with variants.py try (full lines): `if (0) { case 2: ... }` Duff block 0, shared `case 1: case 2:` label with && and || 11, plain case-1 fallthrough 121 (same as before the renames). New forms:
+- `case 2:` label after the live `break` of case 1's own test (`if (gFrameCounter & 0xF) { break; case 2: if (gFrameCounter & 3) break; }`, colour code after the if): 5. Case 1 compiles `beqzl t2,0x150` (likely slot `sll a0,v0,0x2` at 0x130) + `b 0x238` at 0x134; the target has `bnez t2,0x238` + `b 0x150`. The branch polarity follows the C arm order: the FJP skips the then-arm (`break`) to the colour code.
+- the empty then-arm form `if (!(gFrameCounter & 0xF)) {} else { break; case 2: ... }`: fdiff 0 (whole object), but it is an empty arm plus a Duff label (Q1209: a matching Duff form is still a steer), so the goto stays.
+- `if (!(gFrameCounter & 0xF) == 0) { break; case 2: ... }`: 21.
+goto-hand kept (Q0591 shared tail re-verified at 0x120-0x150).
+
 Census (asm leaders from the mode load to the colour block; the target has 11, colour `jal` at 0x160, function 0x388 bytes):
 - shared label with && and ||: +2 blocks, same size. The mode retests (`bne a0,v1` at 0x120; `li at,2` + `bne v1,at` at 0x134-0x138) replace case 1's `bnez`/`nop`/`b`. The mode stays live in v1 (`move v0,v1` at 0xe8, `li a0,1` at 0xdc instead of `li at,1`).
 - sentinel mask = 0: +0 blocks, -3 instructions. The value-known `beqz v1` at 0x12c is kept on the case-0 path (Q1156), and the two `andi` tests become one `and t2,v0,v1`.
@@ -43,7 +49,7 @@ Census (asm leaders from the mode load to the colour block; the target has 11, c
 - single-label inner switch: no second cfe temp, and it compiles like an if (`bne a0,v1` at 0x120). This confirms the A2F10 finding here. But a single register-mask test (`and t2,v1,v0` at 0x134) cannot produce the target's two immediate tests.
 
 ## Untried ideas
-none natural that avoid the jump (the only zero is the `if (0) { case 2: }` block). Every structured form either re-tests gCutsceneLightFlickerMode under the shared label, repeats the gFrameCounter test, or funnels both arms through one test or flag block. The 2026-11-17 census shows each one adds a test block or moves case 1's gFrameCounter load out of v0, while the target reuses v0 in the shared tail.
+none natural that avoid the jump. The only zeros without the goto are case labels inside dead or empty blocks (`if (0) { case 2: }`, `if (!x) {} else { break; case 2: }`); a case label after a live `break` inverts case 1's branch (5). Every structured form either re-tests gCutsceneLightFlickerMode under the shared label, repeats the gFrameCounter test, or funnels both arms through one test or flag block. The 2026-11-17 census shows each one adds a test block or moves case 1's gFrameCounter load out of v0, while the target reuses v0 in the shared tail.
 
 ## Evidence
 - 0xdc-0xfc: compare-chain dispatch. `beqzl v0` goes to case 0 (0x104, `li v0,255` in the delay slot), `beq v0,1` to 0x120, `beq v0,2` to 0x13c, and `b 0x238` to the end.
@@ -53,3 +59,4 @@ none natural that avoid the jump (the only zero is the `if (0) { case 2: }` bloc
 - 0x150-0x234: the shared colour block. It calls mathCosF (jal at 0x160), converts with float->u32 (0x180-0x204: `cfc1`/`ctc1`, 0x4f000000 subtract path), does `andi t8,t7,0xff`, and stores the gLightFlickerColors[idx][0..2] bytes through 72/76/80(sp).
 - (f32)(u32) of the u8 fov fields: `bgez` + 0x4f800000 add at 0x350 and 0x370.
 - uopt -l5 at the base: the switch is one cfe temp (`M -24vreg`) tested by `uequ` 0/1/2 (candidates 8/10/12). Flow graph: BB6 is the case 1 test, BB7 the `goto`, BB8 the `break`, BB9/10 the case 2 test and then-entry, and BB11-12 the shared colour block (preds BB7 and BB10).
+- 2026-11-18c re-check at base 192b7da: unchanged offsets. Case 1 0x120-0x138: `lw v0,gFrameCounter` 0x124, `andi t2,v0,0xf` 0x128, `bnez t2,0x238` 0x12c (nop slot), `b 0x150` 0x134 with `sll a0,v0,0x2` 0x138. Case 2 0x13c-0x14c: `lw v0` 0x140, `andi t3,v0,0x3` 0x144, `bnez t3,0x238` 0x148 with `sll a0,v0,0x2` 0x14c, falls into 0x150. as1 copied the colour block's first instruction (`sll a0,v0,0x2`) into both arms' slots, so both arms join one block at 0x150.
