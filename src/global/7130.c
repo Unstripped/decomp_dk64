@@ -716,7 +716,7 @@ void sfxUpdateLevelAmbient(void) {
     s8 pad;
     u8 fxFlags;
     u8 extraSfx;
-    u8 emitterCount; // FAKE: u8 width chosen for codegen: the count is a per-map constant (li s1,N at 0x1088..0x1194), never a byte load or store; its int promotion is the ucvt copy uopt colours s3 (move s3,s1 at 0x1254) as the loop bound; s32/s16/s8 counts are 17 (replaces the n bound copy of 417de3)
+    u8 emitterCount; // FAKE: u8 width chosen for codegen: the count is a per-map constant (li s1,N at 0x1088..0x1194), never a byte load or store; its int promotion is the ucvt copy uopt colours s3 (move s3,s1 at 0x1254) as the loop bound; u16 matches the same way, s32/s16/u32 counts are 21-22 (replaces the n bound copy of 417de3)
     s16 group;
     s16 k;
     f32 volume;
@@ -1003,7 +1003,7 @@ void sfxUpdateLevelAmbient(void) {
             }
             if (D_80770DEC < D_80770DE8) {
                 if (D_80770DE8 > 0.0f) {
-                    angle = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);  // FAKE: angle reused for the per-group pan value (to the n_alSndpPostEvent(.., 4, angle) below); the target keeps it in angle f20 (cvt.s.d $f20 at 0x20cc/0x2100): a separate local here is 565, sharing pan with the seq-player block 366 (pre-existing part of 7d249b)
+                    angle = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);  // FAKE: angle reused for the per-group pan value (to the n_alSndpPostEvent(.., 4, angle) below); the target keeps it in angle f20 (cvt.s.d $f20 at 0x20cc/0x2100): a separate local here is 561-598 (block scope or any declaration slot), sharing pan with the seq-player block 366 (pre-existing part of 7d249b)
                 } else {
                     angle = 0.0f;
                 }
@@ -1042,7 +1042,7 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
-        if (D_80770DC8) {}  // FAKE: dead read stops &D_80770DC8 being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static would retire it (Q0981) but IDO places .bss in first-reference order (Q0565) and gAmbientIndoors/D_80770DD8/D_80770DDC-DF4 above it are used by earlier functions, so the static lands after D_80770EF8
+        if (D_80770DC8) {}  // FAKE: dead read stops &D_80770DC8 being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static retires it (Q0981, text 0) but IDO orders .bss by symbol number mod 256 (Q1470): the static is numbered 96 after D_80770D70 and lands at .bss+0x9d8; 0x80770DC8 needs 160 more file-scope definitions
         gEffectSpritePoolAlpha[0] = 0;
     }
     if (gEffectSpritePoolAlpha[0] != 0) {
