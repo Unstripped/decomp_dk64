@@ -1,12 +1,15 @@
 # noExpPakThread (boot, src/boot/1630.c)
 
 ## Sites
-- 880d3e: dead `x = 0;` after the 64-wide copy loop. KEPT.
+- 880d3e: dead `x = 0;` after the 64-wide copy loop. FIXED (2026-11-18c, director ruling).
   - Without a later definition of the column counter, uopt unrolls the loop by 4.
   - The target's loop is scalar (byte offset in v0, `slti at,v0,128`).
   - The definition must sit in the loop exit's extended basic block: any block reached through single-predecessor edges
-    (outer latch, code after the nest, the `osTvType == 0` hang arm, `count = 0`). The only definition the target's code has
-    there is the vsync counter init, so only an unrelated counter reuse can replace it (a steer).
+    (outer latch, code after the nest, the `osTvType == 0` hang arm, the vsync counter init). The only definition the
+    target executes there is the vsync counter init `move s0,zero` at 0x204.
+  - Fix: the column counter `x` is also the vsync frame counter (`x = 0` at 0x204, `x++` at 0x224, reset at 0x268).
+    `count` is deleted and `pad` becomes `pad[2]`, which keeps the 0x80 frame and `fb` at sp+0x5c. The director ruled
+    this ordinary C (Q1224: consecutive counters, each reset at its loop start, no other role).
 
 ## Attempts
 - 2026-11-14 U HacknoExpPakThread: loop-shape, pointer, width and order variants all fail (33-69 lines).
@@ -28,11 +31,26 @@
     - The best (output-400-1) adds `x = 5;` after the nest and passes x as the `osCreateMesgQueue` count.
     - That is the same later-definition lever. Transplanted it gives fdiff 0, but it is a constant-valued local
       reused for an unrelated quantity (steer), so it was not applied.
+- 2026-11-19 U CleannoExpPakThreadb (anthropic/claude-opus-5-5): diagnose re-run on the current body, plus new forms.
+  - uopt `-l 5` of the removal copy: `EQ_INEQ at BB 6` and `UNROLLING at BB 6 4 times to BB 27` (68 lines).
+    With the store, only the clear loop (BB 2) unrolls. The sweep (remove/cond/recipe nohit) and the variants scan
+    (39 variants, best 33 with `x` as s8/s16) give the same results as before.
+  - Natural spellings that add no later def are all unrolled (EQ_INEQ + UNROLLING at the column loop):
+    2D array views `((u16 (*)[320])0x80100000)[y + 60][x + 128] = ((s16 (*)[64])0x80280000)[63 - y][x]` 61,
+    block-scope column local 68.
+  - EQ_INEQ is not limited to unit stride: a byte-offset IV `x < 128; x += 2` is still EQ_INEQ + UNROLLING at BB 6 (75).
+  - A bound held in a local initialised at its declaration, in pad's slot (`s32`/`s16`/`s8 width = 64`), is
+    constant-propagated before EQ_INEQ: EQ_INEQ + UNROLLING at BB 7 (88). The Q0765/Q0257 bound-local lever does not apply here.
+  - A live def `x = osTvType; if (x == 0)` stops both: the loop at 0x150-0x194 is identical. But x is coloured to `a3` for
+    the osTvType load at 0x1d4 (target: temp `t8`), which shifts the temp ring (17 lines). It is also an unrelated-local reuse (steer).
+  - After the director's ruling, applied x as the vsync counter with `count` deleted and `pad[2]`: fdiff 0, clint uninit 0,
+    cwarn 0, sweep reports no sites. The FAKE count goes 1 -> 0.
 
 ## Untried ideas
-- None natural. The only real definition in the exit block is the vsync counter init (`count = 0`), and that reuse is a steer.
+- None left: the site is fixed.
 
 ## Evidence
+- The only definition in the column loop's exit extended block that the target executes is `move s0,zero` at 0x204 (vsync count init).
 - Target 0x16c-0x184: `addu t1,a0,v0; lh; addiu v0,2; slti at,v0,128; addiu v1,2; bnez; sh t2,254(v1)`.
 - The clear loop at 0x118-0x140 is unrolled by 4 (`bne v0,a0`, a0 = 0x80125800): its `i` has no later definition.
 - Reduced-TU scoring (`deadsweep score`, `variants.py try`) of the matching base gives full=1: one extra `nop`
