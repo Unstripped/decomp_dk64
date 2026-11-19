@@ -65,6 +65,17 @@
 | uopt -l5 base vs plain | base {1\|1} piece 531 = bb 247 only (adjsave 5.0, uopt 6 a3); plain piece 529 = bbs 85/87/89 (0x3914 store path) + 196 (case 4 compare) + 247 (adjsave 0.818) coloured uopt 11 t4 |
 | variants scan of the plain copy (new body) | best 149 (`step` u8), no zero |
 
+**2026-11-19 2026-11-18c: cleanup CleanthrowableBarrelUpdateb CleanthrowableBarrelUpdateb (anthropic/claude-opus-5-5), base a3d0ef71 body (diagnose re-run after the stale rung):**
+
+| attempt | result |
+|---|---|
+| 0f5fc9 plain store | 364 (text 366, shape 33): the uopt-coloured {1\|1} web takes a t register out of the ugen ring, temps shift from the refill loop on (`lbu t5` -> `t6`) |
+| plain store + u8 `slotMode` local for `gPlayerSlots[playerIndex].unk2C0` in case 4 (Q0601) | 308 (the store gets its own `li t4,1`, but 0x84/0x81 move t4/a2 -> a2/a0 in the allowed chain and `li t4,1` is re-materialised after both stores) |
+| variants scan of that body (swap/float/width/declswap, 190 variants) | best 212 (`queued` s8, a steer), no zero |
+| per-role case-4 PlayerState (`riderState`, or a block-local `targetState`, instead of the reused `playerState`) | 451 / 445 plain store, 454 / 448 with the pun |
+| plain store + case 20 `switch (volumeTriggerQueueOp[i]) { case 1: ... }` (Q0959 lever) | 364 (unchanged) |
+| ORIG check | the store is `li t5,1` 0x3914 + `sh t5,306(t6)` 0x3928: `sh` proves the 16-bit width only; signedness is a uopt web effect, every target load of 0x132 is `lh` -> the u16 view stays FAKE |
+
 ## Untried ideas
 - 0f5fc9: closed as a header case: interactionType is s16 in actor.h and all 11 target loads of 0x132 are `lh` (C920, 42630, 7A510 x2, 9DD70, A6280, A8400 x2, B1F60, C2A90 x2).
 - 0f5fc9: what bridges is the case 4 `unk2C0 != 1` compare (0x4218 `li at,1`, 0x421c `beq t6,at`): any spelling that makes that compare unsigned matches (1U, `& 0xFFFFFFFF`). A natural reason for an unsigned compare there (a real unsigned field or operand) has not been found; `unk2C0` is `lbu` everywhere (u8).

@@ -12,6 +12,10 @@ global:806809F0:other:71b822 other: `default: break;` (empty) in the trigger-que
 - variants scan (swap/float/width/declswap) of the no-default copy and of the case-continue copy: nothing below 294 / 4
 - permuter (hack-free weights, -j 2, 900 s) from the no-default body: base 3443 (permuter base 3360), best 2205 = a dead triple guard `if ((!sub) && (!sub) && (!sub)) {}` inside the loop body after the switch (Q0548 block split: the same extra not-2 block the empty default gives), no zero
 - review: `scaleFactor` was reused in case 10 for the remaining-growth fraction `(0.15 - scaleX) / 0.13`; a block-scoped `f32 growthLeft` matches (fdiff 0) and 71b822 re-measures the same on the new body (294/301/4)
+2026-11-19 2026-11-18c: cleanup CleanthrowableBarrelUpdateb CleanthrowableBarrelUpdateb anthropic/claude-opus-5-5 (variants.py try on the base a3d0ef71 body; diagnose re-run after the stale rung):
+- ORIG check (director ruling 2026-11-18b, empty default): the not-2 edge is `bne t1,t7,0x5928` at 0x58fc, straight to the latch 0x5928 (the join); no bound check, no gap entries, no block of its own (the `sll t5,a0,2` 0x58f4 / `addu v1,t5,t9` 0x5900 bound recompute sits before and in the bne slot, executed on both edges). Default at the join -> stays FAKE (diagnose nohit).
+- s16 value local `trigger = *gActorGlobalState.volumeTriggerQueueId[i]` (selector local at its use) with the one-case switch and no default: 309; with `if (trigger == 2)`: 313
+- case 2 without its own break, falling into `default: break;`: 249
 ## Untried ideas
 none that give the not-2 edge a block with its own line without an empty arm: the target performs no work there except the bound recompute.
 ## Evidence
