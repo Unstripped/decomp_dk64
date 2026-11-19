@@ -24,13 +24,12 @@ void noExpPakScreen(void) {
 }
 
 void noExpPakThread(void *arg) {
-    s32 count;
     s32 i;
     s32 x;
     s32 y;
     u16 *textFb;
     u16 *imageFb;
-    s32 pad; /* unused: reserves its stack slot */
+    s32 pad[2]; /* unused: reserve their stack slots */
     u16 *fb[2] = { (u16 *)0x80200000, (u16 *)0x80100000 };
     s16 delay[2] = { 120, 60 };
     s8 cur = 1;
@@ -49,7 +48,6 @@ void noExpPakThread(void *arg) {
         for (x = 0; x < 64; x++) {
             ((u16 *)0x80109600)[y * 320 + 128 + x] = ((s16 *)0x80280000)[((63 - y) << 6) + x];
         }
-        x = 0; // FAKE: dead store keeps IDO from unrolling the copy loop
     }
     osWritebackDCache(imageFb, 320 * 240 * 2);
     osCreateMesgQueue(&sNoExpPakViMesgQueue, sNoExpPakViMesgBuf, 5);
@@ -60,15 +58,15 @@ void noExpPakThread(void *arg) {
     }
     noExpPakDrawScreen();
     noExpPakDrawText(textFb);
-    count = 0;
+    x = 0;
     while (1) {
         osRecvMesg(&sNoExpPakViMesgQueue, NULL, OS_MESG_BLOCK);
-        count++;
-        if (count >= delay[cur]) {
+        x++;
+        if (x >= delay[cur]) {
             osViSwapBuffer(fb[cur]);
             osViBlack(0);
             cur = 1 - cur;
-            count = 0;
+            x = 0;
         }
     }
 }
