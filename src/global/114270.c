@@ -24,7 +24,7 @@ typedef struct M114aAngle {
     f32 camYaw;
     f32 camX;
     f32 camZ;
-    s16 unk20;
+    s16 phase; // sway angle (pool types 1, 3); types 4 and 5 re-roll it as a 5..24 variant (fall speed, texture)
     s16 angle;
     s16 tilt;
     u8 pad26[2];
@@ -140,7 +140,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
         return;
     }
     if (gEffectSpritePool->count == 0 && gEffectSpritePoolLoaded == 0) {
-        gEffectSpritePool->entries = heapAlloc(0x5C00);
+        gEffectSpritePool->entries = heapAlloc(0x80 * sizeof(EffectSpriteParticle));
         heapClearBlock(gEffectSpritePool->entries);
         gEffectSpritePoolType = poolType;
         for (i = 0; i < gEffectSpriteTextureSetups[poolType].count; i++) {
@@ -165,7 +165,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
     entry->camYaw = gPlayerSlots->camYaw;
     entry->camX = gPlayerSlots->camX;
     entry->camZ = gPlayerSlots->camZ;
-    entry->unk20 = (randomNonNegative() >> 15) % 32767 % 0xFFF;
+    entry->phase = (randomNonNegative() >> 15) % 32767 % 0xFFF;
     entry->angle = (randomNonNegative() >> 15) % 32767 % 360;
     switch (gEffectSpritePoolType) {
     case 3:
@@ -173,7 +173,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
         break;
     case 4:
     case 5:
-        entry->unk20 = (randomNonNegative() >> 15) % 20 + 5;
+        entry->phase = (randomNonNegative() >> 15) % 20 + 5;
         entry->sway = (randomNonNegative() >> 15) % 70 + 30;
         entry->angle = 0;
         if ((randomNonNegative() >> 15) % 100 > 80) {
@@ -306,12 +306,12 @@ u8 func_80710174(EffectSpriteParticle *particle) {
     f32 invScale;
 
     effectSpriteParticleTrackCamera(particle);
-    particle->x += mathSinF(particle->unk20) * particle->sway;
+    particle->x += mathSinF(particle->phase) * particle->sway;
     effectSpriteParticleWrapX(particle);
     particle->drawX = particle->x;
     invScale = 1.0 / (particle->scale * 4.0) * 8.0;
     isUnderMaxAge = particle->age < 0x3D;
-    particle->unk20 += 0x14;
+    particle->phase += 0x14;
     particle->age++;
     particle->y += ((10.0f - (invScale - 10.0f)) + 10.0f) * 0.25;
     if (!isUnderMaxAge && particle->alpha >= 0xA) {
@@ -325,13 +325,13 @@ u8 func_807102AC(EffectSpriteParticle *particle) {
     f32 invScale;
 
     effectSpriteParticleTrackCamera(particle);
-    particle->x += mathSinF(particle->unk20) * particle->sway;
+    particle->x += mathSinF(particle->phase) * particle->sway;
     effectSpriteParticleWrapX(particle);
     particle->drawX = particle->x;
     invScale = 1.0 / (particle->scale * 3.0) * 8.0;
     isUnderMaxAge = particle->age < 0x6F;
     particle->y += ((10.0f - (invScale - 10.0f)) + 10.0f) * 0.07;
-    particle->unk20 += 0x32;
+    particle->phase += 0x32;
     particle->age++;
     if (!isUnderMaxAge && particle->alpha >= 0xA) {
         particle->alpha -= 0xA;
@@ -347,7 +347,7 @@ u8 func_807103E0(EffectSpriteParticle *particle) {
     particle->x += mathSinF(particle->angle * 0.5) * (f32)(particle->sway * 0.05);
     effectSpriteParticleWrapX(particle);
     particle->drawX = particle->x;
-    particle->y += (1.0 + mathSinF(particle->angle)) * (f32)(1.0 + particle->unk20 * 0.08);
+    particle->y += (1.0 + mathSinF(particle->angle)) * (f32)(1.0 + particle->phase * 0.08);
     particle->angle += 0x64;
     particle->tilt = (mathSinF(particle->angle * 0.5) * 0.5 + 0.5) * (particle->tiltRange * 4 - -particle->tiltRange * 4) + -particle->tiltRange * 4;
     absScale = particle->scale > 0.0f ? particle->scale : -particle->scale;
@@ -432,7 +432,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
         if ((entry->age != 0) && ((entry->mapChunk == -1) || mapChunkContainsPoint(entry->drawX, entry->y, entry->mapChunk)) && !skipNearPlayer && !skipTimer) {
             gDPSetPrimColor(glist++, 0, 0, D_807FDA1B, D_807FDA1B, D_807FDA1B, entry->alpha);
             if (gEffectSpritePoolType == 4) {
-                switch (entry->unk20) {
+                switch (entry->phase) {
                 case 8:
                 case 10:
                 case 12:

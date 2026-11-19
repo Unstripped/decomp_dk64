@@ -82,7 +82,6 @@ FlagTableEntry D_80755EA0[0x16] = {
     { 0x57, 0, 0x13, 0x15D, 1, 0 }, { 0x2A, 0, 0x7, 0x167, 1, 0 }, { 0xB0, 0, 0x3, 0x17A, 1, 0 },
     { 0x22, 0, 0x9, 0x186, 1, 0 },
 };
-extern FlagTableEntry4 D_80755F4C[];
 FlagTableEntry4 D_80755F50[0x35] = {
     { 0xE0, 4, 0 }, { 0x1C4, 0, 0 }, { 0x131, 3, 0 }, { 0x132, 4, 0 }, { 0x2, 5, 0 },
     { 0x1, 4, 0 }, { 0x1C, 6, 0 }, { 0x87, 3, 0 }, { 0xE3, 5, 0 }, { 0xEB, 2, 0 },
@@ -329,7 +328,7 @@ s32 func_8073195C(s16 index) {
     if (index == 0) {
         return -1;
     }
-    return D_80755F4C[index].id;
+    return D_80755F50[index - 1].id;
 }
 
 u8 flagLookupValueById(s16 id) {

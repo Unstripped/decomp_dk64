@@ -320,7 +320,7 @@ void controllerAnimFree(Actor *actor) {
 void controllerAnimFreeModel(Actor *actor, u8 modelIndex) {
     AnimInitData *model;
     Gfx *cmd;
-    void **dlEnd;
+    void *dlEnd;
     u32 op;
     s32 i;
     switch (modelIndex) {
@@ -348,17 +348,14 @@ void controllerAnimFreeModel(Actor *actor, u8 modelIndex) {
             return;
         }
         if (--gModelCache[i].refCount == 0) {
-            cmd = model->displayLists[0];
             dlEnd = model->displayLists;
-            if (cmd != (Gfx *)dlEnd) {
-                do {
-                    op = cmd->words.w0 >> 24;
-                    if (op == G_SETTIMG) {
-                        if (IS_KSEG0(cmd->words.w1)) {
-                            assetFreeBuffer((void *)cmd->words.w1, 0x270, 0x15);
-                        }
+            for (cmd = model->displayLists[0]; cmd != dlEnd; cmd++) {
+                op = cmd->words.w0 >> 24;
+                if (op == G_SETTIMG) {
+                    if (IS_KSEG0(cmd->words.w1)) {
+                        assetFreeBuffer((void *)cmd->words.w1, 0x270, 0x15);
                     }
-                } while (++cmd != (Gfx *)dlEnd);
+                }
             }
 
             gModelCacheCount--;
