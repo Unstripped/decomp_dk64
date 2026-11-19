@@ -25,7 +25,6 @@
 #include "proto/global/CC800.h"
 #include "proto/global/F600.h"
 
-extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 extern u32 gGlobalCutsceneFlags;
@@ -43,6 +42,13 @@ typedef struct MenuBonusTimer {
 typedef struct {
     s32 ids[2];
 } TextIdPair;
+
+// Attract-mode demo: an input recording replayed in mode 3, cycled by gMenuDemoIndex.
+typedef struct DemoEntry {
+    /* 0x0 */ u8 recordingIndex; // input-recording asset (table 0x11) loaded by func_8060B750
+    /* 0x1 */ u8 pad1;
+    /* 0x2 */ u16 maxTime; // caps gMenuStateTimer
+} DemoEntry; // size = 0x4
 
 s8 D_807552E0 = 0;
 MpSettings gMpSettings = { 0, 0, 0, 3, { 0, 0, 0, 0 }, 0 };
@@ -66,6 +72,9 @@ s8 D_8075536C = 0;
 TextIdPair gMenuPromptTextIds = { { 3, 2 } };
 u8 gGameOverText[12] = "GAME OVER";
 s32 D_80755384[3] = { 0x6D, 0xBE, 0xC0 };
+const DemoEntry gMenuDemoEntries[5] = {
+    { 4, 0, 0x1E0 }, { 0, 0, 0x294 }, { 1, 0, 0x1E0 }, { 3, 0, 0x258 }, { 2, 0, 0x258 },
+};
 
 void menuTransitionWithState(s32 map, s32 exit, u8 mode) {
     mapRequestTransition(map, exit);
@@ -73,18 +82,18 @@ void menuTransitionWithState(s32 map, s32 exit, u8 mode) {
 }
 
 
-void menuTransitionRequest(s32 map, s32 exit, u8 mode) {
+void menuTransitionRequest(s32 map, s32 cutscene, u8 mode) {
     if (menuIsTransitionActive() == 0) {
         screenSetTransitionFadeType(0);
         menuTransitionWithState(map, D_8075536C, mode);
         D_80755338 = 1;
-        D_8075533C = exit;
+        D_8075533C = cutscene;
         D_8075536C = 0;
     }
 }
 
-void menuTransitionToMap(s32 map, s32 exit) {
-    menuTransitionRequest(map, exit, gMenuTargetMode);
+void menuTransitionToMap(s32 map, s32 cutscene) {
+    menuTransitionRequest(map, cutscene, gMenuTargetMode);
 }
 
 s32 menuCalculateBonusDuration(void) {
@@ -92,14 +101,14 @@ s32 menuCalculateBonusDuration(void) {
 }
 
 void menuTimerInit(void) {
-    u32 i;
+    s32 i;
     s32 found = 0;
 
     gMenuBonusTimer.active = 1;
     gMenuBonusTimer.index = 0;
     gMenuBonusTimer.time = osGetTime();
     gMenuBonusTimer.duration = menuCalculateBonusDuration() * 60;
-    for (i = 0; (i < 10) && (found == 0); i++) {
+    for (i = 0; (i < sizeof(gMenuBonusTimerThresholds) / sizeof(gMenuBonusTimerThresholds[0])) && (found == 0); i++) {
         if (gMenuBonusTimerThresholds[i] < gMenuBonusTimer.duration) {
             gMenuBonusTimer.index = i;
             found = 1;
@@ -115,8 +124,8 @@ s32 menuGetTimerFlag(void) {
     return gMenuBonusTimer.active;
 }
 
-void menuTransitionRequestTypeB(s32 map, s32 exit) {
-    menuTransitionRequest(map, exit, 0xB);
+void menuTransitionRequestTypeB(s32 map, s32 cutscene) {
+    menuTransitionRequest(map, cutscene, 0xB);
     gMenuTransitionFlag = 0;
 }
 
@@ -156,7 +165,6 @@ void menuTransitionWithStateD(s32 map) {
 
 s32 menuIsTransitionActive(void) {
     return gMenuCurrentMode != gMenuTargetMode;
-
 }
 
 void menuResetAndTransitionToCredits(void) {
@@ -262,16 +270,6 @@ void menuSeedRandom(void) {
 extern u8 gActivePlayerCount;
 extern u16 gButtonsPressed;
 
-// Attract-mode demo: an input recording replayed in mode 3, cycled by gMenuDemoIndex.
-typedef struct DemoEntry {
-    /* 0x0 */ u8 recordingIndex; // input-recording asset (table 0x11) loaded by func_8060B750
-    /* 0x1 */ u8 pad1;
-    /* 0x2 */ u16 maxTime; // caps gMenuStateTimer
-} DemoEntry; // size = 0x4
-
-extern const DemoEntry gMenuDemoEntries[];
-
-
 void menuSetupDemoPlayback(void) {
     if (gMenuTargetMode == 3) {
         func_8060B750(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
@@ -321,7 +319,7 @@ void menuCheckMapTransitionOnLoad(void) {
         gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
         gMenuStateTimer = MIN(gMenuStateTimer, gMenuDemoEntries[gMenuDemoIndex].maxTime);
         gMenuDemoIndex++;
-        gMenuDemoIndex %= 5U;
+        gMenuDemoIndex %= sizeof(gMenuDemoEntries) / sizeof(gMenuDemoEntries[0]);
         gControllerButtonMask = 0x1000;
         break;
     case 7:
@@ -362,13 +360,11 @@ void menuReturnToTitle(void) {
 }
 
 void menuCheckCutsceneTransition(s32 *map, s32 *exit) {
-    if (gMenuCurrentMode == 0xC) {
-        if (((gGlobalCutsceneFlags & 2) == 0) || (gCurrentMap == 0xCF) || (*map == 0x22)) {
-            *map = 0x50;
-            *exit = 0;
-            gMenuTargetMode = 5;
-            return;
-        }
+    if ((gMenuCurrentMode == 0xC) && (!(gGlobalCutsceneFlags & 2) || (gCurrentMap == 0xCF) || (*map == 0x22))) {
+        *map = 0x50;
+        *exit = 0;
+        gMenuTargetMode = 5;
+        return;
     }
     if ((gMenuCurrentMode == 0xD) && (gCurrentMap != *map)) {
         *map = 0xF;
@@ -446,18 +442,10 @@ void menuHandleBonusStageTransition(void) {
 }
 
 void menuHandleDemoModeTransition(void) {
-    if (gMenuDemoActive == 0) {
-        if (gMenuCurrentMode != 1) {
-            return;
-        }
-        if (D_80755334 < 0x5A) {
-            return;
-        }
-        if ((gPadPressedButtons[0] & 0x1000) == 0) {
-            return;
-        }
+    if ((gMenuDemoActive != 0)
+        || ((gMenuCurrentMode == 1) && (D_80755334 >= 0x5A) && (gPadPressedButtons[0] & 0x1000))) {
+        menuTransitionRequest(0x4C, 0, 2);
     }
-    menuTransitionRequest(0x4C, 0, 2);
 }
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
@@ -485,11 +473,6 @@ Gfx *menuDrawDemoHeaderText(Gfx *dl) {
     gSPMatrix(dl++, &D_807FDAC0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     return textDrawStringVtx(dl, 1, 0x118, y * 2.0f * 4.0f, text, 4);
 }
-
-
-const DemoEntry gMenuDemoEntries[5] = {
-    { 4, 0, 0x1E0 }, { 0, 0, 0x294 }, { 1, 0, 0x1E0 }, { 3, 0, 0x258 }, { 2, 0, 0x258 },
-};
 
 extern s16 gScreenWidth;
 
@@ -583,7 +566,7 @@ Gfx *menuDrawDemoOverlay(Gfx *dl) {
     dl = menuDrawBlinkingPromptText(menuOverlayGfxInit(dl));
     dl = menuDrawDemoHeaderText(dl);
     if (++gMenuDemoOverlayFrames < 0xD3) {
-        fade = (0xD2 - gMenuDemoOverlayFrames) * 0.03333333507f;
+        fade = (0xD2 - gMenuDemoOverlayFrames) * (1.0f / 30.0f);
         fade = (fade < 0.0f) ? 0.0f : ((fade > 1.0f) ? 1.0f : fade);
         dl = menuDrawDemoSprite(menuDrawDemoCaption(dl, 255.0f * fade), 255.0f * fade, 0);
     }
@@ -608,27 +591,26 @@ Gfx *menuDrawGameOverText(Gfx *dl) {
     s16 pad0;
     s16 alpha;
     f32 scale;
+
     remaining = gMenuStateTimer - 0x8C;
-    if (remaining >= 0) {
-        if (remaining < 0x96) {
-            alpha = remaining - 0x5A;
-            if (alpha < 0) {
-                alpha = 0xFF;
-            } else {
-                alpha = 0x3C - alpha;
-                alpha = alpha * 5;
-            }
-            if (remaining < 0x3C) {
-                alpha = remaining * 5;
-            }
-            if (alpha >= 0x100) {
-                alpha = 0xFF;
-            }
-            dl = menuGameOverGfxInit(dl);
-            gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, alpha);
-            scale = (0x96 - remaining) / 40.0;
-            dl = hudDrawScaledText(dl, 0x280, 480.0 - scale * 32.0, scale, gGameOverText);
+    if ((remaining >= 0) && (remaining < 0x96)) {
+        alpha = remaining - 0x5A;
+        if (alpha < 0) {
+            alpha = 0xFF;
+        } else {
+            alpha = 0x3C - alpha;
+            alpha = alpha * 5;
         }
+        if (remaining < 0x3C) {
+            alpha = remaining * 5;
+        }
+        if (alpha >= 0x100) {
+            alpha = 0xFF;
+        }
+        dl = menuGameOverGfxInit(dl);
+        gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, alpha);
+        scale = (0x96 - remaining) / 40.0;
+        dl = hudDrawScaledText(dl, 0x280, 480.0 - scale * 32.0, scale, gGameOverText);
     }
     return dl;
 }
@@ -651,7 +633,8 @@ void menuTimerUpdateCountdown(void) {
         if (!(gGlobalPauseFlags & 2)) {
             elapsed = OS_CYCLES_TO_USEC(osGetTime() - gMenuBonusTimer.time);
             gMenuBonusTimer.remaining = gMenuBonusTimer.duration - (u32)(elapsed / 1000000);
-            if (((u32)gMenuBonusTimer.index < 0xA) && (gMenuBonusTimer.remaining == gMenuBonusTimerThresholds[gMenuBonusTimer.index])) {
+            if ((gMenuBonusTimer.index < sizeof(gMenuBonusTimerThresholds) / sizeof(gMenuBonusTimerThresholds[0]))
+                && (gMenuBonusTimer.remaining == gMenuBonusTimerThresholds[gMenuBonusTimer.index])) {
                 sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 gMenuBonusTimer.index++;
             }
@@ -681,22 +664,18 @@ Gfx *mathIdentityS32B(Gfx *dl) {
     return dl;
 }
 
-void menuTransitionToMapIfUnlocked(s32 map, s32 exit, s32 gate) {
-    s32 savedExit;
+void menuTransitionToMapIfUnlocked(s32 map, s32 cutscene, s32 gate) {
+    s32 pad;
     s32 total;
     s32 i;
 
     if (map >= 0) {
         if (gMenuCurrentMode == 0xE) {
-            if (gate == 1) {
-                if (flagGet(0x2A, 1) == 0) {
-                    map = -1;
-                }
+            if ((gate == 1) && (flagGet(0x2A, 1) == 0)) {
+                map = -1;
             }
-            if (gate == 2) {
-                if (flagGet(0x2B, 1) == 0) {
-                    map = -1;
-                }
+            if ((gate == 2) && (flagGet(0x2B, 1) == 0)) {
+                map = -1;
             }
         } else {
             hudPauseMenuRefreshTotals();
@@ -716,7 +695,7 @@ void menuTransitionToMapIfUnlocked(s32 map, s32 exit, s32 gate) {
             }
         }
         if (map >= 0) {
-            menuTransitionToMap(map, exit);
+            menuTransitionToMap(map, cutscene);
             return;
         }
     }
@@ -734,7 +713,7 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     if ((D_80755338 != 0) && (gFrameCounter == 1)) {
         D_80755338 = 0;
         if (D_8075533C >= 0) {
-            camStartPath(0, D_8075533C, 1);
+            camStartPath(NULL, D_8075533C, 1);
         }
     }
     if (D_807552E0 != 0) {
@@ -750,20 +729,18 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     if ((menuGetTimerFlag() != 0) && (gMenuCurrentMode != 6)) {
         menuClearTimerFlag();
     }
-    if (gMenuStateTimer != 0) {
-        if (gMenuCurrentMode == gMenuTargetMode) {
-            gMenuStateTimer--;
-            switch (gMenuCurrentMode) {
-            case 0:
-            case 1: menuHandleDemoModeTransition(); break;
-            case 2: menuHandleBonusStageTransition(); break;
-            case 3: menuUpdateTitleOrTransition(); break;
-            case 7:
-            case 9: menuHandleIntroScreenTransition(); break;
-            case 14: menuHandleTitleScreenTransition(); break;
-            case 11: menuHandleCutsceneScreenTransition(); break;
-            case 6: menuTimerUpdateCountdown(); break;
-            }
+    if ((gMenuStateTimer != 0) && (gMenuCurrentMode == gMenuTargetMode)) {
+        gMenuStateTimer--;
+        switch (gMenuCurrentMode) {
+        case 0:
+        case 1: menuHandleDemoModeTransition(); break;
+        case 2: menuHandleBonusStageTransition(); break;
+        case 3: menuUpdateTitleOrTransition(); break;
+        case 7:
+        case 9: menuHandleIntroScreenTransition(); break;
+        case 14: menuHandleTitleScreenTransition(); break;
+        case 11: menuHandleCutsceneScreenTransition(); break;
+        case 6: menuTimerUpdateCountdown(); break;
         }
     }
     switch (gMenuCurrentMode) {
