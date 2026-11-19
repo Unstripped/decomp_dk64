@@ -43,6 +43,20 @@
   - review nohit: casts=1 is the BossMadJackActor per-type view (Actor 0x178); angleOffset s16 evidenced by
     `sh t3,0x40(sp)` 0xc38; `unk18[1] = unk18[0]` stores t8 twice (0x938/0x93c, no reload); variants.py scan zeros are
     neutral respellings only.
+- 2026-11-18b U CleanbossMadJackStepb (opus-5-5), stale-rung re-run on the post-data-campaign body (base 4a16c62d:
+  `gMadJackPhaseScripts` now an in-TU `const u8 *[5]` definition over the five C-defined scripts D_80036160..
+  D_8003619C, `scriptOpcodes` `const u8 *`); goto-hand kept (Q0591, Q0953), shared tail re-verified from
+  expected/build/src/boss/52B0.o at 4a16c62d (every Evidence offset below re-read, unchanged since 5c29ac5c):
+  - typed-data lever: none. The two `gMadJackPhaseScripts[phase]` loads sit at 0x1d4-0x1f4 (head, `sw t8,0x44(sp)`)
+    and 0x7e8-0x80c (case 0x4D/4); neither the 0x83c entry, the 0x858-0x8e4 yaw block nor the 0x8e8 tail head reads
+    it, and the tail reads `scriptOpcodes` only from its 0x44(sp) home (`lw` at 0x910 case 0, 0xb08 case 4, 0xdc4
+    case 9/10), a spill the `const` qualifier does not touch.
+  - re-scored on the current body, variants.py try (full=): base 0, merged `case 0x28: case 0x2A: case 0x46:
+    if (state != 0x46) turn else yaw` 10 (text 8, reloc 2), (b) 8 (text 8): same as history. (b) re-traced
+    (uopt -l6): candidates 43 `ucvt` (state lbu 0x154) assigned (constrained) 3 and 96/97 `uneq`/`ucg1` appear only in
+    the (b) trace -> `lbu a0,0x154(s0)` + `move v1,a0` 0x2b8/0x2c0, `li at,0x46; beq a0,at,0x864` 0x840/0x844,
+    `li a0,0x14` rescheduled after `lui a1` (0x84c), jr ra 0xf80 -> 0xf8c. Unchanged by the data carve: nohit.
+  - review nohit: no edits (fake 0, goto 1, casts=1 the BossMadJackActor view, uninit 0, warn 0).
 ## Untried ideas
 - none structured left. Exhaustive by construct (2026-11-18): the 0x28/0x2A entry must reach 0x8e8 by an unconditional
   jump over the yaw block, and C has only goto, break/continue out of an enclosing loop/switch, or the end of an
@@ -53,7 +67,7 @@
 ## Evidence
 - Outer switch: `lbu v1,340(s0)` 0x2b8; jtbl .rodata+0x58 indexed by state-0x1E (0x2c0-0x2dc), range `sltiu at,t4,48`.
 - .rodata+0x80/+0x88 (0x28/0x2A) -> 0x83c; .rodata+0xf8 (0x46) -> 0x858; no entry targets 0x8e8 (re-read 2026-11-18
-  from expected/ objdump -drz at 5c29ac5c).
+  from expected/ objdump -drz at 5c29ac5c, and 2026-11-18b at 4a16c62d with `objdump -r -s -j .rodata`).
 - 0x83c-0x854: `lui/lw a1 gBehaviourTargetActor; li a0,20; jal actorTurnTowardActorYaw; sw t0,76(sp)` / `b 0x8e8; lw t0,76(sp)`.
   No state compare.
 - 0x858-0x8e4: yaw += unk2E; mathAngleSignedDistance (jal 0x87c, `sw t0,76(sp)` delay, `lw t0,76(sp)` in the blez delay
