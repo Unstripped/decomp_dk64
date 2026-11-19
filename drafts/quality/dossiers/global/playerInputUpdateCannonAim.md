@@ -52,8 +52,34 @@
 | `variants.py scan`: guard-free copy | best 29 (sel u8/u16) |
 | `variants.py scan`: actor-local copy | best 6 (declswap, widths) |
 
+**2026-11-19, unit "2026-11-18c: cleanup CleanplayerInputUpdateMoveTargetClampedb", CleanplayerInputUpdateMoveTargetClampedb, anthropic/claude-opus-5-5.** Base 9de100e7 (merged carve), site c17942 only, `variants.py try` full lines:
+
+| Variant | Diff lines |
+|---|---|
+| c17942 removed (if form) | 42 (shape 0) |
+| `if (1) {}` in its place (Q0908) | 33 (class 2; sweep classify class 2) |
+| guard-return entry `if (T >= 0xF) return;` (Q1368/Q1375 file idiom), no guard | 42 |
+| guard-return entry with the guard | 0 (the entry form is no lever) |
+| default-first actorType switch (M9 ebd16c6f), no guard / with guard | 57 (shape 4) / 4 |
+| invented one-case switch on the button bit (R3 shape), case 0x8000 / default first | 48 / 50 (shape 10-11) |
+| switch directly on `heldActor->actorType`, guard-return form | 42 |
+| Q0601 `held = gActivePlayerState->heldActor; switch (held->actorType)`, if or return form | 19 |
+| held + `sel = held->actorType` (either declaration order) | 19 |
+| held + the guard | 17 |
+| held read hoisted above the state store | 49 |
+| pad local for the button test | 73 |
+| `actor` local for both state and unk155 stores | 32 |
+| `variants.py scan`: removal copy / held copy | best 29 (sel u8/u16) / no variants |
+| permuter perm_ca, 905 s, `-j 2`, base 300 | 4 zeros, all re-insert `if (gCurrentActor) {}` / `if (!gCurrentActor) {}` (perm_refer_to_var is not in HACK_PASSES); best non-zero are one-use Actor aliases or other dead ifs |
+
+- Removal diff: &gCurrentActor a3 -> a2 (0x4350/0x4360), &gActivePlayerState a2 -> v1 (0x4364/0x437c and every `lw x,0(a2)`), the state-store load `lw v1,0(a3)` 0x43a4 -> ring t7.
+- uopt -l 6: with the guard, web 15 (`uilod` of &gCurrentActor, const 916) spans the guard block and the store block and is coloured reg 2 (v1); sel web 24 reg 1 (v0); &gActivePlayerState web 46 reg 5 (a2); &gCurrentActor web 48 reg 6 (a3). Without it web 15 is no candidate and 46/48 take regs 2/5. The held local gives two low webs too, but the wrong ones: held (web 24) v0 and the switch temp (web 28) v1.
+- R3 does not hold: the function has no if/else on a selector byte. Its only tests are `andi 0x8000`/`beqz` 0x4358-0x435c and `sltiu 15`/`beqzl` 0x4398-0x439c; actorType (`lw v0,88(t2)` 0x43e8, `sltiu 86` / `li 130`) is already a switch.
+- Result: c17942 stays FAKE (diagnose nohit, permute nohit). The copy is unchanged.
+
 ## Untried ideas
-- Permuter on the carve fake-free body: done 2026-11-15 (see the ledger permute line).
+- Permuter on the carve fake-free body: done 2026-11-15 (stand-in) and 2026-11-19 (merged TU); every zero re-inserts the dead read.
+- None found that reach the target state codelessly: it needs the gCurrentActor load (web 15) available in a block ahead of the state store, and only a dead read of gCurrentActor at the jump-block head supplies that. A held-actor local (19) fixes both address registers; a natural change that then moves held/the switch temp off v0/v1 (e.g. a reason for the 0x43a4 load to be a web) is the only open direction.
 - The SchedStruct field `unk280` is already u32 (`sched.h:41`), and Actor.actorType is u32 (0x58), so those widths are not levers.
 
 ## Evidence

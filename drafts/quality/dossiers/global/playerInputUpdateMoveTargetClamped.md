@@ -33,6 +33,11 @@
   - Q0908 classes: `if (1) {}` 95, a label `lbl:;` 95, `if (0) {}` 95 (= removal: not a block split); `if (dist) {}` 0 and `if (dist > 0.0f) {}` 0 (availability read: needs a same-value use of dist).
   - `variants.py scan` of the removal form: 37 variants, best 89 (`moveYaw` s16 -> s32/u32), no zero.
   - Consumer check in expected/build/src/global/E4090.o: offsets unchanged (div.s 0x1510 .. cvt.s.d $f0,$f8 0x153c); no float instruction 0x155c-0x1858. Same result as the 17f unit; no new lever. Copy sweep 0 hits; fdiff 0; uninit 0.
+- 2026-11-19, unit "2026-11-18c: cleanup CleanplayerInputUpdateMoveTargetClampedb", CleanplayerInputUpdateMoveTargetClampedb, anthropic/claude-opus-5-5. Re-measure at base 9de100e7 (body unchanged since c365d62c; the rung was staled by file-level text changes). `variants.py try`:
+  - plain removal full=95 text=93 shape=30 (275 vs 301 lines): the 4096 `sub.s` 0x14d4, the 400 `c.lt.s`/`mov.s` 0x14e4-0x14f4, `lwc1 184(a3)`/`lwc1 56(v0)` and `div.s` 0x1510 .. `cvt.s.d $f0,$f8` 0x153c vanish; gActivePlayerState moves v0 -> t8.
+  - Q1026 kept-class spellings of the dead compare all score 0 (same dead use, still steers): `if (dist > 1.0f);`, `dist > 1.0f ? 0 : 0;`, `dist > 1.0f && 0;`, `if (dist > 1.0f) {} else {}`.
+  - Q1026 dropped class scores 95 (cfe emits no use): `(void)(dist > 1.0f);`, `(void)dist;`.
+  - Copy sweep: 0 hits (c1ad5d classify class 2, cond no flips, recipe/remove nohit). fdiff 0, uninit 0. Body unchanged.
 
 ## Untried ideas
 - None that could reach a codeless real use. The target has no consumer of the value (see Evidence), so any body that scores 0 needs a dead reader of dist. Q0200/Q1026/Q1029 say the same.
