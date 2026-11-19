@@ -640,7 +640,6 @@ extern TextureDescriptor D_8004BB90[];
 extern TextureDescriptor D_8004BBC0[];
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
-extern u8 gGfxBufferIndex;
 extern TextureDescriptor D_8004BB00[];
 extern u16 D_80032C20[];
 extern u16 D_80032DF8[];
@@ -706,7 +705,7 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
     dlAppendTextureLoad(&glist, &D_8004BB30[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < height / 4; i++) {
-        dlAppendTextureRectangle(&glist, x * 4, (s32)((f64)(i * 4 + y + 8) * 4.0));
+        dlAppendTextureRectangle(&glist, x * 4, (i * 4 + y + 8) * 4.0);
     }
     D_8004C71A = height % 4;
     if (D_8004C71A != 0) {
@@ -722,7 +721,7 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
             break;
         }
         dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-        dlAppendTextureRectangle(&glist, x * 4, (s32)((f64)(i * 4 + y + 8) * 4.0));
+        dlAppendTextureRectangle(&glist, x * 4, (i * 4 + y + 8) * 4.0);
     }
     *glistp = glist;
 }
@@ -893,7 +892,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
             dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x380);
         }
         for (i = 0xE; i < 0x1C; i++) {
-            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, (s32)((((f64)(0xF7 - ((i - 0xC) / 2)) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, ((0xF7 - (i - 0xC) / 2) * 0.875 + 8.0) * 4.0);
         }
     } else {
         for (i = 0; i < 0x1C; i++) {
@@ -902,7 +901,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     }
     if (D_8004C708 >= 5) {
         for (i = 0; i < 0x1A; i++) {
-            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0xCF) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, ((i / 2 + 0xCF) * 0.875 + 8.0) * 4.0);
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
@@ -911,7 +910,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     }
     if (D_8004C708 >= 4) {
         for (i = 2; i < 0x1C; i++) {
-            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, (s32)((((f64)(0xBB - (i / 2)) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, ((0xBB - i / 2) * 0.875 + 8.0) * 4.0);
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
@@ -920,7 +919,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     }
     if (D_8004C708 >= 3) {
         for (i = 0; i < 0x1A; i++) {
-            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, (s32)((((f64)((i / 2) + 0x8D) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, ((i / 2 + 0x8D) * 0.875 + 8.0) * 4.0);
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
@@ -929,7 +928,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     }
     if (D_8004C708 >= 2) {
         for (i = 2; i < 0x1C; i++) {
-            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, (s32)((((f64)(0x79 - (i / 2)) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, ((0x79 - i / 2) * 0.875 + 8.0) * 4.0);
         }
     } else {
         for (i = 2; i < 0x1C; i++) {
@@ -941,7 +940,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
             dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x142);
         }
         for (i = 0x12; i < 0x1A; i++) {
-            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, (s32)((((f64)(((i - 0x10) / 2) + 0x53) * 0.875) + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, (((i - 0x10) / 2 + 0x53) * 0.875 + 8.0) * 4.0);
         }
     } else {
         for (i = 0; i < 0x1A; i++) {
@@ -968,10 +967,10 @@ void arcadeDrawStage2Background(Gfx **glistp) {
         dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
         dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
         for (i = 0; i < 4; i++) {
-            dlAppendTextureRectangle(&glist, 0x1DC, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, 0x1DC, (s32)(i * 8 + 51.625 + 8.0) * 4.0);
         }
         for (i = 0; i < 4; i++) {
-            dlAppendTextureRectangle(&glist, 0x31C, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, 0x31C, (s32)(i * 8 + 51.625 + 8.0) * 4.0);
         }
     }
     D_8004C719 = 8;
@@ -1048,7 +1047,7 @@ void arcadeDrawGirderSpan(Gfx **glistp, u8 startX, u8 endX, s16 yVal) {
 
     glist = *glistp;
     for (i = startX; i < endX; i++) {
-        dlAppendTextureRectangle(&glist, ((i << 5) + 0xC0), (s32)((((f64) yVal * 0.875) + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, ((i << 5) + 0xC0), (yVal * 0.875 + 8.0) * 4.0);
     }
     *glistp = glist;
 }
@@ -1317,7 +1316,6 @@ extern u8 D_8004A338[];
 extern u8 D_8004A358[];
 extern u8 D_8004A378[];
 extern TextureDescriptor D_8004AC00[][80];
-extern u8 gGfxBufferIndex;
 
 extern f32 D_8004BCF4;
 
@@ -2034,7 +2032,7 @@ void arcadeRenderEntity(Gfx **glistp, s32 entIndex) {
     dlInitTextureDescriptor(&D_8004AC00[gGfxBufferIndex][entIndex], D_8004BCD0[entIndex].sprite, 0, D_8004BCD0[entIndex].width, D_8004BCD0[entIndex].width, D_8004BCD0[entIndex].height, 0, 2, 0, 0);
     glist = *glistp;
     dlAppendTextureLoad(&glist, &D_8004AC00[gGfxBufferIndex][entIndex]);
-    dlSetTextureScaleAndFlip(0x400, (s32)scale, (u8)(D_8004BCD0[entIndex].facing & 1), D_8004BCD0[entIndex].flipY);
+    dlSetTextureScaleAndFlip(0x400, scale, D_8004BCD0[entIndex].facing & 1, D_8004BCD0[entIndex].flipY);
     if (D_8004A338[D_8004BCD0[entIndex].type] & 2) {
         dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].x - D_8004A358[D_8004BCD0[entIndex].type]) * 4, (s32)((D_8004BCD0[entIndex].y - D_8004A378[D_8004BCD0[entIndex].type]) * 0.875 + 8.0) * 4);
     } else {
@@ -2046,7 +2044,7 @@ void arcadeRenderEntity(Gfx **glistp, s32 entIndex) {
         } else {
             yOffset = 0;
         }
-        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].x - D_8004A358[D_8004BCD0[entIndex].type]) * 4, (s32)(((D_8004BCD0[entIndex].y - yOffset - D_8004A378[D_8004BCD0[entIndex].type]) * 0.875 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].x - D_8004A358[D_8004BCD0[entIndex].type]) * 4, ((D_8004BCD0[entIndex].y - yOffset - D_8004A378[D_8004BCD0[entIndex].type]) * 0.875 + 8.0) * 4.0);
     }
     *glistp = glist;
 }
@@ -2222,14 +2220,13 @@ extern struct GfSndState *D_80770DFC;
 extern ArcadeEntity D_8004A5F8;
 extern u16 D_800383B8[];
 extern u16 D_800385C0[];
-extern u16 D_8003B180[];
 void arcadeUpdatePlayerEntity(s32 entIndex) {
     union {
         f32 f;
         s32 bits;
     } soundPitch;
     s32 floorY;
-    s32 i;
+    s32 i; // ORIG: one index local: the conveyor exit value, scan counter and popup slot are stored to its home sp+0x3c (+0x6b0, +0xce8/+0xd60, +0xe04); a separate popup slot local grows the frame 0x48 -> 0x50
     s32 jumpedCount;
     s32 phase;
     static s32 sStepTimer;
@@ -2487,11 +2484,11 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
 
 void arcadeUpdateEntitySprite(s32 entIndex) {
     ArcadeEntity *ptr = &D_8004BCD0[entIndex];
-    s32 val = (s32)ptr->animTimer;
+    s32 frame = (s32)ptr->animTimer;
 
     if (ptr->state == 5 || ptr->state == 7 || ptr->state == 1) {
         if (ptr->param2 != 0) {
-            switch (val & 1) {
+            switch (frame & 1) {
             case 0:
                 ptr->sprite = D_80035AE0;
                 return;
@@ -2500,7 +2497,7 @@ void arcadeUpdateEntitySprite(s32 entIndex) {
                 return;
             }
         } else {
-            switch (val & 1) {
+            switch (frame & 1) {
             case 0:
                 ptr->sprite = D_80035650;
                 return;
@@ -2511,7 +2508,7 @@ void arcadeUpdateEntitySprite(s32 entIndex) {
         }
     } else {
         if (ptr->param2 != 0) {
-            switch (val & 3) {
+            switch (frame & 3) {
             case 0:
                 ptr->sprite = D_80035448;
                 return;
@@ -2526,7 +2523,7 @@ void arcadeUpdateEntitySprite(s32 entIndex) {
                 return;
             }
         } else {
-            switch (val & 3) {
+            switch (frame & 3) {
             case 0:
                 ptr->sprite = D_80034C28;
                 return;
@@ -2667,13 +2664,10 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
     }
 }
 
-extern s8 D_8004A768;
 extern u16 D_80037B98[];
 extern u16 D_80037DA0[];
 extern u16 D_80037FA8[];
 extern u16 D_8003E438[];
-extern u16 D_800383B8[];
-extern u16 D_800385C0[];
 extern u16 D_800387C8[];
 extern u16 D_80039D18[];
 extern u16 D_80039F60[];
@@ -2686,7 +2680,6 @@ extern u16 D_8003DD60[];
 extern u16 D_80038BD8[];
 extern u16 D_8003E680[];
 extern u16 D_8003E868[];
-extern ArcadeEntity D_8004A5F8;
 extern s32 D_8004A318[];
 
 extern u16 D_80035EF0[];
@@ -2814,13 +2807,13 @@ extern u16 D_80037788[];
 extern u16 D_80037990[];
 
 void arcadeUpdateSpringEntity(s32 entIndex) {
-    s32 sw;
+    s32 frame;
 
     if (gArcadeFrozen == 0) {
         D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
         D_8004BCD0[entIndex].animTimer += 0.1;
-        sw = (s32)D_8004BCD0[entIndex].animTimer;
-        switch (sw & 1) {
+        frame = (s32)D_8004BCD0[entIndex].animTimer;
+        switch (frame & 1) {
         case 0:
             D_8004BCD0[entIndex].sprite = D_80037788;
             break;
@@ -2861,7 +2854,7 @@ extern u16 D_800326B8[];
 extern u16 D_80032900[];
 
 void arcadeUpdateOilDrumEntity(s32 entIndex) {
-    s32 n;
+    s32 n; // FAKE: one local for the case-2 barrel-count limit (home sp+0x24, sw/lw +0x15c/+0x160) and the case-3 new slot (register only); a separate slot local keeps the frame 0x28 but moves the a1 spill 0x1c -> 0x18
 
     if (gArcadeFrozen == 0) {
         if (--D_8004BCD0[entIndex].param >= 0x15) {
@@ -3022,18 +3015,18 @@ void arcadeUpdateHelpSpeechBubble(s32 entIndex) {
 }
 
 void arcadeUpdateConveyorPulleys(s32 entIndex) {
-    s32 val;
+    s32 phase;
     ArcadeEntity *entity;
 
     if (gArcadeFrozen == 0) {
         entity = &D_8004BCD0[entIndex];
         entity->param2 += D_8004A308[entity->param];
-        val = entity->param2;
-        if (val < 0) {
-            entity->param2 = val + 0x2EE00;
-            val = entity->param2;
+        phase = entity->param2;
+        if (phase < 0) {
+            entity->param2 = phase + 0x2EE00;
+            phase = entity->param2;
         }
-        switch ((val / 8) % 3) {
+        switch ((phase / 8) % 3) {
         case 0:
             entity->sprite = D_80037B98;
             return;
@@ -3230,7 +3223,7 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                 if (D_8004C722 != 4) {
                     D_8004BCD0[entIndex].x = 100.0f;
                 }
-                D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].y - 0.4;
+                D_8004BCD0[entIndex].y -= 0.4;
                 if (D_8004BCD0[entIndex].y < 23.0f) {
                     D_8004C721 = 0;
                 }
@@ -3258,7 +3251,7 @@ extern u16 D_80049348[];
 extern ArcadeEntity D_8004A6F8;
 
 void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
-    s32 tmp;
+    s32 tmp; // FAKE: one register-only local for the incremented param byte, the facing flag and the frame selector; a separate local moves the t0 spill 0x2c -> 0x28
 
     switch (D_8004BCD0[entIndex].state) {
     case 2:
@@ -3461,8 +3454,8 @@ extern u16 D_80039888[];
 extern u16 D_80039AD0[];
 
 void arcadeUpdateHammerEntity(u8 entIndex) {
-    s32 i;
-    s32 idx;
+    u8 i;
+    u8 idx;
 
     if (gArcadeFrozen == 0) {
         switch (D_8004BCD0[entIndex].state) {
@@ -3498,13 +3491,12 @@ void arcadeUpdateHammerEntity(u8 entIndex) {
                 }
                 D_8004BCD0[entIndex].y = D_8004BCD0[gArcadePlayerIndex].y;
             }
-            i = 0;
-            do {
+            for (i = 0; i < 0x50; i++) {
                 if (D_8004BCD0[i].type == 1 || D_8004BCD0[i].type == 4 || D_8004BCD0[i].type == 2) {
                     if (arcadeAbs(D_8004BCD0[i].x - D_8004BCD0[entIndex].x) < 0xD) {
                         if (arcadeAbs(D_8004BCD0[i].y - D_8004BCD0[entIndex].y) < 8) {
                             n_alSndpPlay(gSfxBank, 0x4B, 0x7FFF, 0x3F, 1.0f, 0, 0);
-                            idx = (u8)arcadeFindFreeEntitySlot39();
+                            idx = arcadeFindFreeEntitySlot39();
                             D_8004BCD0[idx] = D_8004A618;
                             D_8004BCD0[idx].type = 7;
                             D_8004BCD0[idx].param2 = D_8004BCD0[i].type;
@@ -3515,7 +3507,7 @@ void arcadeUpdateHammerEntity(u8 entIndex) {
                         }
                     }
                 }
-            } while ((i = (u8)(i + 1)) < 0x50);
+            }
             if (D_8004C710-- == 1) {
                 D_8004BCD0[entIndex].type = 0;
                 arcadeStopSound(0);
@@ -3528,16 +3520,16 @@ void arcadeUpdateHammerEntity(u8 entIndex) {
 
 void arcadeUpdateHammerSmash(u8 entIndex) {
     ArcadeEntity *entity = &D_8004BCD0[entIndex];
-    u8 temp;
+    u8 frame;
     u8 rand;
 
     if (entity->param >= 0x37) {
         entity->sprite = D_8003A3F0;
     } else {
-        temp = (entity->param / 6) % 3;
-        if (temp == 0) {
+        frame = (entity->param / 6) % 3;
+        if (frame == 0) {
             entity->sprite = D_80039D18;
-        } else if (temp == 1) {
+        } else if (frame == 1) {
             entity->sprite = D_80039F60;
         } else {
             entity->sprite = D_8003A1A8;
