@@ -13,10 +13,19 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - an assignment in a test whose values the target uses
 - one macro for every recomputation
 - function-local statics
-- a selector local at its use
-- a local holding one field read for use (Q0601)
-- a pointer local to a global used for EVERY access
+- a selector local at its use, also at a narrow unsigned width when the target computes and tests that exact value (478F0
+  csCmdStepSequenceProgress `u8 odd = st[1] & 1; if (odd)`: `andi` 0x7054, `beqz` 0x7068; width sensitivity alone is no swap, R6 2026-11-18c)
+- a local holding one field read for use, used one or more times (Q0601): a single-use read-modify-write copy whose field the target
+  loads once and uses (A2F10 `flags = actor->flags; actor->flags = flags | 4;`: `lw` 0xbc, `ori` 0xc8, `sw` 0xcc; R10 2026-11-18c)
+- a pointer local to a global used for EVERY access, also block-scoped to an element (3E10 `MenuUiRgba *color = sMenuKongColors + idx;`
+  for all three reads, offset-first `addu` 0x96dc; R4 2026-11-18c)
 - a per-role local in a dropped local's or pads' slot
+- one local holding two values of the SAME role, each a real value the target uses (2F550 `denom`, divisor of `dot` in both
+  `dist = dot / denom` and `t = dot / denom`: `div.d` 0x43f4/0x44f4; E550 `yo`, Q0896; R9 2026-11-18c); unrelated roles are a steer (R5)
+- a loop counter reused by a CONSECUTIVE loop that reinitialises it, no other role folded in, the then-unused local deleted (pad only if
+  the frame needs it) (1630 noExpPakThread vsync `x = 0` = `move s0,zero` 0x204; Q1224; R7 2026-11-18c)
+- a one-case selector switch (case value + default) on a mode/selector byte the codebase switches on elsewhere, adding no compare
+  beyond the target's single test (CEAE0 playerUpdateCommon `switch (gDemoPlaybackState)`: `lbu` 0x84c, `bnezl` 0x850; R3 2026-11-18c)
 - declaration order chosen for the frame (9BF30)
 - a subject-first symmetric `==` of two fields in fresh view-retype code (F0D0)
 - bare truth tests
@@ -39,6 +48,14 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - a value cast chosen for codegen
 - an operand-order/width/view respelling
 - a single-use local whose only effect is a frame word (copy-propagated, `{ s32 _g; }` there matches too: a pad, 36880 1a2082).
+- a local reused for an UNRELATED role whose value never reaches its own home (3E10 menuUpdateElementTargetAndColor `radius =
+  mathSinF(t)`: the sine is used from f0, R5 2026-11-18c; 3E10 menuDrawHighScoreTable flag + loop counter in s2, M39; 126260
+  commandApplyToLight `factor` = the falloff base, then `127.0f / dist`, not R9's same-role divisor); ACDC0
+  hudPauseMenuIconUpdate `sc` is the same construct, untagged: tag it in the next ACDC0 pass
+- a width respelling plus a no-op value cast (F56F0 `u16 timer; index = (u8)timer - K`, declined 2026-11-18c)
+- a buffer/array size changed to free a frame word: ordinary C only with a proof from the code (not game data) that every write fits;
+  otherwise rejected as a behaviour change (FCCD0 slotQueueDrawLabel `text[8]`->`text[4]`: coins via F9450.c:621 and the slot-9
+  golden-banana sum are uncapped; R11 2026-11-18c)
 
 ## ORIG and LAYOUT
 
@@ -64,6 +81,9 @@ Load count: a field re-read (`p->f`
 while a local holds it) is ordinary only when the target loads the field again; cite the loads (36880, 15050 0x170: one load, FAKE).
 Width: narrow only with a byte/halfword load/store of the value or the type the code uses for it (0/1 flag u8, s16 sound ids; 7130: steer).
 `(d = X) > best` whose value the target uses is ordinary C, a comma expression is not; a `volatile` pointee of a cross-thread busy-wait poll
-(104F0 77df56) is ordinary, volatile locals or reads elsewhere stay FAKE. A sentinel `switch` or several steers merged into ONE tagged
-construct are natural only when every case value/compare it adds is in the target (9DD70 `li a3,6`/`li t0,7`; Q0844/Q0845); else it is
-invented code and the base sites stay (936B0 `case 0`, 7BBD0 `if (&flag) {}`). The lead checks the compares in the expected asm.
+(104F0 77df56) is ordinary, volatile locals or reads elsewhere stay FAKE. A sentinel `switch` or several steers merged into ONE construct
+are natural (untagged) only when every case value/compare it adds is in the target (80150 transformBarrelUpdate `switch (gCurrentMap)`
+sentinel cases; Q0844/Q0845); else it is invented code and the base sites stay (936B0 `case 0`, 7BBD0 `if (&flag) {}`, 13980
+schedHandleRetrace `osRecvMesg(...) == -1 || (s32)msg == -1`, R2 2026-11-18c). A merge of several steers whose added case values the
+target lacks stays one FAKE (9DD70 actorCheckAlwaysFalse e999c8 `case 6: case 7:`: as1 deletes its `li a3,6`/`li t0,7`, 0x16e0-0x1754
+compares only 2/3; R8 2026-11-18c). The lead checks the compares in the expected asm.

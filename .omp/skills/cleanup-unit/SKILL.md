@@ -36,8 +36,9 @@ opus, 2026-11-16c; fix a wrong one through a lead `--copy-dir`). `rank` orders f
 ## 1. Ingest
 
 1. `git status` + `git log -3` (unexpected changes are the user's: never stage them; a lead whose handle died may still run: new commits or a dirty `drafts/quality/` → message it, wait until quiet).
-   Lead context runs out (director mode: often, 4 leads in 2026-11-17b): one merge per turn, read line ranges, pipe output
-   through `tail`/`head`; after EVERY merge update `.scratch/<lead>/dispatch.md` (rulings, merges, queue), `close.md` and the handoff, so a successor resumes from files
+   Director mode: the director spawns each worker from `.scratch/briefs/<A>.md` and relays its report; keep 2-3 briefs ready, reply briefly.
+   Lead context runs out (4 leads in 2026-11-17b): one merge per turn, read line ranges, pipe output through `tail`/`head`; after EVERY merge
+   update `.scratch/<lead>/dispatch.md` (rulings, merges, queue), `close.md` and the handoff, so a successor resumes from files
    alone. A successor first checks `git log`, `ps` and `history://<old lead>` (a lead the harness calls dead can still run
    and land commits: 2026-11-17 close renames 2cda5579; message it to stop after its current step) before re-merging any report; never run `merge_record` twice for one worker. A dead
    lead's FINISHED workers (status.md + dry-run ledger, no transcript): merge_record needs `--model`, so run its steps by hand,
@@ -106,16 +107,16 @@ As each worker reports:
    first (Q0548). Carve window: `rm -f .scratch/<lead>/RESUME`, wait for jobs 0, gate, split/make/expected/vanished,
    re-record, carry, commit, `touch` it. A merge whose file-scope edit stales other reviews, or whose body respelling stales the function's other sites (3D20 PUTC: 9), queues that item at once;
    if the idle worker already measured those sites on the new body, ask it for the lines and `quality.py record --base <merge>` them (42630 45a97280).
-6. Rule every new, changed or dropped tag by [rulings.md](rulings.md); the lead retags a construct ruled a steer
-   in a `--copy-dir` copy with a keymap or copy-only line.
+6. Rule every new, changed or dropped tag by [rulings.md](rulings.md) (the lead retags a steer in a `--copy-dir` copy with a keymap or copy-only
+   line). An unsettled construct goes to the director as exact options with checked offsets: hold the merge, log Rn in dispatch.md, fold it
+   into rulings.md at §6. A storage change (array size) merges only with a code proof that every write fits (R11: enumerate each write).
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
    the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
 applied copy (`git worktree add --detach` at the base, cp the copy + `asm/<seg>/nonmatchings/<file>`, `status --file` there); the
-tags are the only accepted rise. `// ORIG:` replacing `// FAKE` needs a cited target-asm offset the lead checks ([rulings.md](rulings.md)).
-Accept a K&R → ANSI uninit read (note).
+tags are the only accepted rise. `// ORIG:` needs a cited target-asm offset the lead checks ([rulings.md](rulings.md)); accept a K&R → ANSI uninit read (note).
 
 ## 6. Session close (once per session)
 
