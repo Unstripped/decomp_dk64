@@ -30,9 +30,9 @@ typedef struct {
     s16 y;
     s16 z;
     u8 radius;
-    s8 red;
-    s8 green;
-    s8 blue;
+    u8 red;
+    u8 green;
+    u8 blue;
     s8 type;
 } CommandState;
 
@@ -84,8 +84,8 @@ void commandStateInit(void) {
     commandSetFlags(1, 1);
 }
 
-void func_8072167C(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetRot) {
-    D_80755680 += (targetRot - D_80755680) * 0.1;
+void func_8072167C(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetHeight) {
+    D_80755680 += (targetHeight - D_80755680) * 0.1;
     D_80755684 += (targetRed - D_80755684) * 0.1;
     D_80755688 += (targetBlue - D_80755688) * 0.1;
     D_8075568C += (targetGreen - D_8075568C) * 0.1;
@@ -222,11 +222,11 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     FrameMatrices *frame;
     Light *secondary;
     Ambient *primary;
-    u8 command;
+    u8 num_lights;
     s32 pad;
-    s16 camera_rotation;
+    s16 height_offset;
     s16 angle;
-    s16 sequence;
+    s16 chunk;
     s16 i;
     f32 dx;
     f32 dy;
@@ -246,7 +246,7 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     } else {
         is_player = 0;
     }
-    command = 1;
+    num_lights = 1;
     frame = gGfxCurrentFrameBuffer;
     primary = &frame->lightSets[gLightSetIndex].a;
     secondary = &frame->lightSets[gLightSetIndex].l[0];
@@ -263,17 +263,17 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         dest_red = D_80755684;
         dest_green = D_8075568C;
         dest_blue = D_80755688;
-        camera_rotation = D_80755680;
+        height_offset = D_80755680;
     } else {
         dest_red = D_807FDB7E;
         dest_green = D_807FDB7F;
         dest_blue = D_807FDB80;
-        camera_rotation = 0;
+        height_offset = 0;
     }
 
-    sequence = targetActor->chunkIndex;
-    if (sequence == -1) {
-        sequence = 0;
+    chunk = targetActor->chunkIndex;
+    if (chunk == -1) {
+        chunk = 0;
     }
 
     if (targetActor->renderFlags & 1) {
@@ -287,14 +287,14 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         color[1] = targetActor->tintG / 255.0;
         color[2] = targetActor->tintB / 255.0;
     } else {
-        color[0] = gChunkLightR[sequence];
-        color[1] = gChunkLightG[sequence];
-        color[2] = gChunkLightB[sequence];
+        color[0] = gChunkLightR[chunk];
+        color[1] = gChunkLightG[chunk];
+        color[2] = gChunkLightB[chunk];
     }
 
-    primary->l.col[0] = primary->l.colc[0] = (u8)((D_807FDB7C ? color[0] * scale : 1.0) * (u8)D_807FDB60.red);
-    primary->l.col[1] = primary->l.colc[1] = (u8)((D_807FDB7C ? color[1] * scale : 1.0) * (u8)D_807FDB60.green);
-    primary->l.col[2] = primary->l.colc[2] = (u8)((D_807FDB7C ? color[2] * scale : 1.0) * (u8)D_807FDB60.blue);
+    primary->l.col[0] = primary->l.colc[0] = (u8)((D_807FDB7C ? color[0] * scale : 1.0) * D_807FDB60.red);
+    primary->l.col[1] = primary->l.colc[1] = (u8)((D_807FDB7C ? color[1] * scale : 1.0) * D_807FDB60.green);
+    primary->l.col[2] = primary->l.colc[2] = (u8)((D_807FDB7C ? color[2] * scale : 1.0) * D_807FDB60.blue);
 
     secondary->l.col[0] = (u8)(s32)((D_807FDB7D ? color[0] * scale : 1.0) * dest_red);
     secondary->l.col[1] = (u8)(s32)((D_807FDB7D ? color[1] * scale : 1.0) * dest_green);
@@ -304,9 +304,9 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     secondary->l.colc[2] = secondary->l.col[2];
 
     angle = mathAngleBetweenPoints2D(x, z, gPlayerSlots[playerSlotIndex].eyeX, gPlayerSlots[playerSlotIndex].eyeZ) + D_807FDB76;
-    dx = (gPlayerSlots[playerSlotIndex].eyeX - (mathSinF(angle) * (f32)D_807FDB78)) - x;
-    dy = (f32)(camera_rotation + D_807FDB7A);
-    dz = (gPlayerSlots[playerSlotIndex].eyeZ - (mathCosF(angle) * (f32)D_807FDB78)) - z;
+    dx = (gPlayerSlots[playerSlotIndex].eyeX - (mathSinF(angle) * D_807FDB78)) - x;
+    dy = height_offset + D_807FDB7A;
+    dz = (gPlayerSlots[playerSlotIndex].eyeZ - (mathCosF(angle) * D_807FDB78)) - z;
     inv_distance = 127.0f / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
     secondary->l.dir[0] = (s8)(dx * inv_distance);
     secondary->l.dir[1] = (s8)(dy * inv_distance);
@@ -326,8 +326,8 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     }
 
     for (i = 0; i < gLightCommandCount; i++) {
-        if (gLightCommandQueue[i].actor == targetActor && commandApplyToLight(command, &gLightCommandQueue[i], x, y, z, playerSlotIndex) != 0) {
-            command++;
+        if (gLightCommandQueue[i].actor == targetActor && commandApplyToLight(num_lights, &gLightCommandQueue[i], x, y, z, playerSlotIndex) != 0) {
+            num_lights++;
         }
     }
 
@@ -349,11 +349,11 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         }
     }
 
-    for (i = 0; i < command; i++) {
+    for (i = 0; i < num_lights; i++) {
         gSPLight(glist++, &frame->lightSets[gLightSetIndex].l[i], i + 1);
     }
-    gSPLight(glist++, &frame->lightSets[gLightSetIndex].a, command + 1);
-    gSPNumLights(glist++, command);
+    gSPLight(glist++, &frame->lightSets[gLightSetIndex].a, num_lights + 1);
+    gSPNumLights(glist++, num_lights);
     gDPPipeSync(glist++);
 
     gLightSetIndex++;

@@ -278,7 +278,7 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, ModelBKey *
     next2 = keys[key + 1].scaleZ;
     prev2 = keys[key].scaleZ;
     sz = (next2 - prev2) * t + prev2;
-    factor = (scaleMode >> 4 & 0xF) * 0.125;
+    factor = ((scaleMode >> 4) & 0xF) * 0.125;
     switch (scaleMode & 0xF) {
     case 0:
         break;

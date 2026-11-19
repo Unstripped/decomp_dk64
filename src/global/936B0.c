@@ -679,11 +679,11 @@ void projectileGetTargetCoords(Actor *actor, s32 node) {
 void projectileSpawnNodeEntry(s16 type, s16 param, f32 speed, s16 yaw, f32 horizSpeed, f32 vertSpeed, Actor *owner) {
     ProjectileSpawnParams params;
 
-    params.angle = (f32)(((f64)yaw / 4095.0) * 6.28318548202514648);
+    params.angle = (yaw / 4095.0) * 6.28318548202514648;
     params.speedXZ = horizSpeed;
     params.scale = speed;
     params.speedY = vertSpeed;
-    params.param = (f32)param;
+    params.param = param;
     params.shortLived = (f32)(u32)sProjectileShortLivedFlag;
     actorListSpawnNodeEntry(type, D_807FC7B0, D_807FC7B4, D_807FC7B8, 0, speed, owner, &params);
     sProjectileShortLivedFlag = 0;

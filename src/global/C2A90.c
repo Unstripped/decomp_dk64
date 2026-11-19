@@ -214,7 +214,7 @@ void bananaDeliveryNpcUpdate(void) {
 void func_806BE674(u8 spawn) {
     s16 i;
 
-    for (i = 0; i < 0x10U; i++) {
+    for (i = 0; i < sizeof(D_807506C0); i++) {
         if (spawn) {
             actorListForceSpawnId(D_807506C0[i]);
         } else {
@@ -338,7 +338,7 @@ void func_806BE8BC(void) {
                     camResumePath();
                     camSetZoomLevel(gCamActor, 3);
                     actorScriptStart(gCurrentActor, 0x302);
-                    actorSetTargetSpeed(gCurrentActor, (s32)((flagF8Set ? 1.5 : 1.0) * gBehaviourExtraState->unkD));
+                    actorSetTargetSpeed(gCurrentActor, (flagF8Set ? 1.5 : 1.0) * gBehaviourExtraState->unkD);
                     gCurrentActor->state = 2;
                     gCurrentActor->unk155 = 0;
                     camSetZoneWeight(1, 0xA);
@@ -428,7 +428,7 @@ void func_806BE8BC(void) {
             gCurrentActor->state = 2;
             gCurrentActor->unk155 = 0;
         default:
-            if (gCurrentActor->unk15F < 0x10U) {
+            if (gCurrentActor->unk15F < sizeof(D_807506C0)) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, gCurrentActor, 3);
             }
             if (((randomNonNegative() >> 0xF) % 1000) >= 0x3DF && gCurrentActor->sub4->animId == 0x302) {
@@ -437,17 +437,17 @@ void func_806BE8BC(void) {
                 } else {
                     sel = 0x304;
                 }
-                actorScriptStart(gCurrentActor, sel);
+                actorScriptStart(gCurrentActor, sel); // FAKE: the unk155 switch selector sel reused as the anim id keeps the selector in $a1 (lbu a1,0x155(s0) at 0xd18); a separate anim local gives v0 (Q0162)
             }
             if (gActorGlobalState.notifyReceived != 0) {
-                if (gActorGlobalState.notifyValue[0] >= D_807506C0[gCurrentActor->unk15F] && gCurrentActor->unk15F < 0x10U) {
+                if (gActorGlobalState.notifyValue[0] >= D_807506C0[gCurrentActor->unk15F] && gCurrentActor->unk15F < sizeof(D_807506C0)) {
                     if (gActorGlobalState.notifyValue[0] != D_807506C0[gCurrentActor->unk15F]) {
                         actorScriptStart(gCurrentActor, 0x301);
                         gCurrentActor->state = 0x27;
                         gCurrentActor->unk155 = 0;
                     } else {
                         gCurrentActor->unk15F++;
-                        if (gCurrentActor->unk15F >= 0x10U) {
+                        if (gCurrentActor->unk15F >= sizeof(D_807506C0)) {
                             volumeTriggerSetEnabled(0x16, 1);
                         }
                     }
@@ -637,7 +637,7 @@ void func_806BF218(void) {
                                 spawn[0] = 1;
                                 spawn[1] = 1;
                                 spawn[2] = 0;
-                                actorListSpawnNodeEntry((s16)gCurrentActor->parentActor->actorType, node->x, node->y, node->z, 0, node->scale, 0, spawn);
+                                actorListSpawnNodeEntry(gCurrentActor->parentActor->actorType, node->x, node->y, node->z, 0, node->scale, 0, spawn);
                                 break;
                         }
                     }

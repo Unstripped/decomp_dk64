@@ -362,7 +362,7 @@ s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
             gCurrentActor->interactionType = 8;
         }
         if (gCurrentActor->movePitch != 0) {
-            gCurrentActor->movePitch = gCurrentActor->movePitch - 1;
+            gCurrentActor->movePitch--;
         }
         if (tgt->unk155 != 0) {
             if (tgt->unk155 == 1 && gActorGlobalState.bossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
@@ -386,7 +386,7 @@ s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
                     sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     actorScriptStart(tgt, 0x220);
                     tgt->unk155 = 2;
-                    tgt->health = tgt->health - 1;
+                    tgt->health--;
                     if (tgt->health == 0) {
                         tgt->state = 0x37;
                         tgt->unk155 = 0;
@@ -394,7 +394,7 @@ s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
                 }
             }
         }
-        gBehaviourZone->unk20 = gBehaviourZone->unk20 + 1;
+        gBehaviourZone->unk20++;
         actorGetNodePos(tgt, node, &nodeX, &nodeY, &nodeZ);
         if (gBehaviourWorkState->flags & 0x80) {
             if (!(gBehaviourWorkState->prevFlags & 0x80)) {

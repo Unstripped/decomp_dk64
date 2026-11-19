@@ -291,7 +291,7 @@ void textBoxRowUpdateNodes(f32 y, Actor *actor, ResQueueActorState *state, ResRo
                     if (state->inputFlags & 2) {
                         step *= 0.5;
                     }
-                    if (!(state->inputFlags & 4) && (step < (0xFF - glyph->fade))) {
+                    if (!(state->inputFlags & 4) && (step < (0xFF - glyph->fade))) { // FAKE: re-reads glyph->fade (here and in the += below) while fade holds it: one lbu at 0x157c kept in v1; reading fade here, or no fade local, changes regalloc (fdiff 1)
                         glyph->fade += step;
                     } else {
                         glyph->fade = 0xFF;
