@@ -40,6 +40,11 @@
   - count incremented before the list store, list index `gHeapSurvivorCount - 1`: 11 one-line, 14 two-line (the reload after the store is forwarded, so &gHeapSurvivorCount keeps 2 refs)
   - list store before the tag store: 30
   - two-line plain removal diff: b takes v0 and the count load v1 as well as the handle/&count swap (11); only the one-line form leaves the single handle/&count tie
+- 2026-11-19 cleanup session 2026-11-18c CleanheapReleasePoolc anthropic/claude-opus-5-5:xhigh: diagnose re-run on the current body (after the 7a1f8709 renames), uopt -l6 (.scratch/CleanheapReleasePoolc/t/hrs_keep6.txt, hrs_rm6.txt): kept: count load bit 9 v0, b bit 0 v1, &count bit 19 a0, handle bit 2 a1 (the `if (1)` adds block 1 after block 0: 0 -> 1 -> {4, 3}); two-line plain removal 11: b v0, count load v1, handle a0, &count a1. New one-line-body tries (variants.py try, full=):
+  - `if (0) {}` at the working position (after b): 9 (worse than plain; a folded-false test is not the `if (1)` block split)
+  - an unreferenced label `l:`, a bare `;` or `{}` there: 6 (no block for uopt)
+  - tag store as `*((u8 *)b + 0xB) = 2`: 6
+  - list slot pointer local `u8 ***slot = &gHeapSurvivorList[gHeapSurvivorCount]; *slot = handle;`: 20
 ## Untried ideas
 - A natural second block between the *handle load and the tag store. Nothing in the target asm shows one (straight-line code up to the 0x20 test).
 - Raising &gHeapSurvivorCount above 2.0 needs a third real ref; every count read after the increment is forwarded from the stored value in the same block, so a third ref needs a store that may alias it between two reads (the tag store through b does, but the target reads the count once, after it).
