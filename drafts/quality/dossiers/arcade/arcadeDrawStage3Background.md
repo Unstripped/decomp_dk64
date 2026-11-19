@@ -1,6 +1,6 @@
 # arcadeDrawStage3Background (arcade, src/arcade/0.c)
 ## Sites
-- arcade:800275E8:other:e89353 (was 1489cd): kept // FAKE 2026-11-17 (CleanarcadeDrawHud, lead ruling Q0816): `count = sizeof(D_8004A7C8) / sizeof(D_8004A7C8[0]);`
+- arcade:800275E8:other:317c79 (was e89353, 1489cd; re-keyed by the gArcadeStage3Girders rename): kept // FAKE 2026-11-17 (CleanarcadeDrawHud, lead ruling Q0816): `count = sizeof(D_8004A7C8) / sizeof(D_8004A7C8[0]);`
   (Q0780 ARRAY_COUNT bound local, data-proven length) and `for (pt = D_8004A7C8; pt < D_8004A7C8 + count; pt++)` keep the
   end derived from the walker (`addiu s1,s0,84`, 0x3884); `count` takes the old `pad[1]` slot. Was: `(s32)` end pointer.
   A constant-valued local whose assignment position steers (initialised at its declaration: 69), so a steer per SKILL §5.6.
@@ -57,9 +57,16 @@
     constant-valued bound local with a register-only bound: a respelling of the steer plus a pad, not kept.
   - permuter 900 s -j 2 (hack-free weights) from the spans pointer-local body: base 192, best 75 only by inserting a dead
     `if (D_8004C719 && D_8004C719) {}` before the loop (a dead guard: steer), no zero.
+- 2026-11-19 2026-11-18c: cleanup CleanarcadeDrawStage3Backgroundb CleanarcadeDrawStage3Backgroundb anthropic/claude-opus-5-5 (base a3d0ef71, renamed body):
+  - re-run: literal `pt < gArcadeStage3Girders + 21` + `s32 pad` 18 (text 16); `ARRLEN(...)` bound and the `i < 21` index loop fold too;
+    count initialised at its declaration 69. uopt -l5: base cand 52 `ushl{count}{2}`, 53 `uadd{lda}{ushl}` (ugen adds it to the walker,
+    `addiu s1,s0,0x54` 0x3884); literal: `ules{pt}{const}` (cand 49) folded to `lui s1` / `addiu s1,%lo(+0x54)`.
+  - NEW: the table as a function-local static (`static ArcadeGirderSpan sGirders[]` inside the function, Q1125; only this
+    function reads it): with the count local RELOC-EQUIV OK (data placement unchanged); with the literal bound the end still
+    folds to `lui s1,%hi(.data)` / `addiu s1,%lo(.data+0x8c)` (fdiff 1). Static vs global makes no difference to the fold.
 ## Untried ideas
 - none from the local asm: every hack-free end with a literal offset (sized array, sizeof, pointer local, end local,
-  byte offset, pointer difference, index loop) folds to `%lo(D_8004A7C8+0x54)`; only a variable count gives the scaled
+  byte offset, pointer difference, index loop, function-local static table) folds to `%lo(D_8004A7C8+0x54)`; only a variable count gives the scaled
   `ushl` that ugen adds to the walker, and no real variable holds 21 there (i is unset, j is 20 after the second loop).
 ## Evidence
 - target: `lui t8,%hi(D_8004A7C8)` / `addiu s0,t8,%lo` at 0x387c/0x3880, `addiu s1,s0,84` at 0x3884, `sltu at,s0,s1` at 0x38a0, `bnezl` 0x38a4.
@@ -69,3 +76,6 @@
 - a non-literal bound (a local holding the count) keeps the end off the walker: the pointer walk `pt < D_8004A7C8 + count`
   gives the target `addiu s1,s0,84` exactly; a literal bound folds (Q0811).
 - target 0x35e8-0x3a34: no `li` or `sw` of 21 anywhere; the count survives only as the 84 immediate at 0x3884.
+- ruling question (2026-11-18c): rulings.md ordinary C lists a constant-valued local the target uses at run time in a way no
+  literal reproduces (Q0814); here the end is built at run time off the walker (0x3884) and every literal folds, but the
+  2026-11-18 director ruling (no home or li of 21) keeps the FAKE until re-ruled.

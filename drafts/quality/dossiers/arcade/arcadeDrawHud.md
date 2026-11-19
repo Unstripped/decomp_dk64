@@ -31,6 +31,13 @@
     base: IV 34 first -> v0, i 26 -> a3 (reg 6).
   - Q1228 (16-aligned .data): data placement only, no lever on the a3 colouring.
   - FAKE note respelled with the colour-order evidence (code unchanged, fdiff 0).
+- 2026-11-19 2026-11-18c: cleanup CleanarcadeDrawStage3Backgroundb CleanarcadeDrawStage3Backgroundb anthropic/claude-opus-5-5 (base a3d0ef71, renamed body):
+  - re-run: dedicated `u8 bonus` with buf[0x4C] 13 (text 13), `s32 bonus` 25. uopt -l6 base: IV (cand 34) -> v0 first, i (26) -> a3;
+    u8 split: i 26 -> v0, IV 34 -> v1, bonus 80 -> v1.
+  - NEW (split the other way): a dedicated lives-loop counter `life` with i kept for the clamp, buf[0x4C]: after g 25 (life 26 -> v0,
+    IV -> v1, clamp i 80 -> a2), first 53, block-scoped around the loop 64 (31 with buf[0x50]).
+  - ORIG test (rulings reused-local): the counter is homed at 148(sp) (`sw a3` 0xdafc, `lw a3` 0xdb00) but the clamp never is
+    (0xdf08/0xdf0c/0xdf14 register only): stays FAKE.
 ## Untried ideas
 - none natural: the frame objection is gone (buf[0x4C]), but no separate-local spelling gives the clamp the colour of
   the lives counter; only one variable spanning the loop and the clamp lowers its priority below the IV (Q0739/Q1204 mechanism).
