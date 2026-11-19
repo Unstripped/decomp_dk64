@@ -104,6 +104,13 @@
   - b371d1: guard right after hudSetupTextState 5; removal on the indexed body 9, on the dy body 15. d4f3b3: `default: break;`, an empty `{ }` after gSPEndDisplayList and a bare `;` all 347 (no block); removal on the indexed body 360.
   - reconstruct: indexed reads + natural x/offsetX + dy + Q1235 ternary + fadeInput0 plain + count inlined, no dead tests 392 (397 without the ternary); both dead tests kept 113; only loop 1 natural 10 (same residue as the member-access dy reconstruct).
   - Review: fdiff 0, uninit 0, cfe warnings 0; fake=8, casts=12 (8 on FAKE lines).
+- **2026-11-18b 2026-11-18b: cleanup CleanhudPauseMenuRenderb CleanhudPauseMenuRenderb anthropic/claude-opus-5-5** (base 2cef3127, after the static-data campaign put sPauseKongUnlocked/sPauseLevelOrder in the TU; no C changed; sweep 0 hits):
+  - Re-measure at the base (unchanged by the in-TU data): cd26dc 14, a97e00 272, 766e68 99, a87eed 311, c4e347 1, b371d1 5, cfa137 inline 98, d4f3b3 347; mechanisms as before (0x1d9c-0x1dc0 $f2/$f12 swap; 0x131c mul.s order; 0x1324 sll t3; 0x1350 mfc1 t3; 0x1364 addu order; 0x126c move s0,v0; case 1 one instruction shorter; 0x12b0 lui t3 / sll t2).
+  - d4f3b3 split-position census (`if (1) {}`): between gSPEndDisplayList and `return ret` 0, right before gSPEndDisplayList 347, at the case-3 tail 347: the code-free block must separate the end-DL stores from the ret load.
+  - cd26dc on the init-removed body: case-2 swap 2, plus mirrored compare 2, case-2 and case-3 swapped 4 (mirrored 4): assignment order fixes candidate order and load order together.
+  - 766e68 single-cast removals: (s16)(s64) dropped with the (u16) kept 290, (u16) and (s64) dropped with (s16)(s32) kept 349. a87eed: implicit `y += fa * flyY` 524; y declared u16/s32/u32 with the (u16) removed 325 each. c4e347: `(*(it->entries + j)).offsetX` (Q0488 lever) 159. a97e00: `(&it->entries[j])->f` for all eight reads 272 (offset-first like the subscript, Q0965).
+  - Permuter 900 s (-j 2, hack-free) on all four loop-1 steers dropped (fdiff 311, permuter base 2751): best 1314 = a char delta of the flyY product before the x statement (behaviour change). As s16 dy before the x statement: 68 (function scope), 23 (0x154 hole), with flyY loaded first at 0x1310 and hud in $a0 at 0x12d8; not a fix.
+  - reconstruct (natural body, no dead tests, fadeInput0 plain, indexed reads, natural x/y/offsetX): count inlined 367, block-scoped s16 count 388, j reuse kept 355; only loop 1 natural 311.
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece, on both read spellings: 10), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
@@ -112,7 +119,7 @@
 - Making list live through loop 1 with a use that emits no code (Q0585); none found in the target. Only an empty conditional fits: 0x13C(sp) is read only at 0x1278 and no s-register but $s7 is live over 0x126c-0x1294, so a real later read (lw 0x13c(sp)) or competitor-based fix is excluded (2026-11-17 census).
 - A natural ugen dead def on $24 between the `y *= 4` chain and the flyY trunc.w.s (a87eed), surviving cfe (expression statements are dropped) (Q0583); shift spellings are the same ucode (2026-11-17).
 - A plain-C conversion node on off's side of `off + offsetX * 4` (c4e347): `4U` and `(u32)off` both give 0; a u32-typed `off` does not reverse the addu (a leaf) and breaks the case-2 signed slide compares; s16/u16 off break other webs (2026-11-17).
-- A code-free block boundary after gSPEndDisplayList (d4f3b3 is a pure block split: `if (1) {}` matches); the target has nothing between 0x1f8c and the epilogue; `gSPEndDisplayList(dl++)` is not one (347, 2026-11-17e).
+- A code-free block boundary after gSPEndDisplayList (d4f3b3 is a pure block split: `if (1) {}` matches); the target has nothing between 0x1f8c and the epilogue; `gSPEndDisplayList(dl++)` is not one (347, 2026-11-17e). It must sit between the end-DL stores and the `return ret` load: before gSPEndDisplayList or at the case-3 tail it is 347 (2026-11-18b).
 - cd26dc on the case-3-direct-ternary body: a natural construct that makes fadeInput0's first appearance (candidate bit) precede fadeInput4's while case 2 still loads carouselProgress (4(t3)) before fade (0(t3)); swapped assignments fix the colours but not the load order (2) (Q0584, Q1040).
 
 ## Evidence
