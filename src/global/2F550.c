@@ -1290,25 +1290,20 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
 }
 
 s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
-    s32 pad[14];
-    s32 i;
     f64 dot;
-    f32 len;
+    f64 denom; // divisor of dot: length of the plane normal, then its dot product with each corner ray
     f64 dist;
-    f64 d;
-    f64 t;
     f64 absd;
-    f64 nx;
-    f64 ny;
-    f64 nz;
     f64 dx;
     f64 dy;
     f64 dz;
+    s32 i;
+    f64 t;
 
     i = 0;
     dot = node->unk4C * x + node->unk50 * y + node->unk54 * z + node->unk58;
-    len = sqrtf(node->unk4C * node->unk4C + node->unk50 * node->unk50 + node->unk54 * node->unk54);
-    dist = dot / len;
+    denom = sqrtf(node->unk4C * node->unk4C + node->unk50 * node->unk50 + node->unk54 * node->unk54);
+    dist = dot / denom;
     absd = dist;
     if (dist < 0.0) {
         absd = 0.0 - dist;
@@ -1316,17 +1311,13 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
     if (absd > 300.0) {
         return 2;
     }
-    nx = node->unk4C;
-    ny = node->unk50;
-    nz = node->unk54;
     do {
         dx = D_807F5E20[i][0] - x;
         dy = D_807F5E20[i][1] - y;
         dz = D_807F5E20[i][2] - z;
-        if (1) {}  // FAKE: no-code block split after dz: dx/dy/dz drop below d (d $f0, dx $f2, dy $f12, dz $f14); replaces the dx guard and the dot guard that compensated its extra use
-        d = nx * dx + ny * dy + nz * dz;
-        if (d > 0.01 || d < -0.01) {
-            t = dot / d;
+        denom = node->unk4C * dx + node->unk50 * dy + node->unk54 * dz;
+        if (denom > 0.01 || denom < -0.01) {
+            t = dot / denom;
             if (t <= 0.0 && 0.0 - t <= 1.0) {
                 return 0;
             }
