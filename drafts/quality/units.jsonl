@@ -1278,3 +1278,4 @@
 {"type": "unit", "t": "2026-11-19T08:50:25Z", "unit": "2026-11-18c: cleanup CleanfaultDrawRegsc", "commit": "192b7da78ffe61daa06a701e10ade72421badeac"}
 {"type": "unit", "t": "2026-11-19T08:52:36Z", "unit": "2026-11-18c: cleanup CleannoExpPakThreadb", "commit": "cfe2856a7252b97af471b9fd554520843ebebd66"}
 {"type": "unit", "t": "2026-11-19T08:52:55Z", "unit": "2026-11-18c: cleanup CleanminecartFollowTrackb", "commit": "c29f290d2c5857e500710db49de25f69d8346986"}
+{"type": "unit", "t": "2026-11-19T08:53:41Z", "unit": "2026-11-18c: cleanup CleaneffectSpriteRenderPoolb", "commit": "09373183038cee5732d9b303c180217e26f8c5a6"}
