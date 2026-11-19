@@ -1999,14 +1999,11 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
 
 
 
-Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
-    MapCell *node;
-    Gfx *gfx;
+Gfx *mapChunkEmitLayerDisplayLists(Gfx *gfx, s32 chunk, u8 layer) {
     s32 i;
     s32 found;
+    s32 j;
 
-    gfx = p;
-    if (p == 0) {} // FAKE: no-code uopt block boundary before the first packet (if (1) {} matches too); keeps layer uncoloured
     gDPPipeSync(gfx++);
     if (gMapChunks[chunk].kind != 2) {
         switch (layer) {
@@ -2025,29 +2022,23 @@ Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
         }
     } else {
         for (i = 0; i < gMapChunks[chunk].cellCount; i++) {
-            gfx = (Gfx *)((u32)gfx | 0); // FAKE: uopt folds the | 0 but keeps the u32 cvt, a loop def of gfx that colours it s0 above the packet pointers
-            if (gMapChunks[chunk].cells[i].dl[layer] == -1) {
-                continue;
-            }
-            found = 0;
-            node = gMapCells; p = (Gfx *)&gMapChunks[chunk].cells[i]; do { // FAKE: the gfx parameter p reused as the cell pointer keeps a0-a2 out of its web (cell in a3); the join with do { keeps lh a0 before lw v0 (swapped order on the line fails)
-                if (((MapChunkCell *)p)->id == node->id) {
-                    found = 1;
-                } else {
-                    node++;
+            if (gMapChunks[chunk].cells[i].dl[layer] != -1) {
+                found = 0;
+                j = 0;
+                do {
+                    if (gMapCells[j].id == gMapChunks[chunk].cells[i].id) {
+                        found = 1;
+                    } else {
+                        j++;
+                    }
+                } while (found == 0);
+                if (gMapCells[j].visible && (gMapChunks[chunk].cells[i].layerMask & (1 << layer))) {
+                    gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[chunk].cells[i].vtx[layer]));
+                    gDPPipeSync(gfx++);
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)gMapChunks[chunk].cells[i].dl[layer]));
+                    gDPPipeSync(gfx++);
                 }
-            } while (found == 0);
-            if (*(u32 *)&gMapCells == 0) {} // FAKE: dead read of an integer global (its load takes a2, layer stays on the stack, -1 goes to s8)
-            if (node->visible == 0) {
-                continue;
             }
-            if ((((MapChunkCell *)p)->layerMask & (1 << layer)) == 0) {
-                continue;
-            }
-            gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[chunk].cells[i].vtx[layer]));
-            gDPPipeSync(gfx++);
-            gSPDisplayList(gfx++, osVirtualToPhysical((void *)gMapChunks[chunk].cells[i].dl[layer]));
-            gDPPipeSync(gfx++);
         }
     }
     return gfx;
