@@ -1281,3 +1281,4 @@
 {"type": "unit", "t": "2026-11-19T08:53:41Z", "unit": "2026-11-18c: cleanup CleaneffectSpriteRenderPoolb", "commit": "09373183038cee5732d9b303c180217e26f8c5a6"}
 {"type": "unit", "t": "2026-11-19T08:59:19Z", "unit": "2026-11-18c: cleanup CleanlightUpdateFromActorLightingc", "commit": "8ec6522c0cd76b8420523202a7bf87765562ec2a"}
 {"type": "unit", "t": "2026-11-19T09:01:38Z", "unit": "2026-11-18c: cleanup CleanraceOpponentFollowWaypointsb", "commit": "934dd989f7d514dd712dbc60d96a3e596762cfc5"}
+{"type": "unit", "t": "2026-11-19T09:07:27Z", "unit": "2026-11-18c: cleanup CleanactorCheckAlwaysFalsec", "commit": "dc5b9f55017be5a4bb21c9d543775d898fbd7396"}
