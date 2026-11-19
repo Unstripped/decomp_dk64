@@ -2681,12 +2681,10 @@ void playerStateSurfaceTreadWater(void) {
             if (gCurrentActor->speedXZ != 0.0f) {
                 gActivePlayerState->unk18 = 0;
                 gCurrentActor->unk155 = 3;
-            } else {
-                if (gActivePlayerState->unk50 != 0) {
-                    gActivePlayerState->unk50--;
-                    if (gActivePlayerState->unk50 == 0) {
-                        actorScriptStartByIndex(gCurrentActor, 0x34);
-                    }
+            } else if (gActivePlayerState->unk50 != 0) {
+                gActivePlayerState->unk50--;
+                if (gActivePlayerState->unk50 == 0) {
+                    actorScriptStartByIndex(gCurrentActor, 0x34);
                 }
             }
             playerClampWaterSurfaceHeight(gCurrentActor);
