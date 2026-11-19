@@ -1275,3 +1275,4 @@
 {"type": "unit", "t": "2026-11-19T08:41:08Z", "unit": "2026-11-18c: cleanup CleanheapReleasePoolc", "commit": "8f3c0da57f10c035eb944aad8135ad0007d2dc74"}
 {"type": "unit", "t": "2026-11-19T08:42:48Z", "unit": "2026-11-18c: cleanup CleankongChainInitc", "commit": "7de8545d75b7fa679a5256282d15734650b1a50d"}
 {"type": "unit", "t": "2026-11-19T08:43:09Z", "unit": "2026-11-18c: cleanup CleanplayerInputUpdateMoveTargetClampedb", "commit": "79c1618671b530686b2cbf9f44a82051f7aa0e52"}
+{"type": "unit", "t": "2026-11-19T08:50:25Z", "unit": "2026-11-18c: cleanup CleanfaultDrawRegsc", "commit": "192b7da78ffe61daa06a701e10ade72421badeac"}
