@@ -16,16 +16,16 @@
 #include "proto/global/936B0.h"
 #include "proto/global/9BF30.h"
 
-// This TU's .data (0x80750280-0x807502CC + 4-byte TU pad); the projectile sprites lie in the data-in-text
-// blob 124780.
+// This TU's .data (0x80750280-0x807502CC + 4-byte TU pad); the projectile sprites are sprite sheets of
+// 124780.c.
 Vtx gSpriteRingQuadVtx[4] = {
     {{ { -16, 0, 0 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 15, 0, 0 }, 0, { 1984, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 15, 31, 0 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { -16, 31, 0 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
 };
-extern u8 D_80720BE8[], D_8071FE08[], D_80720E2C[];
-void *D_807502C0[3] = { D_80720BE8, D_8071FE08 + 0x34, D_80720E2C };
+extern u8 D_80720BE8[], D_8071FE3C[], D_80720E2C[];
+void *D_807502C0[3] = { D_80720BE8, D_8071FE3C, D_80720E2C };
 
 extern void **gSpriteRingTextures;
 

@@ -110,6 +110,15 @@ typedef struct EffectGridAsset {
     /* 0x14 */ s16 data[1]; // frameCount * width * height asset ids (effectLoadFrameAssets)
 } EffectGridAsset;
 
+// The type of a defined EffectGridAsset with its n = frameCount * width * height asset ids (124780.c).
+#define EFFECT_GRID_ASSET(n) \
+    struct { \
+        s32 id; \
+        u8 width, height, format, size, red, green, blue, alpha, unlit, altCategory; \
+        s16 cellW, cellH, frameCount; \
+        s16 data[n]; \
+    }
+
 typedef struct EffectGridSlot {
     void *buffer;
     s32 frame;

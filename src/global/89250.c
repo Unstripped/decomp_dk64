@@ -31,8 +31,8 @@ typedef struct MultiTierRingParams {
     s32 actorTypes[4];
 } MultiTierRingParams;
 
-// This TU's .data (0x8074E880-0x8074E8B0), in address order; the puff sprites lie in the data-in-text
-// blob 124780, and D_8074E8A8/D_8074E8AC are unreferenced.
+// This TU's .data (0x8074E880-0x8074E8B0), in address order; the puff sprites are sprite sheets of
+// 124780.c, and D_8074E8A8/D_8074E8AC are unreferenced.
 extern u8 D_8071FC58[], D_8071FC8C[], D_8071FCC0[];
 void *gPuffSprites[3] = { D_8071FC58, D_8071FC8C, D_8071FCC0 };
 ScaleTierTable sGrowthTierScales = { { 1.0f, 1.7f, 3.0f } };

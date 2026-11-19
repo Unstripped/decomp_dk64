@@ -33,8 +33,8 @@ typedef struct SparkleSpriteTable {
     void *sprites[7];
 } SparkleSpriteTable;
 
-// This TU's .data (0x80750400-0x807504D8 + 8-byte TU pad), in address order; the sparkle sprites lie in
-// the data-in-text blob 124780 (no labels of their own), and D_807504D4 is unreferenced.
+// This TU's .data (0x80750400-0x807504D8 + 8-byte TU pad), in address order; the sparkle sprites are
+// sprite sheets of 124780.c, and D_807504D4 is unreferenced.
 SfxTableEntry gActorSpawnSfxTable[27] = {
     { 0xB2, 0x2F, 0x2F, 1 },
     { 0xCD, 0x2F, 0x2F, 1 },
@@ -64,10 +64,9 @@ SfxTableEntry gActorSpawnSfxTable[27] = {
     { 0xAF, 0x2F, 0x2F, 1 },
     { 0, 0, 0, 0 },
 };
-extern u8 D_807208D8[];
+extern u8 D_807208F0[], D_80720914[], D_80720938[], D_8072095C[], D_80720980[], D_807209A4[], D_807209C8[];
 SparkleSpriteTable sSparkleSprites = { {
-    D_807208D8 + 0x18, D_807208D8 + 0x3C, D_807208D8 + 0x60, D_807208D8 + 0x84,
-    D_807208D8 + 0xA8, D_807208D8 + 0xCC, D_807208D8 + 0xF0,
+    D_807208F0, D_80720914, D_80720938, D_8072095C, D_80720980, D_807209A4, D_807209C8,
 } };
 f32 sShrinkRate = 1.2f;
 f32 sShrinkFrames = 30.0f;

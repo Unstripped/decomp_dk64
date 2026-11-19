@@ -41,8 +41,8 @@ typedef struct SpritePair {
     /* 0x0 */ void *sprites[2];
 } SpritePair;
 
-// This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad); the debris sprites lie in the data-in-text
-// blob 124780.
+// This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad); the debris sprites are sprite sheets of
+// 124780.c.
 s16 D_807503A0 = 200;
 extern u8 D_807212C8[], D_807212B0[];
 SpritePair gCarryDebrisSprites = { { D_807212C8, D_807212B0 } };

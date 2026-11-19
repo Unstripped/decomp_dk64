@@ -68,23 +68,29 @@ extern u8 D_8071FC8C[];
 extern u8 D_8071FCC0[];
 extern u8 D_8071FF18[];
 extern u8 D_80720268[];
-extern u8 D_807208D8[];
-extern u8 D_80720A7C[];
+extern u8 D_807208F0[];
+extern u8 D_80720914[];
+extern u8 D_80720938[];
+extern u8 D_8072095C[];
+extern u8 D_80720980[];
+extern u8 D_807209A4[];
+extern u8 D_807209C8[];
+extern u8 D_80720AD0[];
 extern u8 D_80720BE8[];
 extern u8 sEffectImpactPuffConfig[];
 extern u8 sEffectSparkConfig[];
 extern u8 D_80720B58;
 
 void *sScriptEffectSprites[] = {
-    &D_807208D8[0x18],
-    &D_807208D8[0x3C],
-    &D_807208D8[0x60],
-    &D_807208D8[0x84],
-    &D_807208D8[0xA8],
-    &D_807208D8[0xCC],
-    &D_807208D8[0xF0],
+    D_807208F0,
+    D_80720914,
+    D_80720938,
+    D_8072095C,
+    D_80720980,
+    D_807209A4,
+    D_807209C8,
     D_8071FC0C,
-    &D_80720A7C[0x54],
+    D_80720AD0,
     D_80720268,
     D_8071FF18,
     &D_80720B58,

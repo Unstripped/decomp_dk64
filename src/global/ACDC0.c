@@ -851,7 +851,10 @@ extern s32 D_80720D5C;
 extern s32 D_80720D80;
 extern s32 D_8072104C;
 extern s32 D_80721094;
+extern s32 D_807210B8;
 extern s32 D_807210EC;
+extern s32 D_80721110;
+extern s32 D_80721134;
 extern s32 D_807211D0;
 extern s32 D_80721474;
 extern s32 D_80721518;
@@ -859,9 +862,8 @@ extern s32 D_80721518;
 
 
 void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
-    // per collectible: a slotQueue sprite index (small ints) or a sprite descriptor in 124780.s; 0x807210B8,
-    // 0x80721110 and 0x80721134 are the unlabelled descriptors of sprites 0x98, 0x9A and 0x9B
-    static void *sTotalsPageIcons[8] = { (void *)9, &D_807210EC, (void *)0x807210B8, (void *)0xA, (void *)0x80721110, &D_80721094, (void *)0x80721134, (void *)0xC };
+    // per collectible: a slotQueue sprite index (small ints) or a sprite sheet of 124780.c
+    static void *sTotalsPageIcons[8] = { (void *)9, &D_807210EC, &D_807210B8, (void *)0xA, &D_80721110, &D_80721094, &D_80721134, (void *)0xC };
     s32 saved;
     KongInventory *playerKong;
     KongInventory *pageKong;

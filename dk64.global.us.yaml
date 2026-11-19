@@ -165,7 +165,7 @@ segments:
       - [0x117190, c, 117190] # hidden TU: rodata pad after D_8075E5B0 (func_807122B4) at 0x1632C0; func_80712490 is the first 16-aligned start after it and already uses this TU's data (D_80755318; data TU starts at or before 16-aligned D_807552E0, used by func_80714060)
       - [0x119370, c, 119370]
       - [0x11BC10, c, 11BC10] # hidden TU: rodata pad after D_8075E6C0 (effectGridBuildDisplayList) at 0x1633D0; func_80716F10 is the first 16-aligned start after it; rodata users are monotonic
-      - [0x124780, asm]
+      - { start: 0x124780, type: .data, name: 124780, linker_section_order: .text } # data-only TU inside the text: effect sprite sheets 0x8071FA80-0x80721558 (gEffectGridAssets' 176 targets) + 8-byte TU pad; no functions
       - [0x126260, c, 126260]
       - [0x127B00, c, 127B00]
       - [0x1292F0, c, 1292F0] # hidden TU: rodata pad after D_8075EB60 (func_80724154) at 0x163870; pathFollowUpdateHeading (16-aligned) owns D_8075EB70/D_8075EB78

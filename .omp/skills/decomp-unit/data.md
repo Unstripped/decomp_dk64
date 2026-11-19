@@ -58,6 +58,13 @@ with byte-identical data points to another TU: a hidden one (12-byte 16-align ga
 `.data` and `.bss`: jetpac 6E00) or a data-only TU linked ahead (arcade E220.c; `.bss` is
 ordered by symbol number mod 256, Q1470).
 
+**Data inside `.text`** (dlabel-only asm subsegment between C text files): a data-only TU
+whose `.data` the linker script places at that text position:
+`{ start: 0xOFF, type: .data, name: <OFF>, linker_section_order: .text }` (global 124780.c:
+splat emits `build/src/global/124780.o(.data)` in the `.text` list). The text hash covers
+bytes only, so the ROM stays identical; IDO's 16-aligned `.data` start and end pad must fit
+the neighbouring text boundaries.
+
 **Asset include** (pixel pools, gzip images; bytes stay out of git): a row
 `seg name vram size width file` in `data_inc.us.txt`, `python3 tools/data_inc.py gen`
 (`make split` runs it), and in the owning `.c`:
