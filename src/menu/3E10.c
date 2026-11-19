@@ -2321,12 +2321,12 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
             }
             pressed = 0;
             if (holdFrames == 1 || (sMenuHighScoreHoldFrames = holdFrames, holdFrames >= 0x10)) { // ORIG: the target stores the counter on the holdFrames != 1 path before the 0x10 test (sb v1 at 0x7290, slti at,v1,16 at 0x7294) and again at the block head (sb v1 at 0x72a0); (sMenuHighScoreHoldFrames = holdFrames) >= 0x10 reloads the byte for the test
-                if (sMenuHighScoreEditChar && sMenuHighScoreEditChar) {} // FAKE: dead test splits the block head: the store below stays a direct sb (sMenuHighScoreHoldFrames address uncoloured) and the sMenuHighScoreEditChar value takes v0 ahead of holdFrames (v1)
+                if (sMenuHighScoreEditChar) {} // FAKE: same-value dead read splits the block head: the store below stays a direct sb (sMenuHighScoreHoldFrames address uncoloured), the column address is hoisted to a1 (0x7264) and the column value takes v0 ahead of holdFrames (v1); if (1) here gives the shape but rotates every register
                 sMenuHighScoreHoldFrames = holdFrames;
                 pressed = buttons;
                 if (holdFrames >= 0x10) {
                     holdFrames = 0xF;
-                    if (row == 0xF) {} // FAKE: with the next test, constant 15 gets v1 (li v1,15 at 0x72b8), the 15 store stays a direct sb and row (a0) is coloured ahead of table (a2)
+                    if (row == 0xF) {} // FAKE: splits the block before the 15 store so it stays a direct sb (sMenuHighScoreHoldFrames address uncoloured, else sb t8,0(a3)); with the next test, constant 15 gets v1 (li v1,15 at 0x72b8)
                     sMenuHighScoreHoldFrames = holdFrames;
                     if (row == 0xF) {} // FAKE: second compare of the constant-15 pair
                     if (!(gFrameCounter & 1)) {
