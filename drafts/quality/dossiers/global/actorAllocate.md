@@ -13,15 +13,19 @@ removal), loop forms with uopt counts, tie test, post-loop respellings, guard op
 `(void **)` cast removed (fdiff 0), (u16) casts measured, K&R vs ANSI definition, hack-free-weights permuter 900 s from the
 removal body (base 70, zeros only re-insert steers) and 900 s from the refine-in-place near miss (base 10, best 10),
 as1probe scan of the near miss -> see Evidence; site kept (2 diagnose nohit, 2 permute nohit).
+2026-11-18c cleanup CleanactorAllocateb anthropic/claude-opus-5-5: fresh uopt -l5/-l6 on the current body (counts unchanged);
+definition-order swap (M25) on the tie body -> 12 and on the removal -> 11; u16 `allocSize` local as the heapAlloc argument
+-> 10; `heapAlloc(totalDataSize += ...)` -> 14 (tds still a1); `(headerSize += 7)` inside the add -> 79; near-miss mask
+casts none / first only / second only / `& ~7` / `(u16)(... & ~7)` -> 69 / 3 / 69 / 72 / 6; variants scan of the removal
+(best 11) and near-miss (best 2) copies; as1probe 3-round scan of the near miss (records 2670-2695): only deleting the
+sp+36 PRE spill moves (full 1) -> site kept (diagnose nohit).
 
 ## Untried ideas
-- Fix the last 2 lines of the refine-in-place near miss (see Evidence, `headerSize += 7;`): as1 puts the add in v0
-  instead of ring temp t5 because the u16 store narrowing `and $13,$5,65535; move $5,$13` precedes the 0xFFF8 mask in
-  ugen's records (base: `addu $2,$5,7; and $13,$2,65528`). Needs a spelling whose ugen add result is a dead temp.
-- A second header-size quantity that is a real per-iteration read of headerSize in the loop block (none exists in this
-  function's behaviour; any real one emits code).
-- A whole-function reshape where totalDataSize's range spans one more block than headerSize's (n 5 -> 6 moves only its
-  divisor 2 -> 3: 24/3 = 8 < 11); the target has no extra branch between the alignment add and `jal heapAlloc`.
+- None left that is natural C: the near-miss fix needs cand 38's PRE unit rooted at `headerSize + 7` (base ugen chain
+  `addu $2,$5,7; and $13,$2,65528`) while headerSize keeps a bb4 store, and a bb4 store to headerSize always emits its u16
+  narrowing before the mask (see Evidence). A reshape giving totalDataSize one more block (n 5 -> 6) needs a block
+  boundary between 0x340 and the `jal heapAlloc` at 0x354, which is straight-line code.
+- Optional: a third hack-free permuter run from a new seed (two 900 s runs exist; zeros only re-insert steers).
 
 ## Evidence
 Block/ref counts (uopt -l5, `- live bb - <bb> <loads> <stores> <argreg>`; compute_save = sum refs x 10^depth / (((n-2)>>2)+2)):
@@ -49,3 +53,11 @@ Block/ref counts (uopt -l5, `- live bb - <bb> <loads> <stores> <argreg>`; comput
   no single record edit reaches 0.
 - Permuter outputs that score 0 only re-insert a steer: `if (!headerSize) {}` / `if (headerSize) {}` in the loop, or
   `if (!totalDataSize && !totalDataSize) {}` before the inits (uninitialised two-term dead read lengthening tds's range).
+- 2026-11-18c, current body: base guard gives headerSize bb0 st, bb2 (guard block) ld, bb4 ld+st, bb6 ld = 32, n = 7 -> 10.667
+  vs totalDataSize 24/3 = 8.0; forbidden [v0 v1 a0] (a0 probably the K&R param `type`'s entry range, cand 2) -> headerSize a1, tds a2.
+  Removal unchanged (tds 12.0 first -> a1; headerSize 11.0 -> a2; full 11).
+- Near-miss tie measured: headerSize bb4 ld 2 + st 1 = 24/2 = 12.0 = tds 12.0, bit 8 wins (a1). Swapping the inits
+  (`totalDataSize = 0;` first) hands the tie to tds (full 12): the tie goes to the first-defined candidate (M25).
+- Near-miss ugen chain (as1probe keep): `addu $5,$5,7; and $13,$5,65535; move $5,$13; and $2,$5,65528; and $14,$2,65535;
+  move $2,$14` -> as1 drops the 0xffff ands and the add lands in v0 (cand 38's register), mask in t6. Base chain
+  `addu $2,$5,7; and $13,$2,65528; move $2,$13; and $14,$2,65535; move $2,$14` -> add t5, mask t6 (Q0374/Q1512 shift).

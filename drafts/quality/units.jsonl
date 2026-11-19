@@ -1285,3 +1285,4 @@
 {"type": "unit", "t": "2026-11-19T09:09:43Z", "unit": "2026-11-18c: cleanup CleanmapBspPlaneDistanceCheck", "commit": "c37808d598da0b0d1b317eb1c80790cbe277524a"}
 {"type": "unit", "t": "2026-11-19T09:12:51Z", "unit": "2026-11-18c: cleanup CleaneffectWaterInitNodesb", "commit": "98ce0480c9b4667707672923c053e2f379c7b598"}
 {"type": "unit", "t": "2026-11-19T09:14:35Z", "unit": "2026-11-18c: cleanup CleanactorTriggerRampWithSfxb", "commit": "b8f109e26a8fa0fc55cf6a45c7079d47881ce5b6"}
+{"type": "unit", "t": "2026-11-19T09:15:29Z", "unit": "2026-11-18c: cleanup CleanactorAllocateb", "commit": "a1c28adbb4940790d40634bfe439e0f25a962f85"}
