@@ -165,7 +165,7 @@ void bossSpawnPuffDebris(void) {
     effectSetCallback(effectPuffRiseUpdate);
     effectSetDepth(1);
     effectSetSpeed(1);
-    effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 15) % 1000) % 3], (f64)scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z); // ORIG: the target round-trips the stored scale through double before passing it (lwc1 36(sp) 0x660, cvt.d.s 0x668, cvt.s.d 0x674, mfc1 a1 0x68c); plain scale drops both cvts (.text 10192 vs 10208)
 }
 
 void csModelStateSetFirstByte(s16, u8); // ORIG: target sign-extends the model index (sll a0,v0,0x10 / sra t0,a0,0x10 at 0x824-0x828) but passes stateByte as a plain lbu a1,39(sp) at 0x81c (the shared (s16, s16) prototype adds sll/sra of a1 there): the original TU declared an unsigned narrow second parameter

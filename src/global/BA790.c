@@ -95,7 +95,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         } else {
             x = 2;
         }
-        actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, x, 6.0f);
+        actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, x, 6.0f); // FAKE: x reused as the move flags; only the s0 colour shows it (li s0,2 / move s0,zero at 0x298/0x2ac, no store to the home 64(sp)); a moveFlags local (s32 or u16, top or block scope) or the inline ternary gives .text 2912 (target 2928)
         if (gCurrentActor->actorType == 0xB6) {
             enemyAggroStateUpdate(aggroRange, 0x24E, 0x24D);
         }
@@ -113,7 +113,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             } else {
                 x = 0x24C;
             }
-            enemyAggroStateUpdate(aggroRange, 0x24E, x);
+            enemyAggroStateUpdate(aggroRange, 0x24E, x); // FAKE: x reused as the chase script id; only the s0 colour shows it (li s0,588/589 at 0x360/0x370, no store to the home 64(sp)); a chaseScriptId local (top or block scope) or the inline ternary gives .text 2912 (target 2928)
         }
         if (gCurrentActor->state == 0x33) {
             ret = 1;

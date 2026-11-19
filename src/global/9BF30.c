@@ -24,13 +24,13 @@ Vtx gSpriteRingQuadVtx[4] = {
     {{ { 15, 31, 0 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { -16, 31, 0 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
 };
-extern u8 D_80720BE8[], D_8071FE3C[], D_80720E2C[];
+extern EffectGridAsset D_80720BE8, D_8071FE3C, D_80720E2C;
 
 typedef struct ProjectileTriple {
-    void *sprite[3];
+    EffectGridAsset *sprite[3];
 } ProjectileTriple;
 
-ProjectileTriple sProjectileSprites = { { D_80720BE8, D_8071FE3C, D_80720E2C } };
+ProjectileTriple sProjectileSprites = { { &D_80720BE8, &D_8071FE3C, &D_80720E2C } };
 
 extern void **gSpriteRingTextures;
 
@@ -211,21 +211,21 @@ void projectileSpriteRingUpdate(void) {
 }
 
 typedef struct ProjectileConfig {
-    f32 yawRadians;
-    f32 speedXZ;
-    f32 speedY;
-    f32 spriteScale;
-    f32 type;
+    /* 0x00 */ f32 yawRadians;
+    /* 0x04 */ f32 speedXZ;
+    /* 0x08 */ f32 speedY;
+    /* 0x0C */ f32 spriteScale;
+    /* 0x10 */ f32 type;
 } ProjectileConfig;
 
 typedef struct ProjectileSubState {
-    s32 spawnFrame;
-    u8 pad4[0xE];
-    u8 unk12;
-    u8 type;
+    /* 0x00 */ s32 spawnFrame;
+    /* 0x04 */ u8 pad4[0xE];
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ u8 type;
 } ProjectileSubState;
 
-extern u8 D_8071FBA0;
+extern EffectGridAsset D_8071FBA0;
 
 void projectileActorUpdate(void) {
     ProjectileSubState *sub;
@@ -248,7 +248,7 @@ void projectileActorUpdate(void) {
         effectSetDuration(-1);
         effectSetFrameDelay(2);
         effectSetDepth(1);
-        effectSetMaxDistance(0x7D0);
+        effectSetMaxDistance(2000);
         if (sub->type == 1) {
             effectSetColor(0, 0xFF, 0, 0xC8);
         } else {
@@ -272,7 +272,7 @@ void projectileActorUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0x14);
         }
         if (gActorGlobalState.unk15 == 0) {
-            for (particleIdx = 0; particleIdx < 0xC; particleIdx += 2) {
+            for (particleIdx = 0; particleIdx < 12; particleIdx += 2) {
                 effectSetDepth(1);
                 effectSetSpeed(particleIdx + 0xB000000);
                 effectSetCallback(effectRadialSprayUpdate);

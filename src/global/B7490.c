@@ -348,6 +348,7 @@ void actorSwellBurstUpdate(void) {
                 gCurrentActor->y = gCurrentActor->waterY;
                 gCurrentActor->speedY = gCurrentActor->accelY;
             }
+            /* fallthrough */
         case 0:
             actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
             break;
@@ -357,11 +358,12 @@ void actorSwellBurstUpdate(void) {
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C2, 0xFF, 0x7F, 0);
                     gBehaviourWorkState->scale = 2.0 * gCurrentActor->sub4->scaleY;
                     gCurrentActor->unk155++;
+                    /* fallthrough */
                 case 1:
                     if (gBehaviourWorkState->scale > gCurrentActor->sub4->scaleY) {
                         actorSetUniformScale(gCurrentActor, gCurrentActor->sub4->scaleY * 1.01);
                     } else {
-                        for (i = 0; i < 0xC; i++) {
+                        for (i = 0; i < 12; i++) {
                             effectSetDepth(1);
                             effectSetDuration(2);
                             effectSetSpeed(i + 0x0B020000);

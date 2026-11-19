@@ -19,7 +19,7 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern s32 D_8072030C;
+extern EffectGridAsset D_8072030C;
 
 
 void timedSmokeTargetHostUpdate(void) {
