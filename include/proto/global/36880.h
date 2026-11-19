@@ -240,7 +240,7 @@ void modelSlotsStepSegmentCommands(void);
 void modelSlotResolveAssetTextures(ModelSlot *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_dlResolveNodeTextures
-s32 dlResolveNodeTextures(struct DisplayListCmd *, struct DisplayListCmd *, struct TexAnimNode *, u8);
+u8 dlResolveNodeTextures(struct DisplayListCmd *, struct DisplayListCmd *, struct TexAnimNode *, u8);
 #endif
 #ifndef PROTO_SKIP_renderModelAnimatedSlot
 Gfx *renderModelAnimatedSlot(struct ModelType1RenderView *, Gfx *, f32, f32, f32, u8, s16, s32);

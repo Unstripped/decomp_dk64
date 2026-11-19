@@ -2291,8 +2291,6 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
     u32 tail;
     TexAnimNode *node;
     u8 res;
-    u32 size0;
-    u32 size1;
 
     obj = slot->unk24;
     seg = slot->unk20;
@@ -2309,19 +2307,15 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
                 head >>= 3;
                 tail >>= 3;
                 node = ((ModelType1ObjAddrs *)slot->unk20)->texAnims; // ORIG: the target reloads slot (lw t6,72(sp) at 0x90) and slot->unk20 (lw t7,32(t6) at 0xA0) for texAnims instead of reading seg (s0)
-                size0 = head * 8;
-                head = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
-                res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
+                res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + head, node, force);
                 cmds = seg->displayListB;
-                size1 = tail * 8;
-                tail = 0; // FAKE: dead store keeps size1 a variable instead of a propagated expression
-                res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, force);
+                res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + tail, node, force);
                 if (node != NULL) {
                     cmds = seg->displayListACopy;
-                    res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
+                    res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + head, node, force);
                     cmds = seg->displayListBCopy;
-                    res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, force);
-                    if (seg->displayListA == 0) {} // FAKE: dead test keeps seg live past the last call so it stays in s0
+                    res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + tail, node, force);
+                    if (seg->displayListA == 0) {} // FAKE: dead test only adds an empty block after the fourth call (if (1) {} matches too); without it obj takes s2, seg s1 and textures shares s0 with node (frame 0x50)
                 }
                 if (res != 0) {
                     obj->unk0 &= ~0x10;
@@ -2336,10 +2330,10 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
 }
 
 
-s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, TexAnimNode *nodes, u8 keep) {
+u8 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, TexAnimNode *nodes, u8 keep) {
     u32 w;
     u32 tag;
-    s32 result;
+    u8 result;
     s32 found;
     TexAnimNode *node;
 
