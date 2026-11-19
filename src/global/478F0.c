@@ -2073,7 +2073,7 @@ s16 sStepSequenceModelMap[16][2] = {
 void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *st;
     u8 found;
-    s32 eq;
+    u8 odd;
     s32 ok;
     s32 i;
 
@@ -2088,13 +2088,13 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
         st[1] = cs->unk48[0];
     } else {
         ok = 0;
-        if (st[1] & 1) {
+        odd = st[1] & 1;
+        if (odd) {
             if (cs->unk48[0] + 1 == st[1]) {
                 ok = 1;
             }
         } else {
-            eq = cs->unk48[0] == st[1] + 1; // FAKE: eq temp (an extra candidate uopt colours v0) puts ok in v1 (inline in the if: ok in v0, fdiff 1) (pre-existing, now tagged)
-            if (eq) {
+            if (cs->unk48[0] == st[1] + 1) {
                 ok = 1;
             }
         }
