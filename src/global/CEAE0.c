@@ -236,7 +236,7 @@ void playerCheckAndResetCarriedActor(Actor *actor) {
     s16 flags = gPlayerStateHandlers[state].flags;
 
     if (flags & 0x200) {
-        playerLeaveViewMode(actor, (u8)(state != 2));
+        playerLeaveViewMode(actor, state != 2);
     } else if (flags & 0x100) {
         playerLeaveFairyCamera(gActivePlayerState);
     }
@@ -813,7 +813,7 @@ void playerUpdateScaleAndPhysics(void) {
             }
             gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex] * scale;
             gActivePlayerState->airAccel = gKongAirAccel[gCurrentCharacterIndex] * scale;
-            gActivePlayerState->turnRate = (s32)(gKongTurnRate[gCurrentCharacterIndex] * scale);
+            gActivePlayerState->turnRate = gKongTurnRate[gCurrentCharacterIndex] * scale;
         }
         if (gCurrentActor->state != 0x7C || (gCurrentActor->state == 0x7C && gActivePlayerState->statusEffectTimer == 1)) {
             gActivePlayerState->statusEffectTimer--;

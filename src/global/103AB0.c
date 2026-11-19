@@ -54,31 +54,8 @@ typedef struct {
     s32 offset;
 } ZbufferDecodeEntry;
 
-typedef struct {
-    ZbufferDecodeEntry entries[8]; /* indexed by the 3-bit depth exponent */
-} ZbufferDecodeTable;
-
-typedef struct {
-    s16 x0, y0;
-    u8 pad0[0xB];
-    u8 a0;
-    s16 x1, y1;
-    u8 pad1[0xB];
-    u8 a1;
-    s16 x2, y2;
-    u8 pad2[0xB];
-    u8 a2;
-    s16 x3, y3;
-    u8 pad3[0xB];
-    u8 a3;
-} ScreenQuadVtx;
-
-// Zero-terminated list of sequence channels whose volume follows the fade (transitionSetAudioVolume).
-typedef struct {
-    s32 ids[3];
-} ScreenFadeChannels;
-
-// This TU's .data (0x80754AF0-0x80754CD4 + 12-byte TU pad), in address order.
+// This TU's .data (0x80754AF0-0x80754CD4 + 12-byte TU pad) is emitted in source order: these two
+// objects, zbufferReadDepth's decode table, the screen-fade vertices, screenFadeUpdate's channel list.
 LensFlareSprite D_80754AF0[13] = {
     { 1.0f, 1.0f, 255, 255, 255, 255, 3 },
     { 0.08f, 1.2f, 250, 220, 220, 200, 2 },
@@ -95,28 +72,6 @@ LensFlareSprite D_80754AF0[13] = {
     { 1.0f, 1.0f, 255, 50, 0, 255, 4 },
 };
 u8 D_80754BC0 = 0;
-ZbufferDecodeTable D_80754BC4 = { {
-    { 6, 0x0 },
-    { 5, 0x20000 },
-    { 4, 0x30000 },
-    { 3, 0x38000 },
-    { 2, 0x3C000 },
-    { 1, 0x3E000 },
-    { 0, 0x3F000 },
-    { 0, 0x3F800 },
-} };
-Vtx D_80754C08[4] = {
-    {{{ -128, -128, -10 }, 0, { -16384, 18432 }, { 0, 0, 0, 0 } }},
-    {{{ 128, -128, -10 }, 0, { 18432, 18432 }, { 0, 0, 0, 0 } }},
-    {{{ 128, 128, -10 }, 0, { 18432, -16384 }, { 0, 0, 0, 0 } }},
-    {{{ -128, 128, -10 }, 0, { -16384, -16384 }, { 0, 0, 0, 0 } }},
-};
-// Each pad starts with the vertex z (-10).
-ScreenQuadVtx D_80754C48[2] = {
-    { 0, 0, { 0xFF, 0xF6 }, 0, 320, 0, { 0xFF, 0xF6 }, 0, 320, 240, { 0xFF, 0xF6 }, 0, 0, 240, { 0xFF, 0xF6 }, 0 },
-    { 0, 0, { 0xFF, 0xF6 }, 0, 320, 0, { 0xFF, 0xF6 }, 0, 320, 240, { 0xFF, 0xF6 }, 0, 0, 240, { 0xFF, 0xF6 }, 0 },
-};
-ScreenFadeChannels D_80754CC8 = { { 1, 3, 0 } };
 
 Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     gDPPipeSync(dl++);
@@ -233,7 +188,7 @@ Gfx *playerViewDrawScopeCrosshair(Gfx *dl, Actor *actor) {
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x60, 3.0f, 3.0f, 0x5A, 0.0f);
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x90, 3.0f, 3.0f, 0xB4, 0.0f);
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x90, 3.0f, 3.0f, 0x10E, 0.0f);
-    if (slotQueueGetValue(3, player) && projectileFindHomingTarget((u16)targetKind, &target, actor, 1, 0, 0, &targetX, &targetY, &targetZ)) {
+    if (slotQueueGetValue(3, player) && projectileFindHomingTarget(targetKind, &target, actor, 1, 0, 0, &targetX, &targetY, &targetZ)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
@@ -377,7 +332,7 @@ void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 m
             }
         }
         if (visible != 0) {
-            D_807FD840[gGfxBufferIndex][D_80754BC0].depth = sqrtf((gPlayerSlots->eyeZ - z) * (gPlayerSlots->eyeZ - z) + ((gPlayerSlots->eyeX - x) * (gPlayerSlots->eyeX - x) + (gPlayerSlots->eyeY - y) * (gPlayerSlots->eyeY - y))) > 995.0f ? 995.0f : sqrtf((gPlayerSlots->eyeZ - z) * (gPlayerSlots->eyeZ - z) + ((gPlayerSlots->eyeX - x) * (gPlayerSlots->eyeX - x) + (gPlayerSlots->eyeY - y) * (gPlayerSlots->eyeY - y)));
+            D_807FD840[gGfxBufferIndex][D_80754BC0].depth = MIN(995.0f, sqrtf(SQ(gPlayerSlots->eyeZ - z) + (SQ(gPlayerSlots->eyeX - x) + SQ(gPlayerSlots->eyeY - y))));
             camProjectToScreen(x, y, z, &screenX, &screenY, 0, 4.0f, 0);
             D_807FD840[gGfxBufferIndex][D_80754BC0].x = screenX * 0.25;
             D_807FD840[gGfxBufferIndex][D_80754BC0].y = screenY * 0.25;
@@ -465,14 +420,22 @@ s16 zbufferDepthToDistance(s16 depth) {
 extern u16 *gGfxDepthBuffer;
 
 u16 zbufferReadDepth(s16 x, s16 y) {
-    ZbufferDecodeTable table;
+    ZbufferDecodeEntry table[8] = { /* indexed by the 3-bit depth exponent */
+        { 6, 0x0 },
+        { 5, 0x20000 },
+        { 4, 0x30000 },
+        { 3, 0x38000 },
+        { 2, 0x3C000 },
+        { 1, 0x3E000 },
+        { 0, 0x3F000 },
+        { 0, 0x3F800 },
+    };
     u16 z;
     u16 exponent;
     u16 mantissa;
     u16 *depth;
     u32 result;
 
-    table = D_80754BC4;
     depth = gGfxDepthBuffer;
     if (x < gPlayerSlots->rect[0] || gPlayerSlots->rect[2] < x || y < gPlayerSlots->rect[1] || gPlayerSlots->rect[3] < y) {
         return 0xFFFF;
@@ -481,7 +444,7 @@ u16 zbufferReadDepth(s16 x, s16 y) {
     z = *depth;
     exponent = (z >> 13) & 7;
     mantissa = (z >> 2) & 0x7FF;
-    result = (mantissa << table.entries[exponent].shift) + table.entries[exponent].offset;
+    result = (mantissa << table[exponent].shift) + table[exponent].offset;
     return result >> 3;
 }
 
@@ -499,36 +462,24 @@ void func_80700BF4(void) {
     s16 y;
     u16 halfWidth;
     PadInputState *pad;
-    s32 depth;
-    s32 blocked;
 
     if (D_80754BC0 != 0) {
         do {
             D_80754BC0--;
-            if ((f32)gPlayerSlots->rect[0] < D_807FD840[gGfxBufferIndex][D_80754BC0].x &&
-                D_807FD840[gGfxBufferIndex][D_80754BC0].x < (f32)gPlayerSlots->rect[2] &&
-                (f32)gPlayerSlots->rect[1] < D_807FD840[gGfxBufferIndex][D_80754BC0].y &&
-                D_807FD840[gGfxBufferIndex][D_80754BC0].y < (f32)gPlayerSlots->rect[3] &&
+            if (gPlayerSlots->rect[0] < D_807FD840[gGfxBufferIndex][D_80754BC0].x &&
+                D_807FD840[gGfxBufferIndex][D_80754BC0].x < gPlayerSlots->rect[2] &&
+                gPlayerSlots->rect[1] < D_807FD840[gGfxBufferIndex][D_80754BC0].y &&
+                D_807FD840[gGfxBufferIndex][D_80754BC0].y < gPlayerSlots->rect[3] &&
                 !(gGlobalPauseFlags & 2)) {
                 if (D_807FD840[gGfxBufferIndex][D_80754BC0].depth <
-                    (f32)zbufferDepthToDistance(zbufferReadDepth((s16)D_807FD840[gGfxBufferIndex][D_80754BC0].x,
-                                                     (s16)D_807FD840[gGfxBufferIndex][D_80754BC0].y))) {
+                    zbufferDepthToDistance(zbufferReadDepth(D_807FD840[gGfxBufferIndex][D_80754BC0].x,
+                                                            D_807FD840[gGfxBufferIndex][D_80754BC0].y))) {
                     D_807FD838[gGfxBufferIndex][D_80754BC0] = 5;
                 }
             }
         } while (D_80754BC0 != 0);
     }
-    depth = zbufferReadDepth(0xA0, 0xDC);
-    blocked = depth == 0x7FFF;
-    if (blocked == 0) {
-        depth = zbufferReadDepth(0xC, 0x78);
-        blocked = depth == 0x7FFF;
-        if (blocked == 0) {
-            depth = zbufferReadDepth(0x134, 0x78);
-            blocked = depth == 0x7FFF;
-        }
-    }
-    D_807FD800 = blocked;
+    D_807FD800 = zbufferReadDepth(0xA0, 0xDC) == 0x7FFF || zbufferReadDepth(0xC, 0x78) == 0x7FFF || zbufferReadDepth(0x134, 0x78) == 0x7FFF;
     gPhotoSubjectDepthDist = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].active != 0) {
@@ -572,7 +523,7 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     viewDir = vec3fNormalize(vec3fSub(at, eye));
     axisEnd = vec3fAdd(eye, vec3fScale(viewDir, 5000.0f));
     srcDir = vec3fNormalize(vec3fSub(src, eye));
-    facing = vec3fDot(srcDir, viewDir) < 1e-05 ? 1e-05 : vec3fDot(srcDir, viewDir);
+    facing = MAX(1e-05, vec3fDot(srcDir, viewDir));
     src = vec3fAdd(eye, vec3fScale(vec3fScale(srcDir, 5000.0f), 1.0f / facing));
     axisSpan = vec3fSub(src, axisEnd);
     if (facing < 0.0f) {
@@ -580,18 +531,18 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     }
     for (i = 0; i < 12; i++) {
         alphaScale = (facing < 0.75 ? 0.0 : facing - 0.75) * 4.0;
-        colorScale = alphaScale < 0.85 ? 0.85 : alphaScale;
+        colorScale = MAX(0.85, alphaScale);
         switch (i) {
         case 11:
             screenX = 640.0f;
             screenY = 480.0f;
             alphaScale = (facing < 0.9 ? 0.0 : facing - 0.9) * 10.0;
-            colorScale = alphaScale < 0.85 ? 0.85 : alphaScale;
+            colorScale = MAX(0.85, alphaScale);
             break;
         case 0:
         case 12:
             alphaScale = (facing < 0.25 ? 0.0 : facing - 0.25) * 1.333;
-            colorScale = alphaScale < 0.85 ? 0.85 : alphaScale;
+            colorScale = MAX(0.85, alphaScale);
             camProjectToScreen(src.x, src.y, src.z, &screenX, &screenY, 0, 4.0f, 0);
             break;
         default:
@@ -600,7 +551,7 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
             break;
         }
         gDPPipeSync(dl++);
-        gDPSetPrimColor(dl++, 0, 0, (u32)((pt.r / 255.0) * D_80754AF0[i].r * colorScale), (u32)((pt.g / 255.0) * D_80754AF0[i].g * colorScale), (u32)((pt.b / 255.0) * D_80754AF0[i].b * colorScale), (u32)((f32)D_80754AF0[i].a * alphaScale * alpha));
+        gDPSetPrimColor(dl++, 0, 0, (u32)((pt.r / 255.0) * D_80754AF0[i].r * colorScale), (u32)((pt.g / 255.0) * D_80754AF0[i].g * colorScale), (u32)((pt.b / 255.0) * D_80754AF0[i].b * colorScale), (u32)(D_80754AF0[i].a * alphaScale * alpha));
         dl = renderRotatedSprite(dl, D_80754AF0[i].texOffset + 0x4D, 3, 1, 0x40, 0x40, screenX, screenY, D_80754AF0[i].scale * 4.0f * alpha, D_80754AF0[i].scale * 4.0f * alpha, 0, 0.0f);
     }
     gDPPipeSync(dl++);
@@ -928,6 +879,28 @@ void viewportShrinkToCenter(u8 amount) {
     gPlayerSlots->unk280 = (f32)gPlayerSlots->unk278 / (f32)gPlayerSlots->unk27A;
 }
 
+Vtx D_80754C08[4] = {
+    {{{ -128, -128, -10 }, 0, { -16384, 18432 }, { 0, 0, 0, 0 } }},
+    {{{ 128, -128, -10 }, 0, { 18432, 18432 }, { 0, 0, 0, 0 } }},
+    {{{ 128, 128, -10 }, 0, { 18432, -16384 }, { 0, 0, 0, 0 } }},
+    {{{ -128, 128, -10 }, 0, { -16384, -16384 }, { 0, 0, 0, 0 } }},
+};
+// Full-screen gradient quad, one per framebuffer: screenFadeDrawGradient sets the right and bottom
+// edges to the screen size and the corner alphas each frame.
+Vtx D_80754C48[2][4] = {
+    {
+        {{{ 0, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+        {{{ 320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+        {{{ 320, 240, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+        {{{ 0, 240, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    },
+    {
+        {{{ 0, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+        {{{ 320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+        {{{ 320, 240, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+        {{{ 0, 240, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    },
+};
 Gfx *screenFadeDrawGradient(Gfx *dl, u8 alpha) {
     gSPDisplayList(dl++, &D_1000118);
     gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -940,15 +913,15 @@ Gfx *screenFadeDrawGradient(Gfx *dl, u8 alpha) {
     gDPSetTexturePersp(dl++, G_TP_NONE);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     gDPSetCombineMode(dl++, G_CC_SHADE, G_CC_SHADE);
-    D_80754C48[gGfxBufferIndex].a0 = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
-    D_80754C48[gGfxBufferIndex].a1 = alpha;
-    D_80754C48[gGfxBufferIndex].a2 = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
-    D_80754C48[gGfxBufferIndex].a3 = alpha;
-    D_80754C48[gGfxBufferIndex].x1 = gScreenWidth;
-    D_80754C48[gGfxBufferIndex].x2 = gScreenWidth;
-    D_80754C48[gGfxBufferIndex].y2 = gScreenHeight;
-    D_80754C48[gGfxBufferIndex].y3 = gScreenHeight;
-    gSPVertex(dl++, osVirtualToPhysical(&D_80754C48[gGfxBufferIndex]), 4, 0);
+    D_80754C48[gGfxBufferIndex][0].v.cn[3] = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
+    D_80754C48[gGfxBufferIndex][1].v.cn[3] = alpha;
+    D_80754C48[gGfxBufferIndex][2].v.cn[3] = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
+    D_80754C48[gGfxBufferIndex][3].v.cn[3] = alpha;
+    D_80754C48[gGfxBufferIndex][1].v.ob[0] = gScreenWidth;
+    D_80754C48[gGfxBufferIndex][2].v.ob[0] = gScreenWidth;
+    D_80754C48[gGfxBufferIndex][2].v.ob[1] = gScreenHeight;
+    D_80754C48[gGfxBufferIndex][3].v.ob[1] = gScreenHeight;
+    gSPVertex(dl++, osVirtualToPhysical(D_80754C48[gGfxBufferIndex]), 4, 0);
     gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
     gDPPipeSync(dl++);
     return dl;
@@ -978,10 +951,10 @@ Gfx *screenFadeDrawSpinTexture(Gfx *dl, u8 alpha) {
         gDPSetTextureFilter(dl++, G_TF_BILERP);
         gDPLoadTextureBlock_4b(dl++, tex + 0x80000000, G_IM_FMT_I, 64, 64, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-        wave = sinApprox((f32)((u32)alpha / 255.0 * 1.57079637050628662 + 3.14159274101257324)) + 1.0;
-        scale = (f32)(wave * 40.0f + 1.4) * (u32)gHiResScale;
+        wave = sinApprox(alpha / 255.0 * 1.57079637050628662 + 3.14159274101257324) + 1.0;
+        scale = (f32)(wave * 40.0f + 1.4) * gHiResScale;
         guScaleF(mf, scale, scale, scale);
-        matrixMakeRotationZ(tmp, (f32)((u32)alpha / 255.0 * 360.0 * 1.5));
+        matrixMakeRotationZ(tmp, alpha / 255.0 * 360.0 * 1.5);
         guMtxCatF(mf, tmp, mf);
         guTranslateF(tmp, gScreenWidth >> 1, gScreenHeight >> 1, 0);
         guMtxCatF(mf, tmp, mf);
@@ -1086,13 +1059,11 @@ extern s16 gCurrentLevelIndex;
 extern u8 gActivePlayerCount;
 
 Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
-    s32 pad1;
+    s32 pad;
     u8 textIndex;
-    f32 progress;
-    s32 pad2;
-    ScreenFadeChannels channels;
-    f32 val;
     u16 alpha;
+    f32 progress;
+    f32 val;
 
     if (gScreenFadeRate != 0.0f) {
         gScreenFadeProgress += gScreenFadeRate * (mode == 2 ? 2 : 1);
@@ -1108,7 +1079,7 @@ Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
             }
             gScreenFadeRate = 0.0f;
             gScreenFadeProgress = 0.0f;
-            gScreenRenderFlags &= 0xFFBF;
+            gScreenRenderFlags &= ~0x40;
         } else if (gScreenFadeProgress > 31.0f) {
             if (gScreenRenderFlags & 1) {
                 sfxStopChannel(0x2C, 0);
@@ -1145,8 +1116,10 @@ Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
                 }
             }
             if ((gScreenRenderFlags & 0x41) || !(gScreenRenderFlags & 0x20)) {
-                channels = D_80754CC8;
-                transitionSetAudioVolume(1.0f - progress, gScreenFadeRate >= 0.0f, channels.ids);
+                s32 channels[3] = { 1, 3, 0 }; /* zero-terminated sequence channels that follow the fade */
+                s32 pad2;
+
+                transitionSetAudioVolume(1.0f - progress, gScreenFadeRate >= 0.0f, channels);
             }
         }
     }
