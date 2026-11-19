@@ -49,11 +49,12 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 
-typedef struct NmD5E10aTbl {
-    s16 unk0[3];
-} NmD5E10aTbl;
+// Actor types playerStateSquishDeath looks for (func_80600340) around the saved exit position.
+typedef struct ActorTypeTriple {
+    s16 types[3];
+} ActorTypeTriple;
 
-NmD5E10aTbl D_80750FB0 = { { 0x1C, 0x86, 0x6B } };
+ActorTypeTriple D_80750FB0 = { { 0x1C, 0x86, 0x6B } };
 s32 D_80750FB8[2] = { 0, 30 }; // unreferenced
 f32 D_80750FC0 = 0.2f;
 s32 D_80750FC4 = -100;
@@ -377,10 +378,10 @@ void playerStateGameOver(void) {
 }
 
 void playerStateSquishDeath(void) {
-    s32 out;
-    s32 r;
+    s32 map;
+    s32 target;
     s32 pad;
-    NmD5E10aTbl table = D_80750FB0;
+    ActorTypeTriple table = D_80750FB0;
 
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     gActivePlayerState->maxSpeed = 0.0f;
@@ -397,8 +398,8 @@ void playerStateSquishDeath(void) {
     }
     if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
         if (menuIsTransitionTypeD() == 0) {
-            r = func_80600340(table.unk0, 3, &out);
-            actorListSetCustomFloat(out, r, 7, 2.0f);
+            target = func_80600340(table.types, 3, &map);
+            actorListSetCustomFloat(map, target, 7, 2.0f);
         }
         mapTransitionToPreviousOrExit();
         gCurrentActor->unk155++;
@@ -1572,7 +1573,7 @@ void playerStateSlopeSlide(void) {
             y = (randomNonNegative() >> 15) % 10000 % D_80750FCC - D_80750FCC / 2;
             z = (randomNonNegative() >> 15) % 10000 % D_80750FD0 - D_80750FD0 / 2;
             effectSetSpeed(D_80750FC4);
-            effectSetCallback(&effectSinkBySpeedUpdate);
+            effectSetCallback(effectSinkBySpeedUpdate);
             effectSetDepth(1);
             effectCreateAtPosition(gPuffSprites[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + nodeX, y * scale + nodeY, z * scale + nodeZ);
         }
@@ -4557,7 +4558,7 @@ typedef struct G20Light {
 
 void playerStateDialogueWait(void) {
     G20Light *light;
-    PlayerState *owner;
+    PlayerState *ps;
     s32 col;
     s32 i;
     s16 pathIndex;
@@ -4612,10 +4613,10 @@ void playerStateDialogueWait(void) {
         /* fallthrough */
     case 3:
         if (currentActorTestClearFlag()) {
-            owner = gCurrentActor->customState;
+            ps = gCurrentActor->customState;
             currentActorClearFlag();
             playerResumeLocomotion(gCurrentActor);
-            healthRefill(owner->playerIndex);
+            healthRefill(ps->playerIndex);
             for (i = 0; i < 4; i++) {
                 slotQueueAddValue(D_80750FE0[i], 0, 0x270F);
                 slotQueueUpdate(D_80750FE0[i], 0, 0);

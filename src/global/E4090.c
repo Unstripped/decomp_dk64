@@ -3554,17 +3554,17 @@ extern s16 D_80750338;
 
 void playerInputCheckLadderTopOrBottom(void) {
     ClimbActorState *st;
-    u8 flag;
+    u8 mirrored;
     s32 rungLimit;
-    u8 cnt;
+    u8 oldRung;
 
     st = gActivePlayerState->actor->customState;
     if (st->inputLocked != 0) {
         gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
     } else {
-        flag = (gActivePlayerState->actor->state == 5) ? 1 : 0;
+        mirrored = (gActivePlayerState->actor->state == 5) ? 1 : 0;
         rungLimit = (*st->flagsPtr & 0x80) ? 1 : 3;
-        if (flag) {
+        if (mirrored) {
             gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickX * -1;
         }
         if (gActivePlayerState->stateFlags & 0x10000002) {
@@ -3578,23 +3578,23 @@ void playerInputCheckLadderTopOrBottom(void) {
             gActivePlayerState->jumpTimer = gScheduler.unk280;
             gActivePlayerState->actor->speedY = D_80750338;
             gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
-            cnt = st->rung;
+            oldRung = st->rung;
             st->unk2C = 1.0f;
-            st->prevRung = cnt;
+            st->prevRung = oldRung;
             if (gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F) {
-                st->rung = cnt - 1;
+                st->rung = oldRung - 1;
                 if (st->rung == 1) {
                     st->rung = 0;
                 }
-                actorScriptStartByIndex(gCurrentActor, flag ? 0x81 : 0x7D);
-                actorScriptStart(gActivePlayerState->actor, flag ? 0x295 : 0x296);
+                actorScriptStartByIndex(gCurrentActor, mirrored ? 0x81 : 0x7D);
+                actorScriptStart(gActivePlayerState->actor, mirrored ? 0x295 : 0x296);
             } else {
-                st->rung = cnt + 1;
+                st->rung = oldRung + 1;
                 if (st->rung == 1 && (*st->flagsPtr & 0x40)) {
                     st->rung = 2;
                 }
-                actorScriptStartByIndex(gCurrentActor, flag ? 0x7D : 0x81);
-                actorScriptStart(gActivePlayerState->actor, flag ? 0x296 : 0x295);
+                actorScriptStartByIndex(gCurrentActor, mirrored ? 0x7D : 0x81);
+                actorScriptStart(gActivePlayerState->actor, mirrored ? 0x296 : 0x295);
             }
         }
     }
