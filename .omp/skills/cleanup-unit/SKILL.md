@@ -50,10 +50,13 @@ opus, 2026-11-16c; fix a wrong one through a lead `--copy-dir`). `rank` orders f
 
 ## 2. Queue (rolling)
 
-Keep up to 6 workers plus one `TypesOwner` running. Never two agents on one src file; a file in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatched.
+Keep up to 5 workers plus one `TypesOwner` (harness cap: 6 subagents in total). Never two agents on one src file; a file in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatched.
 - **Coverage first.** Until `report` shows `reviewed` equal to functions minus blocked ones (none since 2026-11-17d), dispatch
   only polish workers on `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review`
   (met once all are in flight). A blocked item waits for a director ruling: write the exact decision options (dispatch.md).
+  Small files go out as polish bundles of ~25-45 reviews (one ledger per file, one merge over all; never two same-basename files).
+  A hack function reviewed by a polish item gets a `review` line only; a body with any fresh site rung stays byte-identical; an
+  all-stale body may take ordinary-C fixes, its FAKE/ORIG/LAYOUT lines untouched unless that worker runs the hack ladder (2026-11-18b).
 - **After coverage.** Five slots take the top of `rank`, one the top of `rank --polish` (a hack item too when polish is empty).
 - **Hack item:** one function with 3+ hack sites, or up to 4 functions with 1–2 sites from the same file, in queue order.
 - When a worker reports, merge it (§5), then fill its slot at once. No rounds: nothing waits for the slowest worker.
@@ -89,6 +92,9 @@ As each worker reports:
    `drafts/quality`. Read `MERGE_RECORD_OK`; on `MERGE_RECORD_FAIL: <step>` fix that step by hand and run the remaining steps
    (docstring); never pipe it. Then grep its log for `restored deleted local declaration` and diff src against the copy:
    merge_drafts' restore check has false positives (a `case 'c':` char literal re-added `int c;`, fixed d22166c1).
+   `--ledger` takes ONE file: concatenate the worker's `ledger_<f>.txt` (`<f>` = basename WITHOUT `.c`); `ledger_<f>.c.txt` names gave
+   an empty bundle and merge_record recorded 0 events yet printed MERGE_RECORD_OK (2026-11-18b M25): `test -s` the bundle and read
+   `recorded N events`, N > 0. A ledger-only merge (copy == src) skips the sweep: `sweep <src> --record` stale automatic rungs.
 3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to
    `.scratch/s<YYYY-MM-DD>-knowledge-queue.md`; §6 files them once.
 4. Signature bundles (stand-in `PROTO_SKIP_`), worker header-request bundles (strip into a lead clean dir, `git apply` the

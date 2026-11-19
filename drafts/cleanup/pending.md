@@ -1,16 +1,23 @@
-# Cleanup pending (unresolved items only; checked against the tree at f13156f0, 2026-11-18)
+# Cleanup pending (unresolved items only; checked against the tree at the 2026-11-18b close)
 
 Open functions come from `uv run tools/quality.py rank` / `rank --polish` (SKILL §2) or `status --file <f>`. This file keeps what
 `rank` cannot show: the `TypesOwner` queue (`.omp/skills/cleanup-unit/types-stream.md`: oldest first, skipping HELD/PARKED items), director rulings, held
 names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/sessions.md` keep the history); a closed decision keeps one outcome line.
 
 ## Blocked owner/header changes (`TypesOwner` queue)
-- NEXT batch (director 2026-11-18: one batch, not now): (1) PlayerState 0x220..0x228 -> `f32 unk220[3]` removes 478F0
-  csCmdCameraVectorTargetUpdate abbd3b. Request .scratch/CleancsCmdCameraVectorTargetUpdateb/header-request.md; patches
-  fix/actor_h.patch + fix/D5E10.patch + fix/E4090.patch, copies fix/{478F0,D5E10,E4090}.c at 2291c741, shadow_fdiff.sh. Users
-  D5E10 playerInputHandleBButtonPunch/func_806DF280, E4090 playerInputCheckBButtonTarget. Field TYPE change: measure the
-  PlayerState stale cost first, gate with the 478F0 body. (2) JetpacSprite (jetpac.h) == TextureDescriptor (render.h) field for
-  field: merge them, then retype dlAppendTextureLoad's `void *texture` (callers arcade/0.c, jetpac/1460.c:151; CleandlAppendTextureLoadb).
+- EffectNode union member for 11BC10 effectWobbleRiseUpdate (2026-11-18b, deferred): `/* 0x384 */ struct WobbleRiseState *wobbleRise;`
+  beside `allocation`/`sprayMotion`/`interp` in include/render.h retires 31 `((WobbleRiseState *)effect->allocation)->` casts (the target
+  reloads the field per access, so a pointer local fails). Request .scratch/Polishglobal119370b/header-request.md; measure the
+  EffectNode stale cost first (carry --header-carve for an added union member).
+- 450.c data owner types (2026-11-18b polish reports): `u8 D_80744510[28]` / `D_80744530[5]` are blobs hiding D_80744514,
+  D_8074451C, D_80744520, D_80744524[], D_80744534, D_80744538, D_8074453C[5]; `u32 D_80744544` is read as s16 (FCCD0 lh, 3E10
+  ^=/|=); `D_80744548`/`D_80744568` u32[8] vs MenuHighScoreEntry[] (3E10); `u8 D_8076A0D0[48]` blob covers gMenuScreenSelection and
+  gMenuPlayerCharacterSel read as s8 (3E10 lb). Split/retype in 450.c with every user in one gate.
+- Declared signedness/type mismatches (one extern per global): gMinigameCoinCount s16 def (CC800) vs u16 reader (FCCD0 slot 11);
+  D_807563B4 u8 def vs extern s8 (3E10); D_80746B60 u8 (17B90) vs s8 (117190); D_807463B8 s8 (F56F0) vs u8 elsewhere;
+  gActorScriptAnimTable void * (7CA80) vs u16 * (17B90).
+- jetpac: `JetpacSprite` is `typedef TextureDescriptor JetpacSprite;` since 6ed65e63: rename its uses (jetpac/0 1, 1460 4, 1A60 5,
+  3480 6, 4FC0 8, jetpac.h 4) to TextureDescriptor in one polish pass; the trailing `0` of the 10-value sprite initialisers fills pad14.
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing, BC3B0.c:172): the shared field name may be too narrow.
 - 55B20 file-local MapZone (55B20.c:350): `tris` as `MapTriangle *` would remove 23 casts; a natural rewrite does not match yet.
 - 36880 views on `ModelSlot.unk20` (model.h:109 `void *`, ModelKindObj users): blocked on the model.h H1/H2 regeneration (clashes
@@ -79,20 +86,21 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   limit and 32c920 half reuse flag, pinned by register colouring; every variant in
   .scratch/CleanhudPauseMenuUpdate/dossier_global_hudPauseMenuUpdate.md, merge 54a784f8). No dispatch without a new lever;
   frame-capacity ORIG declined (ladder.md home-slot rule).
-- 7130 70c91e `if (D_80770DC8) {}` (7130.c:1045): a function-local static lands at 0x80770F38 (IDO .bss first-reference order;
-  .scratch/CleansfxUpdateLevelAmbient/carve/carve_7130.txt §4, merge 08e85d18). Retry only with a new .bss-order lever.
+- 7130 70c91e `if (D_80770DC8) {}`: CLOSED 2026-11-18b (CleansfxUpdateLevelAmbientc, ec3c9426): Q1470 lands the function-local
+  static at 0x80770DC8 only with N = 160 (mod 256) extra numbered definitions; no natural count. Reopen only with another lever.
 - Names kept (director 2026-11-14): collisionGetFloorHeight, collisionGetFloorTriangleNormal (proposals collisionGetWaterHeight,
   collisionCheckLedgeGrab: .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState/stateTimer, D_807FF0F2 ->
   gAudioHeadphonesEnabled (inferred), Actor.unk15F -> hudMode (C8C10: 0x80 flag + 0x7F phase counter), D_80035B38 ->
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- READY, not dispatched (re-set the base at dispatch: .scratch/Lead20261118/items/*.json + mkbrief.py): BDEE0
-  behaviourFairyInitPlayerScale goto, jetpac/1460 jetpacGridAddTiledSprite, boot/1630 noExpPakThread, 8F4B0
-  lightUpdateFromActorLighting + playerCameraUpdateFromTarget (new agent name: CleanlightUpdateFromActorLightingb was cancelled on
-  a model fallback, nothing merged).
+- After-coverage queue (2026-11-18b close): `rank` OPEN functions whose site rungs went stale in the static-data campaign, weakest
+  first (csCmdExec 42630, noExpPakThread 1630, menuInitMainScreen (D1: rungs only, no attempts), hudPauseMenuUpdate (D2 HOLD), ...);
+  EXHAUSTED READY items from 2026-11-18: BDEE0 behaviourFairyInitPlayerScale goto, 8F4B0 lightUpdateFromActorLighting.
+- 80150 tagBarrelActorUpdate untagged empty `default: break;` (same template 9CE20 b0cf60 keeps tagged): rule it by the empty-default
+  line in rulings.md (own block -> ORIG, else FAKE) in the next 80150 pass. F56F0.c:179/181 comments still say 89250 reads
+  D_80753A08/18 (labels retired in 813c2797): reword in that pass.
 - 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) stay FAKE: the frame holds only ten f64.
-- Polish: 103AB0 playerViewDrawScopeCrosshair `(u16)targetKind` is redundant under the ANSI u16 prototype (dd98f7bb).
 
 ## Held names (a field rename reopens the review of every touched function: batch them with the next types item, lead review each)
 Lists: .scratch/Lead20261118/names17f.txt (17f proposals), names_close.tsv (close submissions; names_applied.tsv applied,
@@ -115,8 +123,8 @@ names_failed.txt refused), .scratch/lead_s1115/names.md, .scratch/lead_s1115c/cl
   D_8076A0A6 (copy of gPadPressedButtons[0]), D_80757044/D_80757064 (default high-score tables), D_807FC952
   (= gPlayerInventoryTable[0].kong[0].weaponFlags; cannot fold), D_80744544 gCheatFlags, arcade/0 D_8004BCD0 entity table,
   race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed), 124780 effect sprite symbol_addrs (needs a split).
-- Slash-form and uncertain (17f/18): D_807444A8/AC/B0/B4 letterbox, D_800297F0/D_80029830 critter wing vtx, 10130
-  func_8060B750/7C4/7D0/6CC, D_80753A08/A18 head heights, effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn/
+- Slash-form and uncertain (17f/18): D_807444A8/AC/B0/B4 letterbox, 10130 func_8060B7C4/7D0 (func_8060B750/6CC named
+  demoPlaybackLoad/demoPlaybackReset at the 18b close, 7a1f8709), effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn/
   effectSpawnActorScale, gMenuBonusTimer -> gHelmTimer, modelAnimEntrySet*.
 
 ## Tooling fixes (open)

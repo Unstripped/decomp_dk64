@@ -26,6 +26,7 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - a constant-valued local the target converts or uses at run time in a way no literal reproduces (Q0814: CEAE0
   `li`/`mtc1`/`cvt.s.w`, every literal folds to `lui`)
 - `/ 2.0` where the file family halves that way and `* 0.5` fails (126260).
+- a pointer-sum operand order the target's offset-first `addu` proves (Q0813; 136820 faultDrawGlyph `xoff + (u16 *)fb + yoff`, R1 2026-11-18b).
 
 ## Steers (keep `// FAKE`)
 
@@ -44,13 +45,18 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - `// ORIG:` replacing `// FAKE` needs the cited target-asm offset (check it; K&R declarations, -g puns, a
   per-file extern type the target proves qualify).
 - FAKE → `// LAYOUT:` with line-order evidence is a drop.
+- an empty `default:` whose own block the target keeps (bound-check + gap entries branch to a distinct address) is `// ORIG:` citing
+  that block (director 2026-11-18b: vsprintf 0x139c `lbu/li/move` before the loop test 0x13a8, bound check 0x4c4; EFDC0
+  playerStateSetFlagsByActorType +0x16c..+0x190 before the join +0x194, no gap entries); a default at the join address stays a steer.
 
 The offset must show the tagged line's OWN executed operations (a wider
 call-site declaration's caller-side `andi`, an extra argument register), never register numbering alone (136820 5fb2de), nor a computation
 a dead test keeps alive (stays FAKE, `diagnose nohit`; 627052); pre-switch constant store: compile without it first. A `T x[1]` memory
 home is ORIG only with a cited store-without-reload offset (6AD90 `swc1` 0x3910, compare on the register copy). A reused local/parameter
 is ORIG when the value is stored to its own home slot (not the temp area below the named homes) and a separate local grows the frame (CEAE0
-f73438, arcade ff5952), or two values spill to one home (42630 83069d#2); a shared register is not.
+f73438, arcade ff5952, arcade/0 arcadeUpdatePlayerEntity `i` sp+0x3c, frame 0x48 -> 0x50), or two values spill to one home (42630 83069d#2,
+BA790 `x` sp+64); a shared register is not. Near miss, stays FAKE until ruled: a split that keeps the frame but displaces a temp
+spill (arcade/0 arcadeUpdateOilDrumEntity `n`: only the count stored to its home 0x24; a slot local moves the a1 spill 0x1c -> 0x18).
 
 ## Re-reads, widths, expressions, merged constructs
 

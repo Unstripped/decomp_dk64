@@ -64,6 +64,7 @@ Tooling rules (were Q0626/Q0634/Q0638):
 - Before keeping a file-wide callee prototype steer (PROTO_SKIP), compare every caller's asm under the shared prototype (lightAdd: 11 of 12 matched), and flip the argument's `!= 0` tests to bare tests / type its source local narrow (Q1135, Q1139).
 - sweep's `cond` flips only dead-if/dead-store sites: on `other` sites try `if (x)`↔`if (x != 0)` by hand. as1probe's unconditional `bnext` does not reproduce a dead address test: read the ugen listing.
 - deadsweep recipe scans and `variants.py try` ignore a shadow include dir (`RECIPE-FAIL … undefined`) until the header lands; a `#` comment after the key of a copy-only ledger line fails `record`. `fdiff --reloc-ok` (objdiff `reloc_equivalent`) fails a file-scope symbol defined only in the built object and absent from symbol_addrs: function-local statics pass; prove with masked .text + reloc offsets/types + .data bytes (`.scratch/HackschedMain/wdiff.py`) and drop the symbol_addrs line of a variable that became a static (`--stage`).
+- Ledger files are `.scratch/<A>/ledger_<f>.txt` with `<f>` the src basename WITHOUT `.c` (`ledger_3480.txt`, `ledger_0.txt`); `record`/`merge_record --ledger` read ONE file and an empty one records 0 events silently (2026-11-18b M25: `ledger_0.c.txt` names, empty bundle, MERGE_RECORD_OK): check `recorded N events`, N > 0, and re-run `record --base <base>` + `--base <merge> --skip-missing` by hand if 0.
 
 ## Required fresh methods per kind
 
