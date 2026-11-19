@@ -377,7 +377,8 @@ void bossSpawnParticleRing(u16 flag, s16 x, s16 y, s16 z, s16 yaw, u8 initialSta
 
 
 void bossStartCountdownTimer(void) {
-    hudSpawnCountdownTimer(-0x7F83, 0xD2, 0xB4);
+    // Bit 15 of x selects the alternate timer style, which also starts one second short.
+    hudSpawnCountdownTimer(0x8000 | 0x7D, 0xD2, 0xB4);
     hudCountdownTimerStart(gCurrentActor->parentActor);
 }
 
@@ -394,7 +395,7 @@ Gfx *bossDrawRoundText(Gfx *glist, Actor *actor) {
     mtx = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(mtx);
     guScaleF(scaleMtx, 0.6f, 0.6f, 1.0f);
-    guTranslateF(transMtx, 100.0f, (f32)(gPlayerSlots->rect[3] * 4 - 0x3C), 0.0f);
+    guTranslateF(transMtx, 100.0f, gPlayerSlots->rect[3] * 4 - 0x3C, 0.0f);
     guMtxCatF(scaleMtx, transMtx, scaleMtx);
     guMtxF2L(scaleMtx, mtx);
     gSPMatrix(glist++, mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);

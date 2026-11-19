@@ -1290,44 +1290,44 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 x, s16 y, f32 scale, void *text) {
 s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
     s32 idx;
     s32 slot;
-    s32 d;
+    s32 delta;
 
     if (sliding == 0) {
-        d = 0;
-        if (buttons & 8) {
-            d = 1;
-        } else if (buttons & 4) {
-            d = -1;
+        delta = 0;
+        if (buttons & U_CBUTTONS) {
+            delta = 1;
+        } else if (buttons & D_CBUTTONS) {
+            delta = -1;
         }
-        if (d != 0) {
+        if (delta != 0) {
             idx = hud->buffer;
             slot = hud->worldIndex[idx];
-            slot += d;
+            slot += delta;
             if (slot < 0) {
                 slot = sPauseLastLevelSlot;
             }
-            if (sPauseLastLevelSlot < slot) {
+            if (slot > sPauseLastLevelSlot) {
                 slot = 0;
             }
             if (slot != hud->worldIndex[idx]) {
                 hud->buffer = 1 - idx;
                 hud->worldIndex[hud->buffer] = slot;
-                hud->slideY[hud->buffer] = d * 0xFA;
+                hud->slideY[hud->buffer] = delta * 0xFA;
                 hudPauseMenuBuildPage(hud, 0);
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         }
     }
     if (sliding != 0) {
-        d = hud->slideY[hud->buffer];
-        if (d >= 0x15) {
-            d = 0x14;
+        delta = hud->slideY[hud->buffer];
+        if (delta > 0x14) {
+            delta = 0x14;
         }
-        if (d < -0x14) {
-            d = -0x14;
+        if (delta < -0x14) {
+            delta = -0x14;
         }
-        hud->slideY[0] -= d;
-        hud->slideY[1] -= d;
+        hud->slideY[0] -= delta;
+        hud->slideY[1] -= delta;
         if (hud->slideY[hud->buffer] == 0) {
             hud->worldIndex[1 - hud->buffer] = hud->worldIndex[hud->buffer];
             sPauseTextCounts[1 - hud->buffer] = 0;

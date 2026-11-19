@@ -882,12 +882,12 @@ void playerSpawnMapActors(s32 playerIndex) {
 
 void playerInitKongActor(s32 playerIndex, s32 unused1, s32 unused2) {
     s32 kong = playerGetResolvedKongId(playerIndex);
-    KongInventory *p = &gPlayerInventoryTable[playerIndex].kong[kong];
+    KongInventory *kongInv = &gPlayerInventoryTable[playerIndex].kong[kong];
 
-    p->weaponFlags = 7;
-    p->instrumentFlags = 0xF;
-    p->slamLevel = 3;
-    p->moveLevel = 3;
+    kongInv->weaponFlags = 7;
+    kongInv->instrumentFlags = 0xF;
+    kongInv->slamLevel = 3;
+    kongInv->moveLevel = 3;
     flagSet(0x179, 1, 0);
     playerSpawnMapActors(playerIndex);
 }
