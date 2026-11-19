@@ -1268,3 +1268,4 @@
 {"type": "unit", "t": "2026-11-19T08:12:43Z", "unit": "2026-11-18c: cleanup CleantextDrawStringVtxc", "commit": "4a832c03aef6e43585b5eefaa83dd1048ca1d78a"}
 {"type": "unit", "t": "2026-11-19T08:13:02Z", "unit": "2026-11-18c: cleanup CleanthrowableBarrelUpdateb", "commit": "d05dc619ffb1d5cc7fbe8d6c698612049b4bad36"}
 {"type": "unit", "t": "2026-11-19T08:18:10Z", "unit": "2026-11-18c: cleanup CleanactorSetBoxEnableByIdc", "commit": "9de100e7a254f93d5fe6c0b9b61d54ce34ec7ea7"}
+{"type": "unit", "t": "2026-11-19T08:21:12Z", "unit": "2026-11-18c: cleanup CleancollisionCheckTriangleContainsPointXZb", "commit": "0a6c8107e30e7e51b521dbb39e804a892bbb3bbf"}
