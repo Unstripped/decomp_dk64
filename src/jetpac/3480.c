@@ -568,7 +568,7 @@ void jetpacSetRocketSpriteFrames(JetpacPlayer *player) {
     s32 i;
 
     for (i = 0; i < 6; i++) {
-        D_8002D1A0[i].frame = D_8002D190[rocket % 4];
+        D_8002D1A0[i].image = D_8002D190[rocket % 4];
     }
 }
 

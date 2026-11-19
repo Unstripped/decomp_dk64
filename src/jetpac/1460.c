@@ -79,8 +79,8 @@ void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32
     s32 dx;
     s32 xEnd;
 
-    w = sprite->unkA - 1;
-    h = sprite->unkC - 1;
+    w = sprite->rectWidth - 1;
+    h = sprite->rectHeight - 1;
 
     if (jetpacTiledSpriteCount < 0x100) {
         if (x < 0) {
@@ -109,13 +109,13 @@ void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32
                         xEnd -= x;
                         xEnd = MIN(xEnd, w);
                         if (flipFlag != 0) {
-                            dst->unk10 += w - xEnd;
+                            dst->s += w - xEnd;
                         } else {
-                            dst->unk10 += dx;
+                            dst->s += dx;
                         }
-                        dst->unk12 += dy;
-                        dst->unkA = xEnd - dx + 1;
-                        dst->unkC = yEnd - dy + 1;
+                        dst->t += dy;
+                        dst->rectWidth = xEnd - dx + 1;
+                        dst->rectHeight = yEnd - dy + 1;
                         ya = y + dy;
                         xd = x + dx;
                         xd = (xd >= 0x100) ? xd - 0x100 : xd;

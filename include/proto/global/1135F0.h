@@ -2,8 +2,9 @@
 #ifndef PROTO_GLOBAL_1135F0_H
 #define PROTO_GLOBAL_1135F0_H
 #include "common.h"
+#include "render.h"
 #ifndef PROTO_SKIP_dlAppendTextureLoad
-void dlAppendTextureLoad(Gfx **, void *);
+void dlAppendTextureLoad(Gfx **, TextureDescriptor *);
 #endif
 #ifndef PROTO_SKIP_dlSetTextureScaleAndFlip
 void dlSetTextureScaleAndFlip(s16, s16, u8, u8);

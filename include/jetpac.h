@@ -2,21 +2,12 @@
 #define JETPAC_H
 
 #include "common.h"
+#include "render.h"
 
 /* Jetpac overlay types shared by src/jetpac/. */
 
-typedef struct JetpacSprite {
-    /* 0x00 */ void *frame;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ u8 unkE;
-    /* 0x0F */ u8 unkF;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s32 unk14;
-} JetpacSprite; // size 0x18
+/* A sprite is a texture tile descriptor (render.h), drawn through dlAppendTextureLoad. */
+typedef TextureDescriptor JetpacSprite;
 
 typedef struct JetpacExplosion {
     /* 0x00 */ s32 x;

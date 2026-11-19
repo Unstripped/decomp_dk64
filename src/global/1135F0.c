@@ -8,7 +8,7 @@ extern s16 gTextureScaleT;
 extern u8 gTextureFlipS;
 extern u8 gTextureFlipT;
 
-void dlAppendTextureLoad(Gfx **glistp, void *texture) {
+void dlAppendTextureLoad(Gfx **glistp, TextureDescriptor *texture) {
     Gfx *gfx = *glistp;
     u32 width;
     u32 height;

@@ -7,13 +7,13 @@
 void jetpacInitGrid(void);
 #endif
 #ifndef PROTO_SKIP_jetpacGridAddSprite
-void jetpacGridAddSprite(struct JetpacSprite *, s32, s32, u8 *, s32);
+void jetpacGridAddSprite(JetpacSprite *, s32, s32, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_jetpacInitRdp
 void jetpacInitRdp(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacGridAddTiledSprite
-void jetpacGridAddTiledSprite(struct JetpacSprite *, s32, s32, u8 *, s32);
+void jetpacGridAddTiledSprite(JetpacSprite *, s32, s32, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_jetpacGridDraw
 void jetpacGridDraw(Gfx **);
