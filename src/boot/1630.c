@@ -8,32 +8,11 @@ extern u8 *sNoExpPakStackBase;
 extern OSMesgQueue sNoExpPakViMesgQueue;
 extern OSMesg sNoExpPakViMesgBuf[];
 
-typedef struct {
-    u16 *buf[2];
-} FbPair;
-
-typedef struct {
-    s16 ticks[2];
-} VsyncDelays;
-
-typedef struct {
-    u32 w[3];
-} Words3;
-
 u32 D_8000DE80[2] = { 0 }; // unreferenced
 // gzip stream of the 64x64 image noExpPakThread unpacks; ROM-extracted (data_inc.us.txt).
 u8 sNoExpPakImageGz[0xE81] = {
 #include "boot/sNoExpPakImageGz.inc.c"
 };
-FbPair sNoExpPakFramebuffers = { { (u16 *)0x80200000, (u16 *)0x80100000 } };
-VsyncDelays sNoExpPakVsyncDelays = { { 120, 60 } };
-Words3 sNoExpPakUnusedWords = { { OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1 } }; // main's sBootViMode triple
-u8 sNoExpPakTextLine1[0x1C] = "       Nhf EXPANSION PAK}";
-u8 sNoExpPakTextLine2[0x18] = "          NOT INSTALLED";
-u8 sNoExpPakTextLine3[0x20] = "THE Nhf EXPANSION PAK ACCESSORY";
-u8 sNoExpPakTextLine4[0x24] = "MUST BE INSTALLED IN THE Nhf~ FOR";
-u8 sNoExpPakTextLine5[0x24] = "THIS GAME[ SEE THE Nhf EXPANSION";
-u8 sNoExpPakTextLine6[0x1C] = "   PAK INSTRUCTION BOOKLET[";
 
 
 void noExpPakScreen(void) {
@@ -49,22 +28,22 @@ void noExpPakThread(void *arg) {
     s32 i;
     s32 x;
     s32 y;
-    u16 *a;
-    u16 *b;
+    u16 *textFb;
+    u16 *imageFb;
     s32 pad; /* unused: reserves its stack slot */
-    FbPair fb = sNoExpPakFramebuffers;
-    VsyncDelays delay = sNoExpPakVsyncDelays;
+    u16 *fb[2] = { (u16 *)0x80200000, (u16 *)0x80100000 };
+    s16 delay[2] = { 120, 60 };
     s8 cur = 1;
     u8 *src = sNoExpPakImageGz;
     u8 *dst = (u8 *)0x80280000;
-    Words3 unused = sNoExpPakUnusedWords;
+    u32 unused[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1 }; // the triple main's bootMainThread indexes
 
     gunzip(&src, &dst, (void *)0x80180000);
-    a = (u16 *)0x80200000;
-    b = (u16 *)0x80100000;
+    textFb = (u16 *)0x80200000;
+    imageFb = (u16 *)0x80100000;
     for (i = 0; i < 320 * 240; i++) {
-        a[i] = 0;
-        b[i] = 0;
+        textFb[i] = 0;
+        imageFb[i] = 0;
     }
     for (y = 0; y < 64; y++) {
         for (x = 0; x < 64; x++) {
@@ -72,7 +51,7 @@ void noExpPakThread(void *arg) {
         }
         x = 0; // FAKE: dead store keeps IDO from unrolling the copy loop
     }
-    osWritebackDCache(b, 320 * 240 * 2);
+    osWritebackDCache(imageFb, 320 * 240 * 2);
     osCreateMesgQueue(&sNoExpPakViMesgQueue, sNoExpPakViMesgBuf, 5);
     osViSetEvent(&sNoExpPakViMesgQueue, NULL, 1);
     if (osTvType == 0) {
@@ -80,19 +59,27 @@ void noExpPakThread(void *arg) {
         }
     }
     noExpPakDrawScreen();
-    noExpPakDrawText(a);
+    noExpPakDrawText(textFb);
     count = 0;
     while (1) {
         osRecvMesg(&sNoExpPakViMesgQueue, NULL, OS_MESG_BLOCK);
         count++;
-        if (count >= delay.ticks[cur]) {
-            osViSwapBuffer(fb.buf[cur]);
+        if (count >= delay[cur]) {
+            osViSwapBuffer(fb[cur]);
             osViBlack(0);
             cur = 1 - cur;
             count = 0;
         }
     }
 }
+
+// .data after noExpPakThread's three local templates (IDO emits .data in definition order).
+u8 sNoExpPakTextLine1[0x1C] = "       Nhf EXPANSION PAK}";
+u8 sNoExpPakTextLine2[0x18] = "          NOT INSTALLED";
+u8 sNoExpPakTextLine3[0x20] = "THE Nhf EXPANSION PAK ACCESSORY";
+u8 sNoExpPakTextLine4[0x24] = "MUST BE INSTALLED IN THE Nhf~ FOR";
+u8 sNoExpPakTextLine5[0x24] = "THIS GAME[ SEE THE Nhf EXPANSION";
+u8 sNoExpPakTextLine6[0x1C] = "   PAK INSTRUCTION BOOKLET[";
 
 void noExpPakDrawScreen(void) {
     s32 i;

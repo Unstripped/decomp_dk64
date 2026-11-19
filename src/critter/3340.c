@@ -48,15 +48,11 @@ extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u16 D_807446C0[];
 extern s16 D_807446D0[];
-extern s8 D_807446E0[];
-extern s8 D_807446EE;
+extern s8 D_807446E0[]; // per world: { discounted required count, kong id } byte pairs
 extern u16 gLevelCollectibleCounts[];
 extern f32 D_8002A1B0;
-extern u8 D_8071FE08[];
-extern u8 D_80720A7C[];
-
-
-f32 sqrtf(f32);
+extern EffectGridAsset D_8071FE08;
+extern EffectGridAsset D_80720A7C;
 
 void critterBananaFairyUpdate(void) {
     s32 worldIndex;
@@ -94,7 +90,7 @@ void critterBananaFairyUpdate(void) {
             }
         } else {
             slotQueueUpdate(9, 1, 0);
-            if (flagGet((s16)(worldIndex + 0x1CD), 0) != 0) {
+            if (flagGet(worldIndex + 0x1CD, 0) != 0) {
                 gCurrentActor->unk155 = 4;
             }
             actorScriptStart(gCurrentActor, 0x39E);
@@ -116,7 +112,7 @@ void critterBananaFairyUpdate(void) {
                 if (D_80029F84 == 1) {
                     canSecretUnlock = 1;
                 } else {
-                    requiredCount = D_807446EE;
+                    requiredCount = D_807446E0[7 * 2];
                     hasSecretDiscount = 1;
                 }
             }
@@ -161,7 +157,7 @@ void critterBananaFairyUpdate(void) {
                 D_8002A1B0 = 0.0f;
             }
             if (dist < 70.0 && D_8002A1B0 >= 70.0) {
-                s16 var;
+                s16 kindIndex;
 
                 resQueueSetValue(1);
                 camStartPath(gCurrentActor, 0x1B, 5);
@@ -170,9 +166,9 @@ void critterBananaFairyUpdate(void) {
                     actorScriptStart(gCurrentActor, 0x3A1);
                     gCurrentActor->unk155 = 1;
                 } else {
-                    flagSet((s16)(worldIndex + 0x1CD), 1, 0);
-                    var = hasSecretDiscount != 0 ? worldIndex + 2 : 2;
-                    resQueueAttachActor(gCurrentActor, 0x1D, (u8)var);
+                    flagSet(worldIndex + 0x1CD, 1, 0);
+                    kindIndex = hasSecretDiscount != 0 ? worldIndex + 2 : 2;
+                    resQueueAttachActor(gCurrentActor, 0x1D, kindIndex);
                     actorScriptStart(gCurrentActor, 0x3A0);
                     gCurrentActor->unk155 = 2;
                     *timerPtr = 0;
@@ -192,10 +188,10 @@ void critterBananaFairyUpdate(void) {
                 if (*timerPtr >= 0x3D) {
                     effectSetDepth(0);
                     effectSetDuration(1);
-                    effectCreateAtPosition(D_80720A7C, 0.5f, (randomFloat() * 35.0 + gCurrentActor->x) - 15.0, randomFloat() * 35.0 + gCurrentActor->y, (randomFloat() * 35.0 + gCurrentActor->z) - 15.0);
+                    effectCreateAtPosition(&D_80720A7C, 0.5f, (randomFloat() * 35.0 + gCurrentActor->x) - 15.0, randomFloat() * 35.0 + gCurrentActor->y, (randomFloat() * 35.0 + gCurrentActor->z) - 15.0);
                 }
                 if (*timerPtr >= 0x51) {
-                    gCurrentActor->sub4->scaleX = gCurrentActor->sub4->scaleX * 0.9;
+                    gCurrentActor->sub4->scaleX *= 0.9;
                     gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleX;
                     gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
                 }
@@ -214,7 +210,7 @@ void critterBananaFairyUpdate(void) {
             gCurrentActor->unk155 = 4;
             effectSetDepth(0);
             effectSetDuration(1);
-            effectCreateAtPosition(D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
             break;
         case 4:
             gCurrentActor->sub4->scaleX = 0.0f;
@@ -377,7 +373,7 @@ void critterFlutterFlyUpdate(void) {
     dx = gCurrentActor->x - gPrimaryPlayerActor->x;
     dz = gCurrentActor->z - gPrimaryPlayerActor->z;
     if (gCurrentActor->state != 1) {
-        gCurrentActor->yaw = gCurrentActor->yaw - (mathAngleSignedDistance(mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z), gCurrentActor->yaw) >> 3);
+        gCurrentActor->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z), gCurrentActor->yaw) >> 3;
     }
     gCurrentActor->eyeHeight = 0xF;
     switch (gCurrentActor->state) {
@@ -403,7 +399,7 @@ void critterFlutterFlyUpdate(void) {
             gCurrentActor->state = 0x64;
         }
         break;
-    case 1: {
+    case 1:
         t = model->frame / 19.0;
         if (t < flutter->timer) {
             flutter->startX = gCurrentActor->x;
@@ -411,9 +407,9 @@ void critterFlutterFlyUpdate(void) {
             flutter->startZ = gCurrentActor->z;
             angle = randomFloat() * 4096.0;
             k = randomFloat() * 65.0;
-            flutter->targetX = (mathCosF((s16)angle) * k) + flutter->homeX;
+            flutter->targetX = (mathCosF(angle) * k) + flutter->homeX;
             flutter->targetY = flutter->homeY;
-            flutter->targetZ = (mathSinF((s16)angle) * k) + flutter->homeZ;
+            flutter->targetZ = (mathSinF(angle) * k) + flutter->homeZ;
         }
         flutter->timer = t;
         t = (t - 0.5) * 2.5;
@@ -431,9 +427,8 @@ void critterFlutterFlyUpdate(void) {
             flutter->timer = 0.0f;
         }
         break;
-    }
     case 2:
-        flutter->timer = flutter->timer + 1.0;
+        flutter->timer += 1.0;
         if (flutter->timer > 49.0) {
             camStartPath(gCurrentActor, 2, 1);
             currentActorClearFlag();
@@ -443,8 +438,8 @@ void critterFlutterFlyUpdate(void) {
             k = sqrtf((dx * dx) + (dz * dz));
             if (k > 1.0) {
                 k = 3.0 / k;
-                gCurrentActor->x = gCurrentActor->x + (dx * k);
-                gCurrentActor->z = gCurrentActor->z + (dz * k);
+                gCurrentActor->x += dx * k;
+                gCurrentActor->z += dz * k;
             }
         }
         break;
@@ -460,9 +455,9 @@ void critterFlutterFlyUpdate(void) {
     }
     currentActorAnimTryIdleVariant(0, &gCurrentActor->frameCursor);
     if (gCurrentActor->state == 0) {
-        gCurrentActor->flags = gCurrentActor->flags & ~4;
+        gCurrentActor->flags &= ~4;
     } else {
-        gCurrentActor->flags = gCurrentActor->flags | 4;
+        gCurrentActor->flags |= 4;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, gCurrentActor->yaw, 1.0f);
     }

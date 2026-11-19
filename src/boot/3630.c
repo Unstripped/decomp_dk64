@@ -137,27 +137,27 @@ u8 *_strpbrk(u8 *s, u8 *set) {
 u8 *_strtok(u8 *str, void *delim) { // delim: u8 buffer or char literal, only forwarded to _strpbrk/_strchr
     u8 *token;
     u8 *p;
-    u8 *x;
+    u8 *match;
 
-    if (str != 0) {
+    if (str != NULL) {
         strtokSavePtr = str;
     }
 
     p = strtokSavePtr;
     token = p;
 
-    if (p == 0) {
-        return 0;
+    if (p == NULL) {
+        return NULL;
     }
 
     p = _strpbrk(p, delim);
-    if (p != 0) {
+    if (p != NULL) {
         *p++ = 0;
-        x = _strchr(delim, *p);
+        match = _strchr(delim, *p);
         strtokSavePtr = p;
-        while (x != 0) {
+        while (match != NULL) {
             p++;
-            x = _strchr(delim, *p);
+            match = _strchr(delim, *p);
         }
         strtokSavePtr = p;
         return token;

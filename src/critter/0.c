@@ -105,10 +105,8 @@ typedef struct CritterZoneRow {
     s16 pad16;
 } CritterZoneRow;
 
-typedef struct { s16 v[3]; } CritterType3TexIds;
-typedef struct { s16 v[4]; } CritterType2TexIds;
-
-// This TU's .data (0x800297F0-0x80029F80), in address order: IDO emits .data in definition order.
+// This TU's .data (0x800297F0-0x80029F80), in address order: IDO emits .data in definition order, so the
+// texIds templates of critterInitGroupType3/2 and critterScaleFactor follow with those functions below.
 // Type 3 critter wing quads (func_80024C88).
 Vtx D_800297F0[4] = {
     {{ { -28, 28, -20 }, 0, { 1024, 1024 }, { 0xFE, 0xFE, 0xFE, 0xFF } }},
@@ -275,9 +273,6 @@ CritterZoneRow critterPlayerZoneRows[8][5] = {
         { { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, 0 },
     },
 };
-CritterType3TexIds D_80029F6C = { { 0x77, 0x78, 0x79 } }; // critterInitGroupType3
-CritterType2TexIds D_80029F74 = { { 0x7C, 0x7D, 0x7E, 0x7F } }; // critterInitGroupType2
-f32 critterScaleFactor = 2.0f;
 
 void critterSetTargetSpeed(CritterObj *obj, CritterGroup *grp, f32 baseSpeed) {
     switch (grp->type) {
@@ -331,45 +326,42 @@ void critterInitGroupType01(CritterGroup *grp) {
 }
 
 void critterInitGroupType3(CritterGroup *grp) {
-    CritterObj *obj;
+    CritterObj *obj = grp->objs;
     s32 i;
-    CritterType3TexIds texIds;
+    s16 texIds[3] = { 0x77, 0x78, 0x79 };
     u8 idx;
 
-    obj = grp->objs;
-    texIds = D_80029F6C;
     idx = 0;
     for (i = 0; i < grp->count; i++, obj++) {
         if ((idx == 0 && grp->count * 0.4 < i) || (idx == 1 && grp->count * 0.7 < i)) {
             idx++;
         }
         obj->turnRate = 10.0f;
-        obj->texId[0] = texIds.v[idx];
-        obj->tex[0] = 0;
+        obj->texId[0] = texIds[idx];
+        obj->tex[0] = NULL;
     }
 }
 
 void critterInitGroupType2(CritterGroup *grp) {
-    CritterObj *obj;
+    CritterObj *obj = grp->objs;
     s32 i;
-    CritterType2TexIds texIds;
+    s16 texIds[4] = { 0x7C, 0x7D, 0x7E, 0x7F };
     u8 idx;
 
-    obj = grp->objs;
-    texIds = D_80029F74;
     idx = 0;
     for (i = 0; i < grp->count; i++, obj++) {
         if ((idx == 0 && grp->count * 0.3 < i) || (idx == 1 && grp->count * 0.5 < i) || (idx == 2 && grp->count * 0.7 < i)) {
             idx++;
         }
         obj->turnRate = 20.0f;
-        obj->texId[0] = texIds.v[idx];
-        obj->tex[0] = 0;
+        obj->texId[0] = texIds[idx];
+        obj->tex[0] = NULL;
         obj->flags |= 4;
         critterSetTargetSpeed(obj, grp, obj->scale * 0.5);
     }
 }
-
+// After the texIds templates above: the end of this TU's .data.
+f32 critterScaleFactor = 2.0f;
 
 
 void critterPlayAudio(CritterObj *obj) {
@@ -467,7 +459,7 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     gSPMatrix(gdl++, &obj->mtx[2][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &critterType1Vtx[7], 6, 7);
     gSP2Triangles(gdl++, 10, 11, 7, 0, 10, 7, 12, 0);
-    critterCurrentTexture = 0;
+    critterCurrentTexture = NULL;
     gDPPipeSync(gdl++);
     return gdl;
 }
@@ -515,7 +507,7 @@ Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
     return gdl;
 }
 
-extern u8 D_8071FC40;
+extern EffectGridAsset D_8071FC40;
 
 void critterUpdateObjType2(CritterObj *obj) {
     s16 randVal;
@@ -562,8 +554,8 @@ void critterUpdateObjType2(CritterObj *obj) {
 }
 
 Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
-    f32 tailMtx[4][4];
-    f32 finTransMtx[4][4];
+    f32 rotMtx[4][4];
+    f32 transMtx[4][4];
 
     if (critterCurrentTexture != obj->tex[0]) {
         critterCurrentTexture = obj->tex[0];
@@ -572,14 +564,14 @@ Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
     }
     critterBuildMatrix(obj);
     gSPMatrix(gdl++, &obj->mtx[0][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    matrixMakeRotationY(tailMtx, obj->flapB);
-    guMtxF2L(tailMtx, &obj->mtx[2][gGfxBufferIndex]);
+    matrixMakeRotationY(rotMtx, obj->flapB);
+    guMtxF2L(rotMtx, &obj->mtx[2][gGfxBufferIndex]);
     gSPMatrix(gdl++, &obj->mtx[2][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     gSPClearGeometryMode(gdl++, G_CULL_BOTH);
-    guTranslateF(finTransMtx, 0.0f, 0.0f, -27.0f);
-    matrixMakeRotationY(tailMtx, obj->flapA);
-    guMtxCatF(tailMtx, finTransMtx, tailMtx);
-    guMtxF2L(tailMtx, &obj->mtx[1][gGfxBufferIndex]);
+    guTranslateF(transMtx, 0.0f, 0.0f, -27.0f);
+    matrixMakeRotationY(rotMtx, obj->flapA);
+    guMtxCatF(rotMtx, transMtx, rotMtx);
+    guMtxF2L(rotMtx, &obj->mtx[1][gGfxBufferIndex]);
     gSPMatrix(gdl++, &obj->mtx[1][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, critterType2TailVtx, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 2, 3, 0, 0);
@@ -750,7 +742,7 @@ Gfx *critterRenderGroups(Gfx *gdl, CritterGroups *groups) {
     if (groups == NULL) {
         return gdl;
     }
-    critterCurrentTexture = 0;
+    critterCurrentTexture = NULL;
     grp = groups->groups;
     if (grp != NULL) {
         gdl = critterRenderSetup(gdl);
@@ -1133,8 +1125,8 @@ void critterUpdateGroups(CritterGroups *groups) {
 
     if (groups != NULL) {
         grp = groups->groups;
-        critterPlayerZone->x = gActivePlayerActor->x;
         rows = critterPlayerZoneRows[character];
+        critterPlayerZone->x = gActivePlayerActor->x;
         critterPlayerZone->z = gActivePlayerActor->z;
         for (i = 0; i < groups->count; i++, grp++) {
             rowIdx = grp->type;
@@ -1189,11 +1181,11 @@ void critterLoadData(u8 *data) {
     }
 }
 
-void critterInit(void *groups) {
-    critterCurrentTexture = 0;
+void critterInit(void *data) {
+    critterCurrentTexture = NULL;
     critterGroups = heapAlloc(sizeof(CritterGroups));
     heapClearBlock(critterGroups);
-    critterLoadData(groups);
+    critterLoadData(data);
     critterPlayerZone = heapAlloc(sizeof(CritterZone));
     heapClearBlock(critterPlayerZone);
 }

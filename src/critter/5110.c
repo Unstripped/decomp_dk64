@@ -27,15 +27,14 @@ s32 critterBitwiseNot(s32 val) {
 }
 
 extern u8 gGameMode;
-extern u8 D_807655F0[];
+extern OSMesgQueue D_807655F0;
 extern s32 gCurrentMap;
-extern u8 D_807ECE00[];
+extern OSIoMesg D_807ECE00;
 extern Actor *gCurrentActor;
-
 
 void critterBattleArenaUpdate(void) {
     u16 *throwAmmo = &gPlayerInventoryTable[0].throwAmmo;
-    u16 tmp;
+    u16 ammo;
     CritterBattleArenaState *challengeState;
     s32 *alignedBuf;
     void (*dcacheFunc)(void *, s32);
@@ -43,17 +42,18 @@ void critterBattleArenaUpdate(void) {
     s32 mapChallengeIdx;
     s32 rewardFlag;
     s32 dmaBuffer[6];
-    s32 pad54;
+    s32 pad3;
     s32 dmaRomOffset;
-    s32 pad40[4];
+    s32 pad4[4];
     s32 returnMap;
     s32 returnExit;
+
     challengeState = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
-        tmp = *throwAmmo;
-        D_80029FA4 = tmp;
+        ammo = *throwAmmo;
+        D_80029FA4 = ammo;
         *throwAmmo = 0;
         slotQueueSetShownValue(4, 0, 0);
         switch (gCurrentMap) {
@@ -162,9 +162,9 @@ void critterBattleArenaUpdate(void) {
                     }
                     flagSet(rewardFlag, 1, 0);
                 }
-                tmp = D_80029FA4;
-                *throwAmmo = tmp;
-                slotQueueSetShownValue(4, 0, tmp);
+                ammo = D_80029FA4;
+                *throwAmmo = ammo;
+                slotQueueSetShownValue(4, 0, ammo);
                 mapFindPreviousSavedMap(&returnMap, &returnExit);
                 mapTransitionExitCurrent(returnMap, 0);
             }
@@ -180,13 +180,11 @@ void critterBattleArenaUpdate(void) {
     renderCallbacksRegister(&critterRenderCenterImage, gCurrentActor, 3);
 }
 
-extern u8 D_1000118[];
-extern u8 D_2000180[];
-
-
+extern Gfx D_1000118;
+extern Mtx D_2000180;
 
 Gfx *critterRenderCenterImage(Gfx *glistp, Actor *actor) {
-    CritterBattleArenaState *t1 = actor->customState;
+    CritterBattleArenaState *challengeState = actor->customState;
 
     gSPDisplayList(glistp++, &D_1000118);
     gDPPipeSync(glistp++);
@@ -195,7 +193,7 @@ Gfx *critterRenderCenterImage(Gfx *glistp, Actor *actor) {
     gDPSetRenderMode(glistp++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
     gSPMatrix(glistp++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     if (actor->state == 0xFE) {
-        glistp = textDrawAnimated(glistp, t1->textGfxHandle, 2, 160.0f, 100.0f, 0.0f, 1.5f);
+        glistp = textDrawAnimated(glistp, challengeState->textGfxHandle, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return glistp;
 }

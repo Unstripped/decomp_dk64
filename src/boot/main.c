@@ -5,18 +5,10 @@
 #include "proto/boot/30E0.h"
 #include "proto/boot/main.h"
 
-
-// Index into osViModeTable per osTvType: {OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1}.
-// Probably a local initialiser originally: its template is the TU's last .data object.
-typedef struct {
-    u32 v[3];
-} ViModeIdx;
-
 s8 sBootResetState = 0;
 u32 sAudioFreq = 0;
 u32 D_8000DCB8[3] = { 0 }; // unreferenced
 SegmentTableEntry gSegmentTable[18] = { 0 };
-ViModeIdx sBootViMode = { { OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1 } };
 
 extern OSMesgQueue sResetMesgQueue;
 extern OSMesg sResetMesgBuf[10];
@@ -109,14 +101,15 @@ void bootMainThread(void *arg) {
     u8 *src;
     u8 *dst;
     u32 pad;
-    ViModeIdx viModes = sBootViMode;
+    // osViModeTable index per osTvType; IDO emits the template as this TU's last .data object.
+    u32 viModes[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1 };
 
     osCreateMesgQueue(&sResetMesgQueue, sResetMesgBuf, 10);
     osSetEventMesg(OS_EVENT_PRENMI, &sResetMesgQueue, (OSMesg)0x29D);
     osCreateThread(&sResetThread, 11, bootResetThread, NULL, &sMainThread, 100);
     osStartThread(&sResetThread);
     osCreateViManager(OS_PRIORITY_VIMGR);
-    osViSetMode(&osViModeTable[viModes.v[osTvType]]);
+    osViSetMode(&osViModeTable[viModes[osTvType]]);
     osViBlack(1);
     if (osMemSize < 0x800000 || osTvType == OS_TV_PAL) {
         SEG(11, seg11_FALLBACK)
