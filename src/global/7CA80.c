@@ -618,6 +618,8 @@ s32 func_80678014(s32 type) {
 extern u16 D_80748D4A;
 extern u16 gSpawnedActorActiveIndex;
 
+#define ALIGN8_U16(x) ((u16)(((x) + 7) & ~7)) // FAKE: (u16) result narrowing makes the aligned size one CSE unit (add t5, mask t6, sw t6 sp+0x24 at 0x350, lw t8 at 0x378); without it 71 lines
+
 s32 actorAllocate(type)
 u16 type;
 {
@@ -631,26 +633,22 @@ u16 type;
     types = gActorTypeComponents[type];
     headerSize = 0x174;
     totalDataSize = 0;
-    if (*types != 0) {
-        do {
-            if (headerSize) {}  // FAKE: raises headerSize priority so it gets a1 (tds a2)
-            totalDataSize += gActorComponentSizes[*types];
-            headerSize += 4;
-            types++;
-        } while (*types != 0);
+    while (*types != 0) {
+        if (headerSize) {}  // FAKE: raises headerSize priority so it gets a1 (tds a2)
+        totalDataSize += gActorComponentSizes[*types];
+        headerSize += 4;
+        types++;
     }
-    totalDataSize += (u16)((headerSize + 7) & 0xFFF8);
+    totalDataSize += ALIGN8_U16(headerSize);
     actor = heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
         types = gActorTypeComponents[type];
         ptrArray = &actor->customState;
-        dataPtr = (u8 *)actor + ((u16)((headerSize + 7) & 0xFFF8));
-        if (*types != 0) {
-            do {
-                *ptrArray++ = dataPtr;
-                dataPtr += gActorComponentSizes[*types++];
-            } while (*types != 0);
+        dataPtr = (u8 *)actor + ALIGN8_U16(headerSize);
+        while (*types != 0) {
+            *ptrArray++ = dataPtr;
+            dataPtr += gActorComponentSizes[*types++];
         }
         actor->callbacks = NULL;
         actor->callbackMask = -1;
