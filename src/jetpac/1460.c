@@ -17,7 +17,7 @@ void jetpacInitGrid(void) {
     }
 }
 
-void jetpacGridAddSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
+void jetpacGridAddSprite(TextureDescriptor *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
     JetpacCell *cell;
     s32 i;
     JetpacCellItem *item;
@@ -65,14 +65,14 @@ void jetpacInitRdp(Gfx **glistp) {
     *glistp = g;
 }
 
-extern JetpacSprite D_80042BD0[][256];
+extern TextureDescriptor D_80042BD0[][256];
 extern u8 gGfxBufferIndex;
 
-void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
+void jetpacGridAddTiledSprite(TextureDescriptor *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
     s32 ya;
     s32 h;
     s32 xd;
-    JetpacSprite *dst;
+    TextureDescriptor *dst;
     s32 w;
     s32 dy;
     s32 yEnd;

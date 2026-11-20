@@ -42,20 +42,20 @@ u8 D_8002E5F8[0x108] = {
 u8 D_8002E700[0x100] = {
 #include "jetpac/D_8002E700.inc.c"
 };
-JetpacSprite jetpacMeteorSprites[2] = {
+TextureDescriptor jetpacMeteorSprites[2] = {
     { D_8002DEB8, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002DFC0, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
 };
-JetpacSprite jetpacBounceSprite = { D_8002E0C8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
-JetpacSprite jetpacWanderSprites[2] = {
+TextureDescriptor jetpacBounceSprite = { D_8002E0C8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacWanderSprites[2] = {
     { D_8002E1D0, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002E2D8, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
 };
-JetpacSprite jetpacFighterSprite = { D_8002E3E0, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
-JetpacSprite jetpacSaucerSprite = { D_8002E468, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
-JetpacSprite jetpacHopSprite = { D_8002E4F0, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
-JetpacSprite jetpacCrossSprite = { D_8002E5F8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
-JetpacSprite jetpacBlobSprite = { D_8002E700, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacFighterSprite = { D_8002E3E0, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacSaucerSprite = { D_8002E468, 0, 16, 16, 8, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacHopSprite = { D_8002E4F0, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacCrossSprite = { D_8002E5F8, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacBlobSprite = { D_8002E700, 0, 16, 16, 16, 4, 1, 0, 0, 0 };
 s32 jetpacSpawnTimer = 0;
 void (*jetpacActorInitTable[8])(JetpacActor *) = {
     jetpacActorInitMeteor, jetpacActorInitBounce, jetpacActorInitWander, jetpacActorInitFighter,

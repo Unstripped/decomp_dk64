@@ -6,9 +6,6 @@
 
 /* Jetpac overlay types shared by src/jetpac/. */
 
-/* A sprite is a texture tile descriptor (render.h), drawn through dlAppendTextureLoad. */
-typedef TextureDescriptor JetpacSprite;
-
 typedef struct JetpacExplosion {
     /* 0x00 */ s32 x;
     /* 0x04 */ s32 y;
@@ -34,7 +31,7 @@ typedef struct JetpacActor {
     /* 0x40 */ u32 lifetime;
     /* 0x44 */ s32 points;
     /* 0x48 */ void (*update)(struct JetpacActor *);
-    /* 0x4C */ JetpacSprite *sprite;
+    /* 0x4C */ TextureDescriptor *sprite;
 } JetpacActor; // size 0x50
 
 /* The jetman (jetpacPlayer): JetpacActor's first 0x30 bytes, then player state. */
@@ -65,7 +62,7 @@ typedef struct JetpacState {
 
 /* Rocket parts and bonus items. */
 typedef struct JetpacItem {
-    /* 0x00 */ JetpacSprite *sprites[2];
+    /* 0x00 */ TextureDescriptor *sprites[2];
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ f32 unk10;
@@ -139,7 +136,7 @@ typedef struct JetpacCellItem {
     /* 0x00 */ s32 x;
     /* 0x04 */ s32 y;
     /* 0x08 */ s32 flip;
-    /* 0x0C */ JetpacSprite *texture;
+    /* 0x0C */ TextureDescriptor *texture;
 } JetpacCellItem;
 
 typedef struct JetpacCell {

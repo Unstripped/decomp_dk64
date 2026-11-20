@@ -26,7 +26,7 @@ u8 D_8002CE90[0x300] = {
 };
 // Rocket pixels per four stages (jetpacSetRocketSpriteFrames).
 void *jetpacRocketPixels[4] = { D_8002C578, D_8002C880, D_8002CB88, D_8002CE90 };
-JetpacSprite jetpacRocketSprites[6] = {
+TextureDescriptor jetpacRocketSprites[6] = {
     { NULL, 0, 16, 16, 8, 4, 1, 0, 0, 0 },
     { NULL, 0, 16, 16, 8, 4, 1, 0, 8, 0 },
     { NULL, 0, 16, 16, 8, 4, 1, 0, 16, 0 },
@@ -56,7 +56,7 @@ u8 D_8002D760[0x108] = {
 u8 D_8002D868[0x100] = {
 #include "jetpac/D_8002D868.inc.c"
 };
-JetpacSprite jetpacItemSprites[8] = {
+TextureDescriptor jetpacItemSprites[8] = {
     { D_8002D238, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002D340, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002D448, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
@@ -73,7 +73,7 @@ u8 D_8002DA30[0x108] = {
 u8 D_8002DB38[0x100] = {
 #include "jetpac/D_8002DB38.inc.c"
 };
-JetpacSprite jetpacRocketFlameSprites[2] = {
+TextureDescriptor jetpacRocketFlameSprites[2] = {
     { D_8002DA30, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
     { D_8002DB38, 0, 16, 16, 16, 4, 1, 0, 0, 0 },
 };
@@ -112,9 +112,9 @@ u8 D_8002DDE0[0x48] = {
 u8 D_8002DE28[0x40] = {
 #include "jetpac/D_8002DE28.inc.c"
 };
-JetpacSprite jetpacLedgeLeftSprite = { D_8002DD98, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
-JetpacSprite jetpacLedgeMidSprite = { D_8002DDE0, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
-JetpacSprite jetpacLedgeRightSprite = { D_8002DE28, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacLedgeLeftSprite = { D_8002DD98, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacLedgeMidSprite = { D_8002DDE0, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacLedgeRightSprite = { D_8002DE28, 0, 8, 8, 8, 4, 1, 0, 0, 0 };
 
 s32 jetpacRandBonusDelay(void) {
     return jetpacRandFloat() * 200.0f + 90.0f;
