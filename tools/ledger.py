@@ -590,9 +590,11 @@ def all_sizes(live):
 
 
 def knowledge_times():
-    """knowledge/ido path -> UTC time of its newest commit; uncommitted changes count as now."""
+    """knowledge/ido path -> UTC time of its newest commit (author date: a history rewrite or rebase
+    re-dates every rewritten commit's committer date, which would make each entry newer than every
+    result recorded before the rewrite); uncommitted changes count as now."""
     out, cur = {}, None
-    for line in git("log", "--format=__%cI", "--name-only", "--", "knowledge/ido").split("\n"):
+    for line in git("log", "--format=__%aI", "--name-only", "--", "knowledge/ido").split("\n"):
         if line.startswith("__"):
             cur = utc(line[2:])
         elif line.strip() and line not in out:

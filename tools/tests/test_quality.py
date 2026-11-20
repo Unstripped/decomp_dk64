@@ -444,6 +444,24 @@ def test_own_unit_entry_naming_function_does_not_stale(tmp_path, monkeypatch):
     assert not q.mark([carried], "diagnose", FP, "fooBar")[2]  # its original not among them: unknown
 
 
+def test_knowledge_times_survive_a_history_rewrite(tmp_path, monkeypatch):
+    # the 2026-11-20 history rewrite re-dated the commits of Q1475-Q1571 (committer 2026-11-20T21:41Z):
+    # every earlier agent rung on a function they name read as stale (3E10 menuUpdateElementTargetAndColor
+    # diagnose adff82/adff82#2, Q1482/Q1537), and no carry can refresh it (carried events keep their time)
+    import subprocess
+    repo = tmp_path.resolve() / "repo"
+    (repo / "knowledge" / "ido" / "entries").mkdir(parents=True)
+    monkeypatch.setattr(q.ledger, "ROOT", str(repo))
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "knowledge" / "ido" / "entries" / "Q0001.md").write_text("x\n")
+    _git(repo, "add", "-A")
+    env = dict(os.environ, GIT_AUTHOR_DATE="2026-11-19T02:45:29-07:00", GIT_COMMITTER_DATE="2026-11-20T14:41:58-07:00")
+    subprocess.run(["git", "commit", "-qm", "k"], cwd=repo, env=env, check=True)
+    assert q.ledger.knowledge_times() == {"knowledge/ido/entries/Q0001.md": "2026-11-19T09:45:29Z"}
+
+
 def test_newest_by_time_wins_over_carried_older_event():
     fresh = ev(SITE, "diagnose", "nohit", t="2026-01-02T00:00:00Z", quirks=["Q0001"])
     carried = ev(SITE, "diagnose", "blocked", t="2026-01-01T00:00:00Z", agent="carry")
