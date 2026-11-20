@@ -34,13 +34,13 @@ typedef struct {
     s16 flag;
     u8 stage;
     u8 nextStage;
-} BossB_Struct_800359D0;
+} BossStageEntry;
 
 s16 sBossRoundFirstCamPath[5] = { 4, 3, 6, 20, 4 };
 s16 D_800359AC[5] = { 45, 45, 45, 45, 45 };
 s16 sBossRoundRepeatCamPath[5] = { 4, 3, 6, 3, 4 };
 s16 sBossRoundTimeUpCamPath[5] = { 11, 11, 11, 11, 11 };
-BossB_Struct_800359D0 sBossStageTable[8] = {
+BossStageEntry sBossStageTable[8] = {
     { 0x08, 0, 0x68, 0, 20 },
     { 0x53, 0, 0x69, 0, 20 },
     { 0x6F, 0, 0x6B, 0, 20 },

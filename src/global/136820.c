@@ -45,7 +45,7 @@ void faultDrawGlyph(u8 c) {
     s32 bit;
     s32 j;
 
-    glyph = sFaultFontGlyphs + (c - 33) * 6;
+    glyph = sFaultFontGlyphs + (c - '!') * 6;
     dst = (gFaultCursorX + 3) * gHiResScale * 4 + (u16 *)gFaultFramebuffer + gScreenWidth * (gFaultCursorY + 3) * gHiResScale * 6;
     for (row = 0; row != 6; row++, glyph++) {
         for (i = 0; i < gHiResScale * gFaultCharScale; i++) {
