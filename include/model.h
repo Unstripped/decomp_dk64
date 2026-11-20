@@ -48,6 +48,26 @@ typedef struct ModelAssetHeader {
     /* 0x70 */ s32 unk70; // offset of the texture / quad table (modelSlotLinkTexAnimTextures, modelQuadBuildOutput)
 } ModelAssetHeader;
 
+// One placed model of the map's model asset (assetLoad table 9: an s32 count, then count records;
+// modelAssetGetSubtables, 36880.c).
+typedef struct {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 scale;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 rotX;
+    /* 0x1C */ f32 rotY;
+    /* 0x20 */ f32 rotZ;
+    /* 0x24 */ f32 yOffset;
+    /* 0x28 */ s16 modelType;
+    /* 0x2A */ s16 mapObjectId;
+    /* 0x2C */ u8 pad2C[2];
+    /* 0x2E */ u8 light;
+    /* 0x2F */ u8 flags;
+} ModelAssetEntry; /* 0x30 */
+
 // Animation node header of a ModelAnimEntry (54150): keyCount key times, then matrixCount
 // matrix records of keyCount * 0x24 + 8 bytes each.
 typedef struct ModelAnimNodeHeader {

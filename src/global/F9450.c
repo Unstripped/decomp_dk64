@@ -166,25 +166,6 @@ void gridRebuildNodeLists(void) {
 extern GridBounds gGridPlayerBounds[];
 extern GridBoundsNode *gGridPlayerExtraBounds[];
 
-// One placed model of the map's model asset (assetLoad table 9); same record as 36880.c's.
-typedef struct {
-    /* 0x00 */ f32 x;
-    /* 0x04 */ f32 y;
-    /* 0x08 */ f32 z;
-    /* 0x0C */ f32 scale;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 rotX;
-    /* 0x1C */ f32 rotY;
-    /* 0x20 */ f32 rotZ;
-    /* 0x24 */ f32 yOffset;
-    /* 0x28 */ s16 modelType;
-    /* 0x2A */ s16 mapObjectId;
-    /* 0x2C */ u8 pad2C[2];
-    /* 0x2E */ u8 light;
-    /* 0x2F */ u8 flags;
-} ModelAssetEntry; /* 0x30 */
-
 extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
