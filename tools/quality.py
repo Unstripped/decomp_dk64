@@ -1516,12 +1516,19 @@ def sym_addr(seg, name, rev):
     return None
 
 
+def type_spelling(t):
+    """Canonical spelling of type T with every unnamed record's source location dropped
+    (`struct (unnamed)`): clang spells one by its file, line and column, which differ between REV's
+    and HEAD's text of the same record. Its layout is compared with the declarations a body reaches."""
+    return clint.UNNAMED.sub("(unnamed)", t.get_canonical().spelling)
+
+
 def token_meaning(tok):
     """What an identifier token denotes, ignoring its spelling, or None when it is not a
     renameable declaration (type names, macros, labels, enum constants: their spelling must stay).
     A local is its canonical type (declarations are in the compared text, so the one-to-one name
     map pins which local); a global or function its kind and type (its address is checked
-    separately); a field its type, offset and record size."""
+    separately); a field its type, offset and record size. Types as `type_spelling`."""
     c = tok.cursor
     if c is None:
         return None
@@ -1529,11 +1536,11 @@ def token_meaning(tok):
     k = ref.kind
     if k in (CursorKind.VAR_DECL, CursorKind.PARM_DECL):
         local = ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.FUNCTION_DECL
-        return ("local" if local else "global", ref.type.get_canonical().spelling)
+        return ("local" if local else "global", type_spelling(ref.type))
     if k == CursorKind.FUNCTION_DECL:
-        return ("func", ref.type.get_canonical().spelling)
+        return ("func", type_spelling(ref.type))
     if k == CursorKind.FIELD_DECL:
-        return ("field", ref.type.get_canonical().spelling, ref.get_field_offsetof(),
+        return ("field", type_spelling(ref.type), ref.get_field_offsetof(),
                 ref.semantic_parent.type.get_size() if ref.semantic_parent is not None else None)
     return None
 

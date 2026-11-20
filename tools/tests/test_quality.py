@@ -927,6 +927,25 @@ def test_carry_header_field_fold_is_no_rename(tmp_path, monkeypatch, capsys):
     assert "skipped src/global/x.c: f: not a pure rename" in out and "would carry 0 events" in out
 
 
+ANON_H = ("void g(int);\ntypedef struct S {\n    int a;\n    union {\n        int raw;\n"
+          "        struct {\n            short x;\n            short y;\n        } pos;\n    };\n    int b;\n} S;\n")
+
+
+@pytest.mark.parametrize("ret", ["p->raw", "p->pos.y"])
+def test_carry_header_field_rename_beside_anonymous_union(tmp_path, monkeypatch, capsys, ret):
+    # TypesOwner batch_2: a field rename in a record holding an anonymous union moved the union's
+    # lines; clang spells unnamed records by file:line:col, so a body touching a member of one (or of
+    # an unnamed struct inside it) must still carry as a rename
+    hdr = ANON_H.replace("void g(int);\n", "void g(int);\nvoid k(void);\n").replace("    int a;\n", "    int mode;\n")
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, ret=ret, old_header=ANON_H,
+                           edit=lambda s: s.replace("p->a", "p->mode"))
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    assert "would carry src/global/x.c: f: remove, review, views (renames; record field renames: S)" in out
+    assert "would carry 3 events" in out and "skipped" not in out
+
+
 def test_carry_func_limits_functions(tmp_path, monkeypatch, capsys):
     hdr = CARVE_H.replace("    int a;\n", "    int mode;\n")
     _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, edit=lambda s: s.replace("p->a", "p->mode").replace(
