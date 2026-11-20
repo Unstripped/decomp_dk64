@@ -77,3 +77,31 @@ def test_concurrent_misses_keep_their_inputs(tmp_path, monkeypatch):
     monkeypatch.setattr(cwarn, "run_jobs", run_jobs)
     assert cwarn.collect(item) == [[]]
     assert seen == ["int x;\n", "int x;\n"]
+
+
+def test_copy_compiles_with_its_shadow_headers(tmp_path, monkeypatch):
+    monkeypatch.setattr(cwarn, "ROOT", str(tmp_path))
+    monkeypatch.setattr(cwarn.shadow_headers, "ROOT", str(tmp_path))
+    monkeypatch.setattr(cwarn, "SCRATCH", str(tmp_path / ".scratch" / "cwarn"))
+    monkeypatch.setattr(cwarn, "_static", {"key": ("makefile", "include")})
+    (tmp_path / "include").mkdir()
+    (tmp_path / "include" / "actor.h").write_text("#define A 0\n")
+    (tmp_path / "include" / "race.h").write_text('#include "actor.h"\n')
+    a = tmp_path / ".scratch" / "A"
+    a.mkdir(parents=True)
+    (a / "x.c").write_text('#include "race.h"\n')
+    item = [(".scratch/A/x.c", None, "src/global/x.c")]
+    seen = []
+
+    def run_jobs(jobs):
+        seen.extend(jobs)
+        out = jobs[0]["shadow"].split()[1] if "shadow" in jobs[0] else "include"
+        return [{"rc": 0, "out": f"cfe: Warning 709: {out}/race.h, line 1: m\n"}]
+
+    monkeypatch.setattr(cwarn, "run_jobs", run_jobs)
+    assert cwarn.collect(item)[0][0]["path"] == "include/race.h"
+    assert "shadow" not in seen[0]  # nothing shadowed: make's own flags
+    (a / "actor.h").write_text("#define A 1\n")  # shadows include/actor.h, so race.h is shadowed too
+    ws = cwarn.collect(item)[0]
+    assert len(seen) == 2 and seen[1]["shadow"].split()[2:] == ["-I", ".scratch/A"]
+    assert ws[0]["path"] == "include/race.h"  # the unchanged includer, under its include/ path

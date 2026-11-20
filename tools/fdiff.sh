@@ -2,13 +2,17 @@
 # Compile a PRIVATE COPY of a C file and compare it with expected/ without touching
 # build/src/*, so several agents can work on copies of the same file at once.
 #
-#   tools/fdiff.sh [--non-matching] [--reloc-ok] <copy.c> <src/.../original.c> [FUNC]
+#   tools/fdiff.sh [--non-matching] [--reloc-ok] [--shadow DIR]... <copy.c> <src/.../original.c> [FUNC]
 #
 # The copy is compiled with exactly the flags make uses for the original (asm-processor
 # included) into build/.scratch/. Output and exit codes are tools/objdiff.py's:
 # 0 OK, 3 TEXT OK (code matches, own data differs), 1 mismatch (asm-differ diff of FUNC).
 # --reloc-ok: a relocation-only difference resolving to the same addresses (e.g. `D_807506D0 + 5`
 # for a split splat label `D_807506D5`) prints `RELOC-EQUIV OK` and exits 0.
+# Shadow headers (tools/shadow.py): a header beside the copy at an include/ path (`actor.h`,
+# `proto/global/2F550.h`), or in a --shadow DIR (ahead of `-I include`), replaces include/'s;
+# every include/ header quote-including a shadowed one is shadowed too, unchanged, so nested
+# includes (race.h -> "actor.h") reach the private version. stderr names them (`shadow: ...`).
 set -e
 
 if [ ! -f /.dockerenv ] && [ ! -d /opt/ido5.3 ]; then
@@ -20,9 +24,14 @@ if [ ! -f /.dockerenv ] && [ ! -d /opt/ido5.3 ]; then
 fi
 
 OBJDIFF_FLAGS=""
-while [ "$1" = "--non-matching" ] || [ "$1" = "--reloc-ok" ]; do
+SHADOW_ARGS=()
+while [ "$1" = "--non-matching" ] || [ "$1" = "--reloc-ok" ] || [ "$1" = "--shadow" ]; do
     if [ "$1" = "--non-matching" ]; then
         EXTRA_CFLAGS="$EXTRA_CFLAGS -DNON_MATCHING"
+    elif [ "$1" = "--shadow" ]; then
+        [ -d "$2" ] || { echo "Error: --shadow $2 is not a directory" >&2; exit 1; }
+        SHADOW_ARGS+=(--shadow "$2")
+        shift
     else
         OBJDIFF_FLAGS="--reloc-ok"
     fi
@@ -45,6 +54,10 @@ mkdir -p build/.scratch
 # The compile command make would run for the original, retargeted at the copy.
 CMD=$(make -n -W "$ORIG" "build/${ORIG%.c}.o" | grep -E 'asm-processor|/opt/ido[0-9.]+/cc' | tail -1)
 [ -n "$CMD" ] || { echo "Error: no compile rule found for $ORIG" >&2; exit 1; }
+if [ "$COPY" != "$ORIG" ]; then
+    SHADOW_I=$(python3 tools/shadow.py "$COPY" --out "${OBJ%.o}.shadow" "${SHADOW_ARGS[@]}")
+    [ -z "$SHADOW_I" ] || CMD="${CMD// -I include / $SHADOW_I -I include }"
+fi
 eval "${CMD% -o *} $EXTRA_CFLAGS -o $OBJ $COPY"
 
 case "$EXTRA_CFLAGS" in

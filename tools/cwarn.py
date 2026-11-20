@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """IDO cfe warnings of the matching compile (libultra excluded), cached per file content.
 
-  python3 tools/cwarn.py list [--as SRC] FILE...   one line per warning `path:line: Warning N: msg`,
+  python3 tools/cwarn.py list [--as SRC [--shadow DIR]...] FILE...
+                                                  one line per warning `path:line: Warning N: msg`,
                                                   then `total N`; --as (one FILE only): compile the
-                                                  FILE (a private copy) with SRC's make flags
+                                                  FILE (a private copy) with SRC's make flags and its
+                                                  shadow headers (tools/shadow.py, as tools/fdiff.sh:
+                                                  include/ paths beside the copy or in a --shadow DIR,
+                                                  plus every include/ header quote-including one)
   python3 tools/cwarn.py count [--json] [FILE...]  `<n> <path>` per file with warnings plus `TOTAL <n>`;
                                                   --json: {path: n} for every file (zeros included).
                                                   Default FILE set: every src/**/*.c outside /libultra/
@@ -12,7 +16,8 @@
                                                   it, `ROSE <path>: <b> -> <a>` when it rose (exit 1);
                                                   else `warnings OK (<sumB> -> <sumA>)`, exit 0
   python3 tools/cwarn.py compile-json JOBS.json    container side: compile each
-                                                  {"input": .c, "src": src whose flags to use} with the
+                                                  {"input": .c, "src": src whose flags to use,
+                                                  "shadow": flags ahead of `-I include`} with the
                                                   command `make -n` prints for SRC (as tools/fdiff.sh,
                                                   matching side, no -DNON_MATCHING); prints
                                                   [{"rc", "out"}] as JSON
@@ -21,11 +26,12 @@ One printed `cfe: Warning N: <path>, line L: <msg>` line is one warning (no dedu
 fails the compile (never reported as 0 warnings; `CompileError` names the file, the rev and the first
 `cfe: Error` line); `cc: Warning:` driver lines are ignored. Results are cached in .scratch/cwarn/cache/
 keyed by the Makefile, every include/ file, the flags src path, the compiled text and, for an in-place
-compile, the *.h files beside it; all cache misses of one call compile in one `tools/dk` request
+compile, the *.h files beside it (a copy compiled in place with another file's flags: also the headers
+it shadows); all cache misses of one call compile in one `tools/dk` request
 (inheriting DK64_LEASE). `collect(..., rev=REV)` compiles texts against REV's include/ and REV's *.h
 beside each path instead (exported into the call's stage dir with `git archive`, asm/ linked to the
 checkout's; keyed by REV's include/ tree id). Warnings printed for the compiled input are reported
-under the given path; other paths (headers) are kept as printed.
+under the given path; other paths (headers, shadowed ones under their source path) are kept as printed.
 """
 import argparse
 import glob
@@ -39,6 +45,9 @@ import sys
 import tempfile
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import shadow as shadow_headers  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRATCH = os.path.join(ROOT, ".scratch", "cwarn")
@@ -78,6 +87,8 @@ def compile_one(job, tmpdir, n):
     if not cmds:
         return {"rc": 1, "out": f"no compile rule for {src}\n{r.stderr}"}
     cmd = cmds[-1]
+    if job.get("shadow"):
+        cmd = cmd.replace(" -I include ", f" {job['shadow']} -I include ")
     cmd = cmd[:cmd.rindex(" -o ")] + f" -o {tmpdir}/{n}.o {job['input']}"
     r = subprocess.run(["sh", "-c", cmd], cwd=os.path.join(ROOT, job.get("cwd", "")), stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT, text=True, errors="replace")
@@ -207,12 +218,15 @@ def run_jobs(jobs):
     return json.loads(r.stdout)
 
 
-def collect(items, rev=None):
+def collect(items, rev=None, shadow=()):
     """[[dict(code, path, line, col, msg)] per item] for ITEMS = [(path, text or None, src or None)]: the
     warnings of compiling PATH (TEXT None: in place) or TEXT with the make flags of SRC (else PATH).
-    REV: compile every TEXT (required) against REV's include/ and REV's *.h beside PATH. Raises
+    REV: compile every TEXT (required) against REV's include/ and REV's *.h beside PATH. A copy
+    compiled in place (SRC another file) gets its shadow headers (tools/shadow.py: include/ paths
+    beside it or in a SHADOW dir, plus every include/ header quote-including one). Raises
     CompileError for the first item that fails."""
-    keys, todo = [], {}
+    keys, todo, written = [], {}, {}
+    dirs = [rel(d) for d in shadow]
     stage = os.path.join(SCRATCH, "in", str(uuid.uuid4()))  # this call's own inputs: another may share keys
     tree = os.path.join(stage, "tree")  # REV's include/ and asm/: inputs compile with it as cwd
     inc = None
@@ -226,14 +240,21 @@ def collect(items, rev=None):
         if rev and text is None:
             raise ValueError("cwarn.collect: rev needs the text")
         side = rev_side_headers(rev, p) if rev else {}
+        shadowing = text is None and flags != p
+        fp = shadow_headers.fingerprint(p, dirs) if shadowing else []
         data = open(os.path.join(ROOT, p), "rb").read() if text is None else text.encode("utf-8")
-        key = cache_key(p, data, flags, text is None, inc, [f"{n}:{s}" for n, s in sorted(side.items())])
+        key = cache_key(p, data, flags, text is None, inc, [f"{n}:{s}" for n, s in sorted(side.items())]
+                        + (["shadow-v1", *dirs, *fp] if fp or (shadowing and dirs) else []))
         keys.append(key)
         if key in todo or os.path.exists(os.path.join(SCRATCH, "cache", key + ".json")):
             continue
         job = {"src": flags}
         if text is None:
             job["input"] = p
+            if shadowing:
+                sflags, _, _, written[key] = shadow_headers.materialise(p, dirs, rel(os.path.join(stage, key, "shadow")))
+                if sflags:
+                    job["shadow"] = " ".join(sflags)
         else:
             d = os.path.join(tree if rev else stage, key)
             os.makedirs(d, exist_ok=True)
@@ -260,7 +281,7 @@ def collect(items, rev=None):
                 raise CompileError(p, r["out"].replace(job["input"], p), rev)
             ws = parse(r["out"])
             for w in ws:
-                w["path"] = None if w["path"] == job["input"] else w["path"]
+                w["path"] = None if w["path"] == job["input"] else written.get(key, {}).get(w["path"], w["path"])
             write_atomic(os.path.join(SCRATCH, "cache", key + ".json"), json.dumps(ws))
     out = []
     for (path, _, _), key in zip(items, keys):
@@ -279,7 +300,9 @@ def src_files():
 def cmd_list(a):
     if a.as_ and len(a.files) != 1:
         sys.exit("cwarn: --as takes exactly one FILE")
-    res = collect([(f, None, a.as_) for f in a.files])
+    if a.shadow and not a.as_:
+        sys.exit("cwarn: --shadow needs --as")
+    res = collect([(f, None, a.as_) for f in a.files], shadow=a.shadow)
     n = 0
     for ws in res:
         for w in ws:
@@ -323,6 +346,7 @@ def main(argv=None):
     s = p.add_subparsers(dest="cmd", required=True)
     c = s.add_parser("list")
     c.add_argument("--as", dest="as_")
+    c.add_argument("--shadow", action="append", default=[], type=cli_path, metavar="DIR")
     c.add_argument("files", nargs="+", type=cli_path)
     c.set_defaults(fn=cmd_list)
     c = s.add_parser("count")
