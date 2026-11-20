@@ -30,7 +30,7 @@ InputRecord *sDemoInputBuffer = NULL;
 s16 sDemoFrameIndex = 0;
 s16 sDemoFrameCount = 0;
 u16 sDemoButtons = 0;
-s8 gDemoPlaybackState = 0;
+u8 gDemoPlaybackState = 0;
 
 void func_8060B430(Actor *target, PositionRecord *record) {
     target->x = record->x;

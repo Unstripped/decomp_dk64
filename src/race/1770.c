@@ -117,7 +117,7 @@ void raceInitSplinePoints(void) {
     gMinecartTrackPoints = tbl;
 }
 
-extern s16 gMinigameCoinCount;
+extern u16 gMinigameCoinCount;
 extern Actor *gSpawnedActor;
 
 void raceInitOpponentEntities(Actor *parent) {

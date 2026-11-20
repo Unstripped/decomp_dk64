@@ -100,7 +100,7 @@ void raceLoadRouteData(u8 *data) {
     }
 }
 
-extern s16 gMinigameCoinCount;
+extern u16 gMinigameCoinCount;
 
 void raceInitRoute(s32 routeAssetId) {
     u8 *assetData;

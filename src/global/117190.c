@@ -240,7 +240,7 @@ void controllerFilterInput(OSContPad *pads) {
 
 extern u64 gPauseTimeTotal;
 extern u64 gPauseStartTime;
-extern s8 gDemoFixedAnimRate;
+extern u8 gDemoFixedAnimRate;
 
 void menuSeedRandom(void) {
     u64 elapsed;

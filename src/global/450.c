@@ -79,7 +79,7 @@ extern s8 D_80746830;
 extern s32 gPlayTimeBaseSeconds;
 extern u8 gSplitScreenMode;
 extern u8 gActivePlayerCount;
-extern s16 gMinigameCoinCount;
+extern u16 gMinigameCoinCount;
 
 extern s32 gGfxTaskBufferCap;
 extern s16 gCurrentLevelIndex;

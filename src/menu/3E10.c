@@ -589,7 +589,7 @@ void menuInitAdventureFileSelect(Actor *actor, s32 unused) {
 }
 
 
-extern s8 gFaultScreenEnabled;
+extern u8 gFaultScreenEnabled;
 
 void menuCheckCheatCodeSequence(void) {
     if (sMenuCheatCodeButtons[sMenuCheatCodePos] == gPadPressedButtons[0]) {

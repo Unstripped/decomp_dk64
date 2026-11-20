@@ -531,7 +531,7 @@ extern s16 D_807FC3F0;
 
 extern u16 gModelCacheCount;
 extern void *gActorScriptIndexTable;
-extern void *gActorScriptAnimTable;
+extern u16 *gActorScriptAnimTable;
 extern void *gActorScriptSoundTable;
 extern s32 gActorNextInstanceId;
 

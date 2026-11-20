@@ -73,7 +73,7 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
-extern s16 gMinigameCoinCount;
+extern u16 gMinigameCoinCount;
 extern s16 gCarryMinFallSpeed;
 extern f32 gDefaultAccelY;
 extern s16 D_80750338;
