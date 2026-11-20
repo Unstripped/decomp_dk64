@@ -201,7 +201,7 @@ void schedStartAudioOrYield(SchedStruct *sc) {
     }
 }
 
-extern s8 D_80744510;
+extern s8 D_80744510; // ORIG: this TU reads it signed (lb a0,0(s0) at 0x620 for the != 0 / == 1 tests); 450.c defines it u8
 
 
 void schedHandleRetrace(SchedStruct *sc) {

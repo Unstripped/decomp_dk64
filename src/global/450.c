@@ -139,10 +139,20 @@ s8 D_80744500 = 0;
 s8 gMapLoadPauseFrames = 0;
 s16 gEnemyDefeatCount = 0;
 u8 gHiResScale = 1;
-u8 D_80744510[28] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3 };
+// Formerly the blobs u8 D_80744510[28] and u32 D_80744530[5]: each label below is its own object (IDO pads every
+// .data object to 4 bytes); the types are the ones their readers load (lb/lbu/lh).
+u8 D_80744510 = 0; // viModeSetup's 1 is a separate li from D_807445A0's s8 1 (0x3e4/0x3f0); 13980 reads it signed
+u8 gMenuReturnContext = 0;
+s16 D_80744518 = 0;
+s8 D_8074451C = 0;
+s8 D_80744520 = 3;
+s16 D_80744524[4] = { 0 }; // per player: multiplayer rounds won (menuInitMultiplayerResults)
 s8 D_8074452C = 0;
-u32 D_80744530[5] = { 0 };
-u32 D_80744544 = 0;
+u8 D_80744530 = 0; // menu/3E10 lbu; 201B0 reads it signed (ORIG there)
+s8 D_80744534 = 0;
+s8 D_80744538 = 0;
+s8 D_8074453C[5] = { 0 }; // selected option of each cheat menu row (menu/3E10)
+s16 D_80744544 = 0;
 MenuHighScoreEntry D_80744548[5] = { { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" } };
 MenuHighScoreEntry D_80744568[5] = { { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 70, "AAA" } };
 u32 gViModeIndexByTvType[6] = { 0xF, 0x19, 2, 0xA, 0x1E, 0x26 };
@@ -201,7 +211,9 @@ f32 *gChunkLightTargetR;
 f32 *gChunkLightTargetG;
 f32 *gChunkLightTargetB;
 u32 D_8076A0CC;
-u8 gMenuScreenSelection[48];
+s8 gMenuScreenSelection[20]; // saved selection per menu screen (menu init clears 13)
+s8 gMenuPlayerCharacterSel[4];
+s8 D_8076A0E8[6][4];
 u32 D_8076A100;
 u8 D_8076A104;
 s8 gMpWinnerIndex;
@@ -327,10 +339,10 @@ void viModeSetup(u8 overlaySlot) {
         if (D_807445A0 == 0) {
             osViBlack(1);
         }
-        D_80744510[0] = 0;
+        D_80744510 = 0;
         D_807445A0 = 0;
     } else {
-        D_80744510[0] = 1;
+        D_80744510 = 1;
         D_807445A0 = 1;
         *firstSetupFlag = 0;
         viModeApplyHighRes();

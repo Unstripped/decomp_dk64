@@ -2081,7 +2081,7 @@ s32 func_80620F00(Actor *camActor, u8 allowNudge, u8 requireSide) {
     return 0;
 }
 
-extern s8 D_80744530;
+extern s8 D_80744530; // ORIG: this TU reads it signed (lb v1 at 0x5d8c for the == 1 test); 450.c defines it u8 (menu/3E10 lbu)
 
 u8 camShouldAutoRotate(Actor *camActor, CamState *st, Actor *target) {
     return target->state == 0x5B
