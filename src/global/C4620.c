@@ -688,7 +688,6 @@ void func_806C1734(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern Actor *gBehaviourTargetActor;
 extern u8 D_8071FBA0;
 
 void func_806C19F4(void) {

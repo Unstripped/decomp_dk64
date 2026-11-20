@@ -835,7 +835,7 @@ void menuInitFileSelect(Actor *actor, s32 unused) {
 }
 
 extern u8 D_8071FBC8;
-extern u8 D_8071FE08;
+extern EffectGridAsset D_8071FE08;
 extern s8 D_80033FAC;
 
 void menuMysteryHandleInput(Actor *actor, s32 buttons) {

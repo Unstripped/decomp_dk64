@@ -629,7 +629,7 @@ void actorSpotLightUpdateEntry(void) {
 
 extern Actor *gPrimaryPlayerActor;
 extern s16 D_80750378;
-extern u8 D_8071FE08[];
+extern EffectGridAsset D_8071FE08;
 extern u8 D_80720E14[];
 
 void actorNumberedTargetUpdate(void) {
@@ -666,7 +666,7 @@ void actorNumberedTargetUpdate(void) {
         }
         if (gActorGlobalState.bossFightPhase == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
-            effectCreateAtPosition(D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
             actorDespawn(gCurrentActor);
         }

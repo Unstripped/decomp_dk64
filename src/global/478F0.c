@@ -258,7 +258,7 @@ void csCmdTagBarrelSpawnSmokeAndPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     tagBarrelSpawnSmokeAndPuffs(slot->x, slot->y, slot->z, slot->scale, 0, 1);
 }
 
-extern u8 D_8071FE08[];
+extern EffectGridAsset D_8071FE08;
 extern u8 D_8071FE64[];
 extern u8 D_8071FE88[];
 extern u8 D_8071FEAC[];
@@ -282,7 +282,7 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetDuration(1);
     effectSetSpeed(0x100C8);
     effectSetCallback(effectLightPulseOscillate);
-    effectCreateAtPosition(D_8071FE08, 1.5f, x, y, z);
+    effectCreateAtPosition(&D_8071FE08, 1.5f, x, y, z);
     for (i = 0; i != 7; i++) {
         r = (s32)((u32)randomLcgNext() / 10000) % 3;
         effectSetDepth(1);

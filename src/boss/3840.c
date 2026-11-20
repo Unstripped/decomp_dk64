@@ -429,7 +429,7 @@ typedef struct BossSoundState {
 } BossSoundState;
 
 extern Actor *gActivePlayerActor;
-extern u8 D_8071FE08[];
+extern EffectGridAsset D_8071FE08;
 extern ALBank *gSfxBank;
 extern SchedStruct gScheduler;
 extern s32 gCurrentMap;
@@ -450,7 +450,7 @@ void bossRoundFrame(const u8 *script) {
         gPrimaryPlayerActor->x = 780.0f;
         gPrimaryPlayerActor->y = 50.0f;
         gPrimaryPlayerActor->z = 750.0f;
-        effectCreateAtPosition(D_8071FE08, 1.0f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z);
+        effectCreateAtPosition(&D_8071FE08, 1.0f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z);
     }
     if (!(BOSS_ACTOR->base.flags & 0x10)) {
         slotQueueSetDisplayMode(5, 0, 1);
