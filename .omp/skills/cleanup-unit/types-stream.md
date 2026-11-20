@@ -32,8 +32,8 @@ non-sweep rungs AND EXHAUSTED→OPEN (r18 0xEC union: 112 re-opened, one sweep; 
 ## Callee-prototype batches
 
 Callee-prototype work is prepared by `TypesOwner` in `.scratch/TypesOwner/batch_<n>/`
-(owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`; verify header edits with make's compile
-and `-I include` swapped for a full `include/` copy: `fdiff.sh`/`cwarn --as` shadow-prepend, so headers nested in proto headers hit the repo's). Measure on the
+(owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`; verify header edits with
+`fdiff.sh --shadow <batch include dir>` / `cwarn.py list --as <src> --shadow <dir>`, which shadow nested includers too). Measure on the
 checked-out workers' copies too: if any would rise, hold the batch and gate it together with those
 copies after their merge. Merge owner + callers, `protos.py gen`, objdiff every includer, one gate with every `--stage`d
 header; sweep + carry. A batch stales the review of every caller whose BODY it edits: those show as
@@ -60,7 +60,7 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
   into clean copies (`.scratch/<A>/clean/`), copy EVERY clean file of the bundle over src together, one
   `protos.py gen`, restore src, compare with header.patch, then merge the clean dir with one `--stage
   include/proto/<seg>/<f>.h` per regenerated header (a partial gen misses headers: DS/90D80.h); `gen --check`
-  exits 0. Shadow headers must also shadow, unchanged, every `include/*.h` that quote-includes a shadowed one.
+  exits 0. `fdiff.sh --shadow` shadows every `include/*.h` that quote-includes a shadowed one (tools/shadow.py).
 - Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
   (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
   `critter/0` vs `minecart/0`) need separate dirs and gates, unless they all see the changed header (a partial gate breaks the

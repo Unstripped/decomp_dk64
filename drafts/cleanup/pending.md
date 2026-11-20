@@ -1,14 +1,17 @@
-# Cleanup pending (unresolved items only; checked against the tree at the 2026-11-18c close)
+# Cleanup pending (unresolved items only; updated in session 2026-11-20 by Lead20261120, close not yet run: see its dispatch.md)
 
 Open functions come from `uv run tools/quality.py rank` / `rank --polish` (SKILL §2) or `status --file <f>`. This file keeps what
 `rank` cannot show: the `TypesOwner` queue (`.omp/skills/cleanup-unit/types-stream.md`: oldest first, skipping HELD/PARKED items), director rulings, held
 names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/sessions.md` keep the history); a closed decision keeps one outcome line.
 
 ## Blocked owner/header changes (`TypesOwner` queue)
-- EffectNode union member for 11BC10 effectWobbleRiseUpdate (2026-11-18b, deferred): `/* 0x384 */ struct WobbleRiseState *wobbleRise;`
-  beside `allocation`/`sprayMotion`/`interp` in include/render.h retires 31 `((WobbleRiseState *)effect->allocation)->` casts (the target
-  reloads the field per access, so a pointer local fails). Request .scratch/Polishglobal119370b/header-request.md; measure the
-  EffectNode stale cost first (carry --header-carve for an added union member).
+- EffectNode `wobbleRise` LANDED 2026-11-20 (TypesOwner13 batch_14 Part A: f402b9a4 render.h, e1f618fa 11BC10). Open: the 11BC10
+  re-carry (`carry --rev e1f618fa^ src/global/11BC10.c`) waits for the tooling fix "tag added to an anonymous typedef'd record =
+  unchanged" (director relays the sha); until then 85 11BC10 functions show OPEN. Part B (JetpacSprite -> TextureDescriptor,
+  .scratch/TypesOwner/batch_14/partB*.patch, ledger B_jetpac_1460.txt) is gated only after the header_renames alias fix sha.
+- batch_15 (TypesOwner14, 2026-11-20, base 69aa18eb) holds the next items: F F9450 ModelAssetEntry -> model.h, G CAM_LERP/LERP +
+  gTextFontSheets, H one extern for D_8071FE08 + C4620 duplicate gBehaviourTargetActor, E ACDC0 D_807505A4 split, C 450.c owner
+  types (below), D signedness mismatches (below). Remove each item here when its part lands.
 - 450.c data owner types (2026-11-18b polish reports): `u8 D_80744510[28]` / `D_80744530[5]` are blobs hiding gMenuReturnContext (0x80744514),
   D_8074451C, D_80744520, D_80744524[], D_80744534, D_80744538, D_8074453C[5]; `u32 D_80744544` is read as s16 (FCCD0 lh, 3E10
   ^=/|=); `D_80744548`/`D_80744568` u32[8] vs MenuHighScoreEntry[] (3E10); `u8 D_8076A0D0[48]` blob covers gMenuScreenSelection and
@@ -24,9 +27,9 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   with file-local ModelSlot typedefs); actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
 - 8F4B0 CutsceneActorState / WeatherActorState merge (same layout, 8F4B0.c:203/485): needs proof that actorCutsceneDispatchEvents
   runs on actor type 0xC (PolishGlobal8F4B0Names 237b3f89).
-- B5EC0 72fa9a actorTrackBoneTowardTarget proto-steer (owner 1295B0 takes one u8): no owner decision yet (audit 2026-11-14, M1-M11).
-  HELD at the 2026-11-18c close (director): func_806B13B4 (next=consolidate) is the only OPEN function not held by a D-ruling; it
-  waits on this decision.
+- B5EC0 72fa9a actorTrackBoneTowardTarget proto-steer: TERMINAL (director RQ3 2026-11-20): FAKE kept; owner prototype (u8, s32)
+  rejected (a1 = sel by residence only: B5EC0.o `move a1,a0` 0x9c0, jal 0x9d8; owner +0x8 `andi a1,a0,0xff`; 37 callers by
+  residence). Re-measured 2026-11-20 (Cleanfunc_806B13B4b, 900d6b5c): EXHAUSTED.
 - effectSetSpeed(s32) receives an actor pointer (race/1770.c:330 `(s32)gCurrentActor`) and an index (boss/0): owner type review.
 - Not run (2026-11-14b): RaceParticipant 0x25/0x26 racer-side aliases (boostTimer/boostPending; manager names hasCpuRival/route);
   one shared VehicleActor (936B0.c:575) / RaceCompetitorActor (race/52B0.c:35) in race.h; 36880 TexImageCmdSpan as a Gfx[] view
@@ -83,11 +86,15 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - D1 TERMINAL (director 2026-11-18): the menu/3E10 `(void *)(s32)&D_80721444` cast family (menuInitMainScreen 5,
   menuInitAdventureFileSelect 3, 3E10.c:738) keeps `void *` + 9 FAKE casts: an `s32` asset parameter on menuSpawnUiElementEffect
   costs W712 0 -> 68, a `u8 *asset` local scores full=28 (.scratch/TypesOwner/batch_12/partR_plan.md,
-  .scratch/Lead20261118/probe3E10; recorded 9f83bf7c).
-- D2 HOLD (director 2026-11-18): ACDC0 hudPauseMenuUpdate, 4 FAKE EXHAUSTED (c127b7 page and db430c credits reuse sel; 6151e7
-  limit and 32c920 half reuse flag, pinned by register colouring; every variant in
-  .scratch/CleanhudPauseMenuUpdate/dossier_global_hudPauseMenuUpdate.md, merge 54a784f8). No dispatch without a new lever;
-  frame-capacity ORIG declined (ladder.md home-slot rule).
+  .scratch/Lead20261118/probe3E10; recorded 9f83bf7c). RQ1 2026-11-20: stale rungs re-measured only (CleanmenuInitMainScreenb,
+  02ea6af1), nohit, EXHAUSTED; terminal debt.
+- D2 HOLD (director 2026-11-18): ACDC0 hudPauseMenuUpdate, 4 FAKE (c127b7 page and db430c credits reuse sel; 6151e7 limit and
+  32c920 half reuse flag, pinned by register colouring; .scratch/CleanhudPauseMenuUpdate/dossier_global_hudPauseMenuUpdate.md, merge
+  54a784f8). RQ2 2026-11-20: re-measured on the merged body (02ea6af1), no new lever (page 7 = cfe's shared switch temp takes v0;
+  every split grows the frame 0x58 -> 0x60), EXHAUSTED. A lever not in the dossier goes to the director with offsets before any
+  FAKE change. Frame-capacity ORIG declined (ladder.md home-slot rule).
+- Hack queue stop (director 2026-11-20): no re-dispatch of EXHAUSTED rank functions without a concrete new lever named in the
+  brief (new type evidence or tool route); SKILL §7.
 - 7130 70c91e `if (D_80770DC8) {}`: CLOSED 2026-11-18b (CleansfxUpdateLevelAmbientc, ec3c9426): Q1470 lands the function-local
   static at 0x80770DC8 only with N = 160 (mod 256) extra numbered definitions; no natural count. Reopen only with another lever.
 - 80150 tagBarrelActorUpdate 71b822 empty `default: break;`: FAKE (2026-11-18c M19, 9de100e7): the not-2 edge `bne` 0x58fc goes straight
@@ -103,23 +110,15 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- Hack queue drained at the 2026-11-18c close: `rank` OPEN = D1 menuInitMainScreen, D2 hudPauseMenuUpdate (held by ruling) and B5EC0
-  func_806B13B4 (held, owner item above). BDEE0 behaviourFairyInitPlayerScale and 8F4B0 lightUpdateFromActorLighting are EXHAUSTED
-  (goto kept, Q0591; 8F4B0 re-verified 2026-11-18c M32). The close knowledge (Q1517-Q1571, 7f43e740) staled the reviews of the 35
-  functions it names: `rank --polish` work for the next session (reviewed 4,235/4,270).
+- 2026-11-20: coverage restored (48 next=review reviewed, M1-M5); OPEN before the close: 7CA80 actorAllocate (CleanactorAllocatec:
+  two `(u16)((headerSize + 7) & 0xFFF8)` CSE casts are value casts chosen for codegen; lead probe with both dropped = same code,
+  registers renamed 0x340-0x3b4; tag + ladder) and the 11BC10 re-carry above.
 - FCCD0 slotQueueDrawLabel f22aa7: the text[4] route is closed by R11 (coins F9450.c:621 item 0xB7 and the slot 9 sum are uncapped);
   a fix needs another free frame word for the int-width selector (dossier).
-- C0EE0 enemyGridStateStep untagged empty `default: break;` (Polishglobal9DD70, 2026-11-18c M1): its own block 0xa58 (bound check 0xc4
-  `beqz at,a58`, gap entry 5 -> 0xa58, join 0xa60, case 10's block 0x970); removal 3984 -> 3824: `// ORIG:` candidate under the
-  empty-default rule. Next C0EE0 hack pass; the lead verifies the offsets in expected C0EE0.o.
-- ACDC0 hudPauseMenuIconUpdate `sc` (ACDC0.c:1412): one untagged f32 used as circle radius (1477-1486), as `sc = mathSinF(ang);
-  effect->y += sc * 10.0f;` (1489-1490), as a scale sine (1494), as a squared distance (1511) and as random draws (1515/1519): the R5
-  construct (3E10 radius, 2026-11-18c M14): measure each role and tag the steering reuses (pre-existing, now tagged) in the next ACDC0
-  pass (not D2's hudPauseMenuUpdate).
-- Polish proposals (2026-11-18c reports, file-scope edits other functions reach): 80150 `extern s32 D_8071FE08` -> EffectGridAsset;
+- Polish proposals (2026-11-18c reports, file-scope edits other functions reach): 80150 `extern s32 D_8071FE08` -> EffectGridAsset
+  (better: one shared extern; 478F0/9DD70 declare `u8 D_8071FE08[]`, 19A00/89250/119370 EffectGridAsset);
   C4620 duplicate `extern Actor *gBehaviourTargetActor;` (actor.h:1264 declares it); 136820 gFaultFramebuffer s32 -> u16 * with
-  faultFontInit's first parameter (after the 13980/136820 gFramebuffers[] s32/u32 unification); boss/3840 typedef BossB_Struct_800359D0
-  -> BossStageEntry (element type of sBossStageTable).
+  faultFontInit's first parameter (after the 13980/136820 gFramebuffers[] s32/u32 unification).
 
 ## Held names (a field rename reopens the review of every touched function: batch them with the next types item, lead review each)
 Lists: .scratch/Lead20261118/names17f.txt (17f proposals), names_close.tsv (close submissions; names_applied.tsv applied,
@@ -153,22 +152,9 @@ names_failed.txt refused), .scratch/lead_s1115/names.md, .scratch/lead_s1115c/cl
   enemyAggroStateUpdate/actorMoveWithinZone (0x33), 0x37 explodes; held by the director at the 18c close).
 
 ## Tooling fixes (open)
-- Shadow headers (sfdiff/fdiff.sh/cwarn `--as`): automatically shadow every include/*.h that quote-includes a shadowed header (cpp
-  searches the includer's directory first; EG race.h, EI boss.h).
-- `permute.py batch` compiles row copies against the current include/: build each row at its base (or re-snapshot copies whose file
-  or reached headers changed). The 2026-11-14 backlog in .scratch/permbatch/ (b1114, b1114b, list.tsv rows 45-97) is stale (7 of
-  b1114's 9 sites are gone): regenerate with `quality.py permute-candidates` instead of resuming it.
-- quality.py `token_meaning` spells an anonymous member's record type with clang's canonical spelling (it embeds the header path),
-  so carry never treats a body touching an anonymous-union field as a pure rename (fix: clint.type_sig, or strip the location as
-  clint.UNNAMED does; TypesOwner batch_2 lost 6 review rungs).
-- `tools/permute.py` HACK_PASSES zeroes neither `perm_refer_to_var` (inserts `if (x) {}`, `if (!x && !x) {}`) nor `perm_var_cond_block`
-  (if/else duplicates): "hack-free" runs still emit dead-if zeros (2026-11-18c M27 E4090). Add both to HACK_PASSES.
-- `tools/ringfifo.py` RING = [14,15,24,25,11,12,13] omits $8-$10: ugen hands out $8/$9/$10 after $25 and before $11, and `sim` still
-  reports `mismatches: 0` (2026-11-18c M28 136820 faultDrawRegs). Build the ring as t6 t7 t8 t9 t0 t1 t2 t3 t4 t5 minus the registers
-  uopt colours ([14,15,24,25,8,9,10,11,12,13] reproduces both listings).
-- objdiff.py text_matches maps symbol_addrs names to absolute addresses on the expected side only and compares own-.bss relocations
-  by raw offset: a carve moving a TU's .bss base shows `fdiff --reloc-ok` exit 1 on a matching ROM (the ROM gate decides: GATE_OK 08e85d18).
+- quality.py noop-arith regex `\* ?0\b` matches float literals (`* 0.1`): ACDC0 hudPauseMenuIconUpdate c4c287 is kind noop-arith
+  but is an `other` reuse (CleanhudPauseMenuIconUpdate 2026-11-20); fix `\* ?0(?![.\w])`.
+- quality.py header_renames counts a record field type respelled through a same-canonical alias typedef (JetpacSprite ->
+  TextureDescriptor: JetpacActor.sprite, JetpacItem.sprites, JetpacCellItem.texture) and respelled data definitions as changed, so
+  carry re-opens their users (TypesOwner13 batch_14 Part B: 19 functions).
 
-## Knowledge
-- ok-fine architecture/camera "Remaining hacks" is stale: camComputeEyeFocus keeps 3 gotos (two `goto apply_view`, one
-  `goto check_target`, Q0591) plus the six step statics sStepEyeX..sStepLookZ (.scratch/s2026-11-17f-knowledge-queue.md line 32).
