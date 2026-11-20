@@ -17,7 +17,8 @@ Subcommands:
          directory set up for another function or source file unless --force.
          settings.toml zeroes the weights of HACK_PASSES (the passes that insert
          `if (1) {}`, `do {} while (0)`, `^ 0`, masks, `* 0`, dummy commas, self/duplicate
-         assignments, deleted ifs and array aliases), so outputs never need a new hack
+         assignments, deleted ifs, array aliases, `if (x) {}` / `if (!x && !x) {}` dead ifs and
+         `if (x) {S} else {S}` duplicates), so outputs never need a new hack
   run    Run permuter with --stack-diffs and optional wall-clock limit (it never stops
          early on a zero score: later outputs may be cleaner); refuses a directory whose
          base.c/target.o/compile.sh changed since its setup, or whose setup baseline is already 0
@@ -683,14 +684,16 @@ def preprocess_whole_source(source_text: str, extra_flags: List[str]) -> str:
 SETUP_RECORD = "setup.json"
 HACK_PASSES = ("perm_empty_stmt", "perm_ins_block", "perm_xor_zero", "perm_add_mask", "perm_mult_zero",
                "perm_dummy_comma_expr", "perm_add_self_assignment", "perm_duplicate_assignment",
-               "perm_remove_ast", "perm_alias_array")
+               "perm_remove_ast", "perm_alias_array", "perm_refer_to_var", "perm_var_cond_block")
 
 
 def settings_toml(func: str) -> str:
     """settings.toml of FUNC: IDO weights with every HACK_PASSES pass off (upstream enables them for
     IDO; their outputs are `if (1) {}`, `do {} while (0)`, `^ 0`, masks, `* 0`, dummy commas,
-    self/duplicate assignments, deleted ifs and array aliases, i.e. new hacks). 0.0, not 0: the
-    permuter type-checks the overrides as floats."""
+    self/duplicate assignments, deleted ifs, array aliases, `if (x) {}` / `if (!x && !x) {}` dead ifs
+    (perm_refer_to_var) and statements duplicated into `if (x) {S} else {S}` (perm_var_cond_block,
+    0 in upstream's [ido] table but zeroed here too), i.e. new hacks). 0.0, not 0: the permuter
+    type-checks the overrides as floats."""
     return (f'func_name = "{func}"\ncompiler_type = "ido"\n\n[weight_overrides]\n'
             + "".join(f"{p} = 0.0\n" for p in HACK_PASSES))
 

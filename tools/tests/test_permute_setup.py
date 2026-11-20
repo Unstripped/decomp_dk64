@@ -258,6 +258,8 @@ def test_settings_turn_hack_passes_off():
     assert (s["func_name"], s["compiler_type"]) == ("f", "ido")
     assert s["weight_overrides"] == {p: 0.0 for p in HACK_PASSES}
     assert all(isinstance(v, float) for v in s["weight_overrides"].values())  # permuter json_dict(..., float)
+    # dead `if (x) {}` / `if (!x && !x) {}` and if/else duplicates (2026-11-18c M27 E4090)
+    assert {"perm_refer_to_var", "perm_var_cond_block"} <= set(s["weight_overrides"])
 
 
 def test_run_never_stops_on_zero():
