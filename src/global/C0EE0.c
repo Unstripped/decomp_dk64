@@ -302,7 +302,7 @@ void enemyGridStateStep(void) {
             st->state = 2;
         }
         break;
-    default:
+    default:  // ORIG: own default block at 0xa58 (lw a3,0(t2), the gCurrentActor reload every case path makes before the join 0xa5c, e.g. case 10 at 0x970), reached by the bound check beqz at,0xa58 at 0xc4 and gap jump-table entry 5; without it they and case 10 go to the join and .text shrinks 3984 -> 3824
         break;
     }
     gCurrentActor->flags |= 0x400;
