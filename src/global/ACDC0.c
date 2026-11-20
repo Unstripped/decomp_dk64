@@ -1409,7 +1409,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
     HudEntry *src;
     HudIconState *item;
     f32 t;
-    f32 sc;
+    f32 radius;
     s32 type;
     s32 bounceStep;
     s32 ang;
@@ -1474,28 +1474,28 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                 t = 1.0f;
             }
             ang = (s32)(item->startX * 0.25) - src->carouselAngle;
-            sc = 180.0f;
+            radius = 180.0f;
             if (type != 3) {
-                sc = 240.0f;
+                radius = 240.0f;
             }
-            sc *= t;
+            radius *= t;
             effect->scaleX = item->unk10 * t * 4.0;
             effect->scaleY = effect->scaleX;
             t = 0.0;
-            effect->x = mathSinF(ang) * sc + 640.0;
-            effect->y = (480.0 - mathCosF(ang) * sc) + bounceStep;
+            effect->x = mathSinF(ang) * radius + 640.0;
+            effect->y = (480.0 - mathCosF(ang) * radius) + bounceStep;
             if (type == 8) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                sc = mathSinF(ang);
-                effect->y += sc * 10.0f;
+                radius = mathSinF(ang); // FAKE: radius holds the type-8 wobble sine (used from $f0, mul.s $f10,$f0,$f6 at 0x43d4; never stored to its home sp+0x48): the compound `effect->y += mathSinF(ang) * 10.0f` takes a cfe hidden temp word (Q0487, Q1537) and a dedicated f32 (any slot or block scope) a home word, either moving the uopt spill temps sp+0x24/0x30 -> 0x20/0x2c (10)
+                effect->y += radius * 10.0f;
             }
             if (type == 0xF) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                sc = mathSinF(ang);
-                effect->scaleY = effect->scaleY * (1.0 + sc * 0.2);
+                radius = mathSinF(ang); // FAKE: radius holds the type-15 scale sine (used from $f0, cvt.d.s $f6,$f0 at 0x442c; never stored to sp+0x48): `effect->scaleY *= 1.0 + mathSinF(ang) * 0.2` or a dedicated f32 adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10); the call inlined in the product loads scaleY before it (192)
+                effect->scaleY = effect->scaleY * (1.0 + radius * 0.2);
             }
             if (type == 5 || type == 8 || type == 0xF) {
-                i = 0xFF - (s32)((effect->y - 240.0) * 1.5);
+                i = 0xFF - (s32)((effect->y - 240.0) * 1.5); // FAKE: the slot index i holds the brightness (v0: subu at 0x44b8, sb at 0x44d4-0x44e4; i's home sp+0x38 unused): a dedicated s32 shade or slot adds a word and moves the case-10 slot v0 -> v1 (mfc1 at 0x48b0, 23)
                 if (i < 0x5F) {
                     i = 0x5F;
                 }
@@ -1508,17 +1508,17 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             break;
         case 6:
-            sc = (item->unk14 - item->wanderTargetY) * (item->unk14 - item->wanderTargetY) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18);
-            if (sc < 400.0f) {
+            radius = (item->unk14 - item->wanderTargetY) * (item->unk14 - item->wanderTargetY) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18); // FAKE: radius holds the squared target distance (add.s $f2 at 0x4528, c.lt.s at 0x452c, never stored): a dedicated f32 adds a word and takes $f12 (14), the sum inlined in the test 200
+            if (radius < 400.0f) {
                 item->wanderPause = item->wanderPause - 1.0;
                 if (item->wanderPause < 0.0) {
-                    sc = randomFloat();
-                    item->wanderAngle = item->wanderAngle + (1000.0 + sc * 2000.0);
+                    radius = randomFloat(); // FAKE: radius holds the heading-step draw (used from $f0, cvt.d.s $f8,$f0 at 0x458c): a dedicated f32 or `wanderAngle += 1000.0 + randomFloat() * 2000.0` adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10), the call inlined in the plain sum swaps the add.d operands at 0x45a4 (92)
+                    item->wanderAngle = item->wanderAngle + (1000.0 + radius * 2000.0);
                     ang = (s32)item->wanderAngle & 0xFFF;
                     item->wanderAngle = ang;
-                    sc = (randomFloat() * 40.0 + 20.0) * 4.0;
-                    item->unk18 = mathSinF(ang) * (sc * 0.8);
-                    item->wanderTargetY = mathCosF(ang) * sc;
+                    radius = (randomFloat() * 40.0 + 20.0) * 4.0;
+                    item->unk18 = mathSinF(ang) * (radius * 0.8);
+                    item->wanderTargetY = mathCosF(ang) * radius;
                     if (randomFloat() < 0.25) {
                         item->wanderPause = randomFloat() * 40.0 + 15.0;
                     } else {
@@ -1526,24 +1526,23 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                     }
                 }
             }
-            sc = (item->unk18 - item->unk10) * 0.1;
-            if (sc < -8.0) sc = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->unk14 load
-            if (sc > 8.0) {
-                sc = 8.0f;
+            radius = (item->unk18 - item->unk10) * 0.1; // FAKE: radius holds the clamped x and y steps ($f2: cvt.s.d at 0x4728/0x47a0, add.s at 0x4770/0x47e8, never stored): a dedicated f32 step adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10)
+            if (radius < -8.0) radius = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->unk14 load
+            if (radius > 8.0) {
+                radius = 8.0f;
             }
-            item->unk10 += sc;
-            sc = (item->wanderTargetY - item->unk14) * 0.1;
-            if (sc < -8.0) {
-                sc = -8.0f;
+            item->unk10 += radius;
+            radius = (item->wanderTargetY - item->unk14) * 0.1;
+            if (radius < -8.0) {
+                radius = -8.0f;
             }
-            if (sc > 8.0) {
-                sc = 8.0f;
+            if (radius > 8.0) {
+                radius = 8.0f;
             }
-            item->unk14 += sc;
+            item->unk14 += radius;
             ang = (gFrameCounter * 0x78) & 0xFFF;
             effect->x = item->unk10 + item->startX;
-            sc = mathSinF(ang);
-            effect->y = sc * 10.0f + (item->startY + item->unk14 + bounceStep + 960.0f * t);
+            effect->y = mathSinF(ang) * 10.0f + (item->startY + item->unk14 + bounceStep + 960.0f * t);
             t = 0.0f;
             break;
         case 10:
