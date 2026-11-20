@@ -965,6 +965,63 @@ def test_carry_header_field_rename_beside_anonymous_union(tmp_path, monkeypatch,
     assert "would carry 3 events" in out and "skipped" not in out
 
 
+ALIAS_H = ("void g(int);\ntypedef struct T {\n    int x;\n    short y;\n} T;\ntypedef T Alias;\n"
+           "typedef struct S {\n    int a;\n    Alias *t;\n    int b;\n} S;\n")
+ALIAS_C = ('#include "s.h"\n%s gT = { 1, 2 };\n'
+           "int f(S *p) {\n    %s *q = p->t;\n    if (p->a) {} // FAKE: steers\n    g(p->a);\n    return q->y + gT.y;\n}\n")
+
+
+@pytest.mark.parametrize("field,keep_alias,reason", [
+    ("T", True, None),   # the uses respelled to the aliased record's name, the alias kept
+    ("T", False, None),  # ... and the alias dropped (JetpacSprite -> TextureDescriptor, TypesOwner13 batch_14 part B)
+    ("U", True, ""),  # another record of the same layout: a real type change (`p->t` changes type)
+])
+def test_carry_typedef_alias_respelled(tmp_path, monkeypatch, capsys, field, keep_alias, reason):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "include" / "s.h").write_text(ALIAS_H)
+    src = repo / "src" / "global" / "x.c"
+    src.write_text(ALIAS_C % ("Alias", "Alias"))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    q.append_events([q.event("u1", "sweep", fn, fn["sites"][0], "remove", "nohit"),
+                     q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
+    hdr = ALIAS_H.replace("    Alias *t;", f"    {field} *t;")
+    if field == "U":
+        hdr = hdr.replace("typedef T Alias;\n", "typedef T Alias;\ntypedef struct U {\n    int x;\n    short y;\n} U;\n")
+    if not keep_alias:
+        hdr = hdr.replace("typedef T Alias;\n", "")
+    (repo / "include" / "s.h").write_text(hdr)
+    src.write_text(ALIAS_C % ("T", "T"))  # D_8002C330, jetpacGridAddTiledSprite's `JetpacSprite *dst`
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed{reason}" in out
+        assert "would carry 0 events" in out
+        return
+    assert ("would carry src/global/x.c: f: remove, review, views (type names respelled (Alias -> T), same "
+            "canonical types; gT type names respelled (Alias -> T), same canonical types; record S type names "
+            "respelled (Alias -> T), same canonical types)") in out
+    assert "would carry 3 events" in out and "skipped" not in out
+
+
 def test_carry_func_limits_functions(tmp_path, monkeypatch, capsys):
     hdr = CARVE_H.replace("    int a;\n", "    int mode;\n")
     _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, edit=lambda s: s.replace("p->a", "p->mode").replace(
