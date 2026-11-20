@@ -651,6 +651,25 @@ def test_plain_rewrites_skip_float_literals():
         assert {rx.sub(rep, code) for rx, rep in q.PLAIN} == {code}
 
 
+@pytest.mark.parametrize("code,kind", [
+    ("radius = (item->unk18 - item->unk10) * 0.1;", "other"),  # ACDC0 c4c287: `* 0.1` is no `* 0`
+    ("z = gCurrentContPad->stick_x * 0.06f;", "other"),
+    ("q = q + 0.5f;", "other"),
+    ("x = y | 0.5;", "other"),
+    ("x = y ^ 0.25;", "other"),
+    ("x = y & 0xFF;", "other"),
+    ("x = y * 0;", "noop-arith"),
+    ("x = y*0;", "noop-arith"),
+    ("x = y ^ 0;", "noop-arith"),
+    ("x = y | 0;", "noop-arith"),
+    ("x = y & 0;", "noop-arith"),
+    ("x = y + 0;", "noop-arith"),
+    ("x = y + 0U;", "noop-arith"),
+])
+def test_noop_arith_needs_a_whole_zero_literal(code, kind):
+    assert q.kind_of(f"    {code} // FAKE: steers") == kind
+
+
 class _NoHit:
     def result(self):
         return False

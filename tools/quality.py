@@ -163,7 +163,8 @@ CHECKLIST = ("fake", "goto", "casts", "views", "protos", "temps", "names", "unin
 PLAIN_KINDS = {"noop-arith", "comma", "punned-cast", "other"}
 
 DEAD_IF = re.compile(r"if \(.*\)\s*\{\s*\}")
-NOOP = re.compile(r"\^ ?0\b|\| ?0\b|& ?0\b|\* ?0\b|\+ ?0U?\b")
+# `x ^ 0`, `| 0`, `& 0`, `* 0`, `+ 0`/`+ 0U`: the zero is the whole literal (not `* 0.1`, `+ 0.5f`, `& 0xFF`)
+NOOP = re.compile(r"\^ ?0(?![.\w])|\| ?0(?![.\w])|& ?0(?![.\w])|\* ?0(?![.\w])|\+ ?0U?(?![.\w])")
 DO_WHILE = re.compile(r"\bdo \{|while \(0\)")
 PUN = re.compile(r"\*\([^)]*\*\)&")
 GUARD = re.compile(r"^(\s*)if \((.*)\)\s*\{\s*\}\s*(//.*)?$")
