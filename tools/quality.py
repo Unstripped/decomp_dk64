@@ -18,7 +18,8 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          fill drafts/quality/models.jsonl (unit, agent) -> model
                                          from worker session transcripts
   uv run tools/quality.py permute-candidates --max-base N --out DIR [--limit N]
-                                         copies + list.tsv for `tools/permute.py batch`
+                                         copies + list.tsv for `tools/permute.py batch`, plus
+                                         DIR/headers/ (include/ + assets/inc/ the rows build against)
   uv run tools/quality.py report [--baseline REV] [--markdown]
   uv run tools/quality.py carry --rev REV --unit U [--header-carve] [--dry-run] [--func NAME]... [src.c...]
                                          re-stamp results of functions that
@@ -1449,10 +1450,15 @@ def cmd_history(a):
 
 def cmd_permute_candidates(a):
     """Copies with one hack site removed (or plainly rewritten) for `tools/permute.py batch`: sites
-    whose agent permute runs reached a base score <= --max-base, whose edit does not already match."""
+    whose agent permute runs reached a base score <= --max-base, whose edit does not already match.
+    OUT/headers/ snapshots include/ and assets/inc/ as the copies are written: batch builds every row
+    against it, so header commits during a batch never reach the copies."""
     out = cli_path(a.out)
     if os.path.isdir(os.path.join(ROOT, out)) and os.listdir(os.path.join(ROOT, out)):
         sys.exit(f"permute-candidates: {out} is not empty")
+    for d in ("include", os.path.join("assets", "inc")):
+        if os.path.isdir(os.path.join(ROOT, d)):
+            shutil.copytree(os.path.join(ROOT, d), os.path.join(ROOT, out, "headers", d))
     ans = analyze_many(clint.src_files())
     require_resolved(ans)
     by_site, _ = index_events(load_events())

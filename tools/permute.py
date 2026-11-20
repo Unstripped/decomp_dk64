@@ -15,6 +15,8 @@ Subcommands:
   setup  Build permuter input directory (.scratch/permuter/<seg>_<FUNC>/, or --out DIR)
          and record its source, scores and file digests in setup.json; refuses a
          directory set up for another function or source file unless --force.
+         --headers DIR preprocesses against DIR/include (and DIR/assets/inc) instead of the
+         checkout's, recorded in setup.json.
          settings.toml zeroes the weights of HACK_PASSES (the passes that insert
          `if (1) {}`, `do {} while (0)`, `^ 0`, masks, `* 0`, dummy commas, self/duplicate
          assignments, deleted ifs, array aliases, `if (x) {}` / `if (!x && !x) {}` dead ifs and
@@ -25,7 +27,10 @@ Subcommands:
   best   List best outputs and print diff against base.c
   batch  Host-side: LIST.tsv rows `dir seg func copy src key base` (quality.py
          permute-candidates), P rows at a time, each `setup` + `run` through tools/dk (`run`
-         holds no dkd lock, so make expected is never blocked for hours). Per row
+         holds no dkd lock, so make expected is never blocked for hours). Every row is set up
+         with `--headers <LIST dir>/headers` (include/ and assets/inc/ as permute-candidates
+         wrote the copies), so headers changed during a batch never reach its copies; a list
+         without that snapshot is refused (regenerate it). Per row
          <dir>/result.json {key, base, best, seconds, zeros}; a completed run (exit 0, a
          --seconds timeout included) of 600 s+ without a zero appends a `permute nohit` record
          line to <LIST dir>/ledger.txt, zero outputs go to zeros.txt for an agent review (never
@@ -643,7 +648,25 @@ def wrap_multi_statement_lines(source: str, func_name: str) -> str:
     return source[:start_idx] + new_func_text + source[i:]
 
 
-def preprocess_whole_source(source_text: str, extra_flags: List[str]) -> str:
+def include_flags(cflags: str, headers: Optional[Path] = None) -> List[str]:
+    """CFLAGS' `-I`/`-D` flags as single tokens (`-I include` -> `-Iinclude`). HEADERS: a snapshot of
+    the include dirs (permute-candidates' `headers/`): a relative `-I DIR` it holds reads from there."""
+    toks, out, i = cflags.split(), [], 0
+    while i < len(toks):
+        tok = toks[i]
+        if tok in ("-I", "-D") and i + 1 < len(toks):
+            i += 1
+            tok += toks[i]
+        if tok.startswith("-I") and headers is not None and not os.path.isabs(tok[2:]) \
+                and (headers / tok[2:]).is_dir():
+            tok = f"-I{headers / tok[2:]}"
+        if tok.startswith(("-I", "-D")):
+            out.append(tok)
+        i += 1
+    return out
+
+
+def preprocess_whole_source(source_text: str, extra_flags: List[str], include_dir: str = "include") -> str:
     """Preprocess a complete assembled source file with cpp, expanding macros."""
     cpp_bin = shutil.which("mips-linux-gnu-cpp") or shutil.which("cpp") or "cpp"
     cmd = [
@@ -659,7 +682,7 @@ def preprocess_whole_source(source_text: str, extra_flags: List[str]) -> str:
         "-D__attribute__(x)=",
         "-D__extension__=",
         "-I",
-        "include",
+        include_dir,
     ]
     for flag in extra_flags:
         if flag.startswith("-I") or flag.startswith("-D"):
@@ -843,7 +866,14 @@ def cmd_setup(args: argparse.Namespace) -> None:
             out_dir = ROOT / out_dir
     else:
         out_dir = ROOT / ".scratch" / "permuter" / f"{seg}_{func}"
+    headers = None
+    if args.headers:
+        headers = Path(args.headers) if Path(args.headers).is_absolute() else ROOT / args.headers
+        if not (headers / "include").is_dir():
+            sys.exit(f"error: --headers {args.headers} has no include/")
     record = {"seg": seg, "func": func, "src": _rel_to_root(src_path), "source": _rel_to_root(from_path)}
+    if headers is not None:
+        record["headers"] = _rel_to_root(headers)
     conflict = setup_conflict(read_setup_record(out_dir), record)
     if conflict and not args.force:
         sys.exit(
@@ -945,11 +975,12 @@ def cmd_setup(args: argparse.Namespace) -> None:
     combined = strip_other_fns(combined, func)
     combined = re.sub(r"#pragma\s+GLOBAL_ASM\([^\)]*\)", "", combined)
 
-    extra_flags = [tok for tok in cflags.split() if tok.startswith("-I") or tok.startswith("-D")]
+    extra_flags = include_flags(cflags, headers)
     if use_non_matching and "-DNON_MATCHING" not in extra_flags:
         extra_flags.append("-DNON_MATCHING")
 
-    base_c_content = preprocess_whole_source(combined, extra_flags)
+    base_c_content = preprocess_whole_source(combined, extra_flags,
+                                             str(headers / "include") if headers is not None else "include")
     base_c_content = wrap_multi_statement_lines(base_c_content, func)
     base_c = out_dir / "base.c"
     base_c.write_text(base_c_content, encoding="utf-8")
@@ -1174,7 +1205,8 @@ def batch_row(row: List[str], list_dir: Path, args: argparse.Namespace, lock: th
     perm = d / "perm"
     dk = str(ROOT / "tools" / "dk")
     r = subprocess.run([dk, "python3", "tools/permute.py", "setup", seg, func, "--from", copy, "--src", src,
-                        "--out", _rel_to_root(perm), "--force"], cwd=ROOT, capture_output=True, text=True)
+                        "--headers", _rel_to_root(list_dir / "headers"), "--out", _rel_to_root(perm), "--force"],
+                       cwd=ROOT, capture_output=True, text=True)
     if r.returncode:
         return _batch_fail(d, key, "setup", _last_line(r.stderr or r.stdout or "", f"exit {r.returncode}"), lock)
     t0 = time.monotonic()
@@ -1209,6 +1241,9 @@ def cmd_batch(args: argparse.Namespace) -> None:
     bad = [i for i, r in enumerate(rows, 1) if len(r) != 7]
     if bad:
         sys.exit(f"error: {list_path}: rows {bad} do not have 7 tab-separated fields (dir seg func copy src key base)")
+    if not (list_path.parent / "headers" / "include").is_dir():
+        sys.exit(f"error: {list_path.parent} has no headers/ snapshot: its copies would compile against the current "
+                 "include/; regenerate the list with `quality.py permute-candidates`")
     lock, todo, failed = threading.Lock(), iter(rows), []
 
     def worker() -> None:
@@ -1258,6 +1293,8 @@ def main() -> None:
     p_setup.add_argument("--non-matching", action="store_true", help="Enable NON_MATCHING define for parked function definitions")
     p_setup.add_argument("--out", help="Output directory (default: .scratch/permuter/<seg>_<FUNC>)")
     p_setup.add_argument("--force", action="store_true", help="Replace a directory set up for another function or source file")
+    p_setup.add_argument("--headers", help="Snapshot dir holding include/ (and assets/inc/) to preprocess against "
+                         "instead of the checkout's (permute batch: the list's headers/)")
 
     # run
     p_run = sub.add_parser("run", help="Run permuter on an input directory")

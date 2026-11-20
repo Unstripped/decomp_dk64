@@ -274,9 +274,11 @@ def _batch_env(tmp_path, monkeypatch, run_rc, seconds=700):
     from tools import permute
     d = tmp_path / "001_global_f"
     (d / "perm").mkdir(parents=True)
+    (tmp_path / "headers" / "include").mkdir(parents=True)
 
     def run(cmd, **kw):
-        if "setup" in cmd:
+        if "setup" in cmd:  # every row builds against the list's header snapshot
+            assert cmd[cmd.index("--headers") + 1] == str((tmp_path / "headers").resolve())
             write_setup_record(d / "perm", {"func": "f", "baseline_score": 50})
             return subprocess.CompletedProcess(cmd, 0, "", "")
         kw["stdout"].write("permuter: crashed\n" if run_rc else "Wall-clock limit reached\n")
@@ -321,3 +323,35 @@ def test_batch_exits_nonzero_when_a_row_fails(tmp_path, monkeypatch, capsys):
     assert ex.value.code == 1
     out = capsys.readouterr().out
     assert f"FAIL {row[5]} exception: RuntimeError: disk full" in out and "1 failed" in out
+
+
+def test_batch_refuses_a_list_without_headers(tmp_path, monkeypatch):
+    import pytest
+    import shutil
+    permute, d, row, args = _batch_env(tmp_path, monkeypatch, run_rc=0)
+    shutil.rmtree(tmp_path / "headers")  # a list written before permute-candidates snapshotted them
+    with pytest.raises(SystemExit) as ex:
+        permute.cmd_batch(args)
+    assert "no headers/ snapshot" in str(ex.value.code) and not (d / "result.json").exists()
+
+
+def test_include_flags_read_the_headers_snapshot(tmp_path):
+    from tools.permute import include_flags
+    cflags = "-c -G 0 -I include -I assets/inc -D_FINALROM -DF3DEX_GBI_2 -O2"
+    assert include_flags(cflags) == ["-Iinclude", "-Iassets/inc", "-D_FINALROM", "-DF3DEX_GBI_2"]
+    (tmp_path / "include").mkdir()  # no assets/inc in the snapshot: the checkout's
+    assert include_flags(cflags, tmp_path) == [f"-I{tmp_path / 'include'}", "-Iassets/inc", "-D_FINALROM",
+                                               "-DF3DEX_GBI_2"]
+
+
+def test_preprocess_uses_the_snapshot_include_dir(tmp_path):
+    import shutil
+    import pytest
+    from tools.permute import preprocess_whole_source
+    if not shutil.which("mips-linux-gnu-cpp"):  # the container's; host cpp may be clang's (other flags)
+        pytest.skip("no mips-linux-gnu-cpp")
+    (tmp_path / "include").mkdir()
+    (tmp_path / "include" / "snapshot_only.h").write_text("#define SNAPSHOT_VALUE 7\n")
+    out = preprocess_whole_source('#include "snapshot_only.h"\nint v = SNAPSHOT_VALUE;\n', [],
+                                  str(tmp_path / "include"))
+    assert "int v = 7;" in out
