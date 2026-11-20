@@ -17,6 +17,7 @@ DATA_SIZE = 0x1000
 BSS_VRAM = 0x8075A000
 BSS_SIZE = 0x1000
 FAKE_OBJ_PATH = "fake_object.o"
+REAL_SECTION_VRAMS = objdiff.object_section_vrams
 
 
 @pytest.fixture(autouse=True)
@@ -25,7 +26,7 @@ def mock_sections(monkeypatch):
     sec_sizes = {".rodata": RODATA_SIZE, ".data": DATA_SIZE, ".bss": BSS_SIZE}
     vrams = {".rodata": RODATA_VRAM, ".data": DATA_VRAM, ".bss": BSS_VRAM}
     monkeypatch.setattr(objdiff, "get_section_sizes", lambda obj_path: sec_sizes)
-    monkeypatch.setattr(objdiff, "object_section_vrams", lambda obj_path, absolute: vrams)
+    monkeypatch.setattr(objdiff, "object_section_vrams", lambda obj_path, absolute, named=None: vrams)
     return {"sec_sizes": sec_sizes, "vrams": vrams}
 
 
@@ -389,3 +390,56 @@ def test_reloc_equivalent_rejects_other_data_location(monkeypatch, built_lo, exp
                           (_sw_pair(0), [(0, "R_MIPS_HI16", "D_807655E8"), (4, "R_MIPS_LO16", "D_807655E8")]))
     _data_offsets(monkeypatch, {".bss": (".bss", 0)}, exp_offsets)
     assert not objdiff.reloc_equivalent(b, e)
+
+
+def _text_objects(monkeypatch, built, expected, vrams, syms=None):
+    """Fake objects for text_matches: {path: (text, relocs)} and {path: section bases}."""
+    objs = {"built.o": built, "expected/build/src/global/x.o": expected}
+    monkeypatch.setattr(objdiff, "get_section_bytes", lambda p, sec: objs[p][0] if sec == ".text" else b"")
+    monkeypatch.setattr(objdiff, "get_text_relocs", lambda p: objs[p][1])
+    monkeypatch.setattr(objdiff, "object_section_vrams", lambda p, absolute, named=None: vrams.get(p, {}))
+    monkeypatch.setattr(objdiff, "symbol_addresses", lambda p: dict(syms or {}))
+    monkeypatch.setattr(objdiff, "absolute_symbols", lambda: {})
+    monkeypatch.setattr(objdiff, "text_symbols", lambda p: {})
+    monkeypatch.setattr(objdiff, "resolve_branches", lambda p, t, r: (t, r))
+    return "built.o", "expected/build/src/global/x.o"
+
+
+BSS = [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]
+
+
+@pytest.mark.parametrize("built_lo, built_base, ok", [
+    (0x9D8, 0x80770560, True),   # 7130 carve (08e85d18): .bss base moved, same static at 0x80770F38
+    (0x9D0, 0x80770560, False),  # another address
+    (0x148, 0x80770560, False),  # the old section offset in the moved section: another address
+    (0x148, None, True),         # no built base known: expected's (an unmoved section), same offset
+    (0x9D8, None, False),
+])
+def test_text_matches_own_bss_by_final_address(monkeypatch, built_lo, built_base, ok):
+    vrams = {"expected/build/src/global/x.o": {".bss": 0x80770DF0}}
+    if built_base is not None:
+        vrams["built.o"] = {".bss": built_base}
+    b, e = _text_objects(monkeypatch, (_sw_pair(built_lo), BSS), (_sw_pair(0x148), BSS), vrams)
+    assert objdiff.text_matches(b, e) is ok
+
+
+@pytest.mark.parametrize("addr, ok", [(0x80770F38, True), (0x80770F3C, False)])
+def test_text_matches_named_global_vs_expected_static(monkeypatch, addr, ok):
+    """A static of expected (`.bss + 0x148`) the copy defines as a named global in symbol_addrs."""
+    named = [(0, "R_MIPS_HI16", "gPitch"), (4, "R_MIPS_LO16", "gPitch")]
+    b, e = _text_objects(monkeypatch, (_sw_pair(0), named), (_sw_pair(0x148), BSS),
+                         {"built.o": {".bss": 0x80770560}, "expected/build/src/global/x.o": {".bss": 0x80770DF0}},
+                         {"gPitch": addr})
+    assert objdiff.text_matches(b, e) is ok
+
+
+def test_section_vrams_from_symbol_addrs_names(monkeypatch):
+    """A section whose labels were all renamed takes its base from symbol_addrs; splat labels win."""
+    readelf = ("    29: 0000002c     4 OBJECT  GLOBAL DEFAULT    7 gAmbientAudioLevels\n"
+               "     6: 00000010     1 OBJECT  GLOBAL DEFAULT    6 sSfxMode\n"
+               "     5: 00000000   352 OBJECT  GLOBAL DEFAULT    6 D_807454F0\n")
+    monkeypatch.setattr(objdiff.subprocess, "check_output", lambda *a, **k: readelf.encode())
+    monkeypatch.setattr(objdiff, "section_name_map", lambda p: {6: ".data", 7: ".bss"})
+    named = {"gAmbientAudioLevels": 0x8077058C, "sSfxMode": 0x90000000}
+    assert REAL_SECTION_VRAMS("x.o", {}, named) == {".bss": 0x80770560, ".data": 0x807454F0}
+    assert REAL_SECTION_VRAMS("x.o", {}) == {".data": 0x807454F0}

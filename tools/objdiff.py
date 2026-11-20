@@ -125,12 +125,14 @@ def section_name_map(obj_path):
 def text_section_index(obj_path):
     return next((ndx for ndx, name in section_name_map(obj_path).items() if name == ".text"), -1)
 
-def object_section_vrams(obj_path, absolute):
-    """{sec_name: vram_base} for sections in obj_path, determined from defined symbols."""
+def object_section_vrams(obj_path, absolute, named=None):
+    """{sec_name: vram_base} for sections in obj_path, determined from defined symbols: splat
+    `D_`/`func_` labels and ABSOLUTE symbols, else (a section holding none, e.g. every label renamed)
+    a NAMED (`symbol_addresses`) symbol."""
     out = subprocess.check_output(["mips-linux-gnu-readelf", "-sW", obj_path],
                                   stderr=subprocess.DEVNULL).decode(errors="replace")
     sec_ndx = section_name_map(obj_path)
-    vrams = {}
+    vrams, by_name = {}, {}
     for line in out.splitlines():
         p = line.split()
         if len(p) >= 8 and p[0].endswith(":") and p[6].isdigit():
@@ -149,7 +151,9 @@ def object_section_vrams(obj_path, absolute):
                     addr = absolute[name]
                 if addr is not None:
                     vrams.setdefault(sec, (addr - off) & 0xFFFFFFFF)
-    return vrams
+                elif named and name in named:
+                    by_name.setdefault(sec, (named[name] - off) & 0xFFFFFFFF)
+    return {**by_name, **vrams}
 
 def normalise_own_section_relocs(obj_path, text, relocs, absolute, vrams=None):
     """Normalise relocations against absolute symbols that lie inside the object's own
@@ -304,12 +308,16 @@ def same_splat_address(b_tgt, e_tgt, b_addend, e_addend):
 def text_matches(built_o, expected_o):
     """Code matches if .text equals modulo relocated fields and every relocation hits the same target,
     except relocations the built object points at its own data sections (static data the C now
-    defines, which expected reaches through the shared data blob); those must not hit expected code."""
+    defines, which expected reaches through the shared data blob); those must not hit expected code.
+    Data targets compare by final address once both sides resolve one: an own data section + addend
+    from that object's own section base (`object_section_vrams`, symbol_addrs names included; a built
+    section without such a symbol borrows expected's base, i.e. an unmoved section), a name through
+    the symbol files or its splat label. A carve that moves a TU's .bss base (`.bss + 0x9D8` vs
+    expected's `.bss + 0x148`, the same address) or turns a static into a named global still matches."""
     absolute = absolute_symbols()
-    e_vrams = object_section_vrams(expected_o, absolute)
-    b_vrams = object_section_vrams(built_o, absolute)
-    for k, v in e_vrams.items():
-        b_vrams.setdefault(k, v)
+    syms = symbol_addresses(expected_o)
+    e_vrams = object_section_vrams(expected_o, absolute, syms)
+    b_vrams = {**e_vrams, **object_section_vrams(built_o, absolute, syms)}
 
     b_text = get_section_bytes(built_o, ".text")
     e_text = get_section_bytes(expected_o, ".text")
@@ -329,24 +337,41 @@ def text_matches(built_o, expected_o):
     e_code = set(e_syms.values()) | {".text"}
     b_addends = pair_addends(b_text, b_relocs)
     e_addends = pair_addends(e_text, e_relocs)
+
+    def address(tgt, addend, vrams):
+        if tgt in DATA_SECTIONS:
+            return (vrams[tgt] + addend) & 0xFFFFFFFF if tgt in vrams else None
+        return reloc_address(tgt, addend, syms)
+
     for (b_off, b_type, b_tgt), (e_off, e_type, e_tgt) in zip(b_relocs, e_relocs):
         if (b_off, b_type) != (e_off, e_type):
             return False
-        if b_tgt in DATA_SECTIONS:
-            if e_tgt in e_code:
-                return False
-            if e_tgt in DATA_SECTIONS:
-                if b_tgt != e_tgt or b_addends.get(b_off, 0) != e_addends.get(e_off, 0):
+        if b_tgt == e_tgt and b_tgt not in DATA_SECTIONS:
+            continue
+        if b_tgt in e_code or e_tgt in e_code:
+            return False
+        b_add, e_add = b_addends.get(b_off, 0), e_addends.get(e_off, 0)
+        if b_tgt in DATA_SECTIONS and e_tgt in DATA_SECTIONS:
+            b_a, e_a = address(b_tgt, b_add, b_vrams), address(e_tgt, e_add, e_vrams)
+            if b_a is None or e_a is None:  # no section base known: the same section offset
+                if b_tgt != e_tgt or b_add != e_add:
                     return False
-        elif b_tgt != e_tgt:
-            # Expected may reach named data through an unnamed splat label (e.g. an array end
-            # bound `sym + size` becomes D_<addr>); accept only for non-code targets, and when
-            # both sides are splat labels only if they resolve to the same address (two swapped
-            # externs, `D_807FBB4C == D_807FDC94` vs the reverse, passed here once).
-            if not e_tgt.startswith("D_") or b_tgt in e_code:
+            elif b_a != e_a:
                 return False
-            if not same_splat_address(b_tgt, e_tgt, b_addends.get(b_off, 0), e_addends.get(e_off, 0)):
+            continue
+        if b_tgt in DATA_SECTIONS:
+            continue  # data the C now defines, which expected reaches through the shared data blob
+        b_a, e_a = address(b_tgt, b_add, b_vrams), address(e_tgt, e_add, e_vrams)
+        if b_a is not None and e_a is not None:
+            if b_a != e_a:
                 return False
+            continue
+        # Expected may reach named data through an unnamed splat label (e.g. an array end
+        # bound `sym + size` becomes D_<addr>); accept only for non-code targets, and when
+        # both sides are splat labels only if they resolve to the same address (two swapped
+        # externs, `D_807FBB4C == D_807FDC94` vs the reverse, passed here once).
+        if not e_tgt.startswith("D_") or not same_splat_address(b_tgt, e_tgt, b_add, e_add):
+            return False
     return True
 
 def symbol_addresses(obj_path):
