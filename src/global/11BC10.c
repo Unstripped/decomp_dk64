@@ -659,7 +659,7 @@ void effectProjectileDriftUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-typedef struct {
+typedef struct WobbleRiseState {
     s32 frame;
     f32 riseSpeed;
     f32 centerX;
@@ -678,66 +678,66 @@ void effectWobbleRiseUpdate(EffectNode *effect, s8 *isDone) {
     f32 riseSpeed;
     f32 floorY;
 
-    if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(sizeof(WobbleRiseState));
-        ((WobbleRiseState *)effect->allocation)->frame = 0;
-        ((WobbleRiseState *)effect->allocation)->riseSpeed = 0.0f;
-        ((WobbleRiseState *)effect->allocation)->centerX = effect->x;
-        ((WobbleRiseState *)effect->allocation)->centerZ = effect->z;
-        ((WobbleRiseState *)effect->allocation)->swayRateX = (randomLcgNext() % 10000U) / 10000.0 * 0.19;
-        ((WobbleRiseState *)effect->allocation)->swayRateZ = (randomLcgNext() % 10000U) / 10000.0 * 0.077;
+    if (effect->wobbleRise == NULL) {
+        effect->wobbleRise = heapAlloc(sizeof(WobbleRiseState));
+        effect->wobbleRise->frame = 0;
+        effect->wobbleRise->riseSpeed = 0.0f;
+        effect->wobbleRise->centerX = effect->x;
+        effect->wobbleRise->centerZ = effect->z;
+        effect->wobbleRise->swayRateX = (randomLcgNext() % 10000U) / 10000.0 * 0.19;
+        effect->wobbleRise->swayRateZ = (randomLcgNext() % 10000U) / 10000.0 * 0.077;
         if ((randomLcgNext() / 10000U) & 1) {
-            ((WobbleRiseState *)effect->allocation)->swayRateX = 0.0 - ((WobbleRiseState *)effect->allocation)->swayRateX;
-            ((WobbleRiseState *)effect->allocation)->swayRateZ = 0.0 - ((WobbleRiseState *)effect->allocation)->swayRateZ;
+            effect->wobbleRise->swayRateX = 0.0 - effect->wobbleRise->swayRateX;
+            effect->wobbleRise->swayRateZ = 0.0 - effect->wobbleRise->swayRateZ;
         }
         floorY = effect->y;
         collisionCheckGroundAtPoint(effect->x, effect->z, &floorY);
-        if (collisionGetFloorHeight(&((WobbleRiseState *)effect->allocation)->floorY) == 0) {
-            ((WobbleRiseState *)effect->allocation)->floorY = 0.0f;
+        if (collisionGetFloorHeight(&effect->wobbleRise->floorY) == 0) {
+            effect->wobbleRise->floorY = 0.0f;
         }
-        ((WobbleRiseState *)effect->allocation)->spawnFrame = gFrameCounter;
+        effect->wobbleRise->spawnFrame = gFrameCounter;
     }
-    swayX = sinApprox(((WobbleRiseState *)effect->allocation)->swayRateX * ((WobbleRiseState *)effect->allocation)->frame);
-    swayZ = sinApprox(((WobbleRiseState *)effect->allocation)->swayRateZ * ((WobbleRiseState *)effect->allocation)->frame) * 6.0f;
-    effect->x = ((WobbleRiseState *)effect->allocation)->centerX + swayX * 6.0f;
-    effect->z = ((WobbleRiseState *)effect->allocation)->centerZ + swayZ;
-    ((WobbleRiseState *)effect->allocation)->frame += 1;
-    ((WobbleRiseState *)effect->allocation)->riseSpeed += 0.02;
-    riseSpeed = ((WobbleRiseState *)effect->allocation)->riseSpeed;
+    swayX = sinApprox(effect->wobbleRise->swayRateX * effect->wobbleRise->frame);
+    swayZ = sinApprox(effect->wobbleRise->swayRateZ * effect->wobbleRise->frame) * 6.0f;
+    effect->x = effect->wobbleRise->centerX + swayX * 6.0f;
+    effect->z = effect->wobbleRise->centerZ + swayZ;
+    effect->wobbleRise->frame += 1;
+    effect->wobbleRise->riseSpeed += 0.02;
+    riseSpeed = effect->wobbleRise->riseSpeed;
     if (riseSpeed > 1.0) {
-        ((WobbleRiseState *)effect->allocation)->riseSpeed = 1.0f;
+        effect->wobbleRise->riseSpeed = 1.0f;
     }
-    riseSpeed = ((WobbleRiseState *)effect->allocation)->riseSpeed;
+    riseSpeed = effect->wobbleRise->riseSpeed;
     effect->y += riseSpeed;
     switch (effect->speed) {
     case 0:
-        effect->scaleX = ((WobbleRiseState *)effect->allocation)->frame * 0.01 + 0.01;
+        effect->scaleX = effect->wobbleRise->frame * 0.01 + 0.01;
         if (effect->scaleX > 0.12) {
             effect->scaleX = 0.12f;
         }
         break;
     case 1:
-        effect->scaleX = ((WobbleRiseState *)effect->allocation)->frame * 0.005 + 0.05;
+        effect->scaleX = effect->wobbleRise->frame * 0.005 + 0.05;
         if (effect->scaleX > 0.07) {
             effect->scaleX = 0.07f;
         }
         break;
     case 2:
-        effect->scaleX = ((WobbleRiseState *)effect->allocation)->frame * 0.02 + 0.02;
+        effect->scaleX = effect->wobbleRise->frame * 0.02 + 0.02;
         if (effect->scaleX > 0.24) {
             effect->scaleX = 0.24f;
         }
         break;
     }
     effect->scaleY = effect->scaleX;
-    swayX = sinApprox(((WobbleRiseState *)effect->allocation)->frame * 0.17);
-    swayZ = sinApprox(((WobbleRiseState *)effect->allocation)->frame * 0.2267);
+    swayX = sinApprox(effect->wobbleRise->frame * 0.17);
+    swayZ = sinApprox(effect->wobbleRise->frame * 0.2267);
     effect->scaleX += swayX * 0.03;
     effect->scaleY += swayZ * 0.03;
-    if (((WobbleRiseState *)effect->allocation)->spawnFrame + 100.0f < gFrameCounter) {
+    if (effect->wobbleRise->spawnFrame + 100.0f < gFrameCounter) {
         *isDone = 1;
     }
-    if (((WobbleRiseState *)effect->allocation)->floorY <= effect->y) {
+    if (effect->wobbleRise->floorY <= effect->y) {
         *isDone = 1;
         effectSpawnImpactPuff(0.3f, effect->x, effect->y, effect->z);
     }
