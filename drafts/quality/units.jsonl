@@ -1293,3 +1293,4 @@
 {"type": "unit", "t": "2026-11-19T09:41:48Z", "unit": "2026-11-18c: cleanup CleancamFloorSnapb", "commit": "9630bd0a23f59c2140fafa2f9eff696394b0a387"}
 {"type": "unit", "t": "2026-11-19T09:43:25Z", "unit": "2026-11-18c: close renames", "commit": "c084eb5822ae3da617465d0e02456a3b0265c078"}
 {"type": "unit", "t": "2026-11-20T21:54:52Z", "unit": "2026-11-20: cleanup Lead20261120", "commit": "1245235157b7b972eb6e98e7639a7f97b5cbade6"}
+{"type": "unit", "t": "2026-11-20T22:12:47Z", "unit": "2026-11-20: cleanup Lead20261120 consolidate", "commit": "ed51d26db33bc9bdb73f712124291086bcb33e0d"}
