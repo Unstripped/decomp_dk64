@@ -12,6 +12,7 @@ global:806A8158:other:db430c other (was df709b): KEPT FAKE (diagnose nohit). `se
 global:806A8158:other:6151e7 other: KEPT FAKE (diagnose nohit). The step limit reuses flag (a0, `move a0,t5` at 0xc94). In the free word, a dedicated limit keeps 0x58 but the flag bools colour v1 instead of a0 (19). With sel in the word it grows the frame (50).
 global:806A8158:other:32c920 other: KEPT FAKE (diagnose nohit). The half span reuses flag (a0, `sra t9,a0,1` / `move a0,t9` at 0xdbc/0xdc0). In the free word a dedicated half is coloured v0 (11). With sel in the word it grows the frame (42).
 Director ruling (2026-11-15): the remaining sites cannot be ORIG. ladder.md needs a store of the role value to the variable's own home slot, and none of them has one.
+Director ruling RQ2 (2026-11-20, D2 HOLD): the four sites were re-measured on the merged body (2026-11-20 CleanmenuInitMainScreenb): no lever outside this dossier, nohit -> EXHAUSTED.
 
 ## Attempts
 
@@ -45,11 +46,18 @@ Director ruling (2026-11-15): the remaining sites cannot be ORIG. ladder.md need
 - One s32 local for several roles, in the freed word: sel = map+page+credits with i loop-only 0 (fdiff OK, APPLIED). sel = page+credits 0, sel = map+credits 0, sel = map+page 23, span = limit+half 8 (the flag bools move a0 -> v1). A separate loop index j with i keeping map/page/credits 4 (j home sp+0x30 instead of 0x50).
 - On the sel shape: page s32 38, s8 page in the word 7, `switch (hud->page)` 7; credits s32 67, s8/u8 in the word 194/202, credits in flag 52/36/45; limit s32 50, s16 in the word 88, inlined 130; half s32 42, s16 in the word 41, inlined 52; sel+span 39; all five dedicated 82.
 - variants scan of the final copy: swaps, float suffixes, x/stickY as s16, and the step/sel declswap are neutral zeros. Nothing needed.
+2026-11-20 CleanmenuInitMainScreenb anthropic/claude-opus-5-5 (re-measurement under RQ2, base 65783e54 = merged body: CleanhudPauseMenuIconUpdate 71ef676a, `func_805FEF74` -> `mapIsLobby` in the body, ACDC0 rodata strings to C 3a20829c; variants.py try full=):
+- Every earlier sel-shape score reproduces: page s32 38, s8 page in the word 7, `switch (hud->page)` 7; credits s32 67, u8 in the word 202, in flag 52; limit s32 50, inlined 130; half s32 42, s16 in the word 41, inlined 52; all roles dedicated 82 (s8 page 86, `switch (hud->page)` 86).
+- New: both switches on expressions (`switch (gCurrentMap)`, `switch (hud->page)`) with credits as the only value of the sel word: 39 (colouring only, shape 0).
+- `switch (hud->page)` objdump: only a1 -> v0 at 0x4d0/0x4e4/0x61c (lb) and 0x624-0x63c (compares). uopt -l 5: the page value is in the shared cfe switch temp (bit 9, -44vreg, adjsave 2.5, forbidden t0 t1), coloured v0 before sel (bit 5, adjsave 2.2, forbidden v0 v1 a0 -> a1). In the base, sel (bit 5, adjsave 2.67, forbidden v0 v1 a0 t0 t1) holds the page in a1 (Q0944, Q1200).
+- s32 credits/limit/half declared last: `addiu sp,sp,-96` at 0xa0, spill temp 40(sp) -> 44(sp) at 0x1a0, i 80(sp) -> 88(sp) at 0x1a8 (credits also loads gCurrentMap into v1 at 0x98).
+- variants scan (`--max 1000`) of the split copies: `switch (hud->page)` 187 variants, best 7; s32 credits 193, best 63; s32 limit 193, best 46; s32 half 193, best 38 (frame stays 0x60).
 
 ## Untried ideas
 
 - A lead ruling on whether one selector local used for both switch selectors is the same role (SKILL 5.6 "a selector local at its use"). That would make c127b7 ordinary C.
 - No further frame word is left: the census shows 10 named words, the switch temp, and the spill temp at capacity. The flag-side roles are colour-bound even with a free word (span 8: flag is a0 only while its range covers the limit region).
+- None new in natural C after the 2026-11-20 re-measurement. The page value only gets a1 when it shares a candidate with sel; a call taking the page as argument 2 would prefer a1 (Q0875) but the target has no such call.
 
 ## Evidence
 
