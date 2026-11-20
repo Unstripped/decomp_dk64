@@ -1022,6 +1022,54 @@ def test_carry_typedef_alias_respelled(tmp_path, monkeypatch, capsys, field, kee
     assert "would carry 3 events" in out and "skipped" not in out
 
 
+TAG_H = "void g(int);\ntypedef struct S {\n    int a;\n    struct W *w;\n    int b;\n} S;\n"
+TAG_C = ('#include "s.h"\ntypedef struct%s {\n    int frame;\n    %s rise;\n} W;\n'
+         "int f(S *p) {\n    if (p->a) {} // FAKE: steers\n    g(p->a);\n    return p->b;\n}\n")
+
+
+@pytest.mark.parametrize("tag,rise,reason", [
+    (" W", "float", None),  # 11BC10 WobbleRiseState (e1f618fa): the header's `struct W *` now names it
+    (" W", "int", " (layout changed: W rise type"),  # tag added and a field retyped
+    (" Wx", "float", ""),  # a tag other than the typedef name
+])
+def test_carry_anonymous_typedef_record_gains_its_tag(tmp_path, monkeypatch, capsys, tag, rise, reason):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "include" / "s.h").write_text(TAG_H)
+    src = repo / "src" / "global" / "x.c"
+    src.write_text(TAG_C % ("", "float"))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    q.append_events([q.event("u1", "sweep", fn, fn["sites"][0], "remove", "nohit"),
+                     q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
+    src.write_text(TAG_C % (tag, rise))
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed{reason}" in out
+        assert "would carry 0 events" in out
+        return
+    assert "would carry src/global/x.c: f: remove, review, views (record W tag added, same layout)" in out
+    assert "would carry 3 events" in out and "skipped" not in out
+
+
 def test_carry_func_limits_functions(tmp_path, monkeypatch, capsys):
     hdr = CARVE_H.replace("    int a;\n", "    int mode;\n")
     _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, edit=lambda s: s.replace("p->a", "p->mode").replace(

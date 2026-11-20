@@ -1658,22 +1658,57 @@ def field_renames(ot, nt):
     return out if walk(ot.get_canonical(), nt.get_canonical()) else None
 
 
+def tokens_respelled(ot, nt, m):
+    """`type_respellings` of declaration tokens NT when they equal OT once M's renames apply, apart
+    from type names respelled to another of the same canonical type; else None."""
+    if len(ot) != len(nt) or any(x.kind != y.kind or (
+            (m.get(x.spelling, x.spelling) if x.kind == TokenKind.IDENTIFIER else x.spelling) != y.spelling
+            and (type_ref(x) is None or type_ref(x) != type_ref(y))) for x, y in zip(ot, nt)):
+        return None
+    return type_respellings(ot, nt)
+
+
 def alias_respelled(old_cursors, new_cursors, m):
     """Sorted `old -> new` type-name respellings when OLD_CURSORS' and NEW_CURSORS' declaration
     tokens (one name's top-level declarations, paired in order) differ only in identifiers M renames
-    and in type names respelled to another of the same canonical type (`type_respellings`:
+    and in type names respelled to another of the same canonical type (`tokens_respelled`:
     `JetpacSprite *sprite;` -> `TextureDescriptor *sprite;`); else None."""
     if not old_cursors or len(old_cursors) != len(new_cursors):
         return None
     pairs = []
     for oc, nc in zip(old_cursors, new_cursors):
-        ot, nt = decl_tokens(oc), decl_tokens(nc)
-        if len(ot) != len(nt) or any(x.kind != y.kind or (
-                (m.get(x.spelling, x.spelling) if x.kind == TokenKind.IDENTIFIER else x.spelling) != y.spelling
-                and (type_ref(x) is None or type_ref(x) != type_ref(y))) for x, y in zip(ot, nt)):
+        tr = tokens_respelled(decl_tokens(oc), decl_tokens(nc), m)
+        if tr is None:
             return None
-        pairs += type_respellings(ot, nt)
+        pairs += tr
     return sorted(set(pairs)) or None
+
+
+def tag_added(old_cursors, new_cursors, name, m):
+    """Sorted type-name respellings (`tokens_respelled`, often none) when NAME's top-level declarations
+    only gained the tag NAME on the anonymous record their typedef defines (`typedef struct {..}
+    NAME;` -> `typedef struct NAME {..} NAME;`, M's renames applied): each declaration (the typedef,
+    and the record, which clang names after the typedef) the old text with NAME after its first
+    `struct`/`union`; else None. The caller checks the layout (`clint.record_layout`)."""
+    kinds = (CursorKind.TYPEDEF_DECL, CursorKind.STRUCT_DECL, CursorKind.UNION_DECL)
+    old_cursors, new_cursors = list(old_cursors), list(new_cursors)
+    if len(new_cursors) == len(old_cursors) + 1 and all(c.kind == CursorKind.TYPEDEF_DECL for c in old_cursors):
+        new_cursors = [c for c in new_cursors if c.kind == CursorKind.TYPEDEF_DECL]  # the tag's own record
+    if (not old_cursors or len(old_cursors) != len(new_cursors)
+            or any(o.kind not in kinds or o.kind != n.kind for o, n in zip(old_cursors, new_cursors))):
+        return None
+    pairs = []
+    for oc, nc in zip(old_cursors, new_cursors):
+        ot, nt = decl_tokens(oc), decl_tokens(nc)
+        i = next((k for k, t in enumerate(ot) if t.spelling in ("struct", "union")), None)
+        if (i is None or i + 1 >= len(ot) or len(nt) != len(ot) + 1 or ot[i + 1].spelling != "{"
+                or nt[i].spelling != ot[i].spelling or nt[i + 1].spelling != name or nt[i + 2].spelling != "{"):
+            return None
+        tr = tokens_respelled(ot, nt[:i + 1] + nt[i + 2:], m)
+        if tr is None:
+            return None
+        pairs += tr
+    return sorted(set(pairs))
 
 
 def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, old_body, new_body=None):
@@ -1688,7 +1723,9 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
     unchanged body uses none). A declaration (record or not) whose tokens differ otherwise only in
     type names respelled to another of the same canonical type (`alias_respelled`: `JetpacSprite *`
     -> `TextureDescriptor *` with `typedef TextureDescriptor JetpacSprite;`) counts as unchanged
-    ("<name> type names respelled (<old> -> <new>), same canonical types"); a name then reached on
+    ("<name> type names respelled (<old> -> <new>), same canonical types"), as does a record whose
+    anonymous typedef'd definition only gained its typedef name as tag (`tag_added`, the layout
+    unchanged: "record <name> tag added, same layout"); a name then reached on
     one side only (the alias no longer used) is unchanged when only such respelled declarations, or
     body type names respelled alike (NEW_BODY: HEAD's body tokens), reach it. Else (None, None, why)."""
     def texts(scope, name, m):  # `Scope.direct`'s texts with M's renames applied
@@ -1742,6 +1779,11 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
         resp = None
         if frn is not None and texts(old_scope, o, fmap) != nv:
             resp = respelled(o, name, fmap, "record ")
+            if resp is None and o == name:
+                tag = tag_added(old_scope.idx[o], new_scope.idx[name], name, fmap)
+                if tag is not None:  # layout checked above
+                    resp = f"record {name} tag added, same layout" + (
+                        f"; type names respelled ({', '.join(tag)}), same canonical types" if tag else "")
             if resp is None:
                 frn = None
         if frn is None:
