@@ -9,10 +9,13 @@ or any function slice of it). Host-side, pure Python.
     python3 tools/ringfifo.py corpus [DIR]      (default .scratch/ugen_corpus, from `as1probe.py corpus`)
         run the model over every function of every stored listing and summarise mismatches.
 
-Model (validated on the matched corpus, see knowledge/ido Q0554 and its successors):
-  * The ring is `$t6 $t7 $t8 $t9 $t3 $t4 $t5` (`14 15 24 25 11 12 13`, in that initial order) minus every
-    register uopt coloured anywhere in the function (a web living across a label); `--exclude` names
-    those when the heuristic below misses a single-block web.
+Model (validated on the matched corpus, see knowledge/ido Q0554, Q0418 and their successors):
+  * The ring is `$t6 $t7 $t8 $t9 $t0 $t1 $t2 $t3 $t4 $t5` (`14 15 24 25 8 9 10 11 12 13`, in that
+    initial order) minus every register uopt coloured anywhere in the function: a web living across a
+    label, and each `$t0-$t2` the model expected but ugen skipped, or that ugen allocated out of FIFO
+    order (uopt colours `$t0-$t2` in single-block webs the label check cannot see; inferred one at a
+    time from the first such mismatch and printed by `sim`; `$t3-$t5` are never inferred, so their
+    mismatches stay reported). `--exclude` names further ones (a single-block web in `$t3-$t5`).
   * An allocation takes the queue front; a register is appended when its value dies: at its last use
     (operands in textual order), immediately for a dead definition, immediately for the third
     (scratch) operand of `trunc.w.*`.
@@ -24,7 +27,8 @@ import os
 import re
 import sys
 
-RING = [14, 15, 24, 25, 11, 12, 13]
+RING = [14, 15, 24, 25, 8, 9, 10, 11, 12, 13]  # t6 t7 t8 t9 t0 t1 t2 t3 t4 t5
+INFER = (8, 9, 10)  # t0-t2: uopt colours them in single-block webs too
 
 
 def decode(s):
@@ -74,6 +78,8 @@ def uopt_regs(ins):
 
 
 def simulate(ins, ring):
+    """(lines, mismatches) of INS under RING: one printed line per instruction with the queue after
+    it; MISMATCHES: [(instruction index, register allocated, register the model expected)]."""
     n = len(ins)
 
     def last_use(k, r):
@@ -107,7 +113,7 @@ def simulate(ins, ring):
                 note += f' (alloc of live/missing ${dst})'
             if dst != exp:
                 note += f'  <-- model expected ${exp}'
-                bad.append(k)
+                bad.append((k, dst, exp))
             live.add(dst)
             if last_use(k, dst):
                 live.discard(dst)
@@ -118,12 +124,35 @@ def simulate(ins, ring):
                 q.remove(scr)
             if scr != exp:
                 note += f'  <-- scratch: model expected ${exp}'
-                bad.append(k)
+                bad.append((k, scr, exp))
             q.append(scr)
         if op == 'jal' and srcs == [25]:
             note += '  (jal $25: t9 reserved by convention)'
         out.append(f'{k:5d} {s:44} q={q}{note}')
     return out, bad
+
+
+def ring_for(ins, exclude=()):
+    """(ring, excluded, inferred) of a function's instructions INS: RING minus the registers uopt
+    colours across a label (`uopt_regs`) or EXCLUDE names (EXCLUDED), then minus each INFER register
+    the model expected but ugen skipped, or that ugen allocated out of FIFO order, one at a time from
+    the first such mismatch (INFERRED: [(register, instruction index, why)])."""
+    ex = uopt_regs(ins) | set(exclude)
+    inferred = []
+    while True:
+        ring = [r for r in RING if r not in ex]
+        hit = None
+        for k, got, exp in simulate(ins, ring)[1]:
+            if exp in INFER and exp not in ex:
+                hit = (exp, k, 'skipped')
+            elif got in INFER and got not in ex:
+                hit = (got, k, 'allocated out of FIFO order')
+            if hit:
+                break
+        if hit is None:
+            return ring, ex - {r for r, _, _ in inferred}, inferred
+        ex.add(hit[0])
+        inferred.append(hit)
 
 
 def functions(path):
@@ -157,9 +186,9 @@ def cmd_sim(args):
         if name != func:
             continue
         ins = [d for d in (decode(l) for l in body) if d]
-        ex = uopt_regs(ins) | exclude
-        ring = [r for r in RING if r not in ex]
-        print(f'ring {ring} (uopt-coloured, excluded: {sorted(ex)})')
+        ring, ex, inferred = ring_for(ins, exclude)
+        why = ''.join(f'; ${r} inferred uopt-coloured ({how} at {k})' for r, k, how in inferred)
+        print(f'ring {ring} (uopt-coloured, excluded: {sorted(ex)}{why})')
         out, bad = simulate(ins, ring)
         for k, l in enumerate(out):
             if lo <= k <= hi:
@@ -182,11 +211,11 @@ def cmd_corpus(args):
                 if not ins:
                     continue
                 total += 1
-                ring = [r for r in RING if r not in uopt_regs(ins)]
+                ring = ring_for(ins)[0]
                 out, bad = simulate(ins, ring)
                 if bad:
                     nbad += 1
-                    k = bad[0]
+                    k = bad[0][0]
                     print(f'== {path} {name}: {len(bad)} mismatches, first at {k}')
                     for l in out[max(0, k - 6):k + 1]:
                         print('   ', l[:120])
