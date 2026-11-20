@@ -2715,10 +2715,8 @@ s16 mathAngleFromVector2D(f32 x, f32 z) {
 s32 playerCanCollideWithActor(Actor *actor) {
     s32 result = 1;
 
-    if (actor->collisionFlags & 1) {
-        if (gPlayerStateHandlers[actor->state].flags & 0x400) {
-            result = 0;
-        }
+    if ((actor->collisionFlags & 1) && (gPlayerStateHandlers[actor->state].flags & 0x400)) {
+        result = 0;
     }
     return result;
 }
