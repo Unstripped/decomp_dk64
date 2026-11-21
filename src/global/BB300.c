@@ -284,12 +284,12 @@ void behaviourPulseEnemyUpdate(s32 aggroRange) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806B75F4(void) {
+void behaviourPulseEnemyVulnerableUpdate(void) {
     behaviourFrameBegin();
     behaviourPulseEnemyUpdate(0x2710);
 }
 
-void func_806B761C(void) {
+void behaviourPulseEnemyExplosiveOnlyUpdate(void) {
     behaviourFrameBegin();
     if (gActorGlobalState.bossFightPhase == 4) {
         actorKnockbackFromAttacker(-0x64);
@@ -297,7 +297,7 @@ void func_806B761C(void) {
     behaviourPulseEnemyUpdate(0x2710);
 }
 
-void func_806B7660(void) {
+void behaviourPulseEnemyProjectileOnlyUpdate(void) {
     behaviourFrameBegin();
     if (gActorGlobalState.bossFightPhase == 4) {
         actorKnockbackFromAttacker(-0x64);

@@ -76,7 +76,7 @@ extern s32 gCurrentMap;
 extern u16 gMinigameCoinCount;
 extern s16 gCarryMinFallSpeed;
 extern f32 gDefaultAccelY;
-extern s16 D_80750338;
+extern s16 gLadderJumpSpeed;
 extern s32 gMinecartTrackCount;
 extern EffectGridAsset gSparkEffectSprite;
 extern struct GfSndState *gSfxFreeSlotHandles[];
@@ -280,7 +280,7 @@ void minecartUpdatePhysics(void) {
         gCurrentActor->speedXZ = 130.0f;
         gCurrentActor->accelY = gDefaultAccelY * 0.6;
         if (cart->jumpHeight == 0) {
-            gCurrentActor->speedY = D_80750338 * 1.6;
+            gCurrentActor->speedY = gLadderJumpSpeed * 1.6;
         }
     } else {
         gCurrentActor->accelY = gDefaultAccelY;

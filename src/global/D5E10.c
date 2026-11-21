@@ -1432,7 +1432,7 @@ void playerStateFlapGlide(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_80753674[];
+extern f32 gKongHoverStartSpeedY[];
 extern f32 gKongHoverStartAccelY[];
 extern f32 gKongHoverTargetSpeeds[];
 
@@ -1445,7 +1445,7 @@ void playerStateHover(void) {
         playerApplyFullPhysics();
         break;
     case 1:
-        gCurrentActor->speedY = D_80753674[gCurrentCharacterIndex];
+        gCurrentActor->speedY = gKongHoverStartSpeedY[gCurrentCharacterIndex];
         gCurrentActor->accelY = gKongHoverStartAccelY[gCurrentCharacterIndex];
         playerUpdateTargetYawFromStick();
         gCurrentActor->subState++;
@@ -2424,10 +2424,10 @@ void playerInputUpdate1FullPhysics(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_80753454[];
-extern f32 D_80753470[];
-extern f32 D_8075348C[];
-extern s16 D_807534A8[];
+extern f32 gKongUnderwaterRampTargetSpeed[];
+extern f32 gKongUnderwaterRampAirAccel[];
+extern f32 gKongUnderwaterRampDecelRate[];
+extern s16 gKongUnderwaterRampTurnRate[];
 extern f32 gKongCrouchHighJumpAccelY[];
 
 void playerStateUnderwaterRamp(void) {
@@ -2437,10 +2437,10 @@ void playerStateUnderwaterRamp(void) {
             playerInputUpdate(0x47);
             playerApplyGravityAndMotion();
             playerApplyDeceleration();
-            gActivePlayerState->airAccel = D_80753470[gCurrentCharacterIndex];
-            gActivePlayerState->decelRate = D_8075348C[gCurrentCharacterIndex];
-            gActivePlayerState->targetSpeed = D_80753454[gCurrentCharacterIndex];
-            gActivePlayerState->turnRate = D_807534A8[gCurrentCharacterIndex];
+            gActivePlayerState->airAccel = gKongUnderwaterRampAirAccel[gCurrentCharacterIndex];
+            gActivePlayerState->decelRate = gKongUnderwaterRampDecelRate[gCurrentCharacterIndex];
+            gActivePlayerState->targetSpeed = gKongUnderwaterRampTargetSpeed[gCurrentCharacterIndex];
+            gActivePlayerState->turnRate = gKongUnderwaterRampTurnRate[gCurrentCharacterIndex];
             break;
         case 1:
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;

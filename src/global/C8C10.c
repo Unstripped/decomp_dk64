@@ -239,15 +239,15 @@ void actorCountGoalRewardUpdate(s32 startPathId, s32 lowCountPathId, s32 rewardP
     }
 }
 
-void func_806C4904(void) {
+void minecartCoinGoalUpdateJungleJapes(void) {
     actorCountGoalRewardUpdate(0, 1, 2, 0xF, 0x10, 0x32, 0x18);
 }
 
-void func_806C4948(void) {
+void minecartCoinGoalUpdateFungiForest(void) {
     actorCountGoalRewardUpdate(6, 7, 8, 0x10, 0xE, 0x32, 0xD7);
 }
 
-void func_806C498C(void) {
+void minecartCoinGoalUpdateCreepyCastle(void) {
     actorCountGoalRewardUpdate(1, 2, 3, 4, 5, 0x19, 0x13E);
 }
 
@@ -259,13 +259,13 @@ void actorPerMapCarrierUpdate(void) {
             actorCarryMiniPlayerUpdate(2, 6, 0);
             break;
         case 6:
-            func_806C4904();
+            minecartCoinGoalUpdateJungleJapes();
             break;
         case 0x37:
-            func_806C4948();
+            minecartCoinGoalUpdateFungiForest();
             break;
         case 0x6A:
-            func_806C498C();
+            minecartCoinGoalUpdateCreepyCastle();
             break;
         case 0x30:
             if (gBehaviourExtraState->id == 6) {

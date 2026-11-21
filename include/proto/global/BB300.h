@@ -14,13 +14,13 @@ void behaviourPulseEnemySpawnDeathChaser(s16, s16);
 #ifndef PROTO_SKIP_behaviourPulseEnemyUpdate
 void behaviourPulseEnemyUpdate(s32);
 #endif
-#ifndef PROTO_SKIP_func_806B75F4
-void func_806B75F4(void);
+#ifndef PROTO_SKIP_behaviourPulseEnemyVulnerableUpdate
+void behaviourPulseEnemyVulnerableUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B761C
-void func_806B761C(void);
+#ifndef PROTO_SKIP_behaviourPulseEnemyExplosiveOnlyUpdate
+void behaviourPulseEnemyExplosiveOnlyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B7660
-void func_806B7660(void);
+#ifndef PROTO_SKIP_behaviourPulseEnemyProjectileOnlyUpdate
+void behaviourPulseEnemyProjectileOnlyUpdate(void);
 #endif
 #endif

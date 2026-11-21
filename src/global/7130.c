@@ -633,7 +633,7 @@ AmbientEmitter sAmbientEmittersGloomyGalleon[3] = {
     { 2054, 1621, 3533, 1512, 100, 0x7F, 0x3E, 0x0, 0x26 },
     { 2037, 1437, 1477, 2421, 100, 0x0, 0x3E, 0x0, 0x0 },
 };
-AmbientEmitter D_8074603C[4] = {
+AmbientEmitter sAmbientEmittersGloomyGalleonRace[4] = {
     { 1578, 41, 2268, 0, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 1018, 41, 1583, 3072, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 2183, 41, 1583, 1024, 100, 0xFF, 0x0, 0x0, 0x0 },
@@ -645,13 +645,13 @@ AmbientEmitter sAmbientEmittersFranticFactory[4] = {
     { 142, 7, 1351, 1024, 100, 0x0, 0x34, 0x0, 0x0 },
     { 1098, 7, 1308, 3072, 100, 0x0, 0x34, 0x0, 0x0 },
 };
-AmbientEmitter D_807460AC[4] = {
+AmbientEmitter sAmbientEmittersAngryAztecBeetleRace[4] = {
     { 1348, 4139, 3419, 3072, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 809, 3763, 2492, 0, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 1338, 2073, 2718, 4000, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 2157, 1548, 4138, 2248, 100, 0xFF, 0x0, 0x0, 0x0 },
 };
-AmbientEmitter D_807460E4[10] = {
+AmbientEmitter sAmbientEmittersFranticFactoryRace[10] = {
     { 1757, 5, 3369, 22, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 481, 5, 1903, 3562, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 1027, 5, 1362, 1600, 100, 0xFF, 0x0, 0x0, 0x0 },
@@ -673,7 +673,7 @@ AmbientEmitter sAmbientEmittersFungiForest[8] = {
     { 2711, 201, 1619, 1934, 100, 0xC8, 0x0, 0x0, 0x0 },
     { 3082, 204, 1230, 4073, 100, 0xC8, 0x0, 0x0, 0x0 },
 };
-AmbientEmitter D_807461E0[7] = {
+AmbientEmitter sAmbientEmittersFungiForestMinecart[7] = {
     { 356, 1651, 3909, 4097, 100, 0x7F, 0x0, 0x0, 0x0 },
     { 1905, 1453, 1071, 0, 100, 0x7F, 0x0, 0x0, 0x0 },
     { 2368, 1396, 652, 1980, 100, 0x7F, 0x0, 0x0, 0x0 },
@@ -688,7 +688,7 @@ AmbientEmitter sAmbientEmittersDkIsles[4] = {
     { 947, 477, 2401, -1, 600, 0x0, 0x6F, 0x0, 0x0 },
     { 3610, 477, 3302, -1, 630, 0x0, 0x70, 0x0, 0x0 },
 };
-AmbientEmitter D_8074627C[3] = {
+AmbientEmitter sAmbientEmittersTrainingGrounds[3] = {
     { 1358, 18, 772, 2275, 100, 0x7F, 0x0, 0x0, 0x0 },
     { 2027, 212, 1182, 1024, 100, 0x7F, 0x0, 0x0, 0x0 },
     { 1323, 38, 1701, 0, 100, 0x7F, 0x0, 0x0, 0x0 },
@@ -747,7 +747,7 @@ void sfxUpdateLevelAmbient(void) {
         break;
     case 0x27:
         emitterCount = 4;
-        emitters = D_8074603C;
+        emitters = sAmbientEmittersGloomyGalleonRace;
         break;
     case 0x1A:
         emitterCount = 4;
@@ -755,15 +755,15 @@ void sfxUpdateLevelAmbient(void) {
         break;
     case 0xE:
         emitterCount = 4;
-        emitters = D_807460AC;
+        emitters = sAmbientEmittersAngryAztecBeetleRace;
         break;
     case 0x1B:
         emitterCount = 10;
-        emitters = D_807460E4;
+        emitters = sAmbientEmittersFranticFactoryRace;
         break;
     case 0x37:
         emitterCount = 7;
-        emitters = D_807461E0;
+        emitters = sAmbientEmittersFungiForestMinecart;
         break;
     case 0x22:
         emitterCount = 4;
@@ -771,7 +771,7 @@ void sfxUpdateLevelAmbient(void) {
         break;
     case 0xB0:
         emitterCount = 3;
-        emitters = D_8074627C;
+        emitters = sAmbientEmittersTrainingGrounds;
         break;
     case 0x30:
         emitters = sAmbientEmittersFungiForest;

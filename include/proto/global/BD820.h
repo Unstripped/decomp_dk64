@@ -8,10 +8,10 @@ void effectSpawnRandomParticleAtPoint(s16, s16, s16, s16);
 #ifndef PROTO_SKIP_effectSpawnSinkingSpark
 void effectSpawnSinkingSpark(s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806B8C78
-void func_806B8C78(void);
+#ifndef PROTO_SKIP_bananaDeliveryDoorUnlockSequence
+void bananaDeliveryDoorUnlockSequence(void);
 #endif
-#ifndef PROTO_SKIP_func_806B904C
-void func_806B904C(void);
+#ifndef PROTO_SKIP_bananaDeliveryDoorLockUpdate
+void bananaDeliveryDoorLockUpdate(void);
 #endif
 #endif

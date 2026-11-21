@@ -47,8 +47,8 @@ void actorNpcChunkyUpdate(void);
 #ifndef PROTO_SKIP_func_806C1E44
 void func_806C1E44(void);
 #endif
-#ifndef PROTO_SKIP_func_806C226C
-void func_806C226C(void);
+#ifndef PROTO_SKIP_actorNpcSealUpdate
+void actorNpcSealUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorPlaySoundSpawnBoneEffects
 void actorPlaySoundSpawnBoneEffects(void);

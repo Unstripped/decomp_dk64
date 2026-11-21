@@ -2453,8 +2453,8 @@ void playerInputHandlerStartScript15(void) {
 
 extern f32 gKongMaxTierExitSpeeds[];
 extern f32 gKongHighTierEnterSpeeds[];
-extern f32 D_807534B8[];
-extern s16 D_807534D4[];
+extern f32 gKongUnderwaterPaddleDecelRate[];
+extern s16 gKongUnderwaterPaddleTurnRate[];
 extern s16 gKongChargeLaunchSpeeds[];
 extern s16 gKongChargeTargetSpeeds[];
 extern s16 gKongChargeDecelRates[];
@@ -2670,9 +2670,9 @@ void playerInputHandleAButtonFire(void) {
             gCurrentActor->state = 0x3C;
             gCurrentActor->subState = 0;
             actorScriptStartByIndex(gCurrentActor, 0xA);
-            gActivePlayerState->turnRate = D_807534D4[gCurrentCharacterIndex];
+            gActivePlayerState->turnRate = gKongUnderwaterPaddleTurnRate[gCurrentCharacterIndex];
         }
-        gActivePlayerState->decelRate = D_807534B8[gCurrentCharacterIndex];
+        gActivePlayerState->decelRate = gKongUnderwaterPaddleDecelRate[gCurrentCharacterIndex];
     }
 }
 
@@ -3550,7 +3550,7 @@ void playerInputStepLadderClimb(void) {
     st->stickX = gPlayerPadState[gCurrentPlayerIndex].stickX;
 }
 
-extern s16 D_80750338;
+extern s16 gLadderJumpSpeed;
 
 void playerInputCheckLadderTopOrBottom(void) {
     ClimbActorState *st;
@@ -3576,7 +3576,7 @@ void playerInputCheckLadderTopOrBottom(void) {
         if ((*st->flagsPtr & 0xC0) &&
             ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F && st->rung > 0) || (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E && st->rung < rungLimit))) {
             gActivePlayerState->jumpTimer = gScheduler.tickCount;
-            gActivePlayerState->actor->speedY = D_80750338;
+            gActivePlayerState->actor->speedY = gLadderJumpSpeed;
             gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
             oldRung = st->rung;
             st->junctionBlend = 1.0f;
@@ -4021,7 +4021,6 @@ typedef struct LockableActorState {
 
 
 extern f32 gKongRideJumpVelocityY[];
-extern s16 D_80750338;
 extern s16 gKongDiveFrames[];
 extern s16 gKongDiveAngles[];
 
@@ -4063,7 +4062,7 @@ void playerInputHandleAButtonLadderJump(void) {
     if (st->locked != 0) {
         return;
     }
-    gActivePlayerState->actor->speedY = D_80750338;
+    gActivePlayerState->actor->speedY = gLadderJumpSpeed;
     gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
     actorScriptStartByIndex(gCurrentActor, 0x7C);
     if (gCurrentActor->actorType == 2) {

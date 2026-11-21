@@ -894,7 +894,7 @@ extern f32 gActorDefaultAccelY;
 extern s16 gCsModelIds[];
 extern u8 gEffectSpriteBubble;
 
-void func_806C226C(void) {
+void actorNpcSealUpdate(void) {
     s16 i;
 
     behaviourFrameBegin();

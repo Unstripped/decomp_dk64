@@ -41,7 +41,7 @@ void effectSpawnSinkingSpark(s16 x, s16 y, s16 z) {
 extern s16 gCsModelIds[];
 
 
-void func_806B8C78(void) {
+void bananaDeliveryDoorUnlockSequence(void) {
     f64 t;
 
     switch (gCurrentActor->state) {
@@ -110,7 +110,7 @@ void func_806B8C78(void) {
     }
 }
 
-void func_806B904C(void) {
+void bananaDeliveryDoorLockUpdate(void) {
     s16 i;
     f32 scale;
 
@@ -137,6 +137,6 @@ void func_806B904C(void) {
             gCurrentActor->subState = 0;
         }
     }
-    func_806B8C78();
+    bananaDeliveryDoorUnlockSequence();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

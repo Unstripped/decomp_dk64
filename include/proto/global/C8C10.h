@@ -11,14 +11,14 @@ void actorRestoreMapMusic(void);
 #ifndef PROTO_SKIP_actorCountGoalRewardUpdate
 void actorCountGoalRewardUpdate(s32, s32, s32, s32, s32, s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_806C4904
-void func_806C4904(void);
+#ifndef PROTO_SKIP_minecartCoinGoalUpdateJungleJapes
+void minecartCoinGoalUpdateJungleJapes(void);
 #endif
-#ifndef PROTO_SKIP_func_806C4948
-void func_806C4948(void);
+#ifndef PROTO_SKIP_minecartCoinGoalUpdateFungiForest
+void minecartCoinGoalUpdateFungiForest(void);
 #endif
-#ifndef PROTO_SKIP_func_806C498C
-void func_806C498C(void);
+#ifndef PROTO_SKIP_minecartCoinGoalUpdateCreepyCastle
+void minecartCoinGoalUpdateCreepyCastle(void);
 #endif
 #ifndef PROTO_SKIP_actorPerMapCarrierUpdate
 void actorPerMapCarrierUpdate(void);
