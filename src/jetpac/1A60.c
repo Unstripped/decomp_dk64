@@ -430,8 +430,6 @@ void jetpacUpdatePlayerDeath(JetpacPlayerActor *player) {
 
 extern JetpacState jetpacPlayer;
 
-extern s32 D_8002F080;
-
 void jetpacDrawPlayer(void) {
     f32 x;
     f32 y;
@@ -452,7 +450,7 @@ void jetpacDrawPlayer(void) {
         y = jetpacPlayer.player.y;
         if (draw != 0) {
             color = jetpacPlayer.player.color;
-            if (D_8002F080 == 0) {
+            if (player->flying == 0) {
                 x = (s16)x & 0xFFFE;
                 jetpacGridAddTiledSprite(&jetpacPlayerWalkSprites[frame], x, y, color, jetpacGame.player.flip);
             } else {

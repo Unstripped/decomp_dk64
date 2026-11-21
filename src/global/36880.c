@@ -3762,7 +3762,7 @@ typedef struct ModelSlotStateSnapshot {
     /* 0x04 */ u8 pad4[0xC];
     /* 0x10 */ s16 sfxSources[2];
     /* 0x14 */ u8 pad14[0x80];
-    /* 0x94 */ Actor *actor;
+    /* 0x94 */ Actor *camPathActor;
     /* 0x98 */ u8 pad98[4];
 } ModelSlotStateSnapshot; /* 0x9C */
 
@@ -3785,7 +3785,7 @@ void modelSlotsApplyRecords(u8 *records, s32 count) {
         gModelSlots[idx].csState->data = snap.heapBlock;
         gModelSlots[idx].csState->sfxSources[0] = snap.sfxSources[0];
         gModelSlots[idx].csState->sfxSources[1] = snap.sfxSources[1];
-        gModelSlots[idx].csState->camPathActor = snap.actor;
+        gModelSlots[idx].csState->camPathActor = snap.camPathActor;
         gModelSlots[idx].csState->stateBytes[0] = gModelSlots[idx].csState->nextStateBytes[0];
         gModelSlots[idx].csState->stateBytes[1] = gModelSlots[idx].csState->nextStateBytes[1];
         gModelSlots[idx].csState->stateBytes[2] = gModelSlots[idx].csState->nextStateBytes[2];
