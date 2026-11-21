@@ -3,7 +3,8 @@
 trying candidate bodies instead of per-agent trial scripts. Run in the container (re-execs through
 tools/dk on the host):
 
-  tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC [--recipes truth,switch,swap,float,width,declswap]
+  tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC
+        [--recipes truth,switch,branch,swap,arith,float,width,declswap]
         [--max 120] [-j 2] [--out DIR] [--json FILE]
   tools/dk python3 tools/variants.py try <copy.c> <src/seg/file.c> FUNC BODY.c... [-j 2]
 
@@ -16,11 +17,18 @@ tools/dk on the host):
            switch    `if (x == K) {A} else {B}` as `switch (x) { case K: A break; default: B break; }`, and an
                      `if (x == K) {...return;}` as a one-case switch (R3; no `break` in the bodies): the switch's
                      extra CFG node replaced dead tests in 70FD0 and 36880 (Q1589)
+           branch    `if (C) {A} else {B}` with its arms swapped: `if (!(C)) {B} else {A}`, and for a single
+                     `==`/`!=` test the inverse operator instead of `!(...)` (block order and branch sense;
+                     actorMoveWithinZone: a real if/else replaced `if (0) {}` + `do {} while (0)`)
            swap      a comparison mirrored, `a < b->c` -> `b->c > a` (== and != keep their operator); only
                      where both operands are plain names/members/array elements/literals bounded by
                      lower-precedence operators, so the meaning never changes
+           arith     a commutative operand pair swapped, `a + b` -> `b + a`, `a * b` -> `b * a` (plain operands
+                     bounded by lower-precedence operators; never after `-`, `/`, `%` or a same-level operator
+                     whose associativity would regroup it): cfe keeps the source operand order (Q0171)
            float     a float literal with its `f` suffix dropped, or added when the value is exact in f32
-           width     a single-declarator local of s8/u8/s16/u16/s32/u32 as each of the other five types
+           width     a single-declarator local of s8/u8/s16/u16/s32/u32/int/unsigned int as each of the others
+                     (`int` and `long` (s32) differ in IDO's cfe: Q0128 menu/E550 maxLevel)
            declswap  two adjacent lines of the leading declaration block swapped
          Prints the baseline, then `full text reloc recipe desc` per variant (deadsweep score's measures;
          `err` on a cfe error), best first. A variant with full == 0 is written into a whole-file copy
@@ -43,15 +51,19 @@ if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):
 sys.path.insert(0, str(ROOT / "tools"))
 import deadsweep  # noqa: E402
 
-RECIPES = ("truth", "switch", "swap", "float", "width", "declswap")
+RECIPES = ("truth", "switch", "branch", "swap", "arith", "float", "width", "declswap")
 OPND = r"(?:[A-Za-z_]\w*(?:(?:->|\.)\w+|\[[^\]\[]*\])*|0x[0-9A-Fa-f]+[uUlL]*|-?\d+(?:\.\d+)?[fFuUlL]*)"
 OPND_END = re.compile(OPND + r"(?=\s*$)")
 OPND_START = re.compile(r"\s*(" + OPND + r")")
 CMP = re.compile(r"==|!=|<=|>=|<|>")
 MIRROR = {"<": ">", ">": "<", "<=": ">=", ">=": "<=", "==": "==", "!=": "!="}
 FLOAT = re.compile(r"(?<![\w.])(\d+\.\d*)(f?)(?![\w.])")
-WIDTHS = ("s8", "u8", "s16", "u16", "s32", "u32")
-WIDTH = re.compile(r"^(\s*)(s8|u8|s16|u16|s32|u32)(\s+)([A-Za-z_]\w*)(\s*(?:=[^;]*)?;.*)$")
+WIDTHS = ("s8", "u8", "s16", "u16", "s32", "u32", "int", "unsigned int")
+WIDTH = re.compile(r"^(\s*)(s8|u8|s16|u16|s32|u32|unsigned int|int)(\s+)([A-Za-z_]\w*)(\s*(?:=[^;]*)?;.*)$")
+ARITH = re.compile(r"[+*]")
+# what may precede / follow `a + b` (resp. `a * b`) without regrouping it: lower-precedence operators only
+ARITH_BEFORE = ("(", ",", ";", "{", "}", "?", ":", "&&", "||", "|", "^", "==", "!=", "<", ">", "<=", ">=")
+ARITH_AFTER = (")", ",", ";", "?", ":", "&", "|", "^", "==", "!=", "<", ">")
 # tokens that may precede / follow `a OP b` without binding tighter than the comparison
 BEFORE = ("(", ",", ";", "{", "}", "?", ":", "&&", "||", "|", "^")
 AFTER = (")", ",", ";", "?", ":", "&", "|", "^")
@@ -247,8 +259,84 @@ def gen_switch(text):
     return out
 
 
+BRANCH_IF = re.compile(r"^(\s*)if \((.*)\) \{\s*(?://.*)?$")
+
+
+def _balanced(s):
+    depth = 0
+    for ch in s:
+        depth += {"(": 1, ")": -1}.get(ch, 0)
+        if depth < 0:
+            return False
+    return depth == 0
+
+
+def _negate(c):
+    """C negated: `!x` -> `x`, a single `a == b` / `a != b` with the inverse operator, else `!(C)`."""
+    m = re.fullmatch(r"!\s*(" + OPND + r")", c)
+    if m:
+        return m.group(1)
+    m = re.fullmatch(r"(" + OPND + r")\s*(==|!=)\s*(" + OPND + r")", c)
+    if m:
+        return f"{m.group(1)} {'!=' if m.group(2) == '==' else '=='} {m.group(3)}"
+    return f"!({c})"
+
+
+def gen_branch(text):
+    """`if (C) {A} else {B}` -> `if (<not C>) {B} else {A}`: block order and branch sense of a branch the
+    function already has (an else-if chain or an arm ending in its own `else` stays untouched)."""
+    out, lines = [], text.split("\n")
+    for i, line in enumerate(lines):
+        m = BRANCH_IF.match(line)
+        if not m or line.lstrip().startswith("}") or not _balanced(m.group(2)):
+            continue
+        ind, c = m.group(1), m.group(2).strip()
+        j = _block_end(lines, i, ind)
+        if j is None or lines[j].strip() != "} else {":
+            continue
+        e = _block_end(lines, j, ind)
+        if e is None or lines[e].strip() != "}":
+            continue
+        new = [f"{ind}if ({_negate(c)}) {{"] + lines[j + 1:e] + [f"{ind}}} else {{"] + lines[i + 1:j] + [f"{ind}}}"]
+        out.append(("branch", f"line {i + 1}: if ({c}) arms swapped", "\n".join(lines[:i] + new + lines[e + 1:])))
+    return out
+
+
+def gen_arith(text):
+    """`a + b` -> `b + a`, `a * b` -> `b * a` for plain operands whose neighbours bind less tightly, so the
+    expression tree keeps its shape (left associativity: an operator of the same level may follow, never
+    precede)."""
+    out, lines = [], text.split("\n")
+    for n, line in enumerate(lines):
+        sc = split_code(line)
+        if not sc or deadsweep.DECL.fullmatch(deadsweep.code_of(line)):
+            continue
+        code, cm = sc
+        for m in ARITH.finditer(code):
+            op, i, j = m.group(), m.start(), m.end()
+            if (i and code[i - 1] in "+*/=") or (j < len(code) and code[j] in "+*=/"):
+                continue  # ++, +=, *=, comments
+            if (i and code[i - 1] == " ") != (j < len(code) and code[j] == " "):
+                continue  # `u8 *p`, `x = *p`: a declarator or a dereference, not a binary operator
+            a, b = OPND_END.search(code[:i]), OPND_START.match(code, j)
+            if not a or not b:
+                continue
+            p, s = code[:a.start()].rstrip(), code[b.end(1):].lstrip()
+            before = (not p or p.endswith(ARITH_BEFORE) or re.search(r"\breturn$", p)
+                      or (p.endswith("=") and p[-2:-1] not in "=!<>")
+                      or (op == "*" and p.endswith(("+", "-")) and not p.endswith(("++", "--"))))
+            after = not s or s.startswith(ARITH_AFTER) or (s[0] in "+-" and s[:2] not in ("++", "--", "->")) or (
+                op == "*" and s[0] in "*/%")
+            if not before or not after:
+                continue
+            new = code[:a.start()] + b.group(1) + code[a.end():i] + op + code[j:b.start(1)] + a.group() + code[b.end(1):]
+            out.append(("arith", f"line {n + 1}: `{code[a.start():b.end(1)].strip()}` operands swapped",
+                        "\n".join(lines[:n] + [new + cm] + lines[n + 1:])))
+    return out
+
+
 GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswap": gen_declswap, "truth": gen_truth,
-              "switch": gen_switch}
+              "switch": gen_switch, "branch": gen_branch, "arith": gen_arith}
 
 
 def variants(text, recipes=RECIPES, max_n=None):

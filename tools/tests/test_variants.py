@@ -37,7 +37,8 @@ def test_float_suffix():
 
 def test_width_variants():
     out = v.gen_width("    s16 i;")
-    assert [t for _, _, t in out] == [f"    {w} i;" for w in ("s8", "u8", "u16", "s32", "u32")]
+    assert [t for _, _, t in out] == [f"    {w} i;" for w in ("s8", "u8", "u16", "s32", "u32", "int", "unsigned int")]
+    assert [t for _, _, t in v.gen_width("    unsigned int i = 0;")][-1] == "    int i = 0;"
     assert v.gen_width("    s16 i, j;") == []
 
 
@@ -48,7 +49,7 @@ def test_declswap_swaps_adjacent_declarations():
 
 def test_variants_order_and_limit():
     text = "void f(void) {\n    s16 a;\n    s32 b;\n    if (a < b) {}\n    b = 0.5f;\n}"
-    assert [r for r, _, _ in v.variants(text)] == ["swap", "float"] + ["width"] * 10 + ["declswap"]
+    assert [r for r, _, _ in v.variants(text)] == ["swap", "float"] + ["width"] * 14 + ["declswap"]
     assert [r for r, _, _ in v.variants(text, ("swap",))] == ["swap"]
     assert len(v.variants(text, max_n=3)) == 3
 
