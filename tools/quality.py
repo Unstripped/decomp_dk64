@@ -2601,8 +2601,9 @@ def cmd_report(a):
     require_resolved(ans)
     by_site, by_func = index_events(load_events())
     cols = collections.defaultdict(collections.Counter)
+    per_file = collections.defaultdict(collections.Counter)
     for an in ans:
-        c = cols[an["seg"]]
+        c = per_file[an["path"]]
         c.update(an["text"])
         c["uninit warnings"] += len(an["uninit"])
         c["cfe warnings"] += an["warnings"]
@@ -2616,14 +2617,17 @@ def cmd_report(a):
     r = subprocess.run([sys.executable, "tools/unit_check.py", "protos", *files], cwd=ROOT, capture_output=True,
                        text=True)
     for line in r.stdout.splitlines():
-        m = re.match(r"src/(\w+)/[^:\s]+:\d+ ", line)
+        m = re.match(r"(src/\w+/[^:\s]+):\d+ ", line)
         if m:
-            cols[m.group(1)]["protos mismatch"] += 1
+            per_file[m.group(1)]["protos mismatch"] += 1
+    for an in ans:
+        cols[an["seg"]].update(per_file[an["path"]])
     segs = sorted(cols, key=lambda s: (s not in ("boot", "global"), s != "boot", s))
     total = sum(cols.values(), collections.Counter())
     if a.json:
         print(json.dumps({"total": {row: total[row] for row in ROWS},
-                          "segments": {s: {row: cols[s][row] for row in ROWS} for s in segs}}, indent=1))
+                          "segments": {s: {row: cols[s][row] for row in ROWS} for s in segs},
+                          "files": {p: {row: per_file[p][row] for row in ROWS} for p in sorted(per_file)}}, indent=1))
         return
     start = baseline(a.baseline) if a.baseline else None
     head = ["metric", *segs, "total"] + (["start"] if start is not None else [])
