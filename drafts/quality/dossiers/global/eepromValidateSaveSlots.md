@@ -33,6 +33,7 @@ global:8060CBBC:dead-store:2e4194 dead-store (copy-only, pre-existing, now tagge
 - applied the scalar retype file-wide (`s16 D_807ECEA0;`, every `D_807ECEA0[0]` -> `D_807ECEA0`, 11 functions): whole file fdiff 0, 2e4194 gone; `SIZE * (i + 1)` under the scalar is still `multu t9,s2` (fdiff 1), so the operand order is the plain C of the sibling `b = (((i + 1) * height) / 4) - 1;` in eepromSaveRecords
 - eepromSaveRecords keeps `if (D_807ECEA0) {}` (a read of the scalar value is fdiff 0 like `if (&D_807ECEA0) {}`: same key 081ad7); its sprintf is written `X + sEepromSlotBuffer` (addu a0,t8,s1 at 0x1b84), the offset-first pointer sum this TU needs at 0x14b8 (`data = off + sEepromImage`), 0x1c18 and 0x1d1c (`a + workingData`): base-first fdiff 1 at each, under either type
 - bss proof: built copy `.bss` D_807ECEA0 size 2 at +0, sEepromSlotBuffer (0x800) at +8 = expected; IDO 8-aligns every 8+-byte .bss object (Q0395; probe `short; u8[0x800]` -> +8, `short; u8[8]` -> 8-aligned, `short; u8[7]` -> 4-aligned; 55B20 `u8 D_807F7058` +0x438 -> `u8 D_807F7060[16]` +0x440; F600 `u8` +0x39 -> `OSContPad[4]` +0x40); every target access is lh/sh at displacement 0 (14 HI16/LO16 pairs, s1/s7 bases at 0x1c-0x40 and 0x1b30-0x1d50)
+- 2026-11-21 continue unit 1 Hack104F0 anthropic/claude-opus-5-5: review on the gModelCountTotal body, no edit; `(u32)eepromGetField` compares are the target's `sltu at,v0,s2` at 0x1628 (casts=6 all value/view casts the target needs)
 ## Untried ideas
 none for this function (no hack site left)
 ## Evidence

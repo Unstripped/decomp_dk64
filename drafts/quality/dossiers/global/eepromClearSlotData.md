@@ -11,6 +11,7 @@ global:8060C758:noop-arith:afefd3 noop-arith: slotId ^ 0 kept the two u8 argumen
 - per-role u8 copy next to s32 slotId (`id = slot`, `id = slotId` at entry / after bzero / `gEepromCurrentSlot = id = slotId` / `id = gEepromCurrentSlot = slotId`): 20-25
 - K&R `int slot` with `slotId = (u8)slot` / `slot & 0xFF`, u8 args from the int param or a u8 local: 11-50
 - permuter from the plain body (900 s, -j 2, hack-free weights, base 532): best 0 = `unsigned int slotId` with `slot` as both u8 arguments -> rewritten as `u32 slotId;` + `eepromSetField(0xC, 0, 0, slot, 1); eepromSetField(0xF, 0, 0, slot, slotId);`: fdiff 0, APPLIED. Neighbours: slot also for eepromGetSectorForSlot and/or the global store 0; slot only in the second call 0; s32 slotId with the same arguments 24; u16 slotId 10; u32 slotId in both calls 20.
+- 2026-11-21 continue unit 1 Hack104F0 anthropic/claude-opus-5-5: review; K&R definition re-measured as ANSI: `(u8 slot, s32 save)` fdiff 1 (caller eepromSetCurrentSlot: target `andi t6,a0,0xff` at 0x1044 becomes `move a2,a0` + home store), `(s32 slot, s32 save)` fdiff 1 (callee home store `sw a0,0x28(sp)` at 0xf78 lost). K&R stays.
 ## Untried ideas
 none (no hack site left)
 ## Evidence
