@@ -240,7 +240,6 @@ extern s8 sMenuBackgroundBlendOn;
 extern f32 sMenuLightLevel;
 extern f32 sMenuBackgroundBlend;
 extern s8 gMenuScreenSelection[]; // saved selection of each menu screen, indexed by MenuScreenState.screen
-extern s8 D_8076A0D2;
 
 
 void menuUpdateMainScreen(Actor *actor, s32 buttons) {
@@ -569,7 +568,7 @@ extern u8 gEffectSpriteOrange;
 void menuInitAdventureFileSelect(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
 
-    state->selection = D_8076A0D2;
+    state->selection = gMenuScreenSelection[2];
     menuSpawnUiElementEffect(state, &gControlStickSprite, 0xA0, 0x78, 0.75f, 2, 4);
     if (menuCheckSaveFile(0) != 0) {
         sMenuNextElementBright = 0;

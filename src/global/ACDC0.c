@@ -73,11 +73,6 @@ extern f32 sPauseLevelLabelHalfWidth;
 extern s8 sPauseBumpStep;
 extern s8 sPauseLastLevelSlot;
 extern s16 D_807FC82A;
-extern s16 D_807FC82C;
-extern s16 D_807FC830;
-extern s16 D_807FC832;
-extern s16 D_807FC834;
-extern s16 D_807FC836;
 extern s16 D_807FC838;
 extern s16 gWorldClearedFlags[];
 extern s16 gKongUnlockFlags[];
@@ -1364,8 +1359,8 @@ void hudPauseMenuRefreshTotals(void) {
         }
         p++;
     } while (p < gKongUnlockFlags);
-    D_807FC82C = n;
-    D_807FC832 = flagCountRange(0x24D, 0x14, 0);
+    gPauseCollectibleCounts[2] = n;
+    gPauseCollectibleCounts[5] = flagCountRange(0x24D, 0x14, 0);
     gPauseCollectibleCounts[3] = flagCountRange(0x225, 0x28, 0);
     m = 0;
     p = sPauseCrownFlags; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
@@ -1375,9 +1370,9 @@ void hudPauseMenuRefreshTotals(void) {
         p++;
     } while (p < sPauseCrownFlags + 10);
     gPauseCollectibleCounts[1] = m;
-    D_807FC834 = flagGet(0x84, 0);
-    D_807FC830 = flagGet(0x17B, 0);
-    D_807FC836 = flagCountRange(0x1FD, 0x28, 0);
+    gPauseCollectibleCounts[6] = flagGet(0x84, 0);
+    gPauseCollectibleCounts[4] = flagGet(0x17B, 0);
+    gPauseCollectibleCounts[7] = flagCountRange(0x1FD, 0x28, 0);
     sPauseKongUnlocked[0] = 1;
     for (i = 0; i < 4; i++) {
         D_80750531[i] = flagGet(D_807505B2[i - 1], 0);
