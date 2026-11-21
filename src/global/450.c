@@ -659,7 +659,7 @@ void playerViewsBuildMatrices(FrameMatrices *frame) {
                 viewAspect += 0.5 * sinApprox(frameCount[0] * 0.1);
             } else if (playerState->stateFlags & 0x2000000) {
                 viewAspect += 0.05 * sinApprox(frameCount[0] * 0.4);
-            } else if (camState->unkFA != 0 && gPlayerSlots[i].eyeY < camState->unk90 + 3.0f) {
+            } else if (camState->hasWater != 0 && gPlayerSlots[i].eyeY < camState->waterY + 3.0f) {
                 viewAspect += 0.04 * sinApprox(frameCount[0] * 0.1);
             }
             guPerspective(&gPlayerSlots[i].projMtx[gGfxBufferIndex], &gPlayerSlots[i].perspNorm, gPlayerSlots[i].fov, viewAspect * aspectScale, gPlayerSlots[i].nearClip, gPlayerSlots[i].farClip, 1.0f);

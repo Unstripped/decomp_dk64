@@ -947,8 +947,8 @@ void actorCollisionCheckBoundingBoxes(Actor *actor) {
         return;
     }
 
-    if (playerState->unk11E != -1) {
-        index = playerState->unk11E;
+    if (playerState->animThresholdIndex != -1) {
+        index = playerState->animThresholdIndex;
         retry = 1;
     }
 
@@ -967,9 +967,9 @@ void actorCollisionCheckBoundingBoxes(Actor *actor) {
                 }
                 actorCollisionUpdateNodeFlags(actor, entry->nodeFlagSet);
                 if (valid) {
-                    playerState->unk11E = index;
+                    playerState->animThresholdIndex = index;
                 } else {
-                    playerState->unk11E = -1;
+                    playerState->animThresholdIndex = -1;
                 }
                 return;
             }

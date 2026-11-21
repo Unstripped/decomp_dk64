@@ -446,7 +446,7 @@ void func_8062BB2C(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
         case 1:
             entry = vis->entries;
             while (entry != NULL) {
-                next = entry->unk14;
+                next = entry->next;
                 modelPendingQueueInsert(entry, allowDefault);
                 entry = next;
             }
@@ -487,10 +487,10 @@ u8 func_8062BCC8(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
     result = func_8062BDB0(actor, D_807F5DE4, D_807F5E60, x, z, y, outFloorY);
     item = gRenderListPending;
     while (item != NULL) {
-        if (item->unk24 == 1) {
-            result |= collisionTestDynamicActorFloor(actor, item->unk1E, x, z, y, outFloorY);
+        if (item->type == 1) {
+            result |= collisionTestDynamicActorFloor(actor, item->modelId, x, z, y, outFloorY);
         }
-        item = item->unk14;
+        item = item->next;
     }
     return result;
 }
@@ -508,10 +508,10 @@ u8 func_8062BDB0(Actor *actor, MapBspNode *node, MapVisNode *vis, f32 x, f32 z, 
         case 1:
             item = vis->entries;
             while (item != NULL) {
-                if (item->unk24 == 1) {
-                    result |= collisionTestDynamicActorFloor(actor, item->unk1E, x, z, y, outFloorY);
+                if (item->type == 1) {
+                    result |= collisionTestDynamicActorFloor(actor, item->modelId, x, z, y, outFloorY);
                 }
-                item = item->unk14;
+                item = item->next;
             }
             return result;
         case 0:
@@ -891,23 +891,23 @@ void mapTreeDistributeEntries(MapBspNode *node, MapVisNode *vis, RenderEntry *en
         case 2:
             while (entries != NULL) {
                 mapChunkUpdateEntryNode(entries);
-                entries = entries->unk14;
+                entries = entries->next;
             }
             break;
         case 1:
             while (entries != NULL) {
-                vis->entries = renderEntryAddOrUpdate(vis->entries, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
-                entries = entries->unk14;
+                vis->entries = renderEntryAddOrUpdate(vis->entries, entries->type, entries->object, entries->x, entries->y, entries->z, entries->maxDist, entries->modelId, entries->autoPurge, entries->chunkIndex, 0);
+                entries = entries->next;
             }
             break;
         case 0:
             while (entries != NULL) {
-                if (mapBspPlaneSideTest(node, &side, entries->unk4, entries->unk8, entries->unkC) != 0) {
-                    listB = renderEntryAddOrUpdate(listB, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                if (mapBspPlaneSideTest(node, &side, entries->x, entries->y, entries->z) != 0) {
+                    listB = renderEntryAddOrUpdate(listB, entries->type, entries->object, entries->x, entries->y, entries->z, entries->maxDist, entries->modelId, entries->autoPurge, entries->chunkIndex, 0);
                 } else {
-                    listA = renderEntryAddOrUpdate(listA, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                    listA = renderEntryAddOrUpdate(listA, entries->type, entries->object, entries->x, entries->y, entries->z, entries->maxDist, entries->modelId, entries->autoPurge, entries->chunkIndex, 0);
                 }
-                entries = entries->unk14;
+                entries = entries->next;
             }
             mapTreeDistributeEntries(node->child0, vis->child0, listA);
             mapTreeDistributeEntries(node->child1, vis->child1, listB);
@@ -946,7 +946,7 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
                     mapChunkClearNodeFlags(all);
                     while (entries != NULL) {
                         mapChunkUpdateEntryNode(entries);
-                        entries = entries->unk14;
+                        entries = entries->next;
                     }
                     mapChunkFreeNodeLists(all);
                     mapChunkRebuildNodeLists(camX, camY, camZ, all);
@@ -959,8 +959,8 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
             if (keepLists == 0) {
                 renderEntryListClearTouched(vis->entries);
                 while (entries != NULL) {
-                    vis->entries = renderEntryAddOrUpdate(vis->entries, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
-                    entries = entries->unk14;
+                    vis->entries = renderEntryAddOrUpdate(vis->entries, entries->type, entries->object, entries->x, entries->y, entries->z, entries->maxDist, entries->modelId, entries->autoPurge, entries->chunkIndex, 0);
+                    entries = entries->next;
                 }
                 vis->entries = renderEntryListPurgeUntouched(vis->entries);
                 vis->entries = renderEntryListSortByDistance(vis->entries, camX, camY, camZ, &closest);
@@ -970,12 +970,12 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
         }
     } else {
         while (entries != NULL) {
-            if (mapBspPlaneSideTest(node, &side, entries->unk4, entries->unk8, entries->unkC) != 0) {
-                listB = renderEntryAddOrUpdate(listB, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+            if (mapBspPlaneSideTest(node, &side, entries->x, entries->y, entries->z) != 0) {
+                listB = renderEntryAddOrUpdate(listB, entries->type, entries->object, entries->x, entries->y, entries->z, entries->maxDist, entries->modelId, entries->autoPurge, entries->chunkIndex, 0);
             } else {
-                listA = renderEntryAddOrUpdate(listA, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                listA = renderEntryAddOrUpdate(listA, entries->type, entries->object, entries->x, entries->y, entries->z, entries->maxDist, entries->modelId, entries->autoPurge, entries->chunkIndex, 0);
             }
-            entries = entries->unk14;
+            entries = entries->next;
         }
         vis->camSide = mapBspPlaneSideTest(node, &vis->visMode, camX, camY, camZ);
         if (noCull) {

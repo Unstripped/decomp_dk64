@@ -219,15 +219,15 @@ void func_8068EF54(void) {
     switch (owner->collisionFlags) {
     case 1:
         playerState = owner->customState;
-        buf->rotX = playerState->unk1A0;
-        if ((owner->contactFlags & 5) || playerState->unk240 == 1 || (owner->state == 0x42 && playerState->hitActorType != 0x31) || owner->state == 0x87) {
+        buf->rotX = playerState->aimPitch;
+        if ((owner->contactFlags & 5) || playerState->attachmentExitTimer == 1 || (owner->state == 0x42 && playerState->hitActorType != 0x31) || owner->state == 0x87) {
             actorAppendCallback(link->notifyActor, gCurrentActor, 0x2000000, 0, 0, 0);
             playerState->isHoldingObject = 0;
             actorDespawn(gCurrentActor);
             sfxStopChannel(0x48, 0);
             sfxStopSlotSound(gActivePlayerActor, 0);
             slotQueueCancel(5, 0);
-            playerState->unk240 = 0;
+            playerState->attachmentExitTimer = 0;
             if (!(playerState->stateFlags2 & 4)) {
                 playerKongHolsterGun(owner);
             }

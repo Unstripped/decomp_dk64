@@ -598,7 +598,7 @@ void func_8068BA2C(void) {
     if (hasEvent3 == 0) {
         playerState->stateFlags &= ~0x04000000;
     }
-    if (camState->unkAC & 1) {
+    if (camState->flags & 1) {
         lightAdd(gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ, 0.0f, 1, 0xFF, 0xFF, 0xFF);
     }
 }

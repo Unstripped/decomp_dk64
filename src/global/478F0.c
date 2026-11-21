@@ -61,7 +61,7 @@ void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
 
     slot = hashTableLookup(csId);
-    type = gModelSlots[slot].unk78->entries[1].keyIndex;
+    type = gModelSlots[slot].anim->entries[1].keyIndex;
     if (type == 0xD || type == 0x15 || type == 0x19) {
         for (node = 1; node < 15; node++) {
             modelSlotGetNodePos(csId, 1, node, &x, &y, &z);
@@ -355,7 +355,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
         effectCreateAtPosition(D_807201D4, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
     }
     if (t < 0.1) {
-        cs->unk48[1] = 1;
+        cs->stateBytes[1] = 1;
     }
 }
 
@@ -398,8 +398,8 @@ void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
             if (q->frame == 4) {
                 q->ticks = 0;
                 q->phase++;
-                if (cs->unk10[0] < 0) {
-                    cs->unk10[0] = sfxSlotAllocateSource(csId, 0x12C, 0x3C, 1, 0x64, 1.0f, 0);
+                if (cs->sfxSources[0] < 0) {
+                    cs->sfxSources[0] = sfxSlotAllocateSource(csId, 0x12C, 0x3C, 1, 0x64, 1.0f, 0);
                 }
             }
             break;
@@ -411,9 +411,9 @@ void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
                 if (q->ticks == 0x1E) {
                     q->ticks = 0;
                     q->phase++;
-                    if (cs->unk10[0] >= 0) {
-                        sfxSlotFreeSource(cs->unk10[0]);
-                        cs->unk10[0] = -1;
+                    if (cs->sfxSources[0] >= 0) {
+                        sfxSlotFreeSource(cs->sfxSources[0]);
+                        cs->sfxSources[0] = -1;
                     }
                     sfxPlayFromTargetSlot(csId, 0x74, 0xFF, 0x7F, 0, 0x50, 0.3f);
                 }
@@ -843,7 +843,7 @@ void csCmdSpawnEffectsAtNodeRange(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 void csCmdPeriodicSfx(CsState *cs, s16 csId, s16 b, s16 c) {
-    if ((0x243 - cs->unk44[0]) % 60 == 0) {
+    if ((0x243 - cs->timers[0]) % 60 == 0) {
         sfxPlayFromTargetSlot(csId, 0x38, 0xFF, 0x7F, 0, 0x3C, 0.0f);
     }
 }
@@ -881,7 +881,7 @@ void csCmdExtraObjectAttach(CsState *cs, s16 csId, s16 b, s16 c) {
     ps = gPlayerSlots->actor->customState;
     cam = ps->camActor;
     camState = cam->customState;
-    if (camState->unkFA != 0 && gPlayerSlots->camY < camState->unk90 + 3.0f) {
+    if (camState->hasWater != 0 && gPlayerSlots->camY < camState->waterY + 3.0f) {
         near = 1;
     }
     if (*p != 0 && near == 0) {
@@ -1534,14 +1534,14 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
     CsLookAt *m;
 
-    if (cs->data == NULL && (cs->unk9A & 1)) {
+    if (cs->data == NULL && (cs->runFlags & 1)) {
         m = heapAlloc(0x44);
         cs->data = m;
         modelSlotGetNodePos(csId, 1, 1, &x, &m->y, &z);
         m->y -= 10.0;
         guRotateF(m->mtx, gCsRotY, 0.0f, 1.0f, 0.0f);
     }
-    if (!(cs->unk9A & 1) || (randomLcgNext() / 10000U) % 20U != 0) {
+    if (!(cs->runFlags & 1) || (randomLcgNext() / 10000U) % 20U != 0) {
         return;
     }
     m = cs->data;
@@ -1807,7 +1807,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
                     q->timer = 0x190;
                     q->level = 0.0f;
                     if (flag != 0) {
-                        cs->unk10[0] = sfxSlotAllocateSource(csId, 0x11F, 0, 1, 0, 1.0f, 0);
+                        cs->sfxSources[0] = sfxSlotAllocateSource(csId, 0x11F, 0, 1, 0, 1.0f, 0);
                     }
                 }
             } else {
@@ -1823,7 +1823,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
                 }
             }
             if (flag != 0) {
-                sfxSetChannelPriority(cs->unk10[0], q->level * 200.0f);
+                sfxSetChannelPriority(cs->sfxSources[0], q->level * 200.0f);
             }
             break;
         case 2:
@@ -1833,11 +1833,11 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
                 q->timer = 0x190;
                 q->level = 0.0f;
                 if (flag != 0) {
-                    sfxSlotFreeSource(cs->unk10[0]);
-                    cs->unk10[0] = -1;
+                    sfxSlotFreeSource(cs->sfxSources[0]);
+                    cs->sfxSources[0] = -1;
                 }
             } else if (flag != 0) {
-                sfxSetChannelPriority(cs->unk10[0], q->level * 200.0f);
+                sfxSetChannelPriority(cs->sfxSources[0], q->level * 200.0f);
             }
             break;
     }
@@ -1846,9 +1846,9 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
         q->timer = 0x190;
         q->level = 0.0f;
         if (flag != 0) {
-            if (cs->unk10[0] != -1) {
-                sfxSlotFreeSource(cs->unk10[0]);
-                cs->unk10[0] = -1;
+            if (cs->sfxSources[0] != -1) {
+                sfxSlotFreeSource(cs->sfxSources[0]);
+                cs->sfxSources[0] = -1;
             }
         }
     }
@@ -2085,22 +2085,22 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     st = cs->data;
     if (st[1] == -1) {
-        st[1] = cs->unk48[0];
+        st[1] = cs->stateBytes[0];
     } else {
         ok = 0;
         odd = st[1] & 1;
         if (odd) {
-            if (cs->unk48[0] + 1 == st[1]) {
+            if (cs->stateBytes[0] + 1 == st[1]) {
                 ok = 1;
             }
         } else {
-            if (cs->unk48[0] == st[1] + 1) {
+            if (cs->stateBytes[0] == st[1] + 1) {
                 ok = 1;
             }
         }
         if (ok) {
             if (++st[0] == 8) {
-                cs->unk4B[0] = 100;
+                cs->nextStateBytes[0] = 100;
             }
         } else {
             found = 0;
@@ -2116,7 +2116,7 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
             i = 0;
             found = 0;
             while (!found) {
-                if (sStepSequenceModelMap[i][0] == cs->unk48[0]) {
+                if (sStepSequenceModelMap[i][0] == cs->stateBytes[0]) {
                     found = 1;
                 } else {
                     i++;
@@ -2164,7 +2164,7 @@ void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdSetParam49(CsState *cs, s16 csId, s16 b, s16 c) {
-    cs->unk14[0] = cs->unk48[1];
+    cs->vars[0] = cs->stateBytes[1];
 }
 
 extern s16 gCsModelIds[];
@@ -2182,11 +2182,11 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
         st[1] = 0;
     }
     st = cs->data;
-    if (cs->unk48[1] != st[1]) {
+    if (cs->stateBytes[1] != st[1]) {
         found = 0;
         i = 0;
         while (found == 0) {
-            if (D_807481F4[i] == cs->unk48[1]) {
+            if (D_807481F4[i] == cs->stateBytes[1]) {
                 found = 1;
             } else {
                 i++;
@@ -2194,12 +2194,12 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         if (&D_807481F4[i] < &D_807481F4[15]) {
             csModelStateTrySetByte(D_807481F4[i + 1], 0xA, 0);
-            csSetObjectTrackParam(gModelSlots[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].unk7C, 0, 0);
+            csSetObjectTrackParam(gModelSlots[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].csState, 0, 0);
         }
         if (&D_807481F4[i] >= &D_807481F4[1]) {
             csModelStateTrySetByte(D_807481F4[i - 1], 0x14, 0);
         }
-        st[1] = cs->unk48[1];
+        st[1] = cs->stateBytes[1];
     }
 }
 
@@ -2228,11 +2228,11 @@ void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     t->left = t->duration - elapsed / 3000 / 1000000;
     if (t->fired == 0 && (u64)t->left < (u64)(s64)c) {
         t->fired = 1;
-        cs->unk4B[0] = 0x14;
+        cs->nextStateBytes[0] = 0x14;
     }
     if (t->left == 0) {
         heapFreeDeferred(cs->data);
-        cs->unk4B[0] = 0x1E;
+        cs->nextStateBytes[0] = 0x1E;
         cs->data = NULL;
     }
     renderCallbacksRegister(renderCountdownTimerHUD, t, 5);
@@ -2330,7 +2330,7 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
         t->last = osGetTime();
         t->duration = 0x3C;
         t->left = 0;
-        cs->unk10[0] = sfxSlotAllocateSource(csId, 0x12F, 0, 1, 0xFF, 1.0f, 0);
+        cs->sfxSources[0] = sfxSlotAllocateSource(csId, 0x12F, 0, 1, 0xFF, 1.0f, 0);
     }
     t = cs->data;
     t->last += gLastPauseDuration;
@@ -2360,19 +2360,19 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     if (timerRan != 0) {
         t->last = osGetTime();
     }
-    if (cs->unk10[0] != -1) {
-        D_80770BC0[cs->unk10[0]] = count;
+    if (cs->sfxSources[0] != -1) {
+        D_80770BC0[cs->sfxSources[0]] = count;
         if (count == 0) {
-            sfxSlotFreeSource(cs->unk10[0]);
-            cs->unk10[0] = -1;
+            sfxSlotFreeSource(cs->sfxSources[0]);
+            cs->sfxSources[0] = -1;
         }
     }
-    if (cs->unk5C != 0 && cs->unk5E == 0x26) {
-        if (t->ent[cs->unk5C - 1].active == 0 && t->cool == 0) {
-            t->ent[cs->unk5C - 1].state++;
-            t->ent[cs->unk5C - 1].state = t->ent[cs->unk5C - 1].state % 4;
-            t->ent[cs->unk5C - 1].active = 1;
-            modelAnimEntrySetUnkC(csId, cs->unk5C, 0x19);
+    if (cs->hitId != 0 && cs->hitActorType == 0x26) {
+        if (t->ent[cs->hitId - 1].active == 0 && t->cool == 0) {
+            t->ent[cs->hitId - 1].state++;
+            t->ent[cs->hitId - 1].state = t->ent[cs->hitId - 1].state % 4;
+            t->ent[cs->hitId - 1].active = 1;
+            modelAnimEntrySetUnkC(csId, cs->hitId, 0x19);
             t->cool = 5;
         }
     }
@@ -2384,9 +2384,9 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     if ((u64)t->left <= 0 || allDone) {
         heapFreeDeferred(cs->data);
         if (allDone != 0) {
-            cs->unk4B[0] = 0x28;
+            cs->nextStateBytes[0] = 0x28;
         } else {
-            cs->unk4B[0] = 0x1E;
+            cs->nextStateBytes[0] = 0x1E;
         }
         cs->data = NULL;
     }
@@ -2439,7 +2439,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
     p = cs->data;
     for (row = 0; row < 6 && !found; row++) {
         for (col = 0; col < 2 && !found; col++) {
-            if (D_8074822C[row][col] == cs->unk48[1]) {
+            if (D_8074822C[row][col] == cs->stateBytes[1]) {
                 found = 1;
             }
         }
@@ -2454,7 +2454,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
             sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
             p[9]++;
             if (p[9] == 6) {
-                cs->unk4B[1] = 0x32;
+                cs->nextStateBytes[1] = 0x32;
             }
         } else if (p[6] != 0) {
             idx = row * 2 + col;
@@ -2595,7 +2595,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     if (allDone != 0) {
         csModelStateSetFirstByte(0xF, 0xA);
         heapFreeDeferred(cs->data);
-        cs->unk4B[0] = 0x28;
+        cs->nextStateBytes[0] = 0x28;
         cs->data = NULL;
     }
 }
@@ -2607,24 +2607,24 @@ void csCmdFreeModelSlotIndex(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdVarAdd(CsState *cs, s16 csId, s16 b, s16 c) {
-    cs->unk14[b] = cs->unk14[b] + cs->unk14[c];
+    cs->vars[b] = cs->vars[b] + cs->vars[c];
 }
 
 void csCmdCopyTargetPosSub10(CsState *cs, s16 csId, s16 b, s16 c) {
-    f32 t = -10.0 - cs->unk14[b];
+    f32 t = -10.0 - cs->vars[b];
     t = t / -10.0;
-    cs->unk14[c] = t * -1.0;
+    cs->vars[c] = t * -1.0;
 }
 
 void csCmdVarIncrement(CsState *cs, s16 csId, s16 b, s16 c) {
-    cs->unk14[b] = -1.0 - cs->unk14[b];
-    cs->unk14[b] = 0.0 - cs->unk14[b];
+    cs->vars[b] = -1.0 - cs->vars[b];
+    cs->vars[b] = 0.0 - cs->vars[b];
 }
 
 void csCmdDecayTargetPosDiff(CsState *cs, s16 csId, s16 b, s16 c) {
-    cs->unk14[b] = gPrimaryPlayerActor->unk100;
-    cs->unk14[b + 1] = gPrimaryPlayerActor->unk104;
-    cs->unk14[b + 2] = gPrimaryPlayerActor->unk108;
+    cs->vars[b] = gPrimaryPlayerActor->unk100;
+    cs->vars[b + 1] = gPrimaryPlayerActor->unk104;
+    cs->vars[b + 2] = gPrimaryPlayerActor->unk108;
 }
 
 extern f32 gCsRotX;
@@ -2680,9 +2680,9 @@ void csCmdVarSlotDelta(CsState *cs, s16 csId, s16 b, s16 c) {
     sy = gModelSlots[idx].y;
     sz = gModelSlots[idx].z;
 
-    cs->unk14[c] = (p->v[0] - sx) / b;
-    cs->unk14[c + 1] = (p->v[1] - sy) / b;
-    cs->unk14[c + 2] = (p->v[2] - sz) / b;
+    cs->vars[c] = (p->v[0] - sx) / b;
+    cs->vars[c + 1] = (p->v[1] - sy) / b;
+    cs->vars[c + 2] = (p->v[2] - sz) / b;
 }
 
 extern s16 gCsModelIds[];
@@ -2832,7 +2832,7 @@ void csCmdSetPositionPreset(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 u8 csCondVarLess(CsState *cs, s16 csId, s16 b, s16 c) {
-    return cs->unk14[b] < cs->unk14[c];
+    return cs->vars[b] < cs->vars[c];
 }
 
 void csCmdCheckCollectedSufficientItems(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2925,20 +2925,20 @@ void csCmdDecayTargetPosCoord(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 absv;
     f32 ratio;
 
-    if (cs->unk14[b] > 0.0f) {
-        absv = cs->unk14[b];
+    if (cs->vars[b] > 0.0f) {
+        absv = cs->vars[b];
     } else {
-        absv = -cs->unk14[b];
+        absv = -cs->vars[b];
     }
-    ratio = (f64)absv / cs->unk14[c + 1];
-    if (cs->unk14[b] > 0.0) {
-        if (cs->unk14[c] < ratio) {
-            cs->unk14[c] = cs->unk14[c] + 0.1;
+    ratio = (f64)absv / cs->vars[c + 1];
+    if (cs->vars[b] > 0.0) {
+        if (cs->vars[c] < ratio) {
+            cs->vars[c] = cs->vars[c] + 0.1;
         }
-    } else if (-ratio < cs->unk14[c]) {
-        cs->unk14[c] = cs->unk14[c] - 0.1;
+    } else if (-ratio < cs->vars[c]) {
+        cs->vars[c] = cs->vars[c] - 0.1;
     }
-    gCsRotX += cs->unk14[c];
+    gCsRotX += cs->vars[c];
     if (gCsRotX > 8.0) {
         gCsRotX = 8.0f;
     }
@@ -2950,16 +2950,16 @@ void csCmdDecayTargetPosCoord(CsState *cs, s16 csId, s16 b, s16 c) {
 void csCmdRotXAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     if (gCsRotX > 1.2 || gCsRotX < -1.2) {
         if (gCsRotX > 0.0) {
-            if (cs->unk14[b] > -1.0) {
-                cs->unk14[b] = cs->unk14[b] - 0.1;
+            if (cs->vars[b] > -1.0) {
+                cs->vars[b] = cs->vars[b] - 0.1;
             }
-        } else if (cs->unk14[b] < 1.0) {
-            cs->unk14[b] = cs->unk14[b] + 0.1;
+        } else if (cs->vars[b] < 1.0) {
+            cs->vars[b] = cs->vars[b] + 0.1;
         }
-        gCsRotX += cs->unk14[b];
+        gCsRotX += cs->vars[b];
     } else {
         gCsRotX = 0.0f;
-        cs->unk14[b] = 0.0f;
+        cs->vars[b] = 0.0f;
     }
 }
 
@@ -3012,9 +3012,9 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
         p->armed = 0;
     }
     if (anim == 2) {
-        cs->unk6E = 1;
+        cs->contactCallbacks = 1;
     } else {
-        cs->unk6E = 0;
+        cs->contactCallbacks = 0;
     }
 }
 
@@ -3027,9 +3027,9 @@ void csCmdPlayAnimSlotB(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     u8 slot;
 
-    if (cs->unk10[0] >= 0) {
+    if (cs->sfxSources[0] >= 0) {
         modelAnimEntryGetState(csId, b, &anim, &animT, &animFlag);
-        slot = gSfxSourceVoice[cs->unk10[0]];
+        slot = gSfxSourceVoice[cs->sfxSources[0]];
         gSfxVoicePitch[slot] = mathSinF((s16)(((f32)anim + animT) * 2048.0 - 1024.0)) * 0.3 + 1.3;
         D_80770BC0[slot] = 1.0f;
     }
@@ -3041,9 +3041,9 @@ void csCmdPlayAnimSlot1(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     u8 slot;
 
-    if (cs->unk10[0] >= 0) {
+    if (cs->sfxSources[0] >= 0) {
         modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
-        slot = gSfxSourceVoice[cs->unk10[0]];
+        slot = gSfxSourceVoice[cs->sfxSources[0]];
         gSfxVoicePitch[slot] = mathSinF((s16)((anim << 11) / 27)) + 0.3;
         D_80770BC0[slot] = 2.0f;
     }
@@ -3326,14 +3326,14 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
             ang = p->angle;
         }
         if ((ang >= 0x2EE && ang < 0x2F8) || (ang >= 0x960 && ang < 0x96A)) {
-            if (cs->unk10[0] >= 0) {
-                sfxSlotFreeSource(cs->unk10[0]);
-                cs->unk10[0] = -1;
+            if (cs->sfxSources[0] >= 0) {
+                sfxSlotFreeSource(cs->sfxSources[0]);
+                cs->sfxSources[0] = -1;
                 ang = p->angle;
             }
         }
         if ((ang >= 0x410 && ang < 0x41A) || (ang >= 0xE74 && ang < 0xE7E)) {
-            cs->unk10[0] = sfxSlotAllocateSource(csId, 0x138, 1, 1, 0x78, 1.0f, -1);
+            cs->sfxSources[0] = sfxSlotAllocateSource(csId, 0x138, 1, 1, 0x78, 1.0f, -1);
             ang = p->angle;
         }
         dist = ang - 0x400 > 0 ? ang - 0x400 : 0x400 - ang;
@@ -3441,9 +3441,9 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
             break;
         case 3:
             p->timer--;
-            if (cs->unk48[0] == 2) {
+            if (cs->stateBytes[0] == 2) {
                 p->timer = 0;
-                cs->unk4B[0] = 1;
+                cs->nextStateBytes[0] = 1;
                 p->period = p->period - D_807482C8;
             }
             if (p->timer == 0) {
@@ -3513,11 +3513,11 @@ void csCmdAnimProgressFromHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (b != 0) {
         if (cur >= 0.999 && ratio >= 0.999) {
-            cs->unk48[0] = 0x14;
+            cs->stateBytes[0] = 0x14;
         }
     } else {
         if (cur <= 0.001 && ratio <= 0.001) {
-            cs->unk48[0] = 0x14;
+            cs->stateBytes[0] = 0x14;
         }
     }
     modelAnimEntrySetTime(csId, 1, anim, cur);
@@ -3575,8 +3575,8 @@ void csCmdFindNearestActorToCamera(CsState *cs, s16 csId, s16 b, s16 c) {
     best = NULL;
     bestDist = 99999.0f;
     ps = gPrimaryPlayerActor->customState;
-    if (cs->unk5C != 0) {
-        id = cs->unk5E;
+    if (cs->hitId != 0) {
+        id = cs->hitActorType;
         for (i = 0; i < gActiveActorCount; i++) {
             a = gActiveActors[i].actor;
             if (a->actorType == id) {
@@ -3660,7 +3660,7 @@ void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
                 i = 3;
             }
         }
-        cs->unk4B[0] = 5;
+        cs->nextStateBytes[0] = 5;
     }
 }
 
@@ -3701,7 +3701,7 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
     for (j = len - cnt; j < len; j++) {
         if (pat[j] != p->buf[i]) {
             if (failId != -1) {
-                cs->unk4B[0] = failId;
+                cs->nextStateBytes[0] = failId;
             }
             p->head = 0;
             p->tail = 0;
@@ -3713,7 +3713,7 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
         }
     }
     if (okId != -1 && len == cnt) {
-        cs->unk4B[0] = okId;
+        cs->nextStateBytes[0] = okId;
     }
 }
 
@@ -3744,15 +3744,15 @@ void csCmdSeqMatchPattern4B(CsState *cs, s16 csId, s16 val, s16 c) {
 void csCmdRandomizeCutsceneTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 old;
 
-    old = cs->unk62;
-    cs->unk66 = 0xFF;
-    cs->unk60 = 1;
+    old = cs->alphaTarget;
+    cs->alphaStep = 0xFF;
+    cs->alphaOverride = 1;
     if ((randomNonNegative() >> 15) % 100 > 40) {
-        cs->unk62 = 0;
+        cs->alphaTarget = 0;
     } else {
-        cs->unk62 = 0xFF;
+        cs->alphaTarget = 0xFF;
     }
-    if (old != cs->unk62) {
+    if (old != cs->alphaTarget) {
         sfxPlayOnFreeSlot(0x8A, 0xBB8, 63.0f, 1.0f, 0x1E, 0);
     }
 }
@@ -3833,7 +3833,7 @@ void csCmdSumFlagsE6ThroughEA(CsState *cs, s16 csId, s16 b, s16 c) {
     sum += flagGet(0xE9, 0);
     sum += flagGet(0xE7, 0);
     sum += flagGet(0xEA, 0);
-    cs->unk4B[0] = sum;
+    cs->nextStateBytes[0] = sum;
 }
 
 s32 csCondFlags82Or83(CsState *cs, s16 csId, s16 b, s16 c) {

@@ -197,7 +197,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     tiltEntry = &sActorTiltTable[actor->floorSlopeType];
     switch (gCurrentMap) {
     case 0x52:
-        gActivePlayerState->unk26 = 0x14;
+        gActivePlayerState->traction = 0x14;
         /* fallthrough */
     case 0xE:
         if (actor->contactFlags & 0x200) {

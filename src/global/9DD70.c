@@ -124,15 +124,15 @@ void actorPhotoUpdate(void) {
     } else {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->texture);
         if (gCurrentActor->unk155 == 0) {
-            if (gActivePlayerState->unk1EC == 1) {
+            if (gActivePlayerState->photoSubjectStatus == 1) {
                 slotQueueAddValue(0xC, gActivePlayerState->playerIndex, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
-            } else if (gActivePlayerState->unk1EC == 2) {
+            } else if (gActivePlayerState->photoSubjectStatus == 2) {
                 sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
             }
             gCurrentActor->unk155++;
         }
-        if (gActivePlayerState->unk1EC != 0xFF && subState->timer != 0) {
+        if (gActivePlayerState->photoSubjectStatus != 0xFF && subState->timer != 0) {
             renderCallbacksRegister(&playerViewDrawPhotoResult, gCurrentActor, 3);
         }
     }
@@ -157,12 +157,12 @@ void actorPhotoUpdate(void) {
         }
     }
     if (fadedOut || !(subState->player->stateFlags & 0x8000)) {
-        if (subState->player->unk1EC == 1) {
+        if (subState->player->photoSubjectStatus == 1) {
             playerStateQueueCallback(0x58, NULL, 0);
         }
         sfxStopSlotSound(gCurrentActor, 0);
         subState->player->stateFlags &= ~0x8000;
-        subState->player->unk1EC = 0xFF;
+        subState->player->photoSubjectStatus = 0xFF;
         if (gCurrentActor->actorType == 0xD9) {
             assetFreeBuffer(subState->texture, 0xF6, 0x45);
         } else {

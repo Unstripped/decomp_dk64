@@ -245,9 +245,9 @@ u8 nodeCount;
             player->unk14C = 200.0f;
             player->unk150 = 200.0f;
         }
-        player->unk154 = gCurrentActor->yaw & 0xFFF;
+        player->leapYaw = gCurrentActor->yaw & 0xFFF;
         if ((f64)data->phase < 1.5707964f || data->phase > 4.71238911151886) {
-            player->unk154 = (player->unk154 + 0x800) & 0xFFF;
+            player->leapYaw = (player->leapYaw + 0x800) & 0xFFF;
         }
     }
     switch (gCurrentActor->actorType) {

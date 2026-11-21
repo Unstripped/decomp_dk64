@@ -63,7 +63,7 @@ void modelSlotAllocAnimBuffers(ModelData **outAnim, ModelAssetHeader *asset) {
 extern ModelSlot *gModelSlots;
 
 u32 modelSlotDataSize(s16 slot) {
-    ModelAssetHeader *asset = gModelSlots[slot].unk24;
+    ModelAssetHeader *asset = gModelSlots[slot].asset;
 
     return *(u32 *)(asset->unk68 + (u8 *)asset);
 }
@@ -81,8 +81,8 @@ void modelSlotCopyData(u8 *src, s16 slot) {
     f32 scale;
     f32 yOffset;
 
-    asset = gModelSlots[slot].unk24;
-    anim = gModelSlots[slot].unk78;
+    asset = gModelSlots[slot].asset;
+    anim = gModelSlots[slot].anim;
     size = *(u32 *)(asset->unk68 + (u8 *)asset);
     memcpy(anim->frames[0], src, size);
     memcpy(anim->frames[1], src, size);
@@ -110,7 +110,7 @@ u8 modelSlotStepAnimations(s16 modelId) {
     ModelData *group;
     s32 i;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     gModelAnimChanged = 0;
     if (group != NULL) {
         gModelAnimSrcFrame = group->frames[gGfxBufferIndex];
@@ -501,7 +501,7 @@ void modelAnimEntrySetUnk13(s16 modelId, s16 index, u8 channel, f32 scale) {
     ModelAnimEntry *entry;
     u8 level;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         level = 8.0f * scale;
@@ -516,7 +516,7 @@ void modelAnimEntryStart(s16 modelId, s16 index, s16 value) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unkA = value;
@@ -529,7 +529,7 @@ void modelAnimEntryStop(s16 modelId, s16 index) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unkE = 0;
@@ -541,7 +541,7 @@ void modelAnimEntryClearTime(s16 modelId, s16 index) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->keyIndex = 0;
@@ -553,7 +553,7 @@ void modelAnimEntrySetUnkC(s16 modelId, s16 index, s16 value) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unkC = value;
@@ -563,7 +563,7 @@ void modelAnimEntrySetUnkC(s16 modelId, s16 index, s16 value) {
 s16 modelAnimEntryGetUnkC(s16 modelId, s16 index) {
     ModelData *group;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         return group->entries[index].unkC;
     }
@@ -574,7 +574,7 @@ void modelAnimEntrySetTime(s16 modelId, s16 index, s16 key, f32 time) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unk4 = time;
@@ -586,7 +586,7 @@ void modelAnimEntrySetUnkF(s16 modelId, s16 index, s16 value) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unkF = value;
@@ -597,7 +597,7 @@ void modelAnimEntrySetUnk10(s16 modelId, s16 index, s16 value) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unk10 = value;
@@ -608,7 +608,7 @@ void modelAnimEntryResetFrame(s16 modelId, s16 index, s16 value) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unk8 = 0;
@@ -620,7 +620,7 @@ void modelAnimEntrySetUnk12(s16 modelId, s16 index, s16 value) {
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unk12 = value;
@@ -631,7 +631,7 @@ u8 modelAnimEntryIsActive(s16 modelId, s16 index) {
     ModelData *group;
     s32 active;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         if (group->entries[index].unkE == 1) {
             active = 1;
@@ -647,7 +647,7 @@ void modelAnimEntryGetState(s16 modelId, s16 index, s16 *outKey, f32 *outTime, u
     ModelData *group;
     ModelAnimEntry *entry;
 
-    group = gModelSlots[hashTableLookup(modelId)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
         *outTime = entry->unk4;

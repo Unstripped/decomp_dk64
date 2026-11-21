@@ -79,43 +79,43 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, void *targetId, 
     head = list;
     if (list != NULL) {
         do {
-            if (targetId == list->unk0) {
+            if (targetId == list->object) {
                 found = 1;
             } else {
                 prev = list;
-                list = list->unk14;
+                list = list->next;
             }
         } while (list != NULL && found == 0);
     }
     if (found != 0) {
-        list->unk4 = posX;
-        list->unk8 = posY;
-        list->unkC = posZ;
-        list->unk1C = maxDist;
+        list->x = posX;
+        list->y = posY;
+        list->z = posZ;
+        list->maxDist = maxDist;
         if (chunkIndex != -1) {
-            list->unk20 = chunkIndex;
+            list->chunkIndex = chunkIndex;
         }
-        list->unk23 = 1;
+        list->touched = 1;
     } else {
         node = heapAlloc(sizeof(RenderEntry));
-        node->unk24 = type;
-        node->unk0 = targetId;
-        node->unk4 = posX;
-        node->unk8 = posY;
-        node->unkC = posZ;
-        node->unk1C = maxDist;
-        node->unk1E = priority;
-        node->unk22 = autoPurge;
-        node->unk23 = 1;
-        node->unk20 = 0;
-        node->unk14 = NULL;
-        node->unk10 = 0.0f;
+        node->type = type;
+        node->object = targetId;
+        node->x = posX;
+        node->y = posY;
+        node->z = posZ;
+        node->maxDist = maxDist;
+        node->modelId = priority;
+        node->autoPurge = autoPurge;
+        node->touched = 1;
+        node->chunkIndex = 0;
+        node->next = NULL;
+        node->camDist = 0.0f;
         if (prev != NULL) {
-            prev->unk14 = node;
-            node->unk18 = prev;
+            prev->next = node;
+            node->prev = prev;
         } else {
             head = node;
-            node->unk18 = NULL;
+            node->prev = NULL;
         }
     }
     if (listIndex == 1) {
@@ -156,22 +156,22 @@ RenderEntry *renderEntryRemove(RenderEntry *list, void *targetId, u8 listIndex, 
     head = list;
     if (list != NULL) {
         do {
-            if (targetId == list->unk0) {
+            if (targetId == list->object) {
                 found = 1;
             } else {
                 prev = list;
-                list = list->unk14;
+                list = list->next;
             }
         } while (list != NULL && found == 0);
     }
     if (found != 0) {
         if (prev != NULL) {
-            prev->unk14 = list->unk14;
+            prev->next = list->next;
         } else {
-            head = list->unk14;
+            head = list->next;
         }
-        if (list->unk14 != NULL) {
-            list->unk14->unk18 = prev;
+        if (list->next != NULL) {
+            list->next->prev = prev;
         }
         heapFree(list);
     }
@@ -197,7 +197,7 @@ void renderEntryListFree(RenderEntry *list) {
     if (list != NULL) {
         do {
             cur = list;
-            list = list->unk14;
+            list = list->next;
             heapFree(cur);
         } while (list != NULL);
     }
@@ -209,18 +209,18 @@ RenderEntry *renderEntryListPurgeUntouched(RenderEntry *list) {
     head = list;
     if (list != NULL) {
         do {
-            if (list->unk22 == 1 && list->unk23 == 0) {
-                if (list->unk18 != NULL) {
-                    list->unk18->unk14 = list->unk14;
+            if (list->autoPurge == 1 && list->touched == 0) {
+                if (list->prev != NULL) {
+                    list->prev->next = list->next;
                 } else {
-                    head = list->unk14;
+                    head = list->next;
                 }
-                if (list->unk14 != NULL) {
-                    list->unk14->unk18 = list->unk18;
+                if (list->next != NULL) {
+                    list->next->prev = list->prev;
                 }
                 heapFree(list);
             }
-            list = list->unk14;
+            list = list->next;
         } while (list != NULL);
     }
     return head;
@@ -229,8 +229,8 @@ RenderEntry *renderEntryListPurgeUntouched(RenderEntry *list) {
 void renderEntryListClearTouched(RenderEntry *list) {
     if (list != NULL) {
         do {
-            list->unk23 = 0;
-            list = list->unk14;
+            list->touched = 0;
+            list = list->next;
         } while (list != NULL);
     }
 }
@@ -253,18 +253,18 @@ void renderEntrySetDistanceOverride(RenderEntry *list, void *targetId, u8 listIn
     }
     if (list != NULL) {
         do {
-            if (targetId == list->unk0) {
+            if (targetId == list->object) {
                 found = 1;
             } else {
-                list = list->unk14;
+                list = list->next;
             }
         } while (list != NULL && found == 0);
     }
     if (found != 0) {
         if (forceInfiniteDist) {
-            list->unk10 = -1.0f;
+            list->camDist = -1.0f;
         } else {
-            list->unk1C = -2;
+            list->maxDist = -2;
         }
     }
     *outFound = found;
@@ -290,67 +290,67 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *list, f32 camX, f32 camY
     head = list;
     *outClosest = NULL;
     while (node != NULL) {
-        dx = node->unk4 - camX;
-        dy = node->unk8 - camY;
-        dz = node->unkC - camZ;
-        if (node->unk10 != -1.0) {
-            node->unk10 = sqrtf(dx * dx + dy * dy + dz * dz);
+        dx = node->x - camX;
+        dy = node->y - camY;
+        dz = node->z - camZ;
+        if (node->camDist != -1.0) {
+            node->camDist = sqrtf(dx * dx + dy * dy + dz * dz);
         }
-        node = node->unk14;
+        node = node->next;
     }
     if (head != NULL) {
-        if (head->unk10 < head->unk1C || head->unk1C == -2) {
+        if (head->camDist < head->maxDist || head->maxDist == -2) {
             *outClosest = head;
-            if (head->unk1C == -2) {
+            if (head->maxDist == -2) {
                 dist = 9999.0f;
             } else {
-                dist = head->unk10;
+                dist = head->camDist;
             }
         }
-        cur = head->unk14;
+        cur = head->next;
         while (cur != NULL) {
             inserted = 0;
-            if ((dist < cur->unk10 && cur->unk10 < cur->unk1C) || cur->unk1C == -2) {
+            if ((dist < cur->camDist && cur->camDist < cur->maxDist) || cur->maxDist == -2) {
                 *outClosest = cur;
-                if (cur->unk1C == -2) {
+                if (cur->maxDist == -2) {
                     dist = 9999.0f;
                 } else {
-                    dist = cur->unk10;
+                    dist = cur->camDist;
                 }
             }
-            key = (cur->unk1C < cur->unk10) ? 9999.0 : cur->unk10;
-            ins = cur->unk18;
+            key = (cur->maxDist < cur->camDist) ? 9999.0 : cur->camDist;
+            ins = cur->prev;
             while (ins != NULL && inserted == 0) {
-                insKey = (ins->unk1C < ins->unk10) ? 9999.0 : ins->unk10;
-                if (key <= insKey || cur->unk1C == -2) {
+                insKey = (ins->maxDist < ins->camDist) ? 9999.0 : ins->camDist;
+                if (key <= insKey || cur->maxDist == -2) {
                     inserted = 1;
-                    if (ins != cur->unk18) {
-                        cur->unk18->unk14 = cur->unk14;
-                        if (cur->unk14 != NULL) {
-                            cur->unk14->unk18 = cur->unk18;
+                    if (ins != cur->prev) {
+                        cur->prev->next = cur->next;
+                        if (cur->next != NULL) {
+                            cur->next->prev = cur->prev;
                         }
-                        next = ins->unk14;
-                        ins->unk14 = cur;
-                        cur->unk14 = next;
-                        if (cur->unk14 != NULL) {
-                            cur->unk14->unk18 = cur;
+                        next = ins->next;
+                        ins->next = cur;
+                        cur->next = next;
+                        if (cur->next != NULL) {
+                            cur->next->prev = cur;
                         }
-                        cur->unk18 = ins;
+                        cur->prev = ins;
                     }
                 }
-                ins = ins->unk18;
+                ins = ins->prev;
             }
             if (inserted == 0) {
-                cur->unk18->unk14 = cur->unk14;
-                if (cur->unk14 != NULL) {
-                    cur->unk14->unk18 = cur->unk18;
+                cur->prev->next = cur->next;
+                if (cur->next != NULL) {
+                    cur->next->prev = cur->prev;
                 }
-                cur->unk18 = NULL;
-                cur->unk14 = head;
-                head->unk18 = cur;
+                cur->prev = NULL;
+                cur->next = head;
+                head->prev = cur;
                 head = cur;
             }
-            cur = cur->unk14;
+            cur = cur->next;
         }
     }
     return head;
@@ -369,8 +369,8 @@ Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f3
     ok = 1;
     gDPPipeSync(glist++);
     while (list != NULL) {
-        type = list->unk24;
-        model = list->unk0;
+        type = list->type;
+        model = list->object;
         if ((renderMask & 0x20) == 0 && type != 0 && type != 5) {
             ok = 0;
         }
@@ -388,7 +388,7 @@ Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f3
                 gRenderSetupKind = 0;
                 break;
             case 1:
-                glist = renderModelAnimatedSlot(model, glist, list->unk4, list->unk8, list->unkC, 1, layer, playerIndex);
+                glist = renderModelAnimatedSlot(model, glist, list->x, list->y, list->z, 1, layer, playerIndex);
                 gRenderSetupKind = 1;
                 break;
             case 2:
@@ -401,7 +401,7 @@ Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f3
         } else {
             ok = 1;
         }
-        list = list->unk14;
+        list = list->next;
     }
     gDPPipeSync(glist++);
     return glist;

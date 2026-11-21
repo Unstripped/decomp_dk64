@@ -1377,7 +1377,7 @@ void transformBarrelUpdate(void) {
     } else {
         gCurrentActor->interactionType = 1;
     }
-    if (gActivePlayerState->unkCA != 0) {
+    if (gActivePlayerState->barrelCooldown != 0) {
         gCurrentActor->interactionType = 2;
     }
 
@@ -1859,7 +1859,7 @@ void tagBarrelUpdateInteractable(void) {
         gCurrentActor->flags |= 0x8000;
         gCurrentActor->interactionType = 1;
     }
-    if (gActivePlayerState->unkCA != 0) {
+    if (gActivePlayerState->barrelCooldown != 0) {
         gCurrentActor->interactionType = 4;
     }
 }
@@ -1873,7 +1873,7 @@ void tagBarrelCheckPlayerCollision(void) {
         gCurrentActor->flags |= 0x8000;
         gCurrentActor->interactionType = 1;
     }
-    if (gActivePlayerState->unkCA != 0) {
+    if (gActivePlayerState->barrelCooldown != 0) {
         gCurrentActor->interactionType = 4;
     }
 }

@@ -1404,7 +1404,7 @@ void sfxUpdateSourceGroups(void) {
                 sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, 0xFF, 0x50, 0.5f);
                 dist[j] = gSfxDistance;
                 sfxSlotFreeSource(gSfxVoiceSources[i][j]);
-                gModelSlots[slot].unk7C->unk10[1] = -1;
+                gModelSlots[slot].csState->sfxSources[1] = -1;
             }
             if (D_80770DE8 > 32767.0f) {
                 D_80770DE8 = 32767.0f;
@@ -1572,7 +1572,7 @@ void sfxUpdateSourceGroups(void) {
                             }
                             if (D_80770BC0[i] == 40.0f) {
                                 sfxSlotFreeSource(gSfxVoiceSources[i][0]);
-                                gModelSlots[slot].unk7C->unk10[0] = -1;
+                                gModelSlots[slot].csState->sfxSources[0] = -1;
                             }
                             break;
                         case 0x11F:
@@ -1600,7 +1600,7 @@ void sfxUpdateSourceGroups(void) {
                                 if (D_80770BC0[i] == 110.0f) {
                                     if (gSfxSourceModelSlot[gSfxVoiceSources[i][0]] != -1) {
                                         sfxSlotFreeSource(gSfxVoiceSources[i][0]);
-                                        gModelSlots[slot].unk7C->unk10[0] = -1;
+                                        gModelSlots[slot].csState->sfxSources[0] = -1;
                                     } else {
                                         sfxStopSlotSound(actor, 0);
                                         sfxStopChannel(0x3B, 0);
@@ -1964,12 +1964,12 @@ void sfxUpdateSourceGroups(void) {
     gActivePlayerState = gPlayerSlots->actor->customState;
     camActor = gActivePlayerState->camActor;
     camState = camActor->customState;
-    if (camState->unkFA != 0 && gPlayerSlots->camY < (camState->unk90 + 3.0f) && gAudioUnderwater == 0 && gPlayerCount < 2) {
+    if (camState->hasWater != 0 && gPlayerSlots->camY < (camState->waterY + 3.0f) && gAudioUnderwater == 0 && gPlayerCount < 2) {
         gAudioUnderwater = 1;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
     }
-    if ((camState->unkFA == 0 || (camState->unk90 + 3.0f) < gPlayerSlots->camY) && gAudioUnderwater == 1) {
+    if ((camState->hasWater == 0 || (camState->waterY + 3.0f) < gPlayerSlots->camY) && gAudioUnderwater == 1) {
         gAudioUnderwater = 0;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);

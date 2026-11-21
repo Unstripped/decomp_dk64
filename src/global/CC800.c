@@ -377,7 +377,7 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     gActivePlayerState = gActivePlayerActor->customState;
     gActivePlayerState->hitSourcePlayerIndex = -1;
     gActivePlayerState->playerIndex = slot;
-    gActivePlayerState->unk11E = -1;
+    gActivePlayerState->animThresholdIndex = -1;
     gActivePlayerState->idleTimeoutFlag = 0;
     gActivePlayerState->lastFrame = -0x64;
     gCurrentCharacterIndex = row->characterIndex;
@@ -390,7 +390,7 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     }
     gSpawnedActor->flags |= 0x100000;
     actorSetInteractionTimer(gActivePlayerActor);
-    gActivePlayerState->unk26 = 0x64;
+    gActivePlayerState->traction = 0x64;
     gActivePlayerActor->accelY = gKongAccelY[gCurrentCharacterIndex];
     gActivePlayerActor->terminalSpeedY = gKongTerminalSpeedY[gCurrentCharacterIndex];
     gActivePlayerState->effectTimer = 0x78;
@@ -399,8 +399,8 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     gActivePlayerState->invulnTimer = 0;
     gActivePlayerState->respawnTimer = 0;
     gActivePlayerState->homingStrength = 0;
-    gActivePlayerState->unk10C = 0;
-    gActivePlayerState->unk1A0 = 0;
+    gActivePlayerState->ledgeHangOffset = 0;
+    gActivePlayerState->aimPitch = 0;
     gActivePlayerState->targetScale[0] = 0.15f;
     gActivePlayerState->targetScale[1] = 0.15f;
     gActivePlayerState->targetScale[2] = 0.15f;
@@ -408,13 +408,13 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     gActivePlayerState->currentScale[1] = 0.15f;
     gActivePlayerState->currentScale[2] = 0.15f;
     gActivePlayerState->damageCooldown = 0;
-    gActivePlayerState->unk21E = 0x1E;
-    gActivePlayerState->unkC8 = -1;
-    gActivePlayerState->unkCA = 0;
-    gActivePlayerState->unkC8 = -1; // ORIG: target stores -1 twice (sh at 0xd5c and 0xd6c)
-    gActivePlayerState->unk264 = -1;
-    gActivePlayerState->unk258 = 1.0f;
-    gActivePlayerState->unk25C = 1.0f;
+    gActivePlayerState->fadeLevel = 0x1E;
+    gActivePlayerState->chargeTimer = -1;
+    gActivePlayerState->barrelCooldown = 0;
+    gActivePlayerState->chargeTimer = -1; // ORIG: target stores -1 twice (sh at 0xd5c and 0xd6c)
+    gActivePlayerState->pendingPickupEffect = -1;
+    gActivePlayerState->squashScaleXZ = 1.0f;
+    gActivePlayerState->squashScaleY = 1.0f;
     if (flagGet(0xCE, 0) != 0) {
         gActivePlayerState->stateFlags |= 0x100000;
     }

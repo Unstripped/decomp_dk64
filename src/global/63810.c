@@ -168,12 +168,12 @@ void actorSetTargetSlotByte(s32 modelId, u8 keyframeSetIndex) {
     slotIdx = hashTableLookup(modelId);
     if (slotIdx != -1) {
         // the model object layout depends on the slot type; the byte is its keyframed light set (lightQueueKeyframed)
-        switch (gModelSlots[slotIdx].unk86) {
+        switch (gModelSlots[slotIdx].modelKind) {
             case 2:
-                dst = (u8 *)gModelSlots[slotIdx].unk20 + 0x5B;
+                dst = (u8 *)gModelSlots[slotIdx].renderObj + 0x5B;
                 break;
             case 1:
-                dst = (u8 *)gModelSlots[slotIdx].unk20 + 0xC3;
+                dst = (u8 *)gModelSlots[slotIdx].renderObj + 0xC3;
                 break;
         }
         *dst = keyframeSetIndex;

@@ -349,32 +349,32 @@ void playerClearStaleHitSource(void) {
 }
 
 void playerClearCarriedItemState(void) {
-    gActivePlayerState->unkC8 = -1;
+    gActivePlayerState->chargeTimer = -1;
     sfxStopSlotSound(gCurrentActor, 1);
 }
 
 
 void playerCheckAndClearCarriedItem(void) {
-    if (gActivePlayerState->unkC8 != -1 && (flagGet(0x179, 0) == 0 || gCurrentActor->floorSlopeFactor != 0.0f || (gGlobalOverlayFlags & 0x800000) || slotQueueGetValue(5, gActivePlayerState->playerIndex) == 0)) {
+    if (gActivePlayerState->chargeTimer != -1 && (flagGet(0x179, 0) == 0 || gCurrentActor->floorSlopeFactor != 0.0f || (gGlobalOverlayFlags & 0x800000) || slotQueueGetValue(5, gActivePlayerState->playerIndex) == 0)) {
         playerClearCarriedItemState();
-        gActivePlayerState->unkC8 = -1;
+        gActivePlayerState->chargeTimer = -1;
         return;
     }
-    if (gActivePlayerState->unkC8 != -1) {
+    if (gActivePlayerState->chargeTimer != -1) {
         if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x4000) {
-            if (gActivePlayerState->unkC8 > 0) {
-                if (gActivePlayerState->unkC8 < 0x1E && !(gFrameCounter & 3)) {
+            if (gActivePlayerState->chargeTimer > 0) {
+                if (gActivePlayerState->chargeTimer < 0x1E && !(gFrameCounter & 3)) {
                     effectSpawnBurst(0);
                 }
-                gActivePlayerState->unkC8 = gActivePlayerState->unkC8 - 1;
-                if (gActivePlayerState->unkC8 == 0x1E) {
+                gActivePlayerState->chargeTimer = gActivePlayerState->chargeTimer - 1;
+                if (gActivePlayerState->chargeTimer == 0x1E) {
                     sfxPlayActorSound(gCurrentActor, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
                 }
             } else if (!(gFrameCounter & 1)) {
                 effectSpawnBurst(1);
             }
         } else {
-            if (gActivePlayerState->unkC8 == 0 && (gCurrentActor->contactFlags & 1)) {
+            if (gActivePlayerState->chargeTimer == 0 && (gCurrentActor->contactFlags & 1)) {
                 gCurrentActor->state = 0x2D;
                 gCurrentActor->unk155 = 0;
                 slotQueueUpdate(5, 0, 0);
@@ -493,8 +493,8 @@ void playerUpdateCommon(s32 mode) {
     if (gSeqCurrentId[1] == 0x6B && gCurrentActor->state != 0x6E) {
         sfxStopChannel(0x6B, 0);
     }
-    if (gActivePlayerState->unkCA != 0) {
-        gActivePlayerState->unkCA--;
+    if (gActivePlayerState->barrelCooldown != 0) {
+        gActivePlayerState->barrelCooldown--;
     }
     if (gCurrentActor->flags2 & 0x20) {
         proxPathUpdateAllPlayers();
@@ -792,15 +792,15 @@ void playerUpdateScaleAndPhysics(void) {
                 gCurrentActor->alpha = 0x64;
             }
         }
-        if (gActivePlayerState->unk1FE != -1) {
-            gActivePlayerState->unk1FE = gActivePlayerState->unk1FE - 1;
-            if (!(gActivePlayerState->unk1FE & 7)) {
+        if (gActivePlayerState->transformTimer != -1) {
+            gActivePlayerState->transformTimer = gActivePlayerState->transformTimer - 1;
+            if (!(gActivePlayerState->transformTimer & 7)) {
                 effectSetCallback(effectZSpinMatrixUpdate);
                 effectSetDepth(1);
                 effectSetDuration(3);
                 effectCreateAtPosition(&D_8071FB08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
-            if (gActivePlayerState->unk1FE == 0) {
+            if (gActivePlayerState->transformTimer == 0) {
                 sfxStopChannel(0x6C, 0);
                 gCurrentActor->flags |= 0x8000;
                 playerTransformAnimalEndSfx(gCurrentActor);
@@ -1278,14 +1278,14 @@ void playerApproachVelocity(s16 yaw, f32 speed, f32 maxSpeed) {
     prev = gCurrentActor->moveYaw;
     f = 0.0f;
     if (gCurrentActor->contactFlags & 1) {
-        rate = gActivePlayerState->airAccel * (gActivePlayerState->unk26 * 3 + 100) / 400.0f;
-        if (gActivePlayerState->unk28 != 0) {
+        rate = gActivePlayerState->airAccel * (gActivePlayerState->traction * 3 + 100) / 400.0f;
+        if (gActivePlayerState->sharpTurn != 0) {
             d = (yaw - prev) & 0xFFF;
             wrap = d;
             if (d > 0x800) {
                 wrap = 0x1000 - d;
             }
-            f = gActivePlayerState->unk26 * ((f32)wrap / 2048) / 100.0f;
+            f = gActivePlayerState->traction * ((f32)wrap / 2048) / 100.0f;
         }
     } else {
         rate = gActivePlayerState->airAccel;
@@ -1298,7 +1298,7 @@ void playerApproachVelocity(s16 yaw, f32 speed, f32 maxSpeed) {
         } else {
             dist = -(tgt - cur);
         }
-        dist = dist * ((gActivePlayerState->unk26 * 63.0 + 100.0) / 6400.0);
+        dist = dist * ((gActivePlayerState->traction * 63.0 + 100.0) / 6400.0);
         lim1 = (dist - rate) * f + rate;
     } else {
         if (0.0f < mathSinF(yaw) * rate) {
@@ -1321,7 +1321,7 @@ void playerApproachVelocity(s16 yaw, f32 speed, f32 maxSpeed) {
         } else {
             dist = -(tgt - cur);
         }
-        dist = dist * ((gActivePlayerState->unk26 * 63.0 + 100.0) / 6400.0);
+        dist = dist * ((gActivePlayerState->traction * 63.0 + 100.0) / 6400.0);
         lim2 = (dist - rate) * f + rate;
     }
     vB = mathApproachF32(cur, tgt, lim2);
@@ -1353,7 +1353,7 @@ void playerApplyDeceleration(void) {
     f32 decel;
 
     if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->contactFlags & 0x200)) {
-        decel = gActivePlayerState->decelRate * (gActivePlayerState->unk26 * 15 + 100) / 1600.0f;
+        decel = gActivePlayerState->decelRate * (gActivePlayerState->traction * 15 + 100) / 1600.0f;
     } else {
         decel = gActivePlayerState->decelRate;
     }
@@ -1465,8 +1465,8 @@ s16 playerSelectWalkRunState(Actor *actor, f32 targetSpeed, f32 speed, s32 unuse
     s16 tier;
 
     nextState = actor->state;
-    prevTier = gActivePlayerState->unk4C;
-    tier = playerSelectMoveTier(actor, targetSpeed, speed, gActivePlayerState->unk4C, gCurrentCharacterIndex);
+    prevTier = gActivePlayerState->moveTier;
+    tier = playerSelectMoveTier(actor, targetSpeed, speed, gActivePlayerState->moveTier, gCurrentCharacterIndex);
     if (tier != 6) {
         actor->speedY = 0.0f;
     }
@@ -1544,23 +1544,23 @@ s16 playerSelectWalkRunState(Actor *actor, f32 targetSpeed, f32 speed, s32 unuse
                 nextState = 0x1E;
                 break;
         }
-        gActivePlayerState->unk4C = tier;
+        gActivePlayerState->moveTier = tier;
     }
-    if (gActivePlayerState->unk4C >= 3) {
-        if (gActivePlayerState->unk26 == 100) {
+    if (gActivePlayerState->moveTier >= 3) {
+        if (gActivePlayerState->traction == 100) {
             scale = actor->speedXZ;
         } else {
             scale = gActivePlayerState->maxSpeed;
         }
         scale = scale * 0.025;
-        if (gActivePlayerState->unk4C == 5) {
+        if (gActivePlayerState->moveTier == 5) {
             scale = scale * 0.6;
         }
         if (scale > 1.25f) {
             scale = scale - (scale - 1.25f) * 0.4;
         }
         if (actor->sub4->model->speed != 0.0f) {
-            if (gActivePlayerState->unk26 == 100) {
+            if (gActivePlayerState->traction == 100) {
                 scriptSetActorRampTarget(actor, scale, 2.0f);
             } else {
                 if (scale < 0.5) {
@@ -1580,8 +1580,8 @@ s16 playerSelectCarryState(Actor *actor, f32 targetSpeed, f32 speed, s32 unused)
     s16 tier;
 
     nextState = actor->state;
-    prevTier = gActivePlayerState->unk4C;
-    tier = playerSelectMoveTier(actor, targetSpeed, speed, gActivePlayerState->unk4C, gCurrentCharacterIndex);
+    prevTier = gActivePlayerState->moveTier;
+    tier = playerSelectMoveTier(actor, targetSpeed, speed, gActivePlayerState->moveTier, gCurrentCharacterIndex);
     actor->speedY = 0.0f;
     if (prevTier < 0) {
         playerInitMoveParams();
@@ -1649,12 +1649,12 @@ s16 playerSelectCarryState(Actor *actor, f32 targetSpeed, f32 speed, s32 unused)
                 nextState = 0x1F;
                 break;
         }
-        gActivePlayerState->unk4C = tier;
+        gActivePlayerState->moveTier = tier;
     }
-    if (gActivePlayerState->unk4C >= 3) {
+    if (gActivePlayerState->moveTier >= 3) {
         scale = actor->speedXZ;
         scale = scale * 0.025;
-        if (gActivePlayerState->unk4C == 5) {
+        if (gActivePlayerState->moveTier == 5) {
             scale = scale * 0.6;
         }
         if (scale > 1.25f) {
@@ -1674,8 +1674,8 @@ s16 playerSelectSurfaceState(Actor *actor, f32 targetSpeed, f32 speed, s32 unuse
     s16 tier;
 
     nextState = actor->state;
-    prevTier = gActivePlayerState->unk4C;
-    tier = playerSelectSurfaceMoveTier(actor, targetSpeed, speed, gActivePlayerState->unk4C, gCurrentCharacterIndex);
+    prevTier = gActivePlayerState->moveTier;
+    tier = playerSelectSurfaceMoveTier(actor, targetSpeed, speed, gActivePlayerState->moveTier, gCurrentCharacterIndex);
     actor->speedY = 0.0f;
     if (prevTier < 0) {
         playerInitNormalMoveParams();
@@ -1712,23 +1712,23 @@ s16 playerSelectSurfaceState(Actor *actor, f32 targetSpeed, f32 speed, s32 unuse
                 nextState = 0x1E;
                 break;
         }
-        gActivePlayerState->unk4C = tier;
+        gActivePlayerState->moveTier = tier;
     }
-    if (gActivePlayerState->unk4C >= 3) {
-        if (gActivePlayerState->unk26 == 100) {
+    if (gActivePlayerState->moveTier >= 3) {
+        if (gActivePlayerState->traction == 100) {
             scale = actor->speedXZ;
         } else {
             scale = gActivePlayerState->maxSpeed;
         }
         scale = scale * 0.025;
-        if (gActivePlayerState->unk4C == 5) {
+        if (gActivePlayerState->moveTier == 5) {
             scale = scale * 0.6;
         }
         if (scale > 1.25f) {
             scale = scale - (scale - 1.25f) * 0.4;
         }
         if (actor->sub4->model->speed != 0.0f) {
-            if (gActivePlayerState->unk26 == 100) {
+            if (gActivePlayerState->traction == 100) {
                 scriptSetActorRampTarget(actor, scale, 2.0f);
             } else {
                 if (scale < 0.5) {
@@ -1798,7 +1798,7 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
     s16 tier;
 
     nextState = actor->state;
-    prevTier = gActivePlayerState->unk4C;
+    prevTier = gActivePlayerState->moveTier;
     tier = playerSelectCarryMoveTier(targetSpeed, speed);
     if (prevTier < 0) {
         playerInitMoveParams();
@@ -1820,7 +1820,7 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
                         actorScriptStartByIndex(actor, 0x2E);
                         break;
                 }
-                gActivePlayerState->unk4C = 0;
+                gActivePlayerState->moveTier = 0;
                 nextState = 0x48;
                 break;
             case 1:
@@ -1839,12 +1839,12 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
                         actorScriptStartByIndex(actor, 0x2F);
                         break;
                 }
-                gActivePlayerState->unk4C = 1;
+                gActivePlayerState->moveTier = 1;
                 nextState = 0x49;
                 break;
         }
     }
-    if (gActivePlayerState->unk4C > 0) {
+    if (gActivePlayerState->moveTier > 0) {
         scale = actor->speedXZ * 0.025;
         scale = scale * 0.75 + 0.25;
         if (actor->sub4->model->speed != 0.0f) {
@@ -1857,7 +1857,7 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
 extern f32 D_807532B8[];
 
 s32 playerSelectCarryMoveTier(f32 targetSpeed, f32 speed) {
-    s32 tier = gActivePlayerState->unk4C;
+    s32 tier = gActivePlayerState->moveTier;
 
     switch (tier) {
         case 0:
@@ -2221,7 +2221,7 @@ void playerCheckLedgeGrab(void) {
                 }
             }
             if (hit != 0 && playerStateQueueCallback(0xA, NULL, gCurrentPlayerIndex) != 0) {
-                gActivePlayerState->unkF0 = ledgeY;
+                gActivePlayerState->ledgeY = ledgeY;
             }
         }
     }
@@ -2319,8 +2319,8 @@ void playerResumeLocomotion(Actor *actor) {
     u8 nextState;
 
     actor->contactFlags &= ~0x20;
-    p->unk4C = -1;
-    p->unk10C = 0;
+    p->moveTier = -1;
+    p->ledgeHangOffset = 0;
     if (actor->collisionMode == 1) {
         actorSetInteractionTimer(actor);
     }
@@ -2362,8 +2362,8 @@ void playerResumeLocomotion(Actor *actor) {
 
 void playerEnterBarrelTransition(Actor *actor) {
     actor->contactFlags &= ~0x20;
-    gActivePlayerState->unk4C = -1;
-    gActivePlayerState->unk10C = 0;
+    gActivePlayerState->moveTier = -1;
+    gActivePlayerState->ledgeHangOffset = 0;
     actorScriptStartByIndex(actor, 0x7A);
     actor->state = 7;
     actor->unk155 = 0;
@@ -2408,7 +2408,7 @@ void playerSetNormalMoveParams(void) {
 void playerSetTerminalVelocity578(void) {
     gActivePlayerActor->accelY = gKongAccelY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk28 = 1;
+    gActivePlayerState->sharpTurn = 1;
 }
 
 

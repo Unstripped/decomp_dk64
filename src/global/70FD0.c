@@ -93,8 +93,8 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
     u8 *boneTable;
 
     lastBone = -1;
-    buf = &gModelSlots[slot].unk28;
-    anim = gModelSlots[slot].unk78;
+    buf = &gModelSlots[slot].boxBuffer;
+    anim = gModelSlots[slot].anim;
     if (anim != NULL) {
         animFrame = anim->frames[gGfxBufferIndex];
     } else {
@@ -165,13 +165,13 @@ void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
     ModelData *anim;
     ModelAssetHeader *asset;
 
-    anim = gModelSlots[slot].unk78;
+    anim = gModelSlots[slot].anim;
     if (anim != NULL) {
         animFrame = anim->frames[gGfxBufferIndex];
     } else {
         animFrame = NULL;
     }
-    asset = gModelSlots[slot].unk24;
+    asset = gModelSlots[slot].asset;
     boneTable = asset->unk60 + (u8 *)asset;
     modelSlotGetTransformVectors(slot, &posX, &posY, &posZ, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);
     guScaleF(mtx, scale, scale, scale);
@@ -347,11 +347,11 @@ void modelSlotExpireNextBuffers(void) {
         if (sModelSlotExpireCursor >= gModelSlotCount) {
             sModelSlotExpireCursor = 0;
         }
-        buf = &gModelSlots[sModelSlotExpireCursor].unk28;
+        buf = &gModelSlots[sModelSlotExpireCursor].boxBuffer;
         if ((buf->unk15 & 1) && ((gFrameCounter - buf->unk10) >= 0x1F)) {
             dynamicBufferFree(buf);
         }
-        triBuf = &gModelSlots[sModelSlotExpireCursor].unk48;
+        triBuf = &gModelSlots[sModelSlotExpireCursor].triBuffer;
         if ((triBuf->flags & 1) && ((gFrameCounter - triBuf->timestamp) >= 0x1F)) {
             modelSlotTriBufferRelease(triBuf);
         }
@@ -1430,27 +1430,27 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
     sub->unk6C = 0;
     D_807FB548 = 0;
     for (i = 0; i < gModelSlotCount; i++) {
-        buf = &gModelSlots[i].unk28;
+        buf = &gModelSlots[i].boxBuffer;
         if (buf->unk15 & 2) {
             if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->unk0, buf->unk4, buf->unk8, buf->unkC) != 0) {
                 if (!(buf->unk15 & 1)) {
-                    collisionTransformNode(i, gModelSlots[i].unk24, gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, gModelSlots[i].rotX, gModelSlots[i].rotY, gModelSlots[i].rotZ, gModelSlots[i].scale);
+                    collisionTransformNode(i, gModelSlots[i].asset, gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, gModelSlots[i].rotX, gModelSlots[i].rotY, gModelSlots[i].rotZ, gModelSlots[i].scale);
                 } else {
                     buf->unk10 = gFrameCounter;
                 }
-                if (!(actor->collisionFlags & 1) || playerSlotMatchesSizeMask(gModelSlots[i].unk24->unk0, ((PlayerState *)actor->customState)->playerIndex) == 0) {
+                if (!(actor->collisionFlags & 1) || playerSlotMatchesSizeMask(gModelSlots[i].asset->unk0, ((PlayerState *)actor->customState)->playerIndex) == 0) {
                     actorUpdateCollisionSpheres(actor, 0);
                     flag = 1;
                     node = sub->nodes;
                     D_807FB5FD = 0;
                     savedFlags = D_807FB602;
-                    hit = gModelSlots[i].unk7C;
+                    hit = gModelSlots[i].csState;
                     if (hit != NULL) {
                         if (hit->unk6F != 0) {
                             D_807FB5FD = 1;
                             D_807FB600 = 0;
                         }
-                        flag = gModelSlots[i].unk7C->unk70;
+                        flag = gModelSlots[i].csState->collisionEnabled;
                     }
                     if ((D_807FB5FD == 0 || (actor->collisionMode & 0x10)) && flag != 0) {
                         D_807FB5FF = 0;
@@ -1463,15 +1463,15 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                         }
                         result |= ret;
                         if (D_807FB601 != 0) {
-                            if (gModelSlots[i].unk7C != NULL) {
-                                gModelSlots[i].unk7C->unk5C = D_807FB601;
-                                gModelSlots[i].unk7C->unk5E = actor->actorType;
+                            if (gModelSlots[i].csState != NULL) {
+                                gModelSlots[i].csState->hitId = D_807FB601;
+                                gModelSlots[i].csState->hitActorType = actor->actorType;
                             }
                         }
                         if (D_807FB5FF != 0) {
                             actorBuildCollisionHit(i, actor, buf->box_start);
                         }
-                        if (gModelSlots[i].unk7C != NULL && gModelSlots[i].unk7C->unk6E == 0) {
+                        if (gModelSlots[i].csState != NULL && gModelSlots[i].csState->contactCallbacks == 0) {
                             D_807FB602 = savedFlags;
                         }
                         if (ret && D_807FB5FD == 0 && D_807FB61C != 0) {
@@ -1519,7 +1519,7 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
         sub->unk58 = D_807FB5D8 - boxes;
         modelSlotBuildTransformMatrix(slot, D_807FB5D8->unk4E, mtx);
         matrix4Invert(inv, mtx);
-        if (gModelSlots[slot].unk7C != NULL && (gModelSlots[slot].unk7C->unk9B & 0x24)) {
+        if (gModelSlots[slot].csState != NULL && (gModelSlots[slot].csState->modelFlags & 0x24)) {
             useActorPos = 1;
         }
         if (useActorPos != 0) {
@@ -1571,18 +1571,18 @@ void actorReflectCollisionAngle(Actor *actor, CollisionBox *box, ActorSub140 *co
     s64 total;
     s64 x_prod;
     s64 y_prod;
-    sub->unkEA = box->unk48;
+    sub->wallNormalYaw = box->unk48;
     y_prod = box->ny * coll->scaledY;
     x_prod = box->nx * coll->scaledX;
     total = (box->nz * coll->scaledZ) + x_prod + y_prod + box->d;
     if (box->d > 0) {
         if (total <= 0) {
-            sub->unkEA += 0x800;
+            sub->wallNormalYaw += 0x800;
         }
     } else if (total >= 0) {
-        sub->unkEA += 0x800;
+        sub->wallNormalYaw += 0x800;
     }
-    sub->unkEA &= 0xFFF;
+    sub->wallNormalYaw &= 0xFFF;
 }
 
 s32 actorGetCollisionThreshold(Actor *actor) {
@@ -1645,14 +1645,14 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
     f32 angle;
 
     inArc = 0;
-    if (gModelSlots[slot].unk7C != NULL && D_807FB5D8->unk4D != 0) {
-        sub = gModelSlots[slot].unk7C;
-        kind = sub->unk50;
+    if (gModelSlots[slot].csState != NULL && D_807FB5D8->unk4D != 0) {
+        sub = gModelSlots[slot].csState;
+        kind = sub->pushMode;
         switch (kind) {
         case 0:
             break;
         case 1:
-            sub->unk51 = 1;
+            sub->pushContact = 1;
             yaw = D_807FB5D8->unk48;
             if (D_807FB5D8->unk4C != 0) {
                 yaw -= 0x800;
@@ -1667,8 +1667,8 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
             if (yawDiff >= 0x801) {
                 yawDiff = 0xFFF - yawDiff;
             }
-            arcMax = sub->unk8A;
-            arcMin = sub->unk88;
+            arcMax = sub->pushArcMax;
+            arcMin = sub->pushArcMin;
             if (arcMax >= arcMin) {
                 if (gCurrentActor->yaw >= arcMin && arcMax >= gCurrentActor->yaw) {
                     inArc = 1;
@@ -1679,14 +1679,14 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
             if (yawDiff < 0x258 && inArc != 0) {
                 angle = (yaw / 4095.0) * 6.2831854820251465;
                 yaw = 0; // FAKE: dead store to angle's operand kills store-forwarding so angle stays a variable (spilled to its own home 0x44)
-                sub->unk8C = sinApprox(angle);
-                sub->unk90 = cosApprox(angle);
-                sub->unk52 = 1;
+                sub->pushDirX = sinApprox(angle);
+                sub->pushDirZ = cosApprox(angle);
+                sub->pushInput = 1;
                 return;
             }
             break;
         case 2:
-            sub->unk51 = 1;
+            sub->pushContact = 1;
             yaw = D_807FB5D8->unk48;
             if (D_807FB5D8->unk4C != 0) {
                 yaw -= 0x800;
@@ -1701,8 +1701,8 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
             if (yawDiff >= 0x801) {
                 yawDiff = 0xFFF - yawDiff;
             }
-            arcMax = sub->unk8A;
-            arcMin = sub->unk88;
+            arcMax = sub->pushArcMax;
+            arcMin = sub->pushArcMin;
             if (arcMax >= arcMin) {
                 if (gCurrentActor->yaw >= arcMin && arcMax >= gCurrentActor->yaw) {
                     inArc = 1;
@@ -1748,10 +1748,10 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
                 guMtxXFMF(mtx, localX, localY, localZ, &minusX, &minusY, &minusZ);
                 minusDist = camDistance3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, minusX, minusY, minusZ);
                 if (minusDist < camDistance3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, plusX, plusY, plusZ)) {
-                    sub->unk52 = 1;
+                    sub->pushInput = 1;
                     return;
                 }
-                sub->unk52 = 2;
+                sub->pushInput = 2;
             }
             break;
         }
@@ -1794,7 +1794,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
         ret = 0;
         slot = hashTableLookup(sub->unk26);
         if (slot != -1) {
-            buf = &gModelSlots[slot].unk28;
+            buf = &gModelSlots[slot].boxBuffer;
             if (!(buf->unk15 & 1)) {
                 return 0;
             }
@@ -1804,22 +1804,22 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
             D_807FB602 = 0;
             func_80672E90(sub->scaledX, sub->scaledY, sub->scaledZ);
             actorSetCameraBoundaryMode(actor->actorType);
-            hit = gModelSlots[slot].unk7C;
+            hit = gModelSlots[slot].csState;
             if (hit != NULL) {
-                if (hit->unk9B & 4) {
+                if (hit->modelFlags & 4) {
                     kind = 1;
                 }
-                if (hit->unk9B & 8) {
+                if (hit->modelFlags & 8) {
                     kind = 2;
                 }
-                if (hit->unk9B & 0x10) {
+                if (hit->modelFlags & 0x10) {
                     kind = 3;
                 }
-                if (hit->unk9B & 0x20) {
+                if (hit->modelFlags & 0x20) {
                     kind = 4;
                 }
             }
-            if (hit != NULL && hit->unk53 != 0) {
+            if (hit != NULL && hit->prevPushInput != 0) {
                 ret = func_80673708(sub->scaledX, sub->scaledY, sub->scaledZ, sub->unk5C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax) & 0xFF;
             } else {
                 actorSetTargetAngleBounds(buf->box_start + sub->unk58);
@@ -1839,13 +1839,13 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
                 }
             }
             if (D_807FB601 != 0 && hit != NULL) {
-                gModelSlots[slot].unk7C->unk5C = D_807FB601;
-                gModelSlots[slot].unk7C->unk5E = actor->actorType;
+                gModelSlots[slot].csState->hitId = D_807FB601;
+                gModelSlots[slot].csState->hitActorType = actor->actorType;
             }
-            if (gModelSlots[slot].unk7C != NULL && gModelSlots[slot].unk7C->unk6E != 0) {
+            if (gModelSlots[slot].csState != NULL && gModelSlots[slot].csState->contactCallbacks != 0) {
                 actorQueueCollisionCallbacks(actor);
             }
-            if (hit != NULL && hit->unk53 != 0 && gPlayerPadState[playerFindIndexByActor(actor)].stickMag > 30.0) {
+            if (hit != NULL && hit->prevPushInput != 0 && gPlayerPadState[playerFindIndexByActor(actor)].stickMag > 30.0) {
                 ret = 1;
             }
             if (actor->collisionFlags & 1) {
@@ -1975,8 +1975,8 @@ void actorCalcPlaneContactPoint(Actor *actor, s16 slot, ActorSub140 *hit) {
     out[1] = norm[1] * scale;
     out[2] = norm[2] * scale;
 
-    player->unkE0 = originX - out[0];
-    player->unkE4 = originZ - out[2];
+    player->wallContactX = originX - out[0];
+    player->wallContactZ = originZ - out[2];
     player->stateStep = 1;
 }
 
@@ -2058,8 +2058,8 @@ void actorUpdateFacingAndOffset(CollisionBox *box, s32 unused1, s32 unused2, s32
     facingDist = mathAngleDistance(box->unk48, D_807FB544);
     backDist = mathAngleDistance((box->unk48 + 0x800) & 0xFFF, D_807FB544);
     if ((facingDist < 0x321) || (backDist < 0x321)) {
-        mathAngleDistance(box->unk48, gActivePlayerState->unkEA);
-        mathAngleDistance((box->unk48 + 0x800) & 0xFFF, gActivePlayerState->unkEA);
+        mathAngleDistance(box->unk48, gActivePlayerState->wallNormalYaw);
+        mathAngleDistance((box->unk48 + 0x800) & 0xFFF, gActivePlayerState->wallNormalYaw);
         sub = D_807FB540->collision;
         func_806744A8(box, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
         prevThreshold = D_807FB5D0;
@@ -2100,8 +2100,8 @@ void actorUpdateCollisionExtents(Actor *actor) {
         nx *= scale;
         ny *= scale;
         nz *= scale;
-        player->unkE0 = hitX - nx;
-        player->unkE4 = hitZ - nz;
+        player->wallContactX = hitX - nx;
+        player->wallContactZ = hitZ - nz;
         player->stateStep = 1;
         actorReflectCollisionAngle(actor, func_806732A8(D_807FB5DC, D_807FB5F6), actor->collision);
     }
@@ -2403,9 +2403,9 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
     i = 0;
     if (gModelSlotCount > 0) {
         do {
-            buf = &gModelSlots[i].unk28;
+            buf = &gModelSlots[i].boxBuffer;
             if (buf->box_start != NULL &&
-                (D_807FB53C != 0xBC || (gModelSlots[i].unk48.flags & 2))) {
+                (D_807FB53C != 0xBC || (gModelSlots[i].triBuffer.flags & 2))) {
                 x = fx;
                 y = fy;
                 z = fz;
@@ -2416,7 +2416,7 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
                                   buf->unk8,
                                   buf->unkC) != 0 &&
                     (buf->unk15 & 1) &&
-                    ((hitInfo = gModelSlots[i].unk7C) == NULL || hitInfo->unk70 != 0)) {
+                    ((hitInfo = gModelSlots[i].csState) == NULL || hitInfo->collisionEnabled != 0)) {
                     result |= func_80673708(x, y, z, radius, buf->box_start, buf->box_end, arcMin, arcMax);
                 }
             }

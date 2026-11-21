@@ -126,20 +126,20 @@ typedef struct ModelSlot {
     /* 0x14 */ f32 rotY;
     /* 0x18 */ f32 rotZ;
     /* 0x1C */ f32 yOffset;
-    /* 0x20 */ void *unk20;
-    /* 0x24 */ ModelAssetHeader *unk24;
-    /* 0x28 */ DynamicBuffer unk28;
-    /* 0x48 */ ModelTriBuffer unk48;
-    /* 0x70 */ struct ModelPosNode *unk70;
+    /* 0x20 */ void *renderObj;
+    /* 0x24 */ ModelAssetHeader *asset;
+    /* 0x28 */ DynamicBuffer boxBuffer;
+    /* 0x48 */ ModelTriBuffer triBuffer;
+    /* 0x70 */ struct ModelPosNode *attachPoints;
     /* 0x74 */ struct ModelPosNode *unk74;
-    /* 0x78 */ ModelData *unk78;
-    /* 0x7C */ struct CsState *unk7C; // per-model cutscene state (csStateInit)
+    /* 0x78 */ ModelData *anim;
+    /* 0x7C */ struct CsState *csState; // per-model cutscene state (csStateInit)
     /* 0x80 */ u8 pad80[4];
     /* 0x84 */ s16 modelType;
-    /* 0x86 */ s16 unk86;
+    /* 0x86 */ s16 modelKind;
     /* 0x88 */ s16 id;
     /* 0x8A */ s16 csModelId;
-    /* 0x8C */ u8 unk8C;
+    /* 0x8C */ u8 flags;
     /* 0x8D */ u8 pad8D[3];
 } ModelSlot; // size = 0x90
 

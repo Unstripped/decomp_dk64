@@ -248,7 +248,7 @@ u8 func_8070FCCC(EffectSpriteParticle *particle) {
     f32 angle;
     f32 jitter;
 
-    if (((CamState *)gCamActor->customState)->unkFA != 0 && gPlayerSlots->camY < ((CamState *)gCamActor->customState)->unk90 + 3.0f) {
+    if (((CamState *)gCamActor->customState)->hasWater != 0 && gPlayerSlots->camY < ((CamState *)gCamActor->customState)->waterY + 3.0f) {
         bound = gPrimaryPlayerActor->waterY;
     } else {
         bound = CAM_Y_DISTANCE(gPrimaryPlayerActor->unkA8) < CAM_Y_DISTANCE(gPrimaryPlayerActor->waterY) ? gPrimaryPlayerActor->unkA8 : gPrimaryPlayerActor->waterY;
@@ -411,7 +411,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     if ((gPrimaryPlayerActor->state == 0x42) && ((gActivePlayerState->hitActorType == 0x62) || (gActivePlayerState->hitActorType == 0x88))) {
         skipTimer = 1;
     }
-    if ((camState->unkFA != 0) && (gPlayerSlots->camY < camState->unk90 + 3.0f)) {
+    if ((camState->hasWater != 0) && (gPlayerSlots->camY < camState->waterY + 3.0f)) {
         skipNearPlayer = 1;
     }
     gDPPipeSync(glist++);

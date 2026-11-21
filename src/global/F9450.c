@@ -923,12 +923,12 @@ s32 gridCheckNodeCondition(s16 modelSlot, u8 playerIndex, u16 modelType) {
         break;
     case 0x90:
         slot = &gModelSlots[hashTableLookup(modelSlot)];
-        if (slot->unk7C->unk64 != 0xFF) {
+        if (slot->csState->alpha != 0xFF) {
             return 0;
         }
         break;
     }
-    flags = gModelSlots[hashTableLookup(modelSlot)].unk8C;
+    flags = gModelSlots[hashTableLookup(modelSlot)].flags;
     if ((flags & 8) && (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 2)) {
         return 0;
     }
@@ -1206,7 +1206,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         break;
                                     case 0x79:
                                         playerStateHandleSoundEffects(0x8E, playerIndex);
-                                        playerState->unk264 = 0;
+                                        playerState->pendingPickupEffect = 0;
                                         break;
                                     case 0x2F:
                                         playerStateHandleSoundEffects(0x57, playerIndex);
@@ -1214,11 +1214,11 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         break;
                                     case 0x77:
                                         playerStateHandleSoundEffects(0x1D0, playerIndex);
-                                        playerState->unk264 = 1;
+                                        playerState->pendingPickupEffect = 1;
                                         break;
                                     case 0x78:
                                         playerStateHandleSoundEffects(0x1CF, playerIndex);
-                                        playerState->unk264 = 2;
+                                        playerState->pendingPickupEffect = 2;
                                         break;
                                     case 0x33:
                                         playerStateHandleSoundEffects(0x8F, playerIndex);
@@ -1232,11 +1232,11 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         break;
                                     case 0x34:
                                         playerStateHandleSoundEffects(0x56, playerIndex);
-                                        playerState->unk264 = 3;
+                                        playerState->pendingPickupEffect = 3;
                                         break;
                                     case 0x76:
                                         playerStateHandleSoundEffects(0x1D1, playerIndex);
-                                        playerState->unk264 = 4;
+                                        playerState->pendingPickupEffect = 4;
                                         break;
                                     }
                                 } else {
@@ -1254,7 +1254,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                     tableIndex = csModelSlotGetTableIndex(modelSlot);
                                     flagTempRegister(gCurrentLevelIndex, tableIndex, pickupState->flagId, flagLookupValueById(pickupState->flagId));
                                     tableIndex = csModelSlotGetTableIndex(modelSlot);
-                                    modelFlagsApplyState(gCurrentLevelIndex, tableIndex, &gModelSlots[hashTableLookup(modelSlot)].unk8C);
+                                    modelFlagsApplyState(gCurrentLevelIndex, tableIndex, &gModelSlots[hashTableLookup(modelSlot)].flags);
                                     gridAddModelNode(modelSlot, gGridTypeTable[typeIndex].modelType, 0, 1, 0, isGlobal);
                                     actor->parentActor = NULL;
                                 }

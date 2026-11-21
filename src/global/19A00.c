@@ -1040,7 +1040,7 @@ s32 scriptOpCompareGlobalCountdown(Actor *actor) {
 
     sScriptPc++;
     scriptReadU16(&imm);
-    actor->sub4->scriptResult = gActivePlayerState->unk4E - imm;
+    actor->sub4->scriptResult = gActivePlayerState->animIndex - imm;
     return 1;
 }
 
@@ -2024,7 +2024,7 @@ void scriptCmdSpawnActorParticleBurst(Actor *actor) {
         node = 8;
     }
     actorSpawnFloorEffectAtNode(actor, node);
-    gActivePlayerState->unkCA = 0x28;
+    gActivePlayerState->barrelCooldown = 0x28;
 }
 
 void scriptCmdSetActorNodeFlag(Actor *actor) {

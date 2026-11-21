@@ -33,7 +33,7 @@ extern PlayerState *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
 
 void bossKRoolChunkySetupFight(BossScriptState *unused) {
-    gActivePlayerState->unk1FE = 1;
+    gActivePlayerState->transformTimer = 1;
     bossSetCannonsVisible(1);
     gCurrentActor->collisionMode = 0x24;
     playerStateQueueCallback(0x19, gCurrentActor, 0);

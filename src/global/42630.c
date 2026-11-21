@@ -293,8 +293,8 @@ void csModelStateSetByte(s16 modelIndex, s16 val, s16 byteOffset) {
 
     slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        gModelSlots[slot].unk7C->unk48[byteOffset] = val;
-        gModelSlots[slot].unk7C->unk54 = 1;
+        gModelSlots[slot].csState->stateBytes[byteOffset] = val;
+        gModelSlots[slot].csState->updateMode = 1;
     }
 }
 
@@ -364,12 +364,12 @@ void csScriptLoad(s16 *scriptData) {
         p++;
         slot = hashTableLookup(gCsModelIds[id]);
         if (slot != -1) {
-            gModelSlots[slot].unk7C = heapAlloc(sizeof(CsState));
-            csStateInit(gModelSlots[slot].unk7C);
-            gModelSlots[slot].unk7C->unkA0 = NULL;
+            gModelSlots[slot].csState = heapAlloc(sizeof(CsState));
+            csStateInit(gModelSlots[slot].csState);
+            gModelSlots[slot].csState->nodes = NULL;
             m = p[0];
-            tail = &gModelSlots[slot].unk7C->unkA0;
-            gModelSlots[slot].unk7C->unk9C = p[1];
+            tail = &gModelSlots[slot].csState->nodes;
+            gModelSlots[slot].csState->unk9C = p[1];
             p += 2;
             while (m != 0) {
                 node = heapAlloc(sizeof(CsNode));
@@ -423,7 +423,7 @@ void csStateFree(CsState *loadState) {
     if (loadState->data != NULL) {
         heapFree(loadState->data);
     }
-    node = loadState->unkA0;
+    node = loadState->nodes;
     while (node != NULL) {
         next = node->unk4C;
         heapFree(node);
@@ -436,59 +436,59 @@ void csStateInit(CsState *cs) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        cs->unk14[i] = 1.0f;
+        cs->vars[i] = 1.0f;
     }
-    cs->unk10[0] = -1;
-    cs->unk10[1] = -1;
-    cs->unk38 = -1;
+    cs->sfxSources[0] = -1;
+    cs->sfxSources[1] = -1;
+    cs->pathHandle = -1;
     cs->data = 0;
     cs->unk40[0] = 0;
     cs->unk40[1] = 0;
-    cs->unk44[0] = 0;
-    cs->unk44[1] = 0;
-    cs->unk48[0] = 0;
-    cs->unk48[1] = 0;
-    cs->unk48[2] = 0;
-    cs->unk4B[0] = 0;
-    cs->unk4B[1] = 0;
-    cs->unk4B[2] = 0;
+    cs->timers[0] = 0;
+    cs->timers[1] = 0;
+    cs->stateBytes[0] = 0;
+    cs->stateBytes[1] = 0;
+    cs->stateBytes[2] = 0;
+    cs->nextStateBytes[0] = 0;
+    cs->nextStateBytes[1] = 0;
+    cs->nextStateBytes[2] = 0;
     cs->unk4E = 0;
     cs->unk4F = 0;
-    cs->unk50 = 0;
-    cs->unk51 = 0;
-    cs->unk52 = 0;
-    cs->unk53 = 0;
-    cs->unk80 = 0;
-    cs->unk82 = 0;
-    cs->unk84 = 0x7FFF;
-    cs->unk86 = 0x7FFF;
-    cs->unk88 = 0;
-    cs->unk8A = 0xFFF;
-    cs->unk94 = NULL;
-    cs->unk54 = 0;
-    cs->unk5C = 0;
+    cs->pushMode = 0;
+    cs->pushContact = 0;
+    cs->pushInput = 0;
+    cs->prevPushInput = 0;
+    cs->pushMinX = 0;
+    cs->pushMinZ = 0;
+    cs->pushMaxX = 0x7FFF;
+    cs->pushMaxZ = 0x7FFF;
+    cs->pushArcMin = 0;
+    cs->pushArcMax = 0xFFF;
+    cs->camPathActor = NULL;
+    cs->updateMode = 0;
+    cs->hitId = 0;
     cs->unk67 = 0;
-    cs->unk6E = 1;
+    cs->contactCallbacks = 1;
     cs->unk6F = 0;
-    cs->unk62 = 0;
-    cs->unk64 = 0;
-    cs->unk60 = 0;
-    cs->unk66 = 0xFF;
-    cs->unk70 = 1;
+    cs->alphaTarget = 0;
+    cs->alpha = 0;
+    cs->alphaOverride = 0;
+    cs->alphaStep = 0xFF;
+    cs->collisionEnabled = 1;
     cs->unk71 = 1;
-    cs->unk9A = 0;
-    cs->unk9B = 0;
+    cs->runFlags = 0;
+    cs->modelFlags = 0;
     cs->unk98 = 0;
-    cs->unk4 = 0xFFFFFFFF;
-    cs->unk8 = 0.0f;
-    cs->unkC = 0.0f;
-    cs->unk34 = 0.0f;
+    cs->alphaStepFrame = 0xFFFFFFFF;
+    cs->riderDriftX = 0.0f;
+    cs->riderDriftZ = 0.0f;
+    cs->rotYDelta = 0.0f;
     cs->unk3C = 0.0f;
-    cs->unk74 = 0.0f;
-    cs->unk78 = 0.0f;
-    cs->unk7C = 0.0f;
-    cs->unk8C = 0.0f;
-    cs->unk90 = 0.0f;
+    cs->pushSpeed = 0.0f;
+    cs->pushSpeedMax = 0.0f;
+    cs->pushAccel = 0.0f;
+    cs->pushDirX = 0.0f;
+    cs->pushDirZ = 0.0f;
 }
 
 extern u8 gCsVarsDirty[];
@@ -498,7 +498,7 @@ void csModelStateSetVars(s32 modelIndex, u8 *varsData) {
 
     slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        memcpy(gModelSlots[slot].unk7C->unk14, varsData, 0x20);
+        memcpy(gModelSlots[slot].csState->vars, varsData, 0x20);
         gCsVarsDirty[modelIndex] = 1;
     }
 }
@@ -507,12 +507,12 @@ void csStateTickTimers(CsState *cs) {
     u8 i;
 
     for (i = 0; i < 2; i++) {
-        if (cs->unk44[i] != 0) {
-            cs->unk44[i]--;
+        if (cs->timers[i] != 0) {
+            cs->timers[i]--;
         }
     }
     for (i = 0; i < 3; i++) {
-        cs->unk4B[i] = cs->unk48[i];
+        cs->nextStateBytes[i] = cs->stateBytes[i];
     }
     cs->unk4E = 0;
 }
@@ -551,7 +551,7 @@ void csStateUpdate(CsState *cs, s16 csId) {
     u8 scaleXZ;
     u8 scaleY;
 
-    node = cs->unkA0;
+    node = cs->nodes;
     if (node != NULL) {
         modelSlotGetTransformVectors(csId, &D_807F61FC, &D_807F6200, &D_807F6204, &D_807F6208, &D_807F620C,
                                      &D_807F6210, &D_807F6214, &D_807F6218, 1);
@@ -601,25 +601,25 @@ void csStateUpdate(CsState *cs, s16 csId) {
 void csStateEndUpdate(CsState *cs) {
     Actor *actor;
 
-    cs->unk34 = gCsRotY - D_807F620C;
-    cs->unk48[0] = cs->unk4B[0];
-    cs->unk48[1] = cs->unk4B[1];
-    cs->unk48[2] = cs->unk4B[2];
-    cs->unk53 = cs->unk52;
-    cs->unk51 = 0;
-    cs->unk52 = 0;
-    cs->unk5C = 0;
-    cs->unk9A |= 1;
-    if (cs->unk94 != NULL) {
-        actor = cs->unk94;
+    cs->rotYDelta = gCsRotY - D_807F620C;
+    cs->stateBytes[0] = cs->nextStateBytes[0];
+    cs->stateBytes[1] = cs->nextStateBytes[1];
+    cs->stateBytes[2] = cs->nextStateBytes[2];
+    cs->prevPushInput = cs->pushInput;
+    cs->pushContact = 0;
+    cs->pushInput = 0;
+    cs->hitId = 0;
+    cs->runFlags |= 1;
+    if (cs->camPathActor != NULL) {
+        actor = cs->camPathActor;
         actor->x = gCsPosX;
         actor->y = gCsPosY;
         actor->z = gCsPosZ;
         actor->yaw = gCsRotY * 4096.0f / 360.0f;
         if (gGlobalPauseFlags & 0x1000) {
             gGlobalPauseFlags &= ~0x1000;
-            actorDespawn(cs->unk94);
-            cs->unk94 = NULL;
+            actorDespawn(cs->camPathActor);
+            cs->camPathActor = NULL;
         }
     }
     D_807F693F = 0;
@@ -630,87 +630,87 @@ void csUpdateStepAndInterpolation(CsState *cs) {
     s16 a;
     s16 b;
 
-    if (gFrameCounter != cs->unk4) {
-        b = cs->unk64;
-        a = cs->unk62;
-        cs->unk4 = gFrameCounter;
+    if (gFrameCounter != cs->alphaStepFrame) {
+        b = cs->alpha;
+        a = cs->alphaTarget;
+        cs->alphaStepFrame = gFrameCounter;
         if (b < a) {
-            cs->unk64 = b + cs->unk66;
-            if (a < cs->unk64) {
-                cs->unk64 = a;
+            cs->alpha = b + cs->alphaStep;
+            if (a < cs->alpha) {
+                cs->alpha = a;
             }
         } else {
-            cs->unk64 = b - cs->unk66;
-            if (cs->unk64 < a) {
-                cs->unk64 = a;
+            cs->alpha = b - cs->alphaStep;
+            if (cs->alpha < a) {
+                cs->alpha = a;
             }
         }
     }
 }
 
 void csStateIntegrateMotion(CsState *cs) {
-    switch (cs->unk50) {
+    switch (cs->pushMode) {
         case 0:
             break;
         case 1:
-            if (cs->unk52 != 0) {
-                cs->unk74 += cs->unk7C;
-                if (cs->unk78 < cs->unk74) {
-                    cs->unk74 = cs->unk78;
+            if (cs->pushInput != 0) {
+                cs->pushSpeed += cs->pushAccel;
+                if (cs->pushSpeedMax < cs->pushSpeed) {
+                    cs->pushSpeed = cs->pushSpeedMax;
                 }
             } else {
-                cs->unk74 -= cs->unk7C;
-                if (cs->unk74 < 0.0) {
-                    cs->unk74 = 0.0f;
+                cs->pushSpeed -= cs->pushAccel;
+                if (cs->pushSpeed < 0.0) {
+                    cs->pushSpeed = 0.0f;
                 }
             }
-            if (cs->unk74 > 0.01) {
-                gCsPosX += cs->unk8C * cs->unk74;
-                gCsPosZ += cs->unk90 * cs->unk74;
-                if (gCsPosX < cs->unk80) {
-                    gCsPosX = cs->unk80;
+            if (cs->pushSpeed > 0.01) {
+                gCsPosX += cs->pushDirX * cs->pushSpeed;
+                gCsPosZ += cs->pushDirZ * cs->pushSpeed;
+                if (gCsPosX < cs->pushMinX) {
+                    gCsPosX = cs->pushMinX;
                 }
-                if (gCsPosZ < cs->unk82) {
-                    gCsPosZ = cs->unk82;
+                if (gCsPosZ < cs->pushMinZ) {
+                    gCsPosZ = cs->pushMinZ;
                 }
-                if (cs->unk84 < gCsPosX) {
-                    gCsPosX = cs->unk84;
+                if (cs->pushMaxX < gCsPosX) {
+                    gCsPosX = cs->pushMaxX;
                 }
-                if (cs->unk86 < gCsPosZ) {
-                    gCsPosZ = cs->unk86;
+                if (cs->pushMaxZ < gCsPosZ) {
+                    gCsPosZ = cs->pushMaxZ;
                 }
             }
             break;
         case 2:
-            if (cs->unk52 != 0) {
-                switch (cs->unk52) {
+            if (cs->pushInput != 0) {
+                switch (cs->pushInput) {
                     case 1:
-                        cs->unk74 += cs->unk7C;
+                        cs->pushSpeed += cs->pushAccel;
                         break;
                     case 2:
-                        cs->unk74 -= cs->unk7C;
+                        cs->pushSpeed -= cs->pushAccel;
                         break;
                 }
-                if (cs->unk78 < cs->unk74) {
-                    cs->unk74 = cs->unk78;
+                if (cs->pushSpeedMax < cs->pushSpeed) {
+                    cs->pushSpeed = cs->pushSpeedMax;
                 }
-                if (cs->unk74 < -cs->unk78) {
-                    cs->unk74 = -cs->unk78;
+                if (cs->pushSpeed < -cs->pushSpeedMax) {
+                    cs->pushSpeed = -cs->pushSpeedMax;
                 }
-                gCsRotY += cs->unk74;
+                gCsRotY += cs->pushSpeed;
             } else {
-                if (cs->unk74 > 0.0) {
-                    cs->unk74 -= cs->unk7C;
-                    if (cs->unk74 < 0.0) {
-                        cs->unk74 = 0.0f;
+                if (cs->pushSpeed > 0.0) {
+                    cs->pushSpeed -= cs->pushAccel;
+                    if (cs->pushSpeed < 0.0) {
+                        cs->pushSpeed = 0.0f;
                     }
                 } else {
-                    cs->unk74 += cs->unk7C;
-                    if (cs->unk74 > 0.0) {
-                        cs->unk74 = 0.0f;
+                    cs->pushSpeed += cs->pushAccel;
+                    if (cs->pushSpeed > 0.0) {
+                        cs->pushSpeed = 0.0f;
                     }
                 }
-                gCsRotY += cs->unk74;
+                gCsRotY += cs->pushSpeed;
             }
             break;
     }
@@ -841,7 +841,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x28:
-        if (cs->unk9A & 1) {
+        if (cs->runFlags & 1) {
             ret = 0;
         } else {
             ret = 1;
@@ -895,7 +895,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x1D:
-        if ((cond->arg[0] == 0 && cs->unk48[cond->arg[2]] < cond->arg[1]) || (cond->arg[0] == 1 && cond->arg[1] < cs->unk48[cond->arg[2]])) {
+        if ((cond->arg[0] == 0 && cs->stateBytes[cond->arg[2]] < cond->arg[1]) || (cond->arg[0] == 1 && cond->arg[1] < cs->stateBytes[cond->arg[2]])) {
             ret = 1;
         } else {
             ret = 0;
@@ -930,27 +930,27 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x8:
-        ret = cs->unk51;
+        ret = cs->pushContact;
         break;
     case 0x9:
-        if (cs->unk52 != 0) {
+        if (cs->pushInput != 0) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x7:
-        ret = csCompareVar(cs->unk14, cond->arg[0], cond->arg[1]);
+        ret = csCompareVar(cs->vars, cond->arg[0], cond->arg[1]);
         break;
     case 0x31:
-        if (gModelSlots[hashTableLookup(gCsModelIds[cond->arg[0]])].unk7C->unk48[cond->arg[2]] == cond->arg[1]) {
+        if (gModelSlots[hashTableLookup(gCsModelIds[cond->arg[0]])].csState->stateBytes[cond->arg[2]] == cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x1:
-        if (cs->unk48[cond->arg[1]] == cond->arg[0]) {
+        if (cs->stateBytes[cond->arg[1]] == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
@@ -960,7 +960,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = csEvaluateParamCondition(cond->arg[0], cond->arg[1]);
         break;
     case 0x4:
-        if (cs->unk44[cond->arg[1]] == cond->arg[0]) {
+        if (cs->timers[cond->arg[1]] == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
@@ -1075,11 +1075,11 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = gCsCondTable[cond->arg[0]](cs, csId, cond->arg[1], cond->arg[2]);
         break;
     case 0xF:
-        ret = pathPlaybackIsActive(cs->unk38);
+        ret = pathPlaybackIsActive(cs->pathHandle);
         break;
     case 0x10:
-        if (cs->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->unk5C) &&
-            (cond->arg[0] & actorLookupClass(cs->unk5E)) && csIsPlayerInCutsceneState() != 0) {
+        if (cs->hitId != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->hitId) &&
+            (cond->arg[0] & actorLookupClass(cs->hitActorType)) && csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
         } else {
@@ -1087,7 +1087,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x18:
-        if (cs->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->unk5C) && cond->arg[0] == cs->unk5E &&
+        if (cs->hitId != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->hitId) && cond->arg[0] == cs->hitActorType &&
             csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
@@ -1259,10 +1259,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gCsCondFlag = cmd->a;
         break;
     case 0x8E:
-        dynamicBufferFree(&gModelSlots[hashTableLookup(csId)].unk28);
+        dynamicBufferFree(&gModelSlots[hashTableLookup(csId)].boxBuffer);
         break;
     case 0x8F:
-        modelSlotTriBufferRelease(&gModelSlots[hashTableLookup(csId)].unk48);
+        modelSlotTriBufferRelease(&gModelSlots[hashTableLookup(csId)].triBuffer);
         break;
     case 0x85:
         func_8062D1A8();
@@ -1326,7 +1326,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         playerState->savedZ = pz;
         break;
     case 0x74:
-        cs->unk9B |= cmd->a;
+        cs->modelFlags |= cmd->a;
         break;
     case 0x73:
         playerStateSetCallbackParameters(0, cmd->a, cmd->b, cmd->c);
@@ -1449,7 +1449,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         proxPathSetEnabled(csId, cmd->a, cmd->b);
         break;
     case 0x46:
-        cs->unk70 = cmd->a;
+        cs->collisionEnabled = cmd->a;
         break;
     case 0x47:
         cs->unk71 = cmd->a;
@@ -1458,9 +1458,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotUpdateTailKey(csId, 1, cmd->a, cmd->b);
         break;
     case 0x45:
-        cs->unk60 = cmd->a;
-        cs->unk62 = cmd->b;
-        cs->unk66 = cmd->c;
+        cs->alphaOverride = cmd->a;
+        cs->alphaTarget = cmd->b;
+        cs->alphaStep = cmd->c;
         break;
     case 0x40:
         gGlobalPauseFlags |= ((u16)cmd->a << 16) + (u16)cmd->b;
@@ -1472,7 +1472,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gGlobalCutsceneFlags &= ~(((u16)cmd->a << 16) + (u16)cmd->b);
         break;
     case 0x3F:
-        cs->unk6E = cmd->a;
+        cs->contactCallbacks = cmd->a;
         break;
     case 0x3E:
         cs->unk6F = cmd->a;
@@ -1510,16 +1510,16 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x54:
         slot = hashTableLookup(gCsModelIds[cmd->a]);
         if (slot != -1) {
-            csSetObjectTrackParam(gModelSlots[slot].unk7C, cmd->b, cmd->c);
+            csSetObjectTrackParam(gModelSlots[slot].csState, cmd->b, cmd->c);
         }
         break;
     case 0x25:
         csStartCamPath(cs, cmd->a, cmd->b, cmd->c);
         break;
     case 0x3C:
-        if (cs->unk94 != NULL) {
-            actorDespawn(cs->unk94);
-            cs->unk94 = NULL;
+        if (cs->camPathActor != NULL) {
+            actorDespawn(cs->camPathActor);
+            cs->camPathActor = NULL;
         }
         break;
     case 0x30:
@@ -1615,9 +1615,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             vol = 0xFF;
         }
         i = cmd->b & 1;
-        if (cs->unk10[i] < 0) {
+        if (cs->sfxSources[i] < 0) {
             bit = cmd->b & 2;
-            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, 0);
+            cs->sfxSources[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, 0);
         }
         break;
     case 0x7D:
@@ -1631,9 +1631,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             vol = 0xFF;
         }
         i = cmd->b & 1;
-        if (cs->unk10[i] < 0) {
+        if (cs->sfxSources[i] < 0) {
             bit = cmd->b & 2;
-            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, gCsSfxNode);
+            cs->sfxSources[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, gCsSfxNode);
         }
         break;
     case 0xF:
@@ -1668,30 +1668,30 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x10:
-        if (cs->unk10[cmd->b] >= 0) {
-            sfxSlotFreeSource(cs->unk10[cmd->b]);
-            cs->unk10[cmd->b] = -1;
+        if (cs->sfxSources[cmd->b] >= 0) {
+            sfxSlotFreeSource(cs->sfxSources[cmd->b]);
+            cs->sfxSources[cmd->b] = -1;
         }
         break;
     case 0x48:
-        sfxSetVolumeAndPan(cs->unk10[cmd->a], cmd->b * 0.0001220703125, cmd->c);
+        sfxSetVolumeAndPan(cs->sfxSources[cmd->a], cmd->b * 0.0001220703125, cmd->c);
         break;
     case 0xA:
-        cs->unk50 = cmd->a;
-        cs->unk78 = cmd->b / 100.0f;
-        cs->unk7C = cmd->c / 100.0f;
+        cs->pushMode = cmd->a;
+        cs->pushSpeedMax = cmd->b / 100.0f;
+        cs->pushAccel = cmd->c / 100.0f;
         break;
     case 0xB:
-        cs->unk80 = (f32)cmd->a;
-        cs->unk82 = (f32)cmd->b;
+        cs->pushMinX = (f32)cmd->a;
+        cs->pushMinZ = (f32)cmd->b;
         break;
     case 0xC:
-        cs->unk84 = (f32)cmd->a;
-        cs->unk86 = (f32)cmd->b;
+        cs->pushMaxX = (f32)cmd->a;
+        cs->pushMaxZ = (f32)cmd->b;
         break;
     case 0xD:
-        cs->unk88 = (f32)cmd->a;
-        cs->unk8A = (f32)cmd->b;
+        cs->pushArcMin = (f32)cmd->a;
+        cs->pushArcMax = (f32)cmd->b;
         break;
     case 0x9:
         if (D_807F61FC != gCsPosX || D_807F6204 != gCsPosZ) {
@@ -1702,7 +1702,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F6904 = 1;
         break;
     case 0x6:
-        cs->unk14[cmd->a] = cmd->b / 10.0f;
+        cs->vars[cmd->a] = cmd->b / 10.0f;
         break;
     case 0x0:
         csSetRot(cmd->a, cmd->b, cs, csId, 1);
@@ -1718,16 +1718,16 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x3:
         if (cmd->a == 0) {
-            cs->unk44[cmd->c] = cmd->b;
+            cs->timers[cmd->c] = cmd->b;
         } else {
-            cs->unk44[cmd->c] = cs->unk14[cmd->b];
+            cs->timers[cmd->c] = cs->vars[cmd->b];
         }
         break;
     case 0x65:
-        cs->unk4B[cmd->b] += cmd->a;
+        cs->nextStateBytes[cmd->b] += cmd->a;
         break;
     case 0x1:
-        cs->unk4B[cmd->b] = cmd->a;
+        cs->nextStateBytes[cmd->b] = cmd->a;
         break;
     case 0x5:
         if (csModelStateTrySetByte(cmd->a, cmd->b, cmd->c) == 0) {
@@ -1772,9 +1772,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         if (gCsModelIds[cmd->a] != -1) {
             idx = hashTableLookup(gCsModelIds[cmd->a]);
             if (idx != -1) {
-                if (gModelSlots[idx].unk7C != NULL) {
+                if (gModelSlots[idx].csState != NULL) {
                     bit = 1;
-                    gModelSlots[idx].unk7C->unk48[cmd->b] += cmd->c;
+                    gModelSlots[idx].csState->stateBytes[cmd->b] += cmd->c;
                 }
             }
         }
@@ -1783,30 +1783,30 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x2:
-        pathPlaybackSetSpeed(cs->unk38, cmd->a);
+        pathPlaybackSetSpeed(cs->pathHandle, cmd->a);
         break;
     case 0x1F:
-        pathPlaybackSetLoopMode(cs->unk38, cmd->a);
+        pathPlaybackSetLoopMode(cs->pathHandle, cmd->a);
         break;
     case 0x20:
-        pathPlaybackSetDirection(cs->unk38, cmd->a);
+        pathPlaybackSetDirection(cs->pathHandle, cmd->a);
         break;
     case 0x21:
-        pathPlaybackSetLoopLimit(cs->unk38, cmd->a);
+        pathPlaybackSetLoopLimit(cs->pathHandle, cmd->a);
         break;
     case 0x24:
-        pathPlaybackSetActive(cs->unk38, cmd->a);
+        pathPlaybackSetActive(cs->pathHandle, cmd->a);
         break;
     case 0x22:
-        cs->unk38 = pathPlaybackStart(0, cmd->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);
+        cs->pathHandle = pathPlaybackStart(0, cmd->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);
         break;
     case 0x23:
-        pathPlaybackFree(cs->unk38);
-        cs->unk38 = -1;
+        pathPlaybackFree(cs->pathHandle);
+        cs->pathHandle = -1;
         break;
     case 0x4:
-        pathPlaybackAdvance(cs->unk38);
-        pathPlaybackGetPosition(cs->unk38, &gCsPosX, &gCsPosY, &gCsPosZ);
+        pathPlaybackAdvance(cs->pathHandle);
+        pathPlaybackGetPosition(cs->pathHandle, &gCsPosX, &gCsPosY, &gCsPosZ);
         break;
     case 0x27:
         modelSlotSetNodeAnimMode(csId, cmd->a, cmd->b);
@@ -1826,7 +1826,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F6908 = cmd->b;
         break;
     case 0x2A:
-        gModelSlots[hashTableLookup(csId)].unk28.unk14 = cmd->a;
+        gModelSlots[hashTableLookup(csId)].boxBuffer.unk14 = cmd->a;
         break;
     case 0x2E:
         mapByteArraySet(cmd->a, cmd->b);
@@ -1852,11 +1852,11 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x43:
         if (cmd->a == 1) {
-            cs->unk8 = cs->unk14[cmd->b];
-            cs->unkC = cs->unk14[cmd->c];
+            cs->riderDriftX = cs->vars[cmd->b];
+            cs->riderDriftZ = cs->vars[cmd->c];
         } else {
-            cs->unk8 = cmd->b / 10.0f;
-            cs->unkC = cmd->c / 10.0f;
+            cs->riderDriftX = cmd->b / 10.0f;
+            cs->riderDriftZ = cmd->c / 10.0f;
         }
         break;
     case 0x49:
@@ -1956,8 +1956,8 @@ s32 csModelStateTrySetByte(s16 modelIndex, s16 val, s16 byteOffset) {
 
     if (modelId != -1) {
         slot = hashTableLookup(modelId);
-        if (slot != -1 && gModelSlots[slot].unk7C != NULL) {
-            gModelSlots[slot].unk7C->unk48[byteOffset] = val;
+        if (slot != -1 && gModelSlots[slot].csState != NULL) {
+            gModelSlots[slot].csState->stateBytes[byteOffset] = val;
             return 1;
         }
     }
@@ -1967,7 +1967,7 @@ s32 csModelStateTrySetByte(s16 modelIndex, s16 val, s16 byteOffset) {
 void csSetObjectTrackParam(void *obj, s16 b, s16 c) {
     CsState *o = obj;
 
-    o->unk54 = b;
+    o->updateMode = b;
     switch (b & 0xFF) {
     case 3:
     case 4:
@@ -2003,10 +2003,10 @@ void csFreeTrackedModels(void) {
 void csStateShareScript(s16 dstModelId, s16 srcModelId, s16 val) {
     dstModelId = hashTableLookup(dstModelId);
     srcModelId = hashTableLookup(srcModelId);
-    gModelSlots[dstModelId].unk7C = heapAlloc(0xA4);
-    csStateInit(gModelSlots[dstModelId].unk7C);
-    gModelSlots[dstModelId].unk7C->unk48[0] = val;
-    gModelSlots[dstModelId].unk7C->unkA0 = gModelSlots[srcModelId].unk7C->unkA0;
+    gModelSlots[dstModelId].csState = heapAlloc(0xA4);
+    csStateInit(gModelSlots[dstModelId].csState);
+    gModelSlots[dstModelId].csState->stateBytes[0] = val;
+    gModelSlots[dstModelId].csState->nodes = gModelSlots[srcModelId].csState->nodes;
 }
 
 void csSetActorAlphaByType(s16 actorType, s16 enable, s16 csId) {
@@ -2053,8 +2053,8 @@ void csSetActorScaleFadeByType(s16 actorType, s16 mode, s16 csId) {
 void csStartCamPath(CsState *cs, s16 camIdx, s16 mode, s16 c) {
     s32 flag;
 
-    if (cs->unk94 == NULL && func_80678014(0x14) != 0) {
-        cs->unk94 = gSpawnedActor;
+    if (cs->camPathActor == NULL && func_80678014(0x14) != 0) {
+        cs->camPathActor = gSpawnedActor;
         gSpawnedActor->collisionMode = 1;
         gSpawnedActor->x = gCsPosX;
         gSpawnedActor->y = gCsPosY;
@@ -2070,7 +2070,7 @@ void csStartCamPath(CsState *cs, s16 camIdx, s16 mode, s16 c) {
         }
         switch (mode) {
         case 0:
-            camStartPath(cs->unk94, camIdx, flag | 1 | D_807F693C);
+            camStartPath(cs->camPathActor, camIdx, flag | 1 | D_807F693C);
             return;
         case 1:
             camStartPath(NULL, camIdx, flag | 1 | D_807F693C);
@@ -2293,7 +2293,7 @@ void csSetRot(s16 modeAndAxis, s16 rotValue, CsState *cs, s16 csId, u8 isRelativ
     hi = (modeAndAxis >> 8) & 0xFF;
     v = rotValue / 10.0f;
     if (lo == 1) {
-        v = cs->unk14[rotValue];
+        v = cs->vars[rotValue];
     }
     switch (hi) {
     case 0:
@@ -2329,7 +2329,7 @@ void csSetPos(s16 modeAndAxis, s16 posValue, CsState *cs, s16 csId, u8 isRelativ
     hi = (modeAndAxis >> 8) & 0xFF;
     v = posValue / 10.0f;
     if (lo == 1) {
-        v = cs->unk14[posValue];
+        v = cs->vars[posValue];
     }
     switch (hi) {
     case 0:

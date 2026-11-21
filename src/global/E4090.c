@@ -1118,7 +1118,7 @@ void playerUpdateMoveTargetFromStick(void) {
     PadInputState *pad;
 
     speed = gActivePlayerState->targetSpeed;
-    if (gActivePlayerState->unkC8 == 0) {
+    if (gActivePlayerState->chargeTimer == 0) {
         speed = speed * 0.5;
     }
     if (gActivePlayerState->breathTimer != 0) {
@@ -1443,7 +1443,7 @@ void playerTurnByStickX(void) {
     }
     pad = &gPlayerPadState[gCurrentPlayerIndex];
     if (!(pad->heldButtons & 0x2000)) {
-        gActivePlayerState->unk1A0 = pad->stickY * 0xCC * 0.6 + 63000.0;
+        gActivePlayerState->aimPitch = pad->stickY * 0xCC * 0.6 + 63000.0;
     }
 }
 
@@ -1524,9 +1524,9 @@ void playerPathMoveByStickYAndTurn(void) {
         gActivePlayerState->maxSpeed = inputLerpByStickAbsY(D_80753BA4[gCurrentCharacterIndex], D_80753BC0[gCurrentCharacterIndex]);
     }
     if (gActivePlayerState->maxSpeed != 0.0f) {
-        gActivePlayerState->unk8 = gActivePlayerState->maxSpeed > 0.0f ? 1 : -1;
+        gActivePlayerState->moveDir = gActivePlayerState->maxSpeed > 0.0f ? 1 : -1;
     } else {
-        gActivePlayerState->unk8 = 0;
+        gActivePlayerState->moveDir = 0;
     }
     proxPathAdvance(gPlayerPadState[gCurrentPlayerIndex].stickY / 80.0);
     gCurrentActor->yaw += gPlayerPadState[gCurrentPlayerIndex].stickX;
@@ -1541,9 +1541,9 @@ void playerPathMoveByStickY(void) {
         gActivePlayerState->maxSpeed = inputLerpByStickAbsY(D_80753BA4[gCurrentCharacterIndex], D_80753BC0[gCurrentCharacterIndex]);
     }
     if (gActivePlayerState->maxSpeed != 0.0f) {
-        gActivePlayerState->unk8 = gActivePlayerState->maxSpeed > 0.0f ? 1 : -1;
+        gActivePlayerState->moveDir = gActivePlayerState->maxSpeed > 0.0f ? 1 : -1;
     } else {
-        gActivePlayerState->unk8 = 0;
+        gActivePlayerState->moveDir = 0;
     }
     proxPathAdvance(gPlayerPadState[gCurrentPlayerIndex].stickY / 80.0);
 }
@@ -1583,13 +1583,13 @@ void playerSetMoveSpeedFromStickX(void) {
 
     if (gPlayerPadState[gCurrentPlayerIndex].stickX < 0) {
         gActivePlayerState->maxSpeed = -v;
-        gActivePlayerState->unk8 = -1;
+        gActivePlayerState->moveDir = -1;
     } else {
         gActivePlayerState->maxSpeed = v;
         if (v != 0.0f) {
-            gActivePlayerState->unk8 = 1;
+            gActivePlayerState->moveDir = 1;
         } else {
-            gActivePlayerState->unk8 = 0;
+            gActivePlayerState->moveDir = 0;
         }
     }
 }
@@ -1619,7 +1619,7 @@ void playerInputHandleAButtonSlopeJump(void) {
     if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
-    if (gActivePlayerState->unkC8 != -1) {
+    if (gActivePlayerState->chargeTimer != -1) {
         return;
     }
     if (gCurrentActor->floorSlopeFactor != 0.0f) {
@@ -2250,7 +2250,7 @@ void playerInputStepCannonPitch(void) {
     f32 a;
     s32 t;
 
-    a = gActivePlayerState->unk1A0 + 0x9E8;
+    a = gActivePlayerState->aimPitch + 0x9E8;
     if (a >= 32768.0f) {
         a -= 65536.0f;
     }
@@ -2340,7 +2340,7 @@ void playerStepPitchAngleToward(f32 target) {
     u16 raw;
 
     ps = gActivePlayerState;
-    raw = ps->unk1A0;
+    raw = ps->aimPitch;
     if (raw < 0x8000) {
         pitch = raw + 0x10000;
     } else {
@@ -2358,7 +2358,7 @@ void playerStepPitchAngleToward(f32 target) {
             pitch = target;
         }
     }
-    ps->unk1A0 = pitch;
+    ps->aimPitch = pitch;
 }
 
 void playerInputHandleStickAction(void) {
@@ -2511,7 +2511,7 @@ void playerInputHandleBButtonGun(void) {
             gCurrentActor->state = 0x26;
             gCurrentActor->unk155 = 0;
         }
-        gActivePlayerState->unkC8 = 0x32;
+        gActivePlayerState->chargeTimer = 0x32;
         gActivePlayerState->unk64 = 0;
     }
 }
@@ -2559,7 +2559,7 @@ void playerInputHandleBButtonSpecial(void) {
             gCurrentActor->state = 0x2B;
             gCurrentActor->unk155 = 0;
             actorScriptStartByIndex(gCurrentActor, 0x45);
-            gActivePlayerState->unkC8 = 0x32;
+            gActivePlayerState->chargeTimer = 0x32;
         } else {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                 case 2:
@@ -2665,7 +2665,7 @@ void playerInputThrowHeldActor(void) {
 }
 
 void playerInputHandleAButtonFire(void) {
-    if ((playerInputCheckMultiplayerPlayerTarget() == 0) && (gActivePlayerState->unkC8 == -1)) {
+    if ((playerInputCheckMultiplayerPlayerTarget() == 0) && (gActivePlayerState->chargeTimer == -1)) {
         if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (gCurrentActor->speedXZ < D_807531E0[gCurrentCharacterIndex])) {
             gCurrentActor->state = 0x3C;
             gCurrentActor->unk155 = 0;
@@ -2849,9 +2849,9 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
         switch (gActorGlobalState.unk14) {
             case 9:
                 if (gActivePlayerState->transitionTimer == 0) {
-                    gActivePlayerState->unk204 = gActorGlobalState.unk4;
-                    gActivePlayerState->unk208 = gActorGlobalState.unk8;
-                    gActivePlayerState->unk20C = gActorGlobalState.unkC;
+                    gActivePlayerState->warpX = gActorGlobalState.unk4;
+                    gActivePlayerState->warpY = gActorGlobalState.unk8;
+                    gActivePlayerState->warpZ = gActorGlobalState.unkC;
                     gActivePlayerState->unk21C = gActorGlobalState.unk10;
                     playerStateQueueCallback(0x1E, 0, gCurrentPlayerIndex);
                     playerRestoreKongState(gCurrentActor, gActivePlayerState);
@@ -2861,9 +2861,9 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
             case 5:
                 if (gCsCondFlag == 0) {
                     if (++D_8076A094 < 0x5DD) {
-                        gActivePlayerState->unk204 = gActorGlobalState.unk4;
-                        gActivePlayerState->unk208 = gActorGlobalState.unk8;
-                        gActivePlayerState->unk20C = gActorGlobalState.unkC;
+                        gActivePlayerState->warpX = gActorGlobalState.unk4;
+                        gActivePlayerState->warpY = gActorGlobalState.unk8;
+                        gActivePlayerState->warpZ = gActorGlobalState.unkC;
                         playerStateQueueCallback(0x1C, 0, gCurrentPlayerIndex);
                         playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
@@ -2873,9 +2873,9 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
             case 3:
                 if (gCsCondFlag == 0) {
                     if (++D_8076A094 < 0x5DD) {
-                        gActivePlayerState->unk204 = gActorGlobalState.unk4;
-                        gActivePlayerState->unk208 = gActorGlobalState.unk8;
-                        gActivePlayerState->unk20C = gActorGlobalState.unkC;
+                        gActivePlayerState->warpX = gActorGlobalState.unk4;
+                        gActivePlayerState->warpY = gActorGlobalState.unk8;
+                        gActivePlayerState->warpZ = gActorGlobalState.unkC;
                         playerStateQueueCallback(0x1D, 0, gCurrentPlayerIndex);
                         playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
@@ -2892,7 +2892,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
             case 4:
                 if (!(gActivePlayerState->stateFlags & 0x40)) {
                     playerTransformAnimalStartSfx(gPrimaryPlayerActor);
-                    gActivePlayerState->unk1FE = gActorGlobalState.unk10;
+                    gActivePlayerState->transformTimer = gActorGlobalState.unk10;
                 }
                 return 1;
             case 0:
@@ -3030,23 +3030,23 @@ void playerInputHandleRButtonCameraLock(void) {
     CamState *obj;
 
     obj = gActivePlayerState->camActor->customState;
-    obj->unkAC |= 4;
+    obj->flags |= 4;
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x10) {
         if ((gGlobalOverlayFlags & 1) || ((gPlayerCount >= 2) && (gSplitScreenMode == 0))) {
-            if (obj->unkAC & 0x10000) {
+            if (obj->flags & 0x10000) {
                 camClearSecondTarget(gActivePlayerState->camActor);
                 return;
             }
             camSetSecondTarget(gActivePlayerState->camActor, 0, 0);
             return;
         }
-        if (!(obj->unkAC & 0x4000)) {
-            obj->unkAC ^= 2;
-            if ((obj->unkF1 < 3) && (obj->unkF5 == 0) && (obj->mode != 2)) {
-                obj->unkF1 = 0x14;
-                obj->unkB2 = gCurrentActor->yaw;
-                gActivePlayerState->camActor->distToFloor = obj->unkB8;
-                obj->unkF5 = 0xA;
+        if (!(obj->flags & 0x4000)) {
+            obj->flags ^= 2;
+            if ((obj->repositionFrames < 3) && (obj->snapBehindFrames == 0) && (obj->mode != 2)) {
+                obj->repositionFrames = 0x14;
+                obj->orbitYaw = gCurrentActor->yaw;
+                gActivePlayerState->camActor->distToFloor = obj->followHeightGoal;
+                obj->snapBehindFrames = 0xA;
             }
         }
     }
@@ -3057,8 +3057,8 @@ void playerInputHandleRButtonReleaseCameraLock(void) {
 
     if (!(gGlobalOverlayFlags & 1) && ((gPlayerCount < 2) || (gSplitScreenMode != 0))) {
         obj = gActivePlayerState->camActor->customState;
-        obj->unk4 = 0;
-        obj->unkAC &= ~4;
+        obj->secondTarget = 0;
+        obj->flags &= ~4;
     }
 }
 
@@ -4145,7 +4145,7 @@ s32 playerInputPostUpdate(void) {
     s32 snapDepth;
 
     ret = 0;
-    gActivePlayerState->unk24 = 0;
+    gActivePlayerState->swimFrames = 0;
     snapDepth = 0x1E;
     if (gCurrentActor->contactFlags & 4) {
         if (gCurrentActor->speedY <= 0.0f) {
@@ -4289,7 +4289,7 @@ void playerInputHandleCUpCameraZoomIn(void) {
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) {
         state = gActivePlayerState->camActor->customState;
-        if ((mpIsMatchType(0) == 0) && !(state->unkAC & 0x80000000)) {
+        if ((mpIsMatchType(0) == 0) && !(state->flags & 0x80000000)) {
             act = gCurrentActor->state;
             if (((act == 0x5D || act == 0x5E || act == 0x62) && !(gGlobalOverlayFlags & 0x80000000)) || act == 0x4E || act == 0x4F ||
                 act == 0xD || act == 0xC) {
@@ -4307,7 +4307,7 @@ void playerInputHandleCLeftEnterFirstPerson(void) {
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentActor->contactFlags & 1)) {
         state = gActivePlayerState->camActor->customState;
-        if ((mpIsMatchType(0) == 0) && !(state->unkAC & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
+        if ((mpIsMatchType(0) == 0) && !(state->flags & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
             playerTryEnterViewMode(5, 3, 1);
         }
     }
@@ -4318,7 +4318,7 @@ void playerInputHandleCUpMode7(void) {
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gCurrentActor->contactFlags & 1)) {
         state = gActivePlayerState->camActor->customState;
-        if ((mpIsMatchType(0) == 0) && !(state->unkAC & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
+        if ((mpIsMatchType(0) == 0) && !(state->flags & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
             playerTryEnterViewMode(5, 3, 1);
         }
     }
@@ -4342,21 +4342,21 @@ void playerInputCycleCameraZoom(void) {
     } else {
         max = 3;
     }
-    cur = state->unkEF;
-    if ((cur != 0) && ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4) && ((state->unkEE == max) || (state->wallCollisionMode == 0))) {
-        state->unkF0 = cur;
+    cur = state->zoomLevel;
+    if ((cur != 0) && ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4) && ((state->preferredZoomLevel == max) || (state->wallCollisionMode == 0))) {
+        state->savedZoomLevel = cur;
         if (cur < max) {
-            state->unkEF = cur + 1;
+            state->zoomLevel = cur + 1;
         } else {
-            state->unkEF = 1;
+            state->zoomLevel = 1;
         }
-        camSetZoomLevel(gActivePlayerState->camActor, state->unkEF);
-        state->unkEE = state->unkEF;
-        if ((state->unkEF != state->unkF0) && ((state->unk8 == 0) || (state->unk8 >= 0x96)) && (state->mode != 2)) {
+        camSetZoomLevel(gActivePlayerState->camActor, state->zoomLevel);
+        state->preferredZoomLevel = state->zoomLevel;
+        if ((state->zoomLevel != state->savedZoomLevel) && ((state->roomHeight == 0) || (state->roomHeight >= 0x96)) && (state->mode != 2)) {
             sfxPlayOnFreeSlot(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
-        state->unkF1 = 0xB;
-        state->unkF6 = 0xF;
+        state->repositionFrames = 0xB;
+        state->fastBlendFrames = 0xF;
     }
 }
 
@@ -4364,9 +4364,9 @@ void playerInputCamRotateLeft(void) {
     CamState *state;
 
     state = gActivePlayerState->camActor->customState;
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (state->unkF1 < 3)) {
-        state->unkB0 -= 0x2D;
-        state->unkF1 = 0xB;
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (state->repositionFrames < 3)) {
+        state->pendingTurn -= 0x2D;
+        state->repositionFrames = 0xB;
     }
 }
 
@@ -4374,9 +4374,9 @@ void playerInputCamRotateRight(void) {
     CamState *state;
 
     state = gActivePlayerState->camActor->customState;
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 1) && (state->unkF1 < 3)) {
-        state->unkB0 += 0x2D;
-        state->unkF1 = 0xB;
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 1) && (state->repositionFrames < 3)) {
+        state->pendingTurn += 0x2D;
+        state->repositionFrames = 0xB;
     }
 }
 
@@ -4450,19 +4450,19 @@ void aimUpdateFromStick(void) {
 
     if (!(gActivePlayerState->stateFlags & 0x8000)) {
         state = gActivePlayerState->camActor->customState;
-        angle = &state->unkB2;
+        angle = &state->orbitYaw;
         *angle = *angle - aimStickSpeedScale() * (gPlayerPadState[gCurrentPlayerIndex].stickX * 0.08) * 4096.0 / 360.0;
-        dist = &state->unkB8;
+        dist = &state->followHeightGoal;
         scale = aimStickSpeedScale();
         *dist = gPlayerPadState[gCurrentPlayerIndex].stickY * 0.04 * scale + *dist;
         *angle &= 0xFFF;
-        if (state->unkBC + 0x32 < *dist) {
-            *dist = state->unkBC + 0x32;
-        } else if (*dist < state->unkBC - 0x50) {
-            *dist = state->unkBC - 0x50;
+        if (state->aimHeightBase + 0x32 < *dist) {
+            *dist = state->aimHeightBase + 0x32;
+        } else if (*dist < state->aimHeightBase - 0x50) {
+            *dist = state->aimHeightBase - 0x50;
         }
         gActivePlayerState->camActor->distToFloor = *dist;
-        gCurrentActor->yaw = (state->unkB2 + 0x800) & 0xFFF;
+        gCurrentActor->yaw = (state->orbitYaw + 0x800) & 0xFFF;
     }
 }
 

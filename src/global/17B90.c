@@ -419,11 +419,11 @@ void controllerAnimSetStateRemap(Actor *actor, s16 animIndex, f32 animSpeed, f32
     if (animIndex >= 0) {
         keepLayer = animIndex & 0x4000;
         animIndex -= keepLayer;
-        gActivePlayerState->unk4E = animIndex;
+        gActivePlayerState->animIndex = animIndex;
         tableIndex = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
         animIndex = gActorScriptAnimTable[tableIndex] + keepLayer;
     } else {
-        gActivePlayerState->unk4E = animIndex;
+        gActivePlayerState->animIndex = animIndex;
     }
     controllerAnimSetStateIfChanged(actor, animIndex, animSpeed, blend);
 }
@@ -435,11 +435,11 @@ void controllerAnimSetStateRemapDirect(Actor *actor, s16 animIndex, f32 animSpee
     if (animIndex >= 0) {
         keepLayer = animIndex & 0x4000;
         animIndex -= keepLayer;
-        gActivePlayerState->unk4E = animIndex;
+        gActivePlayerState->animIndex = animIndex;
         tableIndex = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
         animIndex = gActorScriptAnimTable[tableIndex] + keepLayer;
     } else {
-        gActivePlayerState->unk4E = animIndex;
+        gActivePlayerState->animIndex = animIndex;
     }
     controllerAnimSetState(actor, animIndex, animSpeed, blend);
 }

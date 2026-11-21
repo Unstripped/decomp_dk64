@@ -620,20 +620,20 @@ void mapChunkUpdateEntryNode(RenderEntry *entry) {
     u8 layer;
     RenderEntry **list;
 
-    entry->unk20 = mapChunkFindByPosition(entry->unk4, entry->unk8, entry->unkC, entry->unk20);
-    layer = renderEntryIsTranslucent(entry->unk24, entry->unk0);
-    if (entry->unk24 == 0) {
-        ((Actor *)entry->unk0)->chunkIndex = entry->unk20;
+    entry->chunkIndex = mapChunkFindByPosition(entry->x, entry->y, entry->z, entry->chunkIndex);
+    layer = renderEntryIsTranslucent(entry->type, entry->object);
+    if (entry->type == 0) {
+        ((Actor *)entry->object)->chunkIndex = entry->chunkIndex;
     }
     switch (layer) {
     case 0:
-        list = &gMapChunks[entry->unk20].opaqueList;
+        list = &gMapChunks[entry->chunkIndex].opaqueList;
         break;
     case 1:
-        list = &gMapChunks[entry->unk20].translucentList;
+        list = &gMapChunks[entry->chunkIndex].translucentList;
         break;
     }
-    *list = renderEntryAddOrUpdate(*list, entry->unk24, entry->unk0, entry->unk4, entry->unk8, entry->unkC, entry->unk1C, entry->unk1E, entry->unk22, entry->unk20, 0);
+    *list = renderEntryAddOrUpdate(*list, entry->type, entry->object, entry->x, entry->y, entry->z, entry->maxDist, entry->modelId, entry->autoPurge, entry->chunkIndex, 0);
 }
 
 
@@ -753,7 +753,7 @@ void mapChunkUpdateModelNodes(void) {
         }
         node = gMapChunks[i].opaqueList;
         while (node != NULL) {
-            next = ((RenderEntry *)node)->unk14;
+            next = ((RenderEntry *)node)->next;
             modelPendingQueueInsert(node, flag);
             node = next;
         }
@@ -791,10 +791,10 @@ u8 mapChunkCheckActorCollision(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY
                 }
                 if (node != NULL) {
                     do {
-                        if (node->unk24 == 1) {
-                            result |= collisionTestDynamicActorFloor(actor, node->unk1E, x, z, y, outFloorY);
+                        if (node->type == 1) {
+                            result |= collisionTestDynamicActorFloor(actor, node->modelId, x, z, y, outFloorY);
                         }
-                        node = node->unk14;
+                        node = node->next;
                     } while (node != NULL);
                 }
             }
@@ -1806,13 +1806,13 @@ void mapChunkReleaseAndAdvance(void) {
     RenderEntry *node;
 
     if (!mapChunkIsVisible(D_807F70AA)) {
-        for (node = gMapChunks[D_807F70AA].opaqueList; node != NULL; node = node->unk14) {
-            modelSlotFreeTexAnimBuffers(node->unk0, node->unk24);
-            modelSlotFreeAssetTextures(node->unk0, node->unk24);
+        for (node = gMapChunks[D_807F70AA].opaqueList; node != NULL; node = node->next) {
+            modelSlotFreeTexAnimBuffers(node->object, node->type);
+            modelSlotFreeAssetTextures(node->object, node->type);
         }
-        for (node = gMapChunks[D_807F70AA].translucentList; node != NULL; node = node->unk14) {
-            modelSlotFreeTexAnimBuffers(node->unk0, node->unk24);
-            modelSlotFreeAssetTextures(node->unk0, node->unk24);
+        for (node = gMapChunks[D_807F70AA].translucentList; node != NULL; node = node->next) {
+            modelSlotFreeTexAnimBuffers(node->object, node->type);
+            modelSlotFreeAssetTextures(node->object, node->type);
         }
     }
     D_807F70AA++;

@@ -1287,9 +1287,9 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
         return 0;
     }
 
-    buf = &gModelSlots[slotIdx].unk48;
-    if (actor != NULL && gModelSlots[slotIdx].unk70 != NULL && D_807F946D != 0) {
-        actorCheckNearbyNodeInteractions(actor, slotIdx, gModelSlots[slotIdx].unk70);
+    buf = &gModelSlots[slotIdx].triBuffer;
+    if (actor != NULL && gModelSlots[slotIdx].attachPoints != NULL && D_807F946D != 0) {
+        actorCheckNearbyNodeInteractions(actor, slotIdx, gModelSlots[slotIdx].attachPoints);
     }
 
     if (!(buf->flags & 4)) {
@@ -1305,18 +1305,18 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     }
 
     if (actor != NULL && (actor->collisionFlags & 1)) {
-        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, ((PlayerState *)actor->customState)->playerIndex) != 0) {
+        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].asset->unk0, ((PlayerState *)actor->customState)->playerIndex) != 0) {
             return 0;
         }
     }
 
-    csState = gModelSlots[slotIdx].unk7C;
+    csState = gModelSlots[slotIdx].csState;
     if (csState != NULL && csState->unk71 == 0) {
         return 0;
     }
 
     if (!(buf->flags & 1)) {
-        modelSlotBuildTriangleBufferThunk(slotIdx, gModelSlots[slotIdx].unk24,
+        modelSlotBuildTriangleBufferThunk(slotIdx, gModelSlots[slotIdx].asset,
             gModelSlots[slotIdx].x, gModelSlots[slotIdx].y, gModelSlots[slotIdx].z,
             gModelSlots[slotIdx].rotX, gModelSlots[slotIdx].rotY, gModelSlots[slotIdx].rotZ,
             gModelSlots[slotIdx].scale);
@@ -1373,7 +1373,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     if (hit != 0 && collisionPickCloserFloor(*floorYOut, hitY, refY + 4.0, 0) != 0) {
         *floorYOut = hitY;
         collisionStoreTriangleNormalAnglesF32(actor, hitTri, 1);
-        csState = gModelSlots[slotIdx].unk7C;
+        csState = gModelSlots[slotIdx].csState;
         if (csState != NULL && csState->unk4F != 0) {
             D_807F94AC = 1;
         }
@@ -1508,9 +1508,9 @@ void actorUpdateSubnodeRotationAndMtx(Actor *actor) {
     slot = hashTableLookup(actor->cutsceneId);
     if (slot != -1) {
         modelSlotBuildTransformMatrix(slot, actor->unk10F, mtx);
-        if (gModelSlots[slot].unk7C != NULL) {
+        if (gModelSlots[slot].csState != NULL) {
             if (actor->hasArcBounds == 0) {
-                actor->yaw += (gModelSlots[slot].unk7C->unk34 * 4095.0f) / 360.0f;
+                actor->yaw += (gModelSlots[slot].csState->rotYDelta * 4095.0f) / 360.0f;
                 if (actor->yaw >= 0x1000) {
                     actor->yaw -= 0x1000;
                 }
@@ -1518,8 +1518,8 @@ void actorUpdateSubnodeRotationAndMtx(Actor *actor) {
                     actor->yaw += 0xFFF;
                 }
             }
-            actor->unk100 += gModelSlots[slot].unk7C->unk8;
-            actor->unk108 += gModelSlots[slot].unk7C->unkC;
+            actor->unk100 += gModelSlots[slot].csState->riderDriftX;
+            actor->unk108 += gModelSlots[slot].csState->riderDriftZ;
         }
         guMtxXFMF(mtx, actor->unk100, actor->unk104, actor->unk108, &x, &y, &z);
         actor->unk94 = x;

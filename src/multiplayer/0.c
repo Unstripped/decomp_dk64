@@ -645,7 +645,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
 
     playerActor = gPlayerSlots[playerIndex].actor;
     playerState = playerActor->customState;
-    switch (playerState->unk264) {
+    switch (playerState->pendingPickupEffect) {
     case 0:
         playerSetSizeMode(playerActor, 2);
         gridCollectItem(playerIndex, 0x8E, 0);
@@ -692,7 +692,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
         }
         break;
     }
-    playerState->unk264 = -1;
+    playerState->pendingPickupEffect = -1;
 }
 
 
@@ -919,7 +919,7 @@ void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, PlayerIn
     kongState->hitSourcePlayerIndex = -1;
     kongState->hitSourceSpawnNodeId = 0;
     if (mpIsMatchType(0) != 0) {
-        gActivePlayerState->unk21E = 0;
+        gActivePlayerState->fadeLevel = 0;
     }
     if (gMpSettings.gameMode == 3 || gMpSettings.gameMode == 5) {
         slotQueueAddValue(1, kongState->playerIndex, -10);

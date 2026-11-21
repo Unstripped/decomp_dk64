@@ -513,7 +513,7 @@ void scriptCmdCompareMoveTier(Actor *actor) {
 
     scriptReadU8(&temp);
     actor->sub4->scriptResult =
-        playerSelectMoveTier(actor, actor->speedXZ, actor->speedXZ, gActivePlayerState->unk4C, gCurrentCharacterIndex) - temp;
+        playerSelectMoveTier(actor, actor->speedXZ, actor->speedXZ, gActivePlayerState->moveTier, gCurrentCharacterIndex) - temp;
 }
 
 void playerResumeLocomotionDecel(Actor *actor) {
@@ -963,7 +963,7 @@ void playerWeaponCrosshairUpdate(Actor *actor, BoneRotation *slots, s32 *count) 
     f32 y;
     f32 planarAngle;
     camState = ((PlayerState *)actor->customState)->camActor->customState;
-    delta = (camState->unkB2 - actor->yaw) - 0x800;
+    delta = (camState->orbitYaw - actor->yaw) - 0x800;
     x = gPlayerSlots[gCurrentPlayerIndex].camZ - gPlayerSlots[gCurrentPlayerIndex].focusZ;
     y = gPlayerSlots[gCurrentPlayerIndex].camX - gPlayerSlots[gCurrentPlayerIndex].focusX;
     planarAngle = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].camY - gPlayerSlots[gCurrentPlayerIndex].focusY, sqrtf((x * x) + (y * y)));
@@ -990,35 +990,35 @@ void playerWeaponCrosshairRender(Actor *actor, BoneVector *entries, s32 *count) 
     f32 scaleY;
     f32 scaleX;
     s32 remaining;
-    fade = gActivePlayerState->unk21E * 0.033333335f;
+    fade = gActivePlayerState->fadeLevel * 0.033333335f;
     if (fade < 1e-05) {
         fade = 1e-05f;
     }
     switch (actor->state) {
         case 0x34:
         case 0x84:
-            if (gActivePlayerState->unk25C > 0.01) {
-                gActivePlayerState->unk258 *= 1.07;
-                gActivePlayerState->unk25C *= 0.7;
+            if (gActivePlayerState->squashScaleY > 0.01) {
+                gActivePlayerState->squashScaleXZ *= 1.07;
+                gActivePlayerState->squashScaleY *= 0.7;
             } else {
                 actor->flags &= ~0x8000;
-                if (gActivePlayerState->unk21E != 0) {
-                    gActivePlayerState->unk21E--;
+                if (gActivePlayerState->fadeLevel != 0) {
+                    gActivePlayerState->fadeLevel--;
                 }
                 actor->alpha = 255.0f * fade;
             }
-            scaleX = gActivePlayerState->unk258;
-            scaleY = gActivePlayerState->unk25C;
+            scaleX = gActivePlayerState->squashScaleXZ;
+            scaleY = gActivePlayerState->squashScaleY;
             break;
         default:
             scaleY = fade;
             scaleX = fade;
-            if (gActivePlayerState->unk21E < 0x1E) {
+            if (gActivePlayerState->fadeLevel < 0x1E) {
                 actor->flags |= 0x8000;
-                remaining = 0x1E - gActivePlayerState->unk21E;
-                gActivePlayerState->unk21E += (remaining >= 3) ? 2 : remaining;
-                gActivePlayerState->unk258 = 1.0f;
-                gActivePlayerState->unk25C = gActivePlayerState->unk258;
+                remaining = 0x1E - gActivePlayerState->fadeLevel;
+                gActivePlayerState->fadeLevel += (remaining >= 3) ? 2 : remaining;
+                gActivePlayerState->squashScaleXZ = 1.0f;
+                gActivePlayerState->squashScaleY = gActivePlayerState->squashScaleXZ;
             }
             break;
     }
@@ -1167,7 +1167,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
         offsets = sub->boneOffsets;
         slotCount = 0;
         entryCount = 0;
-        if ((mpIsMatchType(0) != 0) && ((ps->unk21E != 0x1E) || (actor->state == 0x34))) {
+        if ((mpIsMatchType(0) != 0) && ((ps->fadeLevel != 0x1E) || (actor->state == 0x34))) {
             playerWeaponCrosshairRender(actor, entries, &entryCount);
         }
         switch (weapon) {

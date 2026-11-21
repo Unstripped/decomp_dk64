@@ -709,20 +709,20 @@ void actorPhotoSubjectUpdate(void) {
         dx = gPlayerSlots->camX - gCurrentActor->x;
         dist = sqrtf(dz * dz + dx * dx) - gPlayerSlots->nearClip;
         if (gPhotoSubjectScreenX >= 0x8A && gPhotoSubjectScreenX < 0xB1 && gPhotoSubjectScreenY >= 0x61 && gPhotoSubjectScreenY < 0x88 && dist < gPhotoSubjectDepthDist) {
-            if (gActivePlayerState->unk1EC != 1) {
+            if (gActivePlayerState->photoSubjectStatus != 1) {
                 if (behaviourIsTargetWithinAngle(0x1388) != 0) {
                     actorScriptStart(gCurrentActor, 0x2B6);
                 }
             }
-            gActivePlayerState->unk1EC = 1;
+            gActivePlayerState->photoSubjectStatus = 1;
         } else {
-            if (gActivePlayerState->unk1EC != 2) {
+            if (gActivePlayerState->photoSubjectStatus != 2) {
                 actorScriptStart(gCurrentActor, 0x2B5);
             }
-            gActivePlayerState->unk1EC = 2;
+            gActivePlayerState->photoSubjectStatus = 2;
         }
     }
-    if ((gActivePlayerState->stateFlags & 0x8000) && gActivePlayerState->unk1EC == 1) {
+    if ((gActivePlayerState->stateFlags & 0x8000) && gActivePlayerState->photoSubjectStatus == 1) {
         if (gCurrentActor->state != 0x40) {
             flagSet(spawnFlagLookup(gCurrentLevelIndex, spawnNodeIdForActor(gCurrentActor), &flagIndex), 1, 0);
             eepromSavePlayerData();

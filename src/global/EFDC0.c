@@ -198,7 +198,7 @@ void playerStateEnterState3D(void) {
     }
     gCurrentActor->state = 0x3D;
     gCurrentActor->unk155 = 0;
-    if (gActivePlayerState->unk4E == 0x22) {
+    if (gActivePlayerState->animIndex == 0x22) {
         actorScriptStart(gCurrentActor, 0x131);
         return;
     }
@@ -275,15 +275,15 @@ void playerStateInitLaunchParams(void) {
     gCurrentActor->unk155 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x43);
     gActivePlayerState->unk64 = 0;
-    gActivePlayerState->unkC8 = 0x32;
+    gActivePlayerState->chargeTimer = 0x32;
 }
 
 void playerStateInitTumble(void) {
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerState->targetSpeed = 170.0f;
     gCurrentActor->state = 0x3F;
     gCurrentActor->unk155 = 0;
-    gActivePlayerState->unk4E = 0;
+    gActivePlayerState->animIndex = 0;
     actorScriptStart(gCurrentActor, 0x14F);
 }
 
@@ -293,10 +293,10 @@ void playerStateTakeDamagePrep(void) {
     u8 type;
 
     camState = gActivePlayerState->camActor->customState;
-    type = camState->unkEF;
-    speed = camState->unkB8;
+    type = camState->zoomLevel;
+    speed = camState->followHeightGoal;
     if (type != 0) {
-        camState->unkF0 = type;
+        camState->savedZoomLevel = type;
         speed = 0x80;
     }
     camSaveYaw(gActivePlayerState->camActor);
@@ -309,10 +309,10 @@ void playerStateTakeDamagePrep(void) {
             playerKongDrawGun(gActivePlayerActor);
         }
     }
-    camState->unkBC = 0x80;
+    camState->aimHeightBase = 0x80;
     gActivePlayerState->camActor->distToFloor = speed;
-    camState->unkB8 = speed;
-    camState->unkB2 = gActivePlayerActor->yaw + 0x800;
+    camState->followHeightGoal = speed;
+    camState->orbitYaw = gActivePlayerActor->yaw + 0x800;
     gActivePlayerActor->speedXZ = 0.0f;
     gActivePlayerActor->contactFlags |= 0x2000;
 }
@@ -379,7 +379,7 @@ void playerStateEnterStunState1(void) {
     actorScriptStart(gActivePlayerActor, 0);
     scriptSetRampValue(gActivePlayerActor, 0, 0);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
 }
 
 void playerStateEnterKnockbackState6(void) {
@@ -388,7 +388,7 @@ void playerStateEnterKnockbackState6(void) {
     actorScriptStart(gActivePlayerActor, 0);
     scriptSetRampValue(gActivePlayerActor, 0, 0);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerActor->flags &= ~4;
 }
 
@@ -398,7 +398,7 @@ void playerStateEnterElectrocute(void) {
     actorScriptStart(gActivePlayerActor, 0);
     scriptSetRampValue(gActivePlayerActor, 0, 0);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerActor->flags &= ~4;
 }
 
@@ -409,7 +409,7 @@ void playerStateEnterSquish(void) {
     gActivePlayerActor->unk155 = 0;
     actorScriptStartByIndex(gActivePlayerActor, 0x7A);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
     gActivePlayerActor->flags &= 0xFFFBFFFF;
     gActivePlayerActor->speedXZ = 0.0f;
@@ -425,7 +425,7 @@ void playerStateInitKongAction69(void) {
     actorScriptStart(gActivePlayerActor, 0);
     scriptSetRampValue(gActivePlayerActor, 0.0f, 0.0f);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerActor->flags &= 0xFEFFFFFF;
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
 }
@@ -456,7 +456,7 @@ void playerStateAdjustUpwardVelocity300(void) {
 
 void playerStateInitAnimalTransformation(void) {
     playerTransformAnimalStartSfx(gActivePlayerActor);
-    gActivePlayerState->unk1FE = gPlayerSlots[gCurrentPlayerIndex].queuedParam0;
+    gActivePlayerState->transformTimer = gPlayerSlots[gCurrentPlayerIndex].queuedParam0;
 }
 
 void playerStateInitKongAction78(void) {
@@ -499,12 +499,12 @@ void playerStateEnterFlattened(void) {
 void playerStateEnterSlideSlope(void) {
     s32 animation;
 
-    ((CamState *)gActivePlayerState->camActor->customState)->unkAC |= 4;
+    ((CamState *)gActivePlayerState->camActor->customState)->flags |= 4;
     gActivePlayerActor->state = 0x6D;
     gActivePlayerActor->unk155 = 0;
     actorScriptStart(gActivePlayerActor, 0);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerActor->flags &= ~1;
     if (gCurrentMap == 0x27) {
         gActivePlayerActor->collisionMode = 1;
@@ -520,7 +520,7 @@ void playerStateEnterFrozen(void) {
     gActivePlayerActor->unk155 = 0;
     actorScriptStart(gActivePlayerActor, 0);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerActor->flags &= ~1;
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
     actor = gActivePlayerState->actor;
@@ -685,14 +685,14 @@ void playerStateEnterGroundImpact(void) {
     gActivePlayerState->targetSpeed = D_807534E4[gCurrentCharacterIndex];
     gActivePlayerState->airAccel = D_80753500[gCurrentCharacterIndex];
     gActivePlayerState->turnRate = D_8075351C[gCurrentCharacterIndex];
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
 }
 
 void playerStateEnterAction24(void) {
     gCurrentActor->state = 0x24;
     gCurrentActor->unk155 = 0;
     actorScriptStart(gCurrentActor, 0x1B2);
-    gActivePlayerState->unkC8 = 0x32;
+    gActivePlayerState->chargeTimer = 0x32;
 }
 
 void playerStateEnterHoldThrow(void) {
@@ -705,8 +705,8 @@ void playerStateEnterHoldThrow(void) {
     }
     gActivePlayerActor->state = 0x5B;
     gActivePlayerActor->unk155 = 0;
-    gActivePlayerState->unk10C = height;
-    gActivePlayerActor->y = gActivePlayerState->unkF0 - gActivePlayerState->unk10C;
+    gActivePlayerState->ledgeHangOffset = height;
+    gActivePlayerActor->y = gActivePlayerState->ledgeY - gActivePlayerState->ledgeHangOffset;
     gActivePlayerActor->moveYaw = gActivePlayerActor->arcYawMin + 0x14;
     gActivePlayerActor->speedY = 0.0f;
     actorScriptStartByIndex(gActivePlayerActor, 0x75);
@@ -1606,7 +1606,7 @@ void playerStateEnterDamageReaction(void) {
     actorScriptStartByIndex(gActivePlayerActor, 0x27);
     gActivePlayerActor->state = 0x39;
     gActivePlayerActor->unk155 = 0;
-    gActivePlayerState->unk11C = 0x19;
+    gActivePlayerState->stateTimer = 0x19;
     camSnapToTargetHeight(gActivePlayerState->camActor);
     if ((gCurrentMap != 0x52) && (gCurrentMap != 0xE)) {
         playerAddHealthDelta(gCurrentPlayerIndex, -0x40);
@@ -1785,7 +1785,7 @@ void playerStateClearCarriedSetFlags(void) {
     playerClearCarriedItemState();
     gActivePlayerState->stateFlags &= ~0x20;
     gActivePlayerActor->interactionType = 2;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     gActivePlayerActor->state = 0x7A;
     gActivePlayerActor->unk155 = 0;
@@ -1816,7 +1816,7 @@ void playerStateEnterClimbTree(void) {
 }
 
 void playerStateEnterKnockbackState(void) {
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
     gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     playerSetBaseGravity();
     if (gActivePlayerActor->state != 0x7C) {
@@ -1897,7 +1897,7 @@ void func_806F06A4(void) {
     gActivePlayerActor->unk155 = 0;
     actorScriptStart(gActivePlayerActor, 0);
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
 }
 
 void func_806F0700(void) {
@@ -1912,7 +1912,7 @@ void func_806F0700(void) {
     gActivePlayerActor->sub4->scaleY = 0.01f;
     gActivePlayerActor->sub4->scaleZ = 0.01f;
     gActivePlayerState->unk50 = 0;
-    gActivePlayerState->unk4C = -1;
+    gActivePlayerState->moveTier = -1;
 }
 
 void playerStateEnterDoubleJumpWithSfx(void) {

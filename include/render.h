@@ -5,19 +5,19 @@
 
 // One entry of a render list (map chunk opaque/translucent lists, BSP vis-node lists).
 typedef struct RenderEntry {
-    /* 0x00 */ void *unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ struct RenderEntry *unk14;
-    /* 0x18 */ struct RenderEntry *unk18;
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 unk23;
-    /* 0x24 */ u8 unk24;
+    /* 0x00 */ void *object;
+    /* 0x04 */ f32 x;
+    /* 0x08 */ f32 y;
+    /* 0x0C */ f32 z;
+    /* 0x10 */ f32 camDist;
+    /* 0x14 */ struct RenderEntry *next;
+    /* 0x18 */ struct RenderEntry *prev;
+    /* 0x1C */ s16 maxDist;
+    /* 0x1E */ s16 modelId;
+    /* 0x20 */ s16 chunkIndex;
+    /* 0x22 */ u8 autoPurge;
+    /* 0x23 */ u8 touched;
+    /* 0x24 */ u8 type;
     /* 0x25 */ u8 pad25[3];
 } RenderEntry; // size = 0x28
 

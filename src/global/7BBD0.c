@@ -1395,8 +1395,8 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
                 scaledNormal[0] = normal[0] * scale;
                 scaledNormal[1] = normal[1] * scale;
                 scaledNormal[2] = normal[2] * scale;
-                playerState->unkE0 = worldX - scaledNormal[0];
-                playerState->unkE4 = worldZ - scaledNormal[2];
+                playerState->wallContactX = worldX - scaledNormal[0];
+                playerState->wallContactZ = worldZ - scaledNormal[2];
             }
             if (otherBounds->unk68 != 0) {
                 clamp = D_807FB5D0 = otherBounds->unk68 + 5;

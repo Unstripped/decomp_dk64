@@ -138,10 +138,10 @@ Gfx *playerViewDrawCameraViewfinder(Gfx *dl, Actor *actor) {
     dl = renderRotatedSprite(dl, 0x3B, 3, 1, 0x30, 0x30, 0xA0, 0x78, 1.0f, 1.0f, 0, 0.0f);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     if (!(state->stateFlags & 0x8000)) {
-        if (state->unk1EC == 2) {
+        if (state->photoSubjectStatus == 2) {
             gDPSetPrimColor(dl++, 0, 0, 0xFF, 0, 0, 0xFF);
             dl = renderRotatedSprite(dl, 0x43, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
-        } else if (state->unk1EC == 1) {
+        } else if (state->photoSubjectStatus == 1) {
             gDPSetPrimColor(dl++, 0, 0, 0, 0xFF, 0, 0xFF);
             dl = renderRotatedSprite(dl, 0x2F, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
         }
@@ -154,10 +154,10 @@ Gfx *playerViewDrawPhotoResult(Gfx *dl, Actor *actor) {
 
     state = gPlayerSlots->actor->customState;
     dl = playerViewGfxSetup(dl, state->playerIndex);
-    if (state->unk1EC == 2) {
+    if (state->photoSubjectStatus == 2) {
         gDPSetPrimColor(dl++, 0, 0, 0xFF, 0, 0, 0x64);
         dl = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
-    } else if (state->unk1EC == 1) {
+    } else if (state->photoSubjectStatus == 1) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xFF, 0, 0x64);
         dl = renderRotatedSprite(dl, 0x44, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
     }
@@ -646,10 +646,10 @@ Gfx *func_80701CA0(Gfx *dl) {
                     depthDiff = 80.0f;
                 }
                 if (D_807FD890 != 0) {
-                    playerState->unk1E8 = depthDiff;
+                    playerState->underwaterTint = depthDiff;
                 } else {
-                    playerState->unk1E8 = playerState->unk1E8 + (f64)(depthDiff - playerState->unk1E8) * 0.05;
-                    depthDiff = (u32)playerState->unk1E8 & 0xFF;
+                    playerState->underwaterTint = playerState->underwaterTint + (f64)(depthDiff - playerState->underwaterTint) * 0.05;
+                    depthDiff = (u32)playerState->underwaterTint & 0xFF;
                 }
                 gDPSetPrimColor(dl++, 0, 0, 0, 0, 0x3C, (u32)((f32)alphaBase + depthDiff));
                 gDPSetCycleType(dl++, G_CYC_1CYCLE);
@@ -660,8 +660,8 @@ Gfx *func_80701CA0(Gfx *dl) {
                 drew = 1;
                 gDPPipeSync(dl++);
             }
-            gPlayerSlots[i].unk2E8 = camState->unkFA;
-            gPlayerSlots[i].unk24C = camState->unk90;
+            gPlayerSlots[i].unk2E8 = camState->hasWater;
+            gPlayerSlots[i].unk24C = camState->waterY;
         }
     }
     if (drew != 0) {
