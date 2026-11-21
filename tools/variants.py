@@ -13,6 +13,9 @@ tools/dk on the host):
                      (operand a plain name/member/array element; only where the test is a whole operand
                      of `(`, `!`, `&&`, `||`): the same value, but cfe compares the variable itself instead
                      of a widened copy (Q1116/Q1066: 80150 tagBarrelCheckProximityAndFall lost its volatile)
+           switch    `if (x == K) {A} else {B}` as `switch (x) { case K: A break; default: B break; }`, and an
+                     `if (x == K) {...return;}` as a one-case switch (R3; no `break` in the bodies): the switch's
+                     extra CFG node replaced dead tests in 70FD0 and 36880 (Q1589)
            swap      a comparison mirrored, `a < b->c` -> `b->c > a` (== and != keep their operator); only
                      where both operands are plain names/members/array elements/literals bounded by
                      lower-precedence operators, so the meaning never changes
@@ -40,7 +43,7 @@ if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):
 sys.path.insert(0, str(ROOT / "tools"))
 import deadsweep  # noqa: E402
 
-RECIPES = ("truth", "swap", "float", "width", "declswap")
+RECIPES = ("truth", "switch", "swap", "float", "width", "declswap")
 OPND = r"(?:[A-Za-z_]\w*(?:(?:->|\.)\w+|\[[^\]\[]*\])*|0x[0-9A-Fa-f]+[uUlL]*|-?\d+(?:\.\d+)?[fFuUlL]*)"
 OPND_END = re.compile(OPND + r"(?=\s*$)")
 OPND_START = re.compile(r"\s*(" + OPND + r")")
@@ -196,7 +199,56 @@ def gen_truth(text):
     return out
 
 
-GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswap": gen_declswap, "truth": gen_truth}
+SWITCH_IF = re.compile(r"^(\s*)if \((" + OPND + r") == (-?(?:0x[0-9A-Fa-f]+|\d+))\) \{\s*(?://.*)?$")
+
+
+def _block_end(lines, i, indent):
+    """Index of the line closing the block opened at line I: the first later line starting with INDENT + `}`."""
+    for k in range(i + 1, len(lines)):
+        s = lines[k]
+        if s.startswith(indent + "}"):
+            return k
+        if s.strip() and len(s) - len(s.lstrip()) <= len(indent):
+            return None  # at or below the if's indent without its `}`: not a well-formed block
+    return None
+
+
+def gen_switch(text):
+    """`if (x == K) { A } else { B }` -> `switch (x) { case K: A break; default: B break; }`, and when A ends in
+    `return`, `if (x == K) { A }` -> `switch (x) { case K: A }` (one-case selector switch, ruling R3): the switch's
+    extra CFG node lowers loop constants / splits blocks where a dead test did (Q1589; 70FD0
+    actorUpdateNodePositions, 36880 modelSlotResolveAssetTextures)."""
+    out, lines = [], text.split("\n")
+    for i, line in enumerate(lines):
+        m = SWITCH_IF.match(line)
+        if not m:
+            continue
+        ind, x, k = m.groups()
+        j = _block_end(lines, i, ind)
+        if j is None:
+            continue
+        body_a = [("    " + l if l.strip() else l) for l in lines[i + 1:j]]
+        if any(re.search(r"\bbreak\b", l.split("//")[0]) for l in lines[i + 1:j]):
+            continue  # a `break` would leave the switch instead of the enclosing loop
+        if lines[j].strip() == "} else {":
+            e = _block_end(lines, j, ind)
+            if e is None or lines[e].strip() != "}":
+                continue
+            body_b = [("    " + l if l.strip() else l) for l in lines[j + 1:e]]
+            if any(re.search(r"\bbreak\b", l.split("//")[0]) for l in lines[j + 1:e]):
+                continue
+            new = ([f"{ind}switch ({x}) {{", f"{ind}    case {k}:"] + body_a + [f"{ind}        break;", f"{ind}    default:"]
+                   + body_b + [f"{ind}        break;", f"{ind}}}"])
+            out.append(("switch", f"line {i + 1}: if ({x} == {k}) / else -> switch", "\n".join(lines[:i] + new + lines[e + 1:])))
+        elif lines[j].strip() == "}" and j > i + 1 and lines[j - 1].strip().startswith("return"):
+            new = [f"{ind}switch ({x}) {{", f"{ind}    case {k}:"] + body_a + [f"{ind}}}"]
+            out.append(("switch", f"line {i + 1}: if ({x} == {k}) {{ ... return; }} -> one-case switch",
+                        "\n".join(lines[:i] + new + lines[j + 1:])))
+    return out
+
+
+GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswap": gen_declswap, "truth": gen_truth,
+              "switch": gen_switch}
 
 
 def variants(text, recipes=RECIPES, max_n=None):

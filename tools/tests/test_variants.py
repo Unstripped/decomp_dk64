@@ -69,3 +69,21 @@ def test_truth_skips_value_contexts():
     assert texts(v.gen_truth, "    if (a < x) {}") == []
     assert texts(v.gen_truth, "    if (1) {}") == []
     assert texts(v.gen_truth, "    x = (a != 0);") == []  # no condition on the line
+
+
+def test_switch_from_if_else():
+    t = "    if (n->k == -1) {\n        a();\n    } else {\n        b();\n    }"
+    assert texts(v.gen_switch, t) == [
+        "    switch (n->k) {\n        case -1:\n            a();\n            break;\n        default:\n            b();\n            break;\n    }"]
+
+
+def test_switch_one_case_needs_return():
+    assert texts(v.gen_switch, "    if (x == 1) {\n        a();\n        return;\n    }") == [
+        "    switch (x) {\n        case 1:\n            a();\n            return;\n    }"]
+    assert texts(v.gen_switch, "    if (x == 1) {\n        a();\n    }") == []  # falls through: not the same as a switch
+    assert texts(v.gen_switch, "    if (x == 1) {\n        a();\n    } else if (y) {\n    }") == []
+
+
+def test_switch_skips_bodies_with_break():
+    assert texts(v.gen_switch, "        if (x == 1) {\n            break;\n        } else {\n            a();\n        }") == []
+    assert texts(v.gen_switch, "        if (x == 1) {\n            a();\n        } else {\n            break;\n        }") == []
