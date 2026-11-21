@@ -7,7 +7,7 @@
 #include "proto/global/1435C0.h"
 
 
-void n_alSynSetVoiceUnkC(ALVoice *voice, u8 val) {
+void n_alSynSetFXMix(ALVoice *voice, u8 val) {
     SynCoreParam *param;
 
     if (voice->pvoice != NULL) {

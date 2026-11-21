@@ -3,8 +3,8 @@
 #define PROTO_GLOBAL_141520_H
 #include "common.h"
 #include "audio_synth.h"
-#ifndef PROTO_SKIP_n_alSynSetVoiceUnkC
-void n_alSynSetVoiceUnkC(ALVoice *, u8);
+#ifndef PROTO_SKIP_n_alSynSetFXMix
+void n_alSynSetFXMix(ALVoice *, u8);
 #endif
 #ifndef PROTO_SKIP_n_alSynGetFXDelay
 void *n_alSynGetFXDelay(s16);

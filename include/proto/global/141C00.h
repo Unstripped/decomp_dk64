@@ -2,8 +2,8 @@
 #ifndef PROTO_GLOBAL_141C00_H
 #define PROTO_GLOBAL_141C00_H
 #include "common.h"
-#ifndef PROTO_SKIP_n_alSynAllocVoicePriorityA
-void n_alSynAllocVoicePriorityA(ALVoice *, u8);
+#ifndef PROTO_SKIP_n_alSynSetPan
+void n_alSynSetPan(ALVoice *, u8);
 #endif
 #ifndef PROTO_SKIP_n_alSynAllocVoicePriorityB
 void n_alSynAllocVoicePriorityB(ALVoice *, u8);

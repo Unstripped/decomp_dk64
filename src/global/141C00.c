@@ -5,7 +5,7 @@
 #include "proto/global/1435C0.h"
 
 
-void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 priority) {
+void n_alSynSetPan(ALVoice *voice, u8 priority) {
     SynCoreParam *param;
 
     if (voice->pvoice != NULL) {

@@ -156,7 +156,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 seqp->fxMixOffset = seqp->nextEvent.msg.fpair.f0;
                 seqp->fxMixScale = seqp->nextEvent.msg.fpair.f1;
                 for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
-                    n_alSynSetVoiceUnkC(&vs->voice, n_alCSPClampVoiceFXMix(vs, seqp));
+                    n_alSynSetFXMix(&vs->voice, n_alCSPClampVoiceFXMix(vs, seqp));
                 }
                 break;
             case AL_VIB_OSC_EVT + 2:
@@ -526,7 +526,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
                             pan = __n_vsPan(vs, seqp);
-                            n_alSynAllocVoicePriorityA(&vs->voice, pan);
+                            n_alSynSetPan(&vs->voice, pan);
                         }
                     }
                     break;
@@ -649,7 +649,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                     seqp->chanState[chan].fxmix = (seqp->chanState[chan].fxmix & 0x7F) | (byte2 << 7);
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
-                            n_alSynSetVoiceUnkC(&vs->voice, seqp->chanState[chan].fxmix);
+                            n_alSynSetFXMix(&vs->voice, seqp->chanState[chan].fxmix);
                         }
                     }
                     break;

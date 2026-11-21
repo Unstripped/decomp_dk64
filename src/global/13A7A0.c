@@ -290,7 +290,7 @@ void __n_handleEvent(GeSndEvt *event) {
                 if (state->state == 1) {
                     panTmp = state->pan + sound->samplePan - 0x40;
                     GE_CLAMP_PAN(pan, panTmp);
-                    n_alSynAllocVoicePriorityA(&state->voice, pan);
+                    n_alSynSetPan(&state->voice, pan);
                 }
                 break;
             case 0x10:
@@ -308,7 +308,7 @@ void __n_handleEvent(GeSndEvt *event) {
                     fx = (state->fxMix & 0x7F) + ((keyMap->keyMax & 0xF) << 3);
                     GE_CLAMP_FX(fx);
                     fx |= state->fxMix & 0x80;
-                    n_alSynSetVoiceUnkC(&state->voice, fx);
+                    n_alSynSetFXMix(&state->voice, fx);
                 }
                 break;
             case 8:
