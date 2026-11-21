@@ -2275,20 +2275,20 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
         }
         node = sub->subNodes;
         mtxBase = sub->nodeMtx[bufIdx];
-        if (node != NULL) {
-            if (mtxBase) {} // FAKE: extra block lowers mtxBase adjsave (3.67 to 3.0) below the -1 constant (3.33), so -1 takes $s5 and mtxBase $s6
-            do {
-                if (node->mtxOffset == -1) {
-                    memcpy(mtx, sub->modelMtxF, sizeof(mtx));
-                    guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
-                } else {
-                    guMtxXFML(&mtxBase[(u32)node->mtxOffset >> 6], node->x, node->y, node->z, &outX, &outY, &outZ);
-                }
-                node->scaledX = outX * 8.0f;
-                node->scaledY = outY * 8.0f;
-                node->scaledZ = outZ * 8.0f;
-                node = node->next;
-            } while (node != NULL);
+        while (node != NULL) {
+            switch (node->mtxOffset) {
+            case -1:
+                memcpy(mtx, sub->modelMtxF, sizeof(mtx));
+                guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
+                break;
+            default:
+                guMtxXFML(&mtxBase[(u32)node->mtxOffset >> 6], node->x, node->y, node->z, &outX, &outY, &outZ);
+                break;
+            }
+            node->scaledX = outX * 8.0f;
+            node->scaledY = outY * 8.0f;
+            node->scaledZ = outZ * 8.0f;
+            node = node->next;
         }
         sub->subNodesFrame = gFrameCounter;
     }
