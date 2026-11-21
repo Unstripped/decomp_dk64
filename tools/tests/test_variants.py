@@ -51,3 +51,21 @@ def test_variants_order_and_limit():
     assert [r for r, _, _ in v.variants(text)] == ["swap", "float"] + ["width"] * 10 + ["declswap"]
     assert [r for r, _, _ in v.variants(text, ("swap",))] == ["swap"]
     assert len(v.variants(text, max_n=3)) == 3
+
+
+def test_truth_respells_whole_tests():
+    assert texts(v.gen_truth, "    if (spawn != 0) {}") == ["    if (spawn) {}"]
+    assert texts(v.gen_truth, "    if (p->a == 0 && b) {}") == ["    if (!p->a && b) {}", "    if (p->a == 0 && b != 0) {}"]
+    assert texts(v.gen_truth, "    while (!q[i]) {}") == ["    while (q[i] == 0) {}"]
+    assert texts(v.gen_truth, "    z = accept(a && x != 0);") == ["    z = accept(a && x);"]  # && reads only truth
+
+
+def test_truth_skips_value_contexts():
+    assert texts(v.gen_truth, "    if (accept(x != 0)) {}") == []  # call argument: 0/1 vs raw x
+    assert texts(v.gen_truth, "    if (accept(x)) {}") == []
+    assert texts(v.gen_truth, "    if ((x != 0) + y) {}") == []  # arithmetic paren
+    assert texts(v.gen_truth, "    if ((s32)b) {}") == []  # cast
+    assert texts(v.gen_truth, "    if (flags & x) {}") == []  # bitwise operand
+    assert texts(v.gen_truth, "    if (a < x) {}") == []
+    assert texts(v.gen_truth, "    if (1) {}") == []
+    assert texts(v.gen_truth, "    x = (a != 0);") == []  # no condition on the line
