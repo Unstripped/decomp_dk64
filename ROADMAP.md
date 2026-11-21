@@ -180,14 +180,15 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Session 2026-11-18c (rolling hack/polish queue from 90ed5e8d, director mode, Lead20261118c)** — 43 merges (M1-M43: 14 gated, 29 ledger-only): two polish bundles finished coverage (reviewed 4,270/4,270 from M2), then the hack queue drained to its held items (3E10 menuInitMainScreen, ACDC0 hudPauseMenuUpdate, B5EC0 func_806B13B4); sites open 84 → 15, FAKE 170 → 161, ORIG 107 → 108 (boss/F0D0 `(f64)scale` cvt round trip). Director rulings R2–R11 recorded in `rulings.md` (one-case selector switch, block-scoped element pointer, `u8` flag local, consecutive counter reuse and same-role divisor are ordinary C; unrelated-role reuse and merged steers whose case values the target lacks stay FAKE; a buffer-size change needs a code proof that every write fits: FCCD0 `text[8]`→`text[4]` rejected); 2 names (`gMenuReturnContext`, `effectSetFrameDelay(frameDelay)`, c084eb58, carry cf17012d); knowledge Q1517–Q1571 (7f43e740).
 - [x] **Session 2026-11-20 (rolling coverage/types queue from dd6498e3, Lead20261120 with its own task workers; director rulings relayed)** — carried 132 reviews across the post-18c history rewrite (95e3f2ff: c904a624/0c4055f7 had moved under the 18c events), restored coverage (48 next=review in 3 polish bundles + 2 hack items), then director rulings RQ1-RQ3 (D1/D2/B5EC0 re-measured: nohit, EXHAUSTED) and the TypesOwner queue: batch_14 (EffectNode `wobbleRise`, JetpacSprite → TextureDescriptor) and batch_15 (ModelAssetEntry in model.h, one `LERP` in common.h, one `D_8071FE08` extern, ACDC0 `sPauseKongTables`, 450.c data split, one declared type per global for five signedness mismatches), each part that reopened hack rungs followed by one re-measure worker. FAKE 161 → 168 (+6 pre-existing R5 reuses tagged in ACDC0, actorAllocate's two untagged casts → one tagged macro), ORIG 108 → 111 (C0EE0 empty default with its own block 0xa58; 13980/201B0 signed per-file externs), 2 symbols named (b6244aeb), knowledge Q1572-Q1584 + corrections of Q0885/Q1189 (89a58e82). Tooling fixes landed with the session: 928f8144, 827859da, ed51d26d, 12452351, f29f1c5d, 827913fc, 73393b44, bd5da4f3, 49c6d3c4, d84d0487, 25fcab9a, 4c63a269.
 - [x] **Continue unit 1 (2026-11-21, `.omp/skills/continue-unit/`, debt 17,390 → 6,609 by `autoresearch.sh`)** — names stream first: about 1,360 field/global/function names in six names windows (`tools/names_window.py`, 4b47df82..741670df), every review and automatic result carried (`carry` + `--header-carve`); union carves (e14a06d4) for the mixed-meaning Actor 0x155 (`subState` + four per-type members), 0x15F, 0xEC, 0x72 and nine more fields; `unk` field refs 6,247 → 385, `D_` refs 5,443 → 1,011, `func_` 210 → 44. Re-measuring the hack rungs the renames and new knowledge staled removed 5 FAKE (80150 `volatile` via bare truth tests Q1585, 36880 ×2, 7130 ×2 via a per-block element pointer Q1586); 104F0 `eepromGetSectorOffset` ANSI prototype; reviewed 4,270/4,270.
-- [ ] Continue unit 2 (2026-11-21): lever-transfer pass (new Q-entries matched to EXHAUSTED sites by a scout, one worker per file). Held names and rulings: `drafts/cleanup/pending.md`.
+- [x] **Continue unit 2 (2026-11-21, debt 6,609 → 5,419)** — lever transfers (new Q-entries matched to EXHAUSTED sites): 2 of 10 removed a FAKE by respelling a branch the function already has as a `switch` (70FD0 `actorUpdateNodePositions`, 36880 `modelSlotResolveAssetTextures`; Q1593), the rest recorded with the precondition that failed (Q1594-Q1602); `tools/variants.py` gained `switch`, `branch`, `arith`, `elem` and `int`/`unsigned int` recipes (0 further hits over 58 hack files). Names: windows 7-10 (33b2cc20..6f7cbd45, ~640 renames incl. effect/arcade sprite sheets named from decoded textures, kong move tables, shop tables, libaudio `n_alSyn*` name fixes), the single-function roles of `Actor.unk15F`/`unkEC` as 17 union members (user ruling, e9dfa60d), `gSfxPan`/`gSfxRightLevel` (dominant role + reuse comment), TypesU2 header requests (3ddcbd5b), FoldsU2 folds and `ucode.h` names for rspboot/F3DEX2/L3DEX2 (7b4562bd); `unk` refs 385 → 147, `D_` 1,011 → 117, `func_` 44 → 30. `quality.py carry` follows renames reached through table initialisers and `#define` aliases. Knowledge Q1593-Q1603.
+- [ ] Continue unit 3: residual held names (`drafts/cleanup/pending.md` "Held names"), EfCallbackParams halfword view (D_807FD6F2), jetpac `flying` fold; hack debt stays EXHAUSTED until a new lever lands.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 1 close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 2 close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 163 | 583 |
-| FAKE dead-if | 42 | 263 |
+| FAKE | 161 | 583 |
+| FAKE dead-if | 40 | 263 |
 | FAKE proto-steer | 1 | 134 |
 | FAKE other kinds | 120 | 186 |
 | ORIG (cited target offset) | 111 | 0 |
@@ -195,13 +196,13 @@ Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc -
 | goto | 25 | 39 |
 | proto-type (`// PROTO:`) | 1 | 0 |
 | protos mismatch | 6 | 1,202 |
-| reviewed / exhausted functions | 4,270 / 4,268 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,270 / 4,270 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 4 | 1,890 |
 | uninit warnings (clint checks every function) | 249 | 122 |
-| `func_` definitions | 44 | 457 |
+| `func_` definitions | 30 | 457 |
 | m2c names | 1 | 5,040 |
-| `unk` field references | 385 | - |
-| `D_` references | 1,011 | - |
+| `unk` field references | 147 | - |
+| `D_` references | 117 | - |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
