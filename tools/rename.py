@@ -228,8 +228,9 @@ def cmd_symbol(a, func):
         for i, line in enumerate(text.split("\n"), 1):
             for p, n in pats:
                 edits += [(f, i, mm.start() + 1, mm.group(0), n) for mm in p.finditer(line)]
-    if macro:
-        raise Refuse("reference inside a macro: " + " ".join(macro))
+    if macro and not a.in_macros:
+        raise Refuse("reference inside a macro: " + " ".join(macro)
+                     + " (a global named in a #define body is one symbol: inspect the macro, then pass --in-macros)")
     if not edits:
         raise Refuse(f"not found: {old}")
     edits += symbol_edits(seg, old, new, vram, func)
@@ -655,6 +656,8 @@ def main(argv=None):
         s.add_argument("new")
         s.add_argument("--no-gen", action="store_true",
                        help="skip `tools/protos.py gen` (the caller runs it once after a batch of renames)")
+        s.add_argument("--in-macros", action="store_true",
+                       help="also rename the symbol inside #define bodies (inspected: the macro names this one symbol)")
     s = sub.add_parser("field")
     s.add_argument("path")
     s.add_argument("struct")

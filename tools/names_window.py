@@ -46,8 +46,12 @@ def main(argv=None):
     p.add_argument("--unit", required=True)
     p.add_argument("--message", required=True)
     p.add_argument("--fields", action="append", default=[])
+    p.add_argument("--macro-arg", action="append", default=[], metavar="FILE:LINE:COL",
+                   help="inspected macro-argument position, passed to `rename.py fields --macro-arg`")
     p.add_argument("--globals", action="append", default=[])
     p.add_argument("--funcs", action="append", default=[])
+    p.add_argument("--in-macros", action="append", default=[], metavar="OLD",
+                   help="symbol whose #define-body uses were inspected: renamed there too (`rename.py --in-macros`)")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--no-carry", action="store_true")
     a = p.parse_args(argv)
@@ -64,7 +68,8 @@ def main(argv=None):
 
     touched, refused, ok_syms = set(), [], []
     if rows:
-        r = run(["uv", "run", "tools/rename.py", "fields", batch, "--dry-run"])
+        margs = [x for m in a.macro_arg for x in ("--macro-arg", m)]
+        r = run(["uv", "run", "tools/rename.py", "fields", batch, "--dry-run", *margs])
         touched |= {m.group(1) for l in r.stdout.splitlines() if (m := LOC.match(l))}
         refused += [l for l in r.stdout.splitlines() if l.startswith("REFUSE")]
         if r.returncode not in (0, 2):
@@ -75,7 +80,8 @@ def main(argv=None):
             refused.append(f"REFUSE {kind} {seg} {old} {new}: proposed twice")
             continue
         seen.add((seg, old))
-        r = run(["uv", "run", "tools/rename.py", kind, "--dry-run", seg, old, new])
+        im = ["--in-macros"] if old in a.in_macros else []
+        r = run(["uv", "run", "tools/rename.py", kind, "--dry-run", seg, old, new, *im])
         if r.returncode:
             refused.append(f"REFUSE {kind} {seg} {old} {new}: {(r.stdout + r.stderr).strip().splitlines()[-1]}")
             continue
@@ -92,11 +98,12 @@ def main(argv=None):
     if r.returncode:
         fail("snapshot", r.stdout + r.stderr)
     if rows:
-        r = run(["uv", "run", "tools/rename.py", "fields", batch])
+        r = run(["uv", "run", "tools/rename.py", "fields", batch, *margs])
         if r.returncode not in (0, 2):
             fail("fields", r.stdout + r.stderr)
     for kind, seg, old, new in ok_syms:
-        r = run(["uv", "run", "tools/rename.py", kind, seg, old, new, "--no-gen"])
+        r = run(["uv", "run", "tools/rename.py", kind, seg, old, new, "--no-gen",
+                 *(["--in-macros"] if old in a.in_macros else [])])
         if r.returncode:
             fail(f"{kind} {seg} {old} {new}", r.stdout + r.stderr)
 
