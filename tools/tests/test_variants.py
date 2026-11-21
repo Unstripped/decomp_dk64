@@ -88,3 +88,43 @@ def test_switch_one_case_needs_return():
 def test_switch_skips_bodies_with_break():
     assert texts(v.gen_switch, "        if (x == 1) {\n            break;\n        } else {\n            a();\n        }") == []
     assert texts(v.gen_switch, "        if (x == 1) {\n            a();\n        } else {\n            break;\n        }") == []
+
+
+def test_branch_swaps_arms():
+    t = "    if (x == 3) {\n        a();\n    } else {\n        b();\n    }"
+    assert texts(v.gen_branch, t) == ["    if (x != 3) {\n        b();\n    } else {\n        a();\n    }"]
+    assert texts(v.gen_branch, "    if (!p->f) {\n        a();\n    } else {\n        b();\n    }") == [
+        "    if (p->f) {\n        b();\n    } else {\n        a();\n    }"]
+    assert texts(v.gen_branch, "    if (a < b && c) {\n        a();\n    } else {\n        b();\n    }") == [
+        "    if (!(a < b && c)) {\n        b();\n    } else {\n        a();\n    }"]
+
+
+def test_branch_skips_chains_and_lone_ifs():
+    assert texts(v.gen_branch, "    if (x) {\n        a();\n    }") == []
+    assert texts(v.gen_branch, "    if (x) {\n        a();\n    } else if (y) {\n        b();\n    }") == []
+    assert texts(v.gen_branch, "    } else if (x) {\n        a();\n    } else {\n        b();\n    }") == []
+
+
+def test_arith_swaps_bounded_operands():
+    assert texts(v.gen_arith, "    x = a + b->c;") == ["    x = b->c + a;"]
+    assert texts(v.gen_arith, "    x = a * b + c;") == ["    x = b * a + c;"]
+    assert texts(v.gen_arith, "    x = c + a * b;") == ["    x = c + b * a;"]
+    assert texts(v.gen_arith, "    return a + b;") == ["    return b + a;"]
+
+
+def test_arith_keeps_meaning():
+    assert texts(v.gen_arith, "    x = c - a + b;") == []  # (c - a) + b
+    assert texts(v.gen_arith, "    x = c / a * b;") == []  # (c / a) * b
+    assert texts(v.gen_arith, "    x = -a + b;") == []
+    assert texts(v.gen_arith, "    x = &a + b;") == []
+    assert texts(v.gen_arith, "    x = a[i] * b[0];") == ["    x = b[0] * a[i];"]
+    assert texts(v.gen_arith, "    x++; y += 2; u8 *p;") == []
+    assert texts(v.gen_arith, "    x = (s32)a + b;") == []  # the cast binds a
+
+
+def test_elem_rotates_element_spellings():
+    assert texts(v.gen_elem, "    x = gTab[i].f;") == ["    x = (gTab + i)->f;", "    x = (&gTab[i])->f;"]
+    assert texts(v.gen_elem, "    x = gTab[a ? b : c].f;")[0] == "    x = (gTab + (a ? b : c))->f;"
+    assert texts(v.gen_elem, "    x = (gTab + i)->f; y = (&gTab[j])->g;") == [
+        "    x = gTab[i].f; y = (&gTab[j])->g;", "    x = (gTab + i)->f; y = gTab[j].g;"]
+    assert texts(v.gen_elem, "    x = p->arr[i].f; y = s.arr[j].g;") == []  # member arrays keep their path
