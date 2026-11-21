@@ -3502,12 +3502,14 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     s32 pad5;
     ModelSlot *slots;
     u8 i;
-    f32 *px;
-    f32 *py;
-    f32 *pz;
+    f32 *px = NULL, *py = NULL, *pz = NULL; // FAKE: dead initialisers number px/py/pz first (cand 0/3/6) ahead of i*752 (umpy cand 54) and &gPlayerSlots[i] (uixa cand 55); on their 15.00 adjsave tie the earlier candidate wins (Q1551), so px/py/pz take v1/a0/a1 (0x9a54-0x9a70) and umpy/uixa a2/a3 (0x9a2c/0x9a30)
     f32 best;
 
-    if (0) { csStateTickTimers((CsState *)&idx); csStateTickTimers((CsState *)&slots); } allow = 1; if (entry->type == 1) { idx = hashTableLookup(entry->modelId); slots = gModelSlots; obj = slots[idx].csState; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&slots so both get stack homes; the one-line layout keeps as1 line order
+    allow = 1;
+    if (entry->type == 1) {
+        idx = hashTableLookup(entry->modelId);
+        slots = gModelSlots; obj = slots[idx].csState; // FAKE: one-line join lets as1 schedule addu t9,t8,t7 (0x99a0) ahead of the slots home store sw t8,52(sp) (0x99a4); on two lines the store goes first
+        if (obj != NULL) {
             switch (obj->updateMode) {
             case 2:
                 allow = 0;
@@ -3516,7 +3518,6 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                 allow = allowDefault;
                 break;
             case 4:
-                if (1) {}  // FAKE: empty test splits the case 4 block; steers register colouring (kind byte t5, 752/6 in t3/t4)
                 allow = allowDefault;
             case 3:
             case 6:
@@ -3525,22 +3526,23 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                     if (gPlayerSlots[i].active == 0) {
                         continue;
                     }
-                    if (entry && entry) {}  // FAKE: dead test steers register colouring
-                    if (obj->updateMode == 6) {
+                    switch (obj->updateMode) {
+                    case 6:
                         px = &gPlayerSlots[i].actor->x;
                         py = &gPlayerSlots[i].actor->y;
                         pz = &gPlayerSlots[i].actor->z;
-                    } else {
+                        break;
+                    default:
                         px = &gPlayerSlots[i].eyeX;
                         py = &gPlayerSlots[i].eyeY;
                         pz = &gPlayerSlots[i].eyeZ;
+                        break;
                     }
                     if ((*px - entry->x) * (*px - entry->x) + (*py - entry->y) * (*py - entry->y) + (*pz - entry->z) * (*pz - entry->z) < best) {
                         best = (*px - entry->x) * (*px - entry->x) + (*py - entry->y) * (*py - entry->y) + (*pz - entry->z) * (*pz - entry->z);
                     }
-                    if (slots && slots) {}  // FAKE: dead test steers register colouring
                 }
-                allow &= best < (f32)obj->updateRangeSq;
+                allow &= best < obj->updateRangeSq;
                 break;
             case 5:
                 if (gModelPendingQueueCount == 0x14) return;
