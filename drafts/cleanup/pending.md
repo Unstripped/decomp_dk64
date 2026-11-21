@@ -1,26 +1,18 @@
-# Cleanup pending (unresolved items only; updated in session 2026-11-20 by Lead20261120, close not yet run: see its dispatch.md)
+# Cleanup pending (unresolved items only; checked against the tree at the 2026-11-20 close)
 
 Open functions come from `uv run tools/quality.py rank` / `rank --polish` (SKILL §2) or `status --file <f>`. This file keeps what
 `rank` cannot show: the `TypesOwner` queue (`.omp/skills/cleanup-unit/types-stream.md`: oldest first, skipping HELD/PARKED items), director rulings, held
 names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/sessions.md` keep the history); a closed decision keeps one outcome line.
 
 ## Blocked owner/header changes (`TypesOwner` queue)
-- EffectNode `wobbleRise` LANDED 2026-11-20 (TypesOwner13 batch_14 Part A: f402b9a4 render.h, e1f618fa 11BC10). Open: the 11BC10
-  re-carry (`carry --rev e1f618fa^ src/global/11BC10.c`) waits for the tooling fix "tag added to an anonymous typedef'd record =
-  unchanged" (director relays the sha); until then 85 11BC10 functions show OPEN. Part B (JetpacSprite -> TextureDescriptor,
-  .scratch/TypesOwner/batch_14/partB*.patch, ledger B_jetpac_1460.txt) is gated only after the header_renames alias fix sha.
-- batch_15 (TypesOwner14, 2026-11-20, base 69aa18eb) holds the next items: F F9450 ModelAssetEntry -> model.h, G CAM_LERP/LERP +
-  gTextFontSheets, H one extern for D_8071FE08 + C4620 duplicate gBehaviourTargetActor, E ACDC0 D_807505A4 split, C 450.c owner
-  types (below), D signedness mismatches (below). Remove each item here when its part lands.
-- 450.c data owner types (2026-11-18b polish reports): `u8 D_80744510[28]` / `D_80744530[5]` are blobs hiding gMenuReturnContext (0x80744514),
-  D_8074451C, D_80744520, D_80744524[], D_80744534, D_80744538, D_8074453C[5]; `u32 D_80744544` is read as s16 (FCCD0 lh, 3E10
-  ^=/|=); `D_80744548`/`D_80744568` u32[8] vs MenuHighScoreEntry[] (3E10); `u8 D_8076A0D0[48]` blob covers gMenuScreenSelection and
-  gMenuPlayerCharacterSel read as s8 (3E10 lb). Split/retype in 450.c with every user in one gate.
-- Declared signedness/type mismatches (one extern per global): gMinigameCoinCount s16 def (CC800) vs u16 reader (FCCD0 slot 11);
-  D_807563B4 u8 def vs extern s8 (3E10); D_80746B60 u8 (17B90) vs s8 (117190); D_807463B8 s8 (F56F0) vs u8 elsewhere;
-  gActorScriptAnimTable void * (7CA80) vs u16 * (17B90).
-- jetpac: `JetpacSprite` is `typedef TextureDescriptor JetpacSprite;` since 6ed65e63: rename its uses (jetpac/0 1, 1460 4, 1A60 5,
-  3480 6, 4FC0 8, jetpac.h 4) to TextureDescriptor in one polish pass; the trailing `0` of the 10-value sprite initialisers fills pad14.
+- Landed 2026-11-20 (history in sessions.md): batch_14 A EffectNode wobbleRise (f402b9a4, e1f618fa), B JetpacSprite ->
+  TextureDescriptor (f2105d5b); batch_15 F ModelAssetEntry -> model.h (c7ef501e), G one LERP in common.h (220c7251), H1/H2 one
+  EffectGridAsset extern for D_8071FE08 + C4620 duplicate dropped (7beb5dbd, 6064fcc9), E ACDC0 sPauseKongTables (070a72b3),
+  C 450.c data split + 13980/201B0 s8 readers ORIG (2539d1a6), D1/D2 one declared type for gMinigameCoinCount,
+  gFaultScreenEnabled, gDemoFixedAnimRate, gDemoPlaybackState, gActorScriptAnimTable (225a8e51, 3da6b8de).
+- 7CA80 script tables: `extern void *gActorScriptIndexTable` (7CA80.c:533) vs `u16 *` in 19A00.c:284, 80150.c:116, E4090.c:1304 (bss
+  in asm, no C definition), and `extern void *gActorScriptSoundTable` (7CA80.c:535) vs `s16 *` in 19A00.c:1495: one declared type
+  each, every user in one gate; then actorInit casts directly (TypesOwner14, PolishglobalD1Reread 2026-11-20).
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing, BC3B0.c:172): the shared field name may be too narrow.
 - 55B20 file-local MapZone (55B20.c:350): `tris` as `MapTriangle *` would remove 23 casts; a natural rewrite does not match yet.
 - 36880 views on `ModelSlot.unk20` (model.h:109 `void *`, ModelKindObj users): blocked on the model.h H1/H2 regeneration (clashes
@@ -40,26 +32,21 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - ucode symbols: 6710.c/14CF0.c D_80760590, D_805FB000, D_805FB0D0, func_80741310 are the rsp/asp symbols include/PR/ucode.h
   declares (aspMainDataStart, rspbootTextStart/End, aspMainTextStart; `long long[]`): replace the externs (rename.py refuses
   names in scope).
-- ACDC0 `s16 D_807505A4[10]` (ACDC0.c:122) is two s16[5] tables: split it (touches undefined_syms, 478F0/FCCD0).
-- One shared lerp macro for 201B0 `CAM_LERP` (201B0.c:286) and 478F0 `LERP` (478F0.c:2908); gTextFontSheets `void **` -> `u8 **`
-  (100180.c:79, Polishglobal100180).
+- 478F0 reads `D_807505AE[5]` (now `sPauseKongTables.unlockFlag[5]`) when sHubItemsCycle is 20, past the 5-entry table: original
+  behaviour (TypesOwner14); keep, note only.
 - jetpac 0x8002BA80 Gfx split: the `jetpacInitPending` splat label (jetpac/0.c:404) spans a gSPEndDisplayList.
 - jetpac shared head (PARKED; CleanjetpacUpdatePlayerMovement, ledger 7d1cc6e8): embed one 0x30-byte head struct in JetpacActor
   and JetpacPlayerActor. `player->head.x` compiles like the plain body; only a `head = &player->head` local used for EVERY head
   access matches, so it retires 1A60 ba285d only if that local is ruled ordinary C (`.omp/skills/cleanup-unit/rulings.md` pointer-local precedent: 450
   firstSetupFlag). It touches every head-field access of JetpacPlayerActor.
-- F9450 ModelAssetEntry (0x30, map model asset table 9; identical copies in 36880.c:33-49 and F9450.c, modelAssetGetSubtables):
-  move it to include/model.h and drop both copies (merge_drafts prunes identical typedefs). DEFERRED (director turn 164); evidence
-  .scratch/PolishglobalF9450/header-request.md. gridBuildNodeLists / gridCollectActorsInRange keep `views blocked` until it lands.
 - HeapBlock allocated-block tag (HOLD, director; .scratch/CleanheapRegisterSurvivor/header-request.md): byte 0x0B is the low byte
   of `next` while free and the tag while allocated (0 normal, 1 locked, 2 survives an overlay load). Every access is a byte view
   (`((u8 *)p)[0xB]` in heapInitGeneralPool, heapInitBlockPool, heapReleasePool, heapFree, heapFreeDeferred,
   heapRegister/UnregisterSurvivor; `ptr[-5]` in heapLockBlock/heapUnlockBlock). An anonymous union adds cfe W838 + W649 per
   declaration; a named one rewrites all 28 `->next` in 15050.c. Only as a file-wide polish/types pass.
 - 7130 D_80770DD9 (undefined_syms.us.txt:341) stays while 7130.c:853 stores through it (FAKE linker alias of D_80770DD8[1]).
-- Declaration consistency: 13980 `extern s8 D_80744510` (lb 0x620) vs 450.c:142 `u8 D_80744510[28]`; gMinigameCoinCount `s16`
-  (bonus/0, 450, minecart/0, race/1770, race/A960) vs `u16` (FCCD0, race/0); D_80720340 `u8`/`u8[]`/`s32` (478F0, 80150, 936B0,
-  9DD70, B6C50, race/1770; held name gSmokePuffSprite: unify the type first).
+- Declaration consistency: D_80720340 `u8`/`u8[]`/`s32` (478F0, 80150, 936B0, 9DD70, B6C50, race/1770; held name gSmokePuffSprite:
+  unify the type first).
 
 ## Closed or held by ruling (reopen only with the new evidence named)
 - Return widths: keep `u8 mapGetHubWorldIndex(u8, u8)` (OwnerHubWorldIndexWidthPlan: C2A90 func_806BE09C uses v0 unmasked) and
@@ -110,15 +97,16 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- 2026-11-20: coverage restored (48 next=review reviewed, M1-M5); OPEN before the close: 7CA80 actorAllocate (CleanactorAllocatec:
-  two `(u16)((headerSize + 7) & 0xFFF8)` CSE casts are value casts chosen for codegen; lead probe with both dropped = same code,
-  registers renamed 0x340-0x3b4; tag + ladder) and the 11BC10 re-carry above.
+- 2026-11-20 close: coverage restored; every rank function is EXHAUSTED at strength 3 (SKILL §7 stop: no re-dispatch without a
+  new lever named in the brief). 7CA80 actorAllocate's `ALIGN8_U16` `(u16)` stays FAKE (director: reachable headerSize <= 0x188,
+  the cast never changes the value).
 - FCCD0 slotQueueDrawLabel f22aa7: the text[4] route is closed by R11 (coins F9450.c:621 item 0xB7 and the slot 9 sum are uncapped);
   a fix needs another free frame word for the int-width selector (dossier).
-- Polish proposals (2026-11-18c reports, file-scope edits other functions reach): 80150 `extern s32 D_8071FE08` -> EffectGridAsset
-  (better: one shared extern; 478F0/9DD70 declare `u8 D_8071FE08[]`, 19A00/89250/119370 EffectGridAsset);
-  C4620 duplicate `extern Actor *gBehaviourTargetActor;` (actor.h:1264 declares it); 136820 gFaultFramebuffer s32 -> u16 * with
-  faultFontInit's first parameter (after the 13980/136820 gFramebuffers[] s32/u32 unification).
+- Polish proposals (2026-11-18c reports): 136820 gFaultFramebuffer s32 -> u16 * with faultFontInit's first parameter (after the
+  13980/136820 gFramebuffers[] s32/u32 unification).
+- Polish proposals (2026-11-20 reports, hack-function bodies, ordinary-C only with fresh rungs re-run): redundant casts in 3E10
+  menuDrawHighScoreTable `(s16)(posY * 4.0)`, menuUpdateElementTargetAndColor five `(f32)`, 1295B0 zoneCheckActorInside two
+  `(f64)` + seven `(f32)` (each fdiff 0 in a probe copy, Polishglobal42630d); 70FD0 420f8c FAKE comments still say unk140.
 
 ## Held names (a field rename reopens the review of every touched function: batch them with the next types item, lead review each)
 Lists: .scratch/Lead20261118/names17f.txt (17f proposals), names_close.tsv (close submissions; names_applied.tsv applied,
@@ -150,11 +138,14 @@ names_failed.txt refused), .scratch/lead_s1115/names.md, .scratch/lead_s1115c/cl
   effectSpawnActorScale (18c Polishglobal42630c: effectSpawnWaterRipple / effectActorCheckWaterRipple, less certain), gMenuBonusTimer
   -> gHelmTimer, modelAnimEntrySet*, BA790 func_806B5A90 -> explodingChaserUpdate (18c Polishglobal9DD70, moderate: states 0/4 chase via
   enemyAggroStateUpdate/actorMoveWithinZone (0x33), 0x37 explodes; held by the director at the 18c close).
+- 2026-11-20 proposals with code evidence (reports in .scratch/Lead20261120/reports/): func_806228BC camComputeFirstPersonEyeFocus,
+  func_8062773C camExitFirstPerson, D_807476B4 gCamZoneFocusOffset, D_8074682C gMainLoopWatchdog, D_80746830 gWatchdogPaused,
+  D_807F693A gCsLightIndex, D_80750650 gEnemyGridLongJump, func_806BCF98 enemyGridDrawYesNoPrompt, D_8004BCD0 gArcadeEntities,
+  D_8004C724 gArcadeScreenMode, playerCheckLandingSfx -> playerCheckLandingSlide; fields BehaviourWorkState.unk36 chaseState /
+  unk20 searchTimer, SpawnNode.unkD chaseSpeed, ActorGlobalState.unk39 riderCount / unk7C riderActors, JetpacItem.unk8/unkC x/y.
 
 ## Tooling fixes (open)
-- quality.py noop-arith regex `\* ?0\b` matches float literals (`* 0.1`): ACDC0 hudPauseMenuIconUpdate c4c287 is kind noop-arith
-  but is an `other` reuse (CleanhudPauseMenuIconUpdate 2026-11-20); fix `\* ?0(?![.\w])`.
-- quality.py header_renames counts a record field type respelled through a same-canonical alias typedef (JetpacSprite ->
-  TextureDescriptor: JetpacActor.sprite, JetpacItem.sprites, JetpacCellItem.texture) and respelled data definitions as changed, so
-  carry re-opens their users (TypesOwner13 batch_14 Part B: 19 functions).
+- None open from 2026-11-20: 73393b44 (noop-arith literal), bd5da4f3 (alias respelling), 49c6d3c4 (tag added in place), d84d0487
+  (macro renamed to an identical macro), 25fcab9a (knowledge staleness by author date), 4c63a269 (carry skips duplicates),
+  994b805b (AGENTS.md) landed; the six 2026-11-18c items closed with 928f8144, 827859da, ed51d26d, 12452351, f29f1c5d, 827913fc.
 

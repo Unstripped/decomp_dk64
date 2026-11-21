@@ -44,10 +44,10 @@ opus, 2026-11-16c; fix a wrong one through a lead `--copy-dir`). `rank` orders f
    lead's FINISHED workers (status.md + dry-run ledger, no transcript): merge_record needs `--model`, so run its steps by hand,
    `record` without `--model`, unit "<date>: cleanup <A> (orphaned <lead> result, model unknown)", after re-verifying the copy.
 2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK` (no image: `docker compose build`); `tools/dk make expected`.
-3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
-   `uv run tools/clint.py compdb`; `uv run tools/quality.py report --markdown` → starting numbers.
-4. `uv run tools/quality.py rank --limit 40` (hack queue: `str att strong hacks state file function kinds`, weakest earlier
-   attempts first) and `rank --polish` (per file: functions without hack sites still open, `unrev` = never or stale reviewed); read `drafts/cleanup/pending.md` (ready items, rulings in force, held files).
+3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first); `uv run tools/clint.py compdb`;
+   `uv run tools/quality.py report --markdown` → starting numbers. Far fewer reviews than the last close reported after a history
+   rewrite: `carry --rev <pre-rewrite twin of the files' last commit>` over the files the rewrite changed (2026-11-20: 4d9e6a23, 132).
+4. `uv run tools/quality.py rank --limit 40` (hack queue, weakest earlier attempts first), `rank --polish` (per file: `unrev` = never or stale reviewed); read `drafts/cleanup/pending.md` (ready items, rulings, held files).
 
 ## 2. Queue (rolling)
 

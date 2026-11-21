@@ -45,13 +45,15 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - a dead clamp keeper
 - any other constant-valued local
 - a redundant alias (a second copy of a value already in a local: a swap needing one is rejected)
-- a value cast chosen for codegen
+- a value cast chosen for codegen, also as the result cast of a one-recomputation macro: ordinary only when dropping it changes
+  the computed value for some reachable input (7CA80 actorAllocate `ALIGN8_U16` `(u16)`: headerSize <= 0x188 over all 344 component
+  lists, so the cast only steers registers; director 2026-11-20)
 - an operand-order/width/view respelling
 - a single-use local whose only effect is a frame word (copy-propagated, `{ s32 _g; }` there matches too: a pad, 36880 1a2082).
 - a local reused for an UNRELATED role whose value never reaches its own home (3E10 menuUpdateElementTargetAndColor `radius =
   mathSinF(t)`: the sine is used from f0, R5 2026-11-18c; 3E10 menuDrawHighScoreTable flag + loop counter in s2, M39; 126260
-  commandApplyToLight `factor` = the falloff base, then `127.0f / dist`, not R9's same-role divisor); ACDC0
-  hudPauseMenuIconUpdate `sc` is the same construct, untagged: tag it in the next ACDC0 pass
+  commandApplyToLight `factor` = the falloff base, then `127.0f / dist`, not R9's same-role divisor; ACDC0
+  hudPauseMenuIconUpdate `radius` as sine/distance/draw/step and slot `i` as brightness, tagged 2026-11-20 71ef676a)
 - a width respelling plus a no-op value cast (F56F0 `u16 timer; index = (u8)timer - K`, declined 2026-11-18c)
 - a buffer/array size changed to free a frame word: ordinary C only with a proof from the code (not game data) that every write fits;
   otherwise rejected as a behaviour change (FCCD0 slotQueueDrawLabel `text[8]`->`text[4]`: coins via F9450.c:621 and the slot-9
@@ -64,7 +66,9 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - FAKE → `// LAYOUT:` with line-order evidence is a drop.
 - an empty `default:` whose own block the target keeps (bound-check + gap entries branch to a distinct address) is `// ORIG:` citing
   that block (director 2026-11-18b: vsprintf 0x139c `lbu/li/move` before the loop test 0x13a8, bound check 0x4c4; EFDC0
-  playerStateSetFlagsByActorType +0x16c..+0x190 before the join +0x194, no gap entries); a default at the join address stays a steer.
+  playerStateSetFlagsByActorType +0x16c..+0x190 before the join +0x194, no gap entries; C0EE0 enemyGridStateStep: the one reload
+  `lw a3,0(t2)` at 0xa58 before the join 0xa5c, cases branch to 0xa60 because the join's first op fills their delay slot; removal
+  sends bound check and gap entry to the join, 2026-11-20 f4051566); a default at the join address stays a steer.
 
 The offset must show the tagged line's OWN executed operations (a wider
 call-site declaration's caller-side `andi`, an extra argument register), never register numbering alone (136820 5fb2de), nor a computation

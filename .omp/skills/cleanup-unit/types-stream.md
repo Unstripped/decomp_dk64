@@ -74,8 +74,13 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
   declared `[]` (`carry` treats `[]` -> `[N]` as a changed declaration). A user that only matches with its own declared type,
   proven by the target (52B0 s16 vs race/0 u16 gTextNumberArg), keeps it as `// ORIG:` and the extern goes into a header that
   file does not include.
-- A `COMMIT_FAILED` after `GATE_OK` (concurrent `.git/index.lock`): commit the gated src by hand, then
-  merge_record's steps 3-10. Commit explicit paths only; headers go in `--stage`, never as a gate file argument.
+- A `COMMIT_FAILED` after `GATE_OK` (concurrent `.git/index.lock`, or `HEAD moved during the gate` from a concurrent tools/ commit):
+  commit the gated src by hand (`unit_check.py drafts --prune`), then merge_record's steps 3-10 (2026-11-20: M1, M9, scripted in
+  .scratch/Lead20261120/merge_rest.sh). Commit explicit paths only; headers go in `--stage`, never as a gate file argument.
+- A type part whose stale cost reopens hack rungs no sweep restores lands with ONE follow-up worker re-measuring exactly those
+  rungs (director 2026-11-20). An added union member is "layout changed" for carry: gate the header alone, then the src edits
+  (batch_14 A-hdr/A-src). Run `carry --dry-run --rev <merge>^` before the real carry and compare with the worker's simulated count
+  (A-src was simulated on the old header and missed a tag-added rule: 85 -> 0 until 49c6d3c4).
 - A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a copy retyping a shared global's
   extern: fix every other file's extern in the SAME gate (objdiff each; a file whose cfe would rise or that no
   longer compiles keeps its type and goes to drafts/cleanup/pending.md).
