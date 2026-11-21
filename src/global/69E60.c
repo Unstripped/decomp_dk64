@@ -49,12 +49,12 @@ void actorStepPhysics(Actor *actor, s16 targetYaw, s16 facingYaw) {
     actorUpdatePrevContactFlags(actor);
     func_80665ACC(actor);
     if (actor->hasArcBounds != 0) {
-        mathAngleClampToArc(actor->moveYaw, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);
-        actor->unkFA = mathAngleArcProximityScale(actor->arcYawMin, actor->arcYawMax, facingYaw, actor->unkF8);
+        mathAngleClampToArc(actor->moveYaw, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->arcMoveYaw);
+        actor->arcSpeedCap = mathAngleArcProximityScale(actor->arcYawMin, actor->arcYawMax, facingYaw, actor->arcSpeedCapMax);
         if ((actor->renderFlags & 0x200) && (actor->renderFlags & 0x100)) {
-            actor->unkFA = 0;
+            actor->arcSpeedCap = 0;
         }
-        actor->moveYaw = actor->unkF2;
+        actor->moveYaw = actor->arcMoveYaw;
     }
 }
 
@@ -68,8 +68,8 @@ void actorApplyVelocity(Actor *actor) {
 
     moveSpeed = actor->speedXZ;
     if (actor->hasArcBounds != 0) {
-        if ((f32)actor->unkFA < moveSpeed) {
-            moveSpeed = actor->unkFA;
+        if ((f32)actor->arcSpeedCap < moveSpeed) {
+            moveSpeed = actor->arcSpeedCap;
         }
     }
     scaleFactor = (f64)((actor->sub4 != NULL) ? actor->sub4->scaleY : 0.15f) * 0.16666666675;
@@ -99,8 +99,8 @@ void actorApplyVelocityCustom(Actor *actor, f32 speedXZ, f32 speedY) {
     f32 scale;
 
     if (actor->hasArcBounds != 0) {
-        if ((f32)actor->unkFA < speedXZ) {
-            speedXZ = actor->unkFA;
+        if ((f32)actor->arcSpeedCap < speedXZ) {
+            speedXZ = actor->arcSpeedCap;
         }
     }
     if (actor->sub4 != NULL) {
@@ -380,6 +380,6 @@ void actorUpdatePositionAndSub140(Actor *actor) {
             scale = 0.15f;
         }
         actorSub140SetVectors(actor, x, y, z, scale);
-        actor->collision->unk80 = gFrameCounter;
+        actor->collision->posFrame = gFrameCounter;
     }
 }

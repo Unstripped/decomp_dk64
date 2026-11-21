@@ -47,7 +47,7 @@ s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType) {
         }
     }
     if (found) {
-        if ((gCurrentActor->collisionFlags & 1) && gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2) {
+        if ((gCurrentActor->collisionFlags & 1) && gPlayerSlots[gActivePlayerState->playerIndex].sizeMode == 2) {
             return 0x97;
         }
         if (actor->contactFlags & 4) {

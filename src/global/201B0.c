@@ -1903,7 +1903,7 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
         return;
     }
     if (tgt->actorType == 5) {
-        if (gPlayerSlots[cam->playerIndex].unk2C0 != 1) {
+        if (gPlayerSlots[cam->playerIndex].sizeMode != 1) {
             f = 0.333f;
         }
     }
@@ -2018,7 +2018,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
             st->orbitYaw = mathAngleBetweenPoints2D(st->followActor->x, st->followActor->z, *eyeX, *eyeZ);
         }
         st->repositionFrames = 0;
-        camActor->unkF2 = pushYaw;
+        camActor->arcMoveYaw = pushYaw;
         if (!(st->flags & 0x2008) && !(gGlobalOverlayFlags & 1) && D_807476AC < st->unkA0) {
             camSetZoomForDistance(camActor, D_807476AC);
         }
@@ -2187,7 +2187,7 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
             } else if (target->state == 0x59 || target->state == 0x4E || target->state == 0x6E) {
                 func_80620F00(camActor, 0, 0);
             } else if (hudCanRender() != 0 && cam->repositionFrames == 0) {
-                if (target->actorType != 8 && target->actorType != 9 && gPlayerSlots->unk2C0 != 2) {
+                if (target->actorType != 8 && target->actorType != 9 && gPlayerSlots->sizeMode != 2) {
                     if (target->state != 0xE && target->state != 0x42 && target->state != 0x57 && target->state != 0x48 &&
                         target->state != 0x49 && target->state != 0x4C && target->state != 0x47 && target->state != 0x3E &&
                         !(cam->flags & 0x12000) && !(gGlobalCutsceneFlags & 2) && target->state != 0x58 && target->state != 0x63 &&
@@ -2372,7 +2372,7 @@ u8 camSetZoomLevel(Actor *cam, s16 level) {
     u8 old;
     s16 zoomSet;
 
-    zoomSet = (gPlayerCharacterId[st->playerIndex] * 2 + (gPlayerSlots[st->playerIndex].unk2C0 != 1)) + 7;
+    zoomSet = (gPlayerCharacterId[st->playerIndex] * 2 + (gPlayerSlots[st->playerIndex].sizeMode != 1)) + 7;
     old = st->zoomLevel;
     if ((st->flags & 0x2000) && level > 1) {
         level = 1;
@@ -2407,7 +2407,7 @@ void camSetZoomForDistance(Actor *cam, s16 distance) {
     s16 best;
     s16 i;
 
-    zoomSet = gPlayerCharacterId[st->playerIndex] * 2 + (gPlayerSlots[st->playerIndex].unk2C0 != 1) + 7;
+    zoomSet = gPlayerCharacterId[st->playerIndex] * 2 + (gPlayerSlots[st->playerIndex].sizeMode != 1) + 7;
     best = 1;
     if (gCurrentMap == 0x9A) {
         zoomSet = 0;
@@ -3251,7 +3251,7 @@ void camUpdateEyePos(Actor *camActor, f32 blendY, f32 *eyeX, f32 *eyeY, f32 *eye
     f32 clampY;
 
     if (camActor->hasArcBounds) {
-        moveYaw = camActor->unkF2;
+        moveYaw = camActor->arcMoveYaw;
     } else {
         moveYaw = camActor->moveYaw;
     }
@@ -3720,11 +3720,11 @@ s32 camProjectToScreen(f32 x, f32 y, f32 z, f32 *screenX, f32 *screenY, Mtx *mod
     w *= scale;
     x /= w;
     y /= w;
-    x = gPlayerSlots[playerIndex].unk278 * 0.5 * x;
-    y = gPlayerSlots[playerIndex].unk27A * 0.5 * y;
-    x = gPlayerSlots[playerIndex].rect[0] + gPlayerSlots[playerIndex].unk278 * 0.5 + x;
-    y = gPlayerSlots[playerIndex].rect[1] + gPlayerSlots[playerIndex].unk27A * 0.5 + y;
-    y = (gPlayerSlots[playerIndex].unk27A - (y - gPlayerSlots[playerIndex].rect[1])) + gPlayerSlots[playerIndex].rect[1];
+    x = gPlayerSlots[playerIndex].rectWidth * 0.5 * x;
+    y = gPlayerSlots[playerIndex].rectHeight * 0.5 * y;
+    x = gPlayerSlots[playerIndex].rect[0] + gPlayerSlots[playerIndex].rectWidth * 0.5 + x;
+    y = gPlayerSlots[playerIndex].rect[1] + gPlayerSlots[playerIndex].rectHeight * 0.5 + y;
+    y = (gPlayerSlots[playerIndex].rectHeight - (y - gPlayerSlots[playerIndex].rect[1])) + gPlayerSlots[playerIndex].rect[1];
     if (16384.0f <= (x > 0.0f ? x : -x)) {
         x = ((0.0f <= x) ? 1 : -1) << 14;
     }

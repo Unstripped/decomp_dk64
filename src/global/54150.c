@@ -43,17 +43,17 @@ void modelSlotAllocAnimBuffers(ModelData **outAnim, ModelAssetHeader *asset) {
         nodeTable = asset->unk64 + (u8 *)asset;
         for (j = 0; j < 10; j++) {
             entry = &anim->entries[j];
-            entry->unk0 = (ModelAnimNodeHeader *)(nodeTable + ((u32 *)nodeTable)[j]);
-            entry->unk4 = 0.0f;
-            entry->unk8 = 0;
-            entry->unkA = 0;
-            entry->unkE = 0;
-            entry->unkF = 0;
-            entry->unk10 = 0;
+            entry->node = (ModelAnimNodeHeader *)(nodeTable + ((u32 *)nodeTable)[j]);
+            entry->keyFrac = 0.0f;
+            entry->loopCount = 0;
+            entry->loopLimit = 0;
+            entry->active = 0;
+            entry->direction = 0;
+            entry->loopMode = 0;
             entry->keyIndex = 0;
-            entry->unkC = 1;
-            entry->unk12 = 0;
-            entry->unk13 = 0;
+            entry->speed = 1;
+            entry->motionFlags = 0;
+            entry->scaleMode = 0;
         }
     } else {
         *outAnim = NULL;
@@ -117,7 +117,7 @@ u8 modelSlotStepAnimations(s16 modelId) {
         gModelAnimDstFrame = group->frames[gGfxBufferIndex ^ 1];
         gModelAnimStepGroup = group;
         for (i = 0; i < 10; i++) {
-            if (group->entries[i].unkE == 1) {
+            if (group->entries[i].active == 1) {
                 modelAnimEntryStep(&group->entries[i]);
                 gModelAnimChanged = 1;
             }
@@ -165,16 +165,16 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
     u8 *src;
     ModelBTrack *track;
 
-    node = entry->unk0;
+    node = entry->node;
     stride = node->keyCount * sizeof(ModelBKey) + sizeof(ModelBTrack);
     srcBase = gModelAnimSrcFrame;
     dstBase = gModelAnimDstFrame;
     p = (u8 *)(node + 1);
     for (i = 0; i < node->matrixCount; i++) {
         track = (ModelBTrack *)p;
-        modelAnimEntryBuildKeyMatrix(entry->keyIndex, entry->unk4, track, (ModelBKey *)(track + 1), entry->unk13);
+        modelAnimEntryBuildKeyMatrix(entry->keyIndex, entry->keyFrac, track, (ModelBKey *)(track + 1), entry->scaleMode);
         dst = dstBase + track->mtxOffset;
-        if (entry->unkE == 0) {
+        if (entry->active == 0) {
             src = srcBase + track->mtxOffset;
             mtxCopyQueuePush(gModelAnimStepGroup, src, dst);
         } else {
@@ -194,8 +194,8 @@ void modelAnimEntryQueueMatrixCopies(ModelData *group, ModelAnimEntry *entry) {
     u8 *dst;
     ModelBTrack *track;
 
-    node = entry->unk0;
-    p = (u8 *)(entry->unk0 + 1);
+    node = entry->node;
+    p = (u8 *)(entry->node + 1);
     stride = node->keyCount * sizeof(ModelBKey) + sizeof(ModelBTrack);
     srcBase = gModelAnimSrcFrame = group->frames[gGfxBufferIndex ^ 1];
     dstBase = gModelAnimDstFrame = group->frames[gGfxBufferIndex];
@@ -336,68 +336,68 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
     s32 whole;
     s32 loops;
 
-    node = entry->unk0;
-    rate = ((node->times[entry->keyIndex + 1] - node->times[entry->keyIndex]) * entry->unk4 + node->times[entry->keyIndex]) / 300.0;
-    step = entry->unkC * rate;
+    node = entry->node;
+    rate = ((node->times[entry->keyIndex + 1] - node->times[entry->keyIndex]) * entry->keyFrac + node->times[entry->keyIndex]) / 300.0;
+    step = entry->speed * rate;
     if (gFrameDelta < 4) {
         limit = gFrameDelta;
     } else {
         limit = 4;
     }
-    if (entry->unk12 & 1) {
+    if (entry->motionFlags & 1) {
         step *= limit * 0.5;
     }
-    switch (entry->unkF) {
+    switch (entry->direction) {
     case 0:
-        entry->unk4 += step;
-        whole = entry->unk4;
+        entry->keyFrac += step;
+        whole = entry->keyFrac;
         entry->keyIndex += whole;
-        entry->unk4 -= whole;
+        entry->keyFrac -= whole;
         if (entry->keyIndex < node->keyCount - 1) {
             return;
         }
-        entry->unk8 += entry->keyIndex / (node->keyCount - 1);
-        if (entry->unk8 >= entry->unkA && entry->unkA != -1) {
-            entry->unk4 = 1.0f;
+        entry->loopCount += entry->keyIndex / (node->keyCount - 1);
+        if (entry->loopCount >= entry->loopLimit && entry->loopLimit != -1) {
+            entry->keyFrac = 1.0f;
             entry->keyIndex = node->keyCount - 2;
-            entry->unkE = 0;
-            if (entry->unk10 == 1) {
-                entry->unkF = 1;
+            entry->active = 0;
+            if (entry->loopMode == 1) {
+                entry->direction = 1;
             }
         } else {
-            switch (entry->unk10) {
+            switch (entry->loopMode) {
             case 0:
                 entry->keyIndex = entry->keyIndex % (node->keyCount - 1);
                 break;
             case 1:
                 loops = entry->keyIndex / (node->keyCount - 1);
                 if (loops != 0) {
-                    entry->unkF = 1;
+                    entry->direction = 1;
                     entry->keyIndex = node->keyCount - 2;
-                    entry->unk4 = 1.0f;
+                    entry->keyFrac = 1.0f;
                 }
                 break;
             }
         }
         break;
     case 1:
-        entry->unk4 -= step;
-        if (entry->unk4 < 0.0) {
-            whole = (s32)entry->unk4 - 1;
+        entry->keyFrac -= step;
+        if (entry->keyFrac < 0.0) {
+            whole = (s32)entry->keyFrac - 1;
             entry->keyIndex += whole;
-            entry->unk4 -= whole;
+            entry->keyFrac -= whole;
         }
         if (entry->keyIndex < 0) {
-            entry->unk8 += (-entry->keyIndex) / node->keyCount + 1;
-            if (entry->unk8 >= entry->unkA && entry->unkA != -1) {
-                if (entry->unk10 == 1) {
-                    entry->unkF = 0;
+            entry->loopCount += (-entry->keyIndex) / node->keyCount + 1;
+            if (entry->loopCount >= entry->loopLimit && entry->loopLimit != -1) {
+                if (entry->loopMode == 1) {
+                    entry->direction = 0;
                 }
-                entry->unk4 = 0.0f;
+                entry->keyFrac = 0.0f;
                 entry->keyIndex = 0;
-                entry->unkE = 0;
+                entry->active = 0;
             } else {
-                switch (entry->unk10) {
+                switch (entry->loopMode) {
                 case 0:
                     entry->keyIndex = (-entry->keyIndex) % (node->keyCount - 1);
                     if (entry->keyIndex != 0) {
@@ -407,9 +407,9 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
                 case 1:
                     loops = (-entry->keyIndex) / node->keyCount + 1;
                     if (loops != 0) {
-                        entry->unkF = 0;
+                        entry->direction = 0;
                         entry->keyIndex = 0;
-                        entry->unk4 = 0.0f;
+                        entry->keyFrac = 0.0f;
                     }
                     break;
                 }
@@ -508,7 +508,7 @@ void modelAnimEntrySetUnk13(s16 modelId, s16 index, u8 channel, f32 scale) {
         if (level >= 16) {
             level = 15;
         }
-        entry->unk13 = (level << 4) + channel;
+        entry->scaleMode = (level << 4) + channel;
     }
 }
 
@@ -519,9 +519,9 @@ void modelAnimEntryStart(s16 modelId, s16 index, s16 value) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unkA = value;
-        entry->unkE = 1;
-        entry->unk8 = 0;
+        entry->loopLimit = value;
+        entry->active = 1;
+        entry->loopCount = 0;
     }
 }
 
@@ -532,7 +532,7 @@ void modelAnimEntryStop(s16 modelId, s16 index) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unkE = 0;
+        entry->active = 0;
         modelAnimEntryQueueMatrixCopies(group, entry);
     }
 }
@@ -545,7 +545,7 @@ void modelAnimEntryClearTime(s16 modelId, s16 index) {
     if (group != NULL) {
         entry = &group->entries[index];
         entry->keyIndex = 0;
-        entry->unk4 = 0.0f;
+        entry->keyFrac = 0.0f;
     }
 }
 
@@ -556,7 +556,7 @@ void modelAnimEntrySetUnkC(s16 modelId, s16 index, s16 value) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unkC = value;
+        entry->speed = value;
     }
 }
 
@@ -565,7 +565,7 @@ s16 modelAnimEntryGetUnkC(s16 modelId, s16 index) {
 
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
-        return group->entries[index].unkC;
+        return group->entries[index].speed;
     }
     return 0;
 }
@@ -577,7 +577,7 @@ void modelAnimEntrySetTime(s16 modelId, s16 index, s16 key, f32 time) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unk4 = time;
+        entry->keyFrac = time;
         entry->keyIndex = key;
     }
 }
@@ -589,7 +589,7 @@ void modelAnimEntrySetUnkF(s16 modelId, s16 index, s16 value) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unkF = value;
+        entry->direction = value;
     }
 }
 
@@ -600,7 +600,7 @@ void modelAnimEntrySetUnk10(s16 modelId, s16 index, s16 value) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unk10 = value;
+        entry->loopMode = value;
     }
 }
 
@@ -611,8 +611,8 @@ void modelAnimEntryResetFrame(s16 modelId, s16 index, s16 value) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unk8 = 0;
-        entry->unkA = value;
+        entry->loopCount = 0;
+        entry->loopLimit = value;
     }
 }
 
@@ -623,7 +623,7 @@ void modelAnimEntrySetUnk12(s16 modelId, s16 index, s16 value) {
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unk12 = value;
+        entry->motionFlags = value;
     }
 }
 
@@ -633,7 +633,7 @@ u8 modelAnimEntryIsActive(s16 modelId, s16 index) {
 
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
-        if (group->entries[index].unkE == 1) {
+        if (group->entries[index].active == 1) {
             active = 1;
         } else {
             active = 0;
@@ -650,8 +650,8 @@ void modelAnimEntryGetState(s16 modelId, s16 index, s16 *outKey, f32 *outTime, u
     group = gModelSlots[hashTableLookup(modelId)].anim;
     if (group != NULL) {
         entry = &group->entries[index];
-        *outTime = entry->unk4;
+        *outTime = entry->keyFrac;
         *outKey = entry->keyIndex;
-        *outState = entry->unkF;
+        *outState = entry->direction;
     }
 }

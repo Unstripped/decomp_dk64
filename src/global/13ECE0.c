@@ -200,8 +200,8 @@ s16 __n_vsVol(N_VoiceState *vs, N_CSPlayer *seqp) {
 
     vol = (vs->tremelo * vs->velocity * vs->envGain) >> 6;
     chanVol = (seqp->chanState[vs->channel].vol * (vs->sound->sampleVolume * seqp->vol)) >> 14;
-    if (seqp->chanState[vs->channel].unk0D != 0xFF) {
-        chanVol = (u32)((seqp->chanState[vs->channel].unk0D * chanVol) + 1) >> 8;
+    if (seqp->chanState[vs->channel].fadeVol != 0xFF) {
+        chanVol = (u32)((seqp->chanState[vs->channel].fadeVol * chanVol) + 1) >> 8;
     }
     vol *= chanVol;
     vol = (u32)vol >> 15;
@@ -275,15 +275,15 @@ void __n_resetPerfChanState(N_CSPlayer *seqp, s32 chan) {
     seqp->chanState[chan].sustain = 0;
     seqp->chanState[chan].bendRange = 0xC8;
     seqp->chanState[chan].pitchBend = 1.0f;
-    seqp->chanState[chan].unk10 = 0;
-    seqp->chanState[chan].unk0D = 0xFF;
-    seqp->chanState[chan].unk0E = 0xFF;
-    seqp->chanState[chan].unk0F = 0;
-    seqp->chanState[chan].unk0B = 0;
+    seqp->chanState[chan].noteNotify = 0;
+    seqp->chanState[chan].fadeVol = 0xFF;
+    seqp->chanState[chan].fadeTarget = 0xFF;
+    seqp->chanState[chan].fadeRate = 0;
+    seqp->chanState[chan].fxBus = 0;
     seqp->chanState[chan].unk13 = 0;
-    seqp->chanState[chan].unk12 = 0;
-    seqp->chanState[chan].unk11 = 0;
-    seqp->chanState[chan].unk32 = 0;
+    seqp->chanState[chan].lowpassKeyOffset = 0;
+    seqp->chanState[chan].lowpassGain = 0;
+    seqp->chanState[chan].bankSelect = 0;
 }
 
 void __n_setInstChanState(N_CSPlayer *seqp, ALInstrument *inst, s32 chan) {
@@ -298,21 +298,21 @@ void __n_setInstChanState(N_CSPlayer *seqp, ALInstrument *inst, s32 chan) {
         return;
     }
     sounds = ((VoiceMapInstrument *)inst)->soundArray;
-    seqp->chanState[chan].unk18 = (s32)(*sounds)->envelope;
-    seqp->chanState[chan].unk1C = (s32)(*sounds)->keyMap;
-    seqp->chanState[chan].unk20 = (s32)(*sounds)->wavetable;
-    seqp->chanState[chan].unk25 = (*sounds)->samplePan;
-    seqp->chanState[chan].unk26 = (*sounds)->sampleVolume;
-    seqp->chanState[chan].unk27 = 0;
-    seqp->chanState[chan].unk28 = inst->tremType;
-    seqp->chanState[chan].unk29 = inst->tremRate;
-    seqp->chanState[chan].unk2A = inst->tremDepth;
-    seqp->chanState[chan].unk2B = inst->tremDelay;
-    seqp->chanState[chan].unk2C = inst->vibType;
-    seqp->chanState[chan].unk2D = inst->vibRate;
-    seqp->chanState[chan].unk2E = inst->vibDepth;
-    seqp->chanState[chan].unk2F = inst->vibDelay;
-    seqp->chanState[chan].unk24 = 0;
+    seqp->chanState[chan].attackTime = (s32)(*sounds)->envelope;
+    seqp->chanState[chan].decayTime = (s32)(*sounds)->keyMap;
+    seqp->chanState[chan].releaseTime = (s32)(*sounds)->wavetable;
+    seqp->chanState[chan].attackVolume = (*sounds)->samplePan;
+    seqp->chanState[chan].decayVolume = (*sounds)->sampleVolume;
+    seqp->chanState[chan].detune = 0;
+    seqp->chanState[chan].tremType = inst->tremType;
+    seqp->chanState[chan].tremRate = inst->tremRate;
+    seqp->chanState[chan].tremDepth = inst->tremDepth;
+    seqp->chanState[chan].tremDelay = inst->tremDelay;
+    seqp->chanState[chan].vibType = inst->vibType;
+    seqp->chanState[chan].vibRate = inst->vibRate;
+    seqp->chanState[chan].vibDepth = inst->vibDepth;
+    seqp->chanState[chan].vibDelay = inst->vibDelay;
+    seqp->chanState[chan].useInstCopy = 0;
     seqp->chanState[chan].unk31 = 0;
 }
 

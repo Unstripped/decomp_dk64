@@ -37,7 +37,7 @@ typedef struct ArmadilloActor {
 
 extern s16 gSfxSourceVoice[];
 extern f32 gSfxVoicePitch[];
-extern f32 D_80770BC0[];
+extern f32 gSfxVoiceModCounter[];
 
 // The fairy cutscene's spawn order: entry i (counted down from 10) is the spawn-node id - 0x22 of the i-th child.
 typedef struct FairySpawnOrder {
@@ -62,7 +62,7 @@ void behaviourArmadilloPatrol(void) {
         actorClearNodeFlag(gCurrentActor, 4);
         *rollState = gBehaviourExtraState->unkAWide * 10;
     }
-    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         gBehaviourWorkState->timer = 0x1388;
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x327);
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
@@ -223,7 +223,7 @@ void behaviourArmadilloPatrol(void) {
             u8 voice = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
 
             gSfxVoicePitch[voice] = (t < 0.0 ? 0.0 : t) + 0.4;
-            D_80770BC0[voice] = 1.0f;
+            gSfxVoiceModCounter[voice] = 1.0f;
         }
     } else {
         sfxStopSlotSound(gCurrentActor, 1);
@@ -366,7 +366,7 @@ s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
         }
         if (tgt->unk155 != 0) {
             if (tgt->unk155 == 1 && gActorGlobalState.bossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
-                if (gPlayerSlots->unk2C0 == 1) {
+                if (gPlayerSlots->sizeMode == 1) {
                     playerStateQueueCallback(0x32, gCurrentActor, 0);
                 } else {
                     if (((randomNonNegative() >> 15) % 1000) >= 0x1F5) {
@@ -522,7 +522,7 @@ u8 pivotZ;
     if (gBehaviourExtraState->unkA && behaviourAttachToZoneOccupant(0x64, 0)) {
         return;
     }
-    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x32);
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0);
         gBehaviourWorkState->timer = 0xA6;
@@ -853,7 +853,7 @@ void behaviourFairyWanderUpdate(void) {
             camReturnToFollow(gCamActor, gPrimaryPlayerActor);
             spawnNodesSetRespawnHold(0);
             gGlobalCutsceneFlags &= ~1;
-            if (gPlayerSlots->unk2C0 != 1) {
+            if (gPlayerSlots->sizeMode != 1) {
                 playerSetSizeMode(gPrimaryPlayerActor, 1);
                 gActivePlayerState->scaleChangeRate = 0.05f;
             }

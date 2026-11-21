@@ -251,8 +251,8 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     primary = &frame->lightSets[gLightSetIndex].a;
     secondary = &frame->lightSets[gLightSetIndex].l[0];
 
-    if (targetActor->unkCD) {
-        actorGetNodePos(targetActor, targetActor->unkCD, &x, &y, &z);
+    if (targetActor->lightNodeId) {
+        actorGetNodePos(targetActor, targetActor->lightNodeId, &x, &y, &z);
     } else {
         x = targetActor->x;
         y = targetActor->y;

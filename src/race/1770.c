@@ -190,7 +190,7 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
         }
     }
     if (participant != NULL) {
-        participant->unk3A = pathState->waypoint + 1;
+        participant->routePos = pathState->waypoint + 1;
     }
 }
 
@@ -337,7 +337,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
     if (participant != NULL) {
         nxt = &points[next];
-        participant->unk40 = (gCurrentActor->x - nxt->x) * (gCurrentActor->x - nxt->x) + (gCurrentActor->y - nxt->y) * (gCurrentActor->y - nxt->y) + (gCurrentActor->z - nxt->z) * (gCurrentActor->z - nxt->z);
+        participant->nextPointDist = (gCurrentActor->x - nxt->x) * (gCurrentActor->x - nxt->x) + (gCurrentActor->y - nxt->y) * (gCurrentActor->y - nxt->y) + (gCurrentActor->z - nxt->z) * (gCurrentActor->z - nxt->z);
     }
 }
 
@@ -378,7 +378,7 @@ void racePlayEngineSfx(void) {
 
 extern s16 gSfxSourceVoice[];
 extern f32 gSfxVoicePitch[];
-extern f32 D_80770BC0[];
+extern f32 gSfxVoiceModCounter[];
 
 void raceUpdateEngineSoundPitch(f32 moveSpeed) {
     s32 pad;
@@ -386,18 +386,18 @@ void raceUpdateEngineSoundPitch(f32 moveSpeed) {
 
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
     gSfxVoicePitch[idx] = moveSpeed / 20.0 + 1.0;
-    D_80770BC0[idx] = 1.0f;
+    gSfxVoiceModCounter[idx] = 1.0f;
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
-    gCurrentActor->unk74 = moveSpeed / 20.0;
-    if (gCurrentActor->unk74 > 1.0) {
-        gCurrentActor->unk74 = 1.0f;
+    gCurrentActor->soundVolume = moveSpeed / 20.0;
+    if (gCurrentActor->soundVolume > 1.0) {
+        gCurrentActor->soundVolume = 1.0f;
     }
-    if (gCurrentActor->unk74 < 0.0) {
-        gCurrentActor->unk74 = 0.0f;
+    if (gCurrentActor->soundVolume < 0.0) {
+        gCurrentActor->soundVolume = 0.0f;
     }
-    if (D_80770BC0[idx] == 0.0f) {
+    if (gSfxVoiceModCounter[idx] == 0.0f) {
         gSfxVoicePitch[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + moveSpeed / 15.0);
-        D_80770BC0[idx] = 3.0f;
+        gSfxVoiceModCounter[idx] = 3.0f;
     }
 }
 
@@ -444,19 +444,19 @@ void raceVehicleBehaviorUpdate(void) {
         }
         pathState->stunTimer = 0x1E;
     }
-    if (participant->unk35 == 0) {
+    if (participant->statusStep == 0) {
         if (participant->raceStatus == 1) {
             slotQueueUpdate(0xB, 1, 0);
-            participant->unk35++;
+            participant->statusStep++;
         } else if (participant->raceStatus == 5) {
             slotQueueCancel(0xB, 0);
-            participant->unk35++;
+            participant->statusStep++;
         }
     }
     if (participant->raceStatus == 1) {
         manager = participant->actor;
         managerData = manager->customState;
-        if (managerData->unk1C == 8 || managerData->unk1C == 0x13) {
+        if (managerData->phaseTimer == 8 || managerData->phaseTimer == 0x13) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
         raceUpdateEngineSoundPitch(participant->route * 1.5);
@@ -543,7 +543,7 @@ void raceProjectileBehaviorUpdate(void) {
         gCurrentActor->collisionMode = 0x3C;
         participant->throttle = 5.0f;
     }
-    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 5)) {
+    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0) || (gActorGlobalState.bossFightPhase == 5)) {
         effectSetDepth(1);
         effectCreateAtPosition(D_80720340, 3.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);

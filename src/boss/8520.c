@@ -145,7 +145,7 @@ void bossKutOutStep(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         func_8002C748(0);
         func_8002C748(1);
-        gBehaviourAnimState->unk30 = 2.5f;
+        gBehaviourAnimState->shadowScale = 2.5f;
         gBehaviourAnimState->flags &= 0xFFF7;
         gBehaviourAnimState->flags |= 0x200;
         gCurrentActor->flags |= 0x400;
@@ -154,7 +154,7 @@ void bossKutOutStep(void) {
         actorSetUniformScale(gCurrentActor, 2.0 * gCurrentActor->sub4->scaleX);
         actorSpawnLinkedFollower();
     }
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {
         if (flagGet(0xF7, 0) != 0) {
             tagBarrelSpawnActorSmokePuffs(0, 1);
             gCurrentActor->state = 0x40;

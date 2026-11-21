@@ -62,7 +62,7 @@ typedef struct RaceParticipant {
     union {
         struct {
             /* 0x14 */ u8 pad14[8];
-            /* 0x1C */ u16 unk1C; // racers; manager: frame timer
+            /* 0x1C */ u16 phaseTimer; // racers; manager: frame timer
             /* 0x1E */ u8 participantCount; // manager: registered participant count
             /* 0x1F */ u8 pad1F;
         };
@@ -90,17 +90,17 @@ typedef struct RaceParticipant {
     /* 0x2C */ struct Actor *projectile;
     /* 0x30 */ struct Actor *actor; // the race manager this participant is registered with
     /* 0x34 */ u8 raceStatus;
-    /* 0x35 */ u8 unk35;
+    /* 0x35 */ u8 statusStep;
     /* 0x36 */ u8 place;
     /* 0x37 */ s8 lap;
     /* 0x38 */ u8 facingWaypoint;
     /* 0x39 */ u8 pad39;
-    /* 0x3A */ u16 unk3A;
-    /* 0x3C */ u16 unk3C;
+    /* 0x3A */ u16 routePos;
+    /* 0x3C */ u16 activeGatePos;
     /* 0x3E */ u8 pad3E[2];
-    /* 0x40 */ f32 unk40;
-    /* 0x44 */ u8 unk44;
-    /* 0x45 */ u8 unk45;
+    /* 0x40 */ f32 nextPointDist;
+    /* 0x44 */ u8 gateMissesLeft;
+    /* 0x45 */ u8 eliminated;
     /* 0x46 */ u8 resultTextId;
     /* 0x47 */ u8 pad47;
     /* 0x48 */ struct G00Entry *viewport; // camera viewport entry (cameraFindViewportEntry)

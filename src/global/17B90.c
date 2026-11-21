@@ -281,7 +281,7 @@ s32 controllerAnimInit(Actor *actor, u16 assetId) {
         anim->blendWeight = 0.0f;
         anim->blendDuration = 0.0f;
         anim->speedRampDuration = 0.0f;
-        anim->unk48 = 1.0f;
+        anim->speed = 1.0f;
         anim->waitFrame = 0.0;
 
         return 1;
@@ -503,7 +503,7 @@ void controllerAnimSetState(Actor *actor, s16 animId, f32 animSpeed, f32 blend) 
     }
 
     if (blend > 0.0f) {
-        speed = anim->unk48;
+        speed = anim->speed;
         if (speed > 0) {
             anim->blendTime = speed;
         } else {
@@ -676,13 +676,13 @@ void controllerStepMotionWindows(Actor *actor) {
     if (anim->speedRampDuration > 0.0f) {
         anim->speedRampTime += rate;
         if (anim->speedRampTime < anim->speedRampDuration) {
-            anim->unk48 = anim->speedFrom + (((anim->speedTo - anim->speedFrom) * anim->speedRampTime) / anim->speedRampDuration);
+            anim->speed = anim->speedFrom + (((anim->speedTo - anim->speedFrom) * anim->speedRampTime) / anim->speedRampDuration);
         } else {
             anim->speedRampDuration = 0.0f;
-            anim->unk48 = anim->speedTo;
+            anim->speed = anim->speedTo;
         }
     }
-    step = anim->unk48 * rate;
+    step = anim->speed * rate;
     if (model->speedRampDuration > 0.0f) {
         model->speedRampTime += (step > 0) ? step : -step;
         if (model->speedRampTime < model->speedRampDuration) {

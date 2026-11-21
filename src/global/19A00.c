@@ -34,10 +34,10 @@ void scriptSetActorRampTarget(Actor *actor, f32 targetVal, f32 rampTime) {
         ramp->speedRampDuration = rampTime;
         ramp->speedTo = targetVal;
         ramp->speedRampTime = 0.0f;
-        ramp->speedFrom = ramp->unk48;
+        ramp->speedFrom = ramp->speed;
         return;
     }
-    ramp->unk48 = targetVal;
+    ramp->speed = targetVal;
     ramp->speedRampDuration = 0.0f;
 }
 
@@ -60,13 +60,13 @@ extern s32 sScriptContinueRunning;
 typedef s32 (*ActorScriptCommand)(Actor *);
 typedef void (*ScriptCommandFn)(Actor *);
 
-extern EffectGridAsset D_8071FBC8;
+extern EffectGridAsset gEffectSpriteBlast;
 extern EffectGridAsset D_8071FC0C;
-extern EffectGridAsset D_8071FC40;
+extern EffectGridAsset gEffectSpriteBubble;
 extern EffectGridAsset D_8071FC58;
-extern EffectGridAsset D_8071FC8C;
+extern EffectGridAsset gEffectSpriteSparkleYellow;
 extern EffectGridAsset D_8071FCC0;
-extern EffectGridAsset D_8071FF18;
+extern EffectGridAsset gEffectSpriteDustPuff;
 extern EffectGridAsset D_80720268;
 extern EffectGridAsset D_807208F0;
 extern EffectGridAsset D_80720914;
@@ -76,7 +76,7 @@ extern EffectGridAsset D_80720980;
 extern EffectGridAsset D_807209A4;
 extern EffectGridAsset D_807209C8;
 extern EffectGridAsset D_80720AD0;
-extern EffectGridAsset D_80720BE8;
+extern EffectGridAsset gEffectSpriteSmokeCloud;
 extern EffectGridAsset sEffectImpactPuffConfig;
 extern EffectGridAsset sEffectSparkConfig;
 extern EffectGridAsset D_80720B58;
@@ -92,17 +92,17 @@ EffectGridAsset *sScriptEffectSprites[] = {
     &D_8071FC0C,
     &D_80720AD0,
     &D_80720268,
-    &D_8071FF18,
+    &gEffectSpriteDustPuff,
     &D_80720B58,
-    &D_8071FC40,
+    &gEffectSpriteBubble,
     &sEffectImpactPuffConfig,
     &D_8071FC58,
-    &D_8071FC8C,
+    &gEffectSpriteSparkleYellow,
     &D_8071FCC0,
-    &D_8071FF18,
-    &D_80720BE8,
+    &gEffectSpriteDustPuff,
+    &gEffectSpriteSmokeCloud,
     &sEffectSparkConfig,
-    &D_8071FBC8,
+    &gEffectSpriteBlast,
 };
 
 void (*sScriptEffectCallbacks[])() = {
@@ -473,7 +473,7 @@ s32 scriptOpApproachRampTarget(Actor *actor) {
     if (imm < 0.0f) {
         imm = (f32)actor->sub4->scriptResult;
     }
-    if ((actor->sub4->unk48 * value->speed) > 0.0f) {
+    if ((actor->sub4->speed * value->speed) > 0.0f) {
         if (imm <= value->frame) {
             return 1;
         }
@@ -1315,13 +1315,13 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
     scriptReadU8(&volume);
     scriptReadU16(&pitch);
     scriptReadU8(&spread);
-    if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2) {
+    if (gPlayerSlots[gActivePlayerState->playerIndex].sizeMode == 2) {
         range = 0xA;
         if (sfxId == 1) {
             volume *= 0.5;
         }
         camStartShakeFromPoint(gActivePlayerState->camActor, 0xA, 8, actor->x, actor->y, actor->z, 100.0f, 800.0f);
-    } else if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 0) {
+    } else if (gPlayerSlots[gActivePlayerState->playerIndex].sizeMode == 0) {
         range = 0xFF;
         volume *= 0.5;
     } else {
@@ -1342,7 +1342,7 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
             break;
         }
     }
-    sfxId = mapActionLookupEntry(sfxId, actor, actor->unk78[0]);
+    sfxId = mapActionLookupEntry(sfxId, actor, actor->floorTriSurface[0]);
     if ((sfxId == 2) || (sfxId == 8)) {
         spread = 0xA;
     }
@@ -1369,7 +1369,7 @@ s32 scriptOpPlayMapActionSound(Actor *actor) {
         n_alSndpStop(gSfxPositionalHandle);
         gSfxPositionalHandle = NULL;
     }
-    sound = mapActionLookupEntry(imm, actor, actor->unk78[0]);
+    sound = mapActionLookupEntry(imm, actor, actor->floorTriSurface[0]);
     if (sound == 8) {
         imm4 = 4;
     }
@@ -1388,9 +1388,9 @@ s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *actor) {
     sScriptPc++;
     scriptReadU16(&imm);
     scriptReadU8(&imm2);
-    if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2) {
+    if (gPlayerSlots[gActivePlayerState->playerIndex].sizeMode == 2) {
         priority = 0xA;
-    } else if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 0) {
+    } else if (gPlayerSlots[gActivePlayerState->playerIndex].sizeMode == 0) {
         priority = 0xFF;
         volume *= 0.5;
     } else {
@@ -1509,7 +1509,7 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
             n_alSndpStop(gActivePlayerState->sfxHandle);
         }
     }
-    priority = gPlayerSlots[gActivePlayerState->playerIndex].unk2C0;
+    priority = gPlayerSlots[gActivePlayerState->playerIndex].sizeMode;
     pitch = 0x7F;
     if (priority == 2) {
         priority = 10;
@@ -1816,7 +1816,7 @@ void scriptCmdSpawnDownwardDriftEffect(Actor *actor) {
     effectSetFrameDelay(2);
     effectSetSpeed(actor->yaw);
     effectSetDepth(1);
-    effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
+    effectCreateAtActorBone(&gEffectSpriteDustPuff, 0.4f, actor, imm, 0);
 }
 
 void scriptCmdEnablePlayerFlag40000(Actor *actor) {
@@ -1837,7 +1837,7 @@ void scriptCmdSpawnUpwardDriftEffect(Actor *actor) {
         effectSetSpeed((actor->yaw + 0x800) & 0xFFF);
         effectSetDepth(1);
         effectSetFlags(0x80);
-        effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
+        effectCreateAtActorBone(&gEffectSpriteDustPuff, 0.4f, actor, imm, 0);
     }
 }
 
@@ -1849,7 +1849,7 @@ void scriptCmdSpawnSineDriftEffect(Actor *actor) {
     effectSetFrameDelay(2);
     effectSetSpeed(actor->moveYaw);
     effectSetDepth(1);
-    effectCreateAtActorBone(&D_8071FF18, 0.4f, actor, imm, 0);
+    effectCreateAtActorBone(&gEffectSpriteDustPuff, 0.4f, actor, imm, 0);
 }
 
 extern s32 gGlobalCutsceneFlags;

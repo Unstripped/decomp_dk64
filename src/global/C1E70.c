@@ -18,7 +18,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
 extern Actor *gSpawnedActor;
-extern s16 D_80744710[];
+extern s16 gWorldClearedFlags[];
 s8 sRingActiveStarted = 0;
 // per ring: the (map, exit) pair menuTransitionToMap loads when that ring's cutscene ends; pair 7
 // is the destination once every ring is cleared (rings 2 and 7 never transition, so pair 2 is -1, -1).
@@ -80,7 +80,7 @@ void actorNodeRingSpawnRings(void) {
             ring->timer = 0;
             ring->node = gCurrentActor;
             ring->ringIdx = i;
-            if (flagGet(D_80744710[i], 0) != 0) {
+            if (flagGet(gWorldClearedFlags[i], 0) != 0) {
                 activeRingIdx = i;
                 activeRingActor = gSpawnedActor;
                 activeRingActor->state = 5;
@@ -209,7 +209,7 @@ typedef struct RingModelIds {
 } RingModelIds;
 
 RingModelIds sRingCutsceneModelIds = { { 0x0E, 0x0F, 0x10, 0x11, 0x0A, 0x0B, 0x0C, 0x0D } };
-extern u8 D_80720A7C;
+extern u8 gEffectSpriteGlintYellow;
 
 void actorRingUpdate(void) {
     RingState *st = gCurrentActor->customState;
@@ -282,7 +282,7 @@ void actorRingUpdate(void) {
                 sparkX = randomFloat() * 30.0 + gCurrentActor->x;
                 sparkY = randomFloat() * 30.0 + (gCurrentActor->y + 20.0);
                 sparkZ = randomFloat() * 30.0 + gCurrentActor->z;
-                effectCreateAtPosition(&D_80720A7C, 1.2f, sparkX, sparkY, sparkZ);
+                effectCreateAtPosition(&gEffectSpriteGlintYellow, 1.2f, sparkX, sparkY, sparkZ);
             }
             break;
         case 4:

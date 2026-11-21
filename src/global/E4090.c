@@ -1260,7 +1260,7 @@ void playerInputUpdateStickMoveTarget(void) {
 
 void playerStepYawTowardTarget(void) {
     playerUpdateMoveTargetFromStick();
-    mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->unkEA, gActivePlayerState->turnRate);
+    mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->targetYaw, gActivePlayerState->turnRate);
 }
 
 void playerStepYawTowardAngle(void) {
@@ -1612,11 +1612,11 @@ extern f32 gKongJumpVelocityY[];
 
 void playerInputHandleAButtonSlopeJump(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
     gCurrentActor->roll = 0;
     gCurrentActor->pitch = 0;
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if (gActivePlayerState->chargeTimer != -1) {
@@ -1638,14 +1638,14 @@ void playerInputHandleAButtonSlopeJump(void) {
     gCurrentActor->unk155 = 0;
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x10);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 void playerInputHandleAButtonState0(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->floorSlopeFactor != 0.0f)) {
@@ -1658,14 +1658,14 @@ void playerInputHandleAButtonState0(void) {
     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStart(gCurrentActor, 0xB0);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 void playerInputHandleAButtonJump(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->floorSlopeFactor != 0.0f)) {
@@ -1680,14 +1680,14 @@ void playerInputHandleAButtonJump(void) {
     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x10);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 void playerInputHandleAButtonState17(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->floorSlopeFactor != 0.0f)) {
@@ -1698,15 +1698,15 @@ void playerInputHandleAButtonState17(void) {
     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStart(gCurrentActor, 0xAF);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 
 void playerInputHandleAButtonGravity(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if (gCurrentActor->accelY == -260.0f) {
@@ -1719,14 +1719,14 @@ void playerInputHandleAButtonGravity(void) {
     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x67);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 void playerInputHandleAButtonState41(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if (gActivePlayerState->hitStatus != 0) {
@@ -1737,7 +1737,7 @@ void playerInputHandleAButtonState41(void) {
     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStart(gCurrentActor, 0x156);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 extern s32 gCurrentMap;
@@ -1745,15 +1745,15 @@ extern s32 gCurrentMap;
 void playerInputCheckBButtonChargeCallback(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && (gPlayerInventoryTable[gCurrentPlayerIndex].kong[3].moveLevel >= 2) && (gCurrentMap != 0xE)) {
         playerStateQueueCallback(9, 0, gCurrentPlayerIndex);
-        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
     }
 }
 
 void playerInputHandleAButtonState61(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->floorSlopeFactor != 0.0f)) {
@@ -1764,12 +1764,12 @@ void playerInputHandleAButtonState61(void) {
     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x50);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 
 
-extern u8 D_8071FBC8;
+extern u8 gEffectSpriteBlast;
 extern u8 D_807200D4;
 extern f32 gKongProjectileSpeed[];
 extern s16 gKongMaxActiveProjectiles[];
@@ -1905,7 +1905,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                             effectSetDepth(1);
                             effectSetSpeed(0x50);
                             effectSetCallback(effectLightPulseOscillate);
-                            effectCreateAtActorBone(&D_8071FBC8, 0.5f, gActivePlayerActor, 9, 2);
+                            effectCreateAtActorBone(&gEffectSpriteBlast, 0.5f, gActivePlayerActor, 9, 2);
                         }
                     }
                     projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->gunHand + 9);
@@ -2070,9 +2070,9 @@ extern f32 D_8075378C[];
 
 void playerInputHandleAButtonKong(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if (gPlayerCharacterId[gCurrentPlayerIndex] == 6) {
@@ -2087,14 +2087,14 @@ void playerInputHandleAButtonKong(void) {
         gActivePlayerState->jumpVelocityY = D_8075378C[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x1A);
-        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
     } else {
         gCurrentActor->state = 0x3E;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_8075371C[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0xE);
-        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
     }
 }
 
@@ -2103,9 +2103,9 @@ void playerInputHandleAButtonKong(void) {
 
 void playerInputHandleAButtonSub17(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if (gCurrentActor->state != 0x17) {
@@ -2124,9 +2124,9 @@ void playerInputHandleAButtonSub17(void) {
 
 void playerInputHandleAButtonSub61(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if (gCurrentActor->state != 0x61) {
@@ -2147,16 +2147,16 @@ void playerInputHandleAButtonSub61(void) {
 
 void playerInputHandleAButtonSub58(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     gCurrentActor->state = 0x58;
     gCurrentActor->unk155 = 0;
     gActivePlayerState->unk50 = 0;
     gActivePlayerState->approachTimer = 0;
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 
@@ -2184,9 +2184,9 @@ void playerInputInitCannonLaunch(void) {
 
 void playerInputHandleAButtonSub5A(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     gCurrentActor->state = 0x5A;
@@ -2194,7 +2194,7 @@ void playerInputHandleAButtonSub5A(void) {
     gActivePlayerState->approachTimer = 0;
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x74);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 
@@ -2202,9 +2202,9 @@ void playerInputUpdateCannonAim(void) {
     u32 sel;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) {
+    if ((gScheduler.tickCount - gActivePlayerState->jumpTimer) < 0xF) {
         if (gCurrentActor) {} // FAKE: dead read of gCurrentActor at the jump-block head makes its load a coloured uopt web ($v1 for the state store, lw v1,0(a3) at 0x43a4) and leaves sel in $v0; replaces the one-use p and sel ^= 0
         gCurrentActor->state = 0x4C;
         gCurrentActor->unk155 = 0;
@@ -2225,7 +2225,7 @@ void playerInputUpdateCannonAim(void) {
                 actorScriptStartByIndex(gCurrentActor, 0x30);
                 break;
         }
-        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
     }
 }
 
@@ -2464,7 +2464,7 @@ void playerInputHandleBButtonGun(void) {
     PadInputState *pad;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        gActivePlayerState->jumpStartTime = gScheduler.unk280;
+        gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
     if (gActorGlobalState.unk1C &&
         (flagGet(0x185, 0) || (gGlobalOverlayFlags & 0x10000000) || (gPlayerCount >= 2) || menuIsTransitionTypeC())) {
@@ -2503,7 +2503,7 @@ void playerInputHandleBButtonGun(void) {
             actorScriptStartByIndex(gCurrentActor, 0x44);
             gCurrentActor->state = 0x29;
             gCurrentActor->unk155 = 0;
-            gCurrentActor->unkEA = gCurrentActor->moveYaw;
+            gCurrentActor->targetYaw = gCurrentActor->moveYaw;
             gCurrentActor->speedXZ = 150.0f;
             gActivePlayerState->targetSpeed = 150.0f;
         } else {
@@ -2517,10 +2517,10 @@ void playerInputHandleBButtonGun(void) {
 }
 
 s32 playerInputCheckBButtonTarget(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) && gActorGlobalState.unk2 && (gActorGlobalState.unk14 == 8)) {
-        gActivePlayerState->unk220[0] = gActorGlobalState.unk4;
-        gActivePlayerState->unk220[1] = gActorGlobalState.unk8;
-        gActivePlayerState->unk220[2] = gActorGlobalState.unkC;
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) && gActorGlobalState.eventReceived && (gActorGlobalState.eventSubtype == 8)) {
+        gActivePlayerState->unk220[0] = gActorGlobalState.eventX;
+        gActivePlayerState->unk220[1] = gActorGlobalState.eventY;
+        gActivePlayerState->unk220[2] = gActorGlobalState.eventZ;
         playerStateQueueCallback(0x1F, 0, gCurrentPlayerIndex);
         return 1;
     }
@@ -2532,7 +2532,7 @@ void playerInputHandleBButtonPunch(void) {
     f32 w;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        gActivePlayerState->jumpStartTime = gScheduler.unk280;
+        gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         v = gCurrentActor->distToFloor;
@@ -2682,7 +2682,7 @@ void playerInputHandleZButtonFire(void) {
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
-        if (gScheduler.unk280 - gActivePlayerState->lastZPressTick < 0xF) {
+        if (gScheduler.tickCount - gActivePlayerState->lastZPressTick < 0xF) {
             if (gActivePlayerState->gunDrawn) {
                 playerKongPlayHolsterSfx(gCurrentActor);
             }
@@ -2690,10 +2690,10 @@ void playerInputHandleZButtonFire(void) {
             playerLeaveViewMode(gCurrentActor, 0);
         } else if (!mpIsMatchType(0) && !(gGlobalOverlayFlags & 0x80000200) && (gCurrentKongInventory->weaponFlags & 1) &&
                    !(gActivePlayerState->stateFlags & 0x30) &&
-                   (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
+                   (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
         }
-        gActivePlayerState->lastZPressTick = gScheduler.unk280;
+        gActivePlayerState->lastZPressTick = gScheduler.tickCount;
     }
 }
 
@@ -2703,18 +2703,18 @@ void playerInputHandleZButtonShoot(void) {
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
-        if (gScheduler.unk280 - gActivePlayerState->lastZPressTick < 0xF) {
+        if (gScheduler.tickCount - gActivePlayerState->lastZPressTick < 0xF) {
             if (gActivePlayerState->gunDrawn) {
                 playerKongPlayHolsterSfx(gCurrentActor);
             }
             gActivePlayerState->gunDrawn = 0;
             playerLeaveViewMode(gCurrentActor, 0);
         } else if (!mpIsMatchType(0) && !(gGlobalOverlayFlags & 0x200) && (gCurrentKongInventory->weaponFlags & 1) &&
-                   (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
+                   (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
             gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
         }
-        gActivePlayerState->lastZPressTick = gScheduler.unk280;
+        gActivePlayerState->lastZPressTick = gScheduler.tickCount;
     }
 }
 
@@ -2746,7 +2746,7 @@ void playerInputCheckInstrumentPlayback(void) {
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (gCurrentKongInventory->instrumentFlags & 1) &&
         !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
-        (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 2) &&
+        (gPlayerSlots[gCurrentPlayerIndex].sizeMode != 2) &&
         (playerInputCheckTargetMoved(gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
         (gActivePlayerState->damageCooldown == 0)) {
         onOwnPad = playerIsOnOwnInstrumentPad(gCurrentActor);
@@ -2845,14 +2845,14 @@ extern u8 D_8072014C[];
 s32 playerInputCheckMultiplayerPlayerTarget(void) {
     s32 i;
 
-    if (gActorGlobalState.unk2 != 0) {
-        switch (gActorGlobalState.unk14) {
+    if (gActorGlobalState.eventReceived != 0) {
+        switch (gActorGlobalState.eventSubtype) {
             case 9:
                 if (gActivePlayerState->transitionTimer == 0) {
-                    gActivePlayerState->warpX = gActorGlobalState.unk4;
-                    gActivePlayerState->warpY = gActorGlobalState.unk8;
-                    gActivePlayerState->warpZ = gActorGlobalState.unkC;
-                    gActivePlayerState->unk21C = gActorGlobalState.unk10;
+                    gActivePlayerState->warpX = gActorGlobalState.eventX;
+                    gActivePlayerState->warpY = gActorGlobalState.eventY;
+                    gActivePlayerState->warpZ = gActorGlobalState.eventZ;
+                    gActivePlayerState->unk21C = gActorGlobalState.eventValue0;
                     playerStateQueueCallback(0x1E, 0, gCurrentPlayerIndex);
                     playerRestoreKongState(gCurrentActor, gActivePlayerState);
                     return 1;
@@ -2861,9 +2861,9 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
             case 5:
                 if (gCsCondFlag == 0) {
                     if (++D_8076A094 < 0x5DD) {
-                        gActivePlayerState->warpX = gActorGlobalState.unk4;
-                        gActivePlayerState->warpY = gActorGlobalState.unk8;
-                        gActivePlayerState->warpZ = gActorGlobalState.unkC;
+                        gActivePlayerState->warpX = gActorGlobalState.eventX;
+                        gActivePlayerState->warpY = gActorGlobalState.eventY;
+                        gActivePlayerState->warpZ = gActorGlobalState.eventZ;
                         playerStateQueueCallback(0x1C, 0, gCurrentPlayerIndex);
                         playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
@@ -2873,9 +2873,9 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
             case 3:
                 if (gCsCondFlag == 0) {
                     if (++D_8076A094 < 0x5DD) {
-                        gActivePlayerState->warpX = gActorGlobalState.unk4;
-                        gActivePlayerState->warpY = gActorGlobalState.unk8;
-                        gActivePlayerState->warpZ = gActorGlobalState.unkC;
+                        gActivePlayerState->warpX = gActorGlobalState.eventX;
+                        gActivePlayerState->warpY = gActorGlobalState.eventY;
+                        gActivePlayerState->warpZ = gActorGlobalState.eventZ;
                         playerStateQueueCallback(0x1D, 0, gCurrentPlayerIndex);
                         playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
@@ -2886,13 +2886,13 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 if (D_8076A0B2 == 0) {
                     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
                     screenSetTransitionFadeType(0);
-                    mapSaveSlotAndTransition(gActorGlobalState.unk10, gActorGlobalState.unk12, 0, 0);
+                    mapSaveSlotAndTransition(gActorGlobalState.eventValue0, gActorGlobalState.eventValue1, 0, 0);
                 }
                 return 1;
             case 4:
                 if (!(gActivePlayerState->stateFlags & 0x40)) {
                     playerTransformAnimalStartSfx(gPrimaryPlayerActor);
-                    gActivePlayerState->transformTimer = gActorGlobalState.unk10;
+                    gActivePlayerState->transformTimer = gActorGlobalState.eventValue0;
                 }
                 return 1;
             case 0:
@@ -2905,7 +2905,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex] * 2.5;
                     gActivePlayerState->unk50 = 0x28;
                     actorScriptStartByIndex(gCurrentActor, 0x22);
-                    timerQueueAdd(playerInputStartTransitionToMap, 0x14, gActorGlobalState.unk10, gActorGlobalState.unk12, 0);
+                    timerQueueAdd(playerInputStartTransitionToMap, 0x14, gActorGlobalState.eventValue0, gActorGlobalState.eventValue1, 0);
                     for (i = 0; i != 0x14; i++) {
                         effectSetDepth(1);
                         effectSetCallback(func_8071F034);
@@ -2927,13 +2927,13 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 gCurrentActor->state = 0x6E;
                 gCurrentActor->unk155 = 0;
                 gCurrentActor->speedY = 0.0f;
-                gCurrentActor->accelY = gActorGlobalState.unk10 * 0.2 + 2.0;
-                gActivePlayerState->unkC0 = gActorGlobalState.unk12;
+                gCurrentActor->accelY = gActorGlobalState.eventValue0 * 0.2 + 2.0;
+                gActivePlayerState->unkC0 = gActorGlobalState.eventValue1;
                 actorScriptStart(gCurrentActor, 0x169);
                 return 1;
             case 7:
                 gCurrentActor->collisionMode = 1;
-                gActivePlayerState->unk242 = gActorGlobalState.unk10;
+                gActivePlayerState->unk242 = gActorGlobalState.eventValue0;
                 gCurrentActor->state = 0x76;
                 gCurrentActor->unk155 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x86);
@@ -3011,7 +3011,7 @@ void playerInputQueueCrouchCallbackDirect(void) {
 
 void playerInputQueueGunState5F(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) &&
-        (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
+        (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (mpIsMatchType(0) == 0)) {
         playerStateQueueCallback(0x14, 0, gCurrentPlayerIndex);
     }
@@ -3019,7 +3019,7 @@ void playerInputQueueGunState5F(void) {
 
 void playerInputQueueGunAimState60(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) && !(gGlobalOverlayFlags & 0x200) &&
-        (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
+        (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (mpIsMatchType(0) == 0)) {
         playerStateQueueCallback(0x15, 0, gCurrentPlayerIndex);
     }
@@ -3087,13 +3087,13 @@ extern s16 D_80753B44[];
 
 void playerInputRecordAPress(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
 }
 
 void playerInputRecordBPress(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        gActivePlayerState->jumpStartTime = gScheduler.unk280;
+        gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
 }
 
@@ -3255,9 +3255,9 @@ void playerInputCalculateTurnStep(void) {
 
 void playerInputHandleAButtonJumpQueue(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     playerStateQueueCallback(1, 0, gCurrentPlayerIndex);
@@ -3276,7 +3276,7 @@ void playerInputCheckAButtonScriptTrigger(void) {
     if (!(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
         actorScriptStartByIndex(gCurrentActor, 0x37);
         gCurrentActor->unk155 = 4;
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
 }
 
@@ -3284,12 +3284,12 @@ void playerInputHandleBButtonDiveAttack(void) {
     if (!(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000)) {
         actorScriptStartByIndex(gCurrentActor, 0x37);
         gCurrentActor->unk155 = 4;
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
 }
 
 void playerInputHandleBButtonRollingAttack(void) {
-    gActivePlayerState->jumpTimer = gScheduler.unk280;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount;
     scriptSetActorRampTarget(gCurrentActor, 2.0f, 0.0f);
     actorScriptStartByIndex(gCurrentActor, 0x38);
     gCurrentActor->unk155 = 7;
@@ -3316,7 +3316,7 @@ void playerInputHandleBButtonComboPunch(void) {
                 gActivePlayerState->targetSpeed = D_80753AA8[gCurrentCharacterIndex];
             }
             gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
-            gActivePlayerState->jumpStartTime = gScheduler.unk280;
+            gActivePlayerState->jumpStartTime = gScheduler.tickCount;
         } else if (!(gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
             gActivePlayerState->subTimer = gCurrentActor->roll;
             gActivePlayerState->pitchAngle = gCurrentActor->yaw;
@@ -3339,7 +3339,7 @@ void playerInputHandleBButtonAttack(void) {
             gActivePlayerState->targetSpeed = D_80753AA8[gCurrentCharacterIndex];
         }
         gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
-        gActivePlayerState->jumpStartTime = gScheduler.unk280;
+        gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
 }
 
@@ -3374,7 +3374,7 @@ void playerInputHandleAButtonSuperJump(void) {
             gActivePlayerState->targetSpeed = 250.0f;
         }
         gActivePlayerState->actionTimer = 0xF;
-        gActivePlayerState->jumpStartTime = gScheduler.unk280;
+        gActivePlayerState->jumpStartTime = gScheduler.tickCount;
         return;
     }
     if (!(btn & 0x4000)) {
@@ -3401,7 +3401,7 @@ void playerInputHandleAButtonSuperJump2(void) {
             gActivePlayerState->targetSpeed = 250.0f;
         }
         gActivePlayerState->actionTimer = 0xF;
-        gActivePlayerState->jumpStartTime = gScheduler.unk280;
+        gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
 }
 
@@ -3414,7 +3414,7 @@ void playerInputHandleBButtonDashAttack(void) {
         actorScriptStartByIndex(gCurrentActor, 0x36);
         gCurrentActor->unk155 = 3;
         gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
-        gActivePlayerState->jumpStartTime = gScheduler.unk280;
+        gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
 }
 
@@ -3450,7 +3450,7 @@ void playerInputHandleCDownCameraSnap(void) {
         playerInputTryEnterFairyCamera(8);
         return;
     }
-    if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+    if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
         minHeight = D_8075386C[gCurrentCharacterIndex];
     } else {
         minHeight = D_8075389C[gCurrentCharacterIndex];
@@ -3575,9 +3575,9 @@ void playerInputCheckLadderTopOrBottom(void) {
         }
         if ((*st->flagsPtr & 0xC0) &&
             ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F && st->rung > 0) || (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E && st->rung < rungLimit))) {
-            gActivePlayerState->jumpTimer = gScheduler.unk280;
+            gActivePlayerState->jumpTimer = gScheduler.tickCount;
             gActivePlayerState->actor->speedY = D_80750338;
-            gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+            gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
             oldRung = st->rung;
             st->unk2C = 1.0f;
             st->prevRung = oldRung;
@@ -4037,9 +4037,9 @@ void func_806E8F04(void) {
 
 void playerInputHandleAButtonJumpOff(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && !(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x10)) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     gCurrentActor->state = 9;
@@ -4047,7 +4047,7 @@ void playerInputHandleAButtonJumpOff(void) {
     gActivePlayerState->jumpVelocityY = D_807537E0[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x7C);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 void playerInputHandleAButtonLadderJump(void) {
@@ -4055,16 +4055,16 @@ void playerInputHandleAButtonLadderJump(void) {
 
     st = gActivePlayerState->actor->customState;
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     if (st->locked != 0) {
         return;
     }
     gActivePlayerState->actor->speedY = D_80750338;
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
     actorScriptStartByIndex(gCurrentActor, 0x7C);
     if (gCurrentActor->actorType == 2) {
         actorScriptStart(gActivePlayerState->actor, 0x294);
@@ -4135,7 +4135,7 @@ void func_806E9468(void) {
 }
 
 extern s16 D_8075388C[];
-extern s16 D_807538C8[];
+extern s16 gKongSwimSurfaceDepths[];
 
 s32 playerInputPostUpdate(void) {
     f32 depth;
@@ -4151,14 +4151,14 @@ s32 playerInputPostUpdate(void) {
         if (gCurrentActor->speedY <= 0.0f) {
             gCurrentActor->speedY = MAX(gCurrentActor->speedY, -150.0f);
             depth = gCurrentActor->waterY - gCurrentActor->y;
-            if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 2) {
+            if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 2) {
                 snapDepth = 0x3C;
             }
             if ((snapDepth < depth) && playerInputCanPerformFairySnap()) {
                 playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
                 playerClearCarriedItemState();
             } else if (gCurrentActor->contactFlags & 1) {
-                if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+                if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
                     depthLimit = D_8075386C[gCurrentCharacterIndex];
                 } else {
                     depthLimit = D_8075389C[gCurrentCharacterIndex];
@@ -4169,10 +4169,10 @@ s32 playerInputPostUpdate(void) {
                     playerClearCarriedItemState();
                 }
             } else {
-                if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+                if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
                     depthLimit = D_8075388C[gCurrentCharacterIndex];
                 } else {
-                    depthLimit = D_807538C8[gCurrentCharacterIndex];
+                    depthLimit = gKongSwimSurfaceDepths[gCurrentCharacterIndex];
                 }
                 if (depthLimit < gCurrentActor->distToFloor + depth) {
                     playerStateQueueCallback(0x3D, 0, gCurrentPlayerIndex);
@@ -4592,19 +4592,19 @@ void func_806EACBC(void) {
 
 void playerInputHandleAButtonGroundJump(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = gScheduler.unk280;
+        gActivePlayerState->jumpTimer = gScheduler.tickCount;
     }
     if (!(gCurrentActor->contactFlags & 1)) {
         return;
     }
-    if (gScheduler.unk280 - gActivePlayerState->jumpTimer >= 0xF) {
+    if (gScheduler.tickCount - gActivePlayerState->jumpTimer >= 0xF) {
         return;
     }
     playerSetTerminalVelocity5B0();
     gCurrentActor->speedY = gKongJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     gActivePlayerState->airTimer = 0;
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x309, 0xFF, 0x7F, 0);
 }
 

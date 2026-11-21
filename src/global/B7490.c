@@ -44,7 +44,7 @@ void behaviourSwimLungeUpdate(void) {
     s32 st;
 
     behaviourFrameBegin();
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2E1);
         gBehaviourAnimState->flags |= 8;
     }
@@ -137,7 +137,7 @@ void actorEmptyStub(void) {
 void behaviourSwimShooterUpdate(void) {
     behaviourFrameBegin();
     effectSpawnSparks(0x1F, 2);
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {
         gBehaviourAnimState->flags |= 8;
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2E7);
     } else if (gActorGlobalState.bossFightPhase == 4) {
@@ -330,7 +330,7 @@ void actorSwellBurstUpdate(void) {
         gCurrentActor->renderFlags |= 4;
         actorUpdatePrevContactFlags(gCurrentActor);
     }
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x27)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x27)) {
         gCurrentActor->state = 0x27;
         gCurrentActor->unk155 = 0;
     } else if (gCurrentActor->state != 0x27) {
@@ -541,7 +541,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
             gBehaviourExtraState->unkB = 0x28;
         }
     }
-    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, animId1);
         gCurrentActor->speedY = 300.0f;
         patrol->hoverHeight = 0;
@@ -677,7 +677,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
         gCurrentActor->accelY = gAirPatrolAccelY;
     }
     targetHeight = gBehaviourExtraState->y + patrol->hoverHeight;
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (action != 0x37)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (action != 0x37)) {
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155 = 0;
     }
@@ -894,7 +894,7 @@ void behaviourEnemyFlyReturn(void) {
 
     state = B7490A->typeState;
     behaviourFrameBegin();
-    if ((gCurrentActor->state != 0x40) && (gCurrentActor->state != 0x37) && ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0))) {
+    if ((gCurrentActor->state != 0x40) && (gCurrentActor->state != 0x37) && ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0))) {
         sfxStopSlotSound(gCurrentActor, 0);
         actorScriptStart(gCurrentActor, 0x331);
         gCurrentActor->state = 0x37;

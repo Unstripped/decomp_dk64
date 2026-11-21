@@ -29,7 +29,7 @@ Gfx *healthHudDraw(Gfx *glist, PlayerInventory *inv, KongInventory *kong, Player
     s16 y;
 
     pips = inv->health;
-    fade = player->unk2E0 / 65535.0;
+    fade = player->healthHudReveal / 65535.0;
     centerOffset = ((inv->melons * 70) - 70) & 0xFF;
     if ((gGlobalPauseFlags & 3) || (menuIsTransitionTypeAOrE() != 0)) {
         return glist;
@@ -116,10 +116,10 @@ void healthApplyPendingDelta(s32 playerIndex, PlayerStruct *player, PlayerInvent
         inv->healthDelta = 0;
     }
     if ((!(gGlobalPauseFlags & 2) && (hudCanRender() != 0)) || (flags & 0x80)) {
-        player->unk2E5--;
-        if (!player->unk2E5) {
-            player->unk2E5 = 17;
-            player->unk2E4 = 3;
+        player->healthHudTimer--;
+        if (!player->healthHudTimer) {
+            player->healthHudTimer = 17;
+            player->healthHudMode = 3;
         }
     }
 }
@@ -137,7 +137,7 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
     inv = &gPlayerInventoryTable[playerIndex];
     kongId = playerGetResolvedKongId(playerIndex);
     kong = &inv->kong[kongId];
-    mode = player->unk2E4;
+    mode = player->healthHudMode;
     flags = player->unk2E3;
     singlePlayer = gPlayerCount == 1;
     if (!singlePlayer) {
@@ -151,11 +151,11 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
     if (flags & 0x10) {
         switch (mode) {
         case 2:
-            player->unk2E5 = 50;
+            player->healthHudTimer = 50;
             break;
         case 3:
-            player->unk2E5 = 18.0 - player->unk2E5;
-            player->unk2E4 = 1;
+            player->healthHudTimer = 18.0 - player->healthHudTimer;
+            player->healthHudMode = 1;
             break;
         }
     }
@@ -163,45 +163,45 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
         player->unk2E2 ^= 1;
         switch (mode) {
         case 0:
-            player->unk2E5 = 18;
-            player->unk2E4 = 1;
+            player->healthHudTimer = 18;
+            player->healthHudMode = 1;
             break;
         case 1:
             break;
         case 3:
-            player->unk2E5 = 18.0 - player->unk2E5;
-            player->unk2E4 = 1;
+            player->healthHudTimer = 18.0 - player->healthHudTimer;
+            player->healthHudMode = 1;
             break;
         }
     } else if (flags & 4) {
-        player->unk2E5 = 1;
+        player->healthHudTimer = 1;
         player->unk2E2 ^= 4;
-        player->unk2E4 = 2;
+        player->healthHudMode = 2;
         player->unk2E2 &= 8;
     } else {
         switch (mode) {
         case 1:
-            angle = player->unk2E5 / 18.0 * 1.5707963705062866 + 1.5707963705062866;
-            player->unk2E0 = sinApprox(angle) * 65535.0;
-            if (player->unk2E5-- == 0) {
-                player->unk2E4 = 2;
-                player->unk2E5 = 50;
+            angle = player->healthHudTimer / 18.0 * 1.5707963705062866 + 1.5707963705062866;
+            player->healthHudReveal = sinApprox(angle) * 65535.0;
+            if (player->healthHudTimer-- == 0) {
+                player->healthHudMode = 2;
+                player->healthHudTimer = 50;
             }
             break;
         case 2:
             healthApplyPendingDelta(playerIndex, player, inv, kong);
             break;
         case 3:
-            angle = 1.5707963705062866 - player->unk2E5 / 18.0 * 1.5707963705062866 + 1.5707963705062866;
-            player->unk2E0 = sinApprox(angle) * 65535.0;
-            if (player->unk2E5-- == 0) {
-                player->unk2E4 = 0;
+            angle = 1.5707963705062866 - player->healthHudTimer / 18.0 * 1.5707963705062866 + 1.5707963705062866;
+            player->healthHudReveal = sinApprox(angle) * 65535.0;
+            if (player->healthHudTimer-- == 0) {
+                player->healthHudMode = 0;
             }
             break;
         }
     }
     if (hudCanRender() != 0 || (flags & 0x80)) {
-        if (player->unk2E4 != 0 || player->unk2E2 != 0) {
+        if (player->healthHudMode != 0 || player->unk2E2 != 0) {
             glist = healthHudDraw(glist, inv, kong, player);
         }
     }
@@ -218,7 +218,7 @@ Gfx *healthHudDrawAll(Gfx *glist) {
     for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
         if (gPlayerSlots[playerIndex].active) {
             flags = gPlayerSlots[playerIndex].unk2E2;
-            if (!(flags & 0x20) && (((gPlayerSlots[playerIndex].unk2E4 || flags) && !gMapLoadPauseFrames) || (flags & 0x10))) {
+            if (!(flags & 0x20) && (((gPlayerSlots[playerIndex].healthHudMode || flags) && !gMapLoadPauseFrames) || (flags & 0x10))) {
                 glist = healthHudUpdateDraw(glist, playerIndex, &gPlayerSlots[playerIndex]);
             }
         }

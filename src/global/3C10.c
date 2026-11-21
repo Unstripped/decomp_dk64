@@ -61,18 +61,18 @@ u8 gMapHubWorldIndex[224] = {
     0x0A, 0x06, 0x05, 0x07, 0x05, 0x01, 0x0B, 0x06, 0x05, 0x09, 0x09, 0x08, 0x08, 0x08, 0x08, 0x08,
     0x0B, 0x09, 0x09, 0x09, 0x09, 0x0B, 0x08, 0x08, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x00, 0x00, 0x00,
 };
-u16 D_807446C0[8] = { 60, 120, 200, 250, 300, 350, 400, 0 };
-s16 D_807446D0[16] = {
+u16 gWorldBananaDeliveryGoals[8] = { 60, 120, 200, 250, 300, 350, 400, 0 };
+s16 gWorldGoldenBananaGoals[16] = {
     0x0001, 0x0005, 0x000F, 0x001E, 0x0032, 0x0041, 0x0050, 0x0064,
     0x01FF, 0x0301, 0x0A03, 0x1402, 0x2304, 0x3200, 0x4102, 0x5004,
 };
-u8 D_807446F0[16] = { 0, 1, 3, 2, 4, 0, 2, 0, 0, 1, 2, 3, 4, 5, 6, 8 };
+u8 gWorldRequiredKongs[16] = { 0, 1, 3, 2, 4, 0, 2, 0, 0, 1, 2, 3, 4, 5, 6, 8 };
 u16 D_80744700[8] = { 0x08, 0xC5, 0x9A, 0x6F, 0x53, 0xC4, 0xC7, 0xCB };
-s16 D_80744710[8] = { 0x1A, 0x4A, 0x8A, 0xA8, 0xEC, 0x124, 0x13D, 0x17C };
+s16 gWorldClearedFlags[8] = { 0x1A, 0x4A, 0x8A, 0xA8, 0xEC, 0x124, 0x13D, 0x17C };
 s32 D_80744720[5] = { 0x181, 0x6, 0x46, 0x42, 0x75 };
 u16 gWorldLobbyMaps[10] = { 0xA9, 0xAD, 0xAF, 0xAE, 0xB2, 0xC2, 0xC1, 0xAA, 0xAA, 0x00 };
 u16 D_80744748[10] = { 0x07, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x22, 0x11, 0x00 };
-Struct8074475C D_8074475C[11] = {
+Struct8074475C gDeathRespawnOverrides[11] = {
     { 0x38, 0x38, 0 },
     { 0x21, 0x21, 0 },
     { 0x56, 0x56, 0 },
@@ -85,7 +85,7 @@ Struct8074475C D_8074475C[11] = {
     { 0x6C, 0x6C, 0 },
     { 0x64, 0x64, 0 },
 };
-Struct807447A0 D_807447A0[8] = {
+Struct807447A0 gMapExitDestinations[8] = {
     { 0x06, 0x07, 14 },
     { 0x0E, 0x26, 17 },
     { 0x1B, 0x1A, 16 },
@@ -95,16 +95,16 @@ Struct807447A0 D_807447A0[8] = {
     { 0x6A, 0x70, 1 },
     { 0xB9, 0x71, 1 },
 };
-KeyValuePair D_80744800[4] = {
+KeyValuePair gKongActorTypeFlags[4] = {
     { 3, 0x16F },
     { 4, 0x170 },
     { 5, 0x171 },
     { 6, 0x172 },
 };
-u8 D_80744820 = 0;
-u8 D_80744824 = 1;
-u8 D_80744828 = 0;
-Struct8074482C D_8074482C[221] = {
+u8 gPendingLoadSpawnCount = 0;
+u8 gNextTransitionFadeType = 1;
+u8 gHasPendingTransition = 0;
+Struct8074482C gMapLevelSettings[221] = {
     { 0, 0x80, 0 },
     { 0x40000800, 0, 0 },
     { 0, 0, 0 },
@@ -327,7 +327,7 @@ Struct8074482C D_8074482C[221] = {
     { 0, 0, 0 },
     { 0, 0, 0 },
 };
-const u8 D_807565E0[80] = {
+const u8 gMapTitleMaps[80] = {
     0x01, 0x0F, 0x05, 0x19, 0x07, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x2A, 0x11, 0x26, 0x0A, 0x73, 0x74,
     0x75, 0x12, 0x76, 0x77, 0x78, 0x20, 0x79, 0x7A, 0x7B, 0x42, 0x44, 0x45, 0x7C, 0x43, 0x4A, 0x4B,
     0x7D, 0x7E, 0x7F, 0x80, 0x41, 0x4D, 0x81, 0x82, 0x4E, 0x4F, 0x83, 0x60, 0x84, 0x85, 0x63, 0x86,
@@ -357,7 +357,7 @@ extern f32 gScreenFadeRate;
 void func_8002920C(void);
 
 // .bss 0x8076A160-0x8076AF00
-Struct8076A160 D_8076A160[18];
+Struct8076A160 gSavedMapSlots[18];
 u8 D_8076AEE0;
 u8 D_8076AEE1;
 s16 D_8076AEE2;
@@ -376,10 +376,10 @@ s32 playerGetActorTypeFlag(s32 *outValue) {
     s32 found;
 
     found = 0;
-    for (i = 0; i < sizeof(D_80744800) / sizeof(D_80744800[0]) && !found; i++) {
-        found = gPrimaryPlayerActor->actorType == D_80744800[i].key;
+    for (i = 0; i < sizeof(gKongActorTypeFlags) / sizeof(gKongActorTypeFlags[0]) && !found; i++) {
+        found = gPrimaryPlayerActor->actorType == gKongActorTypeFlags[i].key;
         if (found) {
-            *outValue = D_80744800[i].value;
+            *outValue = gKongActorTypeFlags[i].value;
         }
     }
     return found;
@@ -426,27 +426,27 @@ u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap) {
 
 u8 mapHasCollectedSufficientItems(void) {
     s32 index = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    return gLevelCollectibleCounts[index] >= D_807446C0[index];
+    return gLevelCollectibleCounts[index] >= gWorldBananaDeliveryGoals[index];
 }
 
 void mapSlotArrayInit(void) {
     s32 i;
     for (i = 0; i < 18; i++) {
-        D_8076A160[i].inUse = 0;
+        gSavedMapSlots[i].inUse = 0;
     }
 }
 
 void screenSetTransitionFadeType(u8 fadeType) {
-    D_80744824 = fadeType;
+    gNextTransitionFadeType = fadeType;
 }
 
 void screenApplyTransitionFadeType(void) {
-    D_8076AEE0 = D_80744824;
-    D_80744824 = 1;
+    D_8076AEE0 = gNextTransitionFadeType;
+    gNextTransitionFadeType = 1;
 }
 
 void mapSetPendingTransition(s16 map, u8 exitIndex) {
-    D_80744828 = 1;
+    gHasPendingTransition = 1;
     D_8076AEF4 = map;
     D_8076AEF6 = exitIndex;
 }
@@ -460,12 +460,12 @@ void mapExecuteDeathTransition(s32 unused) {
     u8 found;
     s32 world;
 
-    limit = sizeof(D_8074475C) / sizeof(D_8074475C[0]);
+    limit = sizeof(gDeathRespawnOverrides) / sizeof(gDeathRespawnOverrides[0]);
     i = 0;
     exitIndex = 0;
     found = 0;
 
-    if (D_80744828 != 0) {
+    if (gHasPendingTransition != 0) {
         targetMap = D_8076AEF4;
         exitIndex = D_8076AEF6;
     } else {
@@ -475,9 +475,9 @@ void mapExecuteDeathTransition(s32 unused) {
             world = mapGetHubWorldIndex(gCurrentMap, 0);
             targetMap = D_80744748[world];
             for (; !found && (i < limit); i++) {
-                if (gCurrentMap == D_8074475C[i].map) {
-                    targetMap = D_8074475C[i].targetMap;
-                    exitIndex = D_8074475C[i].exitIndex;
+                if (gCurrentMap == gDeathRespawnOverrides[i].map) {
+                    targetMap = gDeathRespawnOverrides[i].targetMap;
+                    exitIndex = gDeathRespawnOverrides[i].exitIndex;
                     found = 1;
                 }
             }
@@ -487,7 +487,7 @@ void mapExecuteDeathTransition(s32 unused) {
         mapSlotArrayResetAll();
     }
     mapRequestTransition(targetMap, exitIndex);
-    D_80744828 = 0;
+    gHasPendingTransition = 0;
 }
 
 void mapExecuteVoidTransition(void) {
@@ -547,8 +547,8 @@ void mapCheckAutoTransition(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (gCurrentMap == D_807447A0[i].map) {
-            mapRequestTransition(D_807447A0[i].targetMap, D_807447A0[i].exitIndex);
+        if (gCurrentMap == gMapExitDestinations[i].map) {
+            mapRequestTransition(gMapExitDestinations[i].targetMap, gMapExitDestinations[i].exitIndex);
             return;
         }
     }
@@ -558,11 +558,11 @@ void mapLoadSavedSlotSpawn(s32 map) {
     s32 idx = mapFindSlotIndex(map);
 
     if (idx != -1) {
-        D_8076AEE2 = D_8076A160[idx].flags;
-        D_8076AEE4 = D_8076A160[idx].x;
-        D_8076AEE8 = D_8076A160[idx].y;
-        D_8076AEEC = D_8076A160[idx].z;
-        D_8076AEF0 = D_8076A160[idx].yaw;
+        D_8076AEE2 = gSavedMapSlots[idx].flags;
+        D_8076AEE4 = gSavedMapSlots[idx].x;
+        D_8076AEE8 = gSavedMapSlots[idx].y;
+        D_8076AEEC = gSavedMapSlots[idx].z;
+        D_8076AEF0 = gSavedMapSlots[idx].yaw;
     } else {
         D_8076AEE2 = 0;
     }
@@ -574,7 +574,7 @@ void mapTransitionExitCurrent(s32 map, s32 exitIndex) {
 }
 
 void mapSetTransitionExtraCounter(u8 count) {
-    D_80744820 = count;
+    gPendingLoadSpawnCount = count;
 }
 
 void func_805FF670(void) {
@@ -583,10 +583,10 @@ void func_805FF670(void) {
     s16 i;
     s16 spawnZ;
 
-    if (D_80744820 != 0) {
+    if (gPendingLoadSpawnCount != 0) {
         camStartPath(gPrimaryPlayerActor, 2, 5);
         slotQueueUpdate(1, 0, 0);
-        for (i = 0; i < D_80744820; i++) {
+        for (i = 0; i < gPendingLoadSpawnCount; i++) {
             dist = (i * 2) + 30;
             spawnX = gPrimaryPlayerActor->x - mathSinF(gPrimaryPlayerActor->yaw) * dist;
             spawnZ = gPrimaryPlayerActor->z - mathCosF(gPrimaryPlayerActor->yaw) * dist;
@@ -601,7 +601,7 @@ void func_805FF670(void) {
                 0
             );
         }
-        D_80744820 = 0;
+        gPendingLoadSpawnCount = 0;
     }
 }
 
@@ -610,7 +610,7 @@ s32 mapFindPreviousSavedMap(s32 *outMap, s32 *outExitIndex) {
     s32 i = 0;
 
     while (i < 18 && !found) {
-        if (D_8076A160[i].inUse != 0 && (D_8076A160[i].flags & 2)) {
+        if (gSavedMapSlots[i].inUse != 0 && (gSavedMapSlots[i].flags & 2)) {
             found = 1;
         } else {
             i++;
@@ -618,8 +618,8 @@ s32 mapFindPreviousSavedMap(s32 *outMap, s32 *outExitIndex) {
     }
 
     if (found) {
-        *outMap = D_8076A160[i].map;
-        *outExitIndex = D_8076A160[i].returnExitIndex;
+        *outMap = gSavedMapSlots[i].map;
+        *outExitIndex = gSavedMapSlots[i].returnExitIndex;
     }
     return found;
 }
@@ -648,7 +648,7 @@ s32 mapFindSlotByMap(s16 target) {
     s32 i = 0;
     s32 found = 0;
     while (i < 18 && !found) {
-        if (D_8076A160[i].inUse != 0 && D_8076A160[i].map == target) {
+        if (gSavedMapSlots[i].inUse != 0 && gSavedMapSlots[i].map == target) {
             found = 1;
         } else {
             i++;
@@ -677,7 +677,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     found = 0;
     i = 0;
     while (i < 18 && !found) {
-        if (D_8076A160[i].inUse != 0 && gCurrentMap == D_8076A160[i].map) {
+        if (gSavedMapSlots[i].inUse != 0 && gCurrentMap == gSavedMapSlots[i].map) {
             found = 1;
         } else {
             i++;
@@ -689,7 +689,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
         found = 0;
         i = 0;
         while (i < 18 && !found) {
-            if (D_8076A160[i].inUse == 0) {
+            if (gSavedMapSlots[i].inUse == 0) {
                 found = 1;
             } else {
                 i++;
@@ -700,29 +700,29 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
         }
     }
     gridFreeAllActiveNodes();
-    modelSlotSerializeAll(&D_8076A160[i].modelData, &serializedSize);
-    heapRegisterSurvivor(&D_8076A160[i].modelData);
-    modelSlotsPackRecords(&D_8076A160[i].records, &D_8076A160[i].recordSize);
-    if (D_8076A160[i].records != NULL) {
-        heapRegisterSurvivor(&D_8076A160[i].records);
+    modelSlotSerializeAll(&gSavedMapSlots[i].modelData, &serializedSize);
+    heapRegisterSurvivor(&gSavedMapSlots[i].modelData);
+    modelSlotsPackRecords(&gSavedMapSlots[i].records, &gSavedMapSlots[i].recordSize);
+    if (gSavedMapSlots[i].records != NULL) {
+        heapRegisterSurvivor(&gSavedMapSlots[i].records);
     }
-    D_8076A160[i].flags = flags;
+    gSavedMapSlots[i].flags = flags;
     if (flags & 1) {
         player = gPrimaryPlayerActor;
-        D_8076A160[i].x = player->x;
-        D_8076A160[i].y = player->y;
-        D_8076A160[i].z = player->z;
-        D_8076A160[i].yaw = player->yaw;
+        gSavedMapSlots[i].x = player->x;
+        gSavedMapSlots[i].y = player->y;
+        gSavedMapSlots[i].z = player->z;
+        gSavedMapSlots[i].yaw = player->yaw;
     }
-    D_8076A160[i].map = gCurrentMap;
+    gSavedMapSlots[i].map = gCurrentMap;
     if (flags & 2) {
-        D_8076A160[i].returnExitIndex = returnExitIndex;
+        gSavedMapSlots[i].returnExitIndex = returnExitIndex;
     }
     for (k = 0; k < gMapChunkCount; k++) {
         lightGetColor(&r, &g, &b, k);
-        D_8076A160[i].rgb[k][0] = r * 255.0;
-        D_8076A160[i].rgb[k][1] = g * 255.0;
-        D_8076A160[i].rgb[k][2] = b * 255.0;
+        gSavedMapSlots[i].rgb[k][0] = r * 255.0;
+        gSavedMapSlots[i].rgb[k][1] = g * 255.0;
+        gSavedMapSlots[i].rgb[k][2] = b * 255.0;
     }
     gPlayerStateSaved = TRUE;
     playerState = gPrimaryPlayerActor->customState;
@@ -732,7 +732,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     } else {
         D_807FD570 = 0;
     }
-    D_8076A160[i].inUse = TRUE;
+    gSavedMapSlots[i].inUse = TRUE;
     mapRequestTransition(map, exitIndex);
 }
 
@@ -742,7 +742,7 @@ s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
     Struct8076A160 *slot;
 
     while (!found && i < 18) {
-        if (D_8076A160[i].map == map) {
+        if (gSavedMapSlots[i].map == map) {
             found = 1;
         } else {
             i++;
@@ -753,7 +753,7 @@ s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
         return 0;
     }
 
-    slot = &D_8076A160[i];
+    slot = &gSavedMapSlots[i];
     modelRecordFindAndSet(slot->records, slot->recordSize, recordId, value);
     return 1;
 }
@@ -763,7 +763,7 @@ void mapSlotFree(s32 map) {
     s32 i = 0;
 
     while (i < 18 && !found) {
-        if (D_8076A160[i].inUse != 0 && D_8076A160[i].map == map) {
+        if (gSavedMapSlots[i].inUse != 0 && gSavedMapSlots[i].map == map) {
             found = 1;
         } else {
             i++;
@@ -771,7 +771,7 @@ void mapSlotFree(s32 map) {
     }
 
     if (found) {
-        Struct8076A160 *slot = &D_8076A160[i];
+        Struct8076A160 *slot = &gSavedMapSlots[i];
         heapUnregisterSurvivor(&slot->modelData);
         heapFree(slot->modelData);
         if (slot->recordSize != 0) {
@@ -787,14 +787,14 @@ void mapSlotArrayResetAll(void) {
     s32 i;
 
     for (i = 0; i < 18; i++) {
-        if (D_8076A160[i].inUse) {
-            heapUnregisterSurvivor(&D_8076A160[i].modelData);
-            heapFree(D_8076A160[i].modelData);
-            if (D_8076A160[i].recordSize != 0) {
-                heapUnregisterSurvivor(&D_8076A160[i].records);
-                heapFree(D_8076A160[i].records);
+        if (gSavedMapSlots[i].inUse) {
+            heapUnregisterSurvivor(&gSavedMapSlots[i].modelData);
+            heapFree(gSavedMapSlots[i].modelData);
+            if (gSavedMapSlots[i].recordSize != 0) {
+                heapUnregisterSurvivor(&gSavedMapSlots[i].records);
+                heapFree(gSavedMapSlots[i].records);
             }
-            D_8076A160[i].inUse = 0;
+            gSavedMapSlots[i].inUse = 0;
         }
     }
 }
@@ -808,7 +808,7 @@ s32 mapFindSlotIndex(s32 map) {
     s32 i;
 
     for (i = 0; i < 18; i++) {
-        if (D_8076A160[i].inUse != 0 && map == D_8076A160[i].map) {
+        if (gSavedMapSlots[i].inUse != 0 && map == gSavedMapSlots[i].map) {
             return i;
         }
     }
@@ -819,10 +819,10 @@ s16 mapFindSavedPositionSlot(f32 *outX, f32 *outY, f32 *outZ) {
     s32 i;
 
     for (i = 0; i < 18; i++) {
-        if (D_8076A160[i].inUse != 0 && (D_8076A160[i].flags & 1)) {
-            *outX = D_8076A160[i].x;
-            *outY = D_8076A160[i].y;
-            *outZ = D_8076A160[i].z;
+        if (gSavedMapSlots[i].inUse != 0 && (gSavedMapSlots[i].flags & 1)) {
+            *outX = gSavedMapSlots[i].x;
+            *outY = gSavedMapSlots[i].y;
+            *outZ = gSavedMapSlots[i].z;
             return i;
         }
     }
@@ -841,18 +841,18 @@ s32 mapFindClosestTargetNearSavedPos(s16 *typeList, u8 typeCount, s32 *outMap) {
     if (slot == -1) {
         return -1;
     }
-    modelAssetGetSubtables(D_8076A160[slot].modelData, &subtableA, &subtableB);
-    *outMap = D_8076A160[slot].map;
+    modelAssetGetSubtables(gSavedMapSlots[slot].modelData, &subtableA, &subtableB);
+    *outMap = gSavedMapSlots[slot].map;
     return actorListFindClosestTargetIndex((s32 *)subtableB, typeList, typeCount, posX, posY, posZ);
 }
 
 void mapApplyLevelFlags(s16 index) {
-    gGlobalOverlayFlags = D_8074482C[index].overlayFlags;
-    gGlobalCutsceneFlags = D_8074482C[index].cutsceneFlags;
+    gGlobalOverlayFlags = gMapLevelSettings[index].overlayFlags;
+    gGlobalCutsceneFlags = gMapLevelSettings[index].cutsceneFlags;
 }
 
 s32 mapGetOverlayBufferSize(s16 index) {
-    return D_8074482C[index].overlayBufferSize;
+    return gMapLevelSettings[index].overlayBufferSize;
 }
 
 u8 func_80600454(s16 id, u8 *outVal) {
@@ -864,11 +864,11 @@ u8 func_80600454(s16 id, u8 *outVal) {
     i = 0;
     isNew = 0;
 
-    while (D_807565E0[i] != 0 && id != D_807565E0[i]) {
+    while (gMapTitleMaps[i] != 0 && id != gMapTitleMaps[i]) {
         i++;
     }
 
-    if (D_807565E0[i] != 0) {
+    if (gMapTitleMaps[i] != 0) {
         *outVal = D_80756630[i];
         if (i < 13) {
             flagId = i + 0x307;

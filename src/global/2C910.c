@@ -401,7 +401,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                     actorCopyPoseAndScale(gPrimaryPlayerActor, actor, actor->sub4->scaleY);
                 } else {
                     actorCopyPoseAndScale(gPrimaryPlayerActor, actor, 0.15f);
-                    gPlayerSlots->unk2C0 = 1;
+                    gPlayerSlots->sizeMode = 1;
                 }
                 playerResumeLocomotion(gPrimaryPlayerActor);
                 gPrimaryPlayerActor->flags |= 4;

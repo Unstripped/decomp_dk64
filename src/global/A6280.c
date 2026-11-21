@@ -241,7 +241,7 @@ typedef struct ActorSinkState {
     f32 baseY;
 } ActorSinkState;
 
-extern EffectGridAsset D_8071FF18;
+extern EffectGridAsset gEffectSpriteDustPuff;
 
 
 
@@ -291,7 +291,7 @@ void actorSinkAndDespawn(void) {
                     effectSetSpeed(-0x64);
                     effectSetColor(0x64, 0x46, 0x1E, 0xFF);
                     actorGetNodePos(gCurrentActor, node, &nodeX, &nodeY, &nodeZ);
-                    effectCreateAtPosition(&D_8071FF18, 2.0f, nodeX, nodeY + 10.0, nodeZ);
+                    effectCreateAtPosition(&gEffectSpriteDustPuff, 2.0f, nodeX, nodeY + 10.0, nodeZ);
                     node++;
                 } while (node != 9);
                 sub->sinkTimer = 0xF;
@@ -352,7 +352,7 @@ void actorOrbitPlayerMidpointUpdate(void) {
         sub->centerY = gCurrentActor->y + (gPrimaryPlayerActor->y - gCurrentActor->y) * 0.5;
         sub->centerZ = gCurrentActor->z + (gPrimaryPlayerActor->z - gCurrentActor->z) * 0.5;
         gCurrentActor->collisionMode = 0x24;
-        gCurrentActor->unkFA = 0x2328;
+        gCurrentActor->arcSpeedCap = 0x2328;
         gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->spawnData)->orbitFrames;
         {
             f64 v = gCurrentActor->splineT * (gCurrentActor->unkEC * 0.01);

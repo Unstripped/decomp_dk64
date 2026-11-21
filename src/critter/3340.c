@@ -46,13 +46,13 @@ void critterSetDigitFrames(s32 val) {
 
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
-extern u16 D_807446C0[];
-extern s16 D_807446D0[];
+extern u16 gWorldBananaDeliveryGoals[];
+extern s16 gWorldGoldenBananaGoals[];
 extern s8 D_807446E0[]; // per world: { discounted required count, kong id } byte pairs
 extern u16 gLevelCollectibleCounts[];
 extern f32 D_8002A1B0;
 extern EffectGridAsset D_8071FE08;
-extern EffectGridAsset D_80720A7C;
+extern EffectGridAsset gEffectSpriteGlintYellow;
 
 void critterBananaFairyUpdate(void) {
     s32 worldIndex;
@@ -76,9 +76,9 @@ void critterBananaFairyUpdate(void) {
         worldIndex = 7;
     }
     if (gCurrentMap == 0x2A) {
-        requiredCount = D_807446C0[worldIndex];
+        requiredCount = gWorldBananaDeliveryGoals[worldIndex];
     } else {
-        requiredCount = D_807446D0[worldIndex];
+        requiredCount = gWorldGoldenBananaGoals[worldIndex];
     }
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->renderFlags |= 0x20;
@@ -188,7 +188,7 @@ void critterBananaFairyUpdate(void) {
                 if (*timerPtr >= 0x3D) {
                     effectSetDepth(0);
                     effectSetDuration(1);
-                    effectCreateAtPosition(&D_80720A7C, 0.5f, (randomFloat() * 35.0 + gCurrentActor->x) - 15.0, randomFloat() * 35.0 + gCurrentActor->y, (randomFloat() * 35.0 + gCurrentActor->z) - 15.0);
+                    effectCreateAtPosition(&gEffectSpriteGlintYellow, 0.5f, (randomFloat() * 35.0 + gCurrentActor->x) - 15.0, randomFloat() * 35.0 + gCurrentActor->y, (randomFloat() * 35.0 + gCurrentActor->z) - 15.0);
                 }
                 if (*timerPtr >= 0x51) {
                     gCurrentActor->sub4->scaleX *= 0.9;

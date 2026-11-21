@@ -266,7 +266,7 @@ extern LightTrigger gLightCandidates[];
 // asm and has no C or generated proto: it compares start/end with a signed `slt` and steps by stride << 4 bytes.
 void lightApplyToVertices(s32 start, s32 end, s32 stride, LightTrigger *lights, s32 lightCount, s32 useVertexColor);
 
-// One lens-flare source queued by lensFlareAddSource (D_807FD808): world position and RGB colour.
+// One lens-flare source queued by lensFlareAddSource (gLensFlareSources): world position and RGB colour.
 typedef struct LensFlarePoint {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;

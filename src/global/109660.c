@@ -609,7 +609,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
         dl = gfxDrawRotatedTiledBackground(dl, rotX, rotY, 0x2E, 320.0f, 240.0f);
         break;
     case 0x26:
-        switch (gPlayerSlots->unk290) {
+        switch (gPlayerSlots->camChunk) {
         case 0:
         case 1:
         case 3:
@@ -625,7 +625,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
         }
         break;
     case 0x1E:
-        if (((gPlayerSlots->unk290 != 7) && (gPlayerSlots->unk290 != 6) && (gPlayerSlots->unk290 != 8) && (gPlayerSlots->unk290 != 0)) || (gViewProbeHitsFarPlane != 0)) {
+        if (((gPlayerSlots->camChunk != 7) && (gPlayerSlots->camChunk != 6) && (gPlayerSlots->camChunk != 8) && (gPlayerSlots->camChunk != 0)) || (gViewProbeHitsFarPlane != 0)) {
             dl = gfxDrawBackgroundQuad(dl, rotX, rotY, mtx, 0, 0, ((gPrimaryPlayerActor->chunkIndex == 9) || (gPrimaryPlayerActor->chunkIndex == 0xB) || (gPrimaryPlayerActor->chunkIndex == 3)) ? 1 : 0, 9, 0.0f);
         }
         break;
@@ -640,7 +640,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
         dl = gfxClearScreenSetViewportScissor(dl);
         break;
     case 0x7:
-        switch (gPlayerSlots->unk290) {
+        switch (gPlayerSlots->camChunk) {
         case 8:
         case 9:
         case 12:
@@ -662,7 +662,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
         dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, rotX, rotY, mtx, 3, 3, 1, -1, 0.0f), 0, 0x7D00, 0);
         break;
     case 0x30:
-        if ((gPlayerSlots->unk290 >= 0xC) && (gPlayerSlots->unk290 < 0x12)) {
+        if ((gPlayerSlots->camChunk >= 0xC) && (gPlayerSlots->camChunk < 0x12)) {
             dl = gfxClearScreenSetViewportScissor(dl);
         } else {
             lensFlareAddFromAngle(0, 0x5DC0, 1);

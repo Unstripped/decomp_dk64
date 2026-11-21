@@ -544,12 +544,12 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     type = gSpawnEntryKind[idx];
     node->state = 5;
     node->actor = act;
-    node->unk30 = 1.0f;
-    node->unk2C = 0.01f;
+    node->shadowScale = 1.0f;
+    node->turnAnimScale = 0.01f;
     if (gSpawnEntryTable[idx].animSpeedDivisor != 0) {
-        node->unk38 = 1.0 / gSpawnEntryTable[idx].animSpeedDivisor;
+        node->animSpeedScale = 1.0 / gSpawnEntryTable[idx].animSpeedDivisor;
     } else {
-        node->unk38 = 0.0f;
+        node->animSpeedScale = 0.0f;
     }
     scriptId = gSpawnEntryTable[idx].scriptId;
     if (scriptId != 0) {
@@ -585,8 +585,8 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     if (act->sub4 != NULL) {
         act->flags2 |= 0xC0;
     }
-    act->unk16E[0] = gSpawnEntryTable[idx].shadowScaleX;
-    act->unk16E[1] = gSpawnEntryTable[idx].shadowScaleZ;
+    act->shadowScale[0] = gSpawnEntryTable[idx].shadowScaleX;
+    act->shadowScale[1] = gSpawnEntryTable[idx].shadowScaleZ;
     interval = gSpawnEntryTable[idx].wanderInterval;
     st->wanderTimer = interval;
     st->wanderInterval = interval;
@@ -690,7 +690,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     } else {
         st->targetActor = gPrimaryPlayerActor;
     }
-    node->unk34 = 0.75f;
+    node->nearTurnSpeedScale = 0.75f;
     act->floorY = node->y;
     if (type != 8) {
         actorUpdateFloorContactAndTilt(act, 0.0f);
@@ -1299,7 +1299,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         node->flags = 0;
         node->respawnTimer = 0;
         node->spawnCount = 0;
-        node->unk3C = 0.0f;
+        node->minAnimSpeed = 0.0f;
         node->chunkIndex = mapChunkFindByPosition((f32)node->x, (f32)node->y, (f32)node->z, 0);
         node->path = heapAlloc(node->pathCount * sizeof(*node->path));
         q = r;
@@ -1347,7 +1347,7 @@ void currentActorAnimSetFrame(u8 frame, u8 subframe) {
     animSetFrameAndSubframe(gCurrentActor, frame, subframe, 0.0f);
 }
 
-extern EffectGridAsset D_8071FB34, D_8071FB54, D_8071FC0C, D_8071FC40, D_8071FC58;
+extern EffectGridAsset D_8071FB34, D_8071FB54, D_8071FC0C, gEffectSpriteBubble, D_8071FC58;
 extern void *gPuffSprites[];
 
 
@@ -1557,7 +1557,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetDuration(-1);
                 effectSetCallback(effectWobbleRiseUpdate);
                 effectSetFlags(4);
-                effectCreateAtPosition(&D_8071FC40, 0.0f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
+                effectCreateAtPosition(&gEffectSpriteBubble, 0.0f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
             }
             break;
         }

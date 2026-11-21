@@ -205,7 +205,7 @@ void bossPufftossStep(void) {
         loadModelAssetTable();
         gCurrentActor->floorNodeId = 2;
         bossInitScriptData(sPufftossScriptData);
-        gBehaviourAnimState->unk30 = 3.0f;
+        gBehaviourAnimState->shadowScale = 3.0f;
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->flags |= 0x800000;
         gBehaviourAnimState->flags |= 0x20;
@@ -248,7 +248,7 @@ void bossPufftossStep(void) {
                 camStartPath(gCurrentActor, 2, 1);
             }
         }
-    } else if ((gActorGlobalState.bossFightPhase == 5) && (gPlayerSlots->unk2C0 != 1)) {
+    } else if ((gActorGlobalState.bossFightPhase == 5) && (gPlayerSlots->sizeMode != 1)) {
         sndId = 0x14B;
         actorScriptStart(gCurrentActor, 0x2D2);
         actorGetNodePos(gCurrentActor, 2, &nodeX, &nodeY, &nodeZ);
@@ -269,7 +269,7 @@ void bossPufftossStep(void) {
             n_alSndpStop(state->sndHandle);
         }
         n_alSndpPlay(gSfxBank, sndId, 0x7FFF, 0x3F, 1.0f, 0, &state->sndHandle);
-    } else if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (actorTableContains(gActorGlobalState.targetActor) != 0) && (gActorGlobalState.targetActor->collisionFlags == 1)) {
+    } else if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (actorTableContains(gActorGlobalState.targetActor) != 0) && (gActorGlobalState.targetActor->collisionFlags == 1)) {
         playerSetSizeMode(gPrimaryPlayerActor, 2);
         bossPufftossNotifyLaser(1);
         csModelStateSetFirstByte(0, 0xA);
@@ -280,7 +280,7 @@ void bossPufftossStep(void) {
         gCurrentActor->flags &= ~4;
     }
     if (!(state->unk12 & 1) && (effectNodeGetValue(1) > 640.0f) && (gPrimaryPlayerActor->state != 0x42)) {
-        if (gPlayerSlots->unk2C0 != 1) {
+        if (gPlayerSlots->sizeMode != 1) {
             playerSetSizeMode(gPrimaryPlayerActor, 1);
             gActivePlayerState->scaleChangeRate = 0.1f;
         }
@@ -316,7 +316,7 @@ void bossPufftossStep(void) {
                     gCurrentActor->flags |= 0x20000000;
                 }
                 if (gBehaviourWorkState->timer == 20) {
-                    if (gPlayerSlots->unk2C0 != 1) {
+                    if (gPlayerSlots->sizeMode != 1) {
                         gActivePlayerState->surfaceTimer = 0x64;
                     }
                     camReturnToFollow(gCamActor, gPrimaryPlayerActor);
@@ -533,7 +533,7 @@ void bossPufftossStep(void) {
         actorMoveWithinZone(0x45, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x293, 0.0f);
         switch (gCurrentActor->unk155) {
         case 0:
-            state->unk18[0] = scriptData[state->scriptPos++];
+            state->byteVars[0] = scriptData[state->scriptPos++];
             swing->swingYaw = mathAngleBetweenPoints2D(606.0f, 566.0f, gCurrentActor->x, gCurrentActor->z) + 0x400;
             gCurrentActor->unk155 = 1;
             /* fallthrough */
@@ -550,7 +550,7 @@ void bossPufftossStep(void) {
             gCurrentActor->unk155 = 4;
             break;
         case 5:
-            if (state->unk18[0]--) {
+            if (state->byteVars[0]--) {
                 gCurrentActor->unk155 = 1;
             } else {
                 gCurrentActor->state = scriptData[state->scriptPos++];

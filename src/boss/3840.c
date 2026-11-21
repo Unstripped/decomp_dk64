@@ -200,12 +200,12 @@ patrol:
         advanceScript = 0;
         if (BOSS_ACTOR->base.unk155 == 0) {
             pos = scriptState->scriptPos;
-            scriptState->unk8[0] = (script[pos] << 8) + script[pos + 1];
+            scriptState->vars[0] = (script[pos] << 8) + script[pos + 1];
             scriptState->scriptPos = pos + 2;
             BOSS_ACTOR->base.unk155 = 1;
         } else {
-            scriptState->unk8[0] -= 1;
-            if (scriptState->unk8[0] == 0) {
+            scriptState->vars[0] -= 1;
+            if (scriptState->vars[0] == 0) {
                 advanceScript = 1;
             }
         }
@@ -214,14 +214,14 @@ patrol:
         advanceScript = 0;
         if (BOSS_ACTOR->base.unk155 == 0) {
             pos = scriptState->scriptPos;
-            scriptState->unk8[0] = script[pos];
+            scriptState->vars[0] = script[pos];
             scriptState->scriptPos = pos + 1;
             BOSS_ACTOR->base.unk155 = 1;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         } else {
             actorMoveWithinZone(0x23, gBehaviourWorkState->targetActor->x, gBehaviourWorkState->targetActor->z, turnSpeed, fwdSpeed);
-            scriptState->unk8[0] -= 1;
-            if ((scriptState->unk8[0] == 0) || (playerData->stateFlags & 0x80000)) {
+            scriptState->vars[0] -= 1;
+            if ((scriptState->vars[0] == 0) || (playerData->stateFlags & 0x80000)) {
                 playerData->stateFlags &= ~0x80000;
                 advanceScript = 1;
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
@@ -251,20 +251,20 @@ patrol:
         break;
     case 0x63:
         pos = scriptState->scriptPos;
-        if (scriptState->unk8[script[pos]] != 0) {
-            scriptState->unk8[script[pos]] -= 1;
+        if (scriptState->vars[script[pos]] != 0) {
+            scriptState->vars[script[pos]] -= 1;
             advanceScript = 0;
         } else {
             scriptState->scriptPos = pos + 1;
         }
         break;
     case 0x62:
-        scriptState->unk8[script[scriptState->scriptPos]] = script[scriptState->scriptPos + 1];
+        scriptState->vars[script[scriptState->scriptPos]] = script[scriptState->scriptPos + 1];
         scriptState->scriptPos += 2;
         didLoop = 1;
         break;
     case 0x64:
-        scriptState->unk18[script[scriptState->scriptPos]] = script[scriptState->scriptPos + 1];
+        scriptState->byteVars[script[scriptState->scriptPos]] = script[scriptState->scriptPos + 1];
         scriptState->scriptPos += 2;
         didLoop = 1;
         break;
@@ -566,8 +566,8 @@ void bossRoundFrame(const u8 *script) {
     n_alSndpPostEvent(sound->sndHandleB, 8, sound->targetVolume);
     if (sound->flags & 0x17) {
         s16 snd = 0x1E8;
-        if ((gScheduler.unk280 - sound->lastTick) >= 6U) {
-            sound->lastTick = gScheduler.unk280;
+        if ((gScheduler.tickCount - sound->lastTick) >= 6U) {
+            sound->lastTick = gScheduler.tickCount;
             sound->stepCount = 0;
             if (sound->flags & 0x10) {
                 snd = 0x42B;
@@ -586,9 +586,9 @@ void bossRoundFrame(const u8 *script) {
         sound->flags &= ~0x1F;
     }
     if (sound->flags & 8) {
-        if ((gScheduler.unk280 - sound->lastTick) >= 6U) {
+        if ((gScheduler.tickCount - sound->lastTick) >= 6U) {
             if (sound->stepCount == 0) {
-                sound->lastTick = gScheduler.unk280;
+                sound->lastTick = gScheduler.tickCount;
             }
             sound->stepCount++;
             switch (sound->stepCount) {

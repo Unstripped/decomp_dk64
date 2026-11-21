@@ -892,7 +892,7 @@ void func_806C1E44(void) {
 
 extern f32 gActorDefaultAccelY;
 extern s16 gCsModelIds[];
-extern u8 D_8071FC40;
+extern u8 gEffectSpriteBubble;
 
 void func_806C226C(void) {
     s16 i;
@@ -930,7 +930,7 @@ void func_806C226C(void) {
                     effectSetCallback(effectWobbleRiseUpdate);
                     effectSetDepth(1);
                     effectSetDuration(-1);
-                    effectCreateAtPosition(&D_8071FC40, 0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                    effectCreateAtPosition(&gEffectSpriteBubble, 0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                 }
             } else {
                 if ((gCurrentActor->contactFlags ^ gCurrentActor->prevContactFlags) & 1) {

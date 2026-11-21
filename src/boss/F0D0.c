@@ -247,7 +247,7 @@ extern s16 D_807502DC;
 extern f32 D_807502F0;
 extern u8 D_8071FC58[];
 extern u8 D_80720054[];
-extern u8 D_80720BE8[];
+extern u8 gEffectSpriteSmokeCloud[];
 
 void bossMainStep(void) {
     BossScriptState *scriptState;
@@ -332,7 +332,7 @@ void bossMainStep(void) {
             }
         }
     }
-    if ((gCurrentActor->state == 0x27 && scriptState->phase == 4) || (gActorGlobalState.unk15 != 0 && gCurrentActor->state != 0x37)) {
+    if ((gCurrentActor->state == 0x27 && scriptState->phase == 4) || (gActorGlobalState.damaged != 0 && gCurrentActor->state != 0x37)) {
         if (gPrimaryPlayerActor->state == 0x36) {
             gCurrentActor->state = 0x2B;
             gCurrentActor->unk155 = 0;
@@ -399,8 +399,8 @@ void bossMainStep(void) {
         case 2:
             actorScriptStart(gCurrentActor, 0x225);
             actorScriptExecute(gCurrentActor);
-            scriptState->unk18[0] = 2;
-            waypoints->next = gBossIntroWaypointPath[scriptState->unk18[0]];
+            scriptState->byteVars[0] = 2;
+            waypoints->next = gBossIntroWaypointPath[scriptState->byteVars[0]];
             waypoints->previous = 0xFF;
             gCurrentActor->unk155++;
             gCurrentActor->contactFlags |= 1;
@@ -421,10 +421,10 @@ void bossMainStep(void) {
             break;
         case 5:
             waypoints->current = waypoints->next;
-            v = scriptState->unk18[0];
+            v = scriptState->byteVars[0];
             left = v - 1;
             if (v) {
-                scriptState->unk18[0] = left;
+                scriptState->byteVars[0] = left;
                 waypoints->next = gBossIntroWaypointPath[left];
                 gCurrentActor->unk155 = 3;
             } else {
@@ -493,8 +493,8 @@ void bossMainStep(void) {
         behaviourUpdateShadowAlpha();
         switch (gCurrentActor->unk155) {
         case 0:
-            scriptState->unk18[0] = tbl[scriptState->scriptPos++];
-            scriptState->unk18[1] = scriptState->unk18[0];
+            scriptState->byteVars[0] = tbl[scriptState->scriptPos++];
+            scriptState->byteVars[1] = scriptState->byteVars[0];
             bossSetAnimationByWaypoint(waypoints);
             waypoints->next = bossPickWaypointStep(scriptState, waypoints);
             gCurrentActor->unk155 = 1;
@@ -524,11 +524,11 @@ void bossMainStep(void) {
             waypoints->previous = waypoints->current;
             waypoints->current = waypoints->next;
             if (playerAbove != 0) {
-                scriptState->unk18[0] = scriptState->unk18[1];
+                scriptState->byteVars[0] = scriptState->byteVars[1];
             }
-            if (scriptState->unk18[0] != 0) {
+            if (scriptState->byteVars[0] != 0) {
                 waypoints->next = bossPickWaypointStep(scriptState, waypoints);
-                scriptState->unk18[0]--;
+                scriptState->byteVars[0]--;
                 bossSetAnimationByWaypoint(waypoints);
                 gCurrentActor->unk155 = 1;
             } else {
@@ -547,8 +547,8 @@ void bossMainStep(void) {
             switch (gCurrentActor->unk155) {
             case 0:
                 bossSetRandomObjectPair(waypoints, 0xA);
-                scriptState->unk18[0] = tbl[scriptState->scriptPos++] - 1;
-                scriptState->unk18[1] = tbl[scriptState->scriptPos++];
+                scriptState->byteVars[0] = tbl[scriptState->scriptPos++] - 1;
+                scriptState->byteVars[1] = tbl[scriptState->scriptPos++];
                 actorScriptStart(gCurrentActor, 0x229);
                 gCurrentActor->unk155 = 1;
                 break;
@@ -594,9 +594,9 @@ void bossMainStep(void) {
                 gCurrentActor->unk155 = 5;
                 break;
             case 6:
-                if (scriptState->unk18[0] != 0) {
-                    scriptState->unk18[0]--;
-                    gBehaviourWorkState->timer = scriptState->unk18[1];
+                if (scriptState->byteVars[0] != 0) {
+                    scriptState->byteVars[0]--;
+                    gBehaviourWorkState->timer = scriptState->byteVars[1];
                     gCurrentActor->unk155 = 7;
                 } else {
                     actorScriptStart(gCurrentActor, 0x22D);
@@ -606,7 +606,7 @@ void bossMainStep(void) {
             case 7:
                 if (gBehaviourWorkState->timer != 0) {
                     if (gPrimaryPlayerActor->state == 0x33) {
-                        gBehaviourWorkState->timer = scriptState->unk18[1];
+                        gBehaviourWorkState->timer = scriptState->byteVars[1];
                     } else {
                         gBehaviourWorkState->timer--;
                     }
@@ -672,7 +672,7 @@ void bossMainStep(void) {
         case 0:
             gCurrentActor->flags &= ~0x8000;
             actorScriptStart(gCurrentActor, 0x231);
-            scriptState->unk8[0] = (s8)tbl[scriptState->scriptPos++];
+            scriptState->vars[0] = (s8)tbl[scriptState->scriptPos++];
             gCurrentActor->unk155++;
             break;
         case 2:
@@ -686,7 +686,7 @@ void bossMainStep(void) {
             debrisSfx = 1;
             break;
         case 4:
-            bossAdjustHealth(scriptState->unk8[0]);
+            bossAdjustHealth(scriptState->vars[0]);
             break;
         case 5:
             gCurrentActor->state = tbl[scriptState->scriptPos++];
@@ -734,8 +734,8 @@ void bossMainStep(void) {
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
-                effectSpawnScatterRandom(D_80720BE8, 0, 6.0f, 6, 0x50, 0x64, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
-                effectSpawnScatterRandom(D_80720BE8, 0x14, 6.0f, 8, 0x96, 0x46, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
+                effectSpawnScatterRandom(gEffectSpriteSmokeCloud, 0, 6.0f, 6, 0x50, 0x64, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
+                effectSpawnScatterRandom(gEffectSpriteSmokeCloud, 0x14, 6.0f, 8, 0x96, 0x46, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
                 gCurrentActor->unk155++;
             }
             break;

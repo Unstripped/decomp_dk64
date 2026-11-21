@@ -100,7 +100,7 @@ f32 cameraStepAspectScale(void) {
 u8 *D_807F5DE0;
 struct MapBspNode *D_807F5DE4;
 s32 D_807F5DE8;
-void *D_807F5DEC;
+void *gMapDisplayListBase;
 f32 sFrustumCornerRays[12];
 
 
@@ -546,12 +546,12 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
         if (gPlayerSlots[i].active != 0) {
             gCurrentPlayerIndex = i;
             gfx = mapRenderPlayerView(gfx, gPlayerSlots[i].eyeX, gPlayerSlots[i].eyeY, gPlayerSlots[i].eyeZ,
-                                gPlayerSlots[i].unk234, gPlayerSlots[i].unk238, gPlayerSlots[i].unk23C,
-                                gPlayerSlots[i].prevFov, gPlayerSlots[i].unk280 * cameraStepAspectScale(),
+                                gPlayerSlots[i].eyeFocusX, gPlayerSlots[i].eyeFocusY, gPlayerSlots[i].eyeFocusZ,
+                                gPlayerSlots[i].prevFov, gPlayerSlots[i].aspect * cameraStepAspectScale(),
                                 gPlayerSlots[i].farClip);
             D_807F5FEC = 0;
         }
-        if (gPlayerSlots[i].active == 0 || gPlayerSlots[i].unk2EA != 0) {
+        if (gPlayerSlots[i].active == 0 || gPlayerSlots[i].viewFadingOut != 0) {
             alpha = gPlayerSlots[i].actor->alpha;
             vp = cameraFindViewportEntry(i);
             gSPDisplayList(gfx++, &D_1000118);
@@ -629,7 +629,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     frustumOrientPolyNormals(eyeX, eyeY, eyeZ, gFrustumPlanes, D_807F5E20[0]);
     mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, eyeX, eyeY, eyeZ, 0, !D_807F5FEC, gViewportCount >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
-    gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+    gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
     gfx = actorBuildLightDisplayList(gfx, gPlayerSlots[gCurrentPlayerIndex].actor, gCurrentPlayerIndex);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
     gDPSetHilite1Tile(dl++, 0, &gPlayerSlots[gCurrentPlayerIndex].hilite[gGfxBufferIndex], 32, 32);
@@ -691,7 +691,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
             D_807F5E64 += node->unk6E;
             if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
-                gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
                 gfx = mapViewDrawPass(gfx, node, 1);
                 gfx = fogRender(gfx);
                 gfx = mapChunkEmitSegmentCommands(gfx, 0xFF);
@@ -718,7 +718,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
             gfx = renderEntryListBuildDisplayList(gfx, vis->entries, camX, camY, camZ, renderMask, -1, 0);
             if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
-                gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
+                gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
                 gfx = mapViewDrawPass(gfx, node, 3);
                 gDPPipeSync(gfx++);
             }
@@ -1468,7 +1468,7 @@ void mapHeaderLoad(MapFileHeader *header) {
     sMapChunkAnims = (MapChunkAnim *)(D_807F5DE0 + chunkAnimOff + 4);
     D_807F5DE4 = (MapBspNode *)(D_807F5DE0 + bspOff);
     D_807F5DE8 = (s32)(D_807F5DE0 + dlEndOff);
-    D_807F5DEC = D_807F5DE0 + dlOff;
+    gMapDisplayListBase = D_807F5DE0 + dlOff;
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
     matrixCacheInit(header->unkE << 10);

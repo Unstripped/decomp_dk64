@@ -834,7 +834,7 @@ void menuInitFileSelect(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
 }
 
-extern u8 D_8071FBC8;
+extern u8 gEffectSpriteBlast;
 extern EffectGridAsset D_8071FE08;
 extern s8 D_80033FAC;
 
@@ -845,7 +845,7 @@ void menuMysteryHandleInput(Actor *actor, s32 buttons) {
         if (buttons & 1) {
             if ((buttons & 8) && (D_80033FAC != 0)) {
                 effectEnableFade();
-                effectCreateAtPosition(&D_8071FBC8, 10.3f, 240.0f, 120.0f, -10.0f);
+                effectCreateAtPosition(&gEffectSpriteBlast, 10.3f, 240.0f, 120.0f, -10.0f);
                 effectEnableFade();
                 effectCreateAtPosition(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
                 sfxPlayOnFreeSlot(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);

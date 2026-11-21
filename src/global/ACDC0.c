@@ -80,7 +80,7 @@ extern s16 D_807FC832;
 extern s16 D_807FC834;
 extern s16 D_807FC836;
 extern s16 D_807FC838;
-extern s16 D_80744710[];
+extern s16 gWorldClearedFlags[];
 extern s16 D_80744720[];
 extern s16 D_807505B2[];
 extern s8 gPauseMenuMode;
@@ -1363,7 +1363,7 @@ void hudPauseMenuRefreshTotals(void) {
     }
     gPauseCollectibleCounts[0] = n;
     n = 0;
-    p = D_80744710; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
+    p = gWorldClearedFlags; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         if (flagGet(*p, 0) != 0) {
             n++;
         }

@@ -24,13 +24,13 @@ Vtx gSpriteRingQuadVtx[4] = {
     {{ { 15, 31, 0 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { -16, 31, 0 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
 };
-extern EffectGridAsset D_80720BE8, D_8071FE3C, D_80720E2C;
+extern EffectGridAsset gEffectSpriteSmokeCloud, D_8071FE3C, D_80720E2C;
 
 typedef struct ProjectileTriple {
     EffectGridAsset *sprite[3];
 } ProjectileTriple;
 
-ProjectileTriple sProjectileSprites = { { &D_80720BE8, &D_8071FE3C, &D_80720E2C } };
+ProjectileTriple sProjectileSprites = { { &gEffectSpriteSmokeCloud, &D_8071FE3C, &D_80720E2C } };
 
 extern void **gSpriteRingTextures;
 
@@ -267,11 +267,11 @@ void projectileActorUpdate(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
-    if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.unk15 != 0)) {
+    if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.damaged != 0)) {
         if (sub->type == 3) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0x14);
         }
-        if (gActorGlobalState.unk15 == 0) {
+        if (gActorGlobalState.damaged == 0) {
             for (particleIdx = 0; particleIdx < 12; particleIdx += 2) {
                 effectSetDepth(1);
                 effectSetSpeed(particleIdx + 0xB000000);

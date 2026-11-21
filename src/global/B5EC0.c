@@ -72,8 +72,8 @@ void func_806B13B4(u8 spawnSfxNodes) {
         gCurrentActor->interactionType = 1;
         sel = gCurrentActor->state;
     }
-    if (sel != 0x32 || gActorGlobalState.unk15 != 0) {
-        if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && sel != 0x37) {
+    if (sel != 0x32 || gActorGlobalState.damaged != 0) {
+        if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && sel != 0x37) {
             if (gCurrentActor->health < -1) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20C);
                 gCurrentActor->speedY = 250.0f;

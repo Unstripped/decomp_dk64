@@ -542,14 +542,14 @@ void bossArmydilloStep(void) {
     playSfx = 0;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk38 = 0.002f;
+        gBehaviourAnimState->animSpeedScale = 0.002f;
         camSetSecondTarget(gCamActor, 0, 0);
         bossInitScriptData(D_80035CC0);
         gCurrentActor->accelY = gActorDefaultAccelY;
         gCurrentActor->terminalSpeedY = D_807502D8;
         bossArmydilloHideCannons();
-        gBehaviourAnimState->unk2C = 0.01f;
-        gBehaviourAnimState->unk30 = 3.0f;
+        gBehaviourAnimState->turnAnimScale = 0.01f;
+        gBehaviourAnimState->shadowScale = 3.0f;
         gCurrentActor->drawDistance = 0x3E8;
         animSetSpeed(gCurrentActor, 1, 0.2f);
         animSetLoopMode(gCurrentActor, 1, 1);
@@ -573,7 +573,7 @@ void bossArmydilloStep(void) {
         }
     }
     currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
-    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
+    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->callbackMask = 0;
         gCurrentActor->collisionMode = 1;
@@ -898,8 +898,8 @@ void bossArmydilloStep(void) {
         }
         switch (gCurrentActor->unk155) {
         case 0:
-            state->unk18[0] = scriptData[state->scriptPos++];
-            state->unk18[1] = state->unk18[0];
+            state->byteVars[0] = scriptData[state->scriptPos++];
+            state->byteVars[1] = state->byteVars[0];
             gCurrentActor->unk155 = 1;
             actorScriptStart(gCurrentActor, 0x269);
             break;
@@ -908,8 +908,8 @@ void bossArmydilloStep(void) {
             projectileSpawnNodeEntry(0x1E, 5, 1.2f, gCurrentActor->yaw, 600.0f, 300.0f, gCurrentActor);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xF6, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             effectSpawnBoneWhite(gCurrentActor, 5, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
-            if (state->unk18[1] != 0) {
-                state->unk18[1]--;
+            if (state->byteVars[1] != 0) {
+                state->byteVars[1]--;
                 gCurrentActor->unk155 = 1;
             } else {
                 actorScriptStart(gCurrentActor, 0);
@@ -938,8 +938,8 @@ void bossArmydilloStep(void) {
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
-                state->unk18[0]--;
-                if (state->unk18[0] != 0) {
+                state->byteVars[0]--;
+                if (state->byteVars[0] != 0) {
                     gCurrentActor->unk155 = 4;
                 } else {
                     gCurrentActor->state = scriptData[state->scriptPos++];
@@ -953,15 +953,15 @@ void bossArmydilloStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             state->unk12 |= 1;
-            state->unk18[0] = scriptData[state->scriptPos++];
-            state->unk18[1] = scriptData[state->scriptPos++];
+            state->byteVars[0] = scriptData[state->scriptPos++];
+            state->byteVars[1] = scriptData[state->scriptPos++];
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:
-            gBehaviourWorkState->timer = state->unk18[1];
+            gBehaviourWorkState->timer = state->byteVars[1];
             if (!(state->unk12 & 1) && (state->phase != 0)) {
                 gBehaviourWorkState->timer = 0;
-                state->unk18[0]++;
+                state->byteVars[0]++;
             }
             gCurrentActor->unk155 = 2;
             /* fallthrough */
@@ -983,8 +983,8 @@ void bossArmydilloStep(void) {
             gCurrentActor->unk155 = 5;
             break;
         case 6:
-            if (state->unk18[0] != 0) {
-                state->unk18[0]--;
+            if (state->byteVars[0] != 0) {
+                state->byteVars[0]--;
                 gCurrentActor->unk155 = 1;
                 break;
             }

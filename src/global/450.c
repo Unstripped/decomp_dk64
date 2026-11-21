@@ -194,7 +194,7 @@ s32 D_8076A094;
 s32 D_8076A098;
 u16 gPerspNorm;
 u16 D_8076A09E;
-s16 *D_8076A0A0;
+s16 *gZbufferDistanceTable;
 u8 gGfxSubListEnabled;
 u8 D_8076A0A5;
 u16 D_8076A0A6;
@@ -422,7 +422,7 @@ void mainThreadLoop(void *arg) {
     mainSystemInit();
     osViSetSpecialFeatures(0x42);
     mainResetEngineState();
-    D_8076A070[0] = gScheduler.unk280 - 2;
+    D_8076A070[0] = gScheduler.tickCount - 2;
     osRecvMesg(&gBootDelayMesgQueue, &receivedMesg, OS_MESG_BLOCK);
     while (1) {
         D_8074682C = 0xC8;
@@ -651,7 +651,7 @@ void playerViewsBuildMatrices(FrameMatrices *frame) {
                            D_807444CC, D_807444D0, D_807444D4,
                            D_807444D8, D_807444DC, D_807444E0,
                            0x20, 0x20);
-            viewAspect = gPlayerSlots[i].unk280;
+            viewAspect = gPlayerSlots[i].aspect;
             playerState = gPlayerSlots[i].actor->customState;
             camActor = playerState->camActor;
             camState = camActor->customState;
@@ -787,8 +787,8 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
             gPlayerSlots->rect[1] = D_807444AC;
             gPlayerSlots->rect[3] = D_807444B0;
         }
-        gPlayerSlots->unk27A = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
-        gPlayerSlots->unk280 = (f32)gPlayerSlots->unk278 / gPlayerSlots->unk27A;
+        gPlayerSlots->rectHeight = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
+        gPlayerSlots->aspect = (f32)gPlayerSlots->rectWidth / gPlayerSlots->rectHeight;
         gDPPipeSync(glist++);
         gDPSetRenderMode(glist++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
     }
@@ -823,8 +823,8 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         }
 
         gDPPipeSync(glist++);
-        gPlayerSlots->unk278 = gPlayerSlots->rect[2] - gPlayerSlots->rect[0];
-        gPlayerSlots->unk27A = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
+        gPlayerSlots->rectWidth = gPlayerSlots->rect[2] - gPlayerSlots->rect[0];
+        gPlayerSlots->rectHeight = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
         if ((gViewportInsetLeft == 0) && (gViewportInsetRight == 0) && (gViewportInsetTop == 0) && (gViewportInsetBottom == 0)) {
             gViewportInsetActive = 0;
         } else {
@@ -836,7 +836,7 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         gViewportInsetBottom = 0;
         width = vpEntry->right - vpEntry->left;
         height = vpEntry->bottom - vpEntry->top;
-        gPlayerSlots->unk280 = (f32)width / height;
+        gPlayerSlots->aspect = (f32)width / height;
         gDPSetRenderMode(glist++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
     }
 
@@ -994,7 +994,7 @@ void mapLoadLevel(void) {
     vtxGradientSetColorA(0xFF, 0xFF, 0xFF);
     vtxGradientSetColorB(0xFF, 0xFF, 0xFF);
     if (gGameMode == 0) {
-        D_8076A0A0 = assetLoad(0x13, 0, 1, 1);
+        gZbufferDistanceTable = assetLoad(0x13, 0, 1, 1);
         gfxBackgroundReset();
         commandStateInit();
         playerWaypointPathsLoad(gCurrentLevelIndex);

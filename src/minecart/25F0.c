@@ -366,7 +366,7 @@ void minecartUpdateFollower(void) {
     if ((pointX - gCurrentActor->x) * (pointX - gCurrentActor->x) + (pointZ - gCurrentActor->z) * (pointZ - gCurrentActor->z) < 1600.0f) {
         gCurrentActor->yawSpeed++;
     }
-    if (gActorGlobalState.unk15 != 0 || --gCurrentActor->movePitch == 0) {
+    if (gActorGlobalState.damaged != 0 || --gCurrentActor->movePitch == 0) {
         if (gCurrentActor->parentActor != NULL) {
             gCurrentActor->parentActor->unk15F--;
         }
@@ -473,7 +473,7 @@ void minecartUpdateObstacleType1(void) {
         func_80724CA4(2, 1);
         gBehaviourWorkState->acceleration = 6;
     }
-    if (gActorGlobalState.unk15 != 0) {
+    if (gActorGlobalState.damaged != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
         camStartShake(gCamActor, 0xA, 0x14);
         gCurrentActor->state = 0x40;
@@ -542,7 +542,7 @@ void minecartUpdateObstacleType2(void) {
         effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
         gCurrentActor->state = 0;
     }
-    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
+    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->state = 0x40;
         camStartShake(gCamActor, 0xA, 0x14);

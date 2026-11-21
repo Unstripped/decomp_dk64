@@ -38,7 +38,7 @@ typedef struct SchedStruct {
     /* 0x274 */ TaskNode *curRSPTask;
     /* 0x278 */ TaskNode *curRDPTask;
     /* 0x27C */ u32 frameCount;
-    /* 0x280 */ u32 unk280;
+    /* 0x280 */ u32 tickCount;
     /* 0x284 */ s32 retraceCount; // retraces since boot, incremented by the scheduler thread; polled by frameTimingUpdate
     /* 0x288 */ u64 unk288;
     /* 0x290 */ u64 unk290;
@@ -98,23 +98,23 @@ typedef struct {
     /* 0x228 */ f32 focusX;
     /* 0x22C */ f32 focusY;
     /* 0x230 */ f32 focusZ;
-    /* 0x234 */ f32 unk234;
-    /* 0x238 */ f32 unk238;
-    /* 0x23C */ f32 unk23C;
+    /* 0x234 */ f32 eyeFocusX;
+    /* 0x238 */ f32 eyeFocusY;
+    /* 0x23C */ f32 eyeFocusZ;
     /* 0x240 */ f32 upX;
     /* 0x244 */ f32 upY;
     /* 0x248 */ f32 upZ;
-    /* 0x24C */ f32 unk24C;
+    /* 0x24C */ f32 camWaterY;
     /* 0x250 */ Vp viewport[2];
     s16 rect[4];
-    s16 unk278;
-    s16 unk27A;
+    s16 rectWidth;
+    s16 rectHeight;
     /* 0x27C */ f32 fov;
-    /* 0x280 */ f32 unk280;
+    /* 0x280 */ f32 aspect;
     /* 0x284 */ f32 nearClip;
     /* 0x288 */ f32 farClip;
     /* 0x28C */ f32 prevFov;
-    /* 0x290 */ s16 unk290;
+    /* 0x290 */ s16 camChunk;
     /* 0x292 */ u8 pad292[2];
     /* 0x294 */ OSContPad *contPad;
     /* 0x298 */ u16 *heldButtonsPtr;
@@ -128,7 +128,7 @@ typedef struct {
     /* 0x2B4 */ f32 headX;
     /* 0x2B8 */ f32 headY;
     /* 0x2BC */ f32 headZ;
-    u8 unk2C0;
+    u8 sizeMode;
     /* 0x2C1 */ u8 sizeModeDirty;
     /* 0x2C2 */ u8 pad2C2[2];
     /* 0x2C4 */ f32 camYaw;
@@ -143,7 +143,7 @@ typedef struct {
         /* 0x2DC */ HealthHudInit healthHud; // health HUD state (healthHudReset, 10D2D0.c)
         struct {
             /* 0x2DC */ f32 unk2DC;
-            /* 0x2E0 */ u16 unk2E0; // health HUD flash phase (sinApprox * 65535)
+            /* 0x2E0 */ u16 healthHudReveal; // health HUD flash phase (sinApprox * 65535)
             union {
                 /* 0x2E2 */ u16 unk2E2; // HUD flags
                 struct {
@@ -151,16 +151,16 @@ typedef struct {
                     /* 0x2E3 */ u8 unk2E3; // low byte of unk2E2, read on its own by the health HUD
                 };
             };
-            /* 0x2E4 */ u8 unk2E4;
-            /* 0x2E5 */ u8 unk2E5;
+            /* 0x2E4 */ u8 healthHudMode;
+            /* 0x2E5 */ u8 healthHudTimer;
             /* 0x2E6 */ u8 unk2E6;
             /* 0x2E7 */ u8 pad2E7;
         };
     };
     /* 0x2E8 */ u8 unk2E8;
     /* 0x2E9 */ u8 unk2E9;
-    u8 unk2EA;
-    u8 unk2EB;
+    u8 viewFadingOut;
+    u8 rumbleDisabled;
     u8 pad2EC[4];
 } PlayerStruct;
 

@@ -127,7 +127,7 @@ void raceCompetitorMotionUpdate(void) {
         actorInitAnimations(gCurrentActor, gPlayerSlots[participant->playerIdx].actor);
         gCurrentActor->collisionMode |= 0x10;
         gCurrentActor->flags &= ~0x20000;
-        participant->unk44 = 5;
+        participant->gateMissesLeft = 5;
         actorOrNodeFlags(gCurrentActor, 2, 0xC);
     }
     vehicleUpdateEngineSound(participant, motion);
@@ -136,11 +136,11 @@ void raceCompetitorMotionUpdate(void) {
         if (status == 1) {
             manager = participant->actor;
             managerData = manager->customState;
-            if (participant->unk35 == 0) {
+            if (participant->statusStep == 0) {
                 slotQueueUpdate(0xB, 1, 0);
-                participant->unk35++;
+                participant->statusStep++;
             }
-            if (managerData->unk1C == 0x3C) {
+            if (managerData->phaseTimer == 0x3C) {
                 camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0x32, 0, 0x28, 0x1E, 0x14, 0, 0.4f);
             }
         }
@@ -160,11 +160,11 @@ void raceCompetitorMotionUpdate(void) {
         if (menuIsTransitionType3Or4() == 0) {
             renderCallbacksRegister(raceRacerRenderCallback, gCurrentActor, 3);
         }
-    } else if (status == 5 && participant->unk35 == 0) {
+    } else if (status == 5 && participant->statusStep == 0) {
         gCurrentActor->flags &= ~4;
         gCurrentActor->speedXZ = 0.0f;
         slotQueueCancel(0xB, 0);
-        participant->unk35++;
+        participant->statusStep++;
         for (i = 0; i < 2; i++) {
             if (gCurrentActor->soundSlots[i] != -1) {
                 sfxStopSlotSound(gCurrentActor, i);
@@ -207,7 +207,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     leadDistance = raceGetPathDistanceBetweenTrackers(route, participant, target->participant);
     targetSpeed = 0.0f;
     onGround = gCurrentActor->contactFlags & 1;
-    prevSubPhase = participant->unk35;
+    prevSubPhase = participant->statusStep;
     idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
     dx = gBehaviourZone->entries[idx].x - gCurrentActor->x;
     dz = gBehaviourZone->entries[idx].z - gCurrentActor->z;
@@ -223,7 +223,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     if (target->curveMode >= 2) {
                         raceSetPiecewiseCurveMode(target, 1, D_8002FC20, &D_8002FC50);
                     }
-                    participant->unk35 = 1;
+                    participant->statusStep = 1;
                 }
                 break;
             case 3:
@@ -250,7 +250,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     switch (target->curveMode) {
         case 0:
         case 1:
-            switch (participant->unk35) {
+            switch (participant->statusStep) {
                 case 0:
                     if (gCurrentActor->sub4->animId == 0x29E && target->unk10 != 0 && D_8002FC20[1].x < leadDistance && leadDistance < D_8002FC20[2].x && (randomLcgNext() & 0xFF) < 0xF) {
                         actorScriptStart(gCurrentActor, 0x29F);
@@ -262,19 +262,19 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     break;
                 case 2:
                     gCurrentActor->speedY = 500.0f;
-                    participant->unk35++;
+                    participant->statusStep++;
                     break;
                 case 4:
                     if (onGround) {
                         actorScriptStart(gCurrentActor, 0x2A2);
-                        participant->unk35++;
+                        participant->statusStep++;
                         gCurrentActor->accelY = -30.0f;
                     }
                     break;
                 case 5:
                     if (gCurrentActor->y <= gCurrentActor->waterY) {
                         actorScriptStart(gCurrentActor, 0x29D);
-                        participant->unk35 = 0;
+                        participant->statusStep = 0;
                         target->unk10 = target->curveMode != 0;
                     }
                     break;
@@ -282,9 +282,9 @@ f32 raceRacerSteerTowardWaypoint(void) {
             break;
         case 4:
             ang = 0;
-            switch (participant->unk35) {
+            switch (participant->statusStep) {
                 case 1:
-                    participant->unk35++;
+                    participant->statusStep++;
                     break;
                 case 2:
                     ang = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, target->actor->x, target->actor->z) - participant->heading;
@@ -305,7 +305,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
             actorScriptStart(gCurrentActor, 0x2A0);
         }
         if (prevCurveMode == 3 && target->curveMode == 4) {
-            participant->unk35 = prevSubPhase;
+            participant->statusStep = prevSubPhase;
         }
     }
     if (onGround != 0) {
@@ -383,7 +383,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         participant->raceStatus = 0;
         camRequestPathLength();
         pathFrames = camStartPath(gCurrentActor, 1, 1) - 0x3C;
-        managerData->unk1C = pathFrames;
+        managerData->phaseTimer = pathFrames;
         target->startCountdown = pathFrames;
         participant->throttle = 1.0f;
         gBehaviourWorkState->waypointIndex = gBehaviourExtraState->pathCount - 5;
@@ -411,7 +411,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         }
         vehicleUpdateMotion(participant, motion, 0, 0);
     } else if (participant->raceStatus == 5) {
-        switch (participant->unk35) {
+        switch (participant->statusStep) {
         case 0:
             if (flagGet(0xA5, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
@@ -419,20 +419,20 @@ void raceOpponentRacerBehaviorUpdate(void) {
                 gCurrentActor->roll = 0;
                 actorScriptStart(gCurrentActor, 0x29A);
             }
-            participant->unk35++;
+            participant->statusStep++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 chased = target->participant;
                 currentActorClearFlag();
                 resQueueAttachActor(gCurrentActor, 0x12, raceGetFinishCutsceneCam(participant, chased));
-                participant->unk35++;
+                participant->statusStep++;
             }
             break;
         case 2:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
-                participant->unk35++;
+                participant->statusStep++;
             }
             break;
         case 3:
@@ -446,16 +446,16 @@ void raceOpponentRacerBehaviorUpdate(void) {
                     flagSet(0xA5, 1, 0);
                 } else {
                     hudSpawnTextScreen(1);
-                    participant->unk35++;
+                    participant->statusStep++;
                 }
-                participant->unk35++;
+                participant->statusStep++;
             }
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 mapCheckAutoTransition();
-                participant->unk35++;
+                participant->statusStep++;
             }
             break;
         }

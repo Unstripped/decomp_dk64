@@ -513,7 +513,7 @@ typedef struct ActorEventPayload {
 } ActorEventPayload;
 
 extern u16 D_8074D624[];
-extern u8 D_807F94B4;
+extern u8 gFloorQueryMode;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
@@ -654,7 +654,7 @@ u16 type;
         actor->callbackMask = -1;
         actor->collisionMode = 2;
         actor->attachMode = 0;
-        actor->unkF8 = 0x50;
+        actor->arcSpeedCapMax = 0x50;
         actor->flags = 0x58144;
         actor->renderFlags = 0;
         actor->alpha = 0xFF;
@@ -665,8 +665,8 @@ u16 type;
             actor->drawDistance = 0x1F4;
         }
         actor->flags2 = 0;
-        actor->unk156 = 0;
-        actor->unk78[0] = 0;
+        actor->mirrorCount = 0;
+        actor->floorTriSurface[0] = 0;
         actor->contactFlags = actor->prevContactFlags = 1;
         actor->interactionType = 1;
         actor->riderList = NULL;
@@ -684,12 +684,12 @@ u16 type;
         actor->collisionFlags = D_8074D624[type];
         actor->floorTiltPitch = 0x400;
         actor->floorNodeId = 0;
-        actor->unkCD = 0;
+        actor->lightNodeId = 0;
         actor->cullMarginX = 0;
         actor->cullMarginY = 0;
         actor->tintA = 0xF;
         actor->boundingRadius = 0;
-        actor->unkB0[0] = -1;
+        actor->waterPathId[0] = -1;
         actor->instanceId = gActorNextInstanceId;
         gActorNextInstanceId++;
         actorTableInsert(actor);
@@ -933,9 +933,9 @@ void actorPreTick(Actor *actor) {
     actor->prevY = actor->y;
     actor->prevZ = actor->z;
     actor->prevSpeedXZ = actor->speedXZ;
-    D_807F94B4 = 0;
+    gFloorQueryMode = 0;
     if (actor->collision != NULL) {
-        actor->collision->unk68 = 0;
+        actor->collision->actorPushDist = 0;
     }
     actorRiderListFree(actor);
     if (actor == gActivePlayerActor) {
@@ -950,7 +950,7 @@ void actorPreTick(Actor *actor) {
     if (actor->collisionMode & 4) {
         actorUpdateMovementFlags(actor);
     } else if (actor->collision != NULL) {
-        actor->collision->unk6C = 0;
+        actor->collision->hasSlotHit = 0;
     }
     if (actor->attachMode != 0) {
         actorUpdateSubnodeRotationAndMtx(actor);
@@ -967,7 +967,7 @@ void actorPostTick(Actor *actor) {
         actor->flags &= ~0x200;
         if (actor->sub4 != NULL) {
             controllerStepMotionWindows(actor);
-            if (((actor->flags & 0x500) || actor->unk156 != 0) && !(actor->flags & 0x4000)) {
+            if (((actor->flags & 0x500) || actor->mirrorCount != 0) && !(actor->flags & 0x4000)) {
                 actorCheckWorldBounds(actor);
             }
         }
@@ -1109,8 +1109,8 @@ void actorFreeCallbackList(Actor *actor) {
     }
     while (node != NULL) {
         next = node->next;
-        if (node->unk10 != NULL) {
-            heapFree(node->unk10);
+        if (node->payload != NULL) {
+            heapFree(node->payload);
         }
         heapFree(node);
         node = next;
@@ -1187,8 +1187,8 @@ void actorDelayedCallbacksTick(void) {
                 (*link)->prev = prev;
             } else {
                 node = gActorDelayedCallbackQueue[i].node;
-                if (node->unk10 != NULL) {
-                    heapFree(node->unk10);
+                if (node->payload != NULL) {
+                    heapFree(node->payload);
                 }
                 heapFree(node);
             }
@@ -1215,7 +1215,7 @@ ActorCallbackNode *actorAllocCallbackNode(Actor *source, s32 type, u8 subtype, s
     node->unk4 = subtype;
     node->source = source;
     node->unkC = ownsPayload;
-    node->unk10 = payload;
+    node->payload = payload;
     node->next = NULL;
     return node;
 }
@@ -1336,10 +1336,10 @@ void actorDispatchCallbacks(Actor *actor) {
                 break;
             case 0x800:
                 actor->collisionMode = node->unk4;
-                gActorGlobalState.unk90 = 1;
+                gActorGlobalState.collisionModeReceived = 1;
                 break;
             case 0x400:
-                launchPayload = node->unk10;
+                launchPayload = node->payload;
                 gActivePlayerState->launchYaw = launchPayload->yaw;
                 gActivePlayerState->launchSpeedY = launchPayload->speedY;
                 gActivePlayerState->launchSpeedXZ = launchPayload->speedXZ;
@@ -1349,7 +1349,7 @@ void actorDispatchCallbacks(Actor *actor) {
                 }
                 break;
             case 0x10:
-                move2D = node->unk10;
+                move2D = node->payload;
                 priority2D = move2D->priority;
                 if (bestPriority < priority2D) {
                     bestPriority = priority2D;
@@ -1360,7 +1360,7 @@ void actorDispatchCallbacks(Actor *actor) {
                 }
                 break;
             case 0x20:
-                move3D = node->unk10;
+                move3D = node->payload;
                 priority3D = move3D->priority;
                 if (bestPriority < priority3D) {
                     bestPriority = priority3D;
@@ -1372,11 +1372,11 @@ void actorDispatchCallbacks(Actor *actor) {
                 }
                 break;
             case 0x100000:
-                vecPayload = node->unk10;
+                vecPayload = node->payload;
                 gActorGlobalState.unkD8 = vecPayload[0];
                 gActorGlobalState.unkDC = vecPayload[1];
                 gActorGlobalState.unkE0 = vecPayload[2];
-                gActorGlobalState.unkE4 = 1;
+                gActorGlobalState.destPointReceived = 1;
                 gActorGlobalState.unkEC = node->source;
                 break;
             case 0x1000:
@@ -1384,17 +1384,17 @@ void actorDispatchCallbacks(Actor *actor) {
                 gActorGlobalState.unk20 = node->source;
                 break;
             case 0x4000:
-                launchPayload = node->unk10;
-                gActorGlobalState.unk2C = 1;
-                gActorGlobalState.unk30 = launchPayload->speedY;
+                launchPayload = node->payload;
+                gActorGlobalState.launchReceived = 1;
+                gActorGlobalState.launchSpeedY = launchPayload->speedY;
                 gActorGlobalState.unk34 = launchPayload->speedXZ;
-                gActorGlobalState.unk36 = launchPayload->yaw;
+                gActorGlobalState.launchYaw = launchPayload->yaw;
                 break;
             case 0x2000:
                 if (node->unk4 != 0) {
-                    gActorGlobalState.unk24 = 1;
+                    gActorGlobalState.pickupReceived = 1;
                 } else {
-                    gActorGlobalState.unk25 = 1;
+                    gActorGlobalState.releaseReceived = 1;
                 }
                 gActorGlobalState.unk28 = node->source;
                 break;
@@ -1412,33 +1412,33 @@ void actorDispatchCallbacks(Actor *actor) {
                 }
                 break;
             case 0x1:
-                riderPayload = node->unk10;
-                if (actorTableContains(node->source) != 0 && gActorGlobalState.unk39 != 4) {
-                    gActorGlobalState.unk3C[gActorGlobalState.unk39][0] = riderPayload->x;
-                    gActorGlobalState.unk3C[gActorGlobalState.unk39][1] = riderPayload->y;
-                    gActorGlobalState.unk3C[gActorGlobalState.unk39][2] = riderPayload->z;
-                    gActorGlobalState.unk6C[gActorGlobalState.unk39] = riderPayload->pointIndex;
-                    gActorGlobalState.unk7C[gActorGlobalState.unk39] = node->source;
-                    gActorGlobalState.unk8C[gActorGlobalState.unk39] = riderPayload->spansNodes;
-                    gActorGlobalState.unk39++;
+                riderPayload = node->payload;
+                if (actorTableContains(node->source) != 0 && gActorGlobalState.riderCount != 4) {
+                    gActorGlobalState.riderPoints[gActorGlobalState.riderCount][0] = riderPayload->x;
+                    gActorGlobalState.riderPoints[gActorGlobalState.riderCount][1] = riderPayload->y;
+                    gActorGlobalState.riderPoints[gActorGlobalState.riderCount][2] = riderPayload->z;
+                    gActorGlobalState.unk6C[gActorGlobalState.riderCount] = riderPayload->pointIndex;
+                    gActorGlobalState.riderActors[gActorGlobalState.riderCount] = node->source;
+                    gActorGlobalState.unk8C[gActorGlobalState.riderCount] = riderPayload->spansNodes;
+                    gActorGlobalState.riderCount++;
                     actorRiderListAdd(actor, node->source);
                 }
                 break;
             case 0x20000:
-                hit = node->unk10;
-                if (gActorGlobalState.unk1F8 != 4) {
-                    memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk0, hit->pos, 0xC);
-                    memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unkC, hit->verts, 0x24);
-                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk30 = hit->mtxIndex;
-                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk34 = hit->hitRadius;
-                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk38 = hit->maxClamp;
-                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk3C = node->source;
-                    gActorGlobalState.unk1F8++;
+                hit = node->payload;
+                if (gActorGlobalState.collisionHitCount != 4) {
+                    memcpy(gActorGlobalState.collisionHits[gActorGlobalState.collisionHitCount].unk0, hit->pos, 0xC);
+                    memcpy(gActorGlobalState.collisionHits[gActorGlobalState.collisionHitCount].unkC, hit->verts, 0x24);
+                    gActorGlobalState.collisionHits[gActorGlobalState.collisionHitCount].unk30 = hit->mtxIndex;
+                    gActorGlobalState.collisionHits[gActorGlobalState.collisionHitCount].unk34 = hit->hitRadius;
+                    gActorGlobalState.collisionHits[gActorGlobalState.collisionHitCount].unk38 = hit->maxClamp;
+                    gActorGlobalState.collisionHits[gActorGlobalState.collisionHitCount].unk3C = node->source;
+                    gActorGlobalState.collisionHitCount++;
                 }
                 break;
             case 0x10000:
-                surfacePayload = node->unk10;
-                gActorGlobalState.unk91 = 1;
+                surfacePayload = node->payload;
+                gActorGlobalState.surfaceHitReceived = 1;
                 gActorGlobalState.unk92 = surfacePayload->yaw;
                 gActorGlobalState.unk94 = surfacePayload->speed;
                 memcpy(gActorGlobalState.unk98, surfacePayload->pos, 0xC);
@@ -1449,19 +1449,19 @@ void actorDispatchCallbacks(Actor *actor) {
                 gActorGlobalState.unkD4 = surfacePayload->maxClamp;
                 break;
             case 0x40000:
-                collisionValue = node->unk10;
+                collisionValue = node->payload;
                 collision = actor->collision;
                 if (collision != NULL) {
-                    collision->unk68 = *collisionValue;
+                    collision->actorPushDist = *collisionValue;
                 }
                 break;
             case 0x80000:
-                gActorGlobalState.unk38 = 1;
+                gActorGlobalState.childFreed = 1;
                 break;
             case 0x200000:
-                pointPair = node->unk10;
-                gActorGlobalState.unkF0 = pointPair[0];
-                gActorGlobalState.unkF4 = pointPair[1];
+                pointPair = node->payload;
+                gActorGlobalState.heldAlignPitch = pointPair[0];
+                gActorGlobalState.heldAlignYaw = pointPair[1];
                 break;
             case 0x400000:
                 gActorGlobalState.unkE8 = node->unk4;
@@ -1470,19 +1470,19 @@ void actorDispatchCallbacks(Actor *actor) {
             case 0x1000000:
                 if (gActorGlobalState.volumeTriggerQueueCount < 8) {
                     gActorGlobalState.volumeTriggerQueueOp[gActorGlobalState.volumeTriggerQueueCount] = node->unk4;
-                    gActorGlobalState.volumeTriggerQueueId[gActorGlobalState.volumeTriggerQueueCount] = node->unk10;
+                    gActorGlobalState.volumeTriggerQueueId[gActorGlobalState.volumeTriggerQueueCount] = node->payload;
                     gActorGlobalState.volumeTriggerQueueCount++;
                 }
                 break;
             case 0x800000:
-                eventPayload = node->unk10;
-                gActorGlobalState.unk4 = eventPayload->x;
-                gActorGlobalState.unk8 = eventPayload->y;
-                gActorGlobalState.unkC = eventPayload->z;
-                gActorGlobalState.unk10 = eventPayload->value0;
-                gActorGlobalState.unk12 = eventPayload->value1;
-                gActorGlobalState.unk2 = 1;
-                gActorGlobalState.unk14 = node->unk4;
+                eventPayload = node->payload;
+                gActorGlobalState.eventX = eventPayload->x;
+                gActorGlobalState.eventY = eventPayload->y;
+                gActorGlobalState.eventZ = eventPayload->z;
+                gActorGlobalState.eventValue0 = eventPayload->value0;
+                gActorGlobalState.eventValue1 = eventPayload->value1;
+                gActorGlobalState.eventReceived = 1;
+                gActorGlobalState.eventSubtype = node->unk4;
                 break;
             case 0x2000000:
                 gActorGlobalState.notifyReceived = 1;
@@ -1517,9 +1517,9 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
     s32 pad;
     s32 damageLevel;
 
-    gActorGlobalState.unk15 = 1;
+    gActorGlobalState.damaged = 1;
     if (actor == gActivePlayerActor) {
-        if (!(gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2 && attacker != NULL && (attacker->collisionFlags & 2))) {
+        if (!(gPlayerSlots[gActivePlayerState->playerIndex].sizeMode == 2 && attacker != NULL && (attacker->collisionFlags & 2))) {
             reaction = 0x2E;
             queueReaction = 1;
             if (heavy != 0) {
@@ -1630,9 +1630,9 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
 void actorCollisionEventsCancel(Actor *node, u8 event) {
     s32 i;
 
-    for (i = 0; i < gActorGlobalState.unk201; i++) {
-        if ((gActorGlobalState.unk244[i] == event) && (gActorGlobalState.unk204[i] == node)) {
-            gActorGlobalState.unk244[i] = 0;
+    for (i = 0; i < gActorGlobalState.collisionEventCount; i++) {
+        if ((gActorGlobalState.collisionEvents[i] == event) && (gActorGlobalState.collisionEventActors[i] == node)) {
+            gActorGlobalState.collisionEvents[i] = 0;
         }
     }
 }
@@ -1645,78 +1645,78 @@ void actorDispatchCollisionResults(Actor *actor) {
     f32 otherX;
     f32 otherZ;
 
-    for (i = 0; i < gActorGlobalState.unk201; i++) {
-        switch (gActorGlobalState.unk244[i]) {
+    for (i = 0; i < gActorGlobalState.collisionEventCount; i++) {
+        switch (gActorGlobalState.collisionEvents[i]) {
         case 0:
             break;
         case 1:
-            if (actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &hitX, &hitZ) != 0) {
-                actorAppendMoveTarget2D(actor, gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
+            if (actorCollisionGetNodeHitPoint(actor, gActorGlobalState.collisionEventActors[i], &hitX, &hitZ) != 0) {
+                actorAppendMoveTarget2D(actor, gActorGlobalState.collisionEventActors[i], hitX, hitZ, 0, 1);
             }
             break;
         case 2:
-            actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &otherX, &otherZ);
+            actorCollisionGetNodeHitPoint(actor, gActorGlobalState.collisionEventActors[i], &otherX, &otherZ);
             break;
         case 4:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 1, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 2, 1, 0, 0);
             break;
         case 3:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 2, 0, 0, 0);
             break;
         case 8:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 2, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 2, 2, 0, 0);
             break;
         case 10:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 3, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 2, 3, 0, 0);
             break;
         case 13:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 6, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 2, 6, 0, 0);
             break;
         case 11:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 4, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 2, 4, 0, 0);
             break;
         case 12:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 5, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 2, 5, 0, 0);
             break;
         case 6:
         case 7:
-            if (gActorGlobalState.unk244[i] == 6) {
-                actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x40, 0, 0, 0);
+            if (gActorGlobalState.collisionEvents[i] == 6) {
+                actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 0x40, 0, 0, 0);
             }
-            actorAppendMoveTarget3D(actor, gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x80, 0, 0, 0);
+            actorAppendMoveTarget3D(actor, gActorGlobalState.collisionEventActors[i], actor->x, actor->y, actor->z, 2, 1);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 0x80, 0, 0, 0);
             playerDropHeldActor(actor);
             break;
         case 5:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 8, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 8, 0, 0, 0);
             break;
         case 15:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 4, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 4, 0, 0, 0);
             break;
         case 9:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x1000, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 0x1000, 0, 0, 0);
             break;
         case 14:
-            actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x02000000, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.collisionEventActors[i], actor, 0x02000000, 0, 0, 0);
             break;
         }
     }
 
-    if (gActorGlobalState.unk39) {
-        for (i = 0; i < gActorGlobalState.unk39; i++) {
+    if (gActorGlobalState.riderCount) {
+        for (i = 0; i < gActorGlobalState.riderCount; i++) {
             if (gActorGlobalState.unk8C[i] == 0) {
-                collisionTransformPointByActorMtx(actor, gActorGlobalState.unk6C[i], &gActorGlobalState.unk3C[i][0], gActorGlobalState.unk3C[i][1], &gActorGlobalState.unk3C[i][2]);
-                actorAppendMoveTarget2D(actor, gActorGlobalState.unk7C[i], gActorGlobalState.unk3C[i][0], gActorGlobalState.unk3C[i][2], 1, 1);
+                collisionTransformPointByActorMtx(actor, gActorGlobalState.unk6C[i], &gActorGlobalState.riderPoints[i][0], gActorGlobalState.riderPoints[i][1], &gActorGlobalState.riderPoints[i][2]);
+                actorAppendMoveTarget2D(actor, gActorGlobalState.riderActors[i], gActorGlobalState.riderPoints[i][0], gActorGlobalState.riderPoints[i][2], 1, 1);
             }
         }
     }
 
-    if (gActorGlobalState.unk91 != 0) {
+    if (gActorGlobalState.surfaceHitReceived != 0) {
         actorCollisionResolveSurfaceHit(actor, gActorGlobalState.unkCC, gActorGlobalState.unk98, gActorGlobalState.unkA4, gActorGlobalState.unkC8, gActorGlobalState.unkD0, gActorGlobalState.unkD4, 1);
     }
 
-    for (i = 0; i < gActorGlobalState.unk1F8; i++) {
-        actorCollisionResolveSurfaceHit(actor, gActorGlobalState.unkF8[i].unk3C, gActorGlobalState.unkF8[i].unk0, gActorGlobalState.unkF8[i].unkC, gActorGlobalState.unkF8[i].unk30, gActorGlobalState.unkF8[i].unk34, gActorGlobalState.unkF8[i].unk38, 0);
+    for (i = 0; i < gActorGlobalState.collisionHitCount; i++) {
+        actorCollisionResolveSurfaceHit(actor, gActorGlobalState.collisionHits[i].unk3C, gActorGlobalState.collisionHits[i].unk0, gActorGlobalState.collisionHits[i].unkC, gActorGlobalState.collisionHits[i].unk30, gActorGlobalState.collisionHits[i].unk34, gActorGlobalState.collisionHits[i].unk38, 0);
     }
 }
 
@@ -1830,7 +1830,7 @@ void actorAppendEvent(Actor *source, Actor *target, u8 subtype, s16 value0, s16 
 
 void actorGlobalStateClearEvents(void) {
     gActorGlobalState.unkE5 = 0;
-    gActorGlobalState.unk15 = 0;
+    gActorGlobalState.damaged = 0;
     gActorGlobalState.unk16 = 0;
     gActorGlobalState.unk17 = 0;
     gActorGlobalState.unk18 = 0;
@@ -1838,24 +1838,24 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.unk1B = 0;
     gActorGlobalState.unk1A = 0;
     gActorGlobalState.unk1C = 0;
-    gActorGlobalState.unk24 = 0;
-    gActorGlobalState.unk25 = 0;
-    gActorGlobalState.unk2C = 0;
-    gActorGlobalState.unk38 = 0;
-    gActorGlobalState.unkE4 = 0;
-    gActorGlobalState.unk90 = 0;
-    gActorGlobalState.unk39 = 0;
-    gActorGlobalState.unk91 = 0;
-    gActorGlobalState.unk1F8 = 0;
+    gActorGlobalState.pickupReceived = 0;
+    gActorGlobalState.releaseReceived = 0;
+    gActorGlobalState.launchReceived = 0;
+    gActorGlobalState.childFreed = 0;
+    gActorGlobalState.destPointReceived = 0;
+    gActorGlobalState.collisionModeReceived = 0;
+    gActorGlobalState.riderCount = 0;
+    gActorGlobalState.surfaceHitReceived = 0;
+    gActorGlobalState.collisionHitCount = 0;
     gActorGlobalState.targetActor = 0;
     gActorGlobalState.bossFightPhase = 0;
-    gActorGlobalState.unk201 = 0;
+    gActorGlobalState.collisionEventCount = 0;
     gActorGlobalState.volumeTriggerQueueCount = 0;
-    gActorGlobalState.unk2 = 0;
+    gActorGlobalState.eventReceived = 0;
     gActorGlobalState.notifyReceived = 0;
     gActorGlobalState.unkE8 = 0.0f;
-    gActorGlobalState.unkF0 = 0.0f;
-    gActorGlobalState.unkF4 = 0.0f;
+    gActorGlobalState.heldAlignPitch = 0.0f;
+    gActorGlobalState.heldAlignYaw = 0.0f;
 }
 
 void actorUpdatePrevContactFlags(Actor *actor) {

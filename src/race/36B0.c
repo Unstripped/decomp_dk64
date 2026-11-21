@@ -183,7 +183,7 @@ f32 raceGetCompletionFraction(RacePathState *cursor, RaceParticipant *state, Rac
     result = 0.0f;
     if (lap > 0) {
         count = gMinecartTrackPoints[cursor->lane + 1] - gMinecartTrackPoints[cursor->lane];
-        num = (lap - 1) * count + state->unk3A;
+        num = (lap - 1) * count + state->routePos;
         den = leaderState->lapCount * count;
         result = num / den;
     }
@@ -286,7 +286,7 @@ void raceAiUpdateSpeedAndLane(void) {
     }
     if (distToTarget < -7000.0f) {
         targetState = targetActor->customState;
-        targetState->unk45 = 1;
+        targetState->eliminated = 1;
     }
     raceTarget->distSq = distToTarget;
 }
@@ -330,7 +330,7 @@ void racePlayTireScreechSfx(void) {
     state = ((RaceCarActor *)gCurrentActor)->participant;
     targetActor = state->actor;
     targetState = targetActor->customState;
-    switch (targetState->unk1C) {
+    switch (targetState->phaseTimer) {
     case 0x5A:
         sfxPlayActorSound(gCurrentActor, 0x107, 0, 1, 0, 0xFF, 1.0f, 0);
     case 0x1D:
@@ -343,22 +343,22 @@ void racePlayTireScreechSfx(void) {
     case 0x47:
     case 0x4E:
     case 0x54:
-        sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x187, 0xFF, (s32)(((f64)(targetState->unk1C - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
+        sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x187, 0xFF, (s32)(((f64)(targetState->phaseTimer - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
         break;
     }
 }
 
 extern s16 gSfxSourceVoice[];
 extern f32 gSfxVoicePitch[];
-extern f32 D_80770BC0[];
+extern f32 gSfxVoiceModCounter[];
 
 void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
     s16 idx;
 
     idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
-    gCurrentActor->unk74 = 1.0f;
+    gCurrentActor->soundVolume = 1.0f;
     gSfxVoicePitch[idx] = (f64)(moveSpeed * 0.05f) + 1.0;
-    D_80770BC0[idx] = 1.0f;
+    gSfxVoiceModCounter[idx] = 1.0f;
 }
 
 s32 raceCarResultCamPathIds[5] = { 2, 1, 4, 3, 0 };
@@ -396,7 +396,7 @@ void raceOpponentCarBehaviorUpdate(void) {
             camStartPath(gCurrentActor, 0, 1);
             flagSet(0x12, 1, 2);
         } else {
-            state->unk35 = 3;
+            state->statusStep = 3;
         }
         currentActorClearFlag();
         gTextNumberArg = 0xA;
@@ -432,26 +432,26 @@ void raceOpponentCarBehaviorUpdate(void) {
     }
     raceUpdateOpponentEnginePitch(gCurrentActor->speedXZ);
     if (state->raceStatus == 0) {
-        switch (state->unk35) {
+        switch (state->statusStep) {
         case 0:
             if (gCurrentActor->flags & 0x02000000) {
-                state->unk35++;
+                state->statusStep++;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
-                state->unk35++;
+                state->statusStep++;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                state->unk35++;
+                state->statusStep++;
             }
             break;
         }
-        if (state->unk35 < 3) {
+        if (state->statusStep < 3) {
             raceSetIntroCutscenePhase(targetActor);
         } else {
             raceClearIntroCutscenePhase(targetActor);
@@ -460,7 +460,7 @@ void raceOpponentCarBehaviorUpdate(void) {
             }
         }
     } else if (state->raceStatus == 4) {
-        if (state->unk35 == 0) {
+        if (state->statusStep == 0) {
             if (flagGet(0x8B, 0) == 0) {
                 pathId = raceCarResultCamPathIds[raceCheckLapCompletionThreshold(state, raceTarget->participant, 0xA)];
                 camStartPath(gCurrentActor, pathId, 1);
@@ -468,10 +468,10 @@ void raceOpponentCarBehaviorUpdate(void) {
             } else {
                 mapCheckAutoTransition();
             }
-            state->unk35++;
+            state->statusStep++;
         }
     } else if (state->raceStatus == 5) {
-        switch (state->unk35) {
+        switch (state->statusStep) {
         case 0:
             if (flagGet(0x8B, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
@@ -483,27 +483,27 @@ void raceOpponentCarBehaviorUpdate(void) {
                     }
                 }
             }
-            state->unk35++;
+            state->statusStep++;
             break;
         case 1:
             if (gCurrentActor->flags & 0x02000000) {
-                state->unk35++;
+                state->statusStep++;
             }
             break;
         case 2:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
                 if ((state->place == 0) || (slotQueueGetValue(0xB, 0) < 0xA)) {
-                    state->unk35 = 3;
+                    state->statusStep = 3;
                 }
-                state->unk35++;
+                state->statusStep++;
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 csModelStateSetFirstByte(0x62, 0xA);
-                state->unk35++;
+                state->statusStep++;
             }
             break;
         case 4:
@@ -514,7 +514,7 @@ void raceOpponentCarBehaviorUpdate(void) {
                 } else {
                     hudSpawnTextScreen(1);
                 }
-                state->unk35++;
+                state->statusStep++;
             }
             break;
         }
@@ -558,7 +558,7 @@ void raceCameraBehaviorUpdate(void) {
     }
     if (state->raceStatus != targetState->raceStatus) {
         state->raceStatus = targetState->raceStatus;
-        state->unk35 = 0;
+        state->statusStep = 0;
     }
     dist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
     if (cursor->targetLane != targetCursor->targetLane) {
@@ -642,7 +642,7 @@ void raceObstacleCarBehaviorUpdate(void) {
     }
     targetActor = cursor->targetActor;
     targetState = ((RaceCarActor *)targetActor)->participant;
-    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
+    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->state = 0x40;
     }

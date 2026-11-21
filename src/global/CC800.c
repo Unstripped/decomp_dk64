@@ -219,20 +219,20 @@ void playerAllocSlots(s32 spawnIndex) {
             blk->rect[3] *= 2;
             blk->rect[3] -= 1;
         }
-        blk->unk278 = blk->rect[2] - blk->rect[0];
-        blk->unk27A = blk->rect[3] - blk->rect[1];
+        blk->rectWidth = blk->rect[2] - blk->rect[0];
+        blk->rectHeight = blk->rect[3] - blk->rect[1];
         blk->fov = 45.0f;
         blk->nearClip = 10.0f;
-        blk->unk280 = (f32)blk->unk278 / (f32)blk->unk27A;
+        blk->aspect = (f32)blk->rectWidth / (f32)blk->rectHeight;
         blk->farClip = gGfxFarClip;
-        blk->unk290 = 0;
+        blk->camChunk = 0;
         blk->contPad = &gControllerPads[i];
         blk->heldButtonsPtr = &gPadPressedButtons[i];
         blk->queuedState = -1;
-        blk->unk2C0 = 1;
+        blk->sizeMode = 1;
         blk->sizeModeDirty = 1;
-        blk->unk2EA = 0;
-        blk->unk2EB = 0;
+        blk->viewFadingOut = 0;
+        blk->rumbleDisabled = 0;
         healthHudReset(&blk->healthHud);
         if (((gGlobalOverlayFlags & 1) && !(gGlobalCutsceneFlags & 2)) ||
             (gPlayerInventoryTable[i].health + gPlayerInventoryTable[i].healthDelta <= 0)) {
@@ -274,10 +274,10 @@ void cameraSetViewportYRange(s16 top, s16 bottom) {
     PlayerStruct *p;
 
     p = gPlayerSlots;
-    p->unk27A = bottom - top;
+    p->rectHeight = bottom - top;
     p->rect[1] = top;
     p->rect[3] = bottom;
-    p->unk280 = (f32)p->unk278 / (f32)p->unk27A;
+    p->aspect = (f32)p->rectWidth / (f32)p->rectHeight;
 }
 
 void kongChainInit(s32 mode, KongChain *chains, u32 kind) {
@@ -360,8 +360,8 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     actorSpawn(row->actorType, row->model);
     gSpawnedActor->flags &= ~0x1000;
     gSpawnedActor->flags |= row->actorFlags;
-    gSpawnedActor->unk16E[0] = 0x42;
-    gSpawnedActor->unk16E[1] = 0x42;
+    gSpawnedActor->shadowScale[0] = 0x42;
+    gSpawnedActor->shadowScale[1] = 0x42;
     gSpawnedActor->flags |= 0x01000000;
     if (gPlayerCount >= 2) {
         gSpawnedActor->renderFlags |= 0x200;
@@ -663,7 +663,7 @@ void playerRespawnResetPhysics(s32 spawnIndex) {
 void playerRevertAnimalTransformation(Actor *actor, PlayerState *ps) {
     s32 i;
 
-    if (gPlayerSlots[ps->playerIndex].unk2C0 != 1) {
+    if (gPlayerSlots[ps->playerIndex].sizeMode != 1) {
         playerSetSizeMode(gActivePlayerActor, 1);
     }
     if (actor->sub4->scale[0] != ps->targetScale[0]) {
@@ -898,9 +898,9 @@ void playerCopyCameraToEye(u8 playerIndex) {
     p->eyeX = p->camX;
     p->eyeY = p->camY;
     p->eyeZ = p->camZ;
-    p->unk234 = p->focusX;
-    p->unk238 = p->focusY;
-    p->unk23C = p->focusZ;
+    p->eyeFocusX = p->focusX;
+    p->eyeFocusY = p->focusY;
+    p->eyeFocusZ = p->focusZ;
 }
 
 s32 playerKongHasWorldGoldenBanana(void) {

@@ -414,7 +414,7 @@ void actorShockwaveUpdate(void) {
             if (gCurrentActor->unk15F != 0 && actorSpawn(0x102, gCurrentActor->movePitch) != 0) {
                 if (gCurrentActor->sub4->model->frame > 9.0f) {
                     controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
-                    scriptSetActorRampTarget(gSpawnedActor, gCurrentActor->sub4->unk48, 0.0f);
+                    scriptSetActorRampTarget(gSpawnedActor, gCurrentActor->sub4->speed, 0.0f);
                 }
                 actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
                 gSpawnedActor->movePitch = gCurrentActor->movePitch;
@@ -681,7 +681,7 @@ typedef struct {
 
 
 extern f32 D_80750398;
-extern u8 D_80720BE8;
+extern u8 gEffectSpriteSmokeCloud;
 
 void actorFallAndBurstUpdate(void) {
     NodePosition pos;
@@ -719,7 +719,7 @@ void actorFallAndBurstUpdate(void) {
             effectSetDepth(1);
             effectSetCallback(effectSpinBillboardingUpdate);
             effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
-            effectCreateAtPosition(&D_80720BE8, 1.5f, pos.x, pos.y, pos.z);
+            effectCreateAtPosition(&gEffectSpriteSmokeCloud, 1.5f, pos.x, pos.y, pos.z);
         }
         actorDespawn(gCurrentActor);
     }
@@ -852,7 +852,7 @@ void actorMirrorParentModelAxis(void) {
           && (sub->parent->flags2 & 0x80))) {
         actorDespawn(gCurrentActor);
         triggerZoneRemoveSpawned(gCurrentActor);
-        sub->parent->unk156--;
+        sub->parent->mirrorCount--;
         return;
     }
     gCurrentActor->alpha = sub->alpha;

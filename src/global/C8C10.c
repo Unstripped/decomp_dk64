@@ -77,7 +77,7 @@ void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId)
     switch (gCurrentActor->state) {
         case 0x27:
             if ((gBehaviourWorkState->flags & 4) && (gBehaviourWorkState->waypointIndex & 0x7F) == startActionId) {
-                if (gPlayerSlots->unk2C0 == 0) {
+                if (gPlayerSlots->sizeMode == 0) {
                     resQueueAttachActor(gCurrentActor, 0x10, 1);
                     gCurrentActor->state = 0x29;
                     gCurrentActor->unk155 = 0;

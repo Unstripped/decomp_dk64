@@ -48,7 +48,7 @@ void timedSmokeTargetHostUpdate(void) {
         actorScriptStart(gCurrentActor, 0x300);
         sfxPlayActorSound(gCurrentActor, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
     }
-    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
+    if (gActorGlobalState.damaged != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->parentActor->state = 0;
         camStartPath(gCurrentActor, 6, 5);
         gCurrentActor->collisionMode = 1;
@@ -142,7 +142,7 @@ void smokeTargetChaserUpdate(void) {
         gBehaviourWorkState->targetActor = gPrimaryPlayerActor;
         gBehaviourTargetActor = gBehaviourWorkState->targetActor;
     }
-    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
+    if (gActorGlobalState.damaged != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->collisionMode = 1;
         gCurrentActor->state = 0x40;
         tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->sub4->scaleY / 0.15, 0, 1);

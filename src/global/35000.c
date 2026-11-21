@@ -485,7 +485,7 @@ Gfx *renderActorEntryBuildDisplayList(FrameMatrices *frame, Actor *actor, Gfx *g
             primG = actor->tintG;
             primB = actor->tintB;
         } else {
-            node = actor->unkCD;
+            node = actor->lightNodeId;
             if (node) {
                 actorGetNodePos(actor, node, &lightX, &lightY, &lightZ);
             } else {

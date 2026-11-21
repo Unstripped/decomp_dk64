@@ -168,7 +168,7 @@ s32 actorCheckPlayerProximityVertical(Actor *actor, Actor *player, ActorCollisio
 u8 actorTargetIsGiantKong(Actor *actor, Actor *player, ActorCollisionList *list) {
     if (player->actorType == 6) {
         u8 index = ((PlayerState *)player->customState)->playerIndex;
-        if (gPlayerSlots[index].unk2C0 != 1) {
+        if (gPlayerSlots[index].sizeMode != 1) {
             return 1;
         }
     }
@@ -178,7 +178,7 @@ u8 actorTargetIsGiantKong(Actor *actor, Actor *player, ActorCollisionList *list)
 u8 actorTargetIsMiniKong(Actor *actor, Actor *player, ActorCollisionList *list) {
     if (player->actorType == 5) {
         u8 index = ((PlayerState *)player->customState)->playerIndex;
-        if (gPlayerSlots[index].unk2C0 != 1) {
+        if (gPlayerSlots[index].sizeMode != 1) {
             return 1;
         }
     }
@@ -194,7 +194,7 @@ u8 playerIsGiantAgainstEnemy(Actor *actor, Actor *target, ActorCollisionList *li
     u8 ret = 0;
 
     if (target->collisionFlags & 2) {
-        ret = gPlayerSlots[index].unk2C0 == 2;
+        ret = gPlayerSlots[index].sizeMode == 2;
         if (ret && gPlayerCount == 1) {
             ret = actor->actorType == 6;
         }
@@ -212,7 +212,7 @@ u8 playerIsGiantLandingOnEnemy(Actor *actor, Actor *target, ActorCollisionList *
 
 u8 actorTargetIsLargeMode(Actor *actor, Actor *target, ActorCollisionList *list) {
     u8 index = ((PlayerState *)target->customState)->playerIndex;
-    return gPlayerSlots[index].unk2C0 == 2;
+    return gPlayerSlots[index].sizeMode == 2;
 }
 
 u8 actorCheckTargetOnSurfaceOrSmaller(Actor *actor, Actor *target, ActorCollisionList *list) {

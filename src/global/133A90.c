@@ -226,7 +226,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     bestDist = 9999.0f;
     best = NULL;
     if (isPlayer) {
-        isPlayer = gPlayerSlots[state->playerIndex].unk2C0 == 2;
+        isPlayer = gPlayerSlots[state->playerIndex].sizeMode == 2;
     }
     while (node != NULL) {
         got = proxPathGetActorPosition(node->owner.actor, node->slotType, &x, &y, &z);

@@ -233,9 +233,9 @@ void bossMadJackStep(void) {
 attackSequence:
         switch (gCurrentActor->unk155) {
         case 0:
-            scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
-            scriptState->unk18[1] = scriptState->unk18[0];
-            scriptState->unk8[0] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->byteVars[1] = scriptState->byteVars[0];
+            scriptState->vars[0] = scriptOpcodes[scriptState->scriptPos++];
             if (gCurrentActor->state == 0x46) {
                 gCurrentActor->unk155 = 2;
             } else {
@@ -268,7 +268,7 @@ attackSequence:
                 break;
             case 0x46:
                 projectileSpawnNodeEntry(0x1E, 0x63, 0.7f, gCurrentActor->yaw, 300.0f, 0.0f, gCurrentActor);
-                gBehaviourWorkState->timer = scriptState->unk8[0];
+                gBehaviourWorkState->timer = scriptState->vars[0];
                 gCurrentActor->unk155 = 8;
                 break;
             default:
@@ -280,7 +280,7 @@ attackSequence:
         case 6:
             actorScriptStart(gCurrentActor, 0x213);
             gCurrentActor->unk155++;
-            scriptState->unk18[0] = scriptState->unk18[1];
+            scriptState->byteVars[0] = scriptState->byteVars[1];
             break;
         case 7:
             angleOffset = ((randomNonNegative() >> 15) % 1024) - 0x200;
@@ -288,7 +288,7 @@ attackSequence:
             targetZ = mathCosF(gBehaviourTargetActor->yaw + angleOffset) * (gBehaviourTargetActor->speedXZ * 1.2) + gBehaviourTargetActor->z;
             projectileSetTargetCoords(targetX, gBehaviourTargetActor->y + 500.0f, targetZ);
             projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, gBehaviourTargetActor->y, targetZ, 600.0f, gCurrentActor);
-            gBehaviourWorkState->timer = scriptState->unk8[0];
+            gBehaviourWorkState->timer = scriptState->vars[0];
             gCurrentActor->unk155 = 9;
             /* fallthrough */
         case 9:
@@ -296,8 +296,8 @@ attackSequence:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
-                scriptState->unk18[0]--;
-                if (scriptState->unk18[0] != 0) {
+                scriptState->byteVars[0]--;
+                if (scriptState->byteVars[0] != 0) {
                     if (gCurrentActor->state == 0x46) {
                         gCurrentActor->unk155 = 2;
                     } else {
@@ -323,12 +323,12 @@ attackSequence:
         case 0:
         case 1:
             actorScriptStart(gCurrentActor, 0x213);
-            scriptState->unk8[0] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->vars[0] = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 2;
             break;
         default:
-            if (scriptState->unk8[0] != 0) {
-                scriptState->unk8[0]--;
+            if (scriptState->vars[0] != 0) {
+                scriptState->vars[0]--;
             } else {
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;

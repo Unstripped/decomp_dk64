@@ -561,7 +561,7 @@ extern s16 D_807538E8[];
 extern s16 D_807538F8[];
 extern f32 D_80753988[];
 extern s16 D_807539FC[];
-extern f32 D_80753A5C[];
+extern f32 gKongSwimBuoyancy[];
 
 void playerStateCheckLandingAir(void) {
     f32 rise;
@@ -576,7 +576,7 @@ void playerStateCheckLandingAir(void) {
     f32 decel;
 
     playerThrowHeldActor(gActivePlayerActor);
-    decelMinSigned = D_80753A5C[gCurrentCharacterIndex];
+    decelMinSigned = gKongSwimBuoyancy[gCurrentCharacterIndex];
     if (decelMinSigned > 0.0f) {
         decelMin = decelMinSigned;
     } else {
@@ -631,7 +631,7 @@ void playerStateEnterKnockbackRecovery(void) {
     gActivePlayerState->decelRate = D_80753940[gCurrentCharacterIndex];
     actorScriptStartByIndex(gActivePlayerActor, 0x3E);
     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
 }
 
 void playerStateEnterDamageKnockback(void) {
@@ -698,7 +698,7 @@ void playerStateEnterAction24(void) {
 void playerStateEnterHoldThrow(void) {
     f32 height;
 
-    if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+    if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
         height = D_80753D70[gCurrentCharacterIndex];
     } else {
         height = D_80753D8C[gCurrentCharacterIndex];
@@ -771,7 +771,7 @@ void playerStateTakeHitAndDamage(void) {
 }
 
 void playerStateEnterState10(void) {
-    if ((gPlayerCount >= 2) || (gActivePlayerActor->actorType != 6) || (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
+    if ((gPlayerCount >= 2) || (gActivePlayerActor->actorType != 6) || (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1)) {
         gActivePlayerActor->speedY = 260.0f;
         playerSetBaseGravity();
         gActivePlayerState->unk50 = 0;
@@ -1381,7 +1381,7 @@ void playerTakeDamage(s16 damage) {
     isDeep = 0;
     if (gActivePlayerActor->contactFlags & 4) {
         depth = gCurrentActor->waterY - gCurrentActor->floorY;
-        if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+        if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
             deepThreshold = D_8075386C[gCurrentCharacterIndex];
         } else {
             deepThreshold = D_8075389C[gCurrentCharacterIndex];
@@ -1856,7 +1856,7 @@ void playerStateSetFlagsByActorType(void) {
         ev = 4;
         break;
     case 5:
-        if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+        if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
             ev = 8;
         } else {
             ev = 0x1F;
@@ -1925,7 +1925,7 @@ void playerStateEnterDoubleJumpWithSfx(void) {
 }
 
 void func_806F0878(void) {
-    if (gActivePlayerActor->unk78[0] == 0xC) {
+    if (gActivePlayerActor->floorTriSurface[0] == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0x64, 0x7F, 0);
     }
     gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
@@ -1938,7 +1938,7 @@ void func_806F0878(void) {
 }
 
 void func_806F0930(void) {
-    if (gActivePlayerActor->unk78[0] == 0xC) {
+    if (gActivePlayerActor->floorTriSurface[0] == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0xFF, 0x7F, 0);
     }
     gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];

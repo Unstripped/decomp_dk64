@@ -19,7 +19,7 @@ void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, u8 phase, 
         if (ps->surfaceTimer == (ps->playerIndex * 0)) { // FAKE: 2nd use makes the 0x1A4 load a web, attacker gets no reg and stays in 0x38(sp)
             if (gPrimaryPlayerActor->state != 0x36) {
                 if (playerCanTakeHit(gPrimaryPlayerActor)) {
-                    if (gPrimaryPlayerActor->actorType == 6 && gPlayerSlots[playerIndex].unk2C0 == 2) {
+                    if (gPrimaryPlayerActor->actorType == 6 && gPlayerSlots[playerIndex].sizeMode == 2) {
                         if (gPrimaryPlayerActor->state != 0x31) {
                             if (attacker->collisionFlags & 0x80) {
                                 sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);

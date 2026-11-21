@@ -41,7 +41,7 @@ void raceInitParticipantArray(Actor *actor, s32 count) {
     managerData->pairs = allocated;
     heapClearBlock(allocated);
     managerData->participantCount = count;
-    managerData->unk1C = 0xFFFF;
+    managerData->phaseTimer = 0xFFFF;
     actor->state = 0;
 }
 
@@ -54,13 +54,13 @@ void raceRegisterParticipant(Actor *manager, s32 slot, Actor *participant, RaceP
     pairs = managerData->pairs;
     pairs[slot].actor = participant;
     pairs[slot].data = participantData;
-    participantData->unk45 = 0;
-    participantData->unk3A = 0;
+    participantData->eliminated = 0;
+    participantData->routePos = 0;
     participantData->lap = 1;
     if (participantData->isCpu == 0) {
         route = raceGetRoute(managerData->route);
         if (route != NULL) {
-            participantData->unk3C = route->count - 1;
+            participantData->activeGatePos = route->count - 1;
             raceActivateNextGate(participantData, route);
         }
         participantData->viewport = cameraFindViewportEntry(participantData->playerIdx);
@@ -151,9 +151,9 @@ Gfx *raceRenderCountdownText(Gfx *dl, Actor *actor) {
     textX = gScreenWidth / 2;
     managerData = actor->customState;
     if (actor->state == 2 || actor->state == 1) {
-        if (managerData->unk1C < 0x78) {
-            if (managerData->unk1C < 0x5A) {
-                countdownVal = (0x78 - managerData->unk1C) / 30;
+        if (managerData->phaseTimer < 0x78) {
+            if (managerData->phaseTimer < 0x5A) {
+                countdownVal = (0x78 - managerData->phaseTimer) / 30;
                 if (countdownVal >= 3) {
                     countdownVal = 3;
                 }
@@ -161,7 +161,7 @@ Gfx *raceRenderCountdownText(Gfx *dl, Actor *actor) {
                 heapFreeDeferred(textStr);
                 _sprintf(textStr, "%d", countdownVal);
             } else {
-                fadeFactor = (f32)(0x78 - managerData->unk1C) * 0.033333335f;
+                fadeFactor = (f32)(0x78 - managerData->phaseTimer) * 0.033333335f;
                 alpha = (u8)(u32)((f32)alpha * fadeFactor);
                 textStr = textTableGetString(0x26, 9, 1);
             }
@@ -250,7 +250,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     }
     WRITE_GFX(dl++, 0xFA000000, 0xFF0000FF);
     count = 0;
-    if ((5 - tracker->unk44) > 0) {
+    if ((5 - tracker->gateMissesLeft) > 0) {
         xOffset = 0;
         do {
             xOffsetF = xOffset;
@@ -258,7 +258,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
             count += 1;
             xOffset += 0x18;
             dl = next; // FAKE: delayed dl update steers the loop schedule
-        } while (count < (5 - tracker->unk44));
+        } while (count < (5 - tracker->gateMissesLeft));
     }
     WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
     return dl;
@@ -329,7 +329,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         if ((placeIdx + 1) == managerData->participantCount) {
             placeIdx = 3;
         }
-        if (tracker->unk45 != 0) {
+        if (tracker->eliminated != 0) {
             placeIdx = 4;
         }
         dl = textDrawStringVtx(dl, 1, (s16)(2.0f * (textX * 4)), (s16)(2.0f * (textY * 4)), textTableGetString(0x26, sRacePlaceTextIds[placeIdx], 1), 4);
@@ -495,11 +495,11 @@ void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
 
     if (pair->data->raceStatus != newStatus) {
         pair->data->raceStatus = newStatus;
-        pair->data->unk35 = 0;
+        pair->data->statusStep = 0;
         if (newStatus == 3) {
             managerData = gCurrentActor->customState;
             slot = pair->data->place;
-            if (slot + 1 == managerData->participantCount || pair->data->unk45 != 0) {
+            if (slot + 1 == managerData->participantCount || pair->data->eliminated != 0) {
                 slot = 3;
             }
             if (pair->data->isCpu == 0) {
@@ -647,14 +647,14 @@ void raceUpdateStandings(void) {
             p = &pairs[j - 1];
             q = &pairs[j];
             swap = 0;
-            if (p->data->unk45 != 0 && q->data->unk45 == 0) {
+            if (p->data->eliminated != 0 && q->data->eliminated == 0) {
                 swap = 1;
             } else if (p->data->lap < q->data->lap) {
                 swap = 1;
             } else if (p->data->lap == q->data->lap) {
-                if (p->data->unk3A < q->data->unk3A) {
+                if (p->data->routePos < q->data->routePos) {
                     swap = 1;
-                } else if (p->data->unk3A == q->data->unk3A && q->data->unk40 < p->data->unk40) {
+                } else if (p->data->routePos == q->data->routePos && q->data->nextPointDist < p->data->nextPointDist) {
                     swap = 1;
                 }
             }
@@ -668,7 +668,7 @@ void raceUpdateStandings(void) {
     q = pairs;
     for (i = 0; i < managerData->participantCount; i++, q++) {
         q->data->place = i;
-        if (q->data->unk45 != 0 || (q->data->raceStatus == 2 && managerData->lapCount < q->data->lap)) {
+        if (q->data->eliminated != 0 || (q->data->raceStatus == 2 && managerData->lapCount < q->data->lap)) {
             raceSetParticipantRaceStatus(q, 3);
             finishedCount++;
         }
@@ -676,7 +676,7 @@ void raceUpdateStandings(void) {
     if (finishedCount >= managerData->participantCount - 1) {
         raceSetAllParticipantsStatus(3);
         racePlayResultSfx();
-        managerData->unk1C = 0;
+        managerData->phaseTimer = 0;
     }
 }
 
@@ -685,7 +685,7 @@ void raceSetIntroCutscenePhase(Actor *actor) {
 
     if (actor != NULL && actor->state == 0) {
         managerData = actor->customState;
-        managerData->unk1C = 2;
+        managerData->phaseTimer = 2;
     }
 }
 
@@ -694,7 +694,7 @@ void raceClearIntroCutscenePhase(Actor *actor) {
 
     if (actor != NULL && actor->state == 0) {
         managerData = actor->customState;
-        managerData->unk1C = 0;
+        managerData->phaseTimer = 0;
     }
 }
 
@@ -712,46 +712,46 @@ void raceManagerBehaviorUpdate(void) {
 
     managerData = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        managerData->unk1C = 0x1E;
+        managerData->phaseTimer = 0x1E;
     }
     switch (gCurrentActor->state) {
     case 0:
-        if (managerData->unk1C) {
-            managerData->unk1C--;
+        if (managerData->phaseTimer) {
+            managerData->phaseTimer--;
         } else {
             raceSetAllParticipantsStatus(1);
         }
         break;
     case 1:
-        if (managerData->unk1C < 0x5B) {
-            if (managerData->unk1C % 30 == 0) {
+        if (managerData->phaseTimer < 0x5B) {
+            if (managerData->phaseTimer % 30 == 0) {
                 sound = 0x75;
-                if (managerData->unk1C == 0x5A) {
+                if (managerData->phaseTimer == 0x5A) {
                     raceSetAllParticipantsStatus(2);
                     sound = 0x74;
                     racePlayStartRaceMusic();
                 }
                 sfxPlayOnFreeSlot(sound, 0x7FFF, 64.0f, 1.0, 0, 0x80);
             }
-            managerData->unk1C++;
+            managerData->phaseTimer++;
         }
         break;
     case 2:
-        if (managerData->unk1C < 0x78) {
-            managerData->unk1C++;
+        if (managerData->phaseTimer < 0x78) {
+            managerData->phaseTimer++;
         }
         raceUpdateStandings();
         break;
     case 3:
         if (gCurrentMap == 0xE || gCurrentMap == 0x52) {
             raceSetAllParticipantsStatus(4);
-            managerData->unk1C = 0x32;
+            managerData->phaseTimer = 0x32;
         } else {
-            managerData->unk1C++;
-            if (managerData->unk1C >= 0x78) {
+            managerData->phaseTimer++;
+            if (managerData->phaseTimer >= 0x78) {
                 if (managerData->hasCpuRival == 1) {
                     raceSetAllParticipantsStatus(4);
-                    managerData->unk1C = 0x32;
+                    managerData->phaseTimer = 0x32;
                 } else {
                     raceSetAllParticipantsStatus(6);
                 }
@@ -759,8 +759,8 @@ void raceManagerBehaviorUpdate(void) {
         }
         break;
     case 4:
-        if (managerData->unk1C) {
-            managerData->unk1C--;
+        if (managerData->phaseTimer) {
+            managerData->phaseTimer--;
         } else {
             pairs = managerData->pairs;
             for (i = 0; i < managerData->participantCount; i++) {
@@ -1127,9 +1127,9 @@ void racePlayerTrackerBehaviorUpdate(void) {
     if ((raceData->raceStatus > 0) && (raceData->raceStatus < 5)) {
         renderCallbacksRegister(racePlayerHudRenderCallback, gCurrentActor, 3);
     }
-    raceData->maxNextPointDistSq = (raceData->unk40 < raceData->maxNextPointDistSq) ? raceData->maxNextPointDistSq : raceData->unk40;
+    raceData->maxNextPointDistSq = (raceData->nextPointDist < raceData->maxNextPointDistSq) ? raceData->maxNextPointDistSq : raceData->nextPointDist;
     curMax = raceData->maxProgressScore;
-    diff = (f32)(raceData->unk3A * 3000) - raceData->unk40;
+    diff = (f32)(raceData->routePos * 3000) - raceData->nextPointDist;
     raceData->progressScore = diff;
     raceData->maxProgressScore = (diff < curMax) ? curMax : raceData->progressScore;
 }
@@ -1189,7 +1189,7 @@ void raceHandleRacerCollision(RaceTarget *target) {
 s32 raceCheckLapCompletionThreshold(RaceParticipant *participant, RaceParticipant *other, s32 threshold) {
     s32 ret;
 
-    if (other->unk45 != 0) {
+    if (other->eliminated != 0) {
         ret = 0;
     } else if (participant->place != 0) {
         if (slotQueueGetValue(11, 0) >= threshold) {

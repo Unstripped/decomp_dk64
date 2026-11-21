@@ -507,7 +507,7 @@ Gfx *critterDrawObjType3(Gfx *gdl, CritterObj *obj) {
     return gdl;
 }
 
-extern EffectGridAsset D_8071FC40;
+extern EffectGridAsset gEffectSpriteBubble;
 
 void critterUpdateObjType2(CritterObj *obj) {
     s16 randVal;
@@ -532,7 +532,7 @@ void critterUpdateObjType2(CritterObj *obj) {
             effectSetSpeed(1);
             effectSetDuration(-1);
             effectSetCallback(effectWobbleRiseUpdate);
-            effectCreateAtPosition(&D_8071FC40, 0.0f, obj->x, obj->y, obj->z);
+            effectCreateAtPosition(&gEffectSpriteBubble, 0.0f, obj->x, obj->y, obj->z);
         }
         if (yawDelta > 0) {
             absYawDelta = yawDelta;

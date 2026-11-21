@@ -720,7 +720,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
     attacker = node->source;
     i = 0;
     done = 0;
-    if (actorTableContains(attacker) && attacker->instanceId == ((CollisionCallbackPayload *)node->unk10)->instanceId) {
+    if (actorTableContains(attacker) && attacker->instanceId == ((CollisionCallbackPayload *)node->payload)->instanceId) {
         table = D_8074C604[targetActor->actorType].table;
         if (table == NULL) {
             if (attacker->flags & 0x20000) {
@@ -752,18 +752,18 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                                 gActorGlobalState.targetActor = attacker;
                                 gActorGlobalState.bossFightPhase = interactions[i].phase;
                             }
-                            if (gActorGlobalState.unk201 < 0xF) {
-                                gActorGlobalState.unk204[gActorGlobalState.unk201] = attacker;
-                                gActorGlobalState.unk244[gActorGlobalState.unk201] = interactions[i].event;
-                                gActorGlobalState.unk201++;
+                            if (gActorGlobalState.collisionEventCount < 0xF) {
+                                gActorGlobalState.collisionEventActors[gActorGlobalState.collisionEventCount] = attacker;
+                                gActorGlobalState.collisionEvents[gActorGlobalState.collisionEventCount] = interactions[i].event;
+                                gActorGlobalState.collisionEventCount++;
                                 if (attacker->collisionFlags & 1) {
                                     playerState = attacker->customState;
                                     if (playerState->surfaceTimer != 0) {
                                         if (D_8074C604[targetActor->actorType].unk4 != 0) {
-                                            switch (gActorGlobalState.unk244[gActorGlobalState.unk201 - 1]) {
+                                            switch (gActorGlobalState.collisionEvents[gActorGlobalState.collisionEventCount - 1]) {
                                             case 5:
                                             case 0xF:
-                                                gActorGlobalState.unk201--;
+                                                gActorGlobalState.collisionEventCount--;
                                                 break;
                                             }
                                         }
@@ -808,8 +808,8 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
             ((gActorInteractionTable[i].phase == -1) || gActorInteractionTable[i].phase == gActorGlobalState.bossFightPhase)) {
             if (gActorInteractionTable[i].event != -1) {
                 found = 0;
-                for (j = 0; !found && j < gActorGlobalState.unk201;) {
-                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == gActorInteractionTable[i].event) {
+                for (j = 0; !found && j < gActorGlobalState.collisionEventCount;) {
+                    if (actorB == gActorGlobalState.collisionEventActors[j] && gActorGlobalState.collisionEvents[j] == gActorInteractionTable[i].event) {
                         found = 1;
                     } else {
                         j++;
@@ -889,10 +889,10 @@ void func_80675D70(Actor *actor) {
         gActorGlobalState.targetActor = actor;
         gActorGlobalState.bossFightPhase = 1;
     }
-    if (gActorGlobalState.unk201 < 0xF) {
-        gActorGlobalState.unk204[gActorGlobalState.unk201] = actor;
-        gActorGlobalState.unk244[gActorGlobalState.unk201] = 2;
-        gActorGlobalState.unk201++;
+    if (gActorGlobalState.collisionEventCount < 0xF) {
+        gActorGlobalState.collisionEventActors[gActorGlobalState.collisionEventCount] = actor;
+        gActorGlobalState.collisionEvents[gActorGlobalState.collisionEventCount] = 2;
+        gActorGlobalState.collisionEventCount++;
     }
 }
 

@@ -391,7 +391,7 @@ void playerCheckAndClearCarriedItem(void) {
 void playerUpdateSlopeSlidePhysics(void) {
     if ((gCurrentActor->contactFlags & 0x221) == 1) {
         if (gCurrentActor->floorSlopeFactor != 0.0f) {
-            if (!(gCurrentActor->prevContactFlags & 1) || gCurrentActor->floorSlopePitch < 0x226 || (gCurrentActor->unk78[0] == 0xC && gCurrentActor->speedXZ > 40.0f)) {
+            if (!(gCurrentActor->prevContactFlags & 1) || gCurrentActor->floorSlopePitch < 0x226 || (gCurrentActor->floorTriSurface[0] == 0xC && gCurrentActor->speedXZ > 40.0f)) {
                 gActivePlayerState->unkC2 = 0x32;
             }
             gActivePlayerState->unkC2 = gActivePlayerState->unkC2 + 1;
@@ -715,7 +715,7 @@ void playerUpdateScaleAndPhysics(void) {
         gActivePlayerState->sparkTimer = 0;
     }
     gActivePlayerState->stateFlags &= ~0x800;
-    if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 1 || (gActivePlayerState->stateFlags & 0x30)) {
+    if (gPlayerSlots[gCurrentPlayerIndex].sizeMode != 1 || (gActivePlayerState->stateFlags & 0x30)) {
         if ((gActivePlayerState->stateFlags & 0x80000000) && gActivePlayerState->padHintTimer == 0) {
             gActivePlayerState->padHintTimer = 0x1E;
             func_80687400();
@@ -739,7 +739,7 @@ void playerUpdateScaleAndPhysics(void) {
     if (((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && gPlayerCount == 1) || slotQueueGetValue(5, gActivePlayerState->playerIndex) == 0) {
         if (!(gActivePlayerState->stateFlags & 0x2000) && gCurrentMap != 0xCF) {
             flag = 0;
-            if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 1) {
+            if (gPlayerSlots[gCurrentPlayerIndex].sizeMode != 1) {
                 playerSetSizeMode(gActivePlayerActor, 1);
                 flag = 1;
                 if (gActivePlayerState->heldActor != NULL && gActivePlayerActor->actorType == 6 && gActivePlayerActor->state != 0x4A) {
@@ -771,13 +771,13 @@ void playerUpdateScaleAndPhysics(void) {
         gCurrentActor->renderFlags |= 0x800;
         switch (gCurrentActor->actorType) {
             default:
-                gCurrentActor->unk120 = 0.15f;
+                gCurrentActor->collisionScaleOverride = 0.15f;
                 break;
             case 5:
-                gCurrentActor->unk120 = 0.15f;
+                gCurrentActor->collisionScaleOverride = 0.15f;
                 break;
             case 6:
-                gCurrentActor->unk120 = 0.3f;
+                gCurrentActor->collisionScaleOverride = 0.3f;
                 break;
         }
         playerScaleTransitionStep();
@@ -838,7 +838,7 @@ void playerUpdateScaleAndPhysics(void) {
 
 
 void playerCheckQueueDropCallback(void) {
-    if (gActorGlobalState.unk2 != 0 && gActorGlobalState.unk14 == 1) {
+    if (gActorGlobalState.eventReceived != 0 && gActorGlobalState.eventSubtype == 1) {
         playerStateQueueCallback(0x20, NULL, gCurrentPlayerIndex);
     }
 }
@@ -967,7 +967,7 @@ void playerClampToWaterSurface(u8 clampFall) {
     f32 sum;
     f32 radius;
 
-    if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+    if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
         radius = D_80753A3C[gCurrentCharacterIndex];
     } else {
         radius = D_80753A4C[gCurrentCharacterIndex];
@@ -998,7 +998,7 @@ void playerDecelerateAndApplyMotion(void) {
 }
 
 extern s16 D_80753A2C[];
-extern f32 D_80753A5C[];
+extern f32 gKongSwimBuoyancy[];
 
 void playerApplyDecelVelocityVector(f32 unused) {
     f32 vx;
@@ -1032,7 +1032,7 @@ void playerApplyDecelVelocityVector(f32 unused) {
     }
     if (0.0f <= vz) {
         if (gCurrentActor->waterY - gCurrentActor->y < D_80753A2C[gCurrentCharacterIndex]) {
-            adj = ABSF(D_80753A5C[gCurrentCharacterIndex]);
+            adj = ABSF(gKongSwimBuoyancy[gCurrentCharacterIndex]);
         }
     }
     vz += adj;
@@ -2114,7 +2114,7 @@ void actorReleaseFromPlayerHold(Actor *actor) {
 }
 
 extern u8 gMultiplayerReducedEffects;
-extern u8 D_8071FC40;
+extern u8 gEffectSpriteBubble;
 
 void func_806CF580(void) {
     if (!(gCurrentActor->flags & 0x10)) {
@@ -2154,7 +2154,7 @@ void func_806CF580(void) {
         effectSetCallback(effectWobbleRiseUpdate);
         effectSetDepth(1);
         effectSetDuration(-1);
-        effectCreateAtActorBone(&D_8071FC40, 0, gCurrentActor, 4, 0);
+        effectCreateAtActorBone(&gEffectSpriteBubble, 0, gCurrentActor, 4, 0);
         gActivePlayerState->unkD0 = gFrameCounter;
     }
 }
@@ -2240,7 +2240,7 @@ u8 playerProbeLedgeAhead(Actor *actor, f32 *outFloorY, u8 forward, f32 distance)
     dx = mathSinF(angle) * distance;
     dz = mathCosF(angle) * distance;
     found = collisionCheckActorFloor(actor, actor->x + dx, actor->y + 30.0f, actor->z + dz, outFloorY);
-    actor->unk78[0] = collisionGetSurfaceFlags();
+    actor->floorTriSurface[0] = collisionGetSurfaceFlags();
     return found;
 }
 
@@ -2459,7 +2459,7 @@ void playerSetSizeMode(Actor *actor, u8 mode) {
             state->targetScale[0] = 0.15f;
             state->targetScale[1] = 0.15f;
             state->targetScale[2] = 0.15f;
-            if (gPlayerSlots[slot].unk2C0 == 0) {
+            if (gPlayerSlots[slot].sizeMode == 0) {
                 state->targetScaleFactor = 0.05f;
                 state->scaleChangeRate = 0.001f;
             }
@@ -2473,7 +2473,7 @@ void playerSetSizeMode(Actor *actor, u8 mode) {
             }
         }
     }
-    gPlayerSlots[slot].unk2C0 = mode;
+    gPlayerSlots[slot].sizeMode = mode;
     gPlayerSlots[slot].sizeModeDirty = 1;
     state->scaleMode = 0;
     if (mode == 1 || gPlayerCount >= 2) {
@@ -2540,7 +2540,7 @@ s32 playerSlotMatchesSizeMask(s32 mask, u8 playerIndex) {
             }
         }
     } else {
-        if ((mask & 1) && gPlayerSlots[playerIndex].unk2C0 != 1) {
+        if ((mask & 1) && gPlayerSlots[playerIndex].sizeMode != 1) {
             return 1;
         }
     }
@@ -2654,11 +2654,11 @@ u8 playerIsSmallerThanAttacker(Actor *victim, Actor *attacker) {
     }
     if (victim->collisionFlags & 1) {
         victimState = victim->customState;
-        victimSize = gPlayerSlots[victimState->playerIndex].unk2C0;
+        victimSize = gPlayerSlots[victimState->playerIndex].sizeMode;
     }
     if (attacker->collisionFlags & 1) {
         attackerState = attacker->customState;
-        attackerSize = gPlayerSlots[attackerState->playerIndex].unk2C0;
+        attackerSize = gPlayerSlots[attackerState->playerIndex].sizeMode;
         attackerNotRolling = attacker->state != 0x7C;
     }
     result = victimSize < attackerSize;
@@ -2669,7 +2669,7 @@ u8 playerIsSmallerThanAttacker(Actor *victim, Actor *attacker) {
 }
 
 extern s16 D_8075388C[];
-extern s16 D_807538C8[];
+extern s16 gKongSwimSurfaceDepths[];
 extern s16 D_8075387C[];
 extern s16 D_807538B8[];
 
@@ -2679,11 +2679,11 @@ void playerClampWaterSurfaceHeight(Actor *unused) {
     s32 pad[1];
     u8 type;
 
-    type = gPlayerSlots[gCurrentPlayerIndex].unk2C0;
+    type = gPlayerSlots[gCurrentPlayerIndex].sizeMode;
     if (type == 1) {
         height = D_8075388C[gCurrentCharacterIndex];
     } else {
-        height = D_807538C8[gCurrentCharacterIndex];
+        height = gKongSwimSurfaceDepths[gCurrentCharacterIndex];
     }
     if (type == 1) {
         limit = D_8075387C[gCurrentCharacterIndex];

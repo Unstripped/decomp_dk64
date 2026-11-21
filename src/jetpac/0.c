@@ -236,14 +236,14 @@ void jetpacStateGameplay(Gfx **glist) {
         player->score -= 1000000;
     }
     jetpacDrawScoreboard(glist);
-    if (player->items[player->currentItem].unk44) { // FAKE: empty guard steers regalloc
+    if (player->items[player->currentItem].update) { // FAKE: empty guard steers regalloc
     }
     jetpacPlayerStateUpdate();
     jetpacUpdateLasers();
-    player->bonus.unk44(&player->bonus);
+    player->bonus.update(&player->bonus);
     {
         JetpacItem *it = &player->items[player->currentItem];
-        it->unk44(it);
+        it->update(it);
     }
     jetpacUpdateActors();
     jetpacInitRdp(glist);
@@ -314,7 +314,7 @@ void jetpacStateTakeoff(Gfx **glist) {
 
     jetpacDrawScoreboard(glist);
     jetpacUpdateLasers();
-    player->bonus.unk44(&player->bonus);
+    player->bonus.update(&player->bonus);
     jetpacUpdateRocketFlight();
     jetpacUpdateActors();
     jetpacInitRdp(glist);
@@ -419,7 +419,7 @@ void jetpacStartStage(void) {
     jetpacSpawnBonusItem(player);
     if ((player->stage & 3) == 0) {
         jetpacInitRocketParts(player);
-        player->items[3].unk1C = 0;
+        player->items[3].spawnState = 0;
         player->currentItem = 1;
         jetpacSetState(2);
     } else {

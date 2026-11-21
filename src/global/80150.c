@@ -157,7 +157,7 @@ typedef struct LaunchBarrelState {
 } LaunchBarrelState;
 
 
-extern u8 D_8071FBC8;
+extern u8 gEffectSpriteBlast;
 
 void launchBarrelUpdate(void) {
     LaunchBarrelState *sub = gCurrentActor->customState;
@@ -221,7 +221,7 @@ void launchBarrelUpdate(void) {
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetFrameDelay(2);
             effectSetDepth(1);
-            effectCreateAtActorBone(&D_8071FBC8, 2.0f, gCurrentActor, 1, 2);
+            effectCreateAtActorBone(&gEffectSpriteBlast, 2.0f, gCurrentActor, 1, 2);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x17, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
             gCurrentActor->state++;
             sub->timer = 4;
@@ -286,7 +286,7 @@ void tagBarrelAnimSetSpeed(s32 spawnType) {
             gCurrentActor->state++;
             break;
         case 11:
-            if (gActorGlobalState.unk38 != 0) {
+            if (gActorGlobalState.childFreed != 0) {
                 gCurrentActor->state = 0x14;
             }
             break;
@@ -339,7 +339,7 @@ void tagBarrelCheckPlayerState(void) {
     s32 released = 0;
 
     extra = gPrimaryPlayerActor->customState;
-    if ((gActorGlobalState.unk38 != 0) && (extra->stateFlags & 0x200000)) {
+    if ((gActorGlobalState.childFreed != 0) && (extra->stateFlags & 0x200000)) {
         released = 1;
     }
     if (!(gCurrentActor->flags & 0x10) || released) {
@@ -400,7 +400,7 @@ void tagBarrelInitDrawDistanceAndState(void) {
             state->spawnType = 0x1A;
         }
     } else {
-        if (gActorGlobalState.unk38 != 0) {
+        if (gActorGlobalState.childFreed != 0) {
             state->triggered = 1;
         }
         actorUpdateModelMatrix(gCurrentActor, 0);
@@ -432,7 +432,7 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
         animSetLoopMode(gCurrentActor, 0, 0);
         animSetDirection(gCurrentActor, 0, 0);
         animSetLoopLimit(gCurrentActor, 0, -1);
-        if (gActorGlobalState.unk38 != 0 || *inRange != 0 || *triggered != 0) {
+        if (gActorGlobalState.childFreed != 0 || *inRange != 0 || *triggered != 0) {
             *triggered = 0;
             spawn = 1;
         }
@@ -516,10 +516,10 @@ void tagBarrelRotateUpdate(void) {
     if (!(gCurrentActor->flags2 & 4)) {
         gCurrentActor->speedXZ = 0.0f;
     }
-    if (gActorGlobalState.unk90 != 0) {
+    if (gActorGlobalState.collisionModeReceived != 0) {
         state->pushed = 1;
     }
-    if (gActorGlobalState.unk91 != 0) {
+    if (gActorGlobalState.surfaceHitReceived != 0) {
         if (state->soundPlaying == 0) {
             sfxPlayActorSound(gCurrentActor, 0x10C, 0, 1, 0, 0xFF, 1.0f, 0);
             state->soundPlaying = 1;
@@ -539,7 +539,7 @@ void tagBarrelRotateUpdate(void) {
                 gCurrentActor->speedXZ = 0.0f;
             }
         }
-        gCurrentActor->unkFA = 0x64;
+        gCurrentActor->arcSpeedCap = 0x64;
         yaw = gCurrentActor->moveYaw;
         actorStepPhysics(gCurrentActor, yaw, yaw);
         actorApplyVelocity(gCurrentActor);
@@ -567,7 +567,7 @@ void tagBarrelRotateUpdate(void) {
                 gCurrentActor->speedXZ = 0.0f;
             }
         }
-        gCurrentActor->unkFA = 0x64;
+        gCurrentActor->arcSpeedCap = 0x64;
         yaw = gCurrentActor->moveYaw;
         actorStepPhysics(gCurrentActor, yaw, yaw);
         actorApplyVelocity(gCurrentActor);
@@ -632,7 +632,7 @@ typedef struct ThrowableBarrelState {
 
 extern s16 gCurrentCharacterIndex;
 extern s8 D_80029FA0;
-extern u8 D_8071FC40;
+extern u8 gEffectSpriteBubble;
 extern u8 D_8072030C;
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
@@ -651,7 +651,7 @@ void throwableBarrelUpdate(void) {
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unkFA = 0x270F;
+        gCurrentActor->arcSpeedCap = 0x270F;
         state->prevState = 0;
         state->released = 0;
         if (gCurrentActor->actorType == 0x1A) {
@@ -675,7 +675,7 @@ void throwableBarrelUpdate(void) {
         gCurrentActor->flags2 |= 0x40;
     }
 
-    if (gActorGlobalState.unk24 != 0) {
+    if (gActorGlobalState.pickupReceived != 0) {
         if (state->released == 0) {
             state->holder = gActorGlobalState.unk28;
             gCurrentActor->state = 1;
@@ -689,29 +689,29 @@ void throwableBarrelUpdate(void) {
         }
     }
 
-    if (gActorGlobalState.unk25 != 0) {
+    if (gActorGlobalState.releaseReceived != 0) {
         gCurrentActor->state = 2;
         state->settleTimer = 0x1E;
         gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
     }
 
-    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 9)) && (state->released == 0)) {
+    if (((gActorGlobalState.damaged != 0) || (gActorGlobalState.bossFightPhase == 9)) && (state->released == 0)) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }
 
-    if (state->released != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9)) {
+    if (state->released != 0 && (gActorGlobalState.damaged != 0 || gActorGlobalState.bossFightPhase == 9)) {
         gCurrentActor->collisionMode = 1;
     }
 
-    if (gActorGlobalState.unk2C != 0) {
+    if (gActorGlobalState.launchReceived != 0) {
         gCurrentActor->state = 3;
         gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
-        gCurrentActor->yaw = gActorGlobalState.unk36;
-        gCurrentActor->moveYaw = gActorGlobalState.unk36;
-        gCurrentActor->speedY = gActorGlobalState.unk30;
+        gCurrentActor->yaw = gActorGlobalState.launchYaw;
+        gCurrentActor->moveYaw = gActorGlobalState.launchYaw;
+        gCurrentActor->speedY = gActorGlobalState.launchSpeedY;
         state->throwFrame = gFrameCounter;
         state->waterBounces = 0;
         state->groundBounces = 0;
@@ -790,7 +790,7 @@ void throwableBarrelUpdate(void) {
         accel = -5.0 - state->floatVelY;
         accel = accel / -5.0;
         accel = accel * -0.5;
-        if (gActorGlobalState.unk39 == 0) {
+        if (gActorGlobalState.riderCount == 0) {
             accel = -0.5 - accel;
             accel = 0.0 - accel;
         }
@@ -821,8 +821,8 @@ void throwableBarrelUpdate(void) {
         }
         if (gCurrentActor->hasArcBounds != 0) {
             yaw = gCurrentActor->moveYaw;
-            mathAngleClampToArc(yaw, yaw, gCurrentActor->arcYawMin, gCurrentActor->arcYawMax, &gCurrentActor->unkF2);
-            gCurrentActor->moveYaw = gCurrentActor->unkF2;
+            mathAngleClampToArc(yaw, yaw, gCurrentActor->arcYawMin, gCurrentActor->arcYawMax, &gCurrentActor->arcMoveYaw);
+            gCurrentActor->moveYaw = gCurrentActor->arcMoveYaw;
         }
         break;
     case 6:
@@ -830,7 +830,7 @@ void throwableBarrelUpdate(void) {
             effectSetDepth(1);
             effectSetDuration(-1);
             effectSetCallback(effectWobbleRiseUpdate);
-            effectCreateAtPosition(&D_8071FC40, 0.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteBubble, 0.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
         if (state->tipDir != 0) {
             if (state->tipDir == 1) {
@@ -992,9 +992,9 @@ void throwableBarrelUpdate(void) {
     guMtxCatF(mtx, rot, mtx);
     guRotateF(rot, gCurrentActor->yaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
-    guRotateF(rot, state->pitch - gActorGlobalState.unkF0, 1.0f, 0.0f, 0.0f);
+    guRotateF(rot, state->pitch - gActorGlobalState.heldAlignPitch, 1.0f, 0.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
-    guRotateF(rot, (state->holdYaw + 90.0f) - gActorGlobalState.unkF4, 0.0f, 1.0f, 0.0f);
+    guRotateF(rot, (state->holdYaw + 90.0f) - gActorGlobalState.heldAlignYaw, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
 
     if (gCurrentActor->state == 3) {
@@ -1521,7 +1521,7 @@ void transformBarrelUpdate(void) {
         case 0x19:
         case 0x28:
         case 0x60:
-            if (gPlayerSlots[playerState->playerIndex].unk2C0 != 1) {
+            if (gPlayerSlots[playerState->playerIndex].sizeMode != 1) {
                 hide = 1;
             }
             break;
@@ -1777,7 +1777,7 @@ void movingLaunchBarrelUpdate(void) {
             actorAppendPlayerLaunch(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, (gGlobalCutsceneFlags & 2) ? 0x1F4 : 0x2BC);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetFrameDelay(2);
-            effectCreateAtActorBone(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
+            effectCreateAtActorBone(&gEffectSpriteBlast, 1.6f, gCurrentActor, 1, 2);
             gCurrentActor->flags &= ~0x400;
             gCurrentActor->state = 2;
             gCurrentActor->unk155 = 0x1E;
@@ -1851,11 +1851,11 @@ void movingLaunchBarrelUpdate(void) {
 
 
 void tagBarrelUpdateInteractable(void) {
-    if (gPlayerSlots->unk2C0 != 1 || (gActivePlayerState->stateFlags2 & 0x40) || gPlayerCharacterId[0] >= 5) {
+    if (gPlayerSlots->sizeMode != 1 || (gActivePlayerState->stateFlags2 & 0x40) || gPlayerCharacterId[0] >= 5) {
         gCurrentActor->interactionType = 4;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0x7F;
-    } else if (gPlayerSlots->unk2C0 == 1 && !(gActivePlayerState->stateFlags & 0x40) && gPlayerCharacterId[0] < 5) {
+    } else if (gPlayerSlots->sizeMode == 1 && !(gActivePlayerState->stateFlags & 0x40) && gPlayerCharacterId[0] < 5) {
         gCurrentActor->flags |= 0x8000;
         gCurrentActor->interactionType = 1;
     }
@@ -3096,7 +3096,7 @@ void tagBarrelInitUnlockedKongs(Actor *actor) {
 }
 
 
-extern u8 D_8071FC8C[];
+extern u8 gEffectSpriteSparkleYellow[];
 
 void tagBarrelUpdate(void) {
     TagBarrelData *sub = gCurrentActor->customState;
@@ -3111,7 +3111,7 @@ void tagBarrelUpdate(void) {
         effectSetDepth(1);
         effectSetMaxDistance(0x3E8);
         effectSetFlags(4);
-        effectCreateAtPosition(&D_8071FC8C, 1.3f, gCurrentActor->x, gCurrentActor->y + 13.0, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteSparkleYellow, 1.3f, gCurrentActor->x, gCurrentActor->y + 13.0, gCurrentActor->z);
         if (mapIsBossArena()) {
             gCurrentActor->drawDistance = 0x7D0;
         } else {

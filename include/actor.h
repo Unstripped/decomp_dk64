@@ -89,7 +89,7 @@ typedef struct ActorSub4 {
     };
     /* 0x40 */ f32 blendTime;
     /* 0x44 */ f32 blendDuration;
-    /* 0x48 */ f32 unk48;                // playback speed, ramped from speedFrom to speedTo
+    /* 0x48 */ f32 speed;                // playback speed, ramped from speedFrom to speedTo
     /* 0x4C */ f32 speedFrom;
     /* 0x50 */ f32 speedTo;
     /* 0x54 */ f32 speedRampTime;
@@ -157,41 +157,41 @@ typedef struct ActorSub140 {
     /* 0x10 */ s32 scaledHeight;
     /* 0x14 */ f32 radius;
     /* 0x18 */ f32 height;
-    /* 0x1C */ f32 unk1C; /* arc contact point x */
-    /* 0x20 */ f32 unk20; /* arc contact point z */
-    /* 0x24 */ u8 unk24;
+    /* 0x1C */ f32 pushTargetX; /* arc contact point x */
+    /* 0x20 */ f32 pushTargetZ; /* arc contact point z */
+    /* 0x24 */ u8 hasPushTarget;
     /* 0x25 */ u8 pad25;
     /* 0x26 */ s16 unk26; // hit model entry id (actorBuildCollisionHit)
-    /* 0x28 */ f32 unk28[3]; // hit triangle in the model's local space (x of the 3 vertices)
-    /* 0x34 */ f32 unk34[3];
-    /* 0x40 */ f32 unk40[3];
-    /* 0x4C */ f32 unk4C; // actor position in the model's local space
-    /* 0x50 */ f32 unk50;
-    /* 0x54 */ f32 unk54;
-    /* 0x58 */ s16 unk58; // hit box index in the slot's box table
-    /* 0x5A */ s8 unk5A; // hit box bone
+    /* 0x28 */ f32 hitTriX[3]; // hit triangle in the model's local space (x of the 3 vertices)
+    /* 0x34 */ f32 hitTriY[3];
+    /* 0x40 */ f32 hitTriZ[3];
+    /* 0x4C */ f32 hitPosX; // actor position in the model's local space
+    /* 0x50 */ f32 hitPosY;
+    /* 0x54 */ f32 hitPosZ;
+    /* 0x58 */ s16 hitBoxIndex; // hit box index in the slot's box table
+    /* 0x5A */ s8 hitMtxIndex; // hit box bone
     /* 0x5B */ u8 pad5B;
-    /* 0x5C */ s32 unk5C;
-    /* 0x60 */ s32 unk60;
-    /* 0x64 */ s16 unk64;
-    /* 0x66 */ s16 unk66;
-    /* 0x68 */ s32 unk68;
-    /* 0x6C */ u8 unk6C;
+    /* 0x5C */ s32 hitRadius;
+    /* 0x60 */ s32 slotPushDist;
+    /* 0x64 */ s16 maxPushDist;
+    /* 0x66 */ s16 hitNormalYaw;
+    /* 0x68 */ s32 actorPushDist;
+    /* 0x6C */ u8 hasSlotHit;
     /* 0x6D */ u8 pad6D[3];
     /* 0x70 */ void *modelMtxF;
     /* 0x74 */ Mtx *nodeMtx[2]; /* per gfx buffer, indexed by gGfxBufferIndex */
-    /* 0x7C */ s32 unk7C;
-    /* 0x80 */ s32 unk80;
-    /* 0x84 */ s32 unk84;
-    /* 0x88 */ s32 unk88;
+    /* 0x7C */ s32 spheresFrame;
+    /* 0x80 */ s32 posFrame;
+    /* 0x84 */ s32 subNodesFrame;
+    /* 0x88 */ s32 mtxFrame;
     /* 0x8C */ ModelNode *nodes;
     /* 0x90 */ ModelSubNode *subNodes;
     /* 0x94 */ s32 triangleCount;
     /* 0x98 */ void *triangles;
     /* 0x9C */ s32 boxCount;
     /* 0xA0 */ void *boxes;
-    /* 0xA4 */ struct CollisionBox *unkA4; /* transformed boxes (actorSub140BuildBoxes) */
-    /* 0xA8 */ struct CollisionBox *unkA8; /* one past the last valid box */
+    /* 0xA4 */ struct CollisionBox *box_start; /* transformed boxes (actorSub140BuildBoxes) */
+    /* 0xA8 */ struct CollisionBox *box_end; /* one past the last valid box */
     /* 0xAC */ u8 unkAC;
     /* 0xAD */ u8 padAD[3];
     /* 0xB0 */ s32 unkB0; // last box contact x/z (actorComputeBoxNormal)
@@ -242,7 +242,7 @@ typedef struct ActorCallbackNode {
         struct {
             /* 0x08 */ struct Actor *source;
             /* 0x0C */ s32 unkC;
-            /* 0x10 */ void *unk10;
+            /* 0x10 */ void *payload;
         };
         /* 0x08 */ HeldActorFollowArg heldFollow; // playerRegisterHeldActorFollow (CEAE0.c)
         /* 0x08 */ HeldActorAlignArg heldAlign; // playerRegisterHeldActorAlign (CEAE0.c)
@@ -278,15 +278,15 @@ typedef struct ActorCollisionHit {
 typedef struct ActorGlobalState {
     /* 0x000 */ u8 notifyReceived; // set by actorDispatchCallbacks for a 0x2000000 callback; cleared by actorGlobalStateClearEvents
     /* 0x001 */ u8 notifyValue[1]; // its subtype (A2F10 sends 1 to attached children, 936B0 0); a plain u8 changes C8C10 registers
-    /* 0x002 */ u8 unk2;
+    /* 0x002 */ u8 eventReceived;
     /* 0x003 */ u8 unk3;
-    /* 0x004 */ f32 unk4;
-    /* 0x008 */ f32 unk8;
-    /* 0x00C */ f32 unkC;
-    /* 0x010 */ s16 unk10;
-    /* 0x012 */ s16 unk12;
-    /* 0x014 */ u8 unk14;
-    /* 0x015 */ u8 unk15;
+    /* 0x004 */ f32 eventX;
+    /* 0x008 */ f32 eventY;
+    /* 0x00C */ f32 eventZ;
+    /* 0x010 */ s16 eventValue0;
+    /* 0x012 */ s16 eventValue1;
+    /* 0x014 */ u8 eventSubtype;
+    /* 0x015 */ u8 damaged;
     /* 0x016 */ u8 unk16;
     /* 0x017 */ u8 unk17;
     /* 0x018 */ u8 unk18;
@@ -296,24 +296,24 @@ typedef struct ActorGlobalState {
     /* 0x01C */ u8 unk1C;
     /* 0x01D */ u8 unk1D[3];
     /* 0x020 */ struct Actor *unk20;
-    /* 0x024 */ u8 unk24;
-    /* 0x025 */ u8 unk25;
+    /* 0x024 */ u8 pickupReceived;
+    /* 0x025 */ u8 releaseReceived;
     /* 0x026 */ u8 unk26[2];
     /* 0x028 */ struct Actor *unk28;
-    /* 0x02C */ u8 unk2C;
+    /* 0x02C */ u8 launchReceived;
     /* 0x02D */ u8 unk2D[3];
-    /* 0x030 */ f32 unk30;
+    /* 0x030 */ f32 launchSpeedY;
     /* 0x034 */ s16 unk34;
-    /* 0x036 */ s16 unk36;
-    /* 0x038 */ u8 unk38;
-    /* 0x039 */ u8 unk39;
+    /* 0x036 */ s16 launchYaw;
+    /* 0x038 */ u8 childFreed;
+    /* 0x039 */ u8 riderCount;
     /* 0x03A */ u8 unk3A[2];
-    /* 0x03C */ f32 unk3C[4][3];
+    /* 0x03C */ f32 riderPoints[4][3];
     /* 0x06C */ s32 unk6C[4];
-    /* 0x07C */ struct Actor *unk7C[4];
+    /* 0x07C */ struct Actor *riderActors[4];
     /* 0x08C */ u8 unk8C[4];
-    /* 0x090 */ u8 unk90;
-    /* 0x091 */ u8 unk91;
+    /* 0x090 */ u8 collisionModeReceived;
+    /* 0x091 */ u8 surfaceHitReceived;
     /* 0x092 */ s16 unk92;
     /* 0x094 */ s16 unk94;
     /* 0x096 */ u8 unk96[2];
@@ -326,21 +326,21 @@ typedef struct ActorGlobalState {
     /* 0x0D8 */ f32 unkD8;
     /* 0x0DC */ f32 unkDC;
     /* 0x0E0 */ f32 unkE0;
-    /* 0x0E4 */ u8 unkE4;
+    /* 0x0E4 */ u8 destPointReceived;
     /* 0x0E5 */ u8 unkE5;
     /* 0x0E6 */ u8 unkE6[2];
     /* 0x0E8 */ f32 unkE8;
     /* 0x0EC */ struct Actor *unkEC;
-    /* 0x0F0 */ f32 unkF0;
-    /* 0x0F4 */ f32 unkF4;
-    /* 0x0F8 */ ActorCollisionHit unkF8[4];
-    /* 0x1F8 */ s32 unk1F8;
+    /* 0x0F0 */ f32 heldAlignPitch;
+    /* 0x0F4 */ f32 heldAlignYaw;
+    /* 0x0F8 */ ActorCollisionHit collisionHits[4];
+    /* 0x1F8 */ s32 collisionHitCount;
     /* 0x1FC */ struct Actor *targetActor;
     /* 0x200 */ u8 bossFightPhase;
-    /* 0x201 */ u8 unk201;
+    /* 0x201 */ u8 collisionEventCount;
     /* 0x202 */ u8 unk202[2];
-    /* 0x204 */ struct Actor *unk204[16];
-    /* 0x244 */ u8 unk244[16];
+    /* 0x204 */ struct Actor *collisionEventActors[16];
+    /* 0x244 */ u8 collisionEvents[16];
     /* 0x254 */ u8 volumeTriggerQueueCount;
     /* 0x255 */ u8 unk255[3];
     /* 0x258 */ s32 volumeTriggerQueueOp[8];
@@ -400,8 +400,8 @@ typedef struct Actor {
     /* 0x06C */ u16 prevContactFlags;
     /* 0x06E */ s16 soundSlots[2];
     /* 0x072 */ s16 unk72;
-    /* 0x074 */ f32 unk74;
-    /* 0x078 */ u8 unk78[4];
+    /* 0x074 */ f32 soundVolume;
+    /* 0x078 */ u8 floorTriSurface[4];
     /* 0x07C */ f32 x;
     /* 0x080 */ f32 y;
     /* 0x084 */ f32 z;
@@ -415,7 +415,7 @@ typedef struct Actor {
     /* 0x0A4 */ f32 floorY;
     /* 0x0A8 */ f32 unkA8;
     /* 0x0AC */ f32 waterY;
-    /* 0x0B0 */ s8 unkB0[4];
+    /* 0x0B0 */ s8 waterPathId[4];
     /* 0x0B4 */ f32 distToFloor;
     /* 0x0B8 */ f32 speedXZ;
     /* 0x0BC */ f32 prevSpeedXZ;
@@ -423,7 +423,7 @@ typedef struct Actor {
     /* 0x0C4 */ f32 accelY;
     /* 0x0C8 */ f32 terminalSpeedY;
     /* 0x0CC */ u8 floorNodeId;
-    /* 0x0CD */ u8 unkCD;
+    /* 0x0CD */ u8 lightNodeId;
     /* 0x0CE */ s16 boundingRadius;
     /* 0x0D0 */ u8 floorSurfaceType;
     /* 0x0D1 */ u8 floorSlopeType;
@@ -437,7 +437,7 @@ typedef struct Actor {
     /* 0x0E4 */ s16 pitch;
     /* 0x0E6 */ s16 yaw;
     /* 0x0E8 */ s16 roll;
-    /* 0x0EA */ s16 unkEA;
+    /* 0x0EA */ s16 targetYaw;
     union {
         struct {
             /* 0x0EC */ s16 unkEC;
@@ -446,17 +446,17 @@ typedef struct Actor {
         /* 0x0EC */ u32 animLastFrame; // currentActorAnimTryIdleVariant frame cursor (actorSparkCutsceneUpdate, A6280.c)
     };
     /* 0x0F0 */ s16 movePitch;
-    /* 0x0F2 */ s16 unkF2;
+    /* 0x0F2 */ s16 arcMoveYaw;
     /* 0x0F4 */ s16 arcYawMin;
     /* 0x0F6 */ s16 arcYawMax;
-    /* 0x0F8 */ s16 unkF8;
-    /* 0x0FA */ s16 unkFA;
+    /* 0x0F8 */ s16 arcSpeedCapMax;
+    /* 0x0FA */ s16 arcSpeedCap;
     /* 0x0FC */ u8 hasArcBounds;
     /* 0x0FD */ u8 collisionHit;
     /* 0x0FE */ u8 padFE[2];
-    /* 0x100 */ f32 unk100; // attach point in the model node's local space (collisionAttachActorToObjectNode)
-    /* 0x104 */ f32 unk104;
-    /* 0x108 */ f32 unk108;
+    /* 0x100 */ f32 attachLocalX; // attach point in the model node's local space (collisionAttachActorToObjectNode)
+    /* 0x104 */ f32 attachLocalY;
+    /* 0x108 */ f32 attachLocalZ;
     /* 0x10C */ s16 cutsceneId;
     /* 0x10E */ u8 unk10E;
     /* 0x10F */ s8 unk10F; // attached model bone (modelSlotBuildTransformMatrix), -1 = none
@@ -465,7 +465,7 @@ typedef struct Actor {
     /* 0x114 */ ActorList *riderList;
     /* 0x118 */ struct PathFollowState *pathFollow;
     /* 0x11C */ struct Actor *parentActor;
-    /* 0x120 */ f32 unk120;
+    /* 0x120 */ f32 collisionScaleOverride;
     /* 0x124 */ void *spawnData;
     /* 0x128 */ s16 alpha;
     /* 0x12A */ s16 drawDistance;
@@ -487,7 +487,7 @@ typedef struct Actor {
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 unk156;
+    /* 0x156 */ u8 mirrorCount;
     /* 0x157 */ u8 unk157;
     /* 0x158 */ AnimNode *animList;
     /* 0x15C */ s16 spawnTimer;
@@ -502,7 +502,7 @@ typedef struct Actor {
     /* 0x16B */ u8 tintG;
     /* 0x16C */ u8 tintB;
     /* 0x16D */ u8 tintA;
-    /* 0x16E */ u8 unk16E[6];
+    /* 0x16E */ u8 shadowScale[6];
     // Component pointers: actorAllocate stores one pointer per entry of the type's component
     // list (gActorTypeComponents[type], 0 to 5 entries) from 0x174 on, the component data from the
     // next 8-byte boundary. 0x174 is the first component; 0x178, 0x17C... are pointers only
@@ -684,11 +684,11 @@ typedef struct SpawnNode {
     /* 0x26 */ s16 animId0;
     /* 0x28 */ s16 animId1;
     /* 0x2A */ s16 animId2;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
+    /* 0x2C */ f32 turnAnimScale;
+    /* 0x30 */ f32 shadowScale;
+    /* 0x34 */ f32 nearTurnSpeedScale;
+    /* 0x38 */ f32 animSpeedScale;
+    /* 0x3C */ f32 minAnimSpeed;
     /* 0x40 */ s16 chunkIndex;
     /* 0x42 */ u8 state;
     /* 0x43 */ u8 spawnCount;
@@ -763,10 +763,10 @@ typedef struct BehaviourWorkState {
     /* 0x30 */ f32 scale;
     /* 0x34 */ u8 lastMoveTier; // playerSelectMoveTier result last applied (0xFF = none)
     /* 0x35 */ u8 acceleration; // SpawnEntry.acceleration
-    /* 0x36 */ u8 unk36;
+    /* 0x36 */ u8 chaseState;
     /* 0x37 */ u8 engageState; // SpawnEntry.engageState
-    /* 0x38 */ u8 unk38;
-    /* 0x39 */ u8 unk39;
+    /* 0x38 */ u8 stationaryFrames;
+    /* 0x39 */ u8 emergeTimer;
     /* 0x3A */ u8 pad3A[6];
 } BehaviourWorkState; // size = 0x40
 
@@ -1025,7 +1025,7 @@ typedef struct MenuHighScoreEntry {
 } MenuHighScoreEntry; /* sizeof 0x6 */
 
 // Collectible totals (0x807FC828), recomputed by hudPauseMenuRefreshTotals (ACDC0): [0] golden bananas over all
-// kongs, [1] set flags of sPauseCrownFlags, [2] set flags of the D_80744710 list, [3] flags 0x225-0x24C, [4] flag 0x17B,
+// kongs, [1] set flags of sPauseCrownFlags, [2] set flags of the gWorldClearedFlags list, [3] flags 0x225-0x24C, [4] flag 0x17B,
 // [5] flags 0x24D-0x260, [6] flag 0x84, [7] flags 0x1FD-0x224, [8] always 1. The first seven weigh into
 // menuCalculateGamePercentage (3E10) and the 117190 gate totals; the pause menu's page 3 shows the first eight.
 extern s16 gPauseCollectibleCounts[9];

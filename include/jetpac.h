@@ -63,33 +63,33 @@ typedef struct JetpacState {
 /* Rocket parts and bonus items. */
 typedef struct JetpacItem {
     /* 0x00 */ TextureDescriptor *sprites[2];
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
+    /* 0x08 */ f32 x;
+    /* 0x0C */ f32 y;
+    /* 0x10 */ f32 vx;
+    /* 0x14 */ f32 vy;
     /* 0x18 */ u8 color[4];
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s32 unk20;
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s32 unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ s32 unk3C;
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ void (*unk44)(struct JetpacItem *);
-    /* 0x48 */ void (*unk48)(struct JetpacItem *, s32);
+    /* 0x1C */ s32 spawnState;
+    /* 0x20 */ s32 flip;
+    /* 0x24 */ s32 boxX1;
+    /* 0x28 */ s32 boxY1;
+    /* 0x2C */ s32 boxX2;
+    /* 0x30 */ s32 boxY2;
+    /* 0x34 */ s32 timer;
+    /* 0x38 */ s32 carryState;
+    /* 0x3C */ s32 points;
+    /* 0x40 */ s32 kind;
+    /* 0x44 */ void (*update)(struct JetpacItem *);
+    /* 0x48 */ void (*draw)(struct JetpacItem *, s32);
 } JetpacItem; // size 0x4C
 
 typedef struct JetpacPlayer {
     /* 0x000 */ s32 stage;
     /* 0x004 */ s32 score;
     /* 0x008 */ s32 lives;
-    /* 0x00C */ s32 unkC;
+    /* 0x00C */ s32 rocketProgress;
     /* 0x010 */ s32 currentItem;
     /* 0x014 */ JetpacItem items[4];
-    /* 0x144 */ s32 unk144;
+    /* 0x144 */ s32 bonusDelay;
     /* 0x148 */ JetpacItem bonus;
 } JetpacPlayer; // size 0x194
 

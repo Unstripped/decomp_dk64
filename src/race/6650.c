@@ -114,7 +114,7 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->accelY = -20.0f;
         gCurrentActor->terminalSpeedY = -900.0f;
-        gCurrentActor->unkF8 = 0x12C;
+        gCurrentActor->arcSpeedCapMax = 0x12C;
     }
     velX = mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     velZ = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
@@ -218,14 +218,14 @@ void raceParticipantMotionUpdate(void) {
         for (i = 0; i < 3; i++) {
             gCurrentActor->sub4->scale[i] *= 0.3;
         }
-        racerState->unk44 = 5;
+        racerState->gateMissesLeft = 5;
         actorOrNodeFlags(gCurrentActor, 2, 8);
         racePlayEngineSfx();
     }
     switch (racerState->raceStatus) {
         case 1:
-            if (racerState->unk35 == 0) {
-                racerState->unk35++;
+            if (racerState->statusStep == 0) {
+                racerState->statusStep++;
                 slotQueueUpdate(0xB, 1, 0);
             }
         case 0:
@@ -236,8 +236,8 @@ void raceParticipantMotionUpdate(void) {
             raceUpdateRacerMotion(racerState);
             break;
         case 5:
-            if (racerState->unk35 == 0) {
-                racerState->unk35++;
+            if (racerState->statusStep == 0) {
+                racerState->statusStep++;
                 slotQueueCancel(0xB, 0);
                 gCurrentActor->flags &= ~4;
                 gCurrentActor->speedXZ = 0.0f;
@@ -316,26 +316,26 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
 
 
 void raceUpdateCountdownState(RaceParticipant *racerState) {
-    switch (racerState->unk35) {
+    switch (racerState->statusStep) {
         case 0:
             if (gCurrentActor->flags & 0x2000000) {
-                racerState->unk35++;
+                racerState->statusStep++;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 camResumePath();
-                racerState->unk35++;
+                racerState->statusStep++;
             }
             break;
         case 2:
             if (currentActorTestClearFlag()) {
                 currentActorClearFlag();
-                racerState->unk35++;
+                racerState->statusStep++;
             }
             break;
     }
-    if (racerState->unk35 < 3) {
+    if (racerState->statusStep < 3) {
         raceSetIntroCutscenePhase(racerState->actor);
     } else {
         raceClearIntroCutscenePhase(racerState->actor);
@@ -343,12 +343,12 @@ void raceUpdateCountdownState(RaceParticipant *racerState) {
 }
 
 void racePlayIntroCameraCutscene(RaceParticipant *racerState, RaceTarget *target) {
-    if (racerState->unk35 == 0) {
+    if (racerState->statusStep == 0) {
         RaceParticipant *chased = target->participant;
         Actor *player = gPlayerSlots[chased->playerIdx].actor;
         PlayerState *playerState = player->customState;
         camSetTargetScaled(playerState->camActor, target->actor, 4, 0x800, 0xBE, 0, 0x4A, 0xAE, 0x2D, 0, 0.2f);
-        racerState->unk35++;
+        racerState->statusStep++;
     }
     racePlayTireScreechSfx();
 }
@@ -362,14 +362,14 @@ s32 raceGetFinishCameraId(RaceParticipant *racerState, RaceParticipant *chased) 
 
 
 void raceFinishCameraCutscene(RaceParticipant *racerState, RaceParticipant *chased) {
-    if (racerState->unk35 == 0) {
+    if (racerState->statusStep == 0) {
         if (flagGet(0x145, 0) == 0) {
             camStartPath(gCurrentActor, 1, 1);
             currentActorClearFlag();
         } else {
             mapCheckAutoTransition();
         }
-        racerState->unk35++;
+        racerState->statusStep++;
     }
 }
 
@@ -377,7 +377,7 @@ void raceHandlePostRaceFinished(RaceParticipant *racerState, RaceParticipant *ch
     s32 i;
     s32 cameraId;
 
-    switch (racerState->unk35) {
+    switch (racerState->statusStep) {
         case 0:
             if (flagGet(0x145, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
@@ -389,19 +389,19 @@ void raceHandlePostRaceFinished(RaceParticipant *racerState, RaceParticipant *ch
                     }
                 }
             }
-            racerState->unk35++;
+            racerState->statusStep++;
             break;
         case 1:
             if (currentActorTestClearFlag()) {
                 currentActorClearFlag();
                 resQueueAttachActor(gCurrentActor, 0x22, raceGetFinishCameraId(racerState, chased));
-                racerState->unk35++;
+                racerState->statusStep++;
             }
             break;
         case 2:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 camResumePath();
-                racerState->unk35++;
+                racerState->statusStep++;
             }
             break;
         case 3:
@@ -413,16 +413,16 @@ void raceHandlePostRaceFinished(RaceParticipant *racerState, RaceParticipant *ch
                     flagSet(0x145, 1, 0);
                 } else {
                     hudSpawnTextScreen(1);
-                    racerState->unk35++;
+                    racerState->statusStep++;
                 }
-                racerState->unk35++;
+                racerState->statusStep++;
             }
             break;
         case 4:
             if (currentActorTestClearFlag()) {
                 currentActorClearFlag();
                 mapCheckAutoTransition();
-                racerState->unk35++;
+                racerState->statusStep++;
             }
             break;
     }
@@ -450,7 +450,7 @@ void raceOpponentRacerMotionUpdate(void) {
             currentActorClearFlag();
             flagSet(0x38, 1, 2);
         } else {
-            racerState->unk35 = 3;
+            racerState->statusStep = 3;
         }
         gTextNumberArg = 0xA;
         actorOrNodeFlags(gCurrentActor, 4, 8);

@@ -123,7 +123,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
         gCurrentActor->tintB = 0xFF;
         p->unk2 = 0;
         p->brightness = 0xFF;
-        gBehaviourAnimState->unk3C = 1.0f;
+        gBehaviourAnimState->minAnimSpeed = 1.0f;
         if (gCurrentActor->actorType == 0xF0) {
             sfxPlayActorSound(gCurrentActor, 0x132, 0, 0, 0, 0xA0, 1.0f, 0);
         }

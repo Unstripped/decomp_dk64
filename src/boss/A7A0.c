@@ -61,7 +61,7 @@ void bossPhaseTick(void) {
             gCurrentActor->unk155 = 0;
         }
     }
-    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 9)) &&
+    if (((gActorGlobalState.damaged != 0) || (gActorGlobalState.bossFightPhase == 9)) &&
         ((other = gActorGlobalState.targetActor)->state == 0x2B) &&
         (other->unk155 == 3)) {
         gCurrentActor->state = 1;

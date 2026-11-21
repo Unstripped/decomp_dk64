@@ -79,17 +79,17 @@ typedef struct ModelAnimNodeHeader {
 
 // One animation channel of a model slot (ModelData.entries, 54150).
 typedef struct ModelAnimEntry {
-    /* 0x00 */ ModelAnimNodeHeader *unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ u8 unkE;
-    /* 0x0F */ u8 unkF;
-    /* 0x10 */ u8 unk10;
+    /* 0x00 */ ModelAnimNodeHeader *node;
+    /* 0x04 */ f32 keyFrac;
+    /* 0x08 */ s16 loopCount;
+    /* 0x0A */ s16 loopLimit;
+    /* 0x0C */ s16 speed;
+    /* 0x0E */ u8 active;
+    /* 0x0F */ u8 direction;
+    /* 0x10 */ u8 loopMode;
     /* 0x11 */ s8 keyIndex;
-    /* 0x12 */ u8 unk12;
-    /* 0x13 */ u8 unk13;
+    /* 0x12 */ u8 motionFlags;
+    /* 0x13 */ u8 scaleMode;
 } ModelAnimEntry; // size = 0x14
 
 // Per-slot animation state (ModelSlot.unk78, modelSlotAllocAnimBuffers).

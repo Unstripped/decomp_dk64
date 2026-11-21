@@ -106,7 +106,7 @@ void func_806BDEC8(void) {
 
 
 extern u8 gCurrentWorldId;
-extern u16 D_807446C0[];
+extern u16 gWorldBananaDeliveryGoals[];
 extern u16 gLevelCollectibleCounts[];
 
 
@@ -122,7 +122,7 @@ void bananaDeliveryNpcUpdate(void) {
 
     playerState = gPrimaryPlayerActor->customState;
     idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    ratio = (f32)gLevelCollectibleCounts[idx] / (f32)D_807446C0[idx];
+    ratio = (f32)gLevelCollectibleCounts[idx] / (f32)gWorldBananaDeliveryGoals[idx];
     if (func_806BDD90() == 1) {
         gBehaviourWorkState->timer = slotQueueGetValue(0, 0);
         if (gBehaviourWorkState->timer != 0) {
@@ -163,7 +163,7 @@ void bananaDeliveryNpcUpdate(void) {
                     row->bananasDelivered[idx] += 1;
                     sum = 0;
                     for (i = 0; i < 5; i++) sum += gPlayerInventoryTable[0].kong[i].bananasDelivered[idx]; // LAYOUT: body on the for line keeps as1 emitting the unrolled i=1 address add (v0) before the i=0 one (t3)
-                    if (sum >= D_807446C0[idx]) {
+                    if (sum >= gWorldBananaDeliveryGoals[idx]) {
                         gBehaviourWorkState->timer = 0;
                         slotQueueCancel(0, 0);
                     }

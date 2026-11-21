@@ -377,7 +377,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         state->bounceCount = 0;
         state->collectable = 0;
         state->flagId = ((BounceSpawnConfig *)gCurrentActor->spawnData)->flagId;
-        gCurrentActor->unkFA = 0x270F;
+        gCurrentActor->arcSpeedCap = 0x270F;
     }
     if (gActorGlobalState.notifyReceived != 0) {
         gCurrentActor->state = gActorGlobalState.notifyValue[0];
@@ -524,7 +524,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         state->bounceCount = 0;
         state->collectable = 1;
         state->flagId = ((BounceSpawnConfig *)gCurrentActor->spawnData)->flagId;
-        gCurrentActor->unkFA = 0x270F;
+        gCurrentActor->arcSpeedCap = 0x270F;
         playerAddHealthDelta(0, 0x40);
     }
     if (state->fadeInFrames < 30.0f) {

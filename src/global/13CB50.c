@@ -29,7 +29,7 @@ void setCSPInstrumentFlags(N_CSPlayer *seqp, s32 instIndex, s32 flags) {
 }
 
 void setCSPChannelStateValue(N_CSPlayer *seqp, s32 chan, u8 value) {
-    seqp->chanState[chan].unk10 = value;
+    seqp->chanState[chan].noteNotify = value;
 }
 
 void resetCSPChannelStates(N_CSPlayer *seqp) {
@@ -37,8 +37,8 @@ void resetCSPChannelStates(N_CSPlayer *seqp) {
 
     seqp->chanMask = 0xFFFF;
     for (i = 0; i < seqp->maxChannels; i++) {
-        seqp->chanState[i].unk0E = 0xFF;
-        seqp->chanState[i].unk0D = 0xFF;
+        seqp->chanState[i].fadeTarget = 0xFF;
+        seqp->chanState[i].fadeVol = 0xFF;
     }
 }
 

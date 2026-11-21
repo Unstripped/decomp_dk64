@@ -101,12 +101,12 @@ void bossKRoolDkStep(void) {
         } else {
             switch (gCurrentActor->unk155) {
             case 0:
-                scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
-                scriptState->unk18[1] = scriptOpcodes[scriptState->scriptPos++];
+                scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
+                scriptState->byteVars[1] = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155++;
                 /* fallthrough */
             case 1:
-                gBehaviourWorkState->timer = scriptState->unk18[0];
+                gBehaviourWorkState->timer = scriptState->byteVars[0];
                 gCurrentActor->unk155++;
                 /* fallthrough */
             case 2:
@@ -121,7 +121,7 @@ void bossKRoolDkStep(void) {
                 } else {
                     gCurrentActor->interactionType = 2;
                     actorScriptStart(gCurrentActor, 0x3E9);
-                    gBehaviourWorkState->timer = scriptState->unk18[1];
+                    gBehaviourWorkState->timer = scriptState->byteVars[1];
                     gCurrentActor->unk155++;
                 }
                 break;
@@ -148,12 +148,12 @@ void bossKRoolDkStep(void) {
         } else {
             switch (gCurrentActor->unk155) {
             case 0:
-                scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
+                scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155++;
                 /* fallthrough */
             case 1:
                 if (camIsCutsceneActive() == 0) {
-                    gBehaviourWorkState->timer = scriptState->unk18[0];
+                    gBehaviourWorkState->timer = scriptState->byteVars[0];
                     gBehaviourWorkState->unk2E = 9;
                     actorScriptStart(gCurrentActor, 0x3E7);
                     gCurrentActor->unk155++;

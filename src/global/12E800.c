@@ -52,7 +52,7 @@ void behaviourFrameBegin(void) {
         if (gActorGlobalState.unk1B) {
             if (gCurrentActor->state != 0x39) {
                 if (gBehaviourAnimState->flags & 0x800) {
-                    gActorGlobalState.unk15 = 1;
+                    gActorGlobalState.damaged = 1;
                 } else {
                     actorGlobalStateClearEvents();
                     gCurrentActor->callbackMask = 0;
@@ -68,7 +68,7 @@ void behaviourFrameBegin(void) {
         }
         if ((gBehaviourAnimState->flags & 0x4000) && (gCurrentActor->contactFlags & 4)) {
             if (gCurrentActor->y + gCurrentActor->eyeHeight < gCurrentActor->waterY) {
-                gActorGlobalState.unk15 = 1;
+                gActorGlobalState.damaged = 1;
             }
         }
         if (gCurrentMap == 0x30) {
@@ -77,7 +77,7 @@ void behaviourFrameBegin(void) {
                     sfxStopSlotSound(gCurrentActor, 0);
                     gCurrentActor->state = 0;
                     gCurrentActor->unk155 = 0;
-                    gActorGlobalState.unk15 = 1;
+                    gActorGlobalState.damaged = 1;
                 }
             }
         }
@@ -168,7 +168,7 @@ void actorTurnTowardTarget(u8 mode, f32 targetX, f32 targetZ, u16 flags) {
     }
     if (flags & 4) {
         if (yawDelta != 0) {
-            f32 rampSpeed = yawDelta * gBehaviourAnimState->unk2C;
+            f32 rampSpeed = yawDelta * gBehaviourAnimState->turnAnimScale;
             f32 absRampSpeed = 0.0f < rampSpeed ? rampSpeed : -rampSpeed;
 
             scriptSetActorRampTarget(gCurrentActor, absRampSpeed > 1.0 ? 1.0 : absRampSpeed, 0.0f);
@@ -188,8 +188,8 @@ void behaviourUpdateShadowAlpha(void) {
             shadowAlpha = (gCurrentActor->alpha * 0.7);
             sub = gCurrentActor->sub4;
             entry = &gSpawnEntryTable[gBehaviourAnimState->entryIndex];
-            shadowWidth = (sub->scaleX * entry->shadowScaleX * gBehaviourAnimState->unk30);
-            shadowDepth = (sub->scaleZ * entry->shadowScaleZ * gBehaviourAnimState->unk30);
+            shadowWidth = (sub->scaleX * entry->shadowScaleX * gBehaviourAnimState->shadowScale);
+            shadowDepth = (sub->scaleZ * entry->shadowScaleZ * gBehaviourAnimState->shadowScale);
             billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, shadowWidth, shadowDepth, 1, 0x12C, shadowAlpha, gCurrentActor->yaw, 1.0f);
         }
     }
@@ -214,12 +214,12 @@ void behaviourCheckGroundImpactEffects(void) {
 void actorUpdateStationaryTimer(void) {
     if (!(gBehaviourWorkState->flags & 0x40)) {
         if (gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
-            gBehaviourWorkState->unk38++;
-            if (gBehaviourWorkState->unk38 >= 0x1F) {
+            gBehaviourWorkState->stationaryFrames++;
+            if (gBehaviourWorkState->stationaryFrames >= 0x1F) {
                 gBehaviourWorkState->flags |= 0x40;
             }
         } else {
-            gBehaviourWorkState->unk38 = 0;
+            gBehaviourWorkState->stationaryFrames = 0;
         }
     }
 }
@@ -267,7 +267,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     if ((gCurrentActor->x - centerX) * (gCurrentActor->x - centerX) + (gCurrentActor->z - centerZ) * (gCurrentActor->z - centerZ) < 1600.0f * area) {
         gBehaviourWorkState->flags |= 0x80;
         if (mathAngleDistance(*yawPtr, gCurrentActor->yaw) >= 0x191) {
-            gCurrentActor->speedXZ *= gBehaviourAnimState->unk34;
+            gCurrentActor->speedXZ *= gBehaviourAnimState->nearTurnSpeedScale;
         }
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -377,15 +377,15 @@ void actorSetTargetSpeed(Actor *actor, s32 speed) {
 void actorUpdateAnimSpeedFromSpeed(u16 flags) {
     f32 t;
 
-    t = (gCurrentActor->speedXZ * gBehaviourAnimState->unk38 > 3.0) ? 3.0 : gCurrentActor->speedXZ * gBehaviourAnimState->unk38;
+    t = (gCurrentActor->speedXZ * gBehaviourAnimState->animSpeedScale > 3.0) ? 3.0 : gCurrentActor->speedXZ * gBehaviourAnimState->animSpeedScale;
     if (gCurrentActor->contactFlags & 4) {
         t *= 0.5;
     }
-    if (!(gBehaviourAnimState->unk3C < t)) {
-        t = gBehaviourAnimState->unk3C;
+    if (!(gBehaviourAnimState->minAnimSpeed < t)) {
+        t = gBehaviourAnimState->minAnimSpeed;
     }
     if (!((flags & 0x400) && t < 1.0)) {
-        if (!(flags & 0x200) && t != gCurrentActor->sub4->unk48) {
+        if (!(flags & 0x200) && t != gCurrentActor->sub4->speed) {
             scriptSetActorRampTarget(gCurrentActor, t, 0.0f);
         }
     }
@@ -470,7 +470,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                 case 1:
                     pathPlaybackAdvance(gCurrentActor->unk15F);
                     pathPlaybackGetPosition(gCurrentActor->unk15F, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
-                    if (gBehaviourAnimState->unk38 != 0.0f) {
+                    if (gBehaviourAnimState->animSpeedScale != 0.0f) {
                         gCurrentActor->speedXZ = sqrtf(((gCurrentActor->x - gCurrentActor->prevX) * (gCurrentActor->x - gCurrentActor->prevX)) + ((gCurrentActor->y - gCurrentActor->prevY) * (gCurrentActor->y - gCurrentActor->prevY)) + ((gCurrentActor->z - gCurrentActor->prevZ) * (gCurrentActor->z - gCurrentActor->prevZ))) * 40.0f;
                         actorUpdateAnimSpeedFromSpeed(0);
                         actorAlignToMotion(6.0f);
@@ -573,7 +573,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             break;
         case 0x3A:
             if (gCurrentActor->unk155 == 0) {
-                if (gActorGlobalState.unk15 == 0) {
+                if (gActorGlobalState.damaged == 0) {
                     scriptSetActorRampTarget(gCurrentActor, 0.0f, 8.0f);
                     actorSetTargetSpeed(gCurrentActor, 0);
                 }
@@ -607,7 +607,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     gCurrentActor->flags &= 0xFFFD7FFF;
                     gCurrentActor->callbackMask &= 0xFFFF7FFF;
                     gCurrentActor->alpha = 0;
-                    gBehaviourWorkState->unk39 = 0x5A;
+                    gBehaviourWorkState->emergeTimer = 0x5A;
                     gBehaviourWorkState->unk2E = gCurrentActor->sub4->scaleY * gCurrentActor->collision->scaledRadius;
                     gCurrentActor->y -= gBehaviourWorkState->unk2E;
                     gCurrentActor->unk72 = 0;
@@ -618,16 +618,16 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     effectSetDepth(1);
                     effectSetSpeed(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
                     effectCreateAtPosition(&D_8071FC58, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
-                    if (gBehaviourWorkState->unk39 != 0) {
+                    if (gBehaviourWorkState->emergeTimer != 0) {
                         f32 t;
 
-                        gBehaviourWorkState->unk39--;
-                        t = gBehaviourWorkState->unk39 / 90.0f;
+                        gBehaviourWorkState->emergeTimer--;
+                        t = gBehaviourWorkState->emergeTimer / 90.0f;
                         gCurrentActor->y = gBehaviourExtraState->y + (((gBehaviourExtraState->y - gBehaviourWorkState->unk2E) - gBehaviourExtraState->y) * t);
                         if (gCurrentActor->soundSlots[0] == -1) {
                             gCurrentActor->soundSlots[0] = sfxSlotAllocateActor(gCurrentActor, 0x131, 0, 0, 0xFF, 1.0f, 0);
                         }
-                        gCurrentActor->unk74 = gBehaviourExtraState->y - gCurrentActor->y;
+                        gCurrentActor->soundVolume = gBehaviourExtraState->y - gCurrentActor->y;
                         gCurrentActor->unk72++;
                         gCurrentActor->yaw += (gBehaviourExtraState->y - gCurrentActor->y) * 60.0f;
                         gCurrentActor->alpha = (-255.0f * t) + 255.0f;
@@ -665,7 +665,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
     *outTarget = 1;
     if (gCurrentActor->collisionFlags & 2) {
         if (gCurrentActor->state != 0x15 &&
-            ((gBehaviourTargetActor->actorType == 6 && gPlayerSlots->unk2C0 == 2 && gPlayerCount == 1) ||
+            ((gBehaviourTargetActor->actorType == 6 && gPlayerSlots->sizeMode == 2 && gPlayerCount == 1) ||
              ((gBehaviourTargetActor->collisionFlags & 1) && (playerState->stateFlags & 0x10)))) {
             nextState = 7;
         } else if (gBehaviourWorkState->engageState == 7 && checkMode != 0 && !(gBehaviourWorkState->flags & 0x200) && gBehaviourWorkState->unk20 == 0) {
@@ -710,7 +710,7 @@ void behaviourSetChaseState(u8 state, u8 speed, s32 scriptId) {
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         }
     }
-    gBehaviourWorkState->unk36 = state;
+    gBehaviourWorkState->chaseState = state;
     actorSetBehaviourState(state, speed, scriptId);
 }
 
@@ -786,7 +786,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                 return;
             }
         case 0x23:
-            if ((ret ^ 0) != gBehaviourWorkState->unk36 && (hasTarget == 0 || (s32)ret >= 7)) { // FAKE: the uxor makes ret an op, so the unk36 load is the first beq operand (beq t5,v0 at 0x3170)
+            if ((ret ^ 0) != gBehaviourWorkState->chaseState && (hasTarget == 0 || (s32)ret >= 7)) { // FAKE: the uxor makes ret an op, so the unk36 load is the first beq operand (beq t5,v0 at 0x3170)
                 behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
                 return;
             }
@@ -823,7 +823,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                 }
             }
         case 0x10:
-            if (type != gBehaviourWorkState->unk36) {
+            if (type != gBehaviourWorkState->chaseState) {
                 behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
             }
             if (near & 0xFF) { // ORIG: andi t7,t4,0xff at 0x33f4/0x341c
@@ -1072,14 +1072,14 @@ void sfxPlayAtFBD6CPosition(void) {
     effectCreateAtPosition(&D_8071FB34, 0.55f, gActorGlobalState.targetActor->x, gActorGlobalState.targetActor->y, gActorGlobalState.targetActor->z);
 }
 
-extern EffectGridAsset D_8071FF18;
+extern EffectGridAsset gEffectSpriteDustPuff;
 
 void behaviourSpawnDropParticle(void) {
     effectSetFrameDelay(2);
     effectSetDepth(1);
     effectSetCallback(effectSinkBySpeedUpdate);
     effectSetSpeed(-0x28 - ((randomNonNegative() >> 15) % 15));
-    effectCreateAtPosition(&D_8071FF18, (((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectCreateAtPosition(&gEffectSpriteDustPuff, (((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
 }
 
 extern u8 gCurrentPlayerIndex;

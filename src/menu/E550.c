@@ -25,7 +25,7 @@ void menuLightSpotlightActorUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkCD = 1;
+        gCurrentActor->lightNodeId = 1;
         gCurrentActor->flags &= ~4;
     }
     if (gCurrentActor->flags & 4) {

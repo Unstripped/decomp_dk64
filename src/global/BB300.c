@@ -94,7 +94,7 @@ void func_806B6958(void) {
     if (gActorGlobalState.bossFightPhase == 4) {
         func_80724C2C(-0x96);
     }
-    if (gBehaviourWorkState->timer == 0 || gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
+    if (gBehaviourWorkState->timer == 0 || gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B2, 0xFF, 0x7F, 0x1E);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B7, 0xFF, 0x7F, 0x1E);
         effectSpawnRing();
@@ -141,11 +141,11 @@ void func_806B6DB0(s32 aggroRange) {
     }
     near = ((gCurrentActor->x - gBehaviourTargetActor->x) * (gCurrentActor->x - gBehaviourTargetActor->x) + (gCurrentActor->z - gBehaviourTargetActor->z) * (gCurrentActor->z - gBehaviourTargetActor->z)) < 2500.0f;
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk34 = 1.0f;
+        gBehaviourAnimState->nearTurnSpeedScale = 1.0f;
         func_80724CA4(2, 2);
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
     }
-    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         tgt = gActorGlobalState.targetActor;
         gCurrentActor->speedY = 200.0f;
         behaviourCalculateDamageForce(tgt, 0x236);

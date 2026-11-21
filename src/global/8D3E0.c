@@ -235,7 +235,7 @@ extern u8 gCurrentWorldId;
 extern u8 *gSavedMapModelData;
 extern s32 gMapChunkCount;
 
-extern Struct8076A160 D_8076A160[];
+extern Struct8076A160 gSavedMapSlots[];
 
 
 void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
@@ -263,7 +263,7 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
         }
     } else {
         gSavedMapModelData = modelData;
-        modelData = D_8076A160[slot].modelData;
+        modelData = gSavedMapSlots[slot].modelData;
     }
     modelAssetGetSubtables(modelData, &modelEntries, &records);
     if (skipExtra != 0) {
@@ -275,14 +275,14 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
     csTimerQueueFire(gCurrentLevelIndex);
     actorListSpawnFromRecords(records);
     if (slot != -1) {
-        if (D_8076A160[slot].records != NULL) {
-            modelSlotsApplyRecords(D_8076A160[slot].records, D_8076A160[slot].recordSize);
+        if (gSavedMapSlots[slot].records != NULL) {
+            modelSlotsApplyRecords(gSavedMapSlots[slot].records, gSavedMapSlots[slot].recordSize);
         }
         for (chunk = 0; chunk < gMapChunkCount; chunk++) {
             lightSetColor(
-                D_8076A160[slot].rgb[chunk][0] / 255.0,
-                D_8076A160[slot].rgb[chunk][1] / 255.0,
-                D_8076A160[slot].rgb[chunk][2] / 255.0,
+                gSavedMapSlots[slot].rgb[chunk][0] / 255.0,
+                gSavedMapSlots[slot].rgb[chunk][1] / 255.0,
+                gSavedMapSlots[slot].rgb[chunk][2] / 255.0,
                 chunk);
         }
     }
@@ -426,7 +426,7 @@ void actorListSetCustomFloat(s16 map, s16 targetId, s16 index, f32 val) {
     found = 0;
     slot = mapFindSlotIndex(map);
     if (slot != -1) {
-        modelAssetGetSubtables(D_8076A160[slot].modelData, &modelEntries, &records);
+        modelAssetGetSubtables(gSavedMapSlots[slot].modelData, &modelEntries, &records);
         count = *(s32 *)records;
         records += sizeof(s32);
         item = (ActorListRecord *)records;

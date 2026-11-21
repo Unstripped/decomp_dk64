@@ -373,8 +373,8 @@ void lightApplyToActors(void) {
                                 shadowScale[1] = 0.15f;
                             }
                             alpha = actor->alpha / 255.0;
-                            billboardSubmit(actor, 0x3C9, 0x40, 0x40, actor->unk16E[0] * shadowScale[0],
-                                            actor->unk16E[1] * shadowScale[1], 1, 0x64,
+                            billboardSubmit(actor, 0x3C9, 0x40, 0x40, actor->shadowScale[0] * shadowScale[0],
+                                            actor->shadowScale[1] * shadowScale[1], 1, 0x64,
                                             gShadowLitAlpha * dot * alpha, angle + 0xC00, scale * dot);
                             litActors[j] = 1;
                         }
@@ -422,8 +422,8 @@ void lightApplyToActors(void) {
                                          gLightVolumes[i].b, 0);
                         if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                             alpha = actor->alpha / 255.0;
-                            billboardSubmit(actor, 0x3C9, 0x40, 0x40, actor->unk16E[0] * shadowScale[0],
-                                            actor->unk16E[1] * shadowScale[1], 1, 0x64,
+                            billboardSubmit(actor, 0x3C9, 0x40, 0x40, actor->shadowScale[0] * shadowScale[0],
+                                            actor->shadowScale[1] * shadowScale[1], 1, 0x64,
                                             gShadowLitAlpha * alpha, angle + 0xC00, scale);
                         }
                     } else {
@@ -438,8 +438,8 @@ void lightApplyToActors(void) {
                             if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                                 alpha = actor->alpha / 255.0;
                                 billboardSubmit(actor, 0x3C9, 0x40, 0x40,
-                                                actor->unk16E[0] * shadowScale[0],
-                                                actor->unk16E[1] * shadowScale[1], 1, 0x64,
+                                                actor->shadowScale[0] * shadowScale[0],
+                                                actor->shadowScale[1] * shadowScale[1], 1, 0x64,
                                                 gShadowLitAlpha * factor * alpha, angle + 0xC00,
                                                 scale * factor);
                             }
@@ -462,8 +462,8 @@ void lightApplyToActors(void) {
                     shadowScale[1] = 0.15f;
                 }
                 alpha = actor->alpha / 255.0;
-                billboardSubmit(actor, 0x3C9, 0x40, 0x40, actor->unk16E[0] * shadowScale[0],
-                                actor->unk16E[1] * shadowScale[1], 1, 0x64,
+                billboardSubmit(actor, 0x3C9, 0x40, 0x40, actor->shadowScale[0] * shadowScale[0],
+                                actor->shadowScale[1] * shadowScale[1], 1, 0x64,
                                 gShadowAmbientAlpha * alpha, 0, 1);
             }
         }

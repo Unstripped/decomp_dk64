@@ -59,7 +59,7 @@ void particleFindPathIndices(s16 levelIndex) {
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern s32 effectAssetPathTrail;
-extern s32 D_8071FF18;
+extern s32 gEffectSpriteDustPuff;
 
 void particleSpawnPathTrail(void) {
     s32 i;
@@ -106,7 +106,7 @@ void particleSpawnPathTrail(void) {
                     effectSetSpeed(-0xAA);
                     effectSetMaxDistance(node->radius);
                     factor = ((randomNonNegative() % 10000) % 1000) / 1000.0;
-                    effectCreateAtPosition(&D_8071FF18, node->sparkScale,
+                    effectCreateAtPosition(&gEffectSpriteDustPuff, node->sparkScale,
                                            (node->endX - node->startX) * factor + node->startX,
                                            (node->endY - node->startY) * factor + node->startY,
                                            (node->endZ - node->startZ) * factor + node->startZ);

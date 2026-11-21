@@ -25,8 +25,8 @@ void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
     if (owner->pathFollow == NULL) {
         owner->pathFollow = heapAlloc(sizeof(PathFollowState));
         state = owner->pathFollow;
-        if (owner->unkB0[0] != -1 && pathExists(owner->unkB0[0]) != 0) {
-            state->pathId = owner->unkB0[0];
+        if (owner->waterPathId[0] != -1 && pathExists(owner->waterPathId[0]) != 0) {
+            state->pathId = owner->waterPathId[0];
         } else {
             state->pathId = -1;
         }

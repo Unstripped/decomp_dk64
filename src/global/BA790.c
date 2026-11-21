@@ -49,7 +49,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     } else {
         yawDiff = gCurrentActor->moveYaw - gCurrentActor->yaw;
     }
-    if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
+    if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x38) {
             switch (gCurrentActor->actorType) {
             case 0xAF:

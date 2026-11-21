@@ -139,7 +139,7 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->alpha = 0xFF;
         }
     }
-    if (gPlayerSlots->unk2C0 != 1 && (gCurrentActor->state == 0x42 || gCurrentActor->state == 0x27)) {
+    if (gPlayerSlots->sizeMode != 1 && (gCurrentActor->state == 0x42 || gCurrentActor->state == 0x27)) {
         gCurrentActor->collisionMode = 1;
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->state = 0x29;

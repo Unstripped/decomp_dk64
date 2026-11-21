@@ -89,7 +89,7 @@ void rumbleRequest(u8 playerIndex, u8 intensity, s32 duration) {
     RumbleInfo *info;
 
     info = &gRumbleInfo[controllerGetPort(playerIndex)];
-    if (gRumblePaused != 1 && info->pakState == 1 && gPlayerSlots[playerIndex].unk2EB == 0) {
+    if (gRumblePaused != 1 && info->pakState == 1 && gPlayerSlots[playerIndex].rumbleDisabled == 0) {
         if (menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) {
             if (info->overheated != 0) {
                 if (info->heat >= 0x1F) {

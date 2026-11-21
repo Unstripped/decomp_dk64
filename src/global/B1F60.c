@@ -19,7 +19,7 @@ extern PlayerStruct *gPlayerSlots;
 
 
 void actorPatrolFollowerUpdate(s16 targetId, u8 skipStep, u16 movementFlags) {
-    if (targetId != 0 && (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0)) {
+    if (targetId != 0 && (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0)) {
         if (gCurrentActor->state != 0x37) {
             gCurrentActor->speedY = 200.0f;
             behaviourCalculateDamageForce(gActorGlobalState.targetActor, targetId);
@@ -178,7 +178,7 @@ void func_806AD9F4(void) {
             actorSpawnLinkedFollower();
         }
     }
-    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2F7);
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->speedXZ = -200.0f;

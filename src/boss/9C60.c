@@ -47,7 +47,7 @@ void bossAttachActor(void) {
 
 void bossUpdateAttachment(void) {
     actorCopyPoseAndScale(gCurrentActor, gCurrentActor->parentActor, gCurrentActor->sub4->scaleY);
-    gCurrentActor->sub4->unk48 = gCurrentActor->parentActor->sub4->unk48;
+    gCurrentActor->sub4->speed = gCurrentActor->parentActor->sub4->speed;
     if (gCurrentActor->sub4->model->animId == 0x675 && gCurrentActor->sub4->model->speed == 0.0f) {
         actorDespawn(gCurrentActor);
     }
@@ -139,13 +139,13 @@ void bossKRoolDiddyStep(void) {
     case 0x28:
         switch (gCurrentActor->unk155) {
         case 0:
-            scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
-            scriptState->unk18[1] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->byteVars[1] = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155++;
             /* fallthrough */
         case 1:
             if (camIsCutsceneActive() == 0) {
-                gBehaviourWorkState->timer = scriptState->unk18[0];
+                gBehaviourWorkState->timer = scriptState->byteVars[0];
                 actorScriptStart(gCurrentActor, 0x3EF);
                 gCurrentActor->unk155++;
             }
@@ -153,7 +153,7 @@ void bossKRoolDiddyStep(void) {
         case 3:
             gCurrentActor->segmentFlags = 6;
             projectileGetTargetCoords(gCurrentActor, 4);
-            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->sub4->scaleY, 0, scriptState->unk18[1] * projectileScale, 0.0f, gCurrentActor);
+            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->sub4->scaleY, 0, scriptState->byteVars[1] * projectileScale, 0.0f, gCurrentActor);
             gCurrentActor->unk155++;
             break;
         case 5:

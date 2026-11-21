@@ -646,7 +646,7 @@ void bonusTargetUpdate(void) {
     currentActorAnimTryIdleVariant(0, &target->lastFrame);
     switch (gCurrentActor->state) {
     case 0:
-        if (gActorGlobalState.unk15 != 0) {
+        if (gActorGlobalState.damaged != 0) {
             if (game->targetsLeft - ((target->targetType != 0) ? 2 : 1) < 0) {
                 game->targetsLeft = 0;
             } else {
@@ -1232,7 +1232,7 @@ void bonusLightFlashTargetUpdate(void) {
         gCurrentActor->collisionMode = 0x24;
     }
     isHit = 0;
-    if (gActorGlobalState.unk15 == 1 && game->flashTimer >= -9) {
+    if (gActorGlobalState.damaged == 1 && game->flashTimer >= -9) {
         isHit = 1;
     }
     if (subExt->slot != 5) {
@@ -1485,7 +1485,7 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
             }
         }
     }
-    if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->frame > 48.0f)) && gActorGlobalState.unk15 == 1) {
+    if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->frame > 48.0f)) && gActorGlobalState.damaged == 1) {
         actorScriptStart(gCurrentActor, 0x23C);
         actorExt->snapTimer = ((randomLcgNext() & 7) + 6) * sPathPanicSnapDelay;
     }
@@ -2105,7 +2105,7 @@ void bonusSearchlightSeekTargetUpdate(void) {
             target->heading += (randomLcgNext() & 0xF) + 3;
             target->radius = 40.0 * randomFloat() + 10.0;
         }
-        if (gActorGlobalState.unk15 == 1) {
+        if (gActorGlobalState.damaged == 1) {
             gCurrentActor->alpha = 0xFF;
             gCurrentActor->flags &= ~0x8000;
             actorScriptStart(gCurrentActor, 0x332);

@@ -108,7 +108,7 @@ void triggerZoneSpawnTrigger(Actor *actor, TriggerZoneData *zone) {
     spawnState->axisFlags = zone->axisFlags;
     spawnState->planeOffset = zone->planeOffset;
     spawnState->alpha = zone->alpha;
-    actor->unk156++;
+    actor->mirrorCount++;
 }
 
 
@@ -129,7 +129,7 @@ void triggerZoneUpdate(void) {
                 (f32)zone->xMax < actor->x ||
                 (f32)zone->yMax < actor->y ||
                 (f32)zone->zMax < actor->z) {
-                actor->unk156--;
+                actor->mirrorCount--;
                 actorDespawn(subNode->spawnedActor);
                 toFree = subNode;
                 *subListPtr = subNode->next;

@@ -56,7 +56,7 @@ typedef struct {
 
 // This TU's .data (0x80754AF0-0x80754CD4 + 12-byte TU pad) is emitted in source order: these two
 // objects, zbufferReadDepth's decode table, the screen-fade vertices, screenFadeUpdate's channel list.
-LensFlareSprite D_80754AF0[13] = {
+LensFlareSprite gLensFlareSprites[13] = {
     { 1.0f, 1.0f, 255, 255, 255, 255, 3 },
     { 0.08f, 1.2f, 250, 220, 220, 200, 2 },
     { 0.8f, 1.0f, 255, 255, 255, 50, 1 },
@@ -71,7 +71,7 @@ LensFlareSprite D_80754AF0[13] = {
     { 3.0f, 0.0f, 100, 255, 255, 75, 1 },
     { 1.0f, 1.0f, 255, 50, 0, 255, 4 },
 };
-u8 D_80754BC0 = 0;
+u8 gLensFlareSourceCount = 0;
 
 Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     gDPPipeSync(dl++);
@@ -297,9 +297,9 @@ typedef struct {
     f32 depth;
 } ScreenPoint;
 
-extern ScreenPoint D_807FD840[2][3];
+extern ScreenPoint gLensFlareScreenPoints[2][3];
 
-extern LensFlarePoint D_807FD808[2];
+extern LensFlarePoint gLensFlareSources[2];
 
 void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 minDot, u8 r, u8 g, u8 b) {
     f32 screenX;
@@ -312,7 +312,7 @@ void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 m
     f32 pad0;
     f32 pad1;
 
-    if (D_80754BC0 < 2) {
+    if (gLensFlareSourceCount < 2) {
         visible = 1;
         if (minDot != 0.0f) {
             delta.x = dirX - x;
@@ -332,17 +332,17 @@ void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 m
             }
         }
         if (visible != 0) {
-            D_807FD840[gGfxBufferIndex][D_80754BC0].depth = MIN(995.0f, sqrtf(SQ(gPlayerSlots->eyeZ - z) + (SQ(gPlayerSlots->eyeX - x) + SQ(gPlayerSlots->eyeY - y))));
+            gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].depth = MIN(995.0f, sqrtf(SQ(gPlayerSlots->eyeZ - z) + (SQ(gPlayerSlots->eyeX - x) + SQ(gPlayerSlots->eyeY - y))));
             camProjectToScreen(x, y, z, &screenX, &screenY, 0, 4.0f, 0);
-            D_807FD840[gGfxBufferIndex][D_80754BC0].x = screenX * 0.25;
-            D_807FD840[gGfxBufferIndex][D_80754BC0].y = screenY * 0.25;
-            D_807FD808[D_80754BC0].x = x;
-            D_807FD808[D_80754BC0].y = y;
-            D_807FD808[D_80754BC0].z = z;
-            D_807FD808[D_80754BC0].r = r;
-            D_807FD808[D_80754BC0].g = g;
-            D_807FD808[D_80754BC0].b = b;
-            D_80754BC0 += 1;
+            gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].x = screenX * 0.25;
+            gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].y = screenY * 0.25;
+            gLensFlareSources[gLensFlareSourceCount].x = x;
+            gLensFlareSources[gLensFlareSourceCount].y = y;
+            gLensFlareSources[gLensFlareSourceCount].z = z;
+            gLensFlareSources[gLensFlareSourceCount].r = r;
+            gLensFlareSources[gLensFlareSourceCount].g = g;
+            gLensFlareSources[gLensFlareSourceCount].b = b;
+            gLensFlareSourceCount += 1;
         }
     }
 }
@@ -356,13 +356,13 @@ Gfx *playerViewSetPrimaryViewport(Gfx *dl) {
     return dl;
 }
 
-extern u8 D_807FD838[2][3];
+extern u8 gLensFlareFade[2][3];
 extern Mtx D_2000180;
 
 Gfx *lensFlareBuildDisplayList(Gfx *dl) {
     s16 i;
 
-    if (D_80754BC0 != 0) {
+    if (gLensFlareSourceCount != 0) {
         gDPPipeSync(dl++);
         dl = playerViewSetPrimaryViewport(dl);
         gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -377,9 +377,9 @@ Gfx *lensFlareBuildDisplayList(Gfx *dl) {
         gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
         gDPSetColorDither(dl++, G_CD_DISABLE);
         gDPSetAlphaDither(dl++, G_AD_DISABLE);
-        for (i = 0; i < D_80754BC0; i++) {
-            if (D_807FD838[gGfxBufferIndex ^ 1][i] != 0) {
-                dl = lensFlareDrawSource(dl, D_807FD808[i], D_807FD838[gGfxBufferIndex ^ 1][i]--);
+        for (i = 0; i < gLensFlareSourceCount; i++) {
+            if (gLensFlareFade[gGfxBufferIndex ^ 1][i] != 0) {
+                dl = lensFlareDrawSource(dl, gLensFlareSources[i], gLensFlareFade[gGfxBufferIndex ^ 1][i]--);
             }
         }
         gDPSetColorDither(dl++, G_CD_MAGICSQ);
@@ -388,7 +388,7 @@ Gfx *lensFlareBuildDisplayList(Gfx *dl) {
     return dl;
 }
 
-extern s16 *D_8076A0A0;
+extern s16 *gZbufferDistanceTable;
 
 s16 zbufferDepthToDistance(s16 depth) {
     s16 lo;
@@ -404,12 +404,12 @@ s16 zbufferDepthToDistance(s16 depth) {
     }
     do {
         mid = (lo + hi) / 2;
-        if (depth < D_8076A0A0[mid]) {
+        if (depth < gZbufferDistanceTable[mid]) {
             hi = mid - 1;
         } else {
             lo = mid + 1;
         }
-        if (depth >= D_8076A0A0[mid] && depth < D_8076A0A0[mid + 1]) {
+        if (depth >= gZbufferDistanceTable[mid] && depth < gZbufferDistanceTable[mid + 1]) {
             return mid + 8;
         }
     } while (hi >= lo);
@@ -463,21 +463,21 @@ void playerViewUpdateDepthProbes(void) {
     u16 halfWidth;
     PadInputState *pad;
 
-    if (D_80754BC0 != 0) {
+    if (gLensFlareSourceCount != 0) {
         do {
-            D_80754BC0--;
-            if (gPlayerSlots->rect[0] < D_807FD840[gGfxBufferIndex][D_80754BC0].x &&
-                D_807FD840[gGfxBufferIndex][D_80754BC0].x < gPlayerSlots->rect[2] &&
-                gPlayerSlots->rect[1] < D_807FD840[gGfxBufferIndex][D_80754BC0].y &&
-                D_807FD840[gGfxBufferIndex][D_80754BC0].y < gPlayerSlots->rect[3] &&
+            gLensFlareSourceCount--;
+            if (gPlayerSlots->rect[0] < gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].x &&
+                gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].x < gPlayerSlots->rect[2] &&
+                gPlayerSlots->rect[1] < gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].y &&
+                gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].y < gPlayerSlots->rect[3] &&
                 !(gGlobalPauseFlags & 2)) {
-                if (D_807FD840[gGfxBufferIndex][D_80754BC0].depth <
-                    zbufferDepthToDistance(zbufferReadDepth(D_807FD840[gGfxBufferIndex][D_80754BC0].x,
-                                                            D_807FD840[gGfxBufferIndex][D_80754BC0].y))) {
-                    D_807FD838[gGfxBufferIndex][D_80754BC0] = 5;
+                if (gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].depth <
+                    zbufferDepthToDistance(zbufferReadDepth(gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].x,
+                                                            gLensFlareScreenPoints[gGfxBufferIndex][gLensFlareSourceCount].y))) {
+                    gLensFlareFade[gGfxBufferIndex][gLensFlareSourceCount] = 5;
                 }
             }
-        } while (D_80754BC0 != 0);
+        } while (gLensFlareSourceCount != 0);
     }
     gViewProbeHitsFarPlane = zbufferReadDepth(0xA0, 0xDC) == 0x7FFF || zbufferReadDepth(0xC, 0x78) == 0x7FFF || zbufferReadDepth(0x134, 0x78) == 0x7FFF;
     gPhotoSubjectDepthDist = zbufferDepthToDistance(zbufferReadDepth(gPhotoSubjectScreenX, gPhotoSubjectScreenY));
@@ -519,7 +519,7 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     alpha = fade / 5.0;
     vec3fSet(&src, pt.x, pt.y, pt.z);
     vec3fSet(&eye, gPlayerSlots->eyeX, gPlayerSlots->eyeY, gPlayerSlots->eyeZ);
-    vec3fSet(&at, gPlayerSlots->unk234, gPlayerSlots->unk238, gPlayerSlots->unk23C);
+    vec3fSet(&at, gPlayerSlots->eyeFocusX, gPlayerSlots->eyeFocusY, gPlayerSlots->eyeFocusZ);
     viewDir = vec3fNormalize(vec3fSub(at, eye));
     axisEnd = vec3fAdd(eye, vec3fScale(viewDir, 5000.0f));
     srcDir = vec3fNormalize(vec3fSub(src, eye));
@@ -546,13 +546,13 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
             camProjectToScreen(src.x, src.y, src.z, &screenX, &screenY, 0, 4.0f, 0);
             break;
         default:
-            pos = vec3fAdd(axisEnd, vec3fScale(axisSpan, D_80754AF0[i].axisPos));
+            pos = vec3fAdd(axisEnd, vec3fScale(axisSpan, gLensFlareSprites[i].axisPos));
             camProjectToScreen(pos.x, pos.y, pos.z, &screenX, &screenY, 0, 4.0f, 0);
             break;
         }
         gDPPipeSync(dl++);
-        gDPSetPrimColor(dl++, 0, 0, (u32)((pt.r / 255.0) * D_80754AF0[i].r * colorScale), (u32)((pt.g / 255.0) * D_80754AF0[i].g * colorScale), (u32)((pt.b / 255.0) * D_80754AF0[i].b * colorScale), (u32)(D_80754AF0[i].a * alphaScale * alpha));
-        dl = renderRotatedSprite(dl, D_80754AF0[i].texOffset + 0x4D, 3, 1, 0x40, 0x40, screenX, screenY, D_80754AF0[i].scale * 4.0f * alpha, D_80754AF0[i].scale * 4.0f * alpha, 0, 0.0f);
+        gDPSetPrimColor(dl++, 0, 0, (u32)((pt.r / 255.0) * gLensFlareSprites[i].r * colorScale), (u32)((pt.g / 255.0) * gLensFlareSprites[i].g * colorScale), (u32)((pt.b / 255.0) * gLensFlareSprites[i].b * colorScale), (u32)(gLensFlareSprites[i].a * alphaScale * alpha));
+        dl = renderRotatedSprite(dl, gLensFlareSprites[i].texOffset + 0x4D, 3, 1, 0x40, 0x40, screenX, screenY, gLensFlareSprites[i].scale * 4.0f * alpha, gLensFlareSprites[i].scale * 4.0f * alpha, 0, 0.0f);
     }
     gDPPipeSync(dl++);
     if (facing > 0.97) {
@@ -563,10 +563,10 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     return dl;
 }
 
-extern u8 D_807FD890;
+extern u8 gUnderwaterTintSnap;
 
 void func_80701C90(void) {
-    D_807FD890 = 1;
+    gUnderwaterTintSnap = 1;
 }
 
 extern Mtx D_2000000;
@@ -596,7 +596,7 @@ Gfx *func_80701CA0(Gfx *dl) {
     case 0xB3:
         return dl;
     case 0x1E:
-        if ((gPlayerSlots[0].unk290 == 9 || gPlayerSlots[0].unk290 == 0xA) && flagGet(0x9C, 0) != 0) {
+        if ((gPlayerSlots[0].camChunk == 9 || gPlayerSlots[0].camChunk == 0xA) && flagGet(0x9C, 0) != 0) {
             return dl;
         }
     default:
@@ -607,7 +607,7 @@ Gfx *func_80701CA0(Gfx *dl) {
             playerState = gPlayerSlots[i].actor->customState;
             camActor = playerState->camActor;
             camState = camActor->customState;
-            if (force != 0 || (gPlayerSlots[i].unk2E8 != 0 && gPlayerSlots[i].eyeY < gPlayerSlots[i].unk24C + 3.0f)) {
+            if (force != 0 || (gPlayerSlots[i].unk2E8 != 0 && gPlayerSlots[i].eyeY < gPlayerSlots[i].camWaterY + 3.0f)) {
                 vtx = heapAlloc(0x40);
                 heapFreeDeferred(vtx);
                 vtx[0].v.ob[0] = gPlayerSlots[i].rect[0];
@@ -627,7 +627,7 @@ Gfx *func_80701CA0(Gfx *dl) {
                 gDPSetScissor(dl++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
                 gDPSetCombineMode(dl++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
-                depthDiff = gPlayerSlots[i].unk24C - gPlayerSlots[i].eyeY;
+                depthDiff = gPlayerSlots[i].camWaterY - gPlayerSlots[i].eyeY;
                 switch (gCurrentMap) {
                 case 0x1E:
                     depthDiff = depthDiff * 0.07;
@@ -645,7 +645,7 @@ Gfx *func_80701CA0(Gfx *dl) {
                 if (depthDiff > 80.0f) {
                     depthDiff = 80.0f;
                 }
-                if (D_807FD890 != 0) {
+                if (gUnderwaterTintSnap != 0) {
                     playerState->underwaterTint = depthDiff;
                 } else {
                     playerState->underwaterTint = playerState->underwaterTint + (f64)(depthDiff - playerState->underwaterTint) * 0.05;
@@ -661,16 +661,16 @@ Gfx *func_80701CA0(Gfx *dl) {
                 gDPPipeSync(dl++);
             }
             gPlayerSlots[i].unk2E8 = camState->hasWater;
-            gPlayerSlots[i].unk24C = camState->waterY;
+            gPlayerSlots[i].camWaterY = camState->waterY;
         }
     }
     if (drew != 0) {
         gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
         gSPMatrix(dl++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
         gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        D_807FD890 = 0;
+        gUnderwaterTintSnap = 0;
     } else {
-        D_807FD890 = 1;
+        gUnderwaterTintSnap = 1;
     }
     return dl;
 }
@@ -874,9 +874,9 @@ void viewportShrinkToCenter(u8 amount) {
     }
     gPlayerSlots->rect[0] = (s32)((f32)gGfxScreenLeft + ((f32)((gScreenWidth >> 1) - gGfxScreenLeft - 1) * scale));
     gPlayerSlots->rect[2] = (s32)((f32)gGfxScreenRight + ((f32)((gScreenWidth >> 1) - gGfxScreenRight) * scale));
-    gPlayerSlots->unk27A = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
-    gPlayerSlots->unk278 = gPlayerSlots->rect[2] - gPlayerSlots->rect[0];
-    gPlayerSlots->unk280 = (f32)gPlayerSlots->unk278 / (f32)gPlayerSlots->unk27A;
+    gPlayerSlots->rectHeight = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
+    gPlayerSlots->rectWidth = gPlayerSlots->rect[2] - gPlayerSlots->rect[0];
+    gPlayerSlots->aspect = (f32)gPlayerSlots->rectWidth / (f32)gPlayerSlots->rectHeight;
 }
 
 Vtx D_80754C08[4] = {
@@ -887,7 +887,7 @@ Vtx D_80754C08[4] = {
 };
 // Full-screen gradient quad, one per framebuffer: screenFadeDrawGradient sets the right and bottom
 // edges to the screen size and the corner alphas each frame.
-Vtx D_80754C48[2][4] = {
+Vtx gScreenFadeGradientVtx[2][4] = {
     {
         {{{ 0, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
         {{{ 320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
@@ -913,15 +913,15 @@ Gfx *screenFadeDrawGradient(Gfx *dl, u8 alpha) {
     gDPSetTexturePersp(dl++, G_TP_NONE);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     gDPSetCombineMode(dl++, G_CC_SHADE, G_CC_SHADE);
-    D_80754C48[gGfxBufferIndex][0].v.cn[3] = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
-    D_80754C48[gGfxBufferIndex][1].v.cn[3] = alpha;
-    D_80754C48[gGfxBufferIndex][2].v.cn[3] = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
-    D_80754C48[gGfxBufferIndex][3].v.cn[3] = alpha;
-    D_80754C48[gGfxBufferIndex][1].v.ob[0] = gScreenWidth;
-    D_80754C48[gGfxBufferIndex][2].v.ob[0] = gScreenWidth;
-    D_80754C48[gGfxBufferIndex][2].v.ob[1] = gScreenHeight;
-    D_80754C48[gGfxBufferIndex][3].v.ob[1] = gScreenHeight;
-    gSPVertex(dl++, osVirtualToPhysical(D_80754C48[gGfxBufferIndex]), 4, 0);
+    gScreenFadeGradientVtx[gGfxBufferIndex][0].v.cn[3] = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
+    gScreenFadeGradientVtx[gGfxBufferIndex][1].v.cn[3] = alpha;
+    gScreenFadeGradientVtx[gGfxBufferIndex][2].v.cn[3] = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
+    gScreenFadeGradientVtx[gGfxBufferIndex][3].v.cn[3] = alpha;
+    gScreenFadeGradientVtx[gGfxBufferIndex][1].v.ob[0] = gScreenWidth;
+    gScreenFadeGradientVtx[gGfxBufferIndex][2].v.ob[0] = gScreenWidth;
+    gScreenFadeGradientVtx[gGfxBufferIndex][2].v.ob[1] = gScreenHeight;
+    gScreenFadeGradientVtx[gGfxBufferIndex][3].v.ob[1] = gScreenHeight;
+    gSPVertex(dl++, osVirtualToPhysical(gScreenFadeGradientVtx[gGfxBufferIndex]), 4, 0);
     gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
     gDPPipeSync(dl++);
     return dl;
@@ -968,30 +968,30 @@ Gfx *screenFadeDrawSpinTexture(Gfx *dl, u8 alpha) {
 }
 
 
-extern s16 D_807FD892;
+extern s16 gVtxGradientPos;
 
 void vtxGradientSetPosition(s16 pos) {
-    D_807FD892 = pos;
+    gVtxGradientPos = pos;
 }
 
-extern u8 D_807FD894;
-extern u8 D_807FD895;
-extern u8 D_807FD896;
+extern u8 gVtxGradientRedA;
+extern u8 gVtxGradientGreenA;
+extern u8 gVtxGradientBlueA;
 
 void vtxGradientSetColorA(u8 r, u8 g, u8 b) {
-    D_807FD894 = r;
-    D_807FD895 = g;
-    D_807FD896 = b;
+    gVtxGradientRedA = r;
+    gVtxGradientGreenA = g;
+    gVtxGradientBlueA = b;
 }
 
-extern u8 D_807FD897;
-extern u8 D_807FD898;
-extern u8 D_807FD899;
+extern u8 gVtxGradientRedB;
+extern u8 gVtxGradientGreenB;
+extern u8 gVtxGradientBlueB;
 
 void vtxGradientSetColorB(u8 r, u8 g, u8 b) {
-    D_807FD897 = r;
-    D_807FD898 = g;
-    D_807FD899 = b;
+    gVtxGradientRedB = r;
+    gVtxGradientGreenB = g;
+    gVtxGradientBlueB = b;
 }
 
 
@@ -1018,13 +1018,13 @@ void vtxSetQuadGradientColors(Vtx *vtx, u8 row, u8 flags) {
     s16 hi;
     s16 wrapped;
 
-    if (D_807FD892 >= 0x4000) {
-        wrapped = D_807FD892 - 0x4200;
+    if (gVtxGradientPos >= 0x4000) {
+        wrapped = gVtxGradientPos - 0x4200;
         lo = wrapped + row * 20;
         hi = wrapped + row * 20 + 10;
     } else {
-        lo = D_807FD892 - row * 20;
-        hi = D_807FD892 - row * 20 - 10;
+        lo = gVtxGradientPos - row * 20;
+        hi = gVtxGradientPos - row * 20 - 10;
     }
     if (lo < 0) {
         lo = 0;
@@ -1038,10 +1038,10 @@ void vtxSetQuadGradientColors(Vtx *vtx, u8 row, u8 flags) {
     if (hi >= 0x100) {
         hi = 0xFF;
     }
-    vtxSetColor(vtx++, D_807FD894, D_807FD895, D_807FD896, lo, flags);
-    vtxSetColor(vtx++, D_807FD894, D_807FD895, D_807FD896, hi, flags);
-    vtxSetColor(vtx++, D_807FD897, D_807FD898, D_807FD899, hi, flags | 0x40);
-    vtxSetColor(vtx, D_807FD897, D_807FD898, D_807FD899, lo, flags | 0x40);
+    vtxSetColor(vtx++, gVtxGradientRedA, gVtxGradientGreenA, gVtxGradientBlueA, lo, flags);
+    vtxSetColor(vtx++, gVtxGradientRedA, gVtxGradientGreenA, gVtxGradientBlueA, hi, flags);
+    vtxSetColor(vtx++, gVtxGradientRedB, gVtxGradientGreenB, gVtxGradientBlueB, hi, flags | 0x40);
+    vtxSetColor(vtx, gVtxGradientRedB, gVtxGradientGreenB, gVtxGradientBlueB, lo, flags | 0x40);
 }
 
 void vtxSetPosTex(Vtx *vtx, s16 x, s16 y, s16 s, s16 t, u8 shift) {

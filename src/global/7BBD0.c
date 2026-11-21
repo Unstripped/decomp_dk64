@@ -1120,7 +1120,7 @@ u8 gActorTypeInitIndex[344] = {
 
 extern u8 D_807FB600;
 extern u8 D_807FB5FF;
-extern u8 D_807FB5FD;
+extern u8 gCollisionDeferredPush;
 
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 u8 func_80673708(s32, s32, s32, s32, CollisionBox *, CollisionBox *, s16 *, s16 *);
@@ -1163,13 +1163,13 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
                 node = sub140->nodes;
                 D_807FB5FF = 0;
                 if (other->renderFlags & 0x20) {
-                    D_807FB5FD = 0;
+                    gCollisionDeferredPush = 0;
                 } else {
-                    D_807FB5FD = 1;
+                    gCollisionDeferredPush = 1;
                 }
                 while (node != NULL && D_807FB5FF == 0) {
                     if (node->active != 0 && !(node->unk27 & 2)) {
-                        hitMask |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, otherSub140->unkA4, otherSub140->unkA8, arcMin, arcMax);
+                        hitMask |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, otherSub140->box_start, otherSub140->box_end, arcMin, arcMax);
                     }
                     node = node->next;
                 }
@@ -1187,11 +1187,11 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
 
 typedef f32 CollisionMtxF[4][4];
 
-extern s32 D_807FB5C4;
+extern s32 gCollisionPlanePointX;
 extern s32 D_807FB5C8;
-extern s32 D_807FB5CC;
-extern s32 D_807FB5D0;
-extern CollisionBox *D_807FB5D8;
+extern s32 gCollisionPlanePointZ;
+extern s32 gCollisionPlaneDist;
+extern CollisionBox *gCollisionHitBox;
 
 s32 func_806744A8(CollisionBox *, s32, s32, s32, s32);
 
@@ -1215,7 +1215,7 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
     hitMode = 0;
     selfBounds = self->collision;
     otherBounds = other->collision;
-    if (func_806744A8(D_807FB5D8, selfBounds->scaledX, selfBounds->scaledY, selfBounds->scaledZ, selfBounds->scaledRadius) == 0) {
+    if (func_806744A8(gCollisionHitBox, selfBounds->scaledX, selfBounds->scaledY, selfBounds->scaledZ, selfBounds->scaledRadius) == 0) {
         return 0;
     }
     if ((self->flags2 & 2) && (other->flags2 & 4)) {
@@ -1227,17 +1227,17 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
     if (other->flags2 & 8) {
         hitMode = 2;
     }
-    selfBounds->unk58 = D_807FB5D8 - otherBounds->unkA4;
-    actorGetMatrix(otherBounds, otherMtx, D_807FB5D8->unk4E);
+    selfBounds->hitBoxIndex = gCollisionHitBox - otherBounds->box_start;
+    actorGetMatrix(otherBounds, otherMtx, gCollisionHitBox->unk4E);
     matrix4Invert(invMtx, otherMtx);
     if (other->renderFlags & 0x10) {
         posX = self->x;
         posY = self->y;
         posZ = self->z;
     } else {
-        posX = (f32)D_807FB5C4 / 8;
+        posX = (f32)gCollisionPlanePointX / 8;
         posY = (f32)D_807FB5C8 / 8;
-        posZ = (f32)D_807FB5CC / 8;
+        posZ = (f32)gCollisionPlanePointZ / 8;
     }
     if (!(self->flags & 0x800)) {
         guMtxXFMF(invMtx, posX, posY, posZ, &localPos[0], &localPos[1], &localPos[2]);
@@ -1250,40 +1250,40 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
     selfBounds->unkBC = localPos[1];
     selfBounds->unkC0 = localPos[2];
 
-    ptX[0] = (f32)D_807FB5D8->x0 / 8;
-    ptY[0] = (f32)D_807FB5D8->y0 / 8;
-    ptZ[0] = (f32)D_807FB5D8->z0 / 8;
-    ptX[1] = (f32)D_807FB5D8->x1 / 8;
-    ptY[1] = (f32)D_807FB5D8->y1 / 8;
-    ptZ[1] = (f32)D_807FB5D8->z1 / 8;
-    ptX[2] = (f32)D_807FB5D8->x2 / 8;
-    ptY[2] = (f32)D_807FB5D8->y2 / 8;
-    ptZ[2] = (f32)D_807FB5D8->z2 / 8;
+    ptX[0] = (f32)gCollisionHitBox->x0 / 8;
+    ptY[0] = (f32)gCollisionHitBox->y0 / 8;
+    ptZ[0] = (f32)gCollisionHitBox->z0 / 8;
+    ptX[1] = (f32)gCollisionHitBox->x1 / 8;
+    ptY[1] = (f32)gCollisionHitBox->y1 / 8;
+    ptZ[1] = (f32)gCollisionHitBox->z1 / 8;
+    ptX[2] = (f32)gCollisionHitBox->x2 / 8;
+    ptY[2] = (f32)gCollisionHitBox->y2 / 8;
+    ptZ[2] = (f32)gCollisionHitBox->z2 / 8;
 
     for (i = 0; i < 3; i++) {
         guMtxXFMF(invMtx, ptX[i], ptY[i], ptZ[i], &localPts[i][0], &localPts[i][1], &localPts[i][2]);
     }
 
-    selfBounds->unk66 = D_807FB5D8->unk48;
-    if (D_807FB5D8->unk4C != 0) {
-        selfBounds->unk66 -= 0x800;
+    selfBounds->hitNormalYaw = gCollisionHitBox->unk48;
+    if (gCollisionHitBox->unk4C != 0) {
+        selfBounds->hitNormalYaw -= 0x800;
     }
-    if (selfBounds->unk66 < 0) {
-        selfBounds->unk66 += 0x1000;
+    if (selfBounds->hitNormalYaw < 0) {
+        selfBounds->hitNormalYaw += 0x1000;
     }
 
     switch (hitMode) {
     case 2:
         if (self->collisionFlags & 1) {
-            actorReflectCollisionAngle(self, D_807FB5D8, selfBounds);
+            actorReflectCollisionAngle(self, gCollisionHitBox, selfBounds);
         }
     case 0:
-        actorAppendCollisionHit(self, other, &localPos[0], &localPts[0][0], D_807FB5D8->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
+        actorAppendCollisionHit(self, other, &localPos[0], &localPts[0][0], gCollisionHitBox->unk4E, gCollisionPlaneDist, actorGetCollisionThreshold(self));
         break;
     case 1:
-        actorAppendSurfaceHit(self, other, self->yaw, (s16)(s32)self->speedXZ, &localPos[0], &localPts[0][0], D_807FB5D8->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
+        actorAppendSurfaceHit(self, other, self->yaw, (s16)(s32)self->speedXZ, &localPos[0], &localPts[0][0], gCollisionHitBox->unk4E, gCollisionPlaneDist, actorGetCollisionThreshold(self));
         if (actorIsTargetWithinAngle(gPlayerPadState[0].stickAngle, 400) && (f64)gPlayerPadState[0].stickMag > 30.0) {
-            self->yaw = selfBounds->unk66;
+            self->yaw = selfBounds->hitNormalYaw;
         }
         break;
     }
@@ -1296,7 +1296,7 @@ void actorGetMatrix(ActorSub140 *owner, CollisionMtxF dst, s8 mtxIndex) {
     u8 bufIdx;
     Mtx *mtx;
 
-    if (gFrameCounter == owner->unk88) {
+    if (gFrameCounter == owner->mtxFrame) {
         bufIdx = gGfxBufferIndex;
     } else {
         bufIdx = gGfxBufferIndex ^ 1;
@@ -1348,19 +1348,19 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
     selfBounds = self->collision;
     otherBounds = other->collision;
     D_807FB603 = selfBounds->unkAC;
-    D_807FB5FD = 1;
+    gCollisionDeferredPush = 1;
     D_807FB600 = 1;
     D_807FB547 = 0;
     func_80672E90(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ);
     actorSetCameraBoundaryMode(other->actorType);
     if (flag != 0) {
-        hit = func_80673708(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ, hitRadius, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
+        hit = func_80673708(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ, hitRadius, selfBounds->box_start, selfBounds->box_end, &other->arcYawMin, &other->arcYawMax);
     } else {
-        actorSetTargetAngleBounds(selfBounds->unkA4 + otherBounds->unk58);
+        actorSetTargetAngleBounds(selfBounds->box_start + otherBounds->hitBoxIndex);
         if (!(self->renderFlags & 0x10)) {
-            hit = func_806738D0(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ, hitRadius, selfBounds->unkA4, selfBounds->unkA8);
+            hit = func_806738D0(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ, hitRadius, selfBounds->box_start, selfBounds->box_end);
         } else {
-            hit = func_80673708(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ, hitRadius, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
+            hit = func_80673708(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ, hitRadius, selfBounds->box_start, selfBounds->box_end, &other->arcYawMin, &other->arcYawMax);
         }
     }
     if ((*(u8 *)&flag != 0) && (gPlayerPadState[playerFindIndexByActor(other)].stickMag > 30.0)) { // FAKE: punned *(u8 *)&flag re-reads the u8 param from its stack home (lbu 343(sp) into t8, not a callee-saved copy)
@@ -1390,7 +1390,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             normal[1] = cross[1] / norm;
             normal[2] = cross[2] / norm;
             if (other->collisionFlags & 1) {
-                scale = (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1 ? (f32)D_80753D50[gCurrentCharacterIndex] : (f32)D_80753D60[gCurrentCharacterIndex]) / 8;
+                scale = (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1 ? (f32)D_80753D50[gCurrentCharacterIndex] : (f32)D_80753D60[gCurrentCharacterIndex]) / 8;
                 playerState = other->customState;
                 scaledNormal[0] = normal[0] * scale;
                 scaledNormal[1] = normal[1] * scale;
@@ -1398,18 +1398,18 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
                 playerState->wallContactX = worldX - scaledNormal[0];
                 playerState->wallContactZ = worldZ - scaledNormal[2];
             }
-            if (otherBounds->unk68 != 0) {
-                clamp = D_807FB5D0 = otherBounds->unk68 + 5;
+            if (otherBounds->actorPushDist != 0) {
+                clamp = gCollisionPlaneDist = otherBounds->actorPushDist + 5;
                 if (maxClamp < clamp) {
-                    clamp = D_807FB5D0 = maxClamp;
+                    clamp = gCollisionPlaneDist = maxClamp;
                 }
             } else {
-                clamp = D_807FB5D0 = hitRadius;
+                clamp = gCollisionPlaneDist = hitRadius;
                 if (clamp < 0xF) {
-                    clamp = D_807FB5D0 = 0xF;
+                    clamp = gCollisionPlaneDist = 0xF;
                 }
                 if (maxClamp < clamp) {
-                    clamp = D_807FB5D0 = maxClamp;
+                    clamp = gCollisionPlaneDist = maxClamp;
                 }
             }
             normal[0] *= (f32)clamp / 8;
@@ -1423,13 +1423,13 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
         actorAppendMoveTarget2D(self, other, pushX, pushZ, 1, 1);
         for (node = otherBounds->nodes; node != 0; node = node->next) {
             if (node->active != 0) {
-                other->hasArcBounds |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
+                other->hasArcBounds |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, selfBounds->box_start, selfBounds->box_end, &other->arcYawMin, &other->arcYawMax);
             }
         }
     } else {
         for (node = otherBounds->nodes; node != 0; node = node->next) {
             if (node->active != 0) {
-                other->hasArcBounds |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
+                other->hasArcBounds |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, selfBounds->box_start, selfBounds->box_end, &other->arcYawMin, &other->arcYawMax);
             }
         }
     }
@@ -1440,8 +1440,8 @@ s32 actorIsTargetWithinAngle(s16 angle, s16 threshold) {
     s16 targetAngle;
     s16 diff;
 
-    targetAngle = D_807FB5D8->unk48;
-    if (D_807FB5D8->unk4C != 0) {
+    targetAngle = gCollisionHitBox->unk48;
+    if (gCollisionHitBox->unk4C != 0) {
         targetAngle -= 0x800;
     }
     if (targetAngle < 0) {

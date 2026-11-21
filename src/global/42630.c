@@ -773,7 +773,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = gCsCondFlag;
         break;
     case 0x3C:
-        ret = cond->arg[0] == gPlayerSlots->unk290;
+        ret = cond->arg[0] == gPlayerSlots->camChunk;
         break;
     case 0x3A:
         if ((1 << cond->arg[0]) & gCsFlagBits) {
@@ -1131,7 +1131,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x1A:
-        ret = cond->arg[0] == gPlayerSlots->unk2C0;
+        ret = cond->arg[0] == gPlayerSlots->sizeMode;
         break;
     case 0x1B:
         ret = gPlayerSlots->sizeModeDirty;
@@ -1184,7 +1184,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
 
 // Cutscene script command interpreter (csCmdExec): one 8-byte command per call.
 
-extern u8 D_80744824;
+extern u8 gNextTransitionFadeType;
 extern s32 gCurrentMap;
 extern CsSpawnReq gCsCountdown;
 extern s16 gCsTrackedModels[16];
@@ -1533,7 +1533,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         mapTransitionToPreviousOrExit();
         break;
     case 0x8D:
-        D_80744824 = 2;
+        gNextTransitionFadeType = 2;
         playerThrowHeldActor(gActivePlayerActor);
         slot = mapGetHubWorldIndex(gCurrentMap, 0);
         if (mapIsLobby(gCurrentMap) != 0) {

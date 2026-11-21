@@ -280,9 +280,9 @@ void raceActivateNextGate(RaceParticipant *tracker, RaceRoute *route) {
     if (route->active != 0) {
         do {
             u16 val;
-            tracker->unk3C += 1;
-            tracker->unk3C %= route->count;
-            val = route->items[tracker->unk3C];
+            tracker->activeGatePos += 1;
+            tracker->activeGatePos %= route->count;
+            val = route->items[tracker->activeGatePos];
             node = raceGetWaypoint(val);
         } while (node->kind == 0);
         raceSetGateVisualState(node, 1);
@@ -291,8 +291,8 @@ void raceActivateNextGate(RaceParticipant *tracker, RaceRoute *route) {
 
 void raceAdvanceActiveGate(RaceParticipant *tracker, RaceRoute *route) {
     if (route->active != 0) {
-        if (tracker->unk3C == tracker->unk3A) {
-            u16 val = route->items[tracker->unk3C];
+        if (tracker->activeGatePos == tracker->routePos) {
+            u16 val = route->items[tracker->activeGatePos];
             raceSetGateVisualState(raceGetWaypoint(val), 0);
             raceActivateNextGate(tracker, route);
         }
@@ -313,7 +313,7 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
     state = actor->customState;
     list = raceGetRoute(state->route);
     if (list != NULL) {
-        val = list->items[tracker->unk3A];
+        val = list->items[tracker->routePos];
         node = raceGetWaypoint(val);
         if (node != NULL) {
             if (((f32)node->x - gCurrentActor->x) * ((f32)node->x - gCurrentActor->x) + ((f32)node->z - gCurrentActor->z) * ((f32)node->z - gCurrentActor->z) > 900.0f) {
@@ -331,10 +331,10 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
                     if (node->kind != 0) {
                         if (raceCheckGateCrossed(node) == 0) {
                             sfxPlayAtPositionPooled(node->x, node->y, node->z, 0x98, 0xFF, 0x7F, 0, 0, 0.3f, 0);
-                            if (tracker->unk44 != 0) {
-                                tracker->unk44--;
+                            if (tracker->gateMissesLeft != 0) {
+                                tracker->gateMissesLeft--;
                             } else {
-                                tracker->unk45 = 1;
+                                tracker->eliminated = 1;
                             }
                         } else {
                             sfxAllocateChannel(0x43, 1.0f);
@@ -342,16 +342,16 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
                     }
                     raceAdvanceActiveGate(tracker, list);
                 }
-                tracker->unk3A += 1;
-                tracker->unk3A %= list->count;
-                if (tracker->unk3A == 0) {
+                tracker->routePos += 1;
+                tracker->routePos %= list->count;
+                if (tracker->routePos == 0) {
                     tracker->lap++;
                 }
-                val = list->items[tracker->unk3A];
+                val = list->items[tracker->routePos];
                 node = raceGetWaypoint(val);
                 tracker->facingWaypoint = raceIsFacingWaypoint(node);
             }
-            tracker->unk40 = raceGetNormalDistanceToWaypoint(node, gCurrentActor->x, gCurrentActor->z);
+            tracker->nextPointDist = raceGetNormalDistanceToWaypoint(node, gCurrentActor->x, gCurrentActor->z);
         }
     }
 }
@@ -368,10 +368,10 @@ f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceParticipant *tracke
     s32 idx;
     u16 val;
 
-    cur = trackerA->lap * route->count + trackerA->unk3A;
-    end = trackerB->lap * route->count + trackerB->unk3A;
+    cur = trackerA->lap * route->count + trackerA->routePos;
+    end = trackerB->lap * route->count + trackerB->routePos;
     diff = end - cur;
-    acc = trackerA->unk40 - trackerB->unk40;
+    acc = trackerA->nextPointDist - trackerB->nextPointDist;
     if (diff < 0) {
         cur ^= end;
         end ^= cur;
@@ -398,7 +398,7 @@ f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceParticipant *tracke
 
 f32 raceGetProgressPercent(RaceRoute *route, RaceParticipant *tracker, RaceParticipant *actorState) {
     u16 waypointCount = route->count;
-    f32 num = (tracker->lap - 1) * waypointCount + tracker->unk3A;
+    f32 num = (tracker->lap - 1) * waypointCount + tracker->routePos;
     f32 den = actorState->lapCount * waypointCount;
 
     return num / den;

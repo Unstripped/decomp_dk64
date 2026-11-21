@@ -40,7 +40,7 @@ typedef struct PatrolActor {
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
-extern u8 D_8071FBC8[];
+extern u8 gEffectSpriteBlast[];
 void behaviourUpdateContactAndState(); // ORIG: target loads a1 = state before the two-argument calls (lbu a0,340(s0) at 0x7b0, move a1,a0 at 0x7b4, default branch at 0x7c0 to jal at 0xd9c; lbu at 0x1d58, move a1,a0 at 0x1d68, jal at 0x2280) while the owner never reads a1 (12E800 0x1ccc homes only a0, sw a0,64(sp) at 0x1ce0): the original TU had no prototype in scope
 
 void behaviourTumbleDebrisUpdate(void) {
@@ -81,7 +81,7 @@ void behaviourTumbleDebrisUpdate(void) {
         return;
     }
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->prevContactFlags & 1)) {
-        effectCreateAtPosition(D_8071FBC8, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(gEffectSpriteBlast, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         actorDespawn(gCurrentActor);
     }
 }
@@ -144,8 +144,8 @@ void behaviourMeleePatrolEnemyUpdate(void) {
         }
     }
     currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
-    if ((gCurrentActor->state != 0x32) || (gActorGlobalState.unk15 != 0)) {
-        if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if ((gCurrentActor->state != 0x32) || (gActorGlobalState.damaged != 0)) {
+        if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {
             if (gCurrentActor->health < -1) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x202);
                 gCurrentActor->speedY = 250.0f;
@@ -310,8 +310,8 @@ void behaviourProjectileEnemyUpdate(void) {
         behaviourSetAnimIds(0x2AD, 0x2AB, 0x2AC);
         func_80724CA4(2, 1);
     }
-    if (gCurrentActor->state != 0x32 || gActorGlobalState.unk15 != 0) {
-        if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if (gCurrentActor->state != 0x32 || gActorGlobalState.damaged != 0) {
+        if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
             behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2AE);
             gBehaviourWorkState->timer = 0x1C2;
         } else if (gActorGlobalState.bossFightPhase == 4) {
@@ -457,7 +457,7 @@ void behaviourSearchlightGuardUpdate(void) {
         gCurrentActor->flags |= 0x400;
     }
     behaviourSearchlightScan(40.0f, 70.0f);
-    if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
+    if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) {
         gCurrentActor->state = 0x3A;
         gCurrentActor->unk155 = 0;
     }
@@ -543,7 +543,7 @@ void behaviourArmoredEnemyUpdate(void) {
         func_80724CA4(2, 1);
         gCurrentActor->unkEC = 0x1770;
     }
-    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2DD);
         gBehaviourWorkState->acceleration = 2;
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
@@ -687,7 +687,7 @@ void behaviourSimplePatrolEnemyUpdate(void) {
 
 void behaviourAmbushEnemyUpdate(void) {
     behaviourFrameBegin();
-    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x37A);
         gCurrentActor->callbackMask &= ~0x8000;
     }
@@ -796,7 +796,7 @@ void behaviourExplosiveAwareEnemyUpdate(void) {
         gCurrentActor->cullMarginY = cullMargin > 255.0 ? 255.0 : cullMargin;
         behaviourSetAnimIds(0x35E, 0x35F, 0x360);
     }
-    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x367);
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
     } else if (gActorGlobalState.bossFightPhase == 4) {

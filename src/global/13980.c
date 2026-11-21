@@ -214,7 +214,7 @@ void schedHandleRetrace(SchedStruct *sc) {
     void *fb;
 
     sc->retraceCount++;
-    sc->unk280++;
+    sc->tickCount++;
     gSchedRetraceTime = osGetTime();
     if (D_80744510 != 0) {
         if (D_80744510 == 1) {

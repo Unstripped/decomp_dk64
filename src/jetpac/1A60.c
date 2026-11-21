@@ -412,7 +412,7 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
     if (actor->y > 168.0f) {
         actor->y = 168.0f;
     }
-    if (jetpacIsOverRocket(actor->x) != 0 && pData->unkC == 8 && actor->y > 152.0f) {
+    if (jetpacIsOverRocket(actor->x) != 0 && pData->rocketProgress == 8 && actor->y > 152.0f) {
         jetpacSetState(4);
     }
 }

@@ -96,7 +96,7 @@ void bossDogadonStep(void) {
     bossRoundFrame(scriptOpcodes);
     switch (gCurrentActor->state) {
     case 0x28:
-        if (gActorGlobalState.bossFightPhase == 5 && gPlayerSlots->unk2C0 != 1) {
+        if (gActorGlobalState.bossFightPhase == 5 && gPlayerSlots->sizeMode != 1) {
             gCurrentActor->collisionMode = 1;
             gPrimaryPlayerActor->collisionMode = 1;
             camStartPath(0, 2, 1);
@@ -128,7 +128,7 @@ void bossDogadonStep(void) {
                 }
                 break;
             case 3:
-                if (gPlayerSlots->unk2C0 != 1) {
+                if (gPlayerSlots->sizeMode != 1) {
                     playerSetSizeMode(gPrimaryPlayerActor, 1);
                 }
                 csSendActorMessagePayload(0, 0xFF);
@@ -144,7 +144,7 @@ void bossDogadonStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
-            scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155++;
             /* fallthrough */
         case 1:
@@ -166,7 +166,7 @@ void bossDogadonStep(void) {
                 controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                 scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0.0f);
             } else if (gBehaviourWorkState->timer == 0) {
-                gBehaviourWorkState->timer = scriptState->unk18[0];
+                gBehaviourWorkState->timer = scriptState->byteVars[0];
                 gCurrentActor->unk155++;
             }
             break;
@@ -433,13 +433,13 @@ void bossKRoolTinyStep(void) {
         case 0:
             gCurrentActor->unk155++;
             bossActorGroupCommand(gCurrentActor, 0xF, -1, 0);
-            scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
-            scriptState->unk18[1] = scriptOpcodes[scriptState->scriptPos++] + scriptState->unk12 * 10;
-            scriptState->unk8[0] = scriptOpcodes[scriptState->scriptPos++];
-            if (scriptState->unk18[0] == 0xFF) {
-                scriptState->unk18[0] = 8 >> (s32)((gPrimaryPlayerActor->x - 117.0f) / 50.0f);
+            scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->byteVars[1] = scriptOpcodes[scriptState->scriptPos++] + scriptState->unk12 * 10;
+            scriptState->vars[0] = scriptOpcodes[scriptState->scriptPos++];
+            if (scriptState->byteVars[0] == 0xFF) {
+                scriptState->byteVars[0] = 8 >> (s32)((gPrimaryPlayerActor->x - 117.0f) / 50.0f);
             }
-            bossActorGroupCommand(gCurrentActor, scriptState->unk18[0], 0x413, 0);
+            bossActorGroupCommand(gCurrentActor, scriptState->byteVars[0], 0x413, 0);
             gBehaviourWorkState->timer = 0x14;
             break;
         case 1:
@@ -451,8 +451,8 @@ void bossKRoolTinyStep(void) {
             break;
         case 2:
             gCurrentActor->unk155++;
-            bossActorGroupCommand(gCurrentActor, scriptState->unk18[0], 0x414, (scriptState->unk18[1] + scriptState->unk12 * 15) & 0xFF);
-            gBehaviourWorkState->timer = scriptState->unk8[0];
+            bossActorGroupCommand(gCurrentActor, scriptState->byteVars[0], 0x414, (scriptState->byteVars[1] + scriptState->unk12 * 15) & 0xFF);
+            gBehaviourWorkState->timer = scriptState->vars[0];
         case 3:
             if (gBehaviourWorkState->timer) {
                 gBehaviourWorkState->timer--;

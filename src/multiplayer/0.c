@@ -261,7 +261,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
     for (i = 0; i < gPlayerCount; i++) {
         viewport = controllerState->viewports[i];
         alpha = 0xFF;
-        if (gPlayerSlots[i].unk2EA != 0) {
+        if (gPlayerSlots[i].viewFadingOut != 0) {
             alpha = gPlayerSlots[i].actor->alpha;
             if (alpha >= 0x100) {
                 alpha = 0xFF;
@@ -749,7 +749,7 @@ void mpUpdate(void) {
         }
         gMpSettings.matchPhase = 1;
         state->startTime = osGetTime();
-        state->sfxLastTick = gScheduler.unk280;
+        state->sfxLastTick = gScheduler.tickCount;
         state->sfxStep = 0;
         state->volume = 0;
         state->volumeTarget = 0;
@@ -865,8 +865,8 @@ void mpUpdate(void) {
         mpSfxFlags &= ~0x80;
     }
     if (mpSfxFlags & 7) {
-        if (gScheduler.unk280 - state->sfxLastTick >= 6) {
-            state->sfxLastTick = gScheduler.unk280;
+        if (gScheduler.tickCount - state->sfxLastTick >= 6) {
+            state->sfxLastTick = gScheduler.tickCount;
             state->sfxStep = 0;
             sfxId = 0x1E8;
             if (mpSfxFlags & 4) {
@@ -890,12 +890,12 @@ void mpUpdate(void) {
         }
         mpSfxFlags &= ~7;
     }
-    if (state->sfxStep * 35 + 0x384 < gScheduler.unk280 - state->sfxLastTick) {
+    if (state->sfxStep * 35 + 0x384 < gScheduler.tickCount - state->sfxLastTick) {
         sfxPlayOnFreeSlot(0x1E9, state->sfxStep * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
         state->sfxStep++;
         if (state->sfxStep == 5) {
             state->sfxStep = 0;
-            state->sfxLastTick = gScheduler.unk280;
+            state->sfxLastTick = gScheduler.tickCount;
         }
     }
     renderCallbacksRegister(mpDrawHud, gCurrentActor, 7);

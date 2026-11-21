@@ -264,11 +264,11 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         posOffsets[i] = 0.0f;
         nodeForces[i] = 0.0f;
     }
-    for (i = 0; i < gActorGlobalState.unk39; i++) {
+    for (i = 0; i < gActorGlobalState.riderCount; i++) {
         found = 0;
         j = 0;
         while (j < state->trackedCount && !found) {
-            if (state->trackedActors[j] == gActorGlobalState.unk7C[i]) {
+            if (state->trackedActors[j] == gActorGlobalState.riderActors[i]) {
                 found = 1;
             } else {
                 j++;
@@ -277,10 +277,10 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         if (!found) {
             switch (waveType) {
             case 0:
-                actorAddNodeForceSlot(gActorGlobalState.unk3C[i][2], waveType);
+                actorAddNodeForceSlot(gActorGlobalState.riderPoints[i][2], waveType);
                 break;
             case 1:
-                actorAddNodeForceSlot(gActorGlobalState.unk3C[i][0], waveType);
+                actorAddNodeForceSlot(gActorGlobalState.riderPoints[i][0], waveType);
                 break;
             }
         }
@@ -288,8 +288,8 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
     for (i = 0; i < state->trackedCount; i++) {
         found = 0;
         j = 0;
-        while (j < gActorGlobalState.unk39 && !found) {
-            if (state->trackedActors[i] == gActorGlobalState.unk7C[j]) {
+        while (j < gActorGlobalState.riderCount && !found) {
+            if (state->trackedActors[i] == gActorGlobalState.riderActors[j]) {
                 found = 1;
             } else {
                 j++;
@@ -299,32 +299,32 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
             actorAddNodeForceSlot(state->trackedPos[i], waveType);
         }
     }
-    memcpy(state->trackedActors, gActorGlobalState.unk7C, sizeof(state->trackedActors));
-    state->trackedCount = gActorGlobalState.unk39;
+    memcpy(state->trackedActors, gActorGlobalState.riderActors, sizeof(state->trackedActors));
+    state->trackedCount = gActorGlobalState.riderCount;
     for (i = 0; i < state->trackedCount; i++) {
         switch (waveType) {
         case 0:
-            state->trackedPos[i] = gActorGlobalState.unk3C[i][2];
+            state->trackedPos[i] = gActorGlobalState.riderPoints[i][2];
             break;
         case 1:
-            state->trackedPos[i] = gActorGlobalState.unk3C[i][2];
+            state->trackedPos[i] = gActorGlobalState.riderPoints[i][2];
             break;
         }
     }
-    for (i = 0; i < gActorGlobalState.unk39; i++) {
+    for (i = 0; i < gActorGlobalState.riderCount; i++) {
         switch (waveType) {
         case 0:
-            if (gActorGlobalState.unk3C[i][2] / 843.0 > 0) {
-                waveForce = gActorGlobalState.unk3C[i][2] / 843.0;
+            if (gActorGlobalState.riderPoints[i][2] / 843.0 > 0) {
+                waveForce = gActorGlobalState.riderPoints[i][2] / 843.0;
             } else {
-                waveForce = -(gActorGlobalState.unk3C[i][2] / 843.0);
+                waveForce = -(gActorGlobalState.riderPoints[i][2] / 843.0);
             }
             break;
         case 1:
-            if (gActorGlobalState.unk3C[i][0] / 480.0 > 0) {
-                waveForce = gActorGlobalState.unk3C[i][0] / 480.0;
+            if (gActorGlobalState.riderPoints[i][0] / 480.0 > 0) {
+                waveForce = gActorGlobalState.riderPoints[i][0] / 480.0;
             } else {
-                waveForce = -(gActorGlobalState.unk3C[i][0] / 480.0);
+                waveForce = -(gActorGlobalState.riderPoints[i][0] / 480.0);
             }
             break;
         }
@@ -457,8 +457,8 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
 s32 actorCheckAlwaysFalse(void) {
     s32 i;
 
-    for (i = 0; i < gActorGlobalState.unk39; i++) {
-        switch (gActorGlobalState.unk7C[i]->actorType) {
+    for (i = 0; i < gActorGlobalState.riderCount; i++) {
+        switch (gActorGlobalState.riderActors[i]->actorType) {
         case 2:
         case 3:
             break;
@@ -511,14 +511,14 @@ void actorSagSingleUpdate(void) {
         state->sag = 0.0f;
         state->bounceAmp = 0.0f;
     }
-    for (i = 0; i < gActorGlobalState.unk39; i++) {
-        dist = sqrtf((gActorGlobalState.unk3C[i][0] * gActorGlobalState.unk3C[i][0]) + (gActorGlobalState.unk3C[i][2] * gActorGlobalState.unk3C[i][2]));
+    for (i = 0; i < gActorGlobalState.riderCount; i++) {
+        dist = sqrtf((gActorGlobalState.riderPoints[i][0] * gActorGlobalState.riderPoints[i][0]) + (gActorGlobalState.riderPoints[i][2] * gActorGlobalState.riderPoints[i][2]));
         if (dist > 1347.0f) {
             dist = 1347.0f;
         }
         dist = 1347.0f - dist;
         acc += dist;
-        value = gActorGlobalState.unk7C[i]->speedXZ;
+        value = gActorGlobalState.riderActors[i]->speedXZ;
         value *= 0.1;
         if (state->bounceAmp < value) {
             state->bounceAmp = value;
@@ -544,7 +544,7 @@ void actorSagSingleUpdate(void) {
     if (state->bounceAmp == 0.0) {
         state->bounceTimer = 0;
     }
-    if (state->prevCount != gActorGlobalState.unk39) {
+    if (state->prevCount != gActorGlobalState.riderCount) {
         state->bounceAmp = 12.0f;
     }
     state->bounceAmp -= state->bounceAmp / 40.0;
@@ -552,7 +552,7 @@ void actorSagSingleUpdate(void) {
         state->bounceAmp = 0.0f;
     }
     gCurrentActor->sub4->boneOffsets->y = 0.0 - (sinApprox(state->bounceTimer * 0.5) * state->bounceAmp + state->sag);
-    state->prevCount = gActorGlobalState.unk39;
+    state->prevCount = gActorGlobalState.riderCount;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -680,7 +680,7 @@ void actorNumberedTargetUpdate(void) {
 }
 
 extern u8 D_8071FC58;
-extern u8 D_8071FC8C;
+extern u8 gEffectSpriteSparkleYellow;
 extern u8 D_8071FCC0;
 
 void func_8069B3FC(void) {
@@ -715,7 +715,7 @@ void func_8069B3FC(void) {
                             sel = &D_8071FC58;
                             break;
                         case 1:
-                            sel = &D_8071FC8C;
+                            sel = &gEffectSpriteSparkleYellow;
                             break;
                         case 2:
                             sel = &D_8071FCC0;
@@ -834,7 +834,7 @@ void carryObjectUpdate(void) {
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unkFA = 9999;
+        gCurrentActor->arcSpeedCap = 9999;
         gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
@@ -882,14 +882,14 @@ void carryObjectUpdate(void) {
             break;
         }
     }
-    if (gActorGlobalState.unk24 != 0) {
+    if (gActorGlobalState.pickupReceived != 0) {
         state->holder = gActorGlobalState.unk28;
         gCurrentActor->state = 1;
         actorCallbackMaskDisable(gCurrentActor, 0x8000);
         actorCollisionEventsCancel(state->holder, 1);
         gCurrentActor->collisionMode = 0x2C;
     }
-    if (gActorGlobalState.unk25 != 0) {
+    if (gActorGlobalState.releaseReceived != 0) {
         gCurrentActor->state = 2;
         gCurrentActor->unk155 = 0;
         state->settleTimer = 0x1E;
@@ -906,17 +906,17 @@ void carryObjectUpdate(void) {
             gCurrentActor->state = 4;
         }
     }
-    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
+    if (gActorGlobalState.damaged != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }
-    if (gActorGlobalState.unk2C != 0) {
+    if (gActorGlobalState.launchReceived != 0) {
         gCurrentActor->state = 3;
         gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
-        gCurrentActor->yaw = gActorGlobalState.unk36;
-        gCurrentActor->moveYaw = gActorGlobalState.unk36;
-        gCurrentActor->speedY = gActorGlobalState.unk30;
+        gCurrentActor->yaw = gActorGlobalState.launchYaw;
+        gCurrentActor->moveYaw = gActorGlobalState.launchYaw;
+        gCurrentActor->speedY = gActorGlobalState.launchSpeedY;
         gCurrentActor->speedXZ = gActorGlobalState.unk34;
         actorCollisionEventsCancel(state->holder, 1);
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E) {
@@ -1147,9 +1147,9 @@ void carryObjectUpdate(void) {
     guMtxCatF(mtxA, mtxB, mtxA);
     guRotateF(mtxB, (gCurrentActor->yaw / 4095.0) * 360.0, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guRotateF(mtxB, 0.0 - gActorGlobalState.unkF0, 1.0f, 0.0, 0.0);
+    guRotateF(mtxB, 0.0 - gActorGlobalState.heldAlignPitch, 1.0f, 0.0, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guRotateF(mtxB, (state->holdYaw + 90.0f) - gActorGlobalState.unkF4, 0.0, 1.0f, 0.0);
+    guRotateF(mtxB, (state->holdYaw + 90.0f) - gActorGlobalState.heldAlignYaw, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     if (gCurrentActor->state == 3) {
         if (gCurrentActor->floorSlopePitch < 1000) {
@@ -1502,7 +1502,7 @@ void *textBuildDigitNode(u8 baseFont, void *nodeBuffer, u8 nodeSlot, u8 digit, u
 
 extern u8 gCurrentWorldId;
 extern u16 gLevelCollectibleCounts[];
-extern u16 D_807446C0[];
+extern u16 gWorldBananaDeliveryGoals[];
 
 void textUpdateThreeDigitCounter(void) {
     s32 pad[3];
@@ -1525,7 +1525,7 @@ void textUpdateThreeDigitCounter(void) {
         gCurrentActor->tintB = 0xFF;
         gCurrentActor->flags |= 0x800000;
         gActivePlayerState->stateFlags &= ~0x20000;
-        if (count >= D_807446C0[world]) {
+        if (count >= gWorldBananaDeliveryGoals[world]) {
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha = 0;
             gCurrentActor->collisionMode = 1;
@@ -1564,7 +1564,7 @@ void actorPlaySoundAndFinish(void) {
 
 
 extern s8 D_807F6951;
-extern s8 D_807F6950;
+extern s8 gCsHintFinished;
 
 void actorHintTextUpdate(void) {
     s16 textIndex;
@@ -1587,7 +1587,7 @@ void actorHintTextUpdate(void) {
         }
         resQueueAttachActor(gCurrentActor, 0x29, textIndex);
     }
-    if (D_807F6950 != 0) {
+    if (gCsHintFinished != 0) {
         actorDespawn(gCurrentActor);
     }
     gCurrentActor->sub4->scaleX = 0.0f;

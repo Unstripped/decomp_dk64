@@ -25,7 +25,7 @@ extern s16 gModelEmitterCount;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern EffectGridAsset D_807213D0;
-extern EffectGridAsset D_80720A7C;
+extern EffectGridAsset gEffectSpriteGlintYellow;
 
 void modelEmittersInit(void) {
     s32 count;
@@ -154,7 +154,7 @@ void modelEmitterSpawnScaledParticle(s16 entryIdx) {
         effectSetDepth(1);
         effectSetFrameDelay(2);
         effectSetFlags(4);
-        effectCreateAtPosition(&D_80720A7C, 0.4f,
+        effectCreateAtPosition(&gEffectSpriteGlintYellow, 0.4f,
             gModelEmitters[entryIdx].x + (randomNonNegative() % 10000 % 300 / 20.0 - 7.5) * scaleFactor,
             gModelEmitters[entryIdx].y + randomNonNegative() % 10000 % 600 / 20.0 * scaleFactor,
             gModelEmitters[entryIdx].z + (randomNonNegative() % 10000 % 300 / 20.0 - 7.5) * scaleFactor);

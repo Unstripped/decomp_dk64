@@ -221,7 +221,7 @@ void raceOpponentBehaviourUpdate(void) {
             currentActorClearFlag();
             flagSet(flag, 1, 2);
         } else {
-            controller->unk35 = 3;
+            controller->statusStep = 3;
         }
     }
     rowIdx = gBehaviourWorkState->routeRow;
@@ -250,7 +250,7 @@ void raceOpponentBehaviourUpdate(void) {
         }
         break;
     case 0:
-        if (managerData != NULL && managerData->unk1C == 0) {
+        if (managerData != NULL && managerData->phaseTimer == 0) {
             gCurrentActor->state++;
             gCurrentActor->unk155 = 0;
             gCurrentActor->contactFlags |= 0x200;
@@ -405,47 +405,47 @@ void raceOpponentBehaviourUpdate(void) {
     }
     switch (controller->raceStatus) {
     case 0:
-        switch (controller->unk35) {
+        switch (controller->statusStep) {
         case 0:
             if (gCurrentActor->flags & 0x02000000) {
-                controller->unk35++;
+                controller->statusStep++;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
-                controller->unk35++;
+                controller->statusStep++;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                controller->unk35++;
+                controller->statusStep++;
             }
             break;
         }
-        if (controller->unk35 < 3) {
+        if (controller->statusStep < 3) {
             raceSetIntroCutscenePhase(manager);
         }
         break;
     case 1:
-        if (controller->unk35 == 0) {
+        if (controller->statusStep == 0) {
             slotQueueUpdate(0xB, 1, 0);
-            controller->unk35++;
+            controller->statusStep++;
         }
         break;
     case 3:
-        if (controller->unk35 == 0) {
+        if (controller->statusStep == 0) {
             callbackId = 0x55;
             if (gPrimaryPlayerActor->contactFlags & 0x200) {
                 callbackId = 0x56;
             }
             playerStateQueueCallback(callbackId, NULL, 0);
-            controller->unk35++;
+            controller->statusStep++;
         }
         break;
     case 4:
-        if (controller->unk35 == 0) {
+        if (controller->statusStep == 0) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
             if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
@@ -455,11 +455,11 @@ void raceOpponentBehaviourUpdate(void) {
             } else {
                 mapCheckAutoTransition();
             }
-            controller->unk35++;
+            controller->statusStep++;
         }
         break;
     case 5:
-        switch (controller->unk35) {
+        switch (controller->statusStep) {
         case 0:
             if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
                 sfxStopSlotSound(gActivePlayerActor, 0);
@@ -473,20 +473,20 @@ void raceOpponentBehaviourUpdate(void) {
                     gCurrentActor->unk155 = 0;
                 }
             }
-            controller->unk35++;
+            controller->statusStep++;
             break;
         case 1:
             if (gCurrentActor->flags & 0x02000000) {
-                controller->unk35++;
+                controller->statusStep++;
             }
             break;
         case 2:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
                 if (raceCheckCoinRequirement(controller, config) == 0) {
-                    controller->unk35 = 4;
+                    controller->statusStep = 4;
                 }
-                controller->unk35++;
+                controller->statusStep++;
                 gCurrentActor->unk15F = 0;
             }
             break;
@@ -498,12 +498,12 @@ void raceOpponentBehaviourUpdate(void) {
                 } else {
                     csModelStateSetFirstByte(1, 0xA);
                 }
-                controller->unk35++;
+                controller->statusStep++;
             }
             break;
         case 4:
             if (flagGet(config->reward.h.rewardFlag, 0) != 0) {
-                controller->unk35++;
+                controller->statusStep++;
             }
             break;
         case 5:
@@ -514,7 +514,7 @@ void raceOpponentBehaviourUpdate(void) {
                 } else {
                     hudSpawnTextScreen(1);
                 }
-                controller->unk35++;
+                controller->statusStep++;
             }
             break;
         }

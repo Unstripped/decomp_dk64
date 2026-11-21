@@ -33,8 +33,8 @@ typedef struct MultiTierRingParams {
 
 // This TU's .data (0x8074E880-0x8074E8B0), in address order; the puff sprites are sprite sheets of
 // 124780.c, and D_8074E8A8/D_8074E8AC are unreferenced.
-extern EffectGridAsset D_8071FC58, D_8071FC8C, D_8071FCC0;
-void *gPuffSprites[3] = { &D_8071FC58, &D_8071FC8C, &D_8071FCC0 };
+extern EffectGridAsset D_8071FC58, gEffectSpriteSparkleYellow, D_8071FCC0;
+void *gPuffSprites[3] = { &D_8071FC58, &gEffectSpriteSparkleYellow, &D_8071FCC0 };
 ScaleTierTable sGrowthTierScales = { { 1.0f, 1.7f, 3.0f } };
 MultiTierRingParams sMultiTierRingActorTypes = { { -1, 0xCF, 0xD0, 0xAE } };
 s32 D_8074E8A8 = 0;
@@ -46,7 +46,7 @@ extern u8 gMultiplayerReducedEffects;
 extern EffectGridAsset D_8071FC0C;
 extern EffectGridAsset D_8071FE08;
 extern EffectGridAsset D_8071FED0;
-extern EffectGridAsset D_8071FF18;
+extern EffectGridAsset gEffectSpriteDustPuff;
 extern EffectGridAsset D_8071FF40;
 extern EffectGridAsset sEffectSparkConfig;
 extern EffectGridAsset gSparkEffectSprite;
@@ -200,7 +200,7 @@ void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
                    ((randomNonNegative() >> 15) % 60) + (nodeZ - 30.0f));
 }
 
-extern EffectGridAsset D_8071FC40;
+extern EffectGridAsset gEffectSpriteBubble;
 
 void effectSpawnAuraBurst(u8 rate) {
     u32 i;
@@ -217,7 +217,7 @@ void effectSpawnAuraBurst(u8 rate) {
                 effectSetDuration(-1);
                 effectSetCallback(effectWobbleRiseUpdate);
                 effectSetFlags(4);
-                effectCreateAtPosition(&D_8071FC40, 0.0f, gCurrentActor->x + x, gCurrentActor->y + y, gCurrentActor->z + z);
+                effectCreateAtPosition(&gEffectSpriteBubble, 0.0f, gCurrentActor->x + x, gCurrentActor->y + y, gCurrentActor->z + z);
             }
         }
     }
@@ -230,9 +230,9 @@ void effectSpawnSparks(u8 frameMask, u8 bone) {
         effectSetDuration(-1);
         effectSetFlags(4);
         if (bone) {
-            effectCreateAtActorBone(&D_8071FC40, 0.0f, gCurrentActor, bone, 0);
+            effectCreateAtActorBone(&gEffectSpriteBubble, 0.0f, gCurrentActor, bone, 0);
         } else {
-            effectCreateAtPosition(&D_8071FC40, 0.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteBubble, 0.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
     }
 }
@@ -262,7 +262,7 @@ void effectSpawnSpeedDustAtBone(f32 scale, s16 speedThreshold, s16 bone) {
         effectSetCallback(effectSinkBySpeedUpdate);
         effectSetSpeed(-0x32);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_8071FF18, scale, gCurrentActor, bone, 0);
+        effectCreateAtActorBone(&gEffectSpriteDustPuff, scale, gCurrentActor, bone, 0);
     }
 }
 
@@ -454,7 +454,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
     shouldSpawn = 0;
     if (actor->animState != NULL && actor->sub4 != NULL) {
         if (actor->collisionFlags == 1) {
-            if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
+            if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
                 headHeight = D_80753A0C[actor->actorType - 2];
             } else {
                 headHeight = D_80753A1C[actor->actorType - 2];

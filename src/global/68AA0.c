@@ -86,7 +86,7 @@ void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor)
             continue;
         }
         do {
-            if (D_807F9420[i].u.chunks[j] == gPlayerSlots[0].unk290) {
+            if (D_807F9420[i].u.chunks[j] == gPlayerSlots[0].camChunk) {
                 found = 1;
             }
             j++;
