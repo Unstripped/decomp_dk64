@@ -97,9 +97,11 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- 2026-11-20 close: coverage restored; every rank function is EXHAUSTED at strength 3 (SKILL §7 stop: no re-dispatch without a
-  new lever named in the brief). 7CA80 actorAllocate's `ALIGN8_U16` `(u16)` stays FAKE (director: reachable headerSize <= 0x188,
-  the cast never changes the value).
+- 2026-11-20 close: every rank function is EXHAUSTED at strength 3 (SKILL §7 stop: no re-dispatch without a new lever named in
+  the brief); the close knowledge (89a58e82) staled the reviews of ACDC0 hudPauseMenuUpdate, 7CA80 actorAllocate, 80150
+  tagBarrelCheckProximityAndFall and CEAE0 playerUpdateCommon (reviewed 4,266/4,270): the next session's polish leftovers (review
+  lines only; their hack rungs are fresh). 7CA80 actorAllocate's `ALIGN8_U16` `(u16)` stays FAKE (director: reachable headerSize
+  <= 0x188, the cast never changes the value).
 - FCCD0 slotQueueDrawLabel f22aa7: the text[4] route is closed by R11 (coins F9450.c:621 item 0xB7 and the slot 9 sum are uncapped);
   a fix needs another free frame word for the int-width selector (dossier).
 - Polish proposals (2026-11-18c reports): 136820 gFaultFramebuffer s32 -> u16 * with faultFontInit's first parameter (after the
