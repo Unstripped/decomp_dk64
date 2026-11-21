@@ -417,7 +417,7 @@ extern u8 gPlayerCount;
 extern PlayerStruct *gPlayerSlots;
 
 s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *triggered) {
-    volatile u8 spawn; // FAKE: force stack home
+    u8 spawn;
     s32 pad[2];
     u8 i;
     f32 minDist;
@@ -436,21 +436,17 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
             *triggered = 0;
             spawn = 1;
         }
-        if (spawn != 0) {
-            i = 0;
-            if (gPlayerCount > 0) {
-                do {
-                    if (gPlayerSlots[i].active != 0) {
-                        Actor *player = gPlayerSlots[i].actor;
-                        dz = player->z - gCurrentActor->z;
-                        dx = player->x - gCurrentActor->x;
-                        dist = sqrtf((dz * dz) + (dx * dx));
-                        if (dist < minDist) {
-                            minDist = dist;
-                        }
+        if (spawn) {
+            for (i = 0; i < gPlayerCount; i++) {
+                if (gPlayerSlots[i].active != 0) {
+                    Actor *player = gPlayerSlots[i].actor;
+                    dz = player->z - gCurrentActor->z;
+                    dx = player->x - gCurrentActor->x;
+                    dist = sqrtf((dz * dz) + (dx * dx));
+                    if (dist < minDist) {
+                        minDist = dist;
                     }
-                    i++;
-                } while (i < gPlayerCount);
+                }
             }
             if (minDist > 12.0) {
                 *inRange = 0;
@@ -471,7 +467,7 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
             *falling = 0;
         }
     }
-    if (spawn != 0) {
+    if (spawn) {
         actorListSpawnNodeEntryDefault(spawnType, gCurrentActor->x, gCurrentActor->y + 8.3, gCurrentActor->z, 0, 1.0f, gCurrentActor);
         if (gCurrentActor->flags & 0x10) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x31, 0xFF, 0x7F, 1);
