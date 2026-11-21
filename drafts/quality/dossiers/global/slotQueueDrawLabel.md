@@ -27,9 +27,16 @@
   - Named s32 `count` for the `%d` value (`count = ternary;` or an if/else) and no dead read: 3. The switch gets its own cfe temp -72 (1.5), which takes v0; the pointer takes v1 and count a2. That is one frame word more (spill 0x2c). This explains the 2026-11-15 permuter hint ("%d ternary into an s32 temp"): the selector lands in a2 only because cfe reuses the switch temp for the ternary result. u8/u16/s16 count: 84-125.
   - permuter, 900 s, -j 2, hack-free weights, base 12 (the s32 selector-local body, fdiff 3; the first base with v0/v1 already right): 17006 iterations, nothing below 12.
 - 2026-11-18c U CleanslotQueueDrawLabelb (anthropic/claude-opus-5-5): sweep plain/recipe nohit, removal re-measured 7. Fix: s32 or u32 `mode` after `label` with text[4], [3] or [2], and also `switch (mode = ...)`: all 0. Proposed s32 with text[4]; rejected at merge (overflow, above). Also tried: `register s32`/`register u32` mode declared last 3, `register s32 count` 3 (the register class still allocates a home, Q1002), and a `displayMode & 0xFF` selector 94.
+- 2026-11-21 U LeverFCCD0 (anthropic/claude-opus-5-5), lever Q1586 (per-block element pointer, base-first). The dead read is removed and `SlotQueueSlot *q; q = gSlotQueue; q += slot;` is used instead. 33 bodies were scored with `variants.py try`; removal alone is 7:
+  - q over the switch head and the default arm, at each of 7 declaration positions: 89 when declared last, up to 98. q for the selector only: 100-109. Switch plus the `.x` block: 96-105.
+  - q only in the default arm: 28 (declared last or block-scoped) to 44. q only in the `.x` block: 46-59. Default arm plus `.x` block: 57-78.
+  - Mechanism (uopt -l6, q declared last): q is one isvar web (-32vreg) across the switch head and the default arm, and it takes v0. The switch/`%d` temp (-72vreg) takes a2. That is the removal colouring.
+  - `lw gSlotQueue` then loads straight into q (`lw v0` at 0x1ef8, not t6), so every later t-register shifts by one. q's home word also moves the slot*48 spill from 0x30 to 0x2c.
+  - A per-arm q splits the address: the default arm recomputes `addu v0,v1,t7`, and the `bnel` at 0x1f60 becomes `bne`.
+  - Result: the lever does not fit. The target keeps one address CSE in v1, shared by the selector and the default arm, with no extra home word.
 
 ## Untried ideas
-- A text-size change is closed unless every printed value is provably capped at 3 digits. Within text[8], an int-width selector still costs a frame word (3).
+- A text-size change is closed unless every printed value is provably capped at 3 digits. Within text[8], an int-width selector still costs a frame word (3), and so does an element-pointer local (Q1586, 2026-11-21: 28 at best).
 
 ## Evidence
 - 0x1f0c `addu v1,t6,t5`, 0x1f10 `lbu v0,44(v1)`.
