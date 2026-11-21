@@ -4,7 +4,7 @@ trying candidate bodies instead of per-agent trial scripts. Run in the container
 tools/dk on the host):
 
   tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC
-        [--recipes truth,switch,branch,swap,arith,float,width,declswap]
+        [--recipes truth,switch,branch,swap,arith,elem,float,width,declswap]
         [--max 120] [-j 2] [--out DIR] [--json FILE]
   tools/dk python3 tools/variants.py try <copy.c> <src/seg/file.c> FUNC BODY.c... [-j 2]
 
@@ -26,6 +26,8 @@ tools/dk on the host):
            arith     a commutative operand pair swapped, `a + b` -> `b + a`, `a * b` -> `b * a` (plain operands
                      bounded by lower-precedence operators; never after `-`, `/`, `%` or a same-level operator
                      whose associativity would regroup it): cfe keeps the source operand order (Q0171)
+           elem      an array element's member respelled `X[i].f` -> `(X + i)->f` / `(&X[i])->f` and back
+                     (the same address; base-first vs index-first sums, Q0813)
            float     a float literal with its `f` suffix dropped, or added when the value is exact in f32
            width     a single-declarator local of s8/u8/s16/u16/s32/u32/int/unsigned int as each of the others
                      (`int` and `long` (s32) differ in IDO's cfe: Q0128 menu/E550 maxLevel)
@@ -51,7 +53,7 @@ if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):
 sys.path.insert(0, str(ROOT / "tools"))
 import deadsweep  # noqa: E402
 
-RECIPES = ("truth", "switch", "branch", "swap", "arith", "float", "width", "declswap")
+RECIPES = ("truth", "switch", "branch", "swap", "arith", "elem", "float", "width", "declswap")
 OPND = r"(?:[A-Za-z_]\w*(?:(?:->|\.)\w+|\[[^\]\[]*\])*|0x[0-9A-Fa-f]+[uUlL]*|-?\d+(?:\.\d+)?[fFuUlL]*)"
 OPND_END = re.compile(OPND + r"(?=\s*$)")
 OPND_START = re.compile(r"\s*(" + OPND + r")")
@@ -335,8 +337,36 @@ def gen_arith(text):
     return out
 
 
+ELEM_IDX = re.compile(r"(?<![\w.>\]])([A-Za-z_]\w*)\[([^\[\]]+)\]\.(\w+)")
+ELEM_PTR = re.compile(r"\((&?)([A-Za-z_]\w*)(?:\[([^\[\]]+)\]| \+ ([^()]+))\)->(\w+)")
+
+
+def gen_elem(text):
+    """An array element's member respelled: `X[i].f` -> `(X + i)->f` / `(&X[i])->f`, and those back to
+    `X[i].f` (the same address; cfe builds base-first or index-first sums differently, Q0813)."""
+    out, lines = [], text.split("\n")
+    for n, line in enumerate(lines):
+        sc = split_code(line)
+        if not sc:
+            continue
+        code, cm = sc
+        reps = []
+        for m in ELEM_IDX.finditer(code):
+            x, i, f = m.groups()
+            isum = i if re.fullmatch(OPND, i.strip()) else f"({i})"  # `X + a ? b : c` would regroup
+            reps += [(m, f"({x} + {isum})->{f}"), (m, f"(&{x}[{i}])->{f}")]
+        for m in ELEM_PTR.finditer(code):
+            amp, x, idx, add, f = m.groups()
+            if (amp and idx is not None) or (not amp and add is not None):
+                reps.append((m, f"{x}[{idx if idx is not None else add}].{f}"))
+        for m, rep in reps:
+            new = code[:m.start()] + rep + code[m.end():]
+            out.append(("elem", f"line {n + 1}: `{m.group()}` -> `{rep}`", "\n".join(lines[:n] + [new + cm] + lines[n + 1:])))
+    return out
+
+
 GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswap": gen_declswap, "truth": gen_truth,
-              "switch": gen_switch, "branch": gen_branch, "arith": gen_arith}
+              "switch": gen_switch, "branch": gen_branch, "arith": gen_arith, "elem": gen_elem}
 
 
 def variants(text, recipes=RECIPES, max_n=None):

@@ -124,10 +124,14 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
   (water ripple, less certain), gMenuBonusTimer -> gHelmTimer, csSetActorScaleFadeByType / actorSetInteractionTimer (both set
   Actor.collisionMode, NamesActorBytes), csIsPlayerState4OrC (tests gPlayerSlots->camChunk, NamesRaceSched).
 - Fields: PlayerState unk78/unk7C/unk80, Actor 0xE4 pitch <-> 0xE8 roll swap, HudIconState unk10 offsetX / unk18 wanderTargetX
-  (ACDC0 file-local, HackACDC0), D_807F7140 gCsModelUpdateCount (Hack36880).
+  (ACDC0 file-local, HackACDC0). Unit 2 held with evidence (reports NamesFieldsA/B): PVoice_s.unk8C + N_ChanState.unk13/unk31
+  (the `fxDelay` label itself is unconfirmed; needs what ucode opcode 0 does), MapBspNode unkC/10/14/18 (four leaf display lists,
+  nothing distinguishes them), KongInventory.unk5 (no C writer), write-only / zero-init fields (list in agent://NamesFieldsB).
 - Ruling (user, 2026-11-21): scratch globals reused by the original get their dominant role's name plus a declaration comment on
   the reuse (gSfxPan, gSfxRightLevel, 7130.c, c4202469). Per-type scratch fields (Actor.unk15F / unkEC) get one named union
-  member per role, single-function roles included (UnionActorU2, continue unit 2).
+  member per role, single-function roles included (UnionActorU2, e9dfa60d: 17 members; the fairy and text-actor zero writes
+  keep unk15F / unkEC). Continue unit 2 windows 7/8 (33b2cc20, c2c718a0) landed 62 fields and 318 globals, including the
+  previously held D_807F7140 (gCsModelUpdateCount) and D_807FF0F2 (gAudioNarrowPanEnabled, behaviour-named).
 
 ## Tooling fixes (open)
 - None open from 2026-11-20: 73393b44 (noop-arith literal), bd5da4f3 (alias respelling), 49c6d3c4 (tag added in place), d84d0487
