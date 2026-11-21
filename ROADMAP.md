@@ -178,22 +178,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Session 2026-11-18 (rolling hack queue from db5d9d75, director mode, Lead20261118; closed on a provider model fallback)** — 43 merges/records (M1-M43) of strength-3 (`:xhigh`) hack items plus TypesOwner11 batch 12 and lead retags: FAKE 180 → 164 (fixes include a2dc63 run-time `cvt.s.w` constant local ruled ordinary under Q0814, 55B20 `u8 *file` per-role byte view, three 6AD90 `f32 cross[1]` FAKE → ORIG with store-without-reload offsets; +7 pre-existing steers newly tagged in DAA0/15050), 249 symbols named (e495654c), 217 knowledge entries Q1251-Q1467 + 31 dated corrections from the 17f and 18 queues (0dabbd5c). Rulings for merged tagged constructs, load counts, width evidence, `[1]`-array ORIG and the model-fallback protocol are in the cleanup-unit skill.
 - [x] **Session 2026-11-18b (rolling coverage queue from 4e14b5c5, director mode, Lead20261118b; 2 resumed turns)** — carried 2,550 reviews across the static-data campaign (3eac1a73: reviewed 1,036 → 3,496), then 38 merges (M1-M38): polish bundles to full coverage, TypesOwner12 batch_13 (PlayerState `unk220[3]` removed 478F0 abbd3b; JetpacSprite = TextureDescriptor alias, `dlAppendTextureLoad(Gfx **, TextureDescriptor *)`), hack items with fresh rungs on the post-data bodies; fixes 15050 71b822 (size refined in place) and 36880 cb1852/bb8452 (`u8` callee return); 10 pre-existing steers tagged; empty-`default:` ORIG retags (vsprintf 0x139c, EFDC0 +0x16c) by director ruling; 283 symbols named (7a1f8709, carry 813473fb); knowledge Q1475-Q1516 (f60e3e75).
 - [x] **Session 2026-11-18c (rolling hack/polish queue from 90ed5e8d, director mode, Lead20261118c)** — 43 merges (M1-M43: 14 gated, 29 ledger-only): two polish bundles finished coverage (reviewed 4,270/4,270 from M2), then the hack queue drained to its held items (3E10 menuInitMainScreen, ACDC0 hudPauseMenuUpdate, B5EC0 func_806B13B4); sites open 84 → 15, FAKE 170 → 161, ORIG 107 → 108 (boss/F0D0 `(f64)scale` cvt round trip). Director rulings R2–R11 recorded in `rulings.md` (one-case selector switch, block-scoped element pointer, `u8` flag local, consecutive counter reuse and same-role divisor are ordinary C; unrelated-role reuse and merged steers whose case values the target lacks stay FAKE; a buffer-size change needs a code proof that every write fits: FCCD0 `text[8]`→`text[4]` rejected); 2 names (`gMenuReturnContext`, `effectSetFrameDelay(frameDelay)`, c084eb58, carry cf17012d); knowledge Q1517–Q1571 (7f43e740).
-- [ ] Paused after session 2026-11-18c. `quality.py report` shows reviewed 4,235/4,270 and exhausted 4,231/4,270: the 55 new knowledge entries staled the earlier reviews of 35 functions they name, the next session's polish leftovers (`rank --polish`). Open hack functions, the C0EE0 empty-default ORIG candidate, polish proposals, tooling items and held names are in `drafts/cleanup/pending.md`.
+- [x] **Session 2026-11-20 (rolling coverage/types queue from dd6498e3, Lead20261120 with its own task workers; director rulings relayed)** — carried 132 reviews across the post-18c history rewrite (95e3f2ff: c904a624/0c4055f7 had moved under the 18c events), restored coverage (48 next=review in 3 polish bundles + 2 hack items), then director rulings RQ1-RQ3 (D1/D2/B5EC0 re-measured: nohit, EXHAUSTED) and the TypesOwner queue: batch_14 (EffectNode `wobbleRise`, JetpacSprite → TextureDescriptor) and batch_15 (ModelAssetEntry in model.h, one `LERP` in common.h, one `D_8071FE08` extern, ACDC0 `sPauseKongTables`, 450.c data split, one declared type per global for five signedness mismatches), each part that reopened hack rungs followed by one re-measure worker. FAKE 161 → 168 (+6 pre-existing R5 reuses tagged in ACDC0, actorAllocate's two untagged casts → one tagged macro), ORIG 108 → 111 (C0EE0 empty default with its own block 0xa58; 13980/201B0 signed per-file externs), 2 symbols named (b6244aeb), knowledge Q1572-Q1584 + corrections of Q0885/Q1189 (89a58e82). Tooling fixes landed with the session: 928f8144, 827859da, ed51d26d, 12452351, f29f1c5d, 827913fc, 73393b44, bd5da4f3, 49c6d3c4, d84d0487, 25fcab9a, 4c63a269.
+- [ ] Paused after session 2026-11-20. `quality.py report` shows reviewed 4,266/4,270: the close knowledge (89a58e82) staled the reviews of hudPauseMenuUpdate, actorAllocate, tagBarrelCheckProximityAndFall and playerUpdateCommon, the next session's polish leftovers. Every `rank` function is EXHAUSTED at strength 3 (SKILL §7: no re-dispatch without a new lever); open TypesOwner items, polish proposals and held names are in `drafts/cleanup/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-18c close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-20 close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 161 | 583 |
+| FAKE | 168 | 583 |
 | FAKE dead-if | 46 | 263 |
 | FAKE proto-steer | 1 | 134 |
-| FAKE other kinds | 114 | 186 |
-| ORIG (cited target offset) | 108 | 0 |
+| FAKE other kinds | 121 | 186 |
+| ORIG (cited target offset) | 111 | 0 |
 | LAYOUT | 80 | 47 |
 | goto | 25 | 39 |
 | proto-type (`// PROTO:`) | 1 | 0 |
 | protos mismatch | 6 | 1,202 |
-| reviewed / exhausted functions | 4,235 / 4,231 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,266 / 4,266 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 4 | 1,890 |
 | uninit warnings (clint checks every function) | 249 | 122 |
 | `func_` definitions | 210 | 457 |
