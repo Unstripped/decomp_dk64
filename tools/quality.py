@@ -1813,6 +1813,13 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
                 continue
             how, mwhy = moved_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else (None, None)
             resp = respelled_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else None
+            if how is None and resp is None and o != name and all(
+                    c.kind == CursorKind.FUNCTION_DECL for c in old_scope.idx[o] + new_scope.idx[name]):
+                # a callee renamed by `rename.py func` (its own body may have changed by renames too): a caller
+                # depends on its signature only
+                osig = {decl_signature(c) for c in old_scope.idx[o]}
+                if None not in osig and osig == {decl_signature(c) for c in new_scope.idx[name]}:
+                    resp = f"function {o} renamed {name}, same type"
             if how is None and resp is None:
                 resp = respelled(o, name, sfwd)
             if how is None and resp is None:
@@ -2051,11 +2058,13 @@ def moved_decl(path, name, ov, nv, old_scope, new_scope):
 
 
 def decl_signature(c):
-    """Canonical type of a function or variable declaration (not a definition): (kind, storage
-    class, canonical type, and for a function its canonical return and parameter types,
-    variadic-ness and written prototype-ness: `T f();` is unprototyped even where clang lends a
-    builtin its prototype), else None."""
-    if c.kind not in (CursorKind.FUNCTION_DECL, CursorKind.VAR_DECL) or c.is_definition():
+    """Canonical type of a function or variable declaration, or of a function definition (a caller
+    depends on its callee's signature, never on its body): (kind, storage class, canonical type, and
+    for a function its canonical return and parameter types, variadic-ness and written
+    prototype-ness: `T f();` is unprototyped even where clang lends a builtin its prototype), else
+    None (variable definitions: their initialiser is part of what a user reaches)."""
+    if c.kind not in (CursorKind.FUNCTION_DECL, CursorKind.VAR_DECL) or \
+            (c.is_definition() and c.kind != CursorKind.FUNCTION_DECL):
         return None
     t = c.type.get_canonical()
     sig = (c.kind.name, c.storage_class.name, t.spelling)
