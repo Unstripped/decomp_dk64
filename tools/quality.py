@@ -1575,6 +1575,34 @@ def type_respellings(old_toks, new_toks):
                    and type_ref(x) is not None and type_ref(x) == type_ref(y)})
 
 
+def macro_def(tok):
+    """The MACRO_DEFINITION cursor a macro-name token expands, else None."""
+    c = tok.cursor
+    ref = c.referenced if c is not None and c.kind == CursorKind.MACRO_INSTANTIATION else None
+    return ref if ref is not None and ref.kind == CursorKind.MACRO_DEFINITION else None
+
+
+def macro_signature(c):
+    """(parameter count, None for an object-like macro; replacement-list tokens, each parameter as
+    its position) of macro definition C: equal for two definitions differing only in their name and
+    parameter names."""
+    dt = decl_tokens(c)
+    params, body = None, dt[1:]
+    if len(dt) > 1 and dt[1].spelling == "(" and dt[1].extent.start.offset == dt[0].extent.end.offset:
+        close = next((i for i, t in enumerate(dt) if t.spelling == ")"), len(dt) - 1)
+        params, body = [t.spelling for t in dt[2:close] if t.spelling != ","], dt[close + 1:]
+    pos = {p: f"#{i}" for i, p in enumerate(params or ())}
+    return (None if params is None else len(params),
+            tuple(pos.get(t.spelling, t.spelling) if t.kind == TokenKind.IDENTIFIER else t.spelling for t in body))
+
+
+def macro_renames(old_toks, new_toks):
+    """Sorted `old -> new` of the paired macro-name tokens that name another macro."""
+    return sorted({f"{x.spelling} -> {y.spelling}" for x, y in zip(old_toks, new_toks)
+                   if x.kind == TokenKind.IDENTIFIER and x.spelling != y.spelling
+                   and macro_def(x) is not None and macro_def(y) is not None})
+
+
 def file_tokens(tu, path):
     """Non-comment tokens of PATH's own text, in order."""
     want = os.path.realpath(os.path.join(ROOT, path))
@@ -1587,10 +1615,12 @@ def rename_map(old_toks, new_toks, addr_old, addr_new):
     """{old: new} of every renamed identifier when NEW_TOKS is OLD_TOKS with only declared names
     renamed: keywords, literals, punctuation and every non-renameable identifier (types, macros,
     labels, enum constants) unchanged, except a type name respelled to another of the same
-    canonical type (`type_respellings`, not in the map); names mapped one-to-one (a field's name per
-    record: keys and values ('field', record type, name)); each renamed token keeping its declaration
-    kind and canonical type, a field its offset, a global or function its address (ADDR_OLD /
-    ADDR_NEW: name -> address or None). `PROTO_SKIP_<name>` follows the mapping of <name>. Else None."""
+    canonical type (`type_respellings`, not in the map) and a macro renamed to another macro of the
+    same definition (`macro_signature`: parameters by position; in the map); names mapped one-to-one
+    (a field's name per record: keys and values ('field', record type, name)); each renamed token
+    keeping its declaration kind and canonical type, a field its offset, a global or function its
+    address (ADDR_OLD / ADDR_NEW: name -> address or None). `PROTO_SKIP_<name>` follows the mapping
+    of <name>. Else None."""
     if len(old_toks) != len(new_toks):
         return None
     fwd, back = {}, {}
@@ -1603,6 +1633,14 @@ def rename_map(old_toks, new_toks, addr_old, addr_new):
                 return None
             continue
         if xs != ys and type_ref(x) is not None and type_ref(x) == type_ref(y):
+            continue
+        dx = macro_def(x) if xs != ys else None
+        if dx is not None:
+            dy = macro_def(y)
+            if dy is None or macro_signature(dx) != macro_signature(dy):
+                return None
+            if fwd.setdefault(xs, ys) != ys or back.setdefault(ys, xs) != xs:
+                return None
             continue
         px, py = xs.startswith("PROTO_SKIP_"), ys.startswith("PROTO_SKIP_")
         if px or py:
@@ -1746,6 +1784,10 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
     used = {(field_record(t), t.spelling) for t in old_body
             if t.kind == TokenKind.IDENTIFIER and (token_meaning(t) or ("",))[0] == "field"}
     sfwd = {k: v for k, v in fwd.items() if isinstance(k, str)}
+    clash = next((f"{k} renamed {v}, which REV reaches too" for k, v in sorted(sfwd.items())
+                  if k in old_closure and v in old_closure), None)
+    if clash:
+        return None, None, clash
     olds, recs, moved = {sfwd.get(k, k): k for k in old_closure}, [], {}
     oneside, leaves = [], set()
     for name in sorted(set(olds) | set(new_closure)):
@@ -1757,6 +1799,18 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
             continue
         ot, nt = record_type(old_scope.idx[o]), record_type(new_scope.idx[name])
         if ot is None or nt is None:
+            if o != name and all(c.kind == CursorKind.MACRO_DEFINITION
+                                 for c in old_scope.idx[o] + new_scope.idx[name]):
+                # a macro renamed (`rename_map`): the same definition modulo parameter names, the old
+                # name no longer reached and the new one not reached at REV
+                osig = {macro_signature(c) for c in old_scope.idx[o]}
+                if (len(osig) != 1 or osig != {macro_signature(c) for c in new_scope.idx[name]}
+                        or o in new_closure or name in old_closure):
+                    return None, None, f"macro {o} renamed {name}, definition or reach changed"
+                ofs, nfs = sorted({f for f, _ in old_closure[o]}), sorted({f for f, _ in nv})
+                moved[name] = f"macro {o} renamed {name}, same definition" + (
+                    f" ({', '.join(ofs)} -> {', '.join(nfs)})" if ofs != nfs else "")
+                continue
             how, mwhy = moved_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else (None, None)
             resp = respelled_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else None
             if how is None and resp is None:
@@ -2248,9 +2302,9 @@ def carry_renames(a, by_site, by_func):
             ln = carry_lines(new["functions"], fn, new_text.count("\n") + 1)
             how, hdr_moved = "identifier renames only", False
             otop, ntop = [t for i, t in otoks if i in lo], [t for i, t in ntoks if i in ln]
-            # type names respelled through an alias take the full check below, which compares the
-            # declarations they reach (automatic results carry too)
-            if not sites_match or type_respellings(otop, ntop) or not rename_equivalent(
+            # type names respelled through an alias and macros renamed take the full check below, which
+            # compares the declarations they reach with REV's (automatic results carry too)
+            if not sites_match or type_respellings(otop, ntop) or macro_renames(otop, ntop) or not rename_equivalent(
                     otop, ntop, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None)):
                 how = "unrelated file-scope changes only"
                 if not sites_match:
@@ -2268,10 +2322,10 @@ def carry_renames(a, by_site, by_func):
                 # a body differing only by renames of its own locals/params (each keeping its
                 # type) is compared at file scope as REV's body: renamed names are never
                 # file-scope (rename_equivalent rejects globals/functions), so the reach is the same;
-                # type names respelled through an alias are file-scope names: not such a body
+                # type names respelled through an alias and macro names are file-scope names: not such a body
                 body_renamed = len(obody) == len(nbody) and any(
                     x.spelling != y.spelling for x, y in zip(obody, nbody)) and not type_respellings(
-                    obody, nbody) and rename_equivalent(
+                    obody, nbody) and not macro_renames(obody, nbody) and rename_equivalent(
                     obody, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
                 if body_renamed:
                     ncl = params_renamed(ocl, ncl, fo["name"], fn["name"])

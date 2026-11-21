@@ -1094,6 +1094,60 @@ def test_carry_anonymous_typedef_record_gains_its_tag(tmp_path, monkeypatch, cap
     assert "would carry 3 events" in out and "skipped" not in out
 
 
+MACRO_C = ('#include "s.h"\n%s'
+           "float f(float *p) {\n    if (p[0]) {} // FAKE: steers\n    return %s;\n}\n")
+CAM_LERP = "#define CAM_LERP(a, b, t) ((a) + ((b) - (a)) * (t))\n"
+LERP = "#define LERP(x, y, u) ((x) + ((y) - (x)) * (u))\n"
+
+
+@pytest.mark.parametrize("lerp,old_ret,new_ret,keep,reason", [
+    # 201B0's file-local CAM_LERP becomes the shared LERP (TypesOwner14 batch_15 part G)
+    (LERP, "CAM_LERP(p[0], p[1], 0.5f)", "LERP(p[0], p[1], 0.5f)", False, None),
+    (LERP.replace("* (u)", "* (u) * 2"), "CAM_LERP(p[0], p[1], 0.5f)", "LERP(p[0], p[1], 0.5f)", False, ""),
+    # the old macro still reached
+    (LERP, "CAM_LERP(p[0], p[1], 0.5f) + CAM_LERP(p[2], p[3], 0.5f)",
+     "LERP(p[0], p[1], 0.5f) + CAM_LERP(p[2], p[3], 0.5f)", True, ""),
+])
+def test_carry_macro_renamed_same_definition(tmp_path, monkeypatch, capsys, lerp, old_ret, new_ret, keep, reason):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "include" / "s.h").write_text("void g(int);\n")
+    src = repo / "src" / "global" / "x.c"
+    src.write_text(MACRO_C % (CAM_LERP, old_ret))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    q.append_events([q.event("u1", "sweep", fn, fn["sites"][0], "remove", "nohit"),
+                     q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
+    (repo / "include" / "s.h").write_text("void g(int);\n" + lerp)
+    src.write_text(MACRO_C % (CAM_LERP if keep else "", new_ret))
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed{reason}" in out
+        assert "would carry 0 events" in out
+        return
+    assert ("would carry src/global/x.c: f: remove, review, views (renames; macro CAM_LERP renamed LERP, same "
+            "definition (src/global/x.c -> include/s.h))") in out
+    assert "would carry 3 events" in out and "skipped" not in out
+
+
 def test_carry_func_limits_functions(tmp_path, monkeypatch, capsys):
     hdr = CARVE_H.replace("    int a;\n", "    int mode;\n")
     _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, edit=lambda s: s.replace("p->a", "p->mode").replace(
