@@ -311,11 +311,11 @@ u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
         case 0x26:
             gActivePlayerState->stateFlags2 |= 0x40;
             playerAngle = mathAngleBetweenPointsDeg(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
-            gCurrentActor->unkEC = playerAngle - mathAngleBetweenPointsDeg(gPlayerSlots->focusX, gPlayerSlots->focusZ, gPlayerSlots->camX, gPlayerSlots->camZ);
+            gCurrentActor->arrowAngle = playerAngle - mathAngleBetweenPointsDeg(gPlayerSlots->focusX, gPlayerSlots->focusZ, gPlayerSlots->camX, gPlayerSlots->camZ);
             actorAirPatrolStep(gCurrentActor->state, gBehaviourAnimState->animId1, gBehaviourAnimState->animId2);
-            gCurrentActor->unk15F = maxSpawns - gBehaviourWorkState->timer + 1;
+            gCurrentActor->targetNumber = maxSpawns - gBehaviourWorkState->timer + 1;
             if (gActorGlobalState.notifyReceived != 0) {
-                if (gCurrentActor->unk15F != gActorGlobalState.notifyValue[0]) {
+                if (gCurrentActor->targetNumber != gActorGlobalState.notifyValue[0]) {
                     ret = 1;
                 } else {
                     gBehaviourWorkState->timer--;
@@ -333,7 +333,7 @@ u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1DD, 0xFF, 0x7F, 0x14, 0x14, 0.0f, 0);
                 actorSpawn(0x18, 0);
                 gCurrentActor->yawSpeed++;
-                gSpawnedActor->unk15F = gCurrentActor->yawSpeed;
+                gSpawnedActor->targetNumber = gCurrentActor->yawSpeed;
                 gSpawnedActor->x = gCurrentActor->x;
                 gSpawnedActor->y = gCurrentActor->y - 10.0f;
                 gSpawnedActor->z = gCurrentActor->z;

@@ -2640,7 +2640,7 @@ void tagBarrelOrbitKongs(TagBarrelData *orbit) {
             }
             glow = clamped;
         }
-        kong->unk15F = (12.0f * glow) + 3.0f;
+        kong->orbitGlow = (12.0f * glow) + 3.0f;
     }
 }
 
@@ -2705,7 +2705,7 @@ void tagBarrelUpdateSelectedKong(void) {
         animSetFrameAndSubframe(gCurrentActor, 0, anims.frame[*kongIndex], 0.0f);
         actorScriptStart(gCurrentActor, 0x329);
     }
-    gCurrentActor->tintA = gCurrentActor->unk15F;
+    gCurrentActor->tintA = gCurrentActor->orbitGlow;
     gCurrentActor->yaw += 0x32;
     gCurrentActor->yaw &= 0xFFF;
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2755,7 +2755,7 @@ void tagBarrelInteractiveUpdate(void) {
         }
     }
     gCurrentActor->sub4->boneRotations[count].weight = 0;
-    gCurrentActor->tintA = gCurrentActor->unk15F;
+    gCurrentActor->tintA = gCurrentActor->orbitGlow;
     gCurrentActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots->camX, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->z);
     if (currentActorAnimTryIdleVariant(0, &extra->lastFrame) != 0) {
         if (extra->kind == 3 || extra->kind == 5) {

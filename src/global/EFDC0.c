@@ -1501,7 +1501,7 @@ void playerTakeDamage(s16 damage) {
                                 gActivePlayerActor->unk155 = 0;
                                 actorScriptStart(gActivePlayerActor, 0x3B5);
                                 actorScriptStart(gActivePlayerState->actor, 0x3BB);
-                                gActivePlayerState->unkC2 = (gFrameCounter & 1) ? -0xFA : 0xFA;
+                                gActivePlayerState->rideSpin = (gFrameCounter & 1) ? -0xFA : 0xFA;
                             } else {
                                 gActivePlayerActor->state = 0x37;
                                 gActivePlayerActor->unk155 = 0;

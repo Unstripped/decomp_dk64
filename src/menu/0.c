@@ -293,7 +293,7 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
             y += 0x3C;
         }
     } else {
-        gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, actor->base.unk15F);
+        gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, actor->base.fadeValue);
         _sprintf(textBuf, "q %s", textTableGetString(0x2A, 0, 1));
         glist = textDrawStringVtx(glist, 1, 0x15E, 0x190, textBuf, 1);
         _sprintf(textBuf, "b %s", textTableGetString(0x2A, 1, 1));
@@ -347,7 +347,7 @@ void menuUpdateOptionsState(MenuState *menu) {
         break;
     case 1:
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-            gCurrentActor->unk15F = 0;
+            gCurrentActor->fadeValue = 0;
             menu->step = 3;
         } else {
             menu->allMedals = 1;
@@ -358,7 +358,7 @@ void menuUpdateOptionsState(MenuState *menu) {
                 }
             }
             {
-                u8 alpha = gCurrentActor->unk15F;
+                u8 alpha = gCurrentActor->fadeValue;
                 s32 remaining = 0xFF - alpha;
                 s32 fadeStep;
                 if (remaining >= 9) {
@@ -366,7 +366,7 @@ void menuUpdateOptionsState(MenuState *menu) {
                 } else {
                     fadeStep = remaining;
                 }
-                gCurrentActor->unk15F = alpha + fadeStep;
+                gCurrentActor->fadeValue = alpha + fadeStep;
             }
             renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
             if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {

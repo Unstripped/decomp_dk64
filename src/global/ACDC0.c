@@ -1605,7 +1605,7 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
 
 void hudSpawnTextScreen(u8 textId) {
     actorSpawn(0x156, 0);
-    gSpawnedActor->unk15F = textId;
+    gSpawnedActor->textScreenId = textId;
     gSpawnedActor->renderFlags |= 2;
     gGlobalPauseFlags |= 0x40001;
 }
@@ -1637,7 +1637,7 @@ void hudTextScreenUpdate(void) {
         gCurrentActor->yawSpeed--;
     } else if (gCurrentActor->state == 0) {
         if (gContPadCur.button & 0x8000) {
-            switch (gCurrentActor->unk15F) {
+            switch (gCurrentActor->textScreenId) {
                 case 2:
                     camStartPath(0, 0x20, 1);
                     hudFreeTextAndDespawn();
@@ -1653,7 +1653,7 @@ void hudTextScreenUpdate(void) {
             }
             gCurrentActor->state = 1;
         } else if (gContPadCur.button & 0x4000) {
-            switch (gCurrentActor->unk15F) {
+            switch (gCurrentActor->textScreenId) {
                 case 3:
                 case 4:
                     spawnNodesSendVolumeTrigger(3, 7, 0x3C, 0, 0);
@@ -1679,7 +1679,7 @@ Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
     u8 c;
 
     dl = hudSetupTextState(dl);
-    sel = actor->unk155 == 0;
+    sel = actor->optionCursor == 0;
     c = sOptionShades[sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
     dl = hudDrawScaledText(dl, 0x280, 0x1B8, 0.7f, sPauseMenuStrings[0]);
@@ -1702,12 +1702,12 @@ void hudTwoOptionMenuUpdate(void) {
         gGlobalPauseFlags &= ~0x10030;
         screenWipeStart(7);
         sPauseStickHeld = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->optionCursor = 0;
     }
     i = gPausingPlayer;
     if (gPlayerSlots[i].contPad->stick_y >= 0x33 || gPlayerSlots[i].contPad->stick_y < -0x32) {
         if (!(sPauseStickHeld & 1)) {
-            gCurrentActor->unk155 = 1 - gCurrentActor->unk155;
+            gCurrentActor->optionCursor = 1 - gCurrentActor->optionCursor;
             sPauseStickHeld |= 1;
             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
@@ -1716,16 +1716,16 @@ void hudTwoOptionMenuUpdate(void) {
     }
     btn = *gPlayerSlots[i].heldButtonsPtr;
     if (btn & 0x8000) {
-        if (gCurrentActor->unk155 == 0) {
+        if (gCurrentActor->optionCursor == 0) {
             gGlobalPauseFlags |= 0x10070;
             for (i = 0; i < 4; i++) {
                 heapFreeDeferred(sPauseMenuStrings[i]);
             }
             heapFreeDeferred(sPauseMenuStrings);
-        } else if (gCurrentActor->unk155 == 1) {
+        } else if (gCurrentActor->optionCursor == 1) {
             gMpWinnerIndex = -1;
             menuReturnToTitleWithMode3();
-            gCurrentActor->unk155 = 2;
+            gCurrentActor->optionCursor = 2;
         }
     }
     renderCallbacksRegister(hudDrawDimOverlay, gCurrentActor, 1);

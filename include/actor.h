@@ -236,7 +236,11 @@ typedef struct HeldActorAlignArg {
 
 typedef struct ActorCallbackNode {
     /* 0x00 */ void *callback;
-    /* 0x04 */ u8 unk4;
+    union {
+        /* 0x04 */ u8 unk4;         // event node (actor->callbacks): the event's subtype argument (actorAllocCallbackNode, 7CA80.c)
+        /* 0x04 */ u8 dispatchPass; // global callback node (actorRegisterGlobalCallback): 0 = after the current actor's
+                                    // tick, 1 = after the frame's actor passes (actorGlobalCallbacksDispatchAndFree, 7CA80.c)
+    };
     /* 0x05 */ u8 unk5[3];
     union {
         struct {
@@ -399,7 +403,10 @@ typedef struct Actor {
     /* 0x06A */ u16 contactFlags;
     /* 0x06C */ u16 prevContactFlags;
     /* 0x06E */ s16 soundSlots[2];
-    /* 0x072 */ s16 unk72;
+    union {
+        /* 0x072 */ s16 unk72;       // sound frame timer: counts up while sound 0x131 plays (its pitch, 7130.c), down holding 0x130 (race/36B0.c)
+        /* 0x072 */ s16 soundAnimId; // anim id slot 0's script sound is bound to, stopped when the anim changes (19A00.c, 7130.c)
+    };
     /* 0x074 */ f32 soundVolume;
     /* 0x078 */ u8 floorTriSurface[4];
     /* 0x07C */ f32 x;
@@ -440,7 +447,14 @@ typedef struct Actor {
     /* 0x0EA */ s16 targetYaw;
     union {
         struct {
-            /* 0x0EC */ s16 unkEC;
+            union {
+                /* 0x0EC */ s16 unkEC;      // per-type scratch (the uses below span 2+ functions; the rest stay here)
+                /* 0x0EC */ s16 arrowAngle; // screen angle in degrees of the hint arrows actorDrawAnimatedEffect draws (90D80.c;
+                                            // written by C8C10.c, 9DD70.c, A6280.c, race/A960.c)
+                /* 0x0EC */ s16 lastRoll;   // camera actor: the pitch (up-vector roll) applied last frame, read as skyRoll (201B0.c, 8F4B0.c)
+                /* 0x0EC */ s16 alphaStep;  // flying enemy: alpha fade step per frame, random 15..21 (B7490.c swoop/return)
+                /* 0x0EC */ s16 sideAngle;  // minecart type 0x11C escort: side offset angle, times yawSpeed = -1/+1 (minecart/25F0.c)
+            };
             /* 0x0EE */ s16 moveYaw;
         };
         /* 0x0EC */ u32 animLastFrame; // currentActorAnimTryIdleVariant frame cursor (actorSparkCutsceneUpdate, A6280.c)
@@ -486,13 +500,38 @@ typedef struct Actor {
     /* 0x148 */ void *unk148[2]; // per gfx buffer (renderActorEntryBuildDisplayList indexes gGfxBufferIndex)
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
-    /* 0x155 */ u8 unk155;
+    union {
+        /* 0x155 */ u8 unk155;         // step / in-state counter of `state`, reset with every state change
+        /* 0x155 */ u8 projectileKind; // type 0x116: ProjectileConfig.type, read by playerHandleDamageReaction (7CA80.c)
+        /* 0x155 */ u8 menuCharacter;  // type 0x151: selected character index (menuCharacterSelectUpdateActor, 3E10.c)
+        /* 0x155 */ u8 optionCursor;   // type 0x157: highlighted option, 2 = quit chosen (hudTwoOptionMenuUpdate, ACDC0.c)
+        /* 0x155 */ u8 counterValue;   // type 0x58: number shown by textUpdateTwoDigitCounter (9DD70.c)
+    };
     /* 0x156 */ u8 mirrorCount;
     /* 0x157 */ u8 unk157;
     /* 0x158 */ AnimNode *animList;
     /* 0x15C */ s16 spawnTimer;
     /* 0x15E */ u8 eyeHeight;
-    /* 0x15F */ u8 unk15F;
+    union {
+        /* 0x15F */ u8 unk15F;        // per-type scratch byte (the uses below span 2+ functions; the rest stay here)
+        /* 0x15F */ u8 fadeValue;     // 0..0xFF level ramped in/out: text marker (9DD70.c), options menu (menu/0.c),
+                                      // shop cost prompt (menu/1AF0.c), menu light (menu/E550.c)
+        /* 0x15F */ u8 orbitGlow;     // tag-barrel kong highlight 3..15, copied into tintA (80150.c)
+        /* 0x15F */ u8 ringCountdown; // type 0x107 sprite ring: rings (or frames) left, nonzero = hurts (936B0.c, 9BF30.c)
+        /* 0x15F */ u8 wavesLeft;     // type 0x102 shockwave: generations still to spawn (936B0.c, A2F10.c)
+        /* 0x15F */ u8 targetNumber;  // numbered targets: spawner's expected number, each target's own (C8C10.c, 9DD70.c)
+        /* 0x15F */ u8 sequenceIndex; // next entry of the D_807506C0 actor sequence (C2A90.c, A6280.c)
+        /* 0x15F */ u8 followerCount; // minecart follower spawner: followers alive (minecart/25F0.c)
+        /* 0x15F */ u8 savedYaw;      // camera actor: orbit yaw in 1/255 turns for the next reset (201B0.c, CC800.c)
+        /* 0x15F */ u8 stageStatus;   // K. Rool Tiny phase boss/minions: 1 = active, 2 = done (boss/B100.c)
+        /* 0x15F */ u8 dropMode;      // bouncing drops: 1 = not collectable on the first bounce, 2 = never expires (AA960.c)
+        /* 0x15F */ u8 timerMode;     // type 0xB0 countdown timer: 6 = seconds only, 0xB = mm:ss:hh, also runs on camera paths (A7710.c)
+        /* 0x15F */ u8 textScreenId;  // type 0x156 text screen: which screen, picks the button actions (ACDC0.c)
+        /* 0x15F */ u8 reelSymbol;    // bonus slot reel: symbol index under the payline (bonus/12A0.c)
+        /* 0x15F */ u8 bannerId;      // type 0x104 banner: text / sprite / round number to show (A2F10.c, 1295B0.c)
+        /* 0x15F */ u8 formationIndex; // type 0x94 group: 0 = leader, 1..11 children, group = index / 3 (A2F10.c)
+        /* 0x15F */ u8 debrisUpright; // type 0xED tumble debris: nonzero = drawn upright, 0 = flipped (B2CE0.c)
+    };
     union {
         /* 0x160 */ f64 splineT;
         /* 0x160 */ u32 frameCursor; // currentActorAnimTryIdleVariant frame cursor (critterFlutterFlyUpdate, 3340.c)
@@ -666,9 +705,25 @@ typedef struct SpawnNode {
             u8 unkA;
             u8 unkB;
         };
+        u8 attachNode; // zone-occupant model node to ride, 0 = none (behaviourAttachToZoneOccupant, behaviourRockingWalk, behaviourFairyIdle1-3, BDEE0.c)
+        struct {
+            u8 targetCount; // bonus: items to collect (bonusControllerUpdate, bonus/0.c)
+            u8 timeLimit;   // bonus: hudSpawnCountdownTimer seconds (bonusControllerUpdate, bonusMazeChallengeUpdate, bonus/0.c)
+        };
+        struct {
+            u8 hoverHeight; // fly patrol: seeds FlyPatrolComponent.hoverHeight (behaviourFlyPatrolWithCallback, actorAirPatrolStep, B7490.c)
+            u8 climbRate;   // fly patrol: y += climbRate / 32 (or / 64) per frame below the hover height; 0 -> 0x28 (same functions)
+        };
+        struct {
+            u8 burstLength;   // emitters: frames (shots) per burst, loaded into timer (actorUpdatePeriodicParticleEmitter, actorUpdateAimedProjectileEmitter, actorUpdateBurstProjectileEmitter, BC3B0.c)
+            u8 burstInterval; // emitters: frames between bursts (same functions)
+        };
     };
     /* 0x0C */ u8 targetSpeed;
-    /* 0x0D */ u8 unkD;
+    union {
+        /* 0x0D */ u8 unkD;            // run/chase speed (actorSetTargetSpeed, behaviourSetChaseState, speedXZ users)
+        /* 0x0D */ u8 burstStartDelay; // burst emitter: frames before the first burst (actorUpdateBurstProjectileEmitter, BC3B0.c)
+    };
     /* 0x0E */ u8 zoneId;
     /* 0x0F */ u8 scale;
     /* 0x10 */ u8 actorState;
@@ -744,7 +799,10 @@ typedef struct BehaviourWorkState {
     /* 0x1C */ u16 prevFlags; // flags before the current zone update
     /* 0x1E */ u8 turnRate; // SpawnEntry.turnRate
     /* 0x1F */ u8 moveYawRate; // SpawnEntry.moveYawRate
-    /* 0x20 */ u8 unk20;
+    union {
+        /* 0x20 */ u8 unk20;       // chase countdown: reachable-point retry cooldown, state 0x35 search time (behaviourCheckTargetCollisionMode, enemyAggroStateUpdate, 12E800.c)
+        /* 0x20 */ u8 stuckFrames; // patrol: +2 per frame while x/z do not move, > 0x10 forces the waypoint reached (patrolPathStep, 12E800.c)
+    };
     /* 0x21 */ u8 wanderDegrees; // SpawnEntry.wanderDegrees
     /* 0x22 */ u8 wanderTimer; // counts down to the next wander turn
     /* 0x23 */ u8 wanderInterval; // SpawnEntry.wanderInterval
@@ -759,7 +817,12 @@ typedef struct BehaviourWorkState {
         /* 0x28 */ u32 unk28; // boss/8520.c: packed anim frame (& 0xF), direction bit 0x80, flag 0x8000
     };
     /* 0x2C */ s16 timer;
-    /* 0x2E */ s16 unk2E;
+    union {
+        /* 0x2E */ s16 unk2E;       // countdown: set, decremented to 0 (BC3B0.c, BDEE0.c, C2A90.c, C8C10.c, CB230.c, race/0.c, boss/9230.c)
+        /* 0x2E */ s16 riseSpeed;   // Army Dillo rocket rise: +10/+4 per frame, capped 0x12C, copied to speedY (bossArmydilloStep, boss/0.c)
+        /* 0x2E */ s16 spinSpeed;   // Mad Jack state 0x46: signed yaw step, eased by +-2 within +-0x32 (bossMadJackStep, boss/52B0.c)
+        /* 0x2E */ s16 emergeDepth; // state 0x36 emerge: distance below the node the rise starts from (behaviourUpdateContactAndState, 12E800.c)
+    };
     /* 0x30 */ f32 scale;
     /* 0x34 */ u8 lastMoveTier; // playerSelectMoveTier result last applied (0xFF = none)
     /* 0x35 */ u8 acceleration; // SpawnEntry.acceleration
@@ -804,7 +867,10 @@ typedef struct PlayerState {
     /* 0x04A */ u8 pad4A[2];
     /* 0x04C */ s16 moveTier;
     /* 0x04E */ s16 animIndex;
-    /* 0x050 */ s16 unk50;
+    union {
+        /* 0x050 */ s16 unk50;     // air states: frames playerApplyGravity holds gravity off (CEAE0.c; set in EFDC0.c/E4090.c)
+        /* 0x050 */ s16 idleDelay; // swim states 0x7F/0x4F: frames still before the idle animation (D5E10.c; playerWarpToSpawnPoint, CC800.c)
+    };
     /* 0x052 */ u8 pad52[2];
     /* 0x054 */ f32 jumpVelocityY;
     /* 0x058 */ s32 jumpTimer;
@@ -843,7 +909,10 @@ typedef struct PlayerState {
     /* 0x0BC */ s16 hitActorType;
     /* 0x0BE */ s16 hitActorId;
     /* 0x0C0 */ s16 unkC0;
-    /* 0x0C2 */ s16 unkC2;
+    union {
+        /* 0x0C2 */ s16 unkC2;    // frames on a slope, >= 0x15 slides (playerUpdateSlopeSlidePhysics, CEAE0.c)
+        /* 0x0C2 */ s16 rideSpin; // state 0x38: spin added to the ridden actor, decays by 7 (playerStateRidingActor, D5E10.c; EFDC0.c)
+    };
     /* 0x0C4 */ struct GfSndState *sfxHandle;
     /* 0x0C8 */ s16 chargeTimer;
     /* 0x0CA */ u8 barrelCooldown;
@@ -870,7 +939,10 @@ typedef struct PlayerState {
     /* 0x0FC */ s32 invulnTimer;
     /* 0x100 */ s32 respawnTimer;
     /* 0x104 */ Actor *camActor;
-    /* 0x108 */ f32 unk108;
+    union {
+        /* 0x108 */ f32 unk108;     // frame countdown per tumble phase (playerStateKnockbackTumble, D5E10.c)
+        /* 0x108 */ f32 wiggleSide; // last stick side, 0.0f/1.0f (playerInputWiggleOffStatusEffect, E4090.c)
+    };
     /* 0x10C */ s8 ledgeHangOffset;
     /* 0x10D */ u8 pad10D;
     /* 0x10E */ s16 targetPitch;
@@ -942,12 +1014,19 @@ typedef struct PlayerState {
     /* 0x218 */ f32 unk218;
     /* 0x21C */ s16 unk21C;
     /* 0x21E */ u16 fadeLevel;
-    /* 0x220 */ f32 unk220[3];
+    union {
+        /* 0x220 */ f32 unk220[3];    // cutscene spark heading: [0] sine, [1] angle (s16 yaw as a float), [2] cosine (csCmdCameraVectorTargetUpdate, 478F0.c; func_806DF280, D5E10.c)
+        /* 0x220 */ f32 targetPos[3]; // target point from the B-press event (playerInputCheckBButtonTarget, E4090.c; playerStateThrowCarried, D5E10.c)
+    };
     /* 0x22C */ f32 savedX;
     /* 0x230 */ f32 savedY;
     /* 0x234 */ f32 savedZ;
     /* 0x238 */ f32 floatBaseY;
-    /* 0x23C */ u16 unk23C;
+    union {
+        /* 0x23C */ u16 unk23C;    // frame countdown ending a state step (D5E10.c death/tag-barrel states; EFDC0.c, E4090.c)
+        /* 0x23C */ u16 rampLevel; // ramped magnitude: sparkle spin (playerStateTransformSparkles), model scale (playerStateStationaryInteraction), D5E10.c
+        /* 0x23C */ u16 bobPhase;  // sine angle of the Y bob (playerStatePonytailFloat, D5E10.c)
+    };
     /* 0x23E */ u8 sparkTimer;
     /* 0x23F */ u8 padHintTimer;
     /* 0x240 */ u8 attachmentExitTimer;

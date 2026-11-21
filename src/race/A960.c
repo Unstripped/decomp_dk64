@@ -318,7 +318,7 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
         if (node != NULL) {
             if (((f32)node->x - gCurrentActor->x) * ((f32)node->x - gCurrentActor->x) + ((f32)node->z - gCurrentActor->z) * ((f32)node->z - gCurrentActor->z) > 900.0f) {
                 headingAngle = mathAngleBetweenPointsDeg(node->x, node->z, (s32)gCurrentActor->x, (s32)gCurrentActor->z);
-                gCurrentActor->unkEC = (s32)(headingAngle - mathAngleBetweenPointsDeg(
+                gCurrentActor->arrowAngle = (s32)(headingAngle - mathAngleBetweenPointsDeg(
                     (s32)gPlayerSlots[tracker->playerIdx].focusX,
                     (s32)gPlayerSlots[tracker->playerIdx].focusZ,
                     (s32)(&gPlayerSlots[tracker->playerIdx].camX)[tracker->playerIdx], // ORIG: the target reads camX + playerIdx * 4 of the slot (sll t8,t0,2; addu t9,v0,t8; lwc1 528(t9) at 0xc34)

@@ -6,7 +6,7 @@
 // Types shared by the arcade overlay (ovl08): 0.c (game code) and E220.c (sprite pixels and
 // entity templates).
 
-// One Donkey Kong arcade entity (D_8004BCD0[80]; templates D_8004A398..D_8004A718); 0x20 bytes.
+// One Donkey Kong arcade entity (gArcadeEntities[80]; templates gArcadePlayerTemplate..gArcadeBarrelStackTemplate in E220.c); 0x20 bytes.
 typedef struct ArcadeEntity {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;

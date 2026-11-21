@@ -350,7 +350,7 @@ s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
         behaviourArmadilloInitRollState();
     }
     if (gCurrentActor->state == 0x15) {
-        node = gBehaviourExtraState->unkA;
+        node = gBehaviourExtraState->attachNode;
         if (node == 5 || node == 7) {
             if ((tgt->sub4->animId == 0x21E || tgt->sub4->animId == 0x21F) && tgt->sub4->model->frame >= 4.0f && tgt->sub4->model->frame <= 12.0f) {
                 gCurrentActor->interactionType = 4;
@@ -519,7 +519,7 @@ u8 pivotZ;
     s16 yawOffset;
 
     rock = ROCKING_ACTOR->rock;
-    if (gBehaviourExtraState->unkA && behaviourAttachToZoneOccupant(0x64, 0)) {
+    if (gBehaviourExtraState->attachNode && behaviourAttachToZoneOccupant(0x64, 0)) {
         return;
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
@@ -881,7 +881,7 @@ void behaviourFairyWanderUpdate(void) {
 
 void behaviourFairyIdle1(void) {
     behaviourFairyUpdate();
-    if (gBehaviourExtraState->unkA == 0 || behaviourAttachToZoneOccupant(0, 0x446) == 0) {
+    if (gBehaviourExtraState->attachNode == 0 || behaviourAttachToZoneOccupant(0, 0x446) == 0) {
         actorPatrolFollowerUpdate(0x2ED, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -889,7 +889,7 @@ void behaviourFairyIdle1(void) {
 
 void behaviourFairyIdle2(void) {
     behaviourFairyUpdate();
-    if (gBehaviourExtraState->unkA == 0 || behaviourAttachToZoneOccupant(0x32, 0x44E) == 0) {
+    if (gBehaviourExtraState->attachNode == 0 || behaviourAttachToZoneOccupant(0x32, 0x44E) == 0) {
         actorPatrolFollowerUpdate(0x2EC, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -897,7 +897,7 @@ void behaviourFairyIdle2(void) {
 
 void behaviourFairyIdle3(void) {
     behaviourFairyUpdate();
-    if (gBehaviourExtraState->unkA == 0 || behaviourAttachToZoneOccupant(0x14, 0x44A) == 0) {
+    if (gBehaviourExtraState->attachNode == 0 || behaviourAttachToZoneOccupant(0x14, 0x44A) == 0) {
         actorPatrolFollowerUpdate(0x2EE, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }

@@ -1272,7 +1272,7 @@ void sfxStopSlotSound(Actor *actor, u8 slot) {
         sfxSlotFreeSource(actor->soundSlots[slot]);
         actor->soundSlots[slot] = -1;
         if (slot == 0) {
-            actor->unk72 = 0;
+            actor->soundAnimId = 0;
         }
     }
 }
@@ -1897,7 +1897,7 @@ void sfxUpdateSourceGroups(void) {
                         }
                     }
                     if (actor != NULL) {
-                        if (actor->unk72 != 0 && gSfxVoiceSoundId[i] != 0x131 && actor->sub4->model->animId != actor->unk72) {
+                        if (actor->soundAnimId != 0 && gSfxVoiceSoundId[i] != 0x131 && actor->sub4->model->animId != actor->soundAnimId) {
                             sfxStopSlotSound(actor, 0);
                         }
                     }

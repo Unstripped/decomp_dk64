@@ -608,8 +608,8 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     gCurrentActor->callbackMask &= 0xFFFF7FFF;
                     gCurrentActor->alpha = 0;
                     gBehaviourWorkState->emergeTimer = 0x5A;
-                    gBehaviourWorkState->unk2E = gCurrentActor->sub4->scaleY * gCurrentActor->collision->scaledRadius;
-                    gCurrentActor->y -= gBehaviourWorkState->unk2E;
+                    gBehaviourWorkState->emergeDepth = gCurrentActor->sub4->scaleY * gCurrentActor->collision->scaledRadius;
+                    gCurrentActor->y -= gBehaviourWorkState->emergeDepth;
                     gCurrentActor->unk72 = 0;
                     gCurrentActor->unk155++;
                     break;
@@ -623,7 +623,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
 
                         gBehaviourWorkState->emergeTimer--;
                         t = gBehaviourWorkState->emergeTimer / 90.0f;
-                        gCurrentActor->y = gBehaviourExtraState->y + (((gBehaviourExtraState->y - gBehaviourWorkState->unk2E) - gBehaviourExtraState->y) * t);
+                        gCurrentActor->y = gBehaviourExtraState->y + (((gBehaviourExtraState->y - gBehaviourWorkState->emergeDepth) - gBehaviourExtraState->y) * t);
                         if (gCurrentActor->soundSlots[0] == -1) {
                             gCurrentActor->soundSlots[0] = sfxSlotAllocateActor(gCurrentActor, 0x131, 0, 0, 0xFF, 1.0f, 0);
                         }
@@ -902,13 +902,13 @@ u8 patrolPathStep(u8 state, u8 flags) {
     moved = ((gCurrentActor->x - x) * (gCurrentActor->x - x)) + ((gCurrentActor->z - z) * (gCurrentActor->z - z)) <
             (gBehaviourZone->entries[key].radius * gBehaviourZone->entries[key].radius);
     if ((flags & 1) && gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
-        gBehaviourWorkState->unk20++;
-        if (gBehaviourWorkState->unk20++ > 0x10) {
+        gBehaviourWorkState->stuckFrames++;
+        if (gBehaviourWorkState->stuckFrames++ > 0x10) {
             moved = 1;
-            gBehaviourWorkState->unk20 = 0;
+            gBehaviourWorkState->stuckFrames = 0;
         }
     } else {
-        gBehaviourWorkState->unk20 = 0;
+        gBehaviourWorkState->stuckFrames = 0;
     }
     switch (state) {
         case 0x49:

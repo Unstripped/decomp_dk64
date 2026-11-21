@@ -119,7 +119,7 @@ void bonusControllerUpdate(void) {
     counter = ((BonusCounterActor *)gCurrentActor)->counter;
     behaviourFrameBegin();
     challengeType = gBehaviourExtraState->respawnDelay;
-    targetCount = gBehaviourExtraState->unkA;
+    targetCount = gBehaviourExtraState->targetCount;
     commandQueuePush(gPrimaryPlayerActor, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + 30.0f, gPrimaryPlayerActor->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     if (!(gCurrentActor->flags & 0x10)) {
         hasMessage = 0;
@@ -129,7 +129,7 @@ void bonusControllerUpdate(void) {
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(4, 0, 2);
         gCurrentActor->state = 0;
-        hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkB);
+        hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->timeLimit);
         switch (challengeType) {
         case 14:
             csModelStateSetByte((randomNonNegative() >> 15) % 32767 % 4, 1, 1);
@@ -462,7 +462,7 @@ void bonusMazeChallengeUpdate(void) {
         maze->pitch = 0;
         maze->targetPitch = 0;
         n_alSndpPlay(gSfxBank, 0x1E6, 0, 0x40, 1.0f, 0x80, &maze->sndState);
-        hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkB);
+        hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->timeLimit);
         spawnNodeActivateAndSetState(1, 0x40, 0x10);
         spawnNodeActivateAndSetState(2, 0x40, 0x10);
         spawnNodeActivateAndSetState(3, 0x40, 0x10);

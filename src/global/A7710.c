@@ -33,9 +33,9 @@ void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
     actorSpawn(0xB0, 0);
     if (x & 0x8000) {
         seconds--;
-        gSpawnedActor->unk15F = 0xB;
+        gSpawnedActor->timerMode = 0xB;
     } else {
-        gSpawnedActor->unk15F = 6;
+        gSpawnedActor->timerMode = 6;
     }
     x &= 0x7FFF;
     gCurrentActor->parentActor = gSpawnedActor;
@@ -90,7 +90,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
         gDPSetPrimColor(gfx++, 0, 0, 0xFF, 0xFF, 0xFF, actor->alpha);
         gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        animMode = actor->unk15F;
+        animMode = actor->timerMode;
         if (animMode == 0xB) {
             gfx = playerViewSetPrimaryViewport(gfx);
             gfx = textDrawStringVtx(gfx, 0x86, actor->x * 4.0f, gPlayerSlots->rect[3] * 4 - 0x3C,
@@ -129,12 +129,12 @@ void hudCountdownTimerUpdate(void) {
 
     timer = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        if (gCurrentActor->unk15F == 6) {
+        if (gCurrentActor->timerMode == 6) {
             _sprintf(text, "%.2d", timer->totalSecs);
         } else {
             _sprintf(text, "%.2d:%.2d:00", timer->totalSecs / 60, timer->totalSecs % 60);
         }
-        timer->textId = gfxResourceCreate(gCurrentActor->unk15F == 0xB ? 6 : 3, text, gCurrentActor->unk15F, 0.0f, 0.0f, 0.0f);
+        timer->textId = gfxResourceCreate(gCurrentActor->timerMode == 0xB ? 6 : 3, text, gCurrentActor->timerMode, 0.0f, 0.0f, 0.0f);
     }
     if (gCurrentActor->state == 3) {
         timer->startTime = osGetTime() - gHudCountdownSavedElapsed;
@@ -142,7 +142,7 @@ void hudCountdownTimerUpdate(void) {
         gCurrentActor->unk155 = 1;
     }
     timer->startTime += gLastPauseDuration;
-    if (gCurrentActor->unk15F == 0xB) {
+    if (gCurrentActor->timerMode == 0xB) {
         timer->startTime += gCamPathTimeDelta;
     }
     usec = OS_CYCLES_TO_USEC(osGetTime() - timer->startTime);
@@ -183,10 +183,10 @@ void hudCountdownTimerUpdate(void) {
             gCurrentActor->splineT = angle < 0.0f ? 0.0f : angle;
             if (nextBeepAngle <= angle) {
                 if (timer->elapsedSecs >= timer->totalSecs
-                    && (gCurrentActor->unk15F == 6 || timer->totalSecs < timer->elapsedSecs || gHudCountdownHundredths >= 91)) {
+                    && (gCurrentActor->timerMode == 6 || timer->totalSecs < timer->elapsedSecs || gHudCountdownHundredths >= 91)) {
                     gCurrentActor->state = 5;
                     gCurrentActor->unk155 = 0;
-                } else if (gCurrentActor->unk15F == 6) {
+                } else if (gCurrentActor->timerMode == 6) {
                     if ((s32)(nextBeepAngle / 3.1415927f) & 1) {
                         sfxPlayOnFreeSlot(0x8E, 0x58EF, 63.0f, 1.0f, 5, 0);
                     } else {
@@ -197,7 +197,7 @@ void hudCountdownTimerUpdate(void) {
                     gCurrentActor->state = 4;
                 }
             }
-            if (gCurrentActor->unk15F == 6) {
+            if (gCurrentActor->timerMode == 6) {
                 _sprintf(text, "%.2d", secsLeft);
             } else if (gCurrentActor->state != 5) {
                 _sprintf(text, "%.2d:%.2d:%.2d", secsLeft / 60, secsLeft % 60, 99 - gHudCountdownHundredths);

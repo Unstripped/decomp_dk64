@@ -64,7 +64,7 @@ void behaviourTumbleDebrisUpdate(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 200, 0x80, 0, 1.0f);
-    if (gCurrentActor->unk15F != 0) {
+    if (gCurrentActor->debrisUpright != 0) {
         actorUpdateModelMatrix(gCurrentActor, 0);
     } else {
         guTranslateF(transMtx, 0, -30.0f, 0);
@@ -553,7 +553,7 @@ void behaviourArmoredEnemyUpdate(void) {
             gBehaviourWorkState->moveYawRate = 0xF;
             gCurrentActor->unkEC = -1;
             actorSpawnChildAtNode(0xC2, 0x800, 1, 0x190);
-            gSpawnedActor->unk15F = 1;
+            gSpawnedActor->debrisUpright = 1;
             effectSpawnActorParticleBurst(1);
         } else if (gCurrentActor->segmentFlags & 2) {
             effectSpawnActorParticleBurst(2);

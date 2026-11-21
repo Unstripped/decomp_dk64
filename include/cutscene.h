@@ -44,7 +44,10 @@ typedef struct CsState {
     /* 0x53 */ u8 prevPushInput;
     /* 0x54 */ u8 updateMode;
     /* 0x55 */ u8 pad55[3];
-    /* 0x58 */ s32 unk58;
+    union {
+        /* 0x58 */ s32 unk58;    // update modes 3/4/6: squared range to the nearest player (csSetObjectTrackParam, modelPendingQueueInsert)
+        /* 0x58 */ s32 queueKey; // update mode 5: key of its model pending queue entry (csSetObjectTrackParam, modelPendingQueueInsert)
+    };
     /* 0x5C */ u8 hitId;
     /* 0x5D */ u8 unk5D;
     /* 0x5E */ u16 hitActorType;

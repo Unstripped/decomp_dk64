@@ -1589,7 +1589,7 @@ s32 scriptOpPlaySlotSound(Actor *actor) {
     scriptReadU8(&imm3);
     scriptReadU8(&imm4);
     sfxPlayActorSound(actor, imm, imm3, 1, imm2, 0xFF, 1.0f, imm4);
-    actor->unk72 = actor->sub4->model->animId;
+    actor->soundAnimId = actor->sub4->model->animId;
     return 1;
 }
 

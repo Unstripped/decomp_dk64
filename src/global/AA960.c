@@ -241,7 +241,7 @@ void actorMinigameCoinDropUpdate(void) {
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         if ((gGlobalOverlayFlags & 0x80000) || (gGlobalOverlayFlags & 0x2000)) {
-            gCurrentActor->unk15F = 1;
+            gCurrentActor->dropMode = 1;
         }
         effectSpawnAttachedSprite(state, gEffectSpriteDkCoin, 1.0f);
     }
@@ -321,7 +321,7 @@ void actorKongDropUpdate(void) {
         effectSpawnAttachedSprite(state, anim, 1.0f);
         if (gCurrentActor->state == 0x63) {
             gCurrentActor->state = 1;
-            gCurrentActor->unk15F = 2;
+            gCurrentActor->dropMode = 2;
         }
     }
 }
@@ -418,7 +418,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             switch (state->bounceCount) {
             case 0:
-                if (gCurrentActor->unk15F != 1) {
+                if (gCurrentActor->dropMode != 1) {
                     state->collectable = 1;
                 }
                 gCurrentActor->speedY = 150.0f;
@@ -435,7 +435,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
                 if (gCurrentActor->actorType == 0x8C) {
                     state->collectable = 1;
                 }
-                if (gCurrentActor->actorType != 0x6E && gCurrentActor->actorType != 0x8C && !(gGlobalOverlayFlags & 0x4000) && gCurrentActor->unk15F != 2) {
+                if (gCurrentActor->actorType != 0x6E && gCurrentActor->actorType != 0x8C && !(gGlobalOverlayFlags & 0x4000) && gCurrentActor->dropMode != 2) {
                     state->expireTimer = 0x64;
                     gCurrentActor->state = 3;
                 } else {

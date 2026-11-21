@@ -1406,33 +1406,33 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 case 0:
                     gSpawnedActor->x = 450.0f;
                     gSpawnedActor->y = 500.0f;
-                    gSpawnedActor->unk15F = 0x14;
+                    gSpawnedActor->bannerId = 0x14;
                     break;
                 case 1:
                     gSpawnedActor->x = 820.0f;
                     gSpawnedActor->y = 500.0f;
-                    gSpawnedActor->unk15F = 0x15;
+                    gSpawnedActor->bannerId = 0x15;
                     break;
                 case 10:
                     sfxPlayOnFreeSlot(0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                    gSpawnedActor->unk15F = 0;
+                    gSpawnedActor->bannerId = 0;
                     gSpawnedActor->x = 500.0f;
                     gSpawnedActor->y = 80.0f;
                     break;
                 case 11:
                     sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                    gSpawnedActor->unk15F = 0x89;
+                    gSpawnedActor->bannerId = 0x89;
                     gSpawnedActor->x = 600.0f;
                     gSpawnedActor->y = 80.0f;
                     break;
                 case 12:
                     sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                    gSpawnedActor->unk15F = 0x47;
+                    gSpawnedActor->bannerId = 0x47;
                     gSpawnedActor->x = 600.0f;
                     gSpawnedActor->y = 80.0f;
                     break;
                 case 13:
-                    gSpawnedActor->unk15F = 0x23;
+                    gSpawnedActor->bannerId = 0x23;
                     gSpawnedActor->x = 600.0f;
                     gSpawnedActor->y = 80.0f;
                     break;
@@ -1446,7 +1446,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 case 33:
                 case 34:
                 case 35:
-                    gSpawnedActor->unk15F = param;
+                    gSpawnedActor->bannerId = param;
                     gSpawnedActor->x = 500.0f;
                     gSpawnedActor->y = 80.0f;
                     break;

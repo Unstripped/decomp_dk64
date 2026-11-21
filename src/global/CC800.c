@@ -628,7 +628,7 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
         gActivePlayerActor->state = 0x4F;
         gActivePlayerActor->unk155 = 3;
         scriptSetActorRampTarget(gActivePlayerActor, 0.5f, 0.0f);
-        ps->unk50 = 1;
+        ps->idleDelay = 1;
         gActivePlayerActor->contactFlags |= 4;
         actorUpdatePrevContactFlags(gActivePlayerActor);
         actorScriptStartByIndex(gActivePlayerActor, 0x34);
@@ -646,7 +646,7 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
         break;
     }
     gActivePlayerActor->contactFlags &= ~0x200;
-    ps->camActor->unk15F = (spawn->camMode <= 0) ? 1 : spawn->camMode;
+    ps->camActor->savedYaw = (spawn->camMode <= 0) ? 1 : spawn->camMode;
     if (spawn->flags & 1) {
         gAmbientIndoors = 1;
     }

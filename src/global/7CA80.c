@@ -1092,7 +1092,7 @@ u8 id;
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        if (gActorGlobalCallbacks[i] != NULL && gActorGlobalCallbacks[i]->unk4 == id) {
+        if (gActorGlobalCallbacks[i] != NULL && gActorGlobalCallbacks[i]->dispatchPass == id) {
             ((void (*)(void *))gActorGlobalCallbacks[i]->callback)(&gActorGlobalCallbacks[i]->source);
             heapFree(gActorGlobalCallbacks[i]);
             gActorGlobalCallbacks[i] = NULL;
@@ -1527,7 +1527,7 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
             }
             if (attacker != NULL && attacker->actorType == 0x116) {
                 effectSpawnBurstParticleCluster(actor);
-                switch (attacker->unk155) {
+                switch (attacker->projectileKind) {
                 case 1:
                     queueReaction = 0;
                     gActivePlayerState->stateFlags ^= 0x80;

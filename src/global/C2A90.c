@@ -287,7 +287,7 @@ void actorTargetCourseHostUpdate(void) {
         currentActorAnimFinish(0);
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unk15F = 0;
+        gCurrentActor->sequenceIndex = 0;
     }
     switch (gCurrentActor->state) {
         case 0x26:
@@ -428,7 +428,7 @@ void actorTargetCourseHostUpdate(void) {
             gCurrentActor->state = 2;
             gCurrentActor->unk155 = 0;
         default:
-            if (gCurrentActor->unk15F < sizeof(D_807506C0)) {
+            if (gCurrentActor->sequenceIndex < sizeof(D_807506C0)) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, gCurrentActor, 3);
             }
             if (((randomNonNegative() >> 0xF) % 1000) >= 0x3DF && gCurrentActor->sub4->animId == 0x302) {
@@ -440,14 +440,14 @@ void actorTargetCourseHostUpdate(void) {
                 actorScriptStart(gCurrentActor, sel); // FAKE: the unk155 switch selector sel reused as the anim id keeps the selector in $a1 (lbu a1,0x155(s0) at 0xd18); a separate anim local gives v0 (Q0162)
             }
             if (gActorGlobalState.notifyReceived != 0) {
-                if (gActorGlobalState.notifyValue[0] >= D_807506C0[gCurrentActor->unk15F] && gCurrentActor->unk15F < sizeof(D_807506C0)) {
-                    if (gActorGlobalState.notifyValue[0] != D_807506C0[gCurrentActor->unk15F]) {
+                if (gActorGlobalState.notifyValue[0] >= D_807506C0[gCurrentActor->sequenceIndex] && gCurrentActor->sequenceIndex < sizeof(D_807506C0)) {
+                    if (gActorGlobalState.notifyValue[0] != D_807506C0[gCurrentActor->sequenceIndex]) {
                         actorScriptStart(gCurrentActor, 0x301);
                         gCurrentActor->state = 0x27;
                         gCurrentActor->unk155 = 0;
                     } else {
-                        gCurrentActor->unk15F++;
-                        if (gCurrentActor->unk15F >= sizeof(D_807506C0)) {
+                        gCurrentActor->sequenceIndex++;
+                        if (gCurrentActor->sequenceIndex >= sizeof(D_807506C0)) {
                             volumeTriggerSetEnabled(0x16, 1);
                         }
                     }

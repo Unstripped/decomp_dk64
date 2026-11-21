@@ -3546,7 +3546,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                 if (gModelPendingQueueCount == 0x14) return;
                 allow = 0;
                 gModelPendingQueue[gModelPendingQueueCount].id = entry->modelId;
-                gModelPendingQueue[gModelPendingQueueCount].key = obj->unk58;
+                gModelPendingQueue[gModelPendingQueueCount].key = obj->queueKey;
                 gModelPendingQueue[gModelPendingQueueCount++].done = 0;
                 break;
             }

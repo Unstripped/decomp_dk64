@@ -658,16 +658,16 @@ void actorNumberedTargetUpdate(void) {
             actorDespawn(gCurrentActor);
             return;
         }
-        if (gCurrentActor->unk15F == parent->unk15F) {
+        if (gCurrentActor->targetNumber == parent->targetNumber) {
             if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) > 900.0f) {
-                gCurrentActor->parentActor->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
+                gCurrentActor->parentActor->arrowAngle = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
         if (gActorGlobalState.bossFightPhase == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
             effectCreateAtPosition(&gEffectSpriteStarBurst, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-            actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
+            actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->targetNumber, 0, 0);
             actorDespawn(gCurrentActor);
         }
         if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && *spawnFrame + D_80750378 < gGameFrameCounter) {
@@ -1338,13 +1338,13 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
 
     switch (actor->unk155) {
         case 2:
-            vtxGradientSetPosition(actor->unk15F * 3 + 0x4000);
+            vtxGradientSetPosition(actor->fadeValue * 3 + 0x4000);
             break;
         case 0:
             if (actor->z == 1.0f) {
                 s16 confettiX;
 
-                confettiX = ((actor->unk15F * 0.0078125 > 1.0 ? 1.0 : actor->unk15F * 0.0078125) * 0.9) * textGetStringWidth(actor->z, marker->text) + actor->x * 0.25;
+                confettiX = ((actor->fadeValue * 0.0078125 > 1.0 ? 1.0 : actor->fadeValue * 0.0078125) * 0.9) * textGetStringWidth(actor->z, marker->text) + actor->x * 0.25;
                 effectSetDepth(1);
                 effectSetCallback(effectConfettiPhysicsUpdate);
                 effectSetSpeed(0xA);
@@ -1352,7 +1352,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
                 effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, confettiX, actor->y * 0.25 + 12.0, -5.0f);
             }
         default:
-            vtxGradientSetPosition(actor->unk15F * 3);
+            vtxGradientSetPosition(actor->fadeValue * 3);
             break;
     }
 
@@ -1390,7 +1390,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
             break;
     }
 
-    gDPSetPrimColor(gfx++, 0, 0, actor->tintR, actor->tintG, actor->tintB, actor->unk15F);
+    gDPSetPrimColor(gfx++, 0, 0, actor->tintR, actor->tintG, actor->tintB, actor->fadeValue);
     return textDrawStringVtx(gfx, font, x, y, marker->text, flags);
 }
 
@@ -1437,10 +1437,10 @@ void textMarkerUpdate(void) {
         }
         switch (gCurrentActor->unk155) {
         case 0:
-            if (gCurrentActor->unk15F <= 0xFF - marker->fadeInStep) {
-                gCurrentActor->unk15F += marker->fadeInStep;
+            if (gCurrentActor->fadeValue <= 0xFF - marker->fadeInStep) {
+                gCurrentActor->fadeValue += marker->fadeInStep;
             } else {
-                gCurrentActor->unk15F = 0xFF;
+                gCurrentActor->fadeValue = 0xFF;
                 gCurrentActor->unk155++;
                 gCurrentActor->yawSpeed = marker->holdTime;
             }
@@ -1453,11 +1453,11 @@ void textMarkerUpdate(void) {
             }
             break;
         case 2:
-            if (gCurrentActor->unk15F >= marker->fadeOutStep) {
-                gCurrentActor->unk15F -= marker->fadeOutStep;
+            if (gCurrentActor->fadeValue >= marker->fadeOutStep) {
+                gCurrentActor->fadeValue -= marker->fadeOutStep;
             } else {
                 gCurrentActor->unk155++;
-                gCurrentActor->unk15F = 0;
+                gCurrentActor->fadeValue = 0;
             }
             break;
         case 3:
@@ -1545,8 +1545,8 @@ void textUpdateTwoDigitCounter(void) {
 
     digits = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        digits[0] = textBuildDigitNode(0x14, digits[0], 0, gCurrentActor->unk155 / 10, 0x10);
-        digits[1] = textBuildDigitNode(0x14, digits[1], 1, gCurrentActor->unk155 % 10, 0x10);
+        digits[0] = textBuildDigitNode(0x14, digits[0], 0, gCurrentActor->counterValue / 10, 0x10);
+        digits[1] = textBuildDigitNode(0x14, digits[1], 1, gCurrentActor->counterValue % 10, 0x10);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

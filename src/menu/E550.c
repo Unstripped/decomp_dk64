@@ -55,7 +55,7 @@ void menuUpdateLightFadeActor(void) {
     s32 maxLevel = 0xFF; // FAKE: constant-valued limit local; a 0xFF literal in its compares flips the beq operand order (target beq a0,v0 at 0x1f8)
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk15F = 0;
+        gCurrentActor->fadeValue = 0;
         currentActorClearFlag();
         gCurrentActor->state = 0;
     }
@@ -72,12 +72,12 @@ void menuUpdateLightFadeActor(void) {
         break;
     case 1:
         lightSetFovAngles(20.0f, 40.0f);
-        cur = gCurrentActor->unk15F;
+        cur = gCurrentActor->fadeValue;
         if (maxLevel != cur) {
             d = (maxLevel - cur < 3) ? maxLevel - cur : 3;
-            gCurrentActor->unk15F = cur + d;
+            gCurrentActor->fadeValue = cur + d;
         }
-        lightAdd(gCurrentActor->x, gCurrentActor->y + 20.0f, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 1, gCurrentActor->unk15F, gCurrentActor->unk15F, gCurrentActor->unk15F);
+        lightAdd(gCurrentActor->x, gCurrentActor->y + 20.0f, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 1, gCurrentActor->fadeValue, gCurrentActor->fadeValue, gCurrentActor->fadeValue);
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
             gCurrentActor->flags |= 0x800000;

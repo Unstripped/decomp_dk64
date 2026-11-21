@@ -1379,7 +1379,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
         *upY = mathCosF(camActor->pitch);
         *upX = mathSinF(camActor->pitch) * cosApprox(yaw) * cosPitch;
         *upZ = mathSinF(camActor->pitch) * sinApprox(yaw) * cosPitch;
-        camActor->unkEC = camActor->pitch;
+        camActor->lastRoll = camActor->pitch;
     }
     st->prevTargetX = target->x;
     st->prevTargetY = target->y;
@@ -1408,8 +1408,8 @@ void camResetPlayer(Actor *player, u8 playerIndex) {
     if (gGameMode == 1) {
         camEndPath(cam);
     }
-    st->orbitYaw = (cam->unk15F != 0) ? (cam->unk15F / 255.0) * 4095.0 : player->yaw;
-    cam->unk15F = 0;
+    st->orbitYaw = (cam->savedYaw != 0) ? (cam->savedYaw / 255.0) * 4095.0 : player->yaw;
+    cam->savedYaw = 0;
     gGlobalPauseFlags |= 0x2000;
     st->mode = 1;
     st->lookAheadYaw = player->yaw;
@@ -3813,7 +3813,7 @@ void camRestoreYaw(Actor *cam) {
     CamState *st = cam->customState;
 
     st->orbitYaw = st->savedOrbitYaw;
-    cam->unk15F = st->orbitYaw / 4095.0 * 255.0;
+    cam->savedYaw = st->orbitYaw / 4095.0 * 255.0;
 }
 
 void camStartPathNearWall(Actor *camActor, u8 openPath, u8 wallPath, u8 flags) {

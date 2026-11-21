@@ -760,7 +760,7 @@ void bossArmydilloStep(void) {
                 }
                 sfxStopSlotSound(gCurrentActor, 1);
                 gCurrentActor->unk155 = 1;
-                gBehaviourWorkState->unk2E = 0;
+                gBehaviourWorkState->riseSpeed = 0;
                 gCurrentActor->speedXZ = 0.0f;
             }
             pieceAnim->cannonAngB = pieceAnim->cannonAngA;
@@ -768,11 +768,11 @@ void bossArmydilloStep(void) {
             bossPieceSetAngle(3, pieceAnim->cannonAngB);
             break;
         case 1:
-            gBehaviourWorkState->unk2E += (gCurrentActor->state == 0x2F) ? 10 : 4;
-            if (gBehaviourWorkState->unk2E >= 0x12D) {
-                gBehaviourWorkState->unk2E = 0x12C;
+            gBehaviourWorkState->riseSpeed += (gCurrentActor->state == 0x2F) ? 10 : 4;
+            if (gBehaviourWorkState->riseSpeed >= 0x12D) {
+                gBehaviourWorkState->riseSpeed = 0x12C;
             }
-            gCurrentActor->speedY = gBehaviourWorkState->unk2E;
+            gCurrentActor->speedY = gBehaviourWorkState->riseSpeed;
             bossArmydilloSpawnExhaustSmoke();
             playSfx = 1;
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);

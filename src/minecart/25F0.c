@@ -76,13 +76,13 @@ void minecartFollowerBehaviour(void) {
         gSpawnedActor->parentActor = gCurrentActor;
         gSpawnedActor->yawSpeed = -1;
         gSpawnedActor->sub4->scaleX *= -1.0f;
-        gSpawnedActor->unkEC = 0x2BC;
+        gSpawnedActor->sideAngle = 0x2BC;
         controllerAnimLoadStateAsset1(gSpawnedActor, controllerLookupModelAssetId(gSpawnedActor));
         actorSpawn(0x11C, 0x4C);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 1.5 * gCurrentActor->sub4->scaleY);
         gSpawnedActor->parentActor = gCurrentActor;
         gSpawnedActor->yawSpeed = 1;
-        gSpawnedActor->unkEC = 0x2BC;
+        gSpawnedActor->sideAngle = 0x2BC;
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
         gCurrentActor->state = 1;
         gCurrentActor->roll = 0x12C;
@@ -112,7 +112,7 @@ void minecartFollowerBehaviour(void) {
             actorSpawn(0x11F, 0x50);
             gSpawnedActor->parentActor = gCurrentActor;
             actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.06f);
-            gCurrentActor->unk15F++;
+            gCurrentActor->followerCount++;
         }
         /* fallthrough */
     case 2:
@@ -175,7 +175,7 @@ void minecartFollowerChildBehaviour(void) {
 
     parent = gCurrentActor->parentActor;
     targetState = parent->customState;
-    angleOffset = gCurrentActor->yawSpeed * gCurrentActor->unkEC;
+    angleOffset = gCurrentActor->yawSpeed * gCurrentActor->sideAngle;
     if (!(gCurrentActor->flags & 0x10)) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x59C, 0.0f, 0.0f);
         gCurrentActor->flags |= 0x800000;
@@ -276,12 +276,12 @@ void minecartFollowerChildBehaviour(void) {
         } else {
             parent->unk155 = 0xFF;
         }
-        if (gCurrentActor->unk155 == 0 && parent->unk15F == 4) {
+        if (gCurrentActor->unk155 == 0 && parent->followerCount == 4) {
             gActivePlayerState->stateFlags |= 0x10000000;
             gCurrentActor->unk15F = 0xB4;
             gCurrentActor->unk155++;
         }
-        gCurrentActor->unkEC = mathAngleEaseToward(gCurrentActor->unkEC, 0x64, 10.0f);
+        gCurrentActor->sideAngle = mathAngleEaseToward(gCurrentActor->sideAngle, 0x64, 10.0f);
         break;
     case 0x3B:
         actorDespawn(gCurrentActor);
@@ -298,7 +298,7 @@ void minecartFollowerChildBehaviour(void) {
     if (parent->state != 6) {
         if (gCurrentActor->pitch != 0) {
             gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 8.0f);
-            gCurrentActor->unkEC = mathAngleEaseToward(gCurrentActor->unkEC, 0x2BC, 10.0f);
+            gCurrentActor->sideAngle = mathAngleEaseToward(gCurrentActor->sideAngle, 0x2BC, 10.0f);
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -321,23 +321,23 @@ void minecartUpdateFollower(void) {
         animSetLoopMode(gCurrentActor, 0, 0);
         animSetLoopLimit(gCurrentActor, 0, -1);
         gCurrentActor->collisionMode = 0x24;
-        if (gCurrentActor->parentActor->unk15F == 1) {
+        if (gCurrentActor->parentActor->followerCount == 1) {
             gCurrentActor->unk15F = *playerCart->routeCursor & ~0xC0;
         } else {
             switch (*playerCart->routeCursor & ~0xC0) {
             case 1:
             case 2:
-                gCurrentActor->unk15F = (gCurrentActor->parentActor->unk15F ^ 1) + 1;
+                gCurrentActor->unk15F = (gCurrentActor->parentActor->followerCount ^ 1) + 1;
                 break;
             case 3:
             case 4:
             case 5:
             case 6:
-                gCurrentActor->unk15F = (gCurrentActor->parentActor->unk15F % 4) + 3;
+                gCurrentActor->unk15F = (gCurrentActor->parentActor->followerCount % 4) + 3;
                 break;
             case 7:
             case 8:
-                gCurrentActor->unk15F = (gCurrentActor->parentActor->unk15F ^ 1) + 7;
+                gCurrentActor->unk15F = (gCurrentActor->parentActor->followerCount ^ 1) + 7;
                 break;
             }
         }
@@ -368,9 +368,9 @@ void minecartUpdateFollower(void) {
     }
     if (gActorGlobalState.damaged != 0 || --gCurrentActor->movePitch == 0) {
         if (gCurrentActor->parentActor != NULL) {
-            gCurrentActor->parentActor->unk15F--;
+            gCurrentActor->parentActor->followerCount--;
         }
-        if (gCurrentActor->parentActor == NULL || gCurrentActor->parentActor->unk15F == 0) {
+        if (gCurrentActor->parentActor == NULL || gCurrentActor->parentActor->followerCount == 0) {
             if (gActivePlayerState->stateFlags & 0x10000000) {
                 gActivePlayerState->stateFlags &= ~0x10000000;
                 camSetTargetScaled(gActivePlayerState->camActor, gActivePlayerState->actor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);

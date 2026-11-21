@@ -134,13 +134,13 @@ Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopActor *actor) {
         gDPSetCombineLERP(dl++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
         switch (st->step) {
         case 1:
-            actor->base.unk15F = 0;
+            actor->base.fadeValue = 0;
             st->step = 5;
         case 5: {
-            s32 diff = 0xFF - actor->base.unk15F;
+            s32 diff = 0xFF - actor->base.fadeValue;
 
-            actor->base.unk15F += diff >= 9 ? 8 : diff;
-            gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->base.unk15F);
+            actor->base.fadeValue += diff >= 9 ? 8 : diff;
+            gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->base.fadeValue);
             _sprintf(buf, "q %s", textTableGetString(0x24, 0x10, 1));
             dl = textDrawStringVtx(dl, 1, 0x1F4, 0x190, buf, 1);
             _sprintf(buf, "b %s", textTableGetString(0x24, 0x11, 1));

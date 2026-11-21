@@ -308,7 +308,7 @@ void bossKRoolTinyCommonStep(void *leader, u8 scaleVal) {
     s32 finalScale;
     s32 animFrame;
 
-    if (gCurrentActor->unk15F == 2) {
+    if (gCurrentActor->stageStatus == 2) {
         finalScale = 4;
     } else {
         finalScale = scaleVal;
@@ -361,24 +361,24 @@ void bossKRoolTinyStep(void) {
         bossKRoolTinySpawnMinion(minions, 0, 0x6D);
         bossKRoolTinySpawnMinion(minions, 1, 0x6E);
         bossKRoolTinySpawnMinion(minions, 2, 0x6F);
-        scriptState->unk12 = 0;
+        scriptState->stagesDone = 0;
         if (flagGet(0x51, 2)) {
             bossFreezeAnimAtFrame(gCurrentActor, 4);
-            gCurrentActor->unk15F = 2;
-            minions[0]->unk15F = 1;
-            scriptState->unk12 = 1;
+            gCurrentActor->stageStatus = 2;
+            minions[0]->stageStatus = 1;
+            scriptState->stagesDone = 1;
         }
         if (flagGet(0x52, 2)) {
             bossFreezeAnimAtFrame(minions[0], 4);
-            minions[0]->unk15F = 2;
-            minions[1]->unk15F = 1;
-            scriptState->unk12 = 2;
+            minions[0]->stageStatus = 2;
+            minions[1]->stageStatus = 1;
+            scriptState->stagesDone = 2;
         }
         if (flagGet(0x53, 2)) {
             bossFreezeAnimAtFrame(minions[1], 4);
-            minions[1]->unk15F = 2;
-            minions[2]->unk15F = 1;
-            scriptState->unk12 = 3;
+            minions[1]->stageStatus = 2;
+            minions[2]->stageStatus = 1;
+            scriptState->stagesDone = 3;
         }
         scriptState->phase = 0;
         bossActorGroupCommand(gCurrentActor, 0xF, 0x40E, 0);
@@ -391,7 +391,7 @@ void bossKRoolTinyStep(void) {
         gActivePlayerState->targetSpeed = 150.0f;
     }
     bossKRoolTinyCommonStep(gCurrentActor, scriptState->phase);
-    bossActorGroupCommand(gCurrentActor, (1 << scriptState->unk12) & 0xFF, 1, 0);
+    bossActorGroupCommand(gCurrentActor, (1 << scriptState->stagesDone) & 0xFF, 1, 0);
     switch (gCurrentActor->state) {
     case 0x1F:
         switch (gCurrentActor->unk155) {
@@ -416,7 +416,7 @@ void bossKRoolTinyStep(void) {
             screenSetTransitionFadeType(1);
             transitionSetState(1);
             mapRequestTransition(0xCE, 0);
-            flagSet(scriptState->unk12 + 0x51, 1, 2);
+            flagSet(scriptState->stagesDone + 0x51, 1, 2);
             gCurrentActor->unk155++;
         }
         break;
@@ -434,7 +434,7 @@ void bossKRoolTinyStep(void) {
             gCurrentActor->unk155++;
             bossActorGroupCommand(gCurrentActor, 0xF, -1, 0);
             scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
-            scriptState->byteVars[1] = scriptOpcodes[scriptState->scriptPos++] + scriptState->unk12 * 10;
+            scriptState->byteVars[1] = scriptOpcodes[scriptState->scriptPos++] + scriptState->stagesDone * 10;
             scriptState->vars[0] = scriptOpcodes[scriptState->scriptPos++];
             if (scriptState->byteVars[0] == 0xFF) {
                 scriptState->byteVars[0] = 8 >> (s32)((gPrimaryPlayerActor->x - 117.0f) / 50.0f);
@@ -451,7 +451,7 @@ void bossKRoolTinyStep(void) {
             break;
         case 2:
             gCurrentActor->unk155++;
-            bossActorGroupCommand(gCurrentActor, scriptState->byteVars[0], 0x414, (scriptState->byteVars[1] + scriptState->unk12 * 15) & 0xFF);
+            bossActorGroupCommand(gCurrentActor, scriptState->byteVars[0], 0x414, (scriptState->byteVars[1] + scriptState->stagesDone * 15) & 0xFF);
             gBehaviourWorkState->timer = scriptState->vars[0];
         case 3:
             if (gBehaviourWorkState->timer) {
@@ -464,8 +464,8 @@ void bossKRoolTinyStep(void) {
         }
         break;
     case 0x28:
-        bossActorGroupCommand(gCurrentActor, (1 << scriptState->unk12) & 0xFF, 2, 0);
-        if (scriptState->phase == scriptState->unk12 && gCurrentActor->callbackMask == 0) {
+        bossActorGroupCommand(gCurrentActor, (1 << scriptState->stagesDone) & 0xFF, 2, 0);
+        if (scriptState->phase == scriptState->stagesDone && gCurrentActor->callbackMask == 0) {
             gCurrentActor->state = 0x37;
             gCurrentActor->unk155 = 0;
             break;
@@ -473,7 +473,7 @@ void bossKRoolTinyStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             gBehaviourWorkState->timer = scriptOpcodes[scriptState->scriptPos++];
-            bossActorGroupCommand(gCurrentActor, (1 << scriptState->unk12) & 0xFF, 0x411, 0);
+            bossActorGroupCommand(gCurrentActor, (1 << scriptState->stagesDone) & 0xFF, 0x411, 0);
             gCurrentActor->unk155++;
             break;
         case 1:
@@ -482,7 +482,7 @@ void bossKRoolTinyStep(void) {
                 gBehaviourWorkState->timer--;
             } else {
                 if (gCurrentActor->unk155 == 1 && gCurrentActor->callbackMask) {
-                    bossActorGroupCommand(gCurrentActor, (1 << scriptState->unk12) & 0xFF, 0x412, 0);
+                    bossActorGroupCommand(gCurrentActor, (1 << scriptState->stagesDone) & 0xFF, 0x412, 0);
                 }
                 gBehaviourWorkState->timer = 10;
                 gCurrentActor->unk155++;
@@ -522,7 +522,7 @@ void bossKRoolTinyUpdateMinion(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         actorAllocBoneScales(2, 1);
     }
-    scaleVal = (gCurrentActor->unk15F == 1) ? leaderState->phase : 0;
+    scaleVal = (gCurrentActor->stageStatus == 1) ? leaderState->phase : 0;
     bossKRoolTinyCommonStep(leader, (u8)scaleVal);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

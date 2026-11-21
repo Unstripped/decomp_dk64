@@ -523,7 +523,7 @@ void actorSpawnPeriodicBoneEffect(void) {
 // Second component (Actor 0x178) of the fly-patrol actor types (behaviourFlyPatrolWithCallback,
 // actorAirPatrolStep and its caller behaviourEnemyBatUpdate).
 typedef struct FlyPatrolComponent {
-    /* 0x00 */ s16 hoverHeight; // above the spawn node's y; seeded from SpawnNode unkA
+    /* 0x00 */ s16 hoverHeight; // above the spawn node's y; seeded from SpawnNode hoverHeight
 } FlyPatrolComponent;
 
 void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 animId2, s16 sfxId) {
@@ -536,9 +536,9 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
         sfxPlayActorSound(gCurrentActor, sfxId, 0, 0, 0, 0xFF, 1.0f, 0);
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        patrol->hoverHeight = gBehaviourExtraState->unkA;
-        if (gBehaviourExtraState->unkB == 0) {
-            gBehaviourExtraState->unkB = 0x28;
+        patrol->hoverHeight = gBehaviourExtraState->hoverHeight;
+        if (gBehaviourExtraState->climbRate == 0) {
+            gBehaviourExtraState->climbRate = 0x28;
         }
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
@@ -561,7 +561,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
         case 7:
         case 0x35:
             if (gCurrentActor->y < gBehaviourExtraState->y + patrol->hoverHeight) {
-                gCurrentActor->y += gBehaviourExtraState->unkB * 0.03125;
+                gCurrentActor->y += gBehaviourExtraState->climbRate * 0.03125;
             } else if (camIsCutsceneActive() == 0 && callback != NULL) {
                 callback();
             }
@@ -673,7 +673,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
         actorAllocBoneRotations(1, 1);
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
-        patrol->hoverHeight = gBehaviourExtraState->unkA;
+        patrol->hoverHeight = gBehaviourExtraState->hoverHeight;
         gCurrentActor->accelY = gAirPatrolAccelY;
     }
     targetHeight = gBehaviourExtraState->y + patrol->hoverHeight;
@@ -691,9 +691,9 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
             actorMoveWithinZone(action, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0xE1, 0.0f);
             if (gCurrentActor->y < targetHeight) {
                 if (gCurrentActor->unk155 == 2) {
-                    gCurrentActor->y += (f32) gBehaviourExtraState->unkB * 0.03125;
+                    gCurrentActor->y += (f32) gBehaviourExtraState->climbRate * 0.03125;
                 } else {
-                    gCurrentActor->y += (f32) gBehaviourExtraState->unkB * 0.015625;
+                    gCurrentActor->y += (f32) gBehaviourExtraState->climbRate * 0.015625;
                 }
             }
             gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 5.0f);
@@ -842,21 +842,21 @@ void behaviourEnemyFlySwoop(void) {
         gCurrentActor->y += (randomNonNegative() >> 15) % 30;
         gCurrentActor->flags &= 0xFFFF7FFF;
         gCurrentActor->alpha = 0;
-        gCurrentActor->unkEC = ((randomNonNegative() >> 15) % 7) + 0xF;
+        gCurrentActor->alphaStep = ((randomNonNegative() >> 15) % 7) + 0xF;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocityCustom(gCurrentActor, gCurrentActor->speedXZ, 0.0f);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     switch (gCurrentActor->state) {
     case 6:
-        gCurrentActor->alpha += gCurrentActor->unkEC;
+        gCurrentActor->alpha += gCurrentActor->alphaStep;
         if (gCurrentActor->alpha >= 0xFF) {
             gCurrentActor->alpha = 0xFF;
             gCurrentActor->state = 0x37;
         }
         break;
     case 0x37:
-        gCurrentActor->alpha -= gCurrentActor->unkEC;
+        gCurrentActor->alpha -= gCurrentActor->alphaStep;
         if (gCurrentActor->alpha < 0) {
             gCurrentActor->state = 0x3C;
             gCurrentActor->alpha = 0;
@@ -907,7 +907,7 @@ void behaviourEnemyFlyReturn(void) {
         gCurrentActor->speedXZ = 40.0f;
         gCurrentActor->state = 0x23;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkEC = ((randomNonNegative() >> 15) % 7) + 0xF;
+        gCurrentActor->alphaStep = ((randomNonNegative() >> 15) % 7) + 0xF;
         state->targetX = gCurrentActor->x;
         state->targetY = gCurrentActor->y;
         state->targetZ = gCurrentActor->z;

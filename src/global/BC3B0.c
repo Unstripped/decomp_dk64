@@ -218,14 +218,14 @@ extern u8 D_807201D4[];
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
+        gBehaviourWorkState->scale = gBehaviourExtraState->burstInterval;
         actorSetCollisionRadius(gCurrentActor, 300.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 280.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
     }
     if (gBehaviourWorkState->scale <= 0.001) {
-        gBehaviourWorkState->timer = gBehaviourExtraState->unkA;
-        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
+        gBehaviourWorkState->timer = gBehaviourExtraState->burstLength;
+        gBehaviourWorkState->scale = gBehaviourExtraState->burstInterval;
         actorSetNodeFlag(gCurrentActor, 1);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
@@ -249,11 +249,11 @@ void actorUpdatePeriodicParticleEmitter(void) {
 void actorUpdateAimedProjectileEmitter(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourWorkState->unk2E = gBehaviourAnimState->unkB;
+        gBehaviourWorkState->unk2E = gBehaviourAnimState->burstInterval;
     }
     if (gBehaviourWorkState->unk2E == 0) {
-        gBehaviourWorkState->timer = gBehaviourAnimState->unkA;
-        gBehaviourWorkState->unk2E = gBehaviourAnimState->unkB;
+        gBehaviourWorkState->timer = gBehaviourAnimState->burstLength;
+        gBehaviourWorkState->unk2E = gBehaviourAnimState->burstInterval;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
     gBehaviourWorkState->unk2E--;
@@ -282,16 +282,16 @@ void actorUpdateBurstProjectileEmitter(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
-        *delay = gBehaviourExtraState->unkD;
+        gBehaviourWorkState->scale = gBehaviourExtraState->burstInterval;
+        *delay = gBehaviourExtraState->burstStartDelay;
     }
     if (*delay != 0) {
         (*delay)--;
         return;
     }
     if (gBehaviourWorkState->scale <= 0.001) {
-        gBehaviourWorkState->timer = gBehaviourExtraState->unkA;
-        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
+        gBehaviourWorkState->timer = gBehaviourExtraState->burstLength;
+        gBehaviourWorkState->scale = gBehaviourExtraState->burstInterval;
         *cooldown = 0;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
     }

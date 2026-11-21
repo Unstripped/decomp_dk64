@@ -479,7 +479,7 @@ typedef struct AnimatedEffectOwnerState {
 #define ANIM_TEX (((gFrameCounter >> 1) % 12) + 0x83)
 
 Gfx *actorDrawAnimatedEffect(Gfx *glist, Actor *actor) {
-    s16 spriteAngle = actor->unkEC + 90;
+    s16 spriteAngle = actor->arrowAngle + 90;
 
     gSPDisplayList(glist++, &D_1000118);
     gDPSetCombineMode(glist++, G_CC_DECALRGBA, G_CC_DECALRGBA);

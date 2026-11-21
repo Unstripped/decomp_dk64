@@ -214,20 +214,20 @@ void bossMadJackStep(void) {
         actorTurnTowardActorYaw(0x14, gBehaviourTargetActor);
         goto attackSequence;
     case 0x46:
-        gCurrentActor->yaw += gBehaviourWorkState->unk2E;
+        gCurrentActor->yaw += gBehaviourWorkState->spinSpeed;
         if (mathAngleSignedDistance(gCurrentActor->yaw, targetAngle) > 0) {
-            turnSpeed = gBehaviourWorkState->unk2E + 2;
+            turnSpeed = gBehaviourWorkState->spinSpeed + 2;
             if (turnSpeed < 0x32) {
-                gBehaviourWorkState->unk2E = turnSpeed;
+                gBehaviourWorkState->spinSpeed = turnSpeed;
             } else {
-                gBehaviourWorkState->unk2E = 0x32;
+                gBehaviourWorkState->spinSpeed = 0x32;
             }
         } else {
-            turnSpeed = gBehaviourWorkState->unk2E - 2;
+            turnSpeed = gBehaviourWorkState->spinSpeed - 2;
             if (turnSpeed > -0x32) {
-                gBehaviourWorkState->unk2E = turnSpeed;
+                gBehaviourWorkState->spinSpeed = turnSpeed;
             } else {
-                gBehaviourWorkState->unk2E = -0x32;
+                gBehaviourWorkState->spinSpeed = -0x32;
             }
         }
 attackSequence:

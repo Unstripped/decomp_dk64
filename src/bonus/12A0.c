@@ -82,7 +82,7 @@ extern const u8 D_8002DCA8[8];
 const u8 *D_8002D8B0[4] = { D_8002DC90, D_8002DC98, D_8002DCA0, D_8002DCA8 };
 
 u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
-    return D_8002D8B0[reelIndex][obj->act[reelIndex]->unk15F];
+    return D_8002D8B0[reelIndex][obj->act[reelIndex]->reelSymbol];
 }
 
 extern void *gPuffSprites[];
@@ -343,7 +343,7 @@ void bonusReelUpdate(void) {
             }
             gCurrentActor->splineT = asinApprox((obj->spinSpeed - toNextSymbol) * 0.015625);
             gCurrentActor->yawSpeed = (gCurrentActor->roll + toNextSymbol) & 0xFFF;
-            gCurrentActor->unk15F = gCurrentActor->yawSpeed / 0x2AB;
+            gCurrentActor->reelSymbol = gCurrentActor->yawSpeed / 0x2AB;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17A, 0xFF, 0x7F, 1);
         }
     case 3:

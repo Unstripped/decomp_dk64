@@ -1932,7 +1932,7 @@ void playerRegisterHeldActorFollow(f32 blend) {
         node->heldFollow.blend = blend;
         node->heldFollow.player = gCurrentActor;
         node->heldFollow.held = gActivePlayerState->heldActor;
-        node->unk4 = 0;
+        node->dispatchPass = 0;
         actorRegisterGlobalCallback(node);
     }
 }
@@ -1995,7 +1995,7 @@ void playerRegisterHeldActorAlign(void) {
         node->callback = playerHeldActorAlignStep;
         node->heldAlign.player = gCurrentActor;
         node->heldAlign.held = gActivePlayerState->heldActor;
-        node->unk4 = 0;
+        node->dispatchPass = 0;
         actorRegisterGlobalCallback(node);
     }
 }

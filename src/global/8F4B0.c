@@ -632,8 +632,8 @@ void playerCameraUpdateFromTarget(void) {
     stepFactor = 0.08f;
     scaleFactor = 8.0f;
     player = &gPlayerSlots[camState->playerIndex];
-    player->skyRoll = gCurrentActor->unkEC;
-    gCurrentActor->unkEC = gCurrentActor->pitch;
+    player->skyRoll = gCurrentActor->lastRoll;
+    gCurrentActor->lastRoll = gCurrentActor->pitch;
     player->camYInt = player->camY;
     angleRad = mathAngleBetweenPointsRad(player->camZ, player->camX, player->focusZ, player->focusX);
     dz = player->focusZ - player->camZ;

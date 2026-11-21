@@ -1021,7 +1021,7 @@ void projectileSpawnWithShockwave(s16 pitch, f32 scale, u8 red, u8 green, u8 blu
     gSpawnedActor->tintR = red;
     gSpawnedActor->tintG = green;
     gSpawnedActor->tintB = blue;
-    gSpawnedActor->unk15F = alpha;
+    gSpawnedActor->wavesLeft = alpha;
     gSpawnedActor->yawSpeed = 1;
     gSpawnedActor->splineT = growth;
     if (rippleSize != 0.0f) {
@@ -1041,7 +1041,7 @@ void projectileSpawnSpriteRing(u8 mode, u8 value, f32 rate, f32 limit, u8 alpha,
     tracker->limit = limit;
     tracker->value = value;
     gSpawnedActor->y = gCurrentActor->unkA8;
-    gSpawnedActor->unk15F = alpha;
+    gSpawnedActor->ringCountdown = alpha;
     gSpawnedActor->yawSpeed = spin;
 }
 

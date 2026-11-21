@@ -411,7 +411,7 @@ void actorShockwaveUpdate(void) {
         if ((gCurrentActor->sub4->model->speed == 0.0f && animGetNodeByIndex(gCurrentActor, 0)->frame >= 0xE) ||
             gCurrentActor->sub4->model->frame > 9.0f) {
             gCurrentActor->state = 2;
-            if (gCurrentActor->unk15F != 0 && actorSpawn(0x102, gCurrentActor->movePitch) != 0) {
+            if (gCurrentActor->wavesLeft != 0 && actorSpawn(0x102, gCurrentActor->movePitch) != 0) {
                 if (gCurrentActor->sub4->model->frame > 9.0f) {
                     controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                     scriptSetActorRampTarget(gSpawnedActor, gCurrentActor->sub4->speed, 0.0f);
@@ -420,7 +420,7 @@ void actorShockwaveUpdate(void) {
                 gSpawnedActor->movePitch = gCurrentActor->movePitch;
                 gSpawnedActor->sub4->scaleX = gCurrentActor->sub4->scaleX + 0.02;
                 gSpawnedActor->sub4->scaleZ = gCurrentActor->sub4->scaleZ + 0.02;
-                gSpawnedActor->unk15F = gCurrentActor->unk15F - 1;
+                gSpawnedActor->wavesLeft = gCurrentActor->wavesLeft - 1;
                 gSpawnedActor->splineT = gCurrentActor->splineT;
             }
         }
@@ -478,7 +478,7 @@ void renderScaledSprite(Gfx *dl, Actor *actor) {
     WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
     WRITE_GFX(dl++, 0xE7000000, 0);
     WRITE_GFX(dl++, 0xFA000000, (actor->yaw & 0xFF) | 0xFFFFFF00);
-    renderRotatedSprite(dl, (u16)(actor->unk15F + 0x61), 0, 2, 0x28, 0x33,
+    renderRotatedSprite(dl, (u16)(actor->bannerId + 0x61), 0, 2, 0x28, 0x33,
                   (s32)actor->x, (s32)actor->y, scale, scale, 0, 0.0f);
 }
 
@@ -522,7 +522,7 @@ Gfx *actorBannerTextRender(Gfx *dl, Actor *actor) {
     mtxBuf = heapAlloc(0x40);
     heapFreeDeferred(mtxBuf);
     font = 1;
-    sel = actor->unk15F;
+    sel = actor->bannerId;
     switch (sel ^ 0) { // FAKE: keeps the switch selector copy (v0) out of copy propagation
     case 0:
         _sprintf(text, "ROUND");
@@ -576,40 +576,40 @@ void actorUpdateBannerFade(void) {
         ratio = gCurrentActor->splineT / (f32)gCurrentActor->moveYaw;
         gCurrentActor->floorSlopeFactor = ratio * -8.0 + 12.0;
         gCurrentActor->yaw = 255.0f * ratio;
-        if (gCurrentActor->unk15F >= 0x14 && gCurrentActor->unk15F < 0x1E) {
+        if (gCurrentActor->bannerId >= 0x14 && gCurrentActor->bannerId < 0x1E) {
             renderCallbacksRegister(renderScaledSprite, gCurrentActor, 3);
         } else {
             renderCallbacksRegister(actorBannerTextRender, gCurrentActor, 3);
         }
-        if (gCurrentActor->unk15F == 0 && (s16)gCurrentActor->splineT == 3) {
+        if (gCurrentActor->bannerId == 0 && (s16)gCurrentActor->splineT == 3) {
             actorSpawn(0x104, 0);
             gSpawnedActor->splineT = gCurrentActor->moveYaw;
-            gSpawnedActor->unk15F = gBossRoundNumber;
+            gSpawnedActor->bannerId = gBossRoundNumber;
             gSpawnedActor->y = 80.0f;
             gSpawnedActor->x = 640.0f;
             sfxPlayOnFreeSlot(gBossRoundNumber + 0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
             return;
         }
-        if (gCurrentActor->unk15F >= 0x1E && gCurrentActor->unk15F < 0x25 && (s16)gCurrentActor->splineT == 5) {
+        if (gCurrentActor->bannerId >= 0x1E && gCurrentActor->bannerId < 0x25 && (s16)gCurrentActor->splineT == 5) {
             actorSpawn(0x104, 0);
             gSpawnedActor->splineT = gCurrentActor->moveYaw;
-            if (gCurrentActor->unk15F == 0x23) {
-                gSpawnedActor->unk15F = 0x24;
-            } else if (gCurrentActor->unk15F == 0x24) {
-                gSpawnedActor->unk15F = 0x25;
+            if (gCurrentActor->bannerId == 0x23) {
+                gSpawnedActor->bannerId = 0x24;
+            } else if (gCurrentActor->bannerId == 0x24) {
+                gSpawnedActor->bannerId = 0x25;
             } else {
-                gSpawnedActor->unk15F = 0x26;
+                gSpawnedActor->bannerId = 0x26;
             }
             gSpawnedActor->y = 80.0f;
             gSpawnedActor->x = 500.0f;
         }
     } else {
-        if ((gCurrentActor->unk15F & 0xC0) != 0 && (gCurrentActor->unk15F & 0x3F) != 0) {
-            sfx = 0x3FC - (gCurrentActor->unk15F & 0x3F);
+        if ((gCurrentActor->bannerId & 0xC0) != 0 && (gCurrentActor->bannerId & 0x3F) != 0) {
+            sfx = 0x3FC - (gCurrentActor->bannerId & 0x3F);
             actorSpawn(0x104, 0);
             gSpawnedActor->splineT = gCurrentActor->moveYaw;
-            gSpawnedActor->unk15F = (gCurrentActor->unk15F & 0xC0) + (gCurrentActor->unk15F & 0x3F) - 1;
-            if (gCurrentActor->unk15F & 0x80) {
+            gSpawnedActor->bannerId = (gCurrentActor->bannerId & 0xC0) + (gCurrentActor->bannerId & 0x3F) - 1;
+            if (gCurrentActor->bannerId & 0x80) {
                 sfx += 2;
             }
             sfxPlayOnFreeSlot(sfx, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -914,7 +914,7 @@ void actorSetGroupState(u8 group, u8 state) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (actor->actorType == 0x94 && actor->unk15F / 3 == group) {
+        if (actor->actorType == 0x94 && actor->formationIndex / 3 == group) {
             actor->state = state;
             actor->unk155 = 0;
         }
@@ -954,7 +954,7 @@ void actorGroupBoneFrameUpdate(void) {
             gCurrentActor->sub4->boneOffsets[i].bone = i;
             gCurrentActor->sub4->boneOffsets[i].lastBone = 0xFF;
         }
-        if (gCurrentActor->unk15F == 0) {
+        if (gCurrentActor->formationIndex == 0) {
             scaleRatio = gCurrentActor->sub4->scaleY / 0.15;
             state->frames = assetLoad(0x13, 6, 1, 1);
             entry = 0;
@@ -964,7 +964,7 @@ void actorGroupBoneFrameUpdate(void) {
                 actorSpawn(0x94, 0xE1);
                 childState = gSpawnedActor->customState;
                 childState->frames = state->frames;
-                gSpawnedActor->unk15F = i;
+                gSpawnedActor->formationIndex = i;
                 gSpawnedActor->yaw = gCurrentActor->yaw + ((u16)(i / 3) << 10);
                 gSpawnedActor->x = gCurrentActor->x - mathSinF(gSpawnedActor->yaw) * spacing;
                 gSpawnedActor->y = gCurrentActor->y + (u8)(i % 3) * 17;

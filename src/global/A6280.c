@@ -64,12 +64,12 @@ void actorSeekTargetUpdate(void) {
         gCurrentActor->flags &= ~0x400;
     }
     if (targetNode != NULL) {
-        if (actorId == D_807506C0[targetNode->unk15F]) {
+        if (actorId == D_807506C0[targetNode->sequenceIndex]) {
             dx = gCurrentActor->x - gPrimaryPlayerActor->x;
             dz = gCurrentActor->z - gPrimaryPlayerActor->z;
             if (dx * dx + dz * dz > 900.0f) {
                 targetAngle = mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z);
-                targetNode->unkEC = (s16)(targetAngle - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
+                targetNode->arrowAngle = (s16)(targetAngle - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
             }
             if (animIsPlaying(gCurrentActor, 0) == 0) {
                 animSetSpeed(gCurrentActor, 0, 1.0f);

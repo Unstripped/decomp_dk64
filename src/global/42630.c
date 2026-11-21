@@ -1975,7 +1975,7 @@ void csSetObjectTrackParam(void *obj, s16 b, s16 c) {
         o->unk58 = c * c;
         break;
     case 5:
-        o->unk58 = c;
+        o->queueKey = c;
         break;
     }
 }

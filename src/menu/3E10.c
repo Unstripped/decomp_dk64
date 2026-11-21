@@ -1469,7 +1469,7 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
         model = ((MenuModelActor *)gSpawnedActor)->model;
         *model = gMenuKongModelIds[gMenuPlayerCharacterSel[i] & 0x7F];
         gSpawnedActor->state = i;
-        gSpawnedActor->unk155 = gMenuPlayerCharacterSel[i] & 0x7F;
+        gSpawnedActor->menuCharacter = gMenuPlayerCharacterSel[i] & 0x7F;
         sub = gSpawnedActor->customState;
         sub->parent = actor;
         sub->animSet = 0;
@@ -1576,7 +1576,7 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
         model = ((MenuModelActor *)gSpawnedActor)->model;
         *model = gMenuKongModelIds[sMenuResultsCharacters[i]];
         gSpawnedActor->state = sMenuResultsPlayers[i] | 0x80;
-        gSpawnedActor->unk155 = sMenuResultsCharacters[i];
+        gSpawnedActor->menuCharacter = sMenuResultsCharacters[i];
         sub = gSpawnedActor->customState;
         sub->parent = actor;
         sub->animSet = (i == gMpWinnerIndex) + 1;
@@ -1609,26 +1609,26 @@ void menuCharacterSelectUpdateActor(void) {
         gCurrentActor->sub4->scaleY *= 2.0f;
         gCurrentActor->sub4->scaleZ *= 2.0f;
         kong = kongState->animSet;
-        actorScriptStart(gCurrentActor, gMenuKongScriptIds[(s16)(kong * 6) + (gCurrentActor->unk155 & 0xF)]);
+        actorScriptStart(gCurrentActor, gMenuKongScriptIds[(s16)(kong * 6) + (gCurrentActor->menuCharacter & 0xF)]);
         playerKongHolsterGun(gCurrentActor);
         gCurrentActor->flags |= 0x1000;
         kongState->animFrame = gMenuPlayerCharacterVariant[gCurrentActor->state & 0xF];
-        actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, gMenuPlayerCharacterVariant[gCurrentActor->state & 0xF]);
+        actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->menuCharacter + 2, gMenuPlayerCharacterVariant[gCurrentActor->state & 0xF]);
     }
     sel = gCurrentActor->state;
     if (!(sel & 0x80)) {
         if (kongState->animFrame != gMenuPlayerCharacterVariant[gCurrentActor->state]) {
-            actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, gMenuPlayerCharacterVariant[gCurrentActor->state]);
+            actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->menuCharacter + 2, gMenuPlayerCharacterVariant[gCurrentActor->state]);
             kongState->animFrame = gMenuPlayerCharacterVariant[gCurrentActor->state];
         }
         idx = gMenuPlayerCharacterSel[gCurrentActor->state] & 0x7F;
-        if (idx != gCurrentActor->unk155) {
+        if (idx != gCurrentActor->menuCharacter) {
             actorTypePtr = &gMenuKongModelIds[idx];
             actorSpawn(0x151, *actorTypePtr);
             model = ((MenuModelActor *)gSpawnedActor)->model;
             *model = *actorTypePtr;
             gSpawnedActor->state = gCurrentActor->state;
-            gSpawnedActor->unk155 = idx;
+            gSpawnedActor->menuCharacter = idx;
             spawnedState = gSpawnedActor->customState;
             spawnedState->parent = kongState->parent;
             shouldDespawn = 1;

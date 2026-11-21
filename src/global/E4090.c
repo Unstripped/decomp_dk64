@@ -2518,9 +2518,9 @@ void playerInputHandleBButtonGun(void) {
 
 s32 playerInputCheckBButtonTarget(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) && gActorGlobalState.eventReceived && (gActorGlobalState.eventSubtype == 8)) {
-        gActivePlayerState->unk220[0] = gActorGlobalState.eventX;
-        gActivePlayerState->unk220[1] = gActorGlobalState.eventY;
-        gActivePlayerState->unk220[2] = gActorGlobalState.eventZ;
+        gActivePlayerState->targetPos[0] = gActorGlobalState.eventX;
+        gActivePlayerState->targetPos[1] = gActorGlobalState.eventY;
+        gActivePlayerState->targetPos[2] = gActorGlobalState.eventZ;
         playerStateQueueCallback(0x1F, 0, gCurrentPlayerIndex);
         return 1;
     }
@@ -4625,8 +4625,8 @@ void playerInputWiggleOffStatusEffect(void) {
 
     pad = &gPlayerPadState[gCurrentPlayerIndex];
     if ((pad->stickX >= 0x29) || (pad->stickY >= 0x29)) {
-        if (gActivePlayerState->unk108 != 0.0f) {
-            gActivePlayerState->unk108 = 0.0f;
+        if (gActivePlayerState->wiggleSide != 0.0f) {
+            gActivePlayerState->wiggleSide = 0.0f;
             v = gActivePlayerState->statusEffectTimer - 5;
             if (v <= 0) {
                 gActivePlayerState->statusEffectTimer = 1;
@@ -4637,8 +4637,8 @@ void playerInputWiggleOffStatusEffect(void) {
         }
     }
     if ((pad->stickX < -0x28) || (pad->stickY < -0x28)) {
-        if (gActivePlayerState->unk108 == 0.0f) {
-            gActivePlayerState->unk108 = 1.0f;
+        if (gActivePlayerState->wiggleSide == 0.0f) {
+            gActivePlayerState->wiggleSide = 1.0f;
             v = gActivePlayerState->statusEffectTimer - 5;
             if (v <= 0) {
                 gActivePlayerState->statusEffectTimer = 1;

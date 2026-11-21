@@ -75,7 +75,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
 
     actorFreeModelNodeList(actor);
 
-    if (actor->unk15F != 0) {
+    if (actor->ringCountdown != 0) {
         f32 collisionRadius;
 
         switch (sub->ringType) {
@@ -106,7 +106,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             offsetY = 0.0f;
             break;
         case 1:
-            progress = (actor->moveYaw - actor->unk15F) * 0.05;
+            progress = (actor->moveYaw - actor->ringCountdown) * 0.05;
             clampedProgress = (progress > 1.0) ? 1.0 : progress;
             growth = clampedProgress * (0.03 - 0.001) + 0.001;
             spriteScale = 130.0f * growth;
@@ -115,7 +115,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             offsetZ = mathCosF(actor->yaw + 0x400) * (growth * sub->radius * (0x800 - (s16)(i * stepAngle)));
             break;
         }
-        if (actor->unk15F != 0) {
+        if (actor->ringCountdown != 0) {
             actorAppendModelNode(actor, offsetX, offsetY, offsetZ, spriteScale * 80.0, -1);
         }
         gDPLoadTextureBlock(glist++, gSpriteRingTextures[texIndex], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -153,9 +153,9 @@ void projectileSpriteRingUpdate(void) {
 
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->moveYaw = gCurrentActor->unk15F;
+        gCurrentActor->moveYaw = gCurrentActor->ringCountdown;
         sub->matrices = heapAlloc(0x1000);
-        if (gCurrentActor->unk15F != 0) {
+        if (gCurrentActor->ringCountdown != 0) {
             gCurrentActor->collisionMode = 0x24;
         }
         if (sub->ringType == 1) {
@@ -170,8 +170,8 @@ void projectileSpriteRingUpdate(void) {
         case 1:
             gCurrentActor->x += sub->speed * mathSinF(gCurrentActor->yaw);
             gCurrentActor->z += sub->speed * mathCosF(gCurrentActor->yaw);
-            if (gCurrentActor->unk15F != 0) {
-                gCurrentActor->unk15F -= 1;
+            if (gCurrentActor->ringCountdown != 0) {
+                gCurrentActor->ringCountdown -= 1;
             } else if (gCurrentActor->yawSpeed == 0x20) {
                 gCurrentActor->yawSpeed = 0x10;
                 sub->frame = 0;
@@ -182,7 +182,7 @@ void projectileSpriteRingUpdate(void) {
             break;
         }
     } else {
-        if (gCurrentActor->unk15F != 0) {
+        if (gCurrentActor->ringCountdown != 0) {
             sub->radius += sub->speed;
             wantedCount = (f64)sub->radius * 0.3;
             sub->spriteCount = (wantedCount > 32.0) ? 32.0 : wantedCount;
@@ -192,11 +192,11 @@ void projectileSpriteRingUpdate(void) {
         if ((sub->frame - gCurrentActor->yawSpeed) >= 0x10) {
             u8 count;
 
-            count = gCurrentActor->unk15F;
-            gCurrentActor->unk15F = count - 1;
+            count = gCurrentActor->ringCountdown;
+            gCurrentActor->ringCountdown = count - 1;
             if (count) {
                 projectileSpawnSpriteRing(0, sub->spriteCount, sub->radius, sub->speed, 0, 0x10);
-                if (gCurrentActor->unk15F == 0) {
+                if (gCurrentActor->ringCountdown == 0) {
                     gCurrentActor->yawSpeed = 0x10;
                 } else {
                     sub->frame = 0;
@@ -261,7 +261,7 @@ void projectileActorUpdate(void) {
         sub->spawnFrame = gGameFrameCounter;
         sub->unk12 = 0;
         gCurrentActor->flags |= 0x80000;
-        gCurrentActor->unk155 = sub->type;
+        gCurrentActor->projectileKind = sub->type;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
