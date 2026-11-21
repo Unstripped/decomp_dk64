@@ -177,12 +177,16 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
     bit 216 (first read = bb 49 reload), waterY bit 24 (line-339 inWater read): no natural order numbers speedY first.
   9b1ca1: Q1590 does not apply (no tie: piece 321 is 2 uses - 2 reload blocks = 0); nothing recorded.
   review nohit: fresh read at 18884cf4, body unchanged, FAKE 2 kept.
+- 2026-11-21 continue unit 2 Lever936B0 follow-up (base 48370a9c, 936B0.c unchanged; copy fdiff 0, uninit 0, no cwarn):
+  9b1ca1 diagnose nohit re-checked against Q1599/Q1593/Q1602: removal piece 321 {19/6 reload, uses 44, 58} 0.0; the target
+    has no kongState read after 0x1434 (a0 = s0 at 0x14b0); switch respellings of both kongState == 2 branches (turnScale
+    select, jump block; case-first and default-first, alone and both, 8 bodies) add blocks (77 -> 79), no use: 45 each.
 
 ## Untried ideas
 - 6c8d63: a natural construct adding a block between a waterY compare and its use (bb 48->49 or bb 70->71) with no
   code; the late-arm reuse of waterY must stay (store-order probe). (One more speedY use in bb 49..53: tried 2026-11-21, nohit.)
-- 9b1ca1: one more kongState use AFTER the bb 58 compare (0x1434) with no code; earlier positions colour kongState before
-  the constant 2 (v1/a0 swapped). Aliases stay redundant-alias steers.
+- 9b1ca1: one more kongState use AFTER the bb 58 compare (0x1434) with no code: ruled out by Q1599 (code-free uses are not
+  counted; the target has no later read). Aliases stay redundant-alias steers.
 
 ## Evidence
 0xdf8-0xe1c: `move t1,zero; c.le.s; bc1fl; sb t1,71(sp); li t1,1; sb t1,71(sp)` then `andi t3,t2,1; sb t3,70(sp)`.
