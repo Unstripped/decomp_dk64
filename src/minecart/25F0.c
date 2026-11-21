@@ -278,7 +278,7 @@ void minecartFollowerChildBehaviour(void) {
         }
         if (gCurrentActor->subState == 0 && parent->followerCount == 4) {
             gActivePlayerState->stateFlags |= 0x10000000;
-            gCurrentActor->unk15F = 0xB4;
+            gCurrentActor->camEyeYawDeg = 0xB4;
             gCurrentActor->subState++;
         }
         gCurrentActor->sideAngle = mathAngleEaseToward(gCurrentActor->sideAngle, 0x64, 10.0f);
@@ -290,9 +290,9 @@ void minecartFollowerChildBehaviour(void) {
         break;
     }
     if (parent->state == 6) {
-        if (gCurrentActor->unk15F != 0) {
-            gCurrentActor->unk15F -= 0xC;
-            camSetTarget(gActivePlayerState->camActor, gActivePlayerState->actor, 4, (gCurrentActor->unk15F << 12) / 360, 0x64, 0, 5, 0x23, 0x14, 0, 0.2f);
+        if (gCurrentActor->camEyeYawDeg != 0) {
+            gCurrentActor->camEyeYawDeg -= 0xC;
+            camSetTarget(gActivePlayerState->camActor, gActivePlayerState->actor, 4, (gCurrentActor->camEyeYawDeg << 12) / 360, 0x64, 0, 5, 0x23, 0x14, 0, 0.2f);
         }
     }
     if (parent->state != 6) {
@@ -313,8 +313,8 @@ void minecartUpdateFollower(void) {
     s16 pointZ;
 
     playerCart = gActivePlayerState->actor->customState;
-    pointX = gMinecartTrackPoints[gCurrentActor->unk15F][gCurrentActor->yawSpeed].x;
-    pointZ = gMinecartTrackPoints[gCurrentActor->unk15F][gCurrentActor->yawSpeed].z;
+    pointX = gMinecartTrackPoints[gCurrentActor->trackIndex][gCurrentActor->yawSpeed].x;
+    pointZ = gMinecartTrackPoints[gCurrentActor->trackIndex][gCurrentActor->yawSpeed].z;
     if (!(gCurrentActor->flags & 0x10)) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x5FF, 0.0f, 0.0f);
         animSetSpeed(gCurrentActor, 0, 1.0f);
@@ -322,22 +322,22 @@ void minecartUpdateFollower(void) {
         animSetLoopLimit(gCurrentActor, 0, -1);
         gCurrentActor->collisionMode = 0x24;
         if (gCurrentActor->parentActor->followerCount == 1) {
-            gCurrentActor->unk15F = *playerCart->routeCursor & ~0xC0;
+            gCurrentActor->trackIndex = *playerCart->routeCursor & ~0xC0;
         } else {
             switch (*playerCart->routeCursor & ~0xC0) {
             case 1:
             case 2:
-                gCurrentActor->unk15F = (gCurrentActor->parentActor->followerCount ^ 1) + 1;
+                gCurrentActor->trackIndex = (gCurrentActor->parentActor->followerCount ^ 1) + 1;
                 break;
             case 3:
             case 4:
             case 5:
             case 6:
-                gCurrentActor->unk15F = (gCurrentActor->parentActor->followerCount % 4) + 3;
+                gCurrentActor->trackIndex = (gCurrentActor->parentActor->followerCount % 4) + 3;
                 break;
             case 7:
             case 8:
-                gCurrentActor->unk15F = (gCurrentActor->parentActor->followerCount ^ 1) + 7;
+                gCurrentActor->trackIndex = (gCurrentActor->parentActor->followerCount ^ 1) + 7;
                 break;
             }
         }
@@ -352,7 +352,7 @@ void minecartUpdateFollower(void) {
         gCurrentActor->accelY = -10.0f;
         gCurrentActor->terminalSpeedY = -200.0f;
         gCurrentActor->movePitch = 0xB4;
-        gCurrentActor->unkEC = 0;
+        gCurrentActor->flybySfxStage = 0;
     }
     if (gFrameCounter % 3 == 0) {
         effectSetDepth(1);
@@ -385,17 +385,17 @@ void minecartUpdateFollower(void) {
     dist = delta * delta + dist;
     delta = gCurrentActor->z - gPlayerSlots->camZ;
     dist = delta * delta + dist;
-    switch (gCurrentActor->unkEC) {
+    switch (gCurrentActor->flybySfxStage) {
     case 0:
     case 2:
         if (dist < 6400.0f) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x128, 0xFF, 0x7F, 0);
-            gCurrentActor->unkEC++;
+            gCurrentActor->flybySfxStage++;
         }
         break;
     case 1:
         if (dist > 10000.0f) {
-            gCurrentActor->unkEC++;
+            gCurrentActor->flybySfxStage++;
         }
         break;
     }

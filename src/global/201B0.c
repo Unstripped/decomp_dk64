@@ -2631,7 +2631,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
         target->yawSpeed = target->splineT;
         target->splineT -= target->yawSpeed;
     } else {
-        count = (gCamActivePaths->segLists[target->unk15F].count - 1 < 0) ? 0 : gCamActivePaths->segLists[target->unk15F].count - 1;
+        count = (gCamActivePaths->segLists[target->camSegListIndex].count - 1 < 0) ? 0 : gCamActivePaths->segLists[target->camSegListIndex].count - 1;
     }
     idx[0] = (target->yawSpeed - 1 < 0) ? 0 : target->yawSpeed - 1;
     idx[1] = target->yawSpeed;

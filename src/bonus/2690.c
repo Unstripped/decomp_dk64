@@ -539,9 +539,9 @@ void bonusTurtleTroubleGameUpdate(void) {
         bonusTurtleTroubleSpawnSnakes(game);
     }
     if (gCurrentActor->state == 0) {
-        gCurrentActor->unk15F = 1;
+        gCurrentActor->isPlaying = 1;
     } else {
-        gCurrentActor->unk15F = 0;
+        gCurrentActor->isPlaying = 0;
     }
     if (bonusExt->phase > 0) {
         bonusExt->aimSlot = 0;

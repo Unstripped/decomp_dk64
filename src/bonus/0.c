@@ -171,7 +171,7 @@ tail:
             hasMessage = 1;
             break;
         case 9:
-            spawnNodeActivate((randomNonNegative() >> 15) % 32767 % 8 + 0x11, 0)->unk15F = 1;
+            spawnNodeActivate((randomNonNegative() >> 15) % 32767 % 8 + 0x11, 0)->bonusPicked = 1;
             break;
         }
         if (hasMessage != 0) {
@@ -235,8 +235,8 @@ tail:
                     endOnTrigger = 0;
                     if (triggerKind != 0x12) {
                         if (triggerKind == 0x27) {
-                            gCurrentActor->unk15F += 1;
-                            if (gCurrentActor->unk15F >= 3) {
+                            gCurrentActor->goalTriggerHits += 1;
+                            if (gCurrentActor->goalTriggerHits >= 3) {
                                 csModelStateSetFirstByte(2, 0xA);
                             }
                         } else {

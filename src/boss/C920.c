@@ -250,8 +250,8 @@ void bossKRoolChunkyStep(void) {
         case 0:
             patrolGetNextWaypointPos(&waypointCoords[2], &waypointCoords[1], &waypointCoords[0]);
             actorSetGroupState(sKRoolChunkyPathGroupState[gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex & 0x7F][0] - 1], 1);
-            gCurrentActor->unkEC = mathAngleBetweenPoints2D(waypointCoords[2], waypointCoords[0], gCurrentActor->x, gCurrentActor->z);
-            if (mathAngleSignedDistance(gCurrentActor->yaw, gCurrentActor->unkEC) < 0) {
+            gCurrentActor->waypointYaw = mathAngleBetweenPoints2D(waypointCoords[2], waypointCoords[0], gCurrentActor->x, gCurrentActor->z);
+            if (mathAngleSignedDistance(gCurrentActor->yaw, gCurrentActor->waypointYaw) < 0) {
                 actorScriptStart(gCurrentActor, 0x401);
             } else {
                 actorScriptStart(gCurrentActor, 0x402);
@@ -260,7 +260,7 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->subState++;
             break;
         case 1:
-            gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->unkEC + 0x800, 10.0f);
+            gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->waypointYaw + 0x800, 10.0f);
             actorMoveWithinZone(0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x309, 0.0f);
             break;
         case 2:

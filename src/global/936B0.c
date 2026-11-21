@@ -1098,7 +1098,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
         }
         state->cooldown = 0;
         gCurrentActor->flags |= 0x80000;
-        gCurrentActor->unkEC = 0;
+        gCurrentActor->flybySfxStage = 0;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
@@ -1139,7 +1139,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
             state->cooldown--;
         }
     }
-    if (gCurrentActor->unkEC == 0) {
+    if (gCurrentActor->flybySfxStage == 0) {
         f32 dist;
         f32 d;
 
@@ -1151,7 +1151,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
         dist = dist + d * d;
         if (dist < 20000.0f) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x128, 0xFF, 0x7F, 0);
-            gCurrentActor->unkEC++;
+            gCurrentActor->flybySfxStage++;
         }
     }
     if (gCurrentActor->hasArcBounds != 0 || state->cooldown == 1 || gActorGlobalState.damaged != 0) {

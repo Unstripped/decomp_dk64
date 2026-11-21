@@ -72,7 +72,7 @@ void bossMadJackStep(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->boundingRadius = 0x64;
-        gCurrentActor->unk15F = 0;
+        gCurrentActor->camSegListIndex = 0;
         gBehaviourAnimState->flags |= 0x20;
         gCurrentActor->renderFlags |= 4;
         gCurrentActor->collisionMode = 0x24;

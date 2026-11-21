@@ -364,7 +364,7 @@ void actorScriptedCommandUpdate(void) {
                     break;
                 case 26:
                     gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->args[0], 0);
-                    gCurrentActor->unk15F = cmd->args[1];
+                    gCurrentActor->followNode = cmd->args[1];
                     gCurrentActor->state = 0xD;
                     gCurrentActor->subState = 0;
                     break;
@@ -423,8 +423,8 @@ void actorScriptedCommandUpdate(void) {
     }
     switch (gCurrentActor->state) {
         case 0xD:
-            if (gCurrentActor->unk15F != 0) {
-                nodeIndex = gCurrentActor->unk15F;
+            if (gCurrentActor->followNode != 0) {
+                nodeIndex = gCurrentActor->followNode;
                 actorGetNodePos(gBehaviourWorkState->targetActor, nodeIndex, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             } else {
                 gCurrentActor->x = gBehaviourTargetActor->x;

@@ -174,13 +174,13 @@ void actorCountGoalRewardUpdate(s32 startPathId, s32 lowCountPathId, s32 rewardP
         } else {
             playerStateQueueCallback(0x46, 0, 0);
             if (slotQueueGetValue(0xB, 0) < targetCount) {
-                gCurrentActor->unk15F = 0;
+                gCurrentActor->goalMetAndPhase = 0;
                 pathId = lowCountPathId;
             } else {
                 if (flagGet(rewardFlag, 0) == 0) {
                     pathId = rewardPathId;
                 }
-                gCurrentActor->unk15F = 0x80;
+                gCurrentActor->goalMetAndPhase = 0x80;
             }
         }
         *heightOffsetPtr = 0xF;
@@ -191,7 +191,7 @@ void actorCountGoalRewardUpdate(s32 startPathId, s32 lowCountPathId, s32 rewardP
             attachedActor->yawSpeed = 0;
         }
     }
-    if (gBehaviourExtraState->id == goalSpawnId && (gCurrentActor->unk15F & 0x80) && gBehaviourWorkState->timer == 0x5A && flagGet(rewardFlag, 0) == 0) {
+    if (gBehaviourExtraState->id == goalSpawnId && (gCurrentActor->goalMetAndPhase & 0x80) && gBehaviourWorkState->timer == 0x5A && flagGet(rewardFlag, 0) == 0) {
         actorSpawnNodeEntryAtActor(0x2D, rewardFlag);
         sfxAllocateChannel(0x14, 1.0f);
     }
@@ -202,19 +202,19 @@ void actorCountGoalRewardUpdate(s32 startPathId, s32 lowCountPathId, s32 rewardP
     gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 15.0f + gBehaviourTargetActor->z;
     gCurrentActor->y = gBehaviourTargetActor->y + *heightOffsetPtr + mathSinF(gFrameCounter * 100) * 5.0f;
     gCurrentActor->moveYaw += 0x3C;
-    switch (gCurrentActor->unk15F & 0x7F) {
+    switch (gCurrentActor->goalMetAndPhase & 0x7F) {
         case 0:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 gBehaviourWorkState->timer = 0x1E;
             } else {
-                gCurrentActor->unk15F++;
+                gCurrentActor->goalMetAndPhase++;
             }
             break;
         case 1:
             if (gCurrentActor->flags & 0x2000000) {
                 gBehaviourWorkState->timer = 0x1E;
             } else {
-                gCurrentActor->unk15F++;
+                gCurrentActor->goalMetAndPhase++;
                 if (gBehaviourExtraState->id == goalSpawnId && slotQueueGetValue(0xB, 0) >= targetCount) {
                     gBehaviourWorkState->timer = 0x78;
                 }
@@ -790,7 +790,7 @@ void actorPresentBeforePlayerUpdate(void) {
     f32 frontZ;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unkEC = 0x3C;
+        gCurrentActor->hoverHeight = 0x3C;
         actorScriptStart(gCurrentActor, 0x23D);
         if (gPrimaryPlayerActor->state == 0xC) {
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x87);
@@ -799,14 +799,14 @@ void actorPresentBeforePlayerUpdate(void) {
     frontX = mathSinF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->x;
     frontZ = mathCosF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->z;
     gCurrentActor->yaw = (gPrimaryPlayerActor->yaw + 0x800) & 0xFFF;
-    if (gCurrentActor->unkEC == 0x3C) {
+    if (gCurrentActor->hoverHeight == 0x3C) {
         gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * 10.0f + frontX;
         gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 10.0f + frontZ;
     }
-    gCurrentActor->y = mathSinF(gFrameCounter * 100) * 5.0f + (gCurrentActor->unk15F + gPrimaryPlayerActor->y + 3.0f + gCurrentActor->unkEC);
+    gCurrentActor->y = mathSinF(gFrameCounter * 100) * 5.0f + (gCurrentActor->itemRaise + gPrimaryPlayerActor->y + 3.0f + gCurrentActor->hoverHeight);
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentActor->movePitch != 0) {
-            gCurrentActor->unk15F = 0x14;
+            gCurrentActor->itemRaise = 0x14;
             actorSpawnNodeEntryAtActor(0x2D, flagLookupIdByIndex(gCurrentActor->movePitch));
         }
     }
@@ -821,8 +821,8 @@ void actorPresentBeforePlayerUpdate(void) {
         gCurrentActor->yawSpeed--;
     }
     if (gCurrentActor->yawSpeed == 0) {
-        gCurrentActor->unkEC++;
-        if (gCurrentActor->unkEC >= 0x3D) {
+        gCurrentActor->hoverHeight++;
+        if (gCurrentActor->hoverHeight >= 0x3D) {
             if (gCurrentActor->movePitch != 0) {
                 actorAttachChildCallbacks();
             }
@@ -832,8 +832,8 @@ void actorPresentBeforePlayerUpdate(void) {
                 actorScriptStartByIndex(gPrimaryPlayerActor, 9);
             }
         }
-    } else if (gCurrentActor->unkEC >= 0x10) {
-        gCurrentActor->unkEC--;
+    } else if (gCurrentActor->hoverHeight >= 0x10) {
+        gCurrentActor->hoverHeight--;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

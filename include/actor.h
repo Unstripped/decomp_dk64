@@ -448,12 +448,22 @@ typedef struct Actor {
     union {
         struct {
             union {
-                /* 0x0EC */ s16 unkEC;      // per-type scratch (the uses below span 2+ functions; the rest stay here)
+                /* 0x0EC */ s16 unkEC;      // per-type scratch, held: critter text 0x10A zeroes it at spawn, nothing reads it (critter/4840.c)
                 /* 0x0EC */ s16 arrowAngle; // screen angle in degrees of the hint arrows actorDrawAnimatedEffect draws (90D80.c;
                                             // written by C8C10.c, 9DD70.c, A6280.c, race/A960.c)
                 /* 0x0EC */ s16 lastRoll;   // camera actor: the pitch (up-vector roll) applied last frame, read as skyRoll (201B0.c, 8F4B0.c)
                 /* 0x0EC */ s16 alphaStep;  // flying enemy: alpha fade step per frame, random 15..21 (B7490.c swoop/return)
                 /* 0x0EC */ s16 sideAngle;  // minecart type 0x11C escort: side offset angle, times yawSpeed = -1/+1 (minecart/25F0.c)
+                /* 0x0EC */ s16 waypointYaw; // K. Rool Chunky phase 0x127: yaw toward the next waypoint, faced away (+0x800) while
+                                             // it backs there at speed -150 (boss/C920.c)
+                /* 0x0EC */ s16 flybySfxStage; // sound 0x128 played as it passes the camera: flame projectiles 0x1E/0x3B/0x63/0x6C
+                                               // 0 = not yet, 1 = played (936B0.c); minecart follower 0x11F 0/2 = play it when near,
+                                               // 1 = wait until far, 3 = done (minecart/25F0.c)
+                /* 0x0EC */ s16 orbitRadius; // type 0xAA: radius of its orbit around the midpoint to the player, half that distance (A6280.c)
+                /* 0x0EC */ s16 attackArc;  // type 0x106 armored enemy: max angle to the target to attack (behaviourIsTargetWithinAngle),
+                                            // 6000, -1 = any once its armor piece is knocked off (B2CE0.c)
+                /* 0x0EC */ s16 hoverHeight; // type 0x108: height above the player, 60 at spawn (x/z follow the player only at 60),
+                                             // sinks to 16 while shown (yawSpeed), rises again and despawns past 60 (C8C10.c)
             };
             /* 0x0EE */ s16 moveYaw;
         };
@@ -513,7 +523,7 @@ typedef struct Actor {
     /* 0x15C */ s16 spawnTimer;
     /* 0x15E */ u8 eyeHeight;
     union {
-        /* 0x15F */ u8 unk15F;        // per-type scratch byte (the uses below span 2+ functions; the rest stay here)
+        /* 0x15F */ u8 unk15F;        // per-type scratch byte, held: fairy 0xE4 zeroes it at init, nothing reads it (BDEE0.c)
         /* 0x15F */ u8 fadeValue;     // 0..0xFF level ramped in/out: text marker (9DD70.c), options menu (menu/0.c),
                                       // shop cost prompt (menu/1AF0.c), menu light (menu/E550.c)
         /* 0x15F */ u8 orbitGlow;     // tag-barrel kong highlight 3..15, copied into tintA (80150.c)
@@ -531,6 +541,26 @@ typedef struct Actor {
         /* 0x15F */ u8 bannerId;      // type 0x104 banner: text / sprite / round number to show (A2F10.c, 1295B0.c)
         /* 0x15F */ u8 formationIndex; // type 0x94 group: 0 = leader, 1..11 children, group = index / 3 (A2F10.c)
         /* 0x15F */ u8 debrisUpright; // type 0xED tumble debris: nonzero = drawn upright, 0 = flipped (B2CE0.c)
+        /* 0x15F */ u8 pathHandle;    // behaviour state 8: pathPlayback handle from pathPlaybackStart, walked every frame (12E800.c)
+        /* 0x15F */ u8 camSegListIndex; // camera path look / follow actor: gCamActivePaths->segLists index, clamps the spline keys
+                                      // around yawSpeed (camComputeEyeFocus, 201B0.c); zeroed by look actors Mad Jack 0xD8 at
+                                      // init (boss/52B0.c) and the race opponent 0xC0 after its result path (race/0.c)
+        /* 0x15F */ u8 hasOwnHitNode; // type 0xFF light pulse: nonzero = own model node sized with the pulse, hurts players even
+                                      // while attached to a host; 1 from fastGrow (89250.c, A2F10.c)
+        /* 0x15F */ u8 bonusPicked;   // 1 = the one of spawn nodes 0x11..0x18 the bonus controller picked (challenge 9, bonus/0.c);
+                                      // melee patrol enemy 0xEE on map 0xA5: defeating it sets cs model state 0 to 0xA (B2CE0.c)
+        /* 0x15F */ u8 goalTriggerHits; // bonus controller 0x100, challenges 12/13: volume trigger 0x27 hits, the third sets cs
+                                        // model state 2 to 0xA (bonus/0.c)
+        /* 0x15F */ u8 isPlaying;     // type 0x2E Turtle Trouble game: 1 while state 0 (shots accepted), else 0, set every frame (bonus/2690.c)
+        /* 0x15F */ u8 carriesKongItem; // kong item enemies 0xF1..0xF5: 1 = its kong's flag-grid 0x1D5 item of this world is not
+                                        // collected yet, spawned (sfxSpawnTableNodes) on defeat (B5EC0.c)
+        /* 0x15F */ u8 followNode;    // scripted actor state 0xD (command 26): node of the target actor it sits on, 0 = its origin (C4620.c)
+        /* 0x15F */ u8 goalMetAndPhase; // type 0xE9 count goal (maps 6/0x37/0x6A): bit 7 = count reached (reward spawned at
+                                        // timer 0x5A), bits 0-6 = phase: 0 wait for flags 0x2000000, 1 wait for its clear, 2 done (C8C10.c)
+        /* 0x15F */ u8 itemRaise;     // type 0x108: extra height 20 while it holds the flag item it spawned (movePitch), added to y (C8C10.c)
+        /* 0x15F */ u8 camEyeYawDeg;  // minecart escort 0x11C: camera eye yaw in degrees for camSetTarget, 180 counted down by 12 (minecart/25F0.c)
+        /* 0x15F */ u8 trackIndex;    // minecart follower 0x11F: gMinecartTrackPoints track it chases (yawSpeed = point index), from
+                                      // the player cart's route cursor (minecart/25F0.c)
     };
     union {
         /* 0x160 */ f64 splineT;

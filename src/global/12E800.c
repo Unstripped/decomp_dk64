@@ -461,15 +461,15 @@ void behaviourUpdateContactAndState(s32 scriptId) {
         case 8:
             switch (gCurrentActor->subState) {
                 case 0:
-                    gCurrentActor->unk15F = pathPlaybackStart(gCurrentActor, gBehaviourExtraState->yaw, 0, 0.0f, 0.0f, 0.0f, 0);
-                    pathPlaybackSetSpeed(gCurrentActor->unk15F, (gBehaviourExtraState->targetSpeed * 0.1));
-                    pathPlaybackSetLooping(gCurrentActor->unk15F, 1);
-                    pathPlaybackSetLoopLimit(gCurrentActor->unk15F, -1);
-                    pathPlaybackSetActive(gCurrentActor->unk15F, 1);
+                    gCurrentActor->pathHandle = pathPlaybackStart(gCurrentActor, gBehaviourExtraState->yaw, 0, 0.0f, 0.0f, 0.0f, 0);
+                    pathPlaybackSetSpeed(gCurrentActor->pathHandle, (gBehaviourExtraState->targetSpeed * 0.1));
+                    pathPlaybackSetLooping(gCurrentActor->pathHandle, 1);
+                    pathPlaybackSetLoopLimit(gCurrentActor->pathHandle, -1);
+                    pathPlaybackSetActive(gCurrentActor->pathHandle, 1);
                     gCurrentActor->subState++;
                 case 1:
-                    pathPlaybackAdvance(gCurrentActor->unk15F);
-                    pathPlaybackGetPosition(gCurrentActor->unk15F, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
+                    pathPlaybackAdvance(gCurrentActor->pathHandle);
+                    pathPlaybackGetPosition(gCurrentActor->pathHandle, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
                     if (gBehaviourAnimState->animSpeedScale != 0.0f) {
                         gCurrentActor->speedXZ = sqrtf(((gCurrentActor->x - gCurrentActor->prevX) * (gCurrentActor->x - gCurrentActor->prevX)) + ((gCurrentActor->y - gCurrentActor->prevY) * (gCurrentActor->y - gCurrentActor->prevY)) + ((gCurrentActor->z - gCurrentActor->prevZ) * (gCurrentActor->z - gCurrentActor->prevZ))) * 40.0f;
                         actorUpdateAnimSpeedFromSpeed(0);

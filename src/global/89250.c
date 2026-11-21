@@ -115,7 +115,7 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
         if (fastGrow != 0) {
             gSpawnedActor->yawSpeed = 0xF;
             gSpawnedActor->splineT = 1.11;
-            gSpawnedActor->unk15F = 1;
+            gSpawnedActor->hasOwnHitNode = 1;
         } else {
             gSpawnedActor->yawSpeed = 0x19;
             gSpawnedActor->splineT = 1.09;
@@ -123,7 +123,7 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
     } else {
         gSpawnedActor->yawSpeed = 0x20;
         gSpawnedActor->splineT = 1.07;
-        gSpawnedActor->unk15F = 0;
+        gSpawnedActor->hasOwnHitNode = 0;
     }
 }
 

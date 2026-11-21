@@ -267,7 +267,7 @@ void actorLightPulseUpdate(void) {
         } else {
             light->radiusScale = 1.5f;
         }
-        if (gCurrentActor->unk15F != 0) {
+        if (gCurrentActor->hasOwnHitNode != 0) {
             actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 1.0f, 0);
         }
     }
@@ -299,7 +299,7 @@ void actorLightPulseUpdate(void) {
              0.0f, 0.0f, gCurrentActor->sub4->scaleX * lightRadius * light->radiusScale, 0,
              light->red, light->green, light->blue);
     if (gCurrentMap != 0x4C) {
-        if (!isAttached || gCurrentActor->unk15F != 0) {
+        if (!isAttached || gCurrentActor->hasOwnHitNode != 0) {
             callbackId = 0x2E;
             if (mpIsMatchType(0) != 0) {
                 callbackId = 0xE;
@@ -316,7 +316,7 @@ void actorLightPulseUpdate(void) {
                     playerStateQueueCallback(callbackId, gCurrentActor, i);
                 }
             }
-            if (gCurrentActor->unk15F != 0) {
+            if (gCurrentActor->hasOwnHitNode != 0) {
                 actorSetCollisionRadius(
                     gCurrentActor,
                     2.0 * ((gCurrentActor->sub4->scaleX * lightRadius) * 6.66666667));

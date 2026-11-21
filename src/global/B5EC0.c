@@ -277,9 +277,9 @@ void kongItemEnemyUpdate(u8 mode) {
             flag = flagGridSumRows(0x1D5, worldIndex, worldIndex, D_80750600[mode]) == 0;
         }
         actorSetAnimStartFrame(flag != 0 ? mode : 5);
-        gCurrentActor->unk15F = flag;
+        gCurrentActor->carriesKongItem = flag;
     }
-    func_806B13B4(gCurrentActor->unk15F);
+    func_806B13B4(gCurrentActor->carriesKongItem);
 }
 
 void b5ec0SetMode4(void) {

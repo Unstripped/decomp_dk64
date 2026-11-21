@@ -347,7 +347,7 @@ void actorOrbitPlayerMidpointUpdate(void) {
         actorSetUniformScale(gCurrentActor, ((MidpointOrbitConfig *)gCurrentActor->spawnData)->scale);
         gCurrentActor->yawSpeed = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
         gCurrentActor->movePitch = (gPrimaryPlayerActor->y + (f32)gPrimaryPlayerActor->eyeHeight - gCurrentActor->y) * 0.5;
-        gCurrentActor->unkEC = sqrtf((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z)) * 0.5;
+        gCurrentActor->orbitRadius = sqrtf((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z)) * 0.5;
         sub->centerX = gCurrentActor->x + (gPrimaryPlayerActor->x - gCurrentActor->x) * 0.5;
         sub->centerY = gCurrentActor->y + (gPrimaryPlayerActor->y - gCurrentActor->y) * 0.5;
         sub->centerZ = gCurrentActor->z + (gPrimaryPlayerActor->z - gCurrentActor->z) * 0.5;
@@ -355,7 +355,7 @@ void actorOrbitPlayerMidpointUpdate(void) {
         gCurrentActor->arcSpeedCap = 0x2328;
         gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->spawnData)->orbitFrames;
         {
-            f64 v = gCurrentActor->splineT * (gCurrentActor->unkEC * 0.01);
+            f64 v = gCurrentActor->splineT * (gCurrentActor->orbitRadius * 0.01);
             gCurrentActor->splineT = (v > 15.0 ? v : 15.0) < 150.0 ? (v > 15.0 ? v : 15.0) : 150.0;
         }
         sub->framesLeft = gCurrentActor->splineT;
@@ -363,8 +363,8 @@ void actorOrbitPlayerMidpointUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     ratio = (sub->framesLeft / gCurrentActor->splineT) * -4096.0 + 4096.0;
     sub->angle = gCurrentActor->yawSpeed + ratio;
-    gCurrentActor->x = mathSinF(sub->angle) * gCurrentActor->unkEC + sub->centerX;
-    gCurrentActor->z = mathCosF(sub->angle) * gCurrentActor->unkEC + sub->centerZ;
+    gCurrentActor->x = mathSinF(sub->angle) * gCurrentActor->orbitRadius + sub->centerX;
+    gCurrentActor->z = mathCosF(sub->angle) * gCurrentActor->orbitRadius + sub->centerZ;
     gCurrentActor->y = mathCosF(2048.0f + ratio) * gCurrentActor->movePitch + sub->centerY;
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     gCurrentActor->yaw += 0x12C;

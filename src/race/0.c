@@ -487,7 +487,7 @@ void raceOpponentBehaviourUpdate(void) {
                     controller->statusStep = 4;
                 }
                 controller->statusStep++;
-                gCurrentActor->unk15F = 0;
+                gCurrentActor->camSegListIndex = 0;
             }
             break;
         case 3:

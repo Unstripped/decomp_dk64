@@ -255,7 +255,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             break;
         case 1:
-            if ((gCurrentMap == 0xA5) && (gCurrentActor->unk15F != 0)) {
+            if ((gCurrentMap == 0xA5) && (gCurrentActor->bonusPicked != 0)) {
                 csModelStateSetFirstByte(0, 0xA);
             }
             sfxSpawnTableNodes(gCurrentActor);
@@ -541,7 +541,7 @@ void behaviourArmoredEnemyUpdate(void) {
         gCurrentActor->segmentFlags = -1;
         behaviourSetAnimIds(0x2D9, 0x2D7, 0x2D8);
         actorAllocBoneRotations(2, 1);
-        gCurrentActor->unkEC = 0x1770;
+        gCurrentActor->attackArc = 0x1770;
     }
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2DD);
@@ -551,7 +551,7 @@ void behaviourArmoredEnemyUpdate(void) {
         if (gCurrentActor->segmentFlags & 1) {
             gBehaviourWorkState->turnRate = 0xF;
             gBehaviourWorkState->moveYawRate = 0xF;
-            gCurrentActor->unkEC = -1;
+            gCurrentActor->attackArc = -1;
             actorSpawnChildAtNode(0xC2, 0x800, 1, 0x190);
             gSpawnedActor->debrisUpright = 1;
             effectSpawnActorParticleBurst(1);
@@ -592,7 +592,7 @@ void behaviourArmoredEnemyUpdate(void) {
         }
         break;
     case 0x27:
-        if (gCurrentActor->unkEC < 0xFFFF) {
+        if (gCurrentActor->attackArc < 0xFFFF) {
             actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
         }
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
@@ -623,7 +623,7 @@ void behaviourArmoredEnemyUpdate(void) {
             gCurrentActor->subState = 0;
         }
     case 0x23:
-        if ((gActorGlobalState.bossFightPhase == 2) && (behaviourIsTargetWithinAngle(gCurrentActor->unkEC) != 0)) {
+        if ((gActorGlobalState.bossFightPhase == 2) && (behaviourIsTargetWithinAngle(gCurrentActor->attackArc) != 0)) {
             gCurrentActor->state = 0x27;
             gCurrentActor->subState = 0;
         }
