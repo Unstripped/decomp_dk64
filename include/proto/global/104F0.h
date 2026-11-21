@@ -39,7 +39,7 @@ void eepromGetGlobalFieldOffset(s32, u8, u16 *, u8 *);
 void eepromCalculateTotalModelCount(s32, s32, u8, u16 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_eepromGetSectorOffset
-void eepromGetSectorOffset();
+void eepromGetSectorOffset(u16 *, u8 *, s32, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_eepromScaleFieldValue
 s32 eepromScaleFieldValue(s32, u32, s32);

@@ -13,6 +13,7 @@
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 
+
 s16 gModelCountTotal; // every access is lh/sh at displacement 0; IDO 8-aligns the 0x800-byte buffer after it
 u8 sEepromSlotBuffer[0x800];
 u8 sEepromImage[0x800];
@@ -347,14 +348,7 @@ void eepromCalculateTotalModelCount(s32 field, s32 index, u8 count, u16 *offset,
     *width = 1;
 }
 
-void eepromGetSectorOffset(offset, width, field, index, subIndex, sector)
-u16 *offset;
-u8 *width;
-s32 field;
-unsigned char index;
-unsigned char subIndex;
-unsigned char sector;
-{
+void eepromGetSectorOffset(u16 *offset, u8 *width, s32 field, u8 index, u8 subIndex, u8 sector) {
     u16 base;
     base = sector;
     base *= EEPROM_SLOT_BITS;
@@ -670,7 +664,7 @@ void eepromReadAllSectors(void) {
     }
     gEepromWriteInProgress = 1;
     for (sector = 0; (sector < 0x100) && (failed == 0); sector++, dst += 8) {
-        failed |= osEepromRead(&gSiMesgQueue, (u8)sector, dst);
+        failed |= osEepromRead(&gSiMesgQueue, sector, dst);
         sleepMilliseconds(15.0f);
         if (gMainThreadHalted != 0) {
             gEepromWriteInProgress = 0;
@@ -932,7 +926,7 @@ u8 *eepromGetSectionBuffer(u8 section) {
         }
         break;
     case 1:
-        result = (EEPROM_GLOBAL_BIT_OFFSET / 8) + sEepromSlotBuffer;
+        result = sEepromSlotBuffer + (EEPROM_GLOBAL_BIT_OFFSET / 8);
         break;
     }
     return result;
