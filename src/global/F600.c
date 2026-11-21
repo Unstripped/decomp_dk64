@@ -124,10 +124,6 @@ void controllerGetReadData(OSContPad *pad) {
 extern u8 gDemoPlaybackState;
 extern u8 gScreenRenderFlags;
 
-#define CtrlAHeld gPadHeldButtons
-#define CtrlAPressed gPadPressedButtons
-#define CtrlARepeat gPadRepeatButtons
-
 void controllerUpdate(void) {
     OSContPad *pad;
     s32 sum;
@@ -207,9 +203,9 @@ void controllerUpdate(void) {
         }
         if (mask != 0) {
             pad = &gControllerPads[padIdx];
-            pressedOut = &CtrlAPressed[padIdx];
+            pressedOut = &gPadPressedButtons[padIdx];
             curButtons = pad->button;
-            buttons = curButtons; pressed = BUTTONS_PRESSED(curButtons, CtrlAHeld[padIdx]); CtrlAHeld[padIdx] = pad->button; // LAYOUT: one line lets as1 put move a3,a2 after sh a2,0(t0) in the bnez delay slot
+            buttons = curButtons; pressed = BUTTONS_PRESSED(curButtons, gPadHeldButtons[padIdx]); gPadHeldButtons[padIdx] = pad->button; // LAYOUT: one line lets as1 put move a3,a2 after sh a2,0(t0) in the bnez delay slot
             if (gDemoPlaybackState == 0 && (gScreenRenderFlags & 0x11)) {
                 pad->button &= 0x1000;
                 pad->stick_x = 0;
@@ -223,15 +219,15 @@ void controllerUpdate(void) {
                 if (buttons & bit) {
                     gPadRepeatTimers[padIdx][k]--;
                     if (gPadRepeatTimers[padIdx][k] <= 0) {
-                        CtrlARepeat[padIdx] |= bit;
+                        gPadRepeatButtons[padIdx] |= bit;
                         gPadRepeatTimers[padIdx][k] = 2;
                     } else if (gPadRepeatTimers[padIdx][k] == 11) {
-                        CtrlARepeat[padIdx] |= bit;
+                        gPadRepeatButtons[padIdx] |= bit;
                     } else {
-                        CtrlARepeat[padIdx] &= ~bit;
+                        gPadRepeatButtons[padIdx] &= ~bit;
                     }
                 } else {
-                    CtrlARepeat[padIdx] &= ~bit;
+                    gPadRepeatButtons[padIdx] &= ~bit;
                     gPadRepeatTimers[padIdx][k] = 12;
                 }
             }
@@ -241,7 +237,7 @@ void controllerUpdate(void) {
         }
     }
     gCurrentContPad = gControllerPads;
-    gContPressedButtons = CtrlAPressed[0];
+    gContPressedButtons = gPadPressedButtons[0];
 }
 
 void controllerLatchPad(OSContPad *pad) {
