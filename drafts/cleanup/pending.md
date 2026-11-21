@@ -117,17 +117,17 @@ SchedStruct, SpawnNode, BehaviourWorkState, ActorGlobalState, ActorCallbackNode,
 global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog, gWatchdogPaused, camComputeFirstPersonEyeFocus,
 ...). Field renames now carry (quality.py carry + --header-carve): they no longer reopen reviews. What is still unnamed:
 `uv run tools/debt.py names`; queue and procedure: `.omp/skills/continue-unit/names.md`. Still held (evidence or ruling missing):
-- Audio D_80770DE8 / D_80770DDC: the original reuses them as scratch in 7130.c (818-825, 1742-1782; 465-481): user ruling pending on
-  a generic name (proposals gSfxRightLevel / gSfxPan, Hack7130 and NamesAudio).
 - Cross-segment aliases: D_80029FA0 (critter names it critterArenaTargetsLeft; global code uses it), D_80741F40, D_80760840.
 - D_80753354 (s16 per-kong turn rate; gKongTurnRate is CEAE0's other table), D_8076A0A6 (copy of gPadPressedButtons[0]),
   D_807FC952 (= gPlayerInventoryTable[0].kong[0].weaponFlags; cannot fold), race/0 D_8002FB10/D_8002FB70 route tables, D_80750650.
 - Function renames: playerCheckLandingSfx -> playerCheckLandingSlide, effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn
   (water ripple, less certain), gMenuBonusTimer -> gHelmTimer, csSetActorScaleFadeByType / actorSetInteractionTimer (both set
   Actor.collisionMode, NamesActorBytes), csIsPlayerState4OrC (tests gPlayerSlots->camChunk, NamesRaceSched).
-- Fields: PlayerState unk78/unk7C/unk80, Actor 0xE4 pitch <-> 0xE8 roll swap, Actor.unk15F / unkEC (no dominant meaning: only
-  per-type union members), HudIconState unk10 offsetX / unk18 wanderTargetX (ACDC0 file-local, HackACDC0), D_807F7140
-  gCsModelUpdateCount (Hack36880).
+- Fields: PlayerState unk78/unk7C/unk80, Actor 0xE4 pitch <-> 0xE8 roll swap, HudIconState unk10 offsetX / unk18 wanderTargetX
+  (ACDC0 file-local, HackACDC0), D_807F7140 gCsModelUpdateCount (Hack36880).
+- Ruling (user, 2026-11-21): scratch globals reused by the original get their dominant role's name plus a declaration comment on
+  the reuse (gSfxPan, gSfxRightLevel, 7130.c, c4202469). Per-type scratch fields (Actor.unk15F / unkEC) get one named union
+  member per role, single-function roles included (UnionActorU2, continue unit 2).
 
 ## Tooling fixes (open)
 - None open from 2026-11-20: 73393b44 (noop-arith literal), bd5da4f3 (alias respelling), 49c6d3c4 (tag added in place), d84d0487

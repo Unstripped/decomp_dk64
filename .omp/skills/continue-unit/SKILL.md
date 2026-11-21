@@ -68,7 +68,13 @@ slowest worker. Names yield falls once every file has had a reader: the leftover
   (`quality.py status` OPEN after a unit's windows: one worker per file, 5 of 12 removed FAKE in
   unit 1), or a lever-transfer list (a scout matching new Q-entries to exhausted sites, the Q-ID in
   the brief). A new lever that is a pure respelling goes into `tools/variants.py` as a recipe and is
-  swept, not dispatched. `// LAYOUT:` lines are not sites (rulings): never dispatched.
+  swept, not dispatched (unit 2: `switch`). Check the lever's precondition on the target asm before
+  dispatch (unit 2: 2 fixes of 10 transfers; Q1594/Q1595/Q1597/Q1598/Q1599/Q1602 list why the rest
+  failed). `// LAYOUT:` lines are not sites (rulings): never dispatched.
+- knowledge filing reopens the named functions' OTHER sites (rungs from earlier units go stale). File
+  the queue while the workers that produced it are idle, run `quality.py status | grep OPEN`, and send
+  each reopened site to the worker that already holds its function's traces (`write agent://<id>`):
+  ledger-only follow-up with `new="re-checked against Q...: ..."` (unit 2: 7 functions, minutes each).
 - polish: uninit reads are almost all original control flow (36880: 34/34 kept, 36 plain-C fixes
   all fdiff 1); no slots for them without a function-specific reason.
 
