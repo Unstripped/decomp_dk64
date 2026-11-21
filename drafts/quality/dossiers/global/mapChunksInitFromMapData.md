@@ -37,9 +37,10 @@
   - rec reassigned base-first at the start of each of the 8 target s0-CSE groups (curVtx, the layer-0/1/2 blocks, total/loadCursor, loadStart, loadEnd, the layer-3 call block), every other store through gMapChunks[n]: 386 (rec takes a callee-saved register; data s7 -> s6); fc3dbd removed 383.
   - Base-first `MapChunkCollEntry *coll = base; coll += n;` replacing entryOff: 89 (fc3dbd removed 84); `(MapChunkCollEntry *)(file + collOff + 4)` base 326.
   - Per-block `MapPortal *portal = gMapPortals; portal += i;` in the portal loop: 324; fc3dbd removed 343; 12a29f removed 334; no frame pay 334.
+  - Follow-up at 48370a9c (Q1593 switch respellings, fc3dbd removed unless noted): `switch (gMapChunkCount) { default: ...; case 0: gMapChunks = NULL; }` lays the NULL store first in either case order (bnez t6 + b at 0xfc; target beqz t6 -> else at 0x8a8): 96, 23 with the read kept; the four `kind == 2` tests as one-case switches 76 (= removal); `switch (count)` for the cell copy 131, with the outer switch 155. Enable-loop counter split from k: new `j` 85, reuse `i` 76.
 ## Untried ideas
 - Natural code adding 6 or more counted variable references in node 3 (lines from `cellsOff =` to `dlBase =`) whose first cut lands after `vecsOff =` and before `portalsOff =` (12a29f). Every existing statement there already holds its minimum references (14 in total).
-- A natural gMapChunks reference outside the chunk loop that emits no code (fc3dbd); the target has none, so the original probably had a different block structure there.
+- A natural gMapChunks reference outside the chunk loop that emits no code (fc3dbd); the target has none. Narrowed by Q1595: p is nested in the lda gMapChunks range (lda = p's units plus the else-store block), so a no-code CFG node alone cannot reorder them; the switch forms of the existing branches change the branch layout (above).
 ## Evidence
 - Frame 0xED8: dlBase home sp+0xECC (3788); buf sp+0x78 (120); count sp+0x74; spilltemps sp+0x54 file+collOff+4, sp+0x58 file+collOff, sp+0x5C n*12 (stored +12 at 0x7b4-0x7b8).
 - 0x140-0x184: cellsOff v1, boxesOff a0, vecsOff a1; `lui a0,%hi(gMapPortalSlotCount)` at 0x17c after the last a0 use; 0x18c collOff -> s4, 0x190 chunksOff -> s1, 0x198 portalsOff -> v1, 0x1c8 relocsOff -> a0.
