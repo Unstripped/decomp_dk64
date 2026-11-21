@@ -95,11 +95,18 @@
   - c17942 FIXED: dead test removed, `if (gDemoPlaybackState == 0) {|=} else {&=}` as `switch (gDemoPlaybackState) { case 0: ... break; default: ... break; }` (fdiff 0; Q0778 one-case selector switch; the demo-mode byte is switched on in 201B0 camUpdatePlayerYaw and F600). The same one-case switch on `gCurrentActor->actorType` (case 4 / default, eyeHeight) also gives 0, and so do both together.
   - Did not help (removal copy, 24 each): nested-if forms of the && tests (D_80770560[1] == 0x6B, the 0x01000000/unk1C/0x47 test two ways, the bounds test, the idle-check test, both case 1/case 2 sound tests) and `gPlayerCount == 1 && renderFlags & 0x1000` joined. A default-first demo switch: 24. Probe `if (gPlayerCount) {}` before gridSetNodeBounds also 0 (not adopted: a dead test).
   - 318197: cast removal on the switch body 37; variants scan on that copy: 120 variants, best 37. Minimal IDO file: plain `&p[i].hx` gives `addu v0,t7,t8` (index product first), the cast `addu v0,t6,t8` (base first); `f32 head[3]` (`&p[i].head[0]`), a Vec3 `head` member (`&p[i].head.x`) and `&(*(p + i)).hx` stay index-first, the decay form `p[i].head` splits the CSE into two adds.
+- 2026-11-20 2026-11-20: cleanup CleanplayerUpdateCommonc (anthropic/claude-opus-5-5), at fa43bfac (body unchanged since 4c02a0b1), fdiff OK. A re-measurement of 318197 after Q1532/Q1533 (566e7a03), body untouched:
+  - fresh sweep: 0 hits (plain: no rewrite; recipe: no removal). Cast removal: full=37 text=38 shape=0 (n=1250 both).
+  - Removal diff: fn+0xab8..0xadc becomes `lbu t7` idx, `lw t0` base, product t8, `addu v0,t8,t0`. All 37 rows are t7/t8/t0 renames, from fn+0xab8 to fn+0xf2c.
+  - `as1probe ucode --cfe` and uopt `ucode` (t.B, t.O) of the base and removal copies: both differ only in where the first argument's `lod gPlayerSlots` sits. uopt keeps cfe's add operand order and the same `Rmt $v0/$a2/$a3` assignments, so the 37 rows are ugen's temp ring (Q0717), not uopt colouring. Q1532's switch node does not reach this site.
+  - Corrects the 2026-11-17 reading of the prevFov copy: line 447 (fn+0xa4, `addu v0,t4,t6`) is base-first because cfe lowers a field load/store through `ixa u32 i 752` (uopt `lod p; lod idx; ldc 752; mpy; ixa`), not because of the 3-argument CSE (Q0813 2026-11-17f correction). The three address-of arguments lower to `mpy; add` in cfe.
+  - Analog: 201B0 camResetPlayer passes nine plain `&gPlayerSlots[playerIndex].f` addresses as one CSE and compiles offset-first, `addu v1,t0,t3` at .text 0x3840. The plain spelling is index-first there and in the minimal file; CEAE0's base-first target is the outlier.
+  - Minimal IDO file (`.scratch/CleanplayerUpdateCommonc/mini/m.c`): gPlayerSlots as a pointer member of one global struct with gPlayerCount/gCurrentPlayerIndex (they are adjacent: 0x807FC924/928/929), at offset 0 or 4, stays index-first (`addu v0,t7,t8`). Element 0 of a pointer array (`gSlotArr[0][i].hx`) gives base-first `addu v0,t6,t8`, like the cast. This is a no-op subscript like `(gPlayerSlots + 0)[i]`, and the address map has one pointer word, so it was not adopted.
 
 ## Untried ideas
 - A field-type change for PlayerState.attackerPlayerIndex/playerIndex was ruled out: playerIndex is already u8 (stored as a byte in CC800/201B0).
 - c17942: fixed (see Sites).
-- 318197: only the first address (headX) needs a non-leaf base AST. Field retypes (array, Vec3 member) are refuted in a minimal file (index-first). A natural non-leaf expression for gPlayerSlots would fix it; none exists: gPlayerSlots is a pointer global loaded by `lw` from its own symbol at 0x12dc.
+- 318197: only the first address (headX) needs a non-leaf base AST. Field retypes (array, Vec3 member) are refuted in a minimal file (index-first), and so is a global struct holding gPlayerSlots (2026-11-20). A natural non-leaf expression for gPlayerSlots would fix it; none exists: gPlayerSlots is a pointer global loaded by `lw` from its own symbol at 0x12dc, followed by gPlayerCount (u8, 0x807FC928). Only a pointer-array subscript `[0]` or a cast gives base-first.
 
 ## Evidence
 - 0xe54: target `beq t2,v0` (field operand first).
@@ -111,3 +118,6 @@
 - 0x135c `addiu s0,sp,0x70`; 0x1368 and 0x13b8 `move a3,s0` (&screenX in s0 for both camProjectToScreen calls). 0xf14, 0x1320 and 0x1390: `lui v1` for gActivePlayerActor.
 - 0x84c/0x850: `lbu t7` gDemoPlaybackState, `bnezl t7` (the one compare of `switch (gDemoPlaybackState) { case 0: ... default: ... }`).
 - 0x838: `sw s0,100(sp)` (attacker home from the gCurrentActor load in s0).
+- 0x8a0-0x8bc (fn+0x88..0xa4): the prevFov copy is cfe `ixa u32 i 752` and base-first `addu v0,t4,t6` with the plain spelling. Address-of arguments are cfe `mpy; add`.
+- Removal (cast dropped): fn+0xab8..0xadc `lbu t7`, `lw t0`, product t8, `addu v0,t8,t0`. 37 t7/t8/t0 renames through fn+0xf2c (.text 0x1744). uopt t.O differs only in the `lod gPlayerSlots` position.
+- 201B0 .text 0x3840: `addu v1,t0,t3` (offset-first) for camResetPlayer's nine plain `&gPlayerSlots[i].f` camUpdate arguments.
