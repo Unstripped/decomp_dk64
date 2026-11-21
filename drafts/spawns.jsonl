@@ -169,3 +169,15 @@
 {"ts":"2026-11-21T14:44:22Z","spawn_key":"Rediag114270","agent":"Rediag114270","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
 {"ts":"2026-11-21T14:44:22Z","spawn_key":"Rediag12E800","agent":"Rediag12E800","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
 {"ts":"2026-11-21T14:44:22Z","spawn_key":"Rediag7130","agent":"Rediag7130","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T15:36:23Z","spawn_key":"UnionActorU2","agent":"UnionActorU2","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T15:36:23Z","spawn_key":"NamesFieldsA","agent":"NamesFieldsA","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T15:36:23Z","spawn_key":"NamesFieldsB","agent":"NamesFieldsB","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T15:36:23Z","spawn_key":"NamesGlobalD9","agent":"NamesGlobalD9","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T15:36:23Z","spawn_key":"NamesGlobalD10","agent":"NamesGlobalD10","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T15:36:23Z","spawn_key":"NamesGlobalD11","agent":"NamesGlobalD11","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T15:47:11Z","spawn_key":"NamesOverlayD","agent":"NamesOverlayD","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T16:15:17Z","spawn_key":"FoldsU2","agent":"FoldsU2","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T16:20:25Z","spawn_key":"NamesGlobalD12","agent":"NamesGlobalD12","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T16:20:25Z","spawn_key":"NamesGlobalD13","agent":"NamesGlobalD13","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T16:21:02Z","spawn_key":"NamesFuncs4","agent":"NamesFuncs4","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-21T16:21:02Z","spawn_key":"TypesU2","agent":"TypesU2","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
