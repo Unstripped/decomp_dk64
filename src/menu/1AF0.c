@@ -81,8 +81,8 @@ MenuShopOffer D_80033408[35] = {
 u8 gShopInstrumentMelons[8] = { 2, 2, 2, 3, 3, 3 };
 u16 D_800334E4[4] = { 0, 0x12, 0x13, 0x14 };
 u16 D_800334EC[10] = { 0, 3, 4, 5, 6, 7, 8, 9, 0x1C };
-u16 D_80033500[10] = { 1, 2, 3, 7, 0xA, 0xB, 0xC, 0xE };
-u16 D_80033514[10] = { 1, 2, 3, 4, 9, 0xA, 0xB, 0xC };
+u16 gShopCandyTextLines[10] = { 1, 2, 3, 7, 0xA, 0xB, 0xC, 0xE };
+u16 gShopFunkyTextLines[10] = { 1, 2, 3, 4, 9, 0xA, 0xB, 0xC };
 u16 D_80033528[10] = { 1, 2, 7, 8, 9, 0xA, 0xD, 0xE };
 MenuWidgetTextStyle gShopWidgetTextStyles[2] = { { 0, 1 }, { 0, 6 } };
 s32 D_80033544[5][4][2] = {
@@ -387,11 +387,11 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                     entry2 = 4;
                 }
             }
-            D_80033500[2] = entry2;
-            D_80033500[3] = entry3;
-            D_80033500[6] = entry6;
-            D_80033500[7] = entry7;
-            textLines = D_80033500;
+            gShopCandyTextLines[2] = entry2;
+            gShopCandyTextLines[3] = entry3;
+            gShopCandyTextLines[6] = entry6;
+            gShopCandyTextLines[7] = entry7;
+            textLines = gShopCandyTextLines;
             textParam1 = 9;
             break;
         case 0xBD:
@@ -434,7 +434,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
             D_800334EC[0] = introTextId;
             break;
         case 0xBE:
-            textLines = D_80033514;
+            textLines = gShopFunkyTextLines;
             if (state->itemSlot == 3) {
                 textLines = D_80033528;
             } else {
@@ -444,8 +444,8 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                     entry2 = 5;
                     funkyEntry3 = 6;
                 }
-                D_80033514[2] = entry2;
-                D_80033514[3] = funkyEntry3;
+                gShopFunkyTextLines[2] = entry2;
+                gShopFunkyTextLines[3] = funkyEntry3;
             }
             textParam1 = 7;
             break;

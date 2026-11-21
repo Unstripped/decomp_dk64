@@ -462,17 +462,17 @@ u16 *gActorTypeComponents[344] = {
 // 112080 indexes the name table through this word by actorType (2..9).
 s32 D_8074E778 = 0;
 u8 gPlayerCharacterId[4] = { 0, 0, 2, 3 };
-extern const char D_80759260[];
-extern const char D_80759268[];
-extern const char D_80759270[];
-extern const char D_80759278[];
-extern const char D_80759280[];
-extern const char D_80759288[];
-extern const char D_80759290[];
-extern const char D_80759298[];
+extern const char sCharacterNameDonkey[];
+extern const char sCharacterNameDiddy[];
+extern const char sCharacterNameLanky[];
+extern const char sCharacterNameTiny[];
+extern const char sCharacterNameChunky[];
+extern const char sCharacterNameKrusha[];
+extern const char sCharacterNameRambi[];
+extern const char sCharacterNameEnguarde[];
 const char *gCharacterNames[8] = {
-    D_80759260, D_80759268, D_80759270, D_80759278,
-    D_80759280, D_80759288, D_80759290, D_80759298,
+    sCharacterNameDonkey, sCharacterNameDiddy, sCharacterNameLanky, sCharacterNameTiny,
+    sCharacterNameChunky, sCharacterNameKrusha, sCharacterNameRambi, sCharacterNameEnguarde,
 };
 
 typedef struct ActorMovePayload2D {
@@ -512,22 +512,22 @@ typedef struct ActorEventPayload {
     s16 value1;
 } ActorEventPayload;
 
-extern u16 D_8074D624[];
+extern u16 gActorTypeCollisionFlags[];
 extern u8 gFloorQueryMode;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern ActorGlobalState gActorGlobalState;
 extern PlayerState *gActivePlayerState;
-extern u8 D_807FBE08;
-extern u8 D_807FBE09;
-extern Actor *D_807FBE10[];
-extern s16 D_807FBF10;
+extern u8 gCurrentActorDespawnQueued;
+extern u8 gActorDespawnDeferred;
+extern Actor *gActorDespawnQueue[];
+extern s16 gActorDespawnQueueCount;
 extern ActorQueueEntry gActorDelayedCallbackQueue[16];
 extern s16 gActorDelayedCallbackCount;
-extern ActorCallbackNode *D_807FBFE0[];
-extern s32 D_807FBFF0[];
-extern s16 D_807FC3F0;
+extern ActorCallbackNode *gActorGlobalCallbacks[];
+extern s32 gActorTable[];
+extern s16 gActorTableCount;
 
 extern u16 gModelCacheCount;
 extern void *gActorScriptIndexTable;
@@ -566,7 +566,7 @@ void actorInit(void) {
     actorTableClear();
 
     gActorNextInstanceId = 0;
-    D_807FBE09 = 0;
+    gActorDespawnDeferred = 0;
     gActorDelayedCallbackCount = 0;
     gActivePlayerActor = NULL;
 }
@@ -607,7 +607,7 @@ s32 actorSpawn(s32 type, s32 spawnArg) {
     return 0;
 }
 
-s32 func_80678014(s32 type) {
+s32 actorSpawnSkipTypeInit(s32 type) {
     if (actorAllocate(type & 0xFFFF) != 0) {
         actorInitFloorAttachment(0);
         return 1;
@@ -681,7 +681,7 @@ u16 type;
         actor->unk148[1] = NULL;
         actor->unkD4 = &D_80748D4A;
         actor->segmentFlags = -1;
-        actor->collisionFlags = D_8074D624[type];
+        actor->collisionFlags = gActorTypeCollisionFlags[type];
         actor->floorTiltPitch = 0x400;
         actor->floorNodeId = 0;
         actor->lightNodeId = 0;
@@ -712,20 +712,20 @@ s32 actorDespawn(Actor *actor) {
 s32 actorQueueOrDespawn(Actor *actor) {
     s32 i;
 
-    if (D_807FBE09 != 0) {
-        if (D_807FBF10 == 0x40) {
+    if (gActorDespawnDeferred != 0) {
+        if (gActorDespawnQueueCount == 0x40) {
             faultSetMessage(0xC, 0, 0, 0);
         }
         if (actor == gCurrentActor) {
-            D_807FBE08 = 1;
+            gCurrentActorDespawnQueued = 1;
         }
-        for (i = 0; i < D_807FBF10; i++) {
-            if (actor == D_807FBE10[i]) {
+        for (i = 0; i < gActorDespawnQueueCount; i++) {
+            if (actor == gActorDespawnQueue[i]) {
                 return 0;
             }
         }
-        D_807FBE10[D_807FBF10] = actor;
-        D_807FBF10++;
+        gActorDespawnQueue[gActorDespawnQueueCount] = actor;
+        gActorDespawnQueueCount++;
     } else {
         actorFreeImmediate(actor);
     }
@@ -734,10 +734,10 @@ s32 actorQueueOrDespawn(Actor *actor) {
 
 void actorFlushDespawnQueue(void) {
     s32 i;
-    for (i = 0; i < D_807FBF10; i++) {
-        actorFreeImmediate(D_807FBE10[i]);
+    for (i = 0; i < gActorDespawnQueueCount; i++) {
+        actorFreeImmediate(gActorDespawnQueue[i]);
     }
-    D_807FBF10 = 0;
+    gActorDespawnQueueCount = 0;
 }
 
 void actorRegisterActive(Actor *actor) {
@@ -764,15 +764,15 @@ void actorDeregisterActive(Actor *actor) {
         gActiveActors[i].actor = gActiveActors[gActiveActorCount].actor;
         gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
     }
-    func_8062D26C(actor);
+    renderEntryPurgeObject(actor);
     actor->floorTriangle = NULL;
 }
 
 void actorDespawnByOwner(s32 owner) {
     s32 i;
 
-    D_807FBE09 = 1;
-    D_807FBF10 = 0;
+    gActorDespawnDeferred = 1;
+    gActorDespawnQueueCount = 0;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
         if (owner == (s32)actor->parentActor) {
@@ -780,7 +780,7 @@ void actorDespawnByOwner(s32 owner) {
             actor->parentActor = NULL;
         }
     }
-    D_807FBE09 = 0;
+    gActorDespawnDeferred = 0;
     actorFlushDespawnQueue();
 }
 
@@ -832,7 +832,7 @@ void actorFreeImmediate(Actor *actor) {
     if (actor->unk148[1] != NULL) {
         heapFree(actor->unk148[1]);
     }
-    func_8062D26C(actor);
+    renderEntryPurgeObject(actor);
     if (actor->actorType != 0x12B) {
         resQueueRemove(actor);
     }
@@ -853,41 +853,41 @@ void actorStub7CA80_04(void) {}
 void actorStub7CA80_05(void) {}
 void actorStub7CA80_06(void) {}
 
-ActorCallbackNode *D_807FBFE0[4];
+ActorCallbackNode *gActorGlobalCallbacks[4];
 
 void actorGlobalCallbacksReset(void) {
     s32 i;
 
-    D_807FBE09 = 1;
-    D_807FBF10 = 0;
+    gActorDespawnDeferred = 1;
+    gActorDespawnQueueCount = 0;
     for (i = 0; i < 4; i++) {
-        D_807FBFE0[i] = NULL;
+        gActorGlobalCallbacks[i] = NULL;
     }
     actorUpdateActiveList(1);
     actorUpdateActiveList(2);
     actorGlobalCallbacksDispatchAndFree(1);
     actorUpdateLightingAndFog();
-    D_807FBE09 = 0;
+    gActorDespawnDeferred = 0;
     actorFlushDespawnQueue();
     actorDelayedCallbacksTick();
 }
 
-extern void (*D_8074C0A0[])(void);
+extern void (*gActorUpdateFuncs[])(void);
 
-extern u16 D_807FBB3C;
+extern u16 gActorUpdateIndex;
 
 void actorUpdateActiveList(u8 flags) {
     s32 i;
 
-    for (i = D_807FBB3C = 0; i < gActiveActorCount; i = D_807FBB3C = i + 1) {
-        D_807FBE08 = 0;
+    for (i = gActorUpdateIndex = 0; i < gActiveActorCount; i = gActorUpdateIndex = i + 1) {
+        gCurrentActorDespawnQueued = 0;
         gCurrentActor = gActiveActors[i].actor;
         if ((flags == 1 && !(gCurrentActor->flags & 0x100000)) || (flags == 2 && (gCurrentActor->flags & 0x100000))) {
             actorPreTick(gCurrentActor);
-            D_8074C0A0[gCurrentActor->actorType]();
+            gActorUpdateFuncs[gCurrentActor->actorType]();
             actorPostTick(gCurrentActor);
         }
-        i = D_807FBB3C;
+        i = gActorUpdateIndex;
     }
 }
 
@@ -896,13 +896,13 @@ void actorUpdateWhilePaused(void) {
     s32 j;
 
     for (j = 0; j < 4; j++) {
-        D_807FBFE0[j] = NULL;
+        gActorGlobalCallbacks[j] = NULL;
     }
-    for (i = D_807FBB3C = 0; i < gActiveActorCount; i = ++D_807FBB3C) {
+    for (i = gActorUpdateIndex = 0; i < gActiveActorCount; i = ++gActorUpdateIndex) {
         gCurrentActor = gActiveActors[i].actor;
         if (gCurrentActor->renderFlags & 2) {
             actorPreTick(gCurrentActor);
-            D_8074C0A0[gCurrentActor->actorType]();
+            gActorUpdateFuncs[gCurrentActor->actorType]();
             actorPostTick(gCurrentActor);
         }
         if (gCurrentActor->sub4 != NULL) {
@@ -1010,13 +1010,13 @@ extern u8 gCurrentPlayerIndex;
 void actorUpdateArcBounds(Actor *actor) {
     u8 arcFlags;
 
-    if ((actor->collisionMode & 4) && (D_807FBE08 == 0)) {
+    if ((actor->collisionMode & 4) && (gCurrentActorDespawnQueued == 0)) {
         if (actor->flags & 0x10000) {
             actor->hasArcBounds = 0;
             actor->collisionHit = 0;
         }
         actor->hasArcBounds |= actorClearTargetAngle(actor, &actor->arcYawMin, &actor->arcYawMax, &arcFlags);
-        arcFlags |= gActorGlobalState.unkE5;
+        arcFlags |= gActorGlobalState.forcedContactReceived;
         if (arcFlags != 0) {
             if (!(actor->contactFlags & 0x10)) {
                 actor->contactFlags |= 0x10;
@@ -1073,7 +1073,7 @@ void actorRegisterGlobalCallback(ActorCallbackNode *node) {
     s32 found = 0;
 
     while ((i < 4) && (!found)) {
-        if (D_807FBFE0[i] == NULL) {
+        if (gActorGlobalCallbacks[i] == NULL) {
             found = 1;
         } else {
             i++;
@@ -1082,7 +1082,7 @@ void actorRegisterGlobalCallback(ActorCallbackNode *node) {
     if (!found) {
         faultSetMessage(0xE, 0, 0, 0);
     } else {
-        D_807FBFE0[i] = node;
+        gActorGlobalCallbacks[i] = node;
     }
 }
 
@@ -1092,10 +1092,10 @@ u8 id;
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        if (D_807FBFE0[i] != NULL && D_807FBFE0[i]->unk4 == id) {
-            ((void (*)(void *))D_807FBFE0[i]->callback)(&D_807FBFE0[i]->source);
-            heapFree(D_807FBFE0[i]);
-            D_807FBFE0[i] = NULL;
+        if (gActorGlobalCallbacks[i] != NULL && gActorGlobalCallbacks[i]->unk4 == id) {
+            ((void (*)(void *))gActorGlobalCallbacks[i]->callback)(&gActorGlobalCallbacks[i]->source);
+            heapFree(gActorGlobalCallbacks[i]);
+            gActorGlobalCallbacks[i] = NULL;
         }
     }
 }
@@ -1343,7 +1343,7 @@ void actorDispatchCallbacks(Actor *actor) {
                 gActivePlayerState->launchYaw = launchPayload->yaw;
                 gActivePlayerState->launchSpeedY = launchPayload->speedY;
                 gActivePlayerState->launchSpeedXZ = launchPayload->speedXZ;
-                gActorGlobalState.unk1A = 1;
+                gActorGlobalState.playerLaunchReceived = 1;
                 if (actor == gActivePlayerActor) {
                     playerStateQueueCallback(0x17, node->source, gCurrentPlayerIndex);
                 }
@@ -1373,11 +1373,11 @@ void actorDispatchCallbacks(Actor *actor) {
                 break;
             case 0x100000:
                 vecPayload = node->payload;
-                gActorGlobalState.unkD8 = vecPayload[0];
-                gActorGlobalState.unkDC = vecPayload[1];
-                gActorGlobalState.unkE0 = vecPayload[2];
+                gActorGlobalState.destPointX = vecPayload[0];
+                gActorGlobalState.destPointY = vecPayload[1];
+                gActorGlobalState.destPointZ = vecPayload[2];
                 gActorGlobalState.destPointReceived = 1;
-                gActorGlobalState.unkEC = node->source;
+                gActorGlobalState.destPointSource = node->source;
                 break;
             case 0x1000:
                 gActorGlobalState.unk1C = 1;
@@ -1387,7 +1387,7 @@ void actorDispatchCallbacks(Actor *actor) {
                 launchPayload = node->payload;
                 gActorGlobalState.launchReceived = 1;
                 gActorGlobalState.launchSpeedY = launchPayload->speedY;
-                gActorGlobalState.unk34 = launchPayload->speedXZ;
+                gActorGlobalState.launchSpeedXZ = launchPayload->speedXZ;
                 gActorGlobalState.launchYaw = launchPayload->yaw;
                 break;
             case 0x2000:
@@ -1396,7 +1396,7 @@ void actorDispatchCallbacks(Actor *actor) {
                 } else {
                     gActorGlobalState.releaseReceived = 1;
                 }
-                gActorGlobalState.unk28 = node->source;
+                gActorGlobalState.holderActor = node->source;
                 break;
             case 0x80:
                 actor->flags |= 8;
@@ -1417,9 +1417,9 @@ void actorDispatchCallbacks(Actor *actor) {
                     gActorGlobalState.riderPoints[gActorGlobalState.riderCount][0] = riderPayload->x;
                     gActorGlobalState.riderPoints[gActorGlobalState.riderCount][1] = riderPayload->y;
                     gActorGlobalState.riderPoints[gActorGlobalState.riderCount][2] = riderPayload->z;
-                    gActorGlobalState.unk6C[gActorGlobalState.riderCount] = riderPayload->pointIndex;
+                    gActorGlobalState.riderMtxOffsets[gActorGlobalState.riderCount] = riderPayload->pointIndex;
                     gActorGlobalState.riderActors[gActorGlobalState.riderCount] = node->source;
-                    gActorGlobalState.unk8C[gActorGlobalState.riderCount] = riderPayload->spansNodes;
+                    gActorGlobalState.riderSpansNodes[gActorGlobalState.riderCount] = riderPayload->spansNodes;
                     gActorGlobalState.riderCount++;
                     actorRiderListAdd(actor, node->source);
                 }
@@ -1439,14 +1439,14 @@ void actorDispatchCallbacks(Actor *actor) {
             case 0x10000:
                 surfacePayload = node->payload;
                 gActorGlobalState.surfaceHitReceived = 1;
-                gActorGlobalState.unk92 = surfacePayload->yaw;
-                gActorGlobalState.unk94 = surfacePayload->speed;
-                memcpy(gActorGlobalState.unk98, surfacePayload->pos, 0xC);
-                memcpy(gActorGlobalState.unkA4, surfacePayload->verts, 0x24);
-                gActorGlobalState.unkC8 = surfacePayload->mtxIndex;
-                gActorGlobalState.unkCC = node->source;
-                gActorGlobalState.unkD0 = surfacePayload->hitRadius;
-                gActorGlobalState.unkD4 = surfacePayload->maxClamp;
+                gActorGlobalState.surfaceHitYaw = surfacePayload->yaw;
+                gActorGlobalState.surfaceHitSpeed = surfacePayload->speed;
+                memcpy(gActorGlobalState.surfaceHitPos, surfacePayload->pos, 0xC);
+                memcpy(gActorGlobalState.surfaceHitVerts, surfacePayload->verts, 0x24);
+                gActorGlobalState.surfaceHitMtxIndex = surfacePayload->mtxIndex;
+                gActorGlobalState.surfaceHitActor = node->source;
+                gActorGlobalState.surfaceHitRadius = surfacePayload->hitRadius;
+                gActorGlobalState.surfaceHitMaxClamp = surfacePayload->maxClamp;
                 break;
             case 0x40000:
                 collisionValue = node->payload;
@@ -1464,8 +1464,8 @@ void actorDispatchCallbacks(Actor *actor) {
                 gActorGlobalState.heldAlignYaw = pointPair[1];
                 break;
             case 0x400000:
-                gActorGlobalState.unkE8 = node->unk4;
-                gActorGlobalState.unkE5 = 1;
+                gActorGlobalState.forcedContactSpeed = node->unk4;
+                gActorGlobalState.forcedContactReceived = 1;
                 break;
             case 0x1000000:
                 if (gActorGlobalState.volumeTriggerQueueCount < 8) {
@@ -1509,7 +1509,7 @@ void actorDispatchCallbacks(Actor *actor) {
 
 extern PlayerStruct *gPlayerSlots;
 
-extern s32 D_80720E2C;
+extern s32 gEffectSpriteGooGreen;
 void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
     s32 reaction;
     s32 queueReaction;
@@ -1540,15 +1540,15 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
                     effectSetDepth(1);
                     pulseCallback = &effectPulseSpinUpdate;
                     effectSetCallback(pulseCallback);
-                    effectCreateAtActorBone(&D_80720E2C, 0.4f, actor, 1, 2);
+                    effectCreateAtActorBone(&gEffectSpriteGooGreen, 0.4f, actor, 1, 2);
                     effectSetDuration(0xF0);
                     effectSetDepth(1);
                     effectSetCallback(pulseCallback);
-                    effectCreateAtActorBone(&D_80720E2C, 0.38f, actor, 5, 2);
+                    effectCreateAtActorBone(&gEffectSpriteGooGreen, 0.38f, actor, 5, 2);
                     effectSetDuration(0xF0);
                     effectSetDepth(1);
                     effectSetCallback(pulseCallback);
-                    effectCreateAtActorBone(&D_80720E2C, 0.3f, actor, 6, 2);
+                    effectCreateAtActorBone(&gEffectSpriteGooGreen, 0.3f, actor, 6, 2);
                     queueReaction = 0;
                     gActivePlayerState->stateFlags |= 0x08000000;
                     break;
@@ -1704,15 +1704,15 @@ void actorDispatchCollisionResults(Actor *actor) {
 
     if (gActorGlobalState.riderCount) {
         for (i = 0; i < gActorGlobalState.riderCount; i++) {
-            if (gActorGlobalState.unk8C[i] == 0) {
-                collisionTransformPointByActorMtx(actor, gActorGlobalState.unk6C[i], &gActorGlobalState.riderPoints[i][0], gActorGlobalState.riderPoints[i][1], &gActorGlobalState.riderPoints[i][2]);
+            if (gActorGlobalState.riderSpansNodes[i] == 0) {
+                collisionTransformPointByActorMtx(actor, gActorGlobalState.riderMtxOffsets[i], &gActorGlobalState.riderPoints[i][0], gActorGlobalState.riderPoints[i][1], &gActorGlobalState.riderPoints[i][2]);
                 actorAppendMoveTarget2D(actor, gActorGlobalState.riderActors[i], gActorGlobalState.riderPoints[i][0], gActorGlobalState.riderPoints[i][2], 1, 1);
             }
         }
     }
 
     if (gActorGlobalState.surfaceHitReceived != 0) {
-        actorCollisionResolveSurfaceHit(actor, gActorGlobalState.unkCC, gActorGlobalState.unk98, gActorGlobalState.unkA4, gActorGlobalState.unkC8, gActorGlobalState.unkD0, gActorGlobalState.unkD4, 1);
+        actorCollisionResolveSurfaceHit(actor, gActorGlobalState.surfaceHitActor, gActorGlobalState.surfaceHitPos, gActorGlobalState.surfaceHitVerts, gActorGlobalState.surfaceHitMtxIndex, gActorGlobalState.surfaceHitRadius, gActorGlobalState.surfaceHitMaxClamp, 1);
     }
 
     for (i = 0; i < gActorGlobalState.collisionHitCount; i++) {
@@ -1829,14 +1829,14 @@ void actorAppendEvent(Actor *source, Actor *target, u8 subtype, s16 value0, s16 
 }
 
 void actorGlobalStateClearEvents(void) {
-    gActorGlobalState.unkE5 = 0;
+    gActorGlobalState.forcedContactReceived = 0;
     gActorGlobalState.damaged = 0;
     gActorGlobalState.unk16 = 0;
     gActorGlobalState.unk17 = 0;
     gActorGlobalState.unk18 = 0;
     gActorGlobalState.unk19 = 0;
     gActorGlobalState.unk1B = 0;
-    gActorGlobalState.unk1A = 0;
+    gActorGlobalState.playerLaunchReceived = 0;
     gActorGlobalState.unk1C = 0;
     gActorGlobalState.pickupReceived = 0;
     gActorGlobalState.releaseReceived = 0;
@@ -1853,7 +1853,7 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.volumeTriggerQueueCount = 0;
     gActorGlobalState.eventReceived = 0;
     gActorGlobalState.notifyReceived = 0;
-    gActorGlobalState.unkE8 = 0.0f;
+    gActorGlobalState.forcedContactSpeed = 0.0f;
     gActorGlobalState.heldAlignPitch = 0.0f;
     gActorGlobalState.heldAlignYaw = 0.0f;
 }
@@ -1863,7 +1863,7 @@ void actorUpdatePrevContactFlags(Actor *actor) {
 }
 
 u16 actorLookupClass(u16 type) {
-    return D_8074D624[type];
+    return gActorTypeCollisionFlags[type];
 }
 
 s32 actorCountOwnedByClass(owner, actorClass, filter)
@@ -1912,14 +1912,14 @@ s32 actorIsActive(Actor *target) {
 void actorTableClear(void) {
     s32 i;
     for (i = 0; i < 256; i++) {
-        D_807FBFF0[i] = -1;
+        gActorTable[i] = -1;
     }
-    D_807FC3F0 = 0;
+    gActorTableCount = 0;
 }
 
 void actorTableInsert(Actor *actor) {
-    if (D_807FC3F0 < 256) {
-        D_807FBFF0[D_807FC3F0++] = (s32)actor;
+    if (gActorTableCount < 256) {
+        gActorTable[gActorTableCount++] = (s32)actor;
     } else {
         faultSetMessage(0x13, actor->actorType, 0, 0);
     }
@@ -1930,7 +1930,7 @@ void actorTableRemove(Actor *actor) {
     u32 res = actorTableBinarySearch(actor);
     s16 idx = res;
     if (res != -1) {
-        D_807FBFF0[idx] = -1;
+        gActorTable[idx] = -1;
         actorTableSort();
     }
 }
@@ -1944,18 +1944,18 @@ s32 actorTableContains(Actor *actor) {
 
 s32 actorTableBinarySearch(Actor *key) {
     s16 low = 0;
-    s16 high = D_807FC3F0 - 1;
+    s16 high = gActorTableCount - 1;
 
-    if (D_807FC3F0 == 0) {
+    if (gActorTableCount == 0) {
         return -1;
     }
     while (low <= high) {
         s16 mid = (low + high) >> 1;
 
-        if (key == (Actor *)D_807FBFF0[mid]) {
+        if (key == (Actor *)gActorTable[mid]) {
             return mid;
         }
-        if (key < (Actor *)D_807FBFF0[mid]) {
+        if (key < (Actor *)gActorTable[mid]) {
             high = mid - 1;
         } else {
             low = mid + 1;
@@ -1969,24 +1969,24 @@ void actorTableSort(void) {
     s16 i;
     s16 j;
 
-    for (i = 1; i < D_807FC3F0; i++) {
-        u32 val = D_807FBFF0[i];
+    for (i = 1; i < gActorTableCount; i++) {
+        u32 val = gActorTable[i];
 
         j = i;
-        if (val < (u32)D_807FBFF0[j - 1]) {
+        if (val < (u32)gActorTable[j - 1]) {
             do {
-                D_807FBFF0[j] = D_807FBFF0[j - 1];
+                gActorTable[j] = gActorTable[j - 1];
                 j--;
-            } while (val < (u32)D_807FBFF0[j - 1]);
+            } while (val < (u32)gActorTable[j - 1]);
         }
-        D_807FBFF0[j] = val;
+        gActorTable[j] = val;
     }
-    D_807FC3F0 = 0;
+    gActorTableCount = 0;
     do {
-        if (D_807FBFF0[D_807FC3F0] == -1) {
+        if (gActorTable[gActorTableCount] == -1) {
             done = TRUE;
         } else {
-            D_807FC3F0++;
+            gActorTableCount++;
         }
     } while (!done);
 }
@@ -2073,11 +2073,11 @@ s32 actorInitStaticMeshFlag(s32 unused) {
     return 1;
 }
 
-const char D_80759260[7] = "DONKEY";
-const char D_80759268[6] = "DIDDY";
-const char D_80759270[6] = "LANKY";
-const char D_80759278[5] = "TINY";
-const char D_80759280[7] = "CHUNKY";
-const char D_80759288[7] = "KRUSHA";
-const char D_80759290[6] = "RAMBI";
-const char D_80759298[9] = "ENGUARDE";
+const char sCharacterNameDonkey[7] = "DONKEY";
+const char sCharacterNameDiddy[6] = "DIDDY";
+const char sCharacterNameLanky[6] = "LANKY";
+const char sCharacterNameTiny[5] = "TINY";
+const char sCharacterNameChunky[7] = "CHUNKY";
+const char sCharacterNameKrusha[7] = "KRUSHA";
+const char sCharacterNameRambi[6] = "RAMBI";
+const char sCharacterNameEnguarde[9] = "ENGUARDE";

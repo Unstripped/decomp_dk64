@@ -38,7 +38,7 @@ void textDrawStringCentered(Gfx *glist, s16 font, u8 *str, s16 y, u8 flags) {
     textDrawStringVtx(glist, font, width, height, str, flags);
 }
 
-void func_806FD950(Gfx *glist, s16 font, u8 *str, s16 y) {
+void textDrawStringLeftAligned(Gfx *glist, s16 font, u8 *str, s16 y) {
     textDrawStringVtx(glist, font, 0x60, (s16)(y * 4), str, 1);
 }
 
@@ -62,7 +62,7 @@ TextObjectElem *gfxResourceCopyEntry(TextObjectElem *dst, s16 resourceId, s16 en
     return dst;
 }
 
-f32 func_806FDA8C(s16 resourceId) {
+f32 gfxResourceGetTimer(s16 resourceId) {
     return gfxResourceFindById(resourceId)->timer;
 }
 

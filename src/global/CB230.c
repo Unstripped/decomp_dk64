@@ -105,7 +105,7 @@ void actorUpdateNearestSpotlight(void) {
     lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, p->brightnessLo, p->brightnessLo, p->brightnessLo);
 }
 
-void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
+void spotlightFollowerStep(s16 yOffset, s16 stopDist, u16 flags) {
     u16 dist;
     f32 dx;
     f32 dz;
@@ -141,19 +141,19 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
 }
 
 
-void func_806C6B50(void) {
+void spotlightFollowerSubmergedUpdate(void) {
     gCurrentActor->waterY = 99999.0f;
-    func_806C6884(0, 0xA, 0x44);
+    spotlightFollowerStep(0, 0xA, 0x44);
     currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
-void func_806C6BA0(void) {
-    func_806C6884(0xA, 0x14, 0x240);
+void spotlightFollowerUpdate(void) {
+    spotlightFollowerStep(0xA, 0x14, 0x240);
 }
 
 extern Actor *gSpawnedActor;
 
-void func_806C6BC8(void) {
+void timedWarpTargetUpdate(void) {
     f32 ratio;
     f32 x;
     f32 y;

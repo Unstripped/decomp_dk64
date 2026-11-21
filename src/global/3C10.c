@@ -344,7 +344,7 @@ const u8 D_80756630[80] = {
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;
-extern s8 D_8076A0B2;
+extern s8 gMapLoadCountdown;
 extern u8 *gSavedMapModelData;
 extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalCutsceneFlags;
@@ -358,9 +358,9 @@ void func_8002920C(void);
 
 // .bss 0x8076A160-0x8076AF00
 Struct8076A160 gSavedMapSlots[18];
-u8 D_8076AEE0;
+u8 gTransitionFadeType;
 u8 D_8076AEE1;
-s16 D_8076AEE2;
+s16 gSavedSlotSpawnFlags;
 f32 D_8076AEE4;
 f32 D_8076AEE8;
 f32 D_8076AEEC;
@@ -441,7 +441,7 @@ void screenSetTransitionFadeType(u8 fadeType) {
 }
 
 void screenApplyTransitionFadeType(void) {
-    D_8076AEE0 = gNextTransitionFadeType;
+    gTransitionFadeType = gNextTransitionFadeType;
     gNextTransitionFadeType = 1;
 }
 
@@ -518,10 +518,10 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
             gPreviousMap = gCurrentMap;
             gInitialMap = map;
             gInitialExit = exitIndex;
-            D_8076A0B2 = 3;
+            gMapLoadCountdown = 3;
             screenApplyTransitionFadeType();
             gScreenFadeRate = 1.0f;
-            if ((gNextGameMode != 1) && (D_8076AEE0 == 1) && !(gGlobalCutsceneFlags & 2) && (gCurrentMap != 0x4C)) {
+            if ((gNextGameMode != 1) && (gTransitionFadeType == 1) && !(gGlobalCutsceneFlags & 2) && (gCurrentMap != 0x4C)) {
                 sfxAllocateChannel(0x2C, 1.0f);
             }
             flagTempsPruneUnloadedMaps();
@@ -558,13 +558,13 @@ void mapLoadSavedSlotSpawn(s32 map) {
     s32 idx = mapFindSlotIndex(map);
 
     if (idx != -1) {
-        D_8076AEE2 = gSavedMapSlots[idx].flags;
+        gSavedSlotSpawnFlags = gSavedMapSlots[idx].flags;
         D_8076AEE4 = gSavedMapSlots[idx].x;
         D_8076AEE8 = gSavedMapSlots[idx].y;
         D_8076AEEC = gSavedMapSlots[idx].z;
         D_8076AEF0 = gSavedMapSlots[idx].yaw;
     } else {
-        D_8076AEE2 = 0;
+        gSavedSlotSpawnFlags = 0;
     }
 }
 
@@ -577,7 +577,7 @@ void mapSetTransitionExtraCounter(u8 count) {
     gPendingLoadSpawnCount = count;
 }
 
-void func_805FF670(void) {
+void mapSpawnPendingPickups(void) {
     f32 dist;
     s16 spawnX;
     s16 i;
@@ -660,7 +660,7 @@ s32 mapFindSlotByMap(s16 target) {
 extern u8 gPlayerStateSaved;
 extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
-extern s16 D_807FD570;
+extern s16 gSavedHeldActorType;
 
 void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     Actor *player;
@@ -728,15 +728,15 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     playerState = gPrimaryPlayerActor->customState;
     D_807FD56C = playerState->stateFlags;
     if (playerState->heldActor != NULL) {
-        D_807FD570 = playerState->heldActor->actorType;
+        gSavedHeldActorType = playerState->heldActor->actorType;
     } else {
-        D_807FD570 = 0;
+        gSavedHeldActorType = 0;
     }
     gSavedMapSlots[i].inUse = TRUE;
     mapRequestTransition(map, exitIndex);
 }
 
-s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
+s32 mapSlotSetModelRecord(s32 map, s16 recordId, s16 value) {
     s32 i = 0;
     s32 found = 0;
     Struct8076A160 *slot;
@@ -855,7 +855,7 @@ s32 mapGetOverlayBufferSize(s16 index) {
     return gMapLevelSettings[index].overlayBufferSize;
 }
 
-u8 func_80600454(s16 id, u8 *outVal) {
+u8 mapTitleCheckShow(s16 id, u8 *outVal) {
     u8 i;
     u8 isNew;
     s16 flagId;

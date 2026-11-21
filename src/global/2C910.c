@@ -189,7 +189,7 @@ Actor *actorFromSpawnNodeOrDefault(s16 nodeId) {
 
 extern struct GfSndState *gSfxFreeSlotHandles[];
 extern s8 gMenuNextExit;
-extern u8 D_8076AEE0;
+extern u8 gTransitionFadeType;
 extern s16 gPreviousMap;
 extern ALBank *gSfxBank;
 extern ALBank *gSfxBankHigh;
@@ -287,14 +287,14 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             playerState->stateFlags &= ~8;
             return;
         case 0x24:
-            func_80724994(1, a, b, c, d);
+            spawnNodesSendVolumeTrigger(1, a, b, c, d);
             return;
         case 0x5:
             spawnNodeSpawnById(a, 0, 0, 0, 0, 0, 0);
             return;
         case 0x4:
             if (a != 0) {
-                func_80724994(3, a, b, c, d);
+                spawnNodesSendVolumeTrigger(3, a, b, c, d);
             } else if (b == 2) {
                 gActivePlayerActor->sub4->model->animId = -1;
                 actorScriptStart(gActivePlayerActor, gScriptAnimScriptIds[c]);
@@ -392,7 +392,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             effectNodeSetTargetPosition(a, b, c, d * 0.01);
             return;
         case 0xE:
-            func_80729AA4(a);
+            spawnNodeSignalActor(a);
             return;
         case 0x16:
             actor = spawnNodeActivate(a, 0);
@@ -573,7 +573,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             }
             return;
         case 0x23:
-            D_8076AEE0 = a;
+            gTransitionFadeType = a;
             gScreenFadeRate = b / 100.0;
             return;
         case 0x3A:

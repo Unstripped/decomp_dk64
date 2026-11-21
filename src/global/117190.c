@@ -273,7 +273,7 @@ extern u16 gButtonsPressed;
 void menuSetupDemoPlayback(void) {
     if (gMenuTargetMode == 3) {
         demoPlaybackLoad(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
-        gPlayerCharacterId[0] = func_8060B7C4();
+        gPlayerCharacterId[0] = demoGetStartKong();
     }
 }
 
@@ -389,7 +389,7 @@ void menuUpdateTitleOrTransition(void) {
             menuTransitionRequest(0x28, 0, 1);
         } else {
             demoPlaybackLoad(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
-            func_8060B7D0(&map, &exit);
+            demoGetStartMap(&map, &exit);
             screenSetTransitionFadeType(1);
             mapRequestTransition(map, exit);
         }
@@ -430,7 +430,7 @@ void menuStartDemo(void) {
 
     gMenuTransitionCounter = 0;
     demoPlaybackLoad(gMenuDemoEntries[gMenuDemoIndex].recordingIndex);
-    func_8060B7D0(&map, &exit);
+    demoGetStartMap(&map, &exit);
     screenSetTransitionFadeType(1);
     menuTransitionWithState(map, exit, 3);
 }
@@ -844,7 +844,7 @@ s32 menuIsTransitionTypeAOrE(void) {
     }
 }
 
-extern s8 D_8074452C;
+extern s8 gSkipCutscenes;
 extern u8 gEepromCurrentSlot;
 
 void menuStartGameFromSave(s8 saveSlot) {
@@ -857,7 +857,7 @@ void menuStartGameFromSave(s8 saveSlot) {
     flagsClearAllBank2();
     eepromLoadPlayerData(saveSlot, 1);
     gPlayerCharacterId[0] = 0;
-    if ((eepromGetField(0xD, 0, 0, gEepromCurrentSlot) != 0) || (D_8074452C != 0)) {
+    if ((eepromGetField(0xD, 0, 0, gEepromCurrentSlot) != 0) || (gSkipCutscenes != 0)) {
         if (flagGet(0x186, 0) != 0) {
             map = 0x22;
             exit = 0;

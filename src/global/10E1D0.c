@@ -382,7 +382,7 @@ extern Gfx *gGfxTaskBuffers[];
 extern s32 gGfxListCommandCount;
 extern s32 gGfxSubListCommandCount;
 extern u8 gGfxSubListEnabled;
-extern u8 D_8076A0B2;
+extern u8 gMapLoadCountdown;
 extern FrameMatrices gFrameMatrices[];
 extern f32 gScreenFadeProgress;
 extern MeshBlob *sTransitionMesh;
@@ -408,7 +408,7 @@ void transitionRunFrame(s32 map, s32 exit) {
     }
     if ((gScreenRenderFlags & 1) && (gScreenFadeProgress == 31.0f)) {
         dl = gGfxTaskBuffers[gGfxBufferIndex];
-        if (D_8076A0B2 == 1) {
+        if (gMapLoadCountdown == 1) {
             gGameMode = gPrevGameMode;
         }
     } else {

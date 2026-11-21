@@ -724,7 +724,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
         table = D_8074C604[targetActor->actorType].table;
         if (table == NULL) {
             if (attacker->flags & 0x20000) {
-                func_80675D70(attacker);
+                actorCollisionRecordDefaultHit(attacker);
             }
         } else {
             interactions = actorCollisionFindTableEntry(table, attacker->actorType, attacker->collisionFlags);
@@ -735,7 +735,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
             }
             if (interactions == NULL) {
                 if (attacker->flags & 0x20000) {
-                    func_80675D70(attacker);
+                    actorCollisionRecordDefaultHit(attacker);
                 }
             } else {
                 while (!done) {
@@ -884,7 +884,7 @@ s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern) {
 }
 
 
-void func_80675D70(Actor *actor) {
+void actorCollisionRecordDefaultHit(Actor *actor) {
     if (gActorGlobalState.bossFightPhase < 2) {
         gActorGlobalState.targetActor = actor;
         gActorGlobalState.bossFightPhase = 1;
@@ -995,7 +995,7 @@ void actorCollisionUpdateNodeFlags(Actor *actor, u8 flagIndex) {
     s16 i;
     s8 *ptr;
 
-    func_8067618C(actor, &flagIndex);
+    actorCollisionOverrideNodeFlagSet(actor, &flagIndex);
     actorClearAllNodeFlags(actor);
     ptr = sCollisionNodeFlagSets[flagIndex];
     if (*ptr != -1) {
@@ -1017,7 +1017,7 @@ void actorCollisionUpdateNodeFlags(Actor *actor, u8 flagIndex) {
 }
 
 extern s32 gCurrentMap;
-void func_8067618C(Actor *actor, u8 *outFlagIndex) {
+void actorCollisionOverrideNodeFlagSet(Actor *actor, u8 *outFlagIndex) {
     if ((gCurrentMap == 0x53) && (actor->actorType == 6) && (actor->state == 0x1E)) {
         *outFlagIndex = 0x15;
     }

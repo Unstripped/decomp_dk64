@@ -76,7 +76,7 @@ void actorSetGroupState(u8, u8);
 #ifndef PROTO_SKIP_actorSetNodeValuesForFrame
 void actorSetNodeValuesForFrame(struct BoneFrameState *);
 #endif
-#ifndef PROTO_SKIP_func_806A112C
-void func_806A112C(void);
+#ifndef PROTO_SKIP_actorGroupBoneFrameUpdate
+void actorGroupBoneFrameUpdate(void);
 #endif
 #endif

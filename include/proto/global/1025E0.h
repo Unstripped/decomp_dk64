@@ -6,8 +6,8 @@
 #ifndef PROTO_SKIP_textDrawStringCentered
 void textDrawStringCentered(Gfx *, s16, u8 *, s16, u8);
 #endif
-#ifndef PROTO_SKIP_func_806FD950
-void func_806FD950(Gfx *, s16, u8 *, s16);
+#ifndef PROTO_SKIP_textDrawStringLeftAligned
+void textDrawStringLeftAligned(Gfx *, s16, u8 *, s16);
 #endif
 #ifndef PROTO_SKIP_gfxResourceListReset
 void gfxResourceListReset(void);
@@ -18,8 +18,8 @@ struct TextObject *gfxResourceFindById(s16);
 #ifndef PROTO_SKIP_gfxResourceCopyEntry
 struct TextObjectElem *gfxResourceCopyEntry(struct TextObjectElem *, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806FDA8C
-f32 func_806FDA8C(s16);
+#ifndef PROTO_SKIP_gfxResourceGetTimer
+f32 gfxResourceGetTimer(s16);
 #endif
 #ifndef PROTO_SKIP_gfxResourceSetTimer
 void gfxResourceSetTimer(s16, f32);

@@ -10,7 +10,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 
-u8 func_8072E5B0(void) {
+u8 playerIsAirborne(void) {
     Actor *player = gPrimaryPlayerActor;
 
     return !(player->contactFlags & 1) && !(player->attachMode == 1) && !(player->state == 0x63);
@@ -93,7 +93,7 @@ VolumeTriggerHook gVolumeTriggerHooks[39] = {
     { { 0, 0 }, 12, { 0, 0, 0 }, 21, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 22, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 23, NULL, NULL },
-    { { 0, 0 }, 15, { 0, 0, 0 }, 1, NULL, func_8072E5B0 },
+    { { 0, 0 }, 15, { 0, 0, 0 }, 1, NULL, playerIsAirborne },
     { { 0, 0 }, 12, { 0, 0, 0 }, 24, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 0, NULL, NULL },
     { { 0, 0 }, 12, { 0, 0, 0 }, 25, NULL, NULL },

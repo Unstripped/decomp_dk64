@@ -84,7 +84,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
 }
 
 extern u8 gGameMode;
-extern s16 D_80744518;
+extern s16 gMinigameScore;
 extern Actor *gPrimaryPlayerActor;
 
 void bonusScoreHudUpdate(void) {
@@ -97,7 +97,7 @@ void bonusScoreHudUpdate(void) {
         hud->timeLimit = 0x3C;
         sHitCount = 0;
         sComboTimer = 0;
-        D_80744518 = 0;
+        gMinigameScore = 0;
         hud->scoreLabel = gfxResourceCreate(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
         hud->lapBonusLabel = gfxResourceCreate(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
         D_8002D920 = 0;
@@ -177,7 +177,7 @@ void bonusScoreHudUpdate(void) {
         }
         break;
     }
-    D_80744518 = hud->score;
+    gMinigameScore = hud->score;
     renderCallbacksRegister(bonusRenderScoreHud, gCurrentActor, 3);
 }
 

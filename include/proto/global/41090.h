@@ -17,8 +17,8 @@ void mapSurfaceEffectsUpdate(void);
 #ifndef PROTO_SKIP_envTextureInitWater
 void envTextureInitWater(void);
 #endif
-#ifndef PROTO_SKIP_func_8063C4C4
-Gfx *func_8063C4C4(Gfx *);
+#ifndef PROTO_SKIP_envTextureDrawWater
+Gfx *envTextureDrawWater(Gfx *);
 #endif
 #ifndef PROTO_SKIP_envTextureUpdateWaterScroll
 void envTextureUpdateWaterScroll(void);
@@ -26,8 +26,8 @@ void envTextureUpdateWaterScroll(void);
 #ifndef PROTO_SKIP_envTextureInitAsset565
 void envTextureInitAsset565(void);
 #endif
-#ifndef PROTO_SKIP_func_8063C7C4
-Gfx *func_8063C7C4(Gfx *);
+#ifndef PROTO_SKIP_envTextureDrawMipChain
+Gfx *envTextureDrawMipChain(Gfx *);
 #endif
 #ifndef PROTO_SKIP_envTextureUpdateScroll78
 void envTextureUpdateScroll78(void);
@@ -35,8 +35,8 @@ void envTextureUpdateScroll78(void);
 #ifndef PROTO_SKIP_envTextureInitAsset3B7
 void envTextureInitAsset3B7(void);
 #endif
-#ifndef PROTO_SKIP_func_8063CB40
-Gfx *func_8063CB40(Gfx *);
+#ifndef PROTO_SKIP_envTextureDrawDualScroll
+Gfx *envTextureDrawDualScroll(Gfx *);
 #endif
 #ifndef PROTO_SKIP_envTextureUpdateScroll80
 void envTextureUpdateScroll80(void);
@@ -44,8 +44,8 @@ void envTextureUpdateScroll80(void);
 #ifndef PROTO_SKIP_envTextureInitAsset3B9
 void envTextureInitAsset3B9(void);
 #endif
-#ifndef PROTO_SKIP_func_8063CF3C
-Gfx *func_8063CF3C(Gfx *);
+#ifndef PROTO_SKIP_envTextureDrawLayered
+Gfx *envTextureDrawLayered(Gfx *);
 #endif
 #ifndef PROTO_SKIP_envTextureUpdateScroll8C
 void envTextureUpdateScroll8C(void);
@@ -53,8 +53,8 @@ void envTextureUpdateScroll8C(void);
 #ifndef PROTO_SKIP_envTextureInitAsset3BB
 void envTextureInitAsset3BB(void);
 #endif
-#ifndef PROTO_SKIP_func_8063D2E4
-Gfx *func_8063D2E4(Gfx *);
+#ifndef PROTO_SKIP_envTextureDrawFlipbook
+Gfx *envTextureDrawFlipbook(Gfx *);
 #endif
 #ifndef PROTO_SKIP_envTextureUpdateScroll98
 void envTextureUpdateScroll98(void);
@@ -62,8 +62,8 @@ void envTextureUpdateScroll98(void);
 #ifndef PROTO_SKIP_envTextureInitAsset3BC
 void envTextureInitAsset3BC(void);
 #endif
-#ifndef PROTO_SKIP_func_8063D4A4
-Gfx *func_8063D4A4(Gfx *);
+#ifndef PROTO_SKIP_envTextureDrawScrollOnly
+Gfx *envTextureDrawScrollOnly(Gfx *);
 #endif
 #ifndef PROTO_SKIP_envTextureUpdateScrollA0
 void envTextureUpdateScrollA0(void);
@@ -71,8 +71,8 @@ void envTextureUpdateScrollA0(void);
 #ifndef PROTO_SKIP_envTextureInitAsset3BD
 void envTextureInitAsset3BD(void);
 #endif
-#ifndef PROTO_SKIP_func_8063D638
-Gfx *func_8063D638(Gfx *);
+#ifndef PROTO_SKIP_envTextureDrawSingleScroll
+Gfx *envTextureDrawSingleScroll(Gfx *);
 #endif
 #ifndef PROTO_SKIP_envTextureUpdateScrollAC
 void envTextureUpdateScrollAC(void);

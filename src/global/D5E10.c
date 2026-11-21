@@ -799,7 +799,7 @@ void playerStateVineSwing(void) {
         actorScriptStart(gCurrentActor, sel);
     }
     if ((gActivePlayerState->stateFlags & 0x40000000) && (gActivePlayerState->attachmentExitTimer == 0)) {
-        func_80687400();
+        effectScreenCenterFlash();
         gActivePlayerState->attachmentExitTimer = 0x1E;
     }
     if (gActivePlayerState->attachmentExitTimer != 0) {
@@ -845,7 +845,7 @@ void playerStateMinecart(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_807531E0[];
+extern f32 gKongMaxTierExitSpeeds[];
 
 void playerStateClimbLadder(void) {
     if (gCurrentActor->unk155 == 0) {
@@ -861,7 +861,7 @@ void playerStateClimbLadder(void) {
             gCurrentActor->unk155 = 0;
         }
     }
-    if ((camIsCutsceneActive() == 0) && (D_807531E0[gCurrentCharacterIndex] < gCurrentActor->speedXZ) && (D_807531E0[gCurrentCharacterIndex] < gActivePlayerState->maxSpeed) &&
+    if ((camIsCutsceneActive() == 0) && (gKongMaxTierExitSpeeds[gCurrentCharacterIndex] < gCurrentActor->speedXZ) && (gKongMaxTierExitSpeeds[gCurrentCharacterIndex] < gActivePlayerState->maxSpeed) &&
         (gActivePlayerState->unkC >= 0) && (mathAngleDistance(gActivePlayerState->unkC, gActivePlayerState->targetYaw) >= 0x401) &&
         (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->targetYaw) >= 0x539)) {
         gCurrentActor->state = 0xE;
@@ -2521,7 +2521,7 @@ void playerStateDive(void) {
 
 extern PlayerStruct *gPlayerSlots;
 extern s16 D_8075387C[];
-extern s16 D_8075388C[];
+extern s16 gKongNormalSwimSurfaceDepths[];
 extern s16 D_807538B8[];
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
@@ -2531,7 +2531,7 @@ s32 playerCanPerformActionCheck(void) {
     f32 lim;
 
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        surfaceOffset = D_8075388C[gCurrentCharacterIndex];
+        surfaceOffset = gKongNormalSwimSurfaceDepths[gCurrentCharacterIndex];
     } else {
         surfaceOffset = gKongSwimSurfaceDepths[gCurrentCharacterIndex];
     }
@@ -3134,8 +3134,8 @@ void playerStatePonytailTwirl(void) {
 
 void playerStateHoldMoveRamp(void) {
     f32 v;
-    if (gActorGlobalState.unkE8 != 0.0) {
-        v = gActorGlobalState.unkE8;
+    if (gActorGlobalState.forcedContactSpeed != 0.0) {
+        v = gActorGlobalState.forcedContactSpeed;
     } else {
         v = gCurrentActor->speedXZ;
     }
@@ -3402,11 +3402,11 @@ void playerStateTransformHold(void) {
     f32 dz;
 
     if (gActorGlobalState.destPointReceived != 0) {
-        gActivePlayerState->damageSource = gActorGlobalState.unkEC;
+        gActivePlayerState->damageSource = gActorGlobalState.destPointSource;
         gActivePlayerState->walkStartX = gCurrentActor->x;
         gActivePlayerState->walkStartZ = gCurrentActor->z;
-        gActivePlayerState->unkA4 = gActorGlobalState.unkD8;
-        gActivePlayerState->unkA8 = gActorGlobalState.unkE0;
+        gActivePlayerState->unkA4 = gActorGlobalState.destPointX;
+        gActivePlayerState->unkA8 = gActorGlobalState.destPointZ;
         gActivePlayerState->walkProgress = 0.0f;
         dx = gActivePlayerState->unkA4 - gActivePlayerState->walkStartX;
         dz = gActivePlayerState->unkA8 - gActivePlayerState->walkStartZ;
@@ -3590,7 +3590,7 @@ void playerStateTagBarrelPadEnter(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_8071FC58;
+extern u8 gEffectSpriteSparklePurple;
 extern u8 D_8071FCC0;
 
 void playerStateKnockbackTumble(void) {
@@ -3664,7 +3664,7 @@ void playerStateKnockbackTumble(void) {
         } else if (kind == 1) {
             effectCreateAtPosition(&gEffectSpriteSparkleYellow, 0.5f, px, py, pz);
         } else {
-            effectCreateAtPosition(&D_8071FC58, 0.5f, px, py, pz);
+            effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, px, py, pz);
         }
     }
     gCurrentActor->speedY = 0.0f;
@@ -3885,7 +3885,7 @@ void playerStateAttachedCallbackFall(void) {
     playerApplyMotion();
 }
 
-void func_806DCA7C(void) {
+void playerStateSwingLeap(void) {
     f32 dist;
     f32 time;
     f32 dy;
@@ -4651,7 +4651,7 @@ void playerStateDialogueHold(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DF1A0(void) {
+void playerStateShrinkToPoint(void) {
     PlayerState *ps = gCurrentActor->customState;
 
     gCurrentActor->sub4->scaleX *= 0.92;
@@ -4664,7 +4664,7 @@ void func_806DF1A0(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DF280(void) {
+void playerStateGrowFromPoint(void) {
     PlayerState *ps = gCurrentActor->customState;
 
     gCurrentActor->sub4->scaleX *= 1.08;

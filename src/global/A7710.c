@@ -71,7 +71,7 @@ void hudCountdownTimerResume(Actor *actor) {
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
-extern Gfx D_8071FC58;
+extern Gfx gEffectSpriteSparklePurple;
 extern PlayerStruct *gPlayerSlots;
 
 Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
@@ -106,7 +106,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
                 gfx = playerViewSetPrimaryViewport(gfx);
                 effectEnableFade();
                 sinAngle = sinApprox(angle);
-                effectCreateAtPosition(&D_8071FC58, 0.5f, sinAngle * 40.0 + (40.0f + actor->x),
+                effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, sinAngle * 40.0 + (40.0f + actor->x),
                                        cosApprox(angle) * 25.0 + actor->y, 0.0f);
             }
         }
@@ -150,7 +150,7 @@ void hudCountdownTimerUpdate(void) {
     if (gCamPathTimeDelta == 0) {
         gHudCountdownHundredths = usec / 10000 % 100;
     }
-    nextBeepAngle = (s32)((func_806FDA8C(timer->textId) - 1.5707964f) / 3.1415927f) * 3.1415927f + 3.1415927f + 1.5707964f;
+    nextBeepAngle = (s32)((gfxResourceGetTimer(timer->textId) - 1.5707964f) / 3.1415927f) * 3.1415927f + 3.1415927f + 1.5707964f;
     angle = usec / 10000.0 / 100.0 * 3.1415927410125732 + 1.5707963705062866;
     gfxResourceSetTimer(timer->textId, 0.0f);
     secsLeft = timer->totalSecs - timer->elapsedSecs;

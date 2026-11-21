@@ -17,8 +17,8 @@ s32 mathPickCloserTargetPoint3D(f32, f32, f32, struct TargetVec3f *, struct Targ
 #ifndef PROTO_SKIP_actorSpawnNodeEffectFacingCamera
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 #endif
-#ifndef PROTO_SKIP_func_8068EF54
-void func_8068EF54(void);
+#ifndef PROTO_SKIP_mountedBarrelUpdate
+void mountedBarrelUpdate(void);
 #endif
 #ifndef PROTO_SKIP_vehicleUpdateMotion
 void vehicleUpdateMotion();

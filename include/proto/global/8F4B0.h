@@ -26,8 +26,8 @@ void weatherTriggerLightningFlash(void);
 #ifndef PROTO_SKIP_cutsceneLightReset
 void cutsceneLightReset(void);
 #endif
-#ifndef PROTO_SKIP_func_8068B830
-void func_8068B830(s16, s16, s16);
+#ifndef PROTO_SKIP_weatherSetMode
+void weatherSetMode(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_enemyAggroSetIntensityBB
 void enemyAggroSetIntensityBB(f32);
@@ -35,14 +35,14 @@ void enemyAggroSetIntensityBB(f32);
 #ifndef PROTO_SKIP_enemyAggroDespawnBB
 void enemyAggroDespawnBB(void);
 #endif
-#ifndef PROTO_SKIP_func_8068B930
-void func_8068B930(void);
+#ifndef PROTO_SKIP_volumeHookModelStateUpdate
+void volumeHookModelStateUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_8068B9B4
-void func_8068B9B4(void);
+#ifndef PROTO_SKIP_volumeHookActorEventUpdate
+void volumeHookActorEventUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_8068BA2C
-void func_8068BA2C(void);
+#ifndef PROTO_SKIP_volumeHookCameraLightUpdate
+void volumeHookCameraLightUpdate(void);
 #endif
 #ifndef PROTO_SKIP_playerCameraUpdateFromTarget
 void playerCameraUpdateFromTarget(void);

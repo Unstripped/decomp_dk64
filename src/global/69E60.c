@@ -15,7 +15,7 @@ typedef struct {
     u8 unk4[2]; // two more pitch limits between maxPitchDeg and minPitchDeg (unread)
     u8 minPitchDeg;
     u8 unk7;
-    u8 unk8; // func_80665AAC's per-surface flag
+    u8 unk8; // actorFloorIsReflective's per-surface flag
     u8 pad9;
 } ActorTiltTableEntry;
 
@@ -155,7 +155,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
 
     collisionQueryActorFloor(actor, &hasFloor, &floorY, &hasWater, &waterY, 0);
     if (actor->collisionFlags & 1) {
-        func_806D09E8(actor);
+        playerOverrideUnderwaterSlopeType(actor);
     }
     heightAboveFloor = actor->y - actor->floorY;
     actor->contactFlags &= ~1;
@@ -248,7 +248,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     }
 }
 
-u8 func_80665AAC(Actor *actor) {
+u8 actorFloorIsReflective(Actor *actor) {
     return sActorTiltTable[actor->floorSurfaceType].unk8;
 }
 

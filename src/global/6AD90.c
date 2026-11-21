@@ -70,12 +70,12 @@ void collisionBuildCellTable(MapFileHeader *header) {
     s32 endOff;
 
     sCollisionCells = heapAlloc(0x11A8);
-    sCollisionCellCount = header->unk18 * header->unk1A;
+    sCollisionCellCount = header->meshCellsX * header->meshCellsZ;
     data = assetLoad(3, gCurrentMap, 1, 0);
     sCollisionCellsResident = 0;
-    if (header->unk9 & 2) {
+    if (header->gzipFlags & 2) {
         compressed = data;
-        data = heapAlloc(header->unk4);
+        data = heapAlloc(header->collisionMeshSize);
         window = heapAlloc(0x2400);
         dst = data;
         src = compressed;
@@ -257,7 +257,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
     }
     if (gFloorQueryMode != 2) {
         dynY = 99999.0f;
-        dynHit = func_8062BCC8(actor, x, z, y, &dynY);
+        dynHit = mapTestModelFloor(actor, x, z, y, &dynY);
         boxY = 99999.0f;
         boxHit = collisionTestActorBoxFloor(actor, x, z, y, &boxY);
     } else {
@@ -1294,13 +1294,13 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     }
 
     if (actor != NULL && (actor->collisionFlags & 1)) {
-        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].asset->unk0, ((PlayerState *)actor->customState)->playerIndex) != 0) {
+        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].asset->flags, ((PlayerState *)actor->customState)->playerIndex) != 0) {
             return 0;
         }
     }
 
     csState = gModelSlots[slotIdx].csState;
-    if (csState != NULL && csState->unk71 == 0) {
+    if (csState != NULL && csState->floorEnabled == 0) {
         return 0;
     }
 
@@ -1363,7 +1363,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
         *floorYOut = hitY;
         collisionStoreTriangleNormalAnglesF32(actor, hitTri, 1);
         csState = gModelSlots[slotIdx].csState;
-        if (csState != NULL && csState->unk4F != 0) {
+        if (csState != NULL && csState->floorGrabbable != 0) {
             sObjectFloorGrabbable = 1;
         }
         if (actor != NULL) {
@@ -2009,16 +2009,16 @@ void assetInflateAndFree(void *compressed, void *out) {
 }
 
 extern DmaQueueEntry sDmaQueue[];
-extern s8 D_80746834;
+extern s8 gWaitPointId;
 extern OSMesgQueue D_807656D0;
 
 void dmaDrainQueueAndFreeBuffer(void) {
     s32 i;
 
     for (i = 0; i < sDmaQueueCount; i++) {
-        D_80746834 = 7;
+        gWaitPointId = 7;
         osRecvMesg(&D_807656D0, NULL, 1);
-        D_80746834 = 0;
+        gWaitPointId = 0;
         if (sDmaQueue[i].compressed != 0) {
             assetInflateAndFree(sDmaQueue[i].dmaDst, sDmaQueue[i].buffer);
         }

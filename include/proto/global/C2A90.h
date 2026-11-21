@@ -3,8 +3,8 @@
 #define PROTO_GLOBAL_C2A90_H
 #include "common.h"
 #include "actor.h"
-#ifndef PROTO_SKIP_func_806BDD90
-u8 func_806BDD90(void);
+#ifndef PROTO_SKIP_bananaDeliveryNpcBeginFrame
+u8 bananaDeliveryNpcBeginFrame(void);
 #endif
 #ifndef PROTO_SKIP_func_806BDEC8
 void func_806BDEC8(void);
@@ -12,14 +12,14 @@ void func_806BDEC8(void);
 #ifndef PROTO_SKIP_bananaDeliveryNpcUpdate
 void bananaDeliveryNpcUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806BE674
-void func_806BE674(u8);
+#ifndef PROTO_SKIP_targetCourseSetTargetsSpawned
+void targetCourseSetTargetsSpawned(u8);
 #endif
-#ifndef PROTO_SKIP_func_806BE6F0
-Gfx *func_806BE6F0(Gfx *, Actor *);
+#ifndef PROTO_SKIP_targetCourseDrawCountdown
+Gfx *targetCourseDrawCountdown(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806BE8BC
-void func_806BE8BC(void);
+#ifndef PROTO_SKIP_actorTargetCourseHostUpdate
+void actorTargetCourseHostUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_806BF218
 void func_806BF218(void);

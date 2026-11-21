@@ -100,18 +100,18 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
     } else {
         animFrame = NULL;
     }
-    boneTable = asset->unk60 + (u8 *)asset;
-    buf->unkC = (s32)((f32)asset->unk20 * scale * 8.0f * 1.5);
-    buf->unk0 = (s32)(x * 8.0f);
-    buf->unk4 = (s32)(y * 8.0f);
+    boneTable = asset->bonesOff + (u8 *)asset;
+    buf->scaledRadius = (s32)((f32)asset->collisionRadius * scale * 8.0f * 1.5);
+    buf->scaledX = (s32)(x * 8.0f);
+    buf->scaledY = (s32)(y * 8.0f);
     buf->unk8 = (s32)(z * 8.0f);
-    count = *(s32 *)(asset->unk4C + (u8 *)asset);
+    count = *(s32 *)(asset->boxesOff + (u8 *)asset);
     if (count != 0) {
-        buf->unk15 |= 2;
-        if (!(buf->unk15 & 1)) {
+        buf->flags |= 2;
+        if (!(buf->flags & 1)) {
             buf->box_start = heapAlloc(count * 0x58);
         }
-        entry = (CollisionAssetTri *)(asset->unk4C + (u8 *)asset + 4);
+        entry = (CollisionAssetTri *)(asset->boxesOff + (u8 *)asset + 4);
         out = buf->box_start;
         guScaleF(slotMtx, scale, scale, scale);
         guRotateF(tmpMtx, rotX, 1.0f, 0.0f, 0.0f);
@@ -144,7 +144,7 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
         buf->box_start = NULL;
         buf->box_end = NULL;
     }
-    buf->unk15 |= 1;
+    buf->flags |= 1;
     buf->unk10 = gFrameCounter;
 }
 
@@ -172,7 +172,7 @@ void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
         animFrame = NULL;
     }
     asset = gModelSlots[slot].asset;
-    boneTable = asset->unk60 + (u8 *)asset;
+    boneTable = asset->bonesOff + (u8 *)asset;
     modelSlotGetTransformVectors(slot, &posX, &posY, &posZ, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);
     guScaleF(mtx, scale, scale, scale);
     guRotateF(tmpMtx, rotX, 1.0f, 0.0f, 0.0f);
@@ -210,10 +210,10 @@ void collisionTransformNode(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f32
 }
 
 void dynamicBufferFree(DynamicBuffer *buf) {
-    if (buf->box_start != NULL && (buf->unk15 & 1)) {
+    if (buf->box_start != NULL && (buf->flags & 1)) {
         heapFree(buf->box_start);
     }
-    buf->unk15 &= ~1;
+    buf->flags &= ~1;
 }
 
 extern s32 gCurrentMap;
@@ -239,9 +239,9 @@ void collisionInitStaticCache(MapFileHeader *header) {
     cellEnd = 4;
     data = assetLoad(2, gCurrentMap, 1, 0);
     sStaticCollisionResident = 0;
-    if (header->unk9 & 1) {
+    if (header->gzipFlags & 1) {
         compressed = data;
-        data = heapAlloc(header->unk0);
+        data = heapAlloc(header->staticCollisionSize);
         gzWork = heapAlloc(0x2400);
         gzOut = data;
         gzIn = compressed;
@@ -255,7 +255,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
     D_807FB530 = *(s32 *)data;
     sStaticCollisionCells = heapAlloc(0x1518);
     cellHeader = (s32 *)(data + 4);
-    sStaticCollisionCellCount = header->unk10 * header->unk12;
+    sStaticCollisionCellCount = header->staticCellsX * header->staticCellsZ;
     for (i = 0; i < sStaticCollisionCellCount; i++) {
         cellStart = data + cellEnd + 4;
         cellEnd = *cellHeader;
@@ -348,7 +348,7 @@ void modelSlotExpireNextBuffers(void) {
             sModelSlotExpireCursor = 0;
         }
         buf = &gModelSlots[sModelSlotExpireCursor].boxBuffer;
-        if ((buf->unk15 & 1) && ((gFrameCounter - buf->unk10) >= 0x1F)) {
+        if ((buf->flags & 1) && ((gFrameCounter - buf->unk10) >= 0x1F)) {
             dynamicBufferFree(buf);
         }
         triBuf = &gModelSlots[sModelSlotExpireCursor].triBuffer;
@@ -407,26 +407,26 @@ s32 collisionTransformTriangle(CollisionAssetTri *tri, CollisionBox *out, f32 (*
         return 0;
     }
     if (tri->flags & 1) {
-        out->unk4D = 1;
+        out->pushable = 1;
     } else {
-        out->unk4D = 0;
+        out->pushable = 0;
     }
     if (tri->flags & 2) {
-        out->unk4F = tri->unk13;
+        out->partId = tri->unk13;
     } else {
-        out->unk4F = 0;
+        out->partId = 0;
     }
     if (tri->flags & 4) {
-        out->unk51 = 1;
+        out->damageSurface = 1;
     } else {
-        out->unk51 = 0;
+        out->damageSurface = 0;
     }
     if (tri->flags & 8) {
-        out->unk50 = 5;
+        out->boundaryCondition = 5;
     } else {
-        out->unk50 = 0xFF;
+        out->boundaryCondition = 0xFF;
     }
-    out->unk4E = tri->bone;
+    out->mtxIndex = tri->bone;
     out->x0 = (s32)(x0 * 8.0f);
     out->y0 = (s32)(y0 * 8.0f);
     out->z0 = (s32)(z0 * 8.0f);
@@ -437,9 +437,9 @@ s32 collisionTransformTriangle(CollisionAssetTri *tri, CollisionBox *out, f32 (*
     out->y2 = (s32)(y2 * 8.0f);
     out->z2 = (s32)(z2 * 8.0f);
     verts[9] = collisionTriangleNormalYaw(verts, axisOut);
-    out->unk4B = collisionTriangleSlopeClass(verts);
-    out->unk48 = verts[9];
-    out->unk4C = axisOut[0];
+    out->slopeClass = collisionTriangleSlopeClass(verts);
+    out->normalYaw = verts[9];
+    out->normalFlipped = axisOut[0];
     return collisionBuildPlane(out);
 }
 
@@ -630,17 +630,17 @@ s32 collisionBuildStaticTri(void *inData, void *outData) {
     work.x1 *= 8; work.y1 *= 8; work.z1 *= 8;
     work.x2 *= 8; work.y2 *= 8; work.z2 *= 8;
 
-    work.unk48 = in->normalYaw;
-    work.unk4C = in->unk14;
-    work.unk4D = 0;
-    work.unk4F = 0;
+    work.normalYaw = in->normalYaw;
+    work.normalFlipped = in->unk14;
+    work.pushable = 0;
+    work.partId = 0;
     if (in->flags & 4) {
-        work.unk51 = 1;
+        work.damageSurface = 1;
     } else {
-        work.unk51 = 0;
+        work.damageSurface = 0;
     }
-    work.unk50 = in->unk15;
-    work.unk4B = 1;
+    work.boundaryCondition = in->unk15;
+    work.slopeClass = 1;
     collisionBuildPlane(&work);
 
     out->nx = work.nx;
@@ -1232,12 +1232,12 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
             }
             if (collisionBuildBoxFromMatrix(tri, box) != 0) {
                 if (ent->enabled == 0) {
-                    box->unk4B = 0;
+                    box->slopeClass = 0;
                 }
                 if (ent->boneOffset == -1) {
-                    box->unk4E = -1;
+                    box->mtxIndex = -1;
                 } else {
-                    box->unk4E = (u32)ent->boneOffset >> 6;
+                    box->mtxIndex = (u32)ent->boneOffset >> 6;
                 }
                 box++;
             }
@@ -1277,13 +1277,13 @@ s32 collisionBuildBoxFromMatrix(f32 *m, CollisionBox *box) {
     box->z2 = (s32)(m[8] * 8.0f);
 
     yaw = collisionTriangleNormalYaw(verts, axisOut);
-    box->unk4B = collisionTriangleSlopeClass(verts);
-    box->unk4D = 0;
-    box->unk4F = 0;
-    box->unk51 = 0;
-    box->unk50 = 0xFF;
-    box->unk48 = yaw;
-    box->unk4C = axisOut[0];
+    box->slopeClass = collisionTriangleSlopeClass(verts);
+    box->pushable = 0;
+    box->partId = 0;
+    box->damageSurface = 0;
+    box->boundaryCondition = 0xFF;
+    box->normalYaw = yaw;
+    box->normalFlipped = axisOut[0];
     collisionBuildPlane(box);
     return 1;
 }
@@ -1339,10 +1339,10 @@ u8 actorClearTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *hit) {
 }
 
 extern PlayerStruct *gPlayerSlots;
-extern u8 D_807FB547;
+extern u8 gCollisionHit;
 extern u8 sDamageSurfaceContact;
 extern u8 sBoundaryTwoSided;
-extern u8 D_807FB606;
+extern u8 gCollisionArcWidened;
 
 void func_80672E90(s32, s32, s32);
 
@@ -1366,9 +1366,9 @@ u8 actorCheckTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *actorHit) {
     func_80672E90(sub->scaledX, sub->scaledY, sub->scaledZ);
     actorSetCameraBoundaryMode(actor->actorType);
     sDamageSurfaceContact = 0;
-    D_807FB547 = 0;
+    gCollisionHit = 0;
     sBoundaryTwoSided = 0;
-    D_807FB606 = 0;
+    gCollisionArcWidened = 0;
     if (actor->collisionMode & 0x20) {
         actorCollisionCheckNodeSpheres(actor);
     }
@@ -1380,8 +1380,8 @@ u8 actorCheckTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *actorHit) {
         *actorHit = 0;
     }
     actorQueueCollisionCallbacks(actor);
-    actor->collisionHit = D_807FB547;
-    if (D_807FB606 != 0) {
+    actor->collisionHit = gCollisionHit;
+    if (gCollisionArcWidened != 0) {
         actor->renderFlags |= 0x100;
     } else {
         actor->renderFlags &= ~0x100;
@@ -1409,8 +1409,8 @@ s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_80673708(s32, s32, s32, s32, CollisionBox *, CollisionBox *, s16 *, s16 *);
 extern u8 sPushToFullThreshold;
 extern u8 gCollisionDeferredPush;
-extern u8 D_807FB5FF;
-extern u8 D_807FB600;
+extern u8 gCollisionDeferredHit;
+extern u8 gCollisionResolvePass;
 extern u8 sCollisionHitPart;
 extern u8 D_807FB61C;
 
@@ -1431,14 +1431,14 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
     sPushToFullThreshold = 0;
     for (i = 0; i < gModelSlotCount; i++) {
         buf = &gModelSlots[i].boxBuffer;
-        if (buf->unk15 & 2) {
-            if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->unk0, buf->unk4, buf->unk8, buf->unkC) != 0) {
-                if (!(buf->unk15 & 1)) {
+        if (buf->flags & 2) {
+            if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->scaledX, buf->scaledY, buf->unk8, buf->scaledRadius) != 0) {
+                if (!(buf->flags & 1)) {
                     collisionTransformNode(i, gModelSlots[i].asset, gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, gModelSlots[i].rotX, gModelSlots[i].rotY, gModelSlots[i].rotZ, gModelSlots[i].scale);
                 } else {
                     buf->unk10 = gFrameCounter;
                 }
-                if (!(actor->collisionFlags & 1) || playerSlotMatchesSizeMask(gModelSlots[i].asset->unk0, ((PlayerState *)actor->customState)->playerIndex) == 0) {
+                if (!(actor->collisionFlags & 1) || playerSlotMatchesSizeMask(gModelSlots[i].asset->flags, ((PlayerState *)actor->customState)->playerIndex) == 0) {
                     actorUpdateCollisionSpheres(actor, 0);
                     flag = 1;
                     node = sub->nodes;
@@ -1446,16 +1446,16 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                     savedFlags = sDamageSurfaceContact;
                     hit = gModelSlots[i].csState;
                     if (hit != NULL) {
-                        if (hit->unk6F != 0) {
+                        if (hit->deferredPush != 0) {
                             gCollisionDeferredPush = 1;
-                            D_807FB600 = 0;
+                            gCollisionResolvePass = 0;
                         }
                         flag = gModelSlots[i].csState->collisionEnabled;
                     }
                     if ((gCollisionDeferredPush == 0 || (actor->collisionMode & 0x10)) && flag != 0) {
-                        D_807FB5FF = 0;
+                        gCollisionDeferredHit = 0;
                         ret = 0;
-                        while (node != NULL && D_807FB5FF == 0) {
+                        while (node != NULL && gCollisionDeferredHit == 0) {
                             if (node->active != 0 && node->scaledRadius != 0 && !(node->unk27 & 6)) {
                                 ret |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, buf->box_start, buf->box_end, arcMin, arcMax);
                             }
@@ -1468,7 +1468,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                                 gModelSlots[i].csState->hitActorType = actor->actorType;
                             }
                         }
-                        if (D_807FB5FF != 0) {
+                        if (gCollisionDeferredHit != 0) {
                             actorBuildCollisionHit(i, actor, buf->box_start);
                         }
                         if (gModelSlots[i].csState != NULL && gModelSlots[i].csState->contactCallbacks == 0) {
@@ -1515,9 +1515,9 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
     ok = func_806744A8(gCollisionHitBox, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
     modelSlotUpdateFacingTrigger(slot);
     if (ok != 0) {
-        sub->hitMtxIndex = gCollisionHitBox->unk4E;
+        sub->hitMtxIndex = gCollisionHitBox->mtxIndex;
         sub->hitBoxIndex = gCollisionHitBox - boxes;
-        modelSlotBuildTransformMatrix(slot, gCollisionHitBox->unk4E, mtx);
+        modelSlotBuildTransformMatrix(slot, gCollisionHitBox->mtxIndex, mtx);
         matrix4Invert(inv, mtx);
         if (gModelSlots[slot].csState != NULL && (gModelSlots[slot].csState->modelFlags & 0x24)) {
             useActorPos = 1;
@@ -1552,8 +1552,8 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
             sub->hitRadius = 0x14;
         }
         sub->maxPushDist = actorGetCollisionThreshold(actor);
-        sub->hitNormalYaw = gCollisionHitBox->unk48;
-        if (gCollisionHitBox->unk4C != 0) {
+        sub->hitNormalYaw = gCollisionHitBox->normalYaw;
+        if (gCollisionHitBox->normalFlipped != 0) {
             sub->hitNormalYaw -= 0x800;
         }
         if (sub->hitNormalYaw < 0) {
@@ -1571,7 +1571,7 @@ void actorReflectCollisionAngle(Actor *actor, CollisionBox *box, ActorSub140 *co
     s64 total;
     s64 x_prod;
     s64 y_prod;
-    sub->wallNormalYaw = box->unk48;
+    sub->wallNormalYaw = box->normalYaw;
     y_prod = box->ny * coll->scaledY;
     x_prod = box->nx * coll->scaledX;
     total = (box->nz * coll->scaledZ) + x_prod + y_prod + box->d;
@@ -1645,7 +1645,7 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
     f32 angle;
 
     inArc = 0;
-    if (gModelSlots[slot].csState != NULL && gCollisionHitBox->unk4D != 0) {
+    if (gModelSlots[slot].csState != NULL && gCollisionHitBox->pushable != 0) {
         sub = gModelSlots[slot].csState;
         kind = sub->pushMode;
         switch (kind) {
@@ -1653,8 +1653,8 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
             break;
         case 1:
             sub->pushContact = 1;
-            yaw = gCollisionHitBox->unk48;
-            if (gCollisionHitBox->unk4C != 0) {
+            yaw = gCollisionHitBox->normalYaw;
+            if (gCollisionHitBox->normalFlipped != 0) {
                 yaw -= 0x800;
             }
             if (yaw < 0) {
@@ -1687,8 +1687,8 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
             break;
         case 2:
             sub->pushContact = 1;
-            yaw = gCollisionHitBox->unk48;
-            if (gCollisionHitBox->unk4C != 0) {
+            yaw = gCollisionHitBox->normalYaw;
+            if (gCollisionHitBox->normalFlipped != 0) {
                 yaw -= 0x800;
             }
             if (yaw < 0) {
@@ -1795,12 +1795,12 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
         slot = hashTableLookup(sub->unk26);
         if (slot != -1) {
             buf = &gModelSlots[slot].boxBuffer;
-            if (!(buf->unk15 & 1)) {
+            if (!(buf->flags & 1)) {
                 return 0;
             }
             D_807FB603 = buf->unk14;
             gCollisionDeferredPush = 1;
-            D_807FB600 = 1;
+            gCollisionResolvePass = 1;
             sDamageSurfaceContact = 0;
             func_80672E90(sub->scaledX, sub->scaledY, sub->scaledZ);
             actorSetCameraBoundaryMode(actor->actorType);
@@ -1988,7 +1988,7 @@ extern s16 D_807FB5F2;
 void actorSetTargetAngleBounds(CollisionBox *box) {
     s16 yaw;
 
-    yaw = box->unk48;
+    yaw = box->normalYaw;
     sHitBoxYawMin = yaw - 0x32;
     if (sHitBoxYawMin < 0) {
         sHitBoxYawMin += 0xFFF;
@@ -2043,7 +2043,7 @@ extern PlayerState *gActivePlayerState;
 extern s32 D_807FB5DC;
 extern s16 D_807FB5F6;
 
-CollisionBox *func_806732A8(s32, s16); // asm (77B90): returns the hit box left in s0
+CollisionBox *collisionBuildHitBox(s32, s16); // asm (77B90): returns the hit box left in s0
 
 void actorUpdateFacingAndOffset(CollisionBox *box, s32 unused1, s32 unused2, s32 unused3) {
     s16 facingDist;
@@ -2055,11 +2055,11 @@ void actorUpdateFacingAndOffset(CollisionBox *box, s32 unused1, s32 unused2, s32
     f32 cosYaw;
     s32 threshold;
 
-    facingDist = mathAngleDistance(box->unk48, sWallProbeYaw);
-    backDist = mathAngleDistance((box->unk48 + 0x800) & 0xFFF, sWallProbeYaw);
+    facingDist = mathAngleDistance(box->normalYaw, sWallProbeYaw);
+    backDist = mathAngleDistance((box->normalYaw + 0x800) & 0xFFF, sWallProbeYaw);
     if ((facingDist < 0x321) || (backDist < 0x321)) {
-        mathAngleDistance(box->unk48, gActivePlayerState->wallNormalYaw);
-        mathAngleDistance((box->unk48 + 0x800) & 0xFFF, gActivePlayerState->wallNormalYaw);
+        mathAngleDistance(box->normalYaw, gActivePlayerState->wallNormalYaw);
+        mathAngleDistance((box->normalYaw + 0x800) & 0xFFF, gActivePlayerState->wallNormalYaw);
         sub = D_807FB540->collision;
         func_806744A8(box, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
         prevThreshold = gCollisionPlaneDist;
@@ -2103,7 +2103,7 @@ void actorUpdateCollisionExtents(Actor *actor) {
         player->wallContactX = hitX - nx;
         player->wallContactZ = hitZ - nz;
         player->stateStep = 1;
-        actorReflectCollisionAngle(actor, func_806732A8(D_807FB5DC, D_807FB5F6), actor->collision);
+        actorReflectCollisionAngle(actor, collisionBuildHitBox(D_807FB5DC, D_807FB5F6), actor->collision);
     }
     actorUpdateSubActorOffsets(actor, 1);
 }
@@ -2153,7 +2153,7 @@ void actorComputeBoxNormal(Actor *actor, f32 *outX, f32 *outY, f32 *outZ, u8 use
 
     sub = actor->collision;
     if (useHitBox) {
-        box = func_806732A8(D_807FB5DC, D_807FB5F6);
+        box = collisionBuildHitBox(D_807FB5DC, D_807FB5F6);
     } else {
         box = D_807FB5D4;
     }
@@ -2370,7 +2370,7 @@ u8 collisionTestSphere(f32 x, f32 y, f32 z, f32 radius, s16 *arcMin, s16 *arcMax
     *arcMin = 0;
     *arcMax = 0xFFF;
     radius *= 8.0f;
-    D_807FB606 = 0;
+    gCollisionArcWidened = 0;
     func_80672E90(x, y, z);
     actorSetCameraBoundaryMode(boundaryMode);
     if (testSlots != 0) {
@@ -2411,11 +2411,11 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
                 z = fz;
                 radius = fradius;
                 if (collisionSpheresOverlap(x, y, z, radius,
-                                  buf->unk0,
-                                  buf->unk4,
+                                  buf->scaledX,
+                                  buf->scaledY,
                                   buf->unk8,
-                                  buf->unkC) != 0 &&
-                    (buf->unk15 & 1) &&
+                                  buf->scaledRadius) != 0 &&
+                    (buf->flags & 1) &&
                     ((hitInfo = gModelSlots[i].csState) == NULL || hitInfo->collisionEnabled != 0)) {
                     result |= func_80673708(x, y, z, radius, buf->box_start, buf->box_end, arcMin, arcMax);
                 }

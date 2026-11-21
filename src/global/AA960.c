@@ -64,9 +64,9 @@ SfxTableEntry gActorSpawnSfxTable[27] = {
     { 0xAF, 0x2F, 0x2F, 1 },
     { 0, 0, 0, 0 },
 };
-extern EffectGridAsset D_807208F0, D_80720914, D_80720938, D_8072095C, D_80720980, D_807209A4, D_807209C8;
+extern EffectGridAsset gEffectSpriteNotePairYellow, gEffectSpriteNoteYellow, gEffectSpriteNoteGreen, gEffectSpriteNotePairPink, gEffectSpriteNotePairRed, gEffectSpriteNoteRed, gEffectSpriteNotePairPaleBlue;
 SparkleSpriteTable sSparkleSprites = { {
-    &D_807208F0, &D_80720914, &D_80720938, &D_8072095C, &D_80720980, &D_807209A4, &D_807209C8,
+    &gEffectSpriteNotePairYellow, &gEffectSpriteNoteYellow, &gEffectSpriteNoteGreen, &gEffectSpriteNotePairPink, &gEffectSpriteNotePairRed, &gEffectSpriteNoteRed, &gEffectSpriteNotePairPaleBlue,
 } };
 f32 sShrinkRate = 1.2f;
 f32 sShrinkFrames = 30.0f;
@@ -80,20 +80,20 @@ extern Actor *gPrimaryPlayerActor;
 extern u32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
 
-extern u8 D_807204BC[];
-extern u8 D_80720508[];
-extern u8 D_807205C4[];
-extern u8 D_807205E8[];
-extern u8 D_80720710[];
-extern u8 D_80720768[];
-extern u8 D_807207BC[];
-extern u8 D_807207E0[];
-extern u8 D_807209EC[];
-extern u8 D_80720A10[];
-extern u8 D_80720A34[];
-extern u8 D_80720A58[];
-extern u8 D_807211D0[];
-extern u8 D_80721378[];
+extern u8 gEffectSpriteOrange[];
+extern u8 gEffectSpriteCrystal[];
+extern u8 gEffectSpriteBananaBlue[];
+extern u8 gEffectSpriteBananaYellow[];
+extern u8 gEffectSpriteMelonSlice[];
+extern u8 gEffectSpriteCrate[];
+extern u8 gEffectSpriteDkCoin[];
+extern u8 gEffectSpriteBlueprintBlue[];
+extern u8 gEffectSpriteBlueprintRed[];
+extern u8 gEffectSpriteBlueprintGreen[];
+extern u8 gEffectSpriteBlueprintYellow[];
+extern u8 gEffectSpriteBlueprintPurple[];
+extern u8 gEffectSpriteQuestionMark[];
+extern u8 gEffectSpriteRainbowCoin[];
 
 
 void sfxSpawnTableNodes(Actor *actor) {
@@ -171,16 +171,16 @@ void actorHealthDropUpdate(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, D_80720710, 1.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteMelonSlice, 1.0f);
     }
 }
 
-void func_806A5FA4(void) {
+void actorAbilityEnergyDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, D_80720508, 1.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteCrystal, 1.0f);
     }
 }
 
@@ -197,45 +197,45 @@ void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
 }
 
 void effectSpawnAttachedSpriteColoredType3(void) {
-    effectSpawnAttachedSpriteColored(D_807209EC, 3);
+    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintRed, 3);
 }
 
 void effectSpawnAttachedSpriteColoredType6(void) {
-    effectSpawnAttachedSpriteColored(D_80720A10, 6);
+    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintGreen, 6);
 }
 
 void effectSpawnAttachedSpriteColoredType4(void) {
-    effectSpawnAttachedSpriteColored(D_807207E0, 4);
+    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintBlue, 4);
 }
 
 void effectSpawnAttachedSpriteColoredType2(void) {
-    effectSpawnAttachedSpriteColored(D_80720A34, 2);
+    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintYellow, 2);
 }
 
 void effectSpawnAttachedSpriteColoredType5(void) {
-    effectSpawnAttachedSpriteColored(D_80720A58, 5);
+    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintPurple, 5);
 }
 
-void func_806A615C(void) {
+void actorAmmoCrateDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         effectSetScale(-0.35f, 0.35f);
-        effectSpawnAttachedSprite(state, D_80720768, 1.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteCrate, 1.0f);
     }
 }
 
-void func_806A61D0(void) {
+void actorThrowAmmoDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, D_807204BC, 1.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteOrange, 1.0f);
     }
 }
 
-void func_806A6230(void) {
+void actorMinigameCoinDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
@@ -243,39 +243,39 @@ void func_806A6230(void) {
         if ((gGlobalOverlayFlags & 0x80000) || (gGlobalOverlayFlags & 0x2000)) {
             gCurrentActor->unk15F = 1;
         }
-        effectSpawnAttachedSprite(state, D_807207BC, 1.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteDkCoin, 1.0f);
     }
 }
 
 void effectSpawnA6230Wrapper(void) {
-    func_806A6230();
+    actorMinigameCoinDropUpdate();
 }
 
-void func_806A62D4(void) {
+void actorRandomEffectDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         effectSetColor(0xFF, 0xFF, 0, 0xFF);
-        effectSpawnAttachedSprite(state, D_807211D0, 1.5f);
+        effectSpawnAttachedSprite(state, gEffectSpriteQuestionMark, 1.5f);
     }
 }
 
-void func_806A6348(void) {
+void actorOpponentKnockbackDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, D_807205C4, 1.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteBananaBlue, 1.0f);
     }
 }
 
-void func_806A63A8(void) {
+void actorSpeedBoostDropUpdate(void) {
     DropBounceState *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, D_807205E8, 1.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteBananaYellow, 1.0f);
     }
 }
 
@@ -284,13 +284,13 @@ void actorLargeDropUpdate(void) {
 
     actorDropBounceExpireUpdate(12.0f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, D_80721378, 2.0f);
+        effectSpawnAttachedSprite(state, gEffectSpriteRainbowCoin, 2.0f);
     }
 }
 
-extern u8 D_807203B0;
-extern u8 D_807203D4;
-extern u8 D_807203F8;
+extern u8 gEffectSpriteCoinRed;
+extern u8 gEffectSpriteCoinGreen;
+extern u8 gEffectSpriteCoinBlue;
 extern u8 D_8072041C;
 extern u8 D_80720440;
 
@@ -303,16 +303,16 @@ void actorKongDropUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         switch (gPrimaryPlayerActor->actorType) {
         case 3:
-            anim = &D_807203B0;
+            anim = &gEffectSpriteCoinRed;
             break;
         case 2:
             anim = &D_8072041C;
             break;
         case 4:
-            anim = &D_807203F8;
+            anim = &gEffectSpriteCoinBlue;
             break;
         case 6:
-            anim = &D_807203D4;
+            anim = &gEffectSpriteCoinGreen;
             break;
         case 5:
             anim = &D_80720440;
@@ -762,7 +762,7 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
             actorDespawn(gCurrentActor);
             if (gCurrentActor->actorType == 0x93) {
-                func_80724994(3, 1, 0x27, 0, 0);
+                spawnNodesSendVolumeTrigger(3, 1, 0x27, 0, 0);
             } else {
                 if (state->collectedFlag != -1) {
                     flagSet(state->collectedFlag, 1, 0);
@@ -791,10 +791,10 @@ void actorPathCollectibleUpdate1028(void) {
     actorPathCollectibleUpdate(&D_80721028);
 }
 
-extern u8 D_80721004;
+extern u8 gEffectSpriteBananaBalloonBlue;
 
 void actorPathCollectibleUpdate1004A(void) {
-    actorPathCollectibleUpdate(&D_80721004);
+    actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonBlue);
 }
 
 extern u8 D_80720FE0;
@@ -804,7 +804,7 @@ void actorPathCollectibleUpdateFE0(void) {
 }
 
 void actorPathCollectibleUpdate1004B(void) {
-    actorPathCollectibleUpdate(&D_80721004);
+    actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonBlue);
 }
 
 
@@ -890,7 +890,7 @@ void effectActorShrinkTick(void) {
 }
 
 
-void func_806A8070(void) {
+void actorStaticModelUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x40000000;
     }

@@ -5,11 +5,11 @@
 #ifndef PROTO_SKIP_actorSpawnGroundEffectAtNode
 void actorSpawnGroundEffectAtNode(u8);
 #endif
-#ifndef PROTO_SKIP_func_806B1290
-void func_806B1290(void);
+#ifndef PROTO_SKIP_kongItemEnemyTryGroundSlam
+void kongItemEnemyTryGroundSlam(void);
 #endif
-#ifndef PROTO_SKIP_func_806B1348
-void func_806B1348(void);
+#ifndef PROTO_SKIP_kongItemEnemyTryAttack
+void kongItemEnemyTryAttack(void);
 #endif
 #ifndef PROTO_SKIP_func_806B13B4
 void func_806B13B4(u8);
@@ -17,8 +17,8 @@ void func_806B13B4(u8);
 #ifndef PROTO_SKIP_actorSetAnimStartFrame
 void actorSetAnimStartFrame(u8);
 #endif
-#ifndef PROTO_SKIP_func_806B1DD4
-void func_806B1DD4(u8);
+#ifndef PROTO_SKIP_kongItemEnemyUpdate
+void kongItemEnemyUpdate(u8);
 #endif
 #ifndef PROTO_SKIP_b5ec0SetMode4
 void b5ec0SetMode4(void);

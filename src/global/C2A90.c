@@ -36,7 +36,7 @@ extern PlayerState *gActivePlayerState;
 u8 D_807506C0[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
 
-u8 func_806BDD90(void) {
+u8 bananaDeliveryNpcBeginFrame(void) {
     s16 i;
 
     behaviourFrameBegin();
@@ -47,7 +47,7 @@ u8 func_806BDD90(void) {
             gCurrentActor->cullMarginX = 0x3C;
             gCurrentActor->cullMarginY = 0x3C;
             gCurrentActor->drawDistance = 0x3E8;
-            func_80724CA4(2, 1);
+            actorAllocBoneRotations(2, 1);
             gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
             gCurrentActor->accelY /= 1.5;
         }
@@ -68,7 +68,7 @@ u8 func_806BDD90(void) {
 void func_806BDEC8(void) {
     PlayerState *playerState = gPrimaryPlayerActor->customState;
 
-    if (func_806BDD90() == 1) {
+    if (bananaDeliveryNpcBeginFrame() == 1) {
         gCurrentActor->state = 0x12;
         gCurrentActor->unk155 = 0;
     }
@@ -123,7 +123,7 @@ void bananaDeliveryNpcUpdate(void) {
     playerState = gPrimaryPlayerActor->customState;
     idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
     ratio = (f32)gLevelCollectibleCounts[idx] / (f32)gWorldBananaDeliveryGoals[idx];
-    if (func_806BDD90() == 1) {
+    if (bananaDeliveryNpcBeginFrame() == 1) {
         gBehaviourWorkState->timer = slotQueueGetValue(0, 0);
         if (gBehaviourWorkState->timer != 0) {
             gCurrentActor->state = 0x12;
@@ -211,7 +211,7 @@ void bananaDeliveryNpcUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806BE674(u8 spawn) {
+void targetCourseSetTargetsSpawned(u8 spawn) {
     s16 i;
 
     for (i = 0; i < sizeof(D_807506C0); i++) {
@@ -225,7 +225,7 @@ void func_806BE674(u8 spawn) {
 
 extern Gfx D_1000118;
 
-Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
+Gfx *targetCourseDrawCountdown(Gfx *gdl, Actor *actor) {
     u8 v;
     u8 buf[3];
     s32 n;
@@ -267,7 +267,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
 
 
 
-void func_806BE8BC(void) {
+void actorTargetCourseHostUpdate(void) {
     u8 flagF8Set;
     s16 i;
     s16 j;
@@ -281,7 +281,7 @@ void func_806BE8BC(void) {
         return;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         gBehaviourAnimState->flags |= 0x20;
         actorScriptStart(gCurrentActor, 0x306);
         currentActorAnimFinish(0);
@@ -305,7 +305,7 @@ void func_806BE8BC(void) {
                 actorClearMovementFlags(gPrimaryPlayerActor);
                 spawnNodesSetRespawnHold(1);
                 gBehaviourAnimState->flags |= 4;
-                func_806BE674(1);
+                targetCourseSetTargetsSpawned(1);
                 currentActorAnimSetFrame(0, 0);
                 if (flagF8Set != 0) {
                     csSendActorMessagePayload(0x17, 0x14);
@@ -330,7 +330,7 @@ void func_806BE8BC(void) {
                     }
                     break;
                 case 1:
-                    renderCallbacksRegister(func_806BE6F0, gCurrentActor, 3);
+                    renderCallbacksRegister(targetCourseDrawCountdown, gCurrentActor, 3);
                     break;
                 case 2:
                     sfxAllocateChannel(0xA9, 1.0f);
@@ -351,7 +351,7 @@ void func_806BE8BC(void) {
                 sfxStopChannel(0xA9, 0);
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0xFF;
-                func_806BE674(0);
+                targetCourseSetTargetsSpawned(0);
                 camStartPath(gCurrentActor, 0xF, 5);
                 gCurrentActor->yaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
                 resQueueAttachActor(gCurrentActor, 0x14, 4);
@@ -367,7 +367,7 @@ void func_806BE8BC(void) {
                     sfxStopChannel(0xA9, 0);
                     gCurrentActor->flags &= ~0x8000;
                     gCurrentActor->alpha = 0xFF;
-                    func_806BE674(0);
+                    targetCourseSetTargetsSpawned(0);
                     camStartPath(gCurrentActor, 0x1F, 1);
                     gCurrentActor->yaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
                     actorScriptStart(gCurrentActor, 0x308);

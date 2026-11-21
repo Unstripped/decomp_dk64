@@ -75,7 +75,7 @@ extern u8 D_2000200[];
 
 extern s8 gEepromLoaded;
 extern u8 gSaveIconTimer;
-extern s8 D_80746830;
+extern s8 gWatchdogPaused;
 extern s32 gPlayTimeBaseSeconds;
 extern u8 gSplitScreenMode;
 extern u8 gActivePlayerCount;
@@ -83,10 +83,10 @@ extern u16 gMinigameCoinCount;
 
 extern s32 gGfxTaskBufferCap;
 extern s16 gCurrentLevelIndex;
-extern u8 D_8076AEE0;
+extern u8 gTransitionFadeType;
 
 extern OSIoMesg D_807ECE00;
-extern s16 *D_807ECDF4;
+extern s16 *gPhysicalContPads;
 extern s8 D_807F6008;
 extern u8 *gSavedMapModelData;
 extern PlayerStruct *gPlayerSlots;
@@ -113,13 +113,13 @@ s16 gGfxScreenLeft = 0xA;
 s16 gGfxScreenTop = 0xA;
 s16 gGfxScreenRight = 0x135;
 s16 gGfxScreenBottom = 0xE5;
-s16 D_807444A8 = 0xA;
-s16 D_807444AC = 0x28;
-s16 D_807444B0 = 0xC7;
-s16 D_807444B4 = 0xE5;
+s16 gLetterboxTopBarTop = 0xA;
+s16 gLetterboxTopBarBottom = 0x28;
+s16 gLetterboxBottomBarTop = 0xC7;
+s16 gLetterboxBottomBarBottom = 0xE5;
 f32 gGfxFovY = 45.0f;
 f32 gGfxAspect = 1.0f;
-s8 D_807444C0 = 0;
+s8 gWidescreenEnabled = 0;
 f32 gGfxFarClip = 1500.0f;
 f32 gGfxNearClip = 10.0f;
 f32 D_807444CC = 1.0f;
@@ -139,34 +139,34 @@ s8 D_80744500 = 0;
 s8 gMapLoadPauseFrames = 0;
 s16 gEnemyDefeatCount = 0;
 u8 gHiResScale = 1;
-// Formerly the blobs u8 D_80744510[28] and u32 D_80744530[5]: each label below is its own object (IDO pads every
+// Formerly the blobs u8 gBootScreenState[28] and u32 gCamAutoRotate[5]: each label below is its own object (IDO pads every
 // .data object to 4 bytes); the types are the ones their readers load (lb/lbu/lh).
-u8 D_80744510 = 0; // viModeSetup's 1 is a separate li from D_807445A0's s8 1 (0x3e4/0x3f0); 13980 reads it signed
+u8 gBootScreenState = 0; // viModeSetup's 1 is a separate li from sBootScreenShown's s8 1 (0x3e4/0x3f0); 13980 reads it signed
 u8 gMenuReturnContext = 0;
-s16 D_80744518 = 0;
-s8 D_8074451C = 0;
-s8 D_80744520 = 3;
+s16 gMinigameScore = 0;
+s8 gMenuMpModeSel = 0;
+s8 gMenuMpLimit = 3;
 s16 gMpWinCounts[4] = { 0 }; // per player: multiplayer rounds won (menuInitMultiplayerResults)
-s8 D_8074452C = 0;
-u8 D_80744530 = 0; // menu/3E10 lbu; 201B0 reads it signed (ORIG there)
-s8 D_80744534 = 0;
-s8 D_80744538 = 0;
+s8 gSkipCutscenes = 0;
+u8 gCamAutoRotate = 0; // menu/3E10 lbu; 201B0 reads it signed (ORIG there)
+s8 gMenuMpSplitScreenSel = 0;
+s8 gMenuMpMapSel = 0;
 s8 gMenuCheatOptions[5] = { 0 }; // selected option of each cheat menu row (menu/3E10)
-s16 D_80744544 = 0;
-MenuHighScoreEntry D_80744548[5] = { { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" } };
-MenuHighScoreEntry D_80744568[5] = { { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 70, "AAA" } };
+s16 gCheatFlags = 0;
+MenuHighScoreEntry gRambiHighScores[5] = { { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" } };
+MenuHighScoreEntry gEnguardeHighScores[5] = { { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 70, "AAA" } };
 u32 gViModeIndexByTvType[6] = { 0xF, 0x19, 2, 0xA, 0x1E, 0x26 };
-s8 D_807445A0 = 0;
+s8 sBootScreenShown = 0;
 s8 sViModeFirstSetup = 1;
 u32 D_807445A8[2] = { 0 };
 u64 gLastPauseDuration = 0;
 u64 gPauseTimeTotal = 0;
 u64 gPauseStartTime = 0;
-s8 D_807445C8 = 0;
+s8 sPauseOpenDelay = 0;
 s32 sViewFrameCounter[5] = { 0, 0x4B0, 0, 0, 0 };
 
 // .bss 0x807655F0-0x8076A160
-OSMesgQueue D_807655F0;
+OSMesgQueue gPiDmaMesgQueue;
 OSMesg D_80765608[0x32];
 OSMesgQueue D_807656D0;
 OSMesg D_807656E8[0xC0];
@@ -186,12 +186,12 @@ s32 D_8076A06C;
 s32 D_8076A070[3];
 s32 D_8076A07C;
 void *gSegment1Data;
-u32 D_8076A084;
+u32 gSegment1DataSize;
 s32 gGfxListCommandCount;
 s32 gGfxSubListCommandCount;
-s32 D_8076A090;
-s32 D_8076A094;
-s32 D_8076A098;
+s32 gMapActiveFrameCount;
+s32 gMapWarpCount;
+s32 gMapPauseCount;
 u16 gPerspNorm;
 u16 D_8076A09E;
 s16 *gZbufferDistanceTable;
@@ -202,7 +202,7 @@ s32 gCurrentMap;
 s32 D_8076A0AC;
 u8 D_8076A0B0;
 u8 gScreenRenderFlags;
-u8 D_8076A0B2;
+u8 gMapLoadCountdown;
 u8 gLetterboxRetractTimer;
 f32 *gChunkLightR;
 f32 *gChunkLightG;
@@ -213,9 +213,9 @@ f32 *gChunkLightTargetB;
 u32 D_8076A0CC;
 s8 gMenuScreenSelection[20]; // saved selection per menu screen (menu init clears 13)
 s8 gMenuPlayerCharacterSel[4];
-s8 D_8076A0E8[6][4];
-u32 D_8076A100;
-u8 D_8076A104;
+s8 gMenuCharacterVariantOwner[6][4];
+u32 gMenuPlayerCharacterVariant;
+u8 gMenuMpMatchTypeSel;
 s8 gMpWinnerIndex;
 u16 D_8076A106;
 OSMesg D_8076A108[2];
@@ -231,8 +231,8 @@ void seg11DmaRead(s32 romOffset, s32 size, void *dst) {
 
     romBase = gSegmentTable[11].romStart;
     osWritebackDCache(dst, size);
-    osPiStartDma(&D_807ECE00, OS_MESG_PRI_NORMAL, OS_READ, romBase + romOffset, dst, size, &D_807655F0);
-    osRecvMesg(&D_807655F0, NULL, OS_MESG_BLOCK);
+    osPiStartDma(&D_807ECE00, OS_MESG_PRI_NORMAL, OS_READ, romBase + romOffset, dst, size, &gPiDmaMesgQueue);
+    osRecvMesg(&gPiDmaMesgQueue, NULL, OS_MESG_BLOCK);
     osInvalDCache(dst, size);
 }
 
@@ -336,29 +336,29 @@ void viModeSetup(u8 overlaySlot) {
     loadOverlay(overlaySlot, overlayId, overlayParam);
     if (*firstSetupFlag == 0) {
         osViSetMode(&osViModeTable[gViModeIndexByTvType[osTvType + osTvType + gHiResScale - 1]]);
-        if (D_807445A0 == 0) {
+        if (sBootScreenShown == 0) {
             osViBlack(1);
         }
-        D_80744510 = 0;
-        D_807445A0 = 0;
+        gBootScreenState = 0;
+        sBootScreenShown = 0;
     } else {
-        D_80744510 = 1;
-        D_807445A0 = 1;
+        gBootScreenState = 1;
+        sBootScreenShown = 1;
         *firstSetupFlag = 0;
         viModeApplyHighRes();
     }
     osViSetSpecialFeatures(0x42);
     gScreenWidth = gHiResScale * 0x140;
     gScreenHeight = gHiResScale * 0xF0;
-    D_807444AC = gGfxScreenTop + gHiResScale * 0x1E;
-    D_807444B0 = gGfxScreenBottom - gHiResScale * 0x1E;
-    D_807444A8 = gGfxScreenTop;
-    D_807444B4 = gGfxScreenBottom;
+    gLetterboxTopBarBottom = gGfxScreenTop + gHiResScale * 0x1E;
+    gLetterboxBottomBarTop = gGfxScreenBottom - gHiResScale * 0x1E;
+    gLetterboxTopBarTop = gGfxScreenTop;
+    gLetterboxBottomBarBottom = gGfxScreenBottom;
 }
 
 void mainSystemInit(void) {
-    D_8076A084 = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
-    osCreateMesgQueue(&D_807655F0, D_80765608, 0x32);
+    gSegment1DataSize = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
+    osCreateMesgQueue(&gPiDmaMesgQueue, D_80765608, 0x32);
     osCreateMesgQueue(&D_807656D0, D_807656E8, 0xC0);
     schedCreate(&gScheduler, &gSchedThreadStack[0x400], 0x19, gViModeIndexByTvType[osTvType + osTvType], 1);
     osCreateMesgQueue(&gGfxDoneQueue, D_80765A00, 0x10);
@@ -366,7 +366,7 @@ void mainSystemInit(void) {
     gCurrentMap = gInitialMap;
     viModeSetup(0);
     D_8076A07C = 5;
-    func_8060FFF0();
+    schedInitGfxUcodes();
     controllerInit();
     audioInit();
     transitionSetState(0);
@@ -384,7 +384,7 @@ void mainResetEngineState(void) {
     osWritebackDCacheAll();
     osInvalDCache((void *)K0BASE, 0x800000);
     gSegment1Data = &D_807FF100;
-    dmaReadAssetDecompress(gSegmentTable[12].romStart, gSegment1Data, &D_8076A084, 0, 0, 0, 0);
+    dmaReadAssetDecompress(gSegmentTable[12].romStart, gSegment1Data, &gSegment1DataSize, 0, 0, 0, 0);
     gGfxSubListEnabled = 0;
     controllerWaitRead();
     gFrameCounter = 0;
@@ -393,7 +393,7 @@ void mainResetEngineState(void) {
     D_8076A0AC = 4;
     gGlobalPauseFlags = 0x30030;
     gScreenRenderFlags |= 1;
-    D_8076A0B2 = 0;
+    gMapLoadCountdown = 0;
     gScreenFadeProgress = 31.0f;
     gScreenRenderFlags |= 4;
     modelSkipListClear();
@@ -408,7 +408,7 @@ void mainResetEngineState(void) {
     guPerspective(&gFrameMatrices[1].perspective, &gPerspNorm, gGfxFovY, gGfxAspect * aspectScale, gGfxNearClip, gGfxFarClip, 1.0f);
 }
 
-extern s16 D_8074682C;
+extern s16 gMainLoopWatchdog;
 extern u8 gGfxTaskPending[];
 
 void mainThreadLoop(void *arg) {
@@ -425,10 +425,10 @@ void mainThreadLoop(void *arg) {
     D_8076A070[0] = gScheduler.tickCount - 2;
     osRecvMesg(&gBootDelayMesgQueue, &receivedMesg, OS_MESG_BLOCK);
     while (1) {
-        D_8074682C = 0xC8;
+        gMainLoopWatchdog = 0xC8;
         while (gMainThreadHalted != 0) {
         }
-        if ((gScreenRenderFlags & 1) && D_8076A0B2 == 0) {
+        if ((gScreenRenderFlags & 1) && gMapLoadCountdown == 0) {
             mapLoadLevel();
             if (gNextGameMode == 2) {
                 gGlobalPauseFlags |= 0x200;
@@ -471,7 +471,7 @@ void mainThreadLoop(void *arg) {
             first = 0;
         }
         if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
-            D_8076A0B2--;
+            gMapLoadCountdown--;
         }
         D_807444F0 = gGameMode;
     }
@@ -537,7 +537,7 @@ void gfxSubmitFrame(void) {
             transitionStart(3, &gGlobalPauseFlags);
         }
     } else {
-        glist = screenFadeUpdate(glist, D_8076AEE0);
+        glist = screenFadeUpdate(glist, gTransitionFadeType);
     }
     if (gGfxSubListEnabled != 0 && gGameMode != 6) {
         gfxEndDisplayList(glist, gGfxBufferIndex, &gGfxListCommandCount, 0);
@@ -571,12 +571,12 @@ s32 pauseStateUpdate(void) {
         gPauseTimeTotal += gLastPauseDuration;
         gLastPauseDuration = 0;
         gPauseStartTime = 0;
-        if (D_807445C8 > 0) {
+        if (sPauseOpenDelay > 0) {
             if (!(gGlobalPauseFlags & 1)) {
-                D_807445C8 = 0;
+                sPauseOpenDelay = 0;
             } else {
-                D_807445C8 -= 1;
-                if (D_807445C8 <= 0) {
+                sPauseOpenDelay -= 1;
+                if (sPauseOpenDelay <= 0) {
                     if ((menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) && !(gGlobalPauseFlags & 0x40000)) {
                         sfxAllocateChannel(0x22, 1.0f);
                         sfxAllocateChannel(0x29, 1.0f);
@@ -594,9 +594,9 @@ s32 pauseStateUpdate(void) {
                 }
             }
         }
-        if ((gGlobalPauseFlags & 1) && D_807445C8 <= 0) {
+        if ((gGlobalPauseFlags & 1) && sPauseOpenDelay <= 0) {
             slotQueueReset();
-            D_807445C8 = 2;
+            sPauseOpenDelay = 2;
         }
     }
     return gGlobalPauseFlags & 2;
@@ -635,7 +635,7 @@ void playerViewsBuildMatrices(FrameMatrices *frame) {
 
     aspectScale = cameraStepAspectScale();
     if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
-        func_8062754C(func_806276AC());
+        camSetSharedViewEye(camSetSharedViewFocus());
     }
     for (i = 0; i < gViewportCount; i++) {
         if (gPlayerSlots[i].active != 0) {
@@ -749,7 +749,7 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
     gSPClearGeometryMode(glist++, -1);
     gSPSetGeometryMode(glist++, G_SHADE | G_CULL_BACK | G_SHADING_SMOOTH);
 
-    glist = func_80701CA0(playerViewsRender(glist, frameGfx));
+    glist = underwaterTintBuildDisplayList(playerViewsRender(glist, frameGfx));
     if (gPlayerCount == 1) {
         glist = lensFlareBuildDisplayList(glist);
     }
@@ -773,19 +773,19 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         if (gLetterboxRetractTimer != 0) {
             gLetterboxRetractTimer -= 15;
             barProgress = 1.0 - gLetterboxRetractTimer / 255.0;
-            barOffset = (D_807444AC - D_807444A8) * barProgress;
+            barOffset = (gLetterboxTopBarBottom - gLetterboxTopBarTop) * barProgress;
             gDPFillRectangle(glist++, 0,
-                (barOffset < D_807444A8) ? D_807444A8 - barOffset : 0.0f,
+                (barOffset < gLetterboxTopBarTop) ? gLetterboxTopBarTop - barOffset : 0.0f,
                 (gScreenWidth > 0) ? gScreenWidth : 0,
-                (barOffset < D_807444AC) ? D_807444AC - barOffset : 0.0f);
-            gDPFillRectangle(glist++, 0, D_807444B0 + barOffset, gScreenWidth, D_807444B4 + barOffset);
-            gPlayerSlots->rect[1] = D_807444AC - barOffset;
-            gPlayerSlots->rect[3] = D_807444B0 + barOffset;
+                (barOffset < gLetterboxTopBarBottom) ? gLetterboxTopBarBottom - barOffset : 0.0f);
+            gDPFillRectangle(glist++, 0, gLetterboxBottomBarTop + barOffset, gScreenWidth, gLetterboxBottomBarBottom + barOffset);
+            gPlayerSlots->rect[1] = gLetterboxTopBarBottom - barOffset;
+            gPlayerSlots->rect[3] = gLetterboxBottomBarTop + barOffset;
         } else {
-            gDPFillRectangle(glist++, 0, D_807444A8, gScreenWidth, D_807444AC);
-            gDPFillRectangle(glist++, 0, D_807444B0, gScreenWidth, D_807444B4);
-            gPlayerSlots->rect[1] = D_807444AC;
-            gPlayerSlots->rect[3] = D_807444B0;
+            gDPFillRectangle(glist++, 0, gLetterboxTopBarTop, gScreenWidth, gLetterboxTopBarBottom);
+            gDPFillRectangle(glist++, 0, gLetterboxBottomBarTop, gScreenWidth, gLetterboxBottomBarBottom);
+            gPlayerSlots->rect[1] = gLetterboxTopBarBottom;
+            gPlayerSlots->rect[3] = gLetterboxBottomBarTop;
         }
         gPlayerSlots->rectHeight = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
         gPlayerSlots->aspect = (f32)gPlayerSlots->rectWidth / gPlayerSlots->rectHeight;
@@ -840,7 +840,7 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         gDPSetRenderMode(glist++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
     }
 
-    glist = renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute(gfxInit2DDisplayList(glist), 3), gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ), 5), 7);
+    glist = renderCallbacksExecute(renderCallbacksExecute(renderScreenSpaceEffects(renderCallbacksExecute(gfxInit2DDisplayList(glist), 3), gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ), 5), 7);
     if (gSaveIconTimer != 0) {
         gSaveIconTimer -= 1;
     }
@@ -931,10 +931,10 @@ void mapLoadLevel(void) {
     s32 activeMap;
     s32 songId;
 
-    D_80746830 = 1;
-    D_8076A090 = 0;
-    D_8076A094 = 0;
-    D_8076A098 = 0;
+    gWatchdogPaused = 1;
+    gMapActiveFrameCount = 0;
+    gMapWarpCount = 0;
+    gMapPauseCount = 0;
     gGlobalPauseFlags &= ~0x14C003;
     menuSeedRandom();
     gMinigameCoinCount = 0;
@@ -944,7 +944,7 @@ void mapLoadLevel(void) {
     gGameFrameCounter = 0;
     audioResetAll();
     gEnemyDefeatCount = 0;
-    *D_807ECDF4 = 0;
+    *gPhysicalContPads = 0;
     texCacheReset();
     gScreenRenderFlags &= ~0x30;
     effectSpritePoolReset();
@@ -1070,19 +1070,19 @@ void mapLoadLevel(void) {
         modelEmittersInit();
     }
     menuCheckMapTransitionOnLoad();
-    func_805FF670();
+    mapSpawnPendingPickups();
     gScreenRenderFlags ^= 1;
     gScreenFadeProgress = 31.0f;
     gScreenRenderFlags |= 4;
     gScreenFadeRate = -1.0f;
-    if ((gNextGameMode != 2) && (D_8076AEE0 == 1)) {
+    if ((gNextGameMode != 2) && (gTransitionFadeType == 1)) {
         sfxAllocateChannel(0x2B, 1.0f);
     }
-    func_80701C90();
+    underwaterTintReset();
     screenWipeReset();
     particleFindPathIndices(gCurrentLevelIndex);
     frameTimingReset(gCurrentMap);
-    D_80746830 = 0;
+    gWatchdogPaused = 0;
 }
 
 

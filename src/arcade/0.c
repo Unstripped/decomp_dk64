@@ -113,7 +113,7 @@ void arcadeSaveHighScores(void) {
         eepromSetField(0x14, 0, i, 0, gArcadeHighScoreInitials[i][2]);
     }
     gArcadeTopScore = gArcadeHighScores[0];
-    func_8060DEA8();
+    eepromRequestSaveRecords();
 }
 
 void arcadeLoadHighScores(void) {

@@ -47,8 +47,8 @@ void modelSlotsLoadMap(u8 *, s32, u8, u16, u8);
 #ifndef PROTO_SKIP_modelNodeListSyncFlags
 void modelNodeListSyncFlags(RenderEntry *);
 #endif
-#ifndef PROTO_SKIP_func_8063253C
-s32 func_8063253C(s16, s32);
+#ifndef PROTO_SKIP_modelTypeAllowedOnMap
+s32 modelTypeAllowedOnMap(s16, s32);
 #endif
 #ifndef PROTO_SKIP_modelSlotFindByType
 s32 modelSlotFindByType(s32, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *);
@@ -185,8 +185,8 @@ void modelSlotTransformBoundsAndNodes(s32, f32, f32, f32, f32, f32, f32, f32, f3
 #ifndef PROTO_SKIP_activeActorBoxOverlapTest
 s32 activeActorBoxOverlapTest(f32, f32, f32, s16, s16, s16, u16);
 #endif
-#ifndef PROTO_SKIP_func_80636014
-void func_80636014(s32, u8, u8);
+#ifndef PROTO_SKIP_modelSlotSetDistanceOverride
+void modelSlotSetDistanceOverride(s32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_modelSlotFreeTexAnimNodes
 void modelSlotFreeTexAnimNodes(struct ModelSlot *);
@@ -221,11 +221,11 @@ void dlFreeUnusedTextures();
 #ifndef PROTO_SKIP_modelSlotInitFromAsset
 void modelSlotInitFromAsset(struct ModelSlot *, s32);
 #endif
-#ifndef PROTO_SKIP_func_80636A44
-f32 func_80636A44(s32);
+#ifndef PROTO_SKIP_modelTypeGetDefaultScale
+f32 modelTypeGetDefaultScale(s32);
 #endif
-#ifndef PROTO_SKIP_func_80636A8C
-u8 func_80636A8C(s32);
+#ifndef PROTO_SKIP_modelTypeNeedsPrivateAsset
+u8 modelTypeNeedsPrivateAsset(s32);
 #endif
 #ifndef PROTO_SKIP_modelSlotReplaceSegment6Commands
 void modelSlotReplaceSegment6Commands(ModelSlot *);
@@ -251,8 +251,8 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *, Gfx *, f32, f32, f32, u8, s16, s32
 #ifndef PROTO_SKIP_modelKongVisibilityCheck
 void modelKongVisibilityCheck(s16, u8 *, s16 *);
 #endif
-#ifndef PROTO_SKIP_func_806398E4
-void func_806398E4(s32, u8, u8);
+#ifndef PROTO_SKIP_modelSlotSetTranslucent
+void modelSlotSetTranslucent(s32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_texAnimUpdateNodes
 void texAnimUpdateNodes(struct ModelType1ObjAddrs *);
@@ -275,8 +275,8 @@ struct SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *, RenderEntry
 #ifndef PROTO_SKIP_spriteListInsertByTexture
 struct SpriteDisplayNode *spriteListInsertByTexture(struct SpriteDisplayNode *, struct SpriteDisplayNode *);
 #endif
-#ifndef PROTO_SKIP_func_8063A8C4
-void func_8063A8C4(s16, u8, f32);
+#ifndef PROTO_SKIP_modelSlotSetScaleXZ
+void modelSlotSetScaleXZ(s16, u8, f32);
 #endif
 #ifndef PROTO_SKIP_spriteListRender
 Gfx *spriteListRender(Gfx *, struct SpriteDisplayNode *);
@@ -308,8 +308,8 @@ void modelSlotOrFlags(s32, u8);
 #ifndef PROTO_SKIP_modelSlotClearFlags
 void modelSlotClearFlags(s32, u8);
 #endif
-#ifndef PROTO_SKIP_func_8063C2A8
-s32 func_8063C2A8(s16);
+#ifndef PROTO_SKIP_modelSlotIsAlphaVisible
+s32 modelSlotIsAlphaVisible(s16);
 #endif
 #ifndef PROTO_SKIP_modelSlotGetType
 s16 modelSlotGetType(s16);

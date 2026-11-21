@@ -5,11 +5,11 @@
 #ifndef PROTO_SKIP_actorPatrolFollowerUpdate
 void actorPatrolFollowerUpdate(s16, u8, u16);
 #endif
-#ifndef PROTO_SKIP_func_806AD54C
-void func_806AD54C(void);
+#ifndef PROTO_SKIP_behaviourTrackingPatrolEnemyEvadeUpdate
+void behaviourTrackingPatrolEnemyEvadeUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806AD7AC
-void func_806AD7AC(void);
+#ifndef PROTO_SKIP_behaviourTrackingPatrolEnemyUpdate
+void behaviourTrackingPatrolEnemyUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorFollowLinkedNodeFadeUpdate
 void actorFollowLinkedNodeFadeUpdate(void);
@@ -17,10 +17,10 @@ void actorFollowLinkedNodeFadeUpdate(void);
 #ifndef PROTO_SKIP_actorSpawnLinkedFollower
 void actorSpawnLinkedFollower(void);
 #endif
-#ifndef PROTO_SKIP_func_806AD9F4
-void func_806AD9F4(void);
+#ifndef PROTO_SKIP_behaviourDropInEnemyUpdate
+void behaviourDropInEnemyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806ADDD8
-void func_806ADDD8(void);
+#ifndef PROTO_SKIP_behaviourProximityChaseEnemyUpdate
+void behaviourProximityChaseEnemyUpdate(void);
 #endif
 #endif

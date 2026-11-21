@@ -67,7 +67,7 @@ typedef struct KongActionEntry {
 
 // This TU's .data (0x8074E7A0-0x8074E874 + 12-byte TU pad), in address order; D_8074E7B8 and
 // D_8074E80C are unreferenced.
-ActorMapFlag D_8074E7A0[4] = {
+ActorMapFlag gHiddenBarrelRevealFlags[4] = {
     { 34, 9, 0x1AA },
     { 34, 10, 0x1AB },
     { 34, 18, 0x1BF },
@@ -90,7 +90,7 @@ TransformBarrelEntry gTransformBarrelRefills[8] = {
     { 62, 5, 2 },
 };
 Vec3f D_8074E7D4 = { 0.0f, 0.0f, 0.0f };
-s16 D_8074E7E0[10] = { 60, 65, 61, 66, 62, 67, 63, 68, 64, 69 };
+s16 gTagBarrelDoneFlags[10] = { 60, 65, 61, 66, 62, 67, 63, 68, 64, 69 };
 f32 gCannonAimDistance = 50.0f;
 f32 gCannonYawStickScale = 1.0f;
 f32 gCannonEyeHeight = 20.0f;
@@ -107,7 +107,7 @@ KongActionEntry gTagBarrelKongs[5] = {
     { 12, 6, 0, 0 },
 };
 KongAnimFrameTable gTagBarrelKongAnimFrames = { { 4, 1, 2, 3, 0 } };
-s32 D_8074E848[5] = { 2, 72, 4, 32, 16 };
+s32 gTagBarrelKongChannelMasks[5] = { 2, 72, 4, 32, 16 };
 s32 sKongNameTextIds[6] = { 0, 1, 2, 3, 4, 5 };
 
 extern Actor *gCurrentActor;
@@ -115,19 +115,19 @@ extern PlayerState *gActivePlayerState;
 extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
-extern EffectGridAsset D_8071FE08;
-extern u8 D_80720120;
-extern u8 D_80720340;
-extern u8 D_8072038C;
+extern EffectGridAsset gEffectSpriteStarBurst;
+extern u8 gEffectSpriteFireBurst;
+extern u8 gEffectSpriteExplosion;
+extern u8 gEffectSpriteEmber;
 
 s32 tagBarrelIsSpecial(Actor *actor) {
-    s32 count = sizeof(D_8074E7A0) / sizeof(D_8074E7A0[0]); // ORIG: the row count is stored to its own home before the call: li a2,4 at 0x8, sw a2,0x1c(sp) in the jal delay slot at 0x10, lw a2,0x1c(sp) at 0x1c, bne a0,a2 at 0x5c
+    s32 count = sizeof(gHiddenBarrelRevealFlags) / sizeof(gHiddenBarrelRevealFlags[0]); // ORIG: the row count is stored to its own home before the call: li a2,4 at 0x8, sw a2,0x1c(sp) in the jal delay slot at 0x10, lw a2,0x1c(sp) at 0x1c, bne a0,a2 at 0x5c
     s32 listId = actorListFindIdByActor(actor);
     s32 i;
 
     for (i = 0; i < count; i++) {
-        if (gCurrentMap == D_8074E7A0[i].map && listId == D_8074E7A0[i].listId) {
-            return flagGet(D_8074E7A0[i].flag, 0);
+        if (gCurrentMap == gHiddenBarrelRevealFlags[i].map && listId == gHiddenBarrelRevealFlags[i].listId) {
+            return flagGet(gHiddenBarrelRevealFlags[i].flag, 0);
         }
     }
     return 0;
@@ -281,7 +281,7 @@ void tagBarrelAnimSetSpeed(s32 spawnType) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x31, 0xFF, 0x7F, 1);
             effectSetDepth(0);
             effectSetDuration(1);
-            effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteStarBurst, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
             actorListSpawnNodeEntryDefault(spawnType, gCurrentActor->x, gCurrentActor->y + 8.3, gCurrentActor->z, 0, 1.0f, gCurrentActor);
             gCurrentActor->state++;
             break;
@@ -477,7 +477,7 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x31, 0xFF, 0x7F, 1);
             effectSetDepth(0);
             effectSetDuration(1);
-            effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteStarBurst, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
         }
     }
     if (*falling != 0) {
@@ -524,8 +524,8 @@ void tagBarrelRotateUpdate(void) {
             sfxPlayActorSound(gCurrentActor, 0x10C, 0, 1, 0, 0xFF, 1.0f, 0);
             state->soundPlaying = 1;
         }
-        state->targetSpeed = gActorGlobalState.unk94 / 1.1;
-        gCurrentActor->moveYaw = gActorGlobalState.unk92;
+        state->targetSpeed = gActorGlobalState.surfaceHitSpeed / 1.1;
+        gCurrentActor->moveYaw = gActorGlobalState.surfaceHitYaw;
         speed = gCurrentActor->speedXZ;
         if (speed < state->targetSpeed) {
             gCurrentActor->speedXZ = speed + 0.8;
@@ -633,10 +633,10 @@ typedef struct ThrowableBarrelState {
 extern s16 gCurrentCharacterIndex;
 extern s8 D_80029FA0;
 extern u8 gEffectSpriteBubble;
-extern u8 D_8072030C;
+extern u8 gEffectSpriteFuseSpark;
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
-extern s16 D_80753444[];
+extern s16 gKongBarrelThrowMaxFrames[];
 
 
 void throwableBarrelUpdate(void) {
@@ -659,7 +659,7 @@ void throwableBarrelUpdate(void) {
             effectSetDepth(1);
             effectSetDuration(-1);
             effectSetMaxDistance(gCurrentActor->drawDistance * 0.75);
-            effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 1, 2);
+            effectCreateAtActorBone(&gEffectSpriteFuseSpark, 0.14f, gCurrentActor, 1, 2);
             actorClearNodeFlag(gCurrentActor, 3);
         }
         gCurrentActor->floorY = 99999.0f;
@@ -677,7 +677,7 @@ void throwableBarrelUpdate(void) {
 
     if (gActorGlobalState.pickupReceived != 0) {
         if (state->released == 0) {
-            state->holder = gActorGlobalState.unk28;
+            state->holder = gActorGlobalState.holderActor;
             gCurrentActor->state = 1;
             state->pitch = 360.0f;
             actorCallbackMaskDisable(gCurrentActor, 0x8000);
@@ -715,7 +715,7 @@ void throwableBarrelUpdate(void) {
         state->throwFrame = gFrameCounter;
         state->waterBounces = 0;
         state->groundBounces = 0;
-        gCurrentActor->speedXZ = gActorGlobalState.unk34;
+        gCurrentActor->speedXZ = gActorGlobalState.launchSpeedXZ;
         actorCollisionEventsCancel(state->holder, 1);
     }
 
@@ -928,7 +928,7 @@ void throwableBarrelUpdate(void) {
             gCurrentActor->state = 4;
             state->released = 1;
         }
-        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && D_80753444[gCurrentCharacterIndex] < gFrameCounter - state->throwFrame) {
+        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && gKongBarrelThrowMaxFrames[gCurrentCharacterIndex] < gFrameCounter - state->throwFrame) {
             gCurrentActor->state = 4;
         }
         if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
@@ -1013,9 +1013,9 @@ void throwableBarrelUpdate(void) {
     guMtxCatF(mtx, rot, gCurrentActor->modelMtx);
 }
 
-extern EffectGridAsset D_8071FE64;
-extern EffectGridAsset D_8071FE88;
-extern EffectGridAsset D_8071FEAC;
+extern EffectGridAsset gEffectSpriteBarrelDebrisDark;
+extern EffectGridAsset gEffectSpriteBarrelDebrisLight;
+extern EffectGridAsset gEffectSpriteBarrelDebrisPlank;
 
 void tagBarrelDespawnEffects(void) {
     s32 pad;
@@ -1027,7 +1027,7 @@ void tagBarrelDespawnEffects(void) {
     rumbleRequest(0, 0xB4, 0xA);
     effectSetDepth(0);
     effectSetDuration(1);
-    effectCreateAtPosition(&D_8071FE08, scale * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectCreateAtPosition(&gEffectSpriteStarBurst, scale * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x23, 0xFF, 0x7F, 1);
 
     for (i = 0; i != 7; i++) {
@@ -1039,13 +1039,13 @@ void tagBarrelDespawnEffects(void) {
         effectSetSpeed(2);
         switch (kind) {
         case 0:
-            effectCreateAtPosition(&D_8071FE64, scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteBarrelDebrisDark, scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         case 1:
-            effectCreateAtPosition(&D_8071FE88, scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteBarrelDebrisLight, scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         case 2:
-            effectCreateAtPosition(&D_8071FEAC, scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteBarrelDebrisPlank, scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         }
     }
@@ -1064,7 +1064,7 @@ void tagBarrelSpawnSmokeAndPuffs(f32 x, f32 y, f32 z, f32 scale, u8 spray, u8 pl
     }
     effectSetDepth(1);
     effectSetCallback(effectPuffExpandFadeUpdate);
-    effectCreateAtPosition(&D_80720120, 0.0f, x, y + 5.0f, z);
+    effectCreateAtPosition(&gEffectSpriteFireBurst, 0.0f, x, y + 5.0f, z);
     scaleD = scale;
     puffScale = scaleD * 1.5;
     for (i = 0; i < 5; i++) {
@@ -1075,13 +1075,13 @@ void tagBarrelSpawnSmokeAndPuffs(f32 x, f32 y, f32 z, f32 scale, u8 spray, u8 pl
         effectSetDepth(1);
         effectSetDuration(1);
         effectSetCallback(effectSpinBillboardingUpdate);
-        effectCreateAtPosition(&D_80720340, puffScale, x + dx, y + dy, z + dz);
+        effectCreateAtPosition(&gEffectSpriteExplosion, puffScale, x + dx, y + dy, z + dz);
     }
     effectSetStartDelay(4);
     effectSetDepth(1);
     effectSetDuration(1);
     effectSetCallback(effectSpinBillboardingUpdate);
-    effectCreateAtPosition(&D_80720340, puffScale, x, y, z);
+    effectCreateAtPosition(&gEffectSpriteExplosion, puffScale, x, y, z);
     if (spray != 0) {
         for (i = 0; i != 12; i++) {
             effectSetDepth(1);
@@ -1089,7 +1089,7 @@ void tagBarrelSpawnSmokeAndPuffs(f32 x, f32 y, f32 z, f32 scale, u8 spray, u8 pl
             effectSetSpeed(i + 0x0B020000);
             effectSetCallback(effectRadialSprayUpdate);
             effectSetFrameDelay(1);
-            effectCreateAtPosition(&D_8072038C, scaleD * 0.5, x, y, z);
+            effectCreateAtPosition(&gEffectSpriteEmber, scaleD * 0.5, x, y, z);
         }
     }
 }
@@ -1176,7 +1176,7 @@ void transformBarrelInitScale(void) {
             if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
                 effectSetDepth(0);
                 effectSetDuration(1);
-                effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpriteStarBurst, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
                 actorDespawn(gCurrentActor);
             }
         }
@@ -1927,10 +1927,10 @@ typedef struct TagBarrelSpawnParams {
 
 
 extern u8 gScreenRenderFlags;
-extern u8 D_8071FC58[];
+extern u8 gEffectSpriteSparklePurple[];
 
 
-extern s16 D_80750390;
+extern s16 gBarrelMountLaunchSpeedY;
 
 void tagBarrelActorUpdate(void) {
     s16 kong;
@@ -1966,7 +1966,7 @@ void tagBarrelActorUpdate(void) {
         sub->flagIndex = ((TagBarrelSpawnParams *)gCurrentActor->spawnData)->flagIndex;
         sub->riseTimer = 0;
         if (gCurrentActor->actorType == 0x1C) {
-            flag = func_8073195C(sub->flagIndex);
+            flag = flagLookupIdByIndex(sub->flagIndex);
             if (flagGet(flag, 0)) {
                 actorDespawn(gCurrentActor);
             }
@@ -2043,11 +2043,11 @@ void tagBarrelActorUpdate(void) {
             effectSetFlags(4);
             if (gCurrentActor->state == 0) {
                 effectSetCallback(effectZSpinMatrixUpdate);
-                effectCreateAtPosition(D_8071FC58, 0.5f, effectX, effectY, effectZ);
+                effectCreateAtPosition(gEffectSpriteSparklePurple, 0.5f, effectX, effectY, effectZ);
             } else {
                 effectSetSpeed((s32)(gCurrentActor->sub4->scaleX * 100.0f) + (sub->spinSpeed << 16));
                 effectSetCallback(effectOrbitXZUpdate);
-                effectCreateAtPosition(D_8071FC58, 0.5f, gCurrentActor->x, effectY, gCurrentActor->z);
+                effectCreateAtPosition(gEffectSpriteSparklePurple, 0.5f, gCurrentActor->x, effectY, gCurrentActor->z);
             }
         }
     }
@@ -2125,7 +2125,7 @@ void tagBarrelActorUpdate(void) {
         sub->spinSpeed = 0;
         actorAppendCallback(gPrimaryPlayerActor, gCurrentActor, 0x40, 1, 0, NULL);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->mountMode == 1.0) {
-            angle = D_80750390;
+            angle = gBarrelMountLaunchSpeedY;
         } else {
             angle = 0xB4;
         }
@@ -2160,7 +2160,7 @@ void tagBarrelActorUpdate(void) {
         if (sub->timer == 0) {
             tagBarrelDespawnEffects();
             if (sub->flagIndex != 0) {
-                spawnFlag = func_8073195C(sub->flagIndex);
+                spawnFlag = flagLookupIdByIndex(sub->flagIndex);
             } else {
                 spawnFlag = -1;
             }
@@ -2230,7 +2230,7 @@ void tagBarrelCheckDespawn(void) {
     }
     tagBarrelActorUpdate();
     if (gCurrentActor->state == 0xC && sub->timer < 3) {
-        flagSet(D_8074E7E0[sub->flagIndex], 1, 2);
+        flagSet(gTagBarrelDoneFlags[sub->flagIndex], 1, 2);
         tagBarrelDespawnEffects();
         actorDespawn(gCurrentActor);
     }
@@ -2368,7 +2368,7 @@ void rocketbarrelUpdate(void) {
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0;
         actorAppendCallback(state->rider, gCurrentActor, 0x40, 1, 0, 0);
-        actorAppendPlayerLaunch(gCurrentActor, state->rider, state->rider->yaw, D_80750390, 0);
+        actorAppendPlayerLaunch(gCurrentActor, state->rider, state->rider->yaw, gBarrelMountLaunchSpeedY, 0);
         playerMountBarrel(state->rider, gCurrentActor);
         gActivePlayerState->isHoldingObject = 1;
         gCurrentActor->state = 3;
@@ -2475,7 +2475,7 @@ void cannonUpdate(void) {
         camSetFixedView(cam, x, y, z, x + sinOff, y + gCannonAimPitch, gCurrentActor->z + cosOff, 0);
         if (camIsCutsceneActive() == 0) {
             renderCallbacksRegister(playerViewDrawCrosshair, gPrimaryPlayerActor, 3);
-            renderCallbacksRegister(func_806FEF7C, gPrimaryPlayerActor, 3);
+            renderCallbacksRegister(playerViewDrawCenterMask, gPrimaryPlayerActor, 3);
         }
         actorSetTriangleEnableById(gCurrentActor, 0, 0);
     } else {
@@ -2856,7 +2856,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
             data->previous = data->selected;
             if (gCurrentMap != 0x11) {
                 sfxAllocateChannel(0x65, 1.0f);
-                sfxSetChannelParam(0x65, 0x7E - D_8074E848[data->selected], 1);
+                sfxSetChannelParam(0x65, 0x7E - gTagBarrelKongChannelMasks[data->selected], 1);
             }
             flagSet(mapGetConfigValue(gCurrentActor->actorType, data->selected), 1, 0);
             tagBarrelSpawnKongs(data);
@@ -2865,7 +2865,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
             player->yaw = gCurrentActor->yaw;
             eepromSavePlayerData();
             camStartPath(gCurrentActor, 0xE, 0xC);
-            func_8061B650(playerState->camActor);
+            camSetHoldMode(playerState->camActor);
             slotQueueClearAllFlags();
             gCurrentActor->state = 1;
             gCurrentActor->unk155 = 0;
@@ -2925,8 +2925,8 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
             }
         } else {
             if (!timedOut && prevTimer != 0) {
-                sfxSetChannelParam(0x65, 0x7E - D_8074E848[data->selected], 3);
-                sfxSetChannelParam(0x65, D_8074E848[data->selected], 2);
+                sfxSetChannelParam(0x65, 0x7E - gTagBarrelKongChannelMasks[data->selected], 3);
+                sfxSetChannelParam(0x65, gTagBarrelKongChannelMasks[data->selected], 2);
                 return;
             }
             if (((timedOut && isKong) || (gPlayerPadState[0].pressedButtons & 0xE000)) && screenWipeGetState() == 0) {

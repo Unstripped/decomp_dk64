@@ -13,7 +13,7 @@ s32 D_80746814 = 0;
 u8 gRumbleResetPending = 1;
 extern u8 gScreenRenderFlags;
 extern u8 gControllerConnectedMask;
-extern OSMesgQueue D_807ECCF0;
+extern OSMesgQueue gSiMesgQueue;
 extern PlayerStruct *gPlayerSlots;
 
 // .bss 0x807F02D0-0x807F04C0
@@ -37,7 +37,7 @@ void rumbleMotorStart(u8 port) {
 }
 
 void rumbleMotorInit(u8 port) {
-    s32 ret = osMotorInit(&D_807ECCF0, &gRumblePfs[port], port);
+    s32 ret = osMotorInit(&gSiMesgQueue, &gRumblePfs[port], port);
 
     switch (ret) {
     case 0:

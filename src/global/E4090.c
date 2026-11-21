@@ -299,7 +299,7 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputNoop, func_806EAC8C, func_806EACBC,
+        playerInputRequestPause, playerInputNoop, playerInputHandleAButtonShopConfirm, playerInputHandleBButtonShopDecline,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -768,21 +768,21 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputStepTurnFacingAngle, playerInputHandleAButtonSuperJump, func_806E93F8,
+        playerInputRequestPause, playerInputStepTurnFacingAngle, playerInputHandleAButtonSuperJump, playerInputHandleBButtonUnderwaterCharge,
         playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
         playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputCalculateTurnStep, playerInputHandleAButtonSuperJump, func_806E93F8,
+        playerInputRequestPause, playerInputCalculateTurnStep, playerInputHandleAButtonSuperJump, playerInputHandleBButtonUnderwaterCharge,
         playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputResetDecelRate,
         playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
         playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputCalculateStickTurnRate, playerInputHandleAButtonSuperJump2, func_806E93F8,
+        playerInputRequestPause, playerInputCalculateStickTurnRate, playerInputHandleAButtonSuperJump2, playerInputHandleBButtonUnderwaterCharge,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -852,30 +852,30 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputStepLane, func_806E8E00, playerInputNoop,
-        func_806E8D54, playerInputNoop, playerInputNoop, func_806E8DB4,
+        playerInputRequestPause, playerInputStepLane, playerInputHandleAButtonLaneRaceFire, playerInputNoop,
+        playerInputHandleZButtonLaneRaceThrottle, playerInputNoop, playerInputNoop, playerInputHandleZButtonReleaseLaneRaceThrottle,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputNoop, func_806EAF6C, playerInputNoop,
+        playerInputRequestPause, playerInputNoop, playerInputHandleAButtonReelGame, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputPlayHeldActorClimbSfx, func_806E8B28, playerInputNoop,
-        playerInputScaleHeldActorVineClimb, playerInputNoop, playerInputNoop, func_806E8AF0,
-        playerInputNoop, func_806E8BA4, playerInputNoop, func_806E8BFC,
+        playerInputRequestPause, playerInputPlayHeldActorClimbSfx, playerInputHandleAButtonVehicleJump, playerInputNoop,
+        playerInputScaleHeldActorVineClimb, playerInputNoop, playerInputNoop, playerInputHandleZButtonReleaseVehicleThrottle,
+        playerInputNoop, playerInputHandleRButtonVehicleSharpTurn, playerInputNoop, playerInputHandleRButtonReleaseVehicleSharpTurn,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop,
     } },
     { {
         playerInputRequestPause, playerInputUpdateHeldActorVineClimb, playerInputNoop, playerInputSetHeldActorVineSpeed,
-        playerInputScaleHeldActorVineClimb, playerInputNoop, playerInputClearHeldActorVineSpeed, func_806E8AF0,
-        playerInputNoop, func_806E8BA4, playerInputNoop, func_806E8BFC,
+        playerInputScaleHeldActorVineClimb, playerInputNoop, playerInputClearHeldActorVineSpeed, playerInputHandleZButtonReleaseVehicleThrottle,
+        playerInputNoop, playerInputHandleRButtonVehicleSharpTurn, playerInputNoop, playerInputHandleRButtonReleaseVehicleSharpTurn,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop,
     } },
@@ -887,15 +887,15 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonGroundJump, func_806EAE04,
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonGroundJump, playerInputHandleBButtonPulse,
         playerInputNoop, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop,
     } },
     { {
-        playerInputRequestPause, playerInputUpdateStickTurnYawFast, func_806E9468, func_806E9388,
-        func_806E9468, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputRequestPause, playerInputUpdateStickTurnYawFast, playerInputDiveFromSurface, playerInputHandleBButtonSurfaceCharge,
+        playerInputDiveFromSurface, playerInputNoop, playerInputNoop, playerInputNoop,
         playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
         playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
         playerInputNoop,
@@ -1295,10 +1295,10 @@ void playerInputUpdateFacingYawOffset(void) {
 
 
 
-extern f32 D_80753BA4[];
-extern f32 D_80753BC0[];
-extern f32 D_80753BDC[];
-extern f32 D_80753BF8[];
+extern f32 gKongPathForwardMinSpeeds[];
+extern f32 gKongPathForwardMaxSpeeds[];
+extern f32 gKongPathBackMinSpeeds[];
+extern f32 gKongPathBackMaxSpeeds[];
 extern f32 D_80753DC8[];
 extern f32 D_80753DE4[];
 extern u16 *gActorScriptIndexTable;
@@ -1519,9 +1519,9 @@ void playerInputUpdateMoveTargetWithDeadzone2(void) {
 
 void playerPathMoveByStickYAndTurn(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].stickY < 0) {
-        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(D_80753BDC[gCurrentCharacterIndex], D_80753BF8[gCurrentCharacterIndex]);
+        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(gKongPathBackMinSpeeds[gCurrentCharacterIndex], gKongPathBackMaxSpeeds[gCurrentCharacterIndex]);
     } else {
-        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(D_80753BA4[gCurrentCharacterIndex], D_80753BC0[gCurrentCharacterIndex]);
+        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(gKongPathForwardMinSpeeds[gCurrentCharacterIndex], gKongPathForwardMaxSpeeds[gCurrentCharacterIndex]);
     }
     if (gActivePlayerState->maxSpeed != 0.0f) {
         gActivePlayerState->moveDir = gActivePlayerState->maxSpeed > 0.0f ? 1 : -1;
@@ -1536,9 +1536,9 @@ void playerPathMoveByStickYAndTurn(void) {
 
 void playerPathMoveByStickY(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].stickY < 0) {
-        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(D_80753BDC[gCurrentCharacterIndex], D_80753BF8[gCurrentCharacterIndex]);
+        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(gKongPathBackMinSpeeds[gCurrentCharacterIndex], gKongPathBackMaxSpeeds[gCurrentCharacterIndex]);
     } else {
-        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(D_80753BA4[gCurrentCharacterIndex], D_80753BC0[gCurrentCharacterIndex]);
+        gActivePlayerState->maxSpeed = inputLerpByStickAbsY(gKongPathForwardMinSpeeds[gCurrentCharacterIndex], gKongPathForwardMaxSpeeds[gCurrentCharacterIndex]);
     }
     if (gActivePlayerState->maxSpeed != 0.0f) {
         gActivePlayerState->moveDir = gActivePlayerState->maxSpeed > 0.0f ? 1 : -1;
@@ -2362,8 +2362,8 @@ void playerStepPitchAngleToward(f32 target) {
 }
 
 void playerInputHandleStickAction(void) {
-    static u8 D_807FD6E0; // function-local static (only user): uopt treats it as non-aliased; needs the E4090 .bss carve
-    static u8 D_807FD6E1;
+    static u8 sThrustBurstFrames; // function-local static (only user): uopt treats it as non-aliased; needs the E4090 .bss carve
+    static u8 sThrustCooldownFrames;
     f32 ang;
     f32 ground;
     f32 a;
@@ -2372,8 +2372,8 @@ void playerInputHandleStickAction(void) {
 
     if (slotQueueGetValue(5, gCurrentPlayerIndex) && gActivePlayerState->isHoldingObject) {
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) {
-            D_807FD6E0 = 0;
-            D_807FD6E1 = 0;
+            sThrustBurstFrames = 0;
+            sThrustCooldownFrames = 0;
         }
         ang = gCurrentActor->moveYaw - gCurrentActor->yaw;
         if (ang < 0.0f) {
@@ -2425,20 +2425,20 @@ void playerInputHandleStickAction(void) {
         } else {
             a = -ang;
         }
-        if (((a > 10.0f) || (gCurrentActor->speedY < 0.0f)) && (D_807FD6E1 == 0)) {
-            D_807FD6E0 = 4;
+        if (((a > 10.0f) || (gCurrentActor->speedY < 0.0f)) && (sThrustCooldownFrames == 0)) {
+            sThrustBurstFrames = 4;
         }
-        if (D_807FD6E0) {
-            D_807FD6E0 -= 1;
-            if (D_807FD6E0 == 0) {
-                D_807FD6E1 = 8;
+        if (sThrustBurstFrames) {
+            sThrustBurstFrames -= 1;
+            if (sThrustBurstFrames == 0) {
+                sThrustCooldownFrames = 8;
             }
             playerInputStepCannonPitch();
         } else {
             sfxStopSlotSound(gCurrentActor, 0);
         }
-        if (D_807FD6E1) {
-            D_807FD6E1 -= 1;
+        if (sThrustCooldownFrames) {
+            sThrustCooldownFrames -= 1;
         }
     }
 }
@@ -2451,8 +2451,8 @@ void playerInputHandlerStartScript15(void) {
 
 
 
-extern f32 D_807531E0[];
-extern f32 D_8075318C[];
+extern f32 gKongMaxTierExitSpeeds[];
+extern f32 gKongHighTierEnterSpeeds[];
 extern f32 D_807534B8[];
 extern s16 D_807534D4[];
 extern s16 D_8075380C[];
@@ -2499,7 +2499,7 @@ void playerInputHandleBButtonGun(void) {
             gActivePlayerState->slideLaunchSpeed = D_8075380C[gCurrentCharacterIndex];
         }
     } else {
-        if (!mpIsMatchType(0) && (D_807531E0[gCurrentCharacterIndex] <= gActivePlayerState->unk20) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
+        if (!mpIsMatchType(0) && (gKongMaxTierExitSpeeds[gCurrentCharacterIndex] <= gActivePlayerState->unk20) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
             actorScriptStartByIndex(gCurrentActor, 0x44);
             gCurrentActor->state = 0x29;
             gCurrentActor->unk155 = 0;
@@ -2550,7 +2550,7 @@ void playerInputHandleBButtonPunch(void) {
 
 void playerInputHandleBButtonSpecial(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        if ((D_8075318C[gCurrentCharacterIndex] < gActivePlayerState->unk20) &&
+        if ((gKongHighTierEnterSpeeds[gCurrentCharacterIndex] < gActivePlayerState->unk20) &&
             ((gPlayerCharacterId[gCurrentPlayerIndex] == 3) || (gPlayerCharacterId[gCurrentPlayerIndex] == 0) || (gPlayerCharacterId[gCurrentPlayerIndex] == 5))) {
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 3) {
                 gCurrentActor->speedY = 200.0f;
@@ -2666,7 +2666,7 @@ void playerInputThrowHeldActor(void) {
 
 void playerInputHandleAButtonFire(void) {
     if ((playerInputCheckMultiplayerPlayerTarget() == 0) && (gActivePlayerState->chargeTimer == -1)) {
-        if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (gCurrentActor->speedXZ < D_807531E0[gCurrentCharacterIndex])) {
+        if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (gCurrentActor->speedXZ < gKongMaxTierExitSpeeds[gCurrentCharacterIndex])) {
             gCurrentActor->state = 0x3C;
             gCurrentActor->unk155 = 0;
             actorScriptStartByIndex(gCurrentActor, 0xA);
@@ -2837,8 +2837,8 @@ int playerIsOnOwnInstrumentPad(Actor *mob) {
 }
 
 
-extern s32 D_8076A094;
-extern u8 D_8076A0B2;
+extern s32 gMapWarpCount;
+extern u8 gMapLoadCountdown;
 extern f32 D_807536AC[];
 extern u8 D_8072014C[];
 
@@ -2860,7 +2860,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 break;
             case 5:
                 if (gCsCondFlag == 0) {
-                    if (++D_8076A094 < 0x5DD) {
+                    if (++gMapWarpCount < 0x5DD) {
                         gActivePlayerState->warpX = gActorGlobalState.eventX;
                         gActivePlayerState->warpY = gActorGlobalState.eventY;
                         gActivePlayerState->warpZ = gActorGlobalState.eventZ;
@@ -2872,7 +2872,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 break;
             case 3:
                 if (gCsCondFlag == 0) {
-                    if (++D_8076A094 < 0x5DD) {
+                    if (++gMapWarpCount < 0x5DD) {
                         gActivePlayerState->warpX = gActorGlobalState.eventX;
                         gActivePlayerState->warpY = gActorGlobalState.eventY;
                         gActivePlayerState->warpZ = gActorGlobalState.eventZ;
@@ -2883,7 +2883,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 }
                 break;
             case 10:
-                if (D_8076A0B2 == 0) {
+                if (gMapLoadCountdown == 0) {
                     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
                     screenSetTransitionFadeType(0);
                     mapSaveSlotAndTransition(gActorGlobalState.eventValue0, gActorGlobalState.eventValue1, 0, 0);
@@ -2908,7 +2908,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                     timerQueueAdd(playerInputStartTransitionToMap, 0x14, gActorGlobalState.eventValue0, gActorGlobalState.eventValue1, 0);
                     for (i = 0; i != 0x14; i++) {
                         effectSetDepth(1);
-                        effectSetCallback(func_8071F034);
+                        effectSetCallback(effectFollowPlayerUpdate);
                         effectSetStartDelay(i);
                         effectCreateAtPosition(D_8072014C, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     }
@@ -3079,11 +3079,11 @@ void playerInputRequestPause(void) {
 extern f32 D_80753988[];
 extern s16 gKongStickTurnRates[];
 extern f32 D_8075396C[];
-extern f32 D_80753AC4[];
-extern f32 D_80753AA8[];
-extern s16 D_80753A98[];
+extern f32 gKongSurfaceStrokeSpeeds[];
+extern f32 gKongSurfaceStrokeRepeatSpeeds[];
+extern s16 gKongSurfaceStrokeFrames[];
 extern s16 D_8075395C[];
-extern s16 D_80753B44[];
+extern s16 gKongStickRollAngles[];
 
 void playerInputRecordAPress(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
@@ -3151,7 +3151,7 @@ void playerInputStepTurnFacingAngle(void) {
     }
     mathAngleStepToward(&gCurrentActor->pitch, target, 0x10);
     if (gPlayerPadState[gCurrentPlayerIndex].stickY != 0) {
-        target = (D_80753B44[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickY) / 70;
+        target = (gKongStickRollAngles[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickY) / 70;
         target &= 0xFFF;
         mathAngleStepToward(&gCurrentActor->roll, target, (s16)(s32)((((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.125) > 0.0 ? ((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.125) : -((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.125)) + (f64)rollStep));
         return;
@@ -3245,7 +3245,7 @@ void playerInputCalculateTurnStep(void) {
         target = 0;
     }
     mathAngleStepToward(&gCurrentActor->pitch, target, 0x10);
-    target = (D_80753B44[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickY) / 70;
+    target = (gKongStickRollAngles[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickY) / 70;
     target = target & 0xFFF;
     if (gPlayerCharacterId[gCurrentPlayerIndex] == 7) {
         rollStep = ((gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5 > 0.0) ? gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5 : -(gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5)) + 16.0;
@@ -3310,19 +3310,19 @@ void playerInputHandleBButtonComboPunch(void) {
             gActivePlayerState->subTimer = gCurrentActor->roll;
             gActivePlayerState->pitchAngle = gCurrentActor->yaw;
             if (gActivePlayerState->actionTimer == 0) {
-                gActivePlayerState->targetSpeed = D_80753AC4[gCurrentCharacterIndex];
+                gActivePlayerState->targetSpeed = gKongSurfaceStrokeSpeeds[gCurrentCharacterIndex];
                 actorScriptStartByIndex(gCurrentActor, 0x36);
             } else {
-                gActivePlayerState->targetSpeed = D_80753AA8[gCurrentCharacterIndex];
+                gActivePlayerState->targetSpeed = gKongSurfaceStrokeRepeatSpeeds[gCurrentCharacterIndex];
             }
-            gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
+            gActivePlayerState->actionTimer = gKongSurfaceStrokeFrames[gCurrentCharacterIndex];
             gActivePlayerState->jumpStartTime = gScheduler.tickCount;
         } else if (!(gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
             gActivePlayerState->subTimer = gCurrentActor->roll;
             gActivePlayerState->pitchAngle = gCurrentActor->yaw;
             if (gActivePlayerState->actionTimer == 0) {
                 gActivePlayerState->actionTimer = 1;
-                gActivePlayerState->targetSpeed = D_80753AA8[gCurrentCharacterIndex];
+                gActivePlayerState->targetSpeed = gKongSurfaceStrokeRepeatSpeeds[gCurrentCharacterIndex];
             }
         }
     }
@@ -3333,12 +3333,12 @@ void playerInputHandleBButtonAttack(void) {
         gActivePlayerState->subTimer = gCurrentActor->roll;
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
         if (gActivePlayerState->actionTimer == 0) {
-            gActivePlayerState->targetSpeed = D_80753AC4[gCurrentCharacterIndex];
+            gActivePlayerState->targetSpeed = gKongSurfaceStrokeSpeeds[gCurrentCharacterIndex];
             actorScriptStartByIndex(gCurrentActor, 0x36);
         } else {
-            gActivePlayerState->targetSpeed = D_80753AA8[gCurrentCharacterIndex];
+            gActivePlayerState->targetSpeed = gKongSurfaceStrokeRepeatSpeeds[gCurrentCharacterIndex];
         }
-        gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
+        gActivePlayerState->actionTimer = gKongSurfaceStrokeFrames[gCurrentCharacterIndex];
         gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
 }
@@ -3410,10 +3410,10 @@ void playerInputHandleBButtonDashAttack(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         gActivePlayerState->subTimer = gCurrentActor->roll;
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
-        gActivePlayerState->targetSpeed = D_80753AC4[gCurrentCharacterIndex];
+        gActivePlayerState->targetSpeed = gKongSurfaceStrokeSpeeds[gCurrentCharacterIndex];
         actorScriptStartByIndex(gCurrentActor, 0x36);
         gCurrentActor->unk155 = 3;
-        gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
+        gActivePlayerState->actionTimer = gKongSurfaceStrokeFrames[gCurrentCharacterIndex];
         gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
 }
@@ -3870,7 +3870,7 @@ void playerInputScaleHeldActorVineClimb(void) {
     }
 }
 
-void func_806E8AF0(void) {
+void playerInputHandleZButtonReleaseVehicleThrottle(void) {
     Actor *a;
     LaneActorState *st;
 
@@ -3883,7 +3883,7 @@ void func_806E8AF0(void) {
     }
 }
 
-void func_806E8B28(void) {
+void playerInputHandleAButtonVehicleJump(void) {
     LaneActor *a;
     LaneActorState *st;
     LaneComponent *o;
@@ -3900,7 +3900,7 @@ void func_806E8B28(void) {
     }
 }
 
-void func_806E8BA4(void) {
+void playerInputHandleRButtonVehicleSharpTurn(void) {
     Actor *a;
     LaneActorState *st;
 
@@ -3915,7 +3915,7 @@ void func_806E8BA4(void) {
     }
 }
 
-void func_806E8BFC(void) {
+void playerInputHandleRButtonReleaseVehicleSharpTurn(void) {
     Actor *a;
     LaneActorState *st;
 
@@ -3963,7 +3963,7 @@ void playerInputStepLane(void) {
     }
 }
 
-void func_806E8D54(void) {
+void playerInputHandleZButtonLaneRaceThrottle(void) {
     LaneActor *a;
     LaneActorState *st;
     LaneComponent *o;
@@ -3978,7 +3978,7 @@ void func_806E8D54(void) {
     }
 }
 
-void func_806E8DB4(void) {
+void playerInputHandleZButtonReleaseLaneRaceThrottle(void) {
     LaneActor *a;
     LaneActorState *st;
     LaneComponent *o;
@@ -3993,7 +3993,7 @@ void func_806E8DB4(void) {
     }
 }
 
-void func_806E8E00(void) {
+void playerInputHandleAButtonLaneRaceFire(void) {
     Actor *a;
     LaneActorState *st;
 
@@ -4102,7 +4102,7 @@ void playerInputHandleRButtonFixedLook(void) {
     }
 }
 
-void func_806E9388(void) {
+void playerInputHandleBButtonSurfaceCharge(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         gCurrentActor->state = 0x80;
         gCurrentActor->unk155 = 0;
@@ -4110,7 +4110,7 @@ void func_806E9388(void) {
     }
 }
 
-void func_806E93F8(void) {
+void playerInputHandleBButtonUnderwaterCharge(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         gCurrentActor->state = 0x81;
         gCurrentActor->unk155 = 0;
@@ -4118,7 +4118,7 @@ void func_806E93F8(void) {
     }
 }
 
-void func_806E9468(void) {
+void playerInputDiveFromSurface(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xA000) {
         gActivePlayerState->subTimer = D_807539EC[gCurrentCharacterIndex];
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
@@ -4134,7 +4134,7 @@ void func_806E9468(void) {
     }
 }
 
-extern s16 D_8075388C[];
+extern s16 gKongNormalSwimSurfaceDepths[];
 extern s16 gKongSwimSurfaceDepths[];
 
 s32 playerInputPostUpdate(void) {
@@ -4170,7 +4170,7 @@ s32 playerInputPostUpdate(void) {
                 }
             } else {
                 if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-                    depthLimit = D_8075388C[gCurrentCharacterIndex];
+                    depthLimit = gKongNormalSwimSurfaceDepths[gCurrentCharacterIndex];
                 } else {
                     depthLimit = gKongSwimSurfaceDepths[gCurrentCharacterIndex];
                 }
@@ -4558,7 +4558,7 @@ void playerLeaveViewMode(Actor *actor, u8 isFirstPerson) {
         playerKongHolsterGun(actor);
     }
     actor->speedXZ = 0.0f;
-    actor->yaw = func_8062773C(state->camActor);
+    actor->yaw = camExitFirstPerson(state->camActor);
 }
 
 typedef struct LinkedComponent {
@@ -4572,7 +4572,7 @@ typedef struct LinkedComponentActor {
 } LinkedComponentActor;
 
 
-void func_806EAC8C(void) {
+void playerInputHandleAButtonShopConfirm(void) {
     LinkedComponent *inner;
 
     inner = ((LinkedComponentActor *)gActivePlayerState->actor)->component;
@@ -4581,7 +4581,7 @@ void func_806EAC8C(void) {
     }
 }
 
-void func_806EACBC(void) {
+void playerInputHandleBButtonShopDecline(void) {
     LinkedComponent *inner;
 
     inner = ((LinkedComponentActor *)gActivePlayerState->actor)->component;
@@ -4608,7 +4608,7 @@ void playerInputHandleAButtonGroundJump(void) {
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x309, 0xFF, 0x7F, 0);
 }
 
-void func_806EAE04(void) {
+void playerInputHandleBButtonPulse(void) {
     Actor *mid;
 
     mid = gActivePlayerState->actor;
@@ -4649,7 +4649,7 @@ void playerInputWiggleOffStatusEffect(void) {
     }
 }
 
-void func_806EAF6C(void) {
+void playerInputHandleAButtonReelGame(void) {
     Actor *mid;
 
     mid = gActivePlayerState->actor;

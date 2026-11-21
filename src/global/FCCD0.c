@@ -101,7 +101,7 @@ SlotQueueSlot *slotQueueGetAddress(u8 player) {
     return &gSlotQueue[player * 15];
 }
 
-void func_806F8004(f32 pitch, f32 yaw, f32 *outX, f32 *outY, f32 *outZ) {
+void slotQueueAnglesToViewPoint(f32 pitch, f32 yaw, f32 *outX, f32 *outY, f32 *outZ) {
     f32 pitchMtx[4][4];
     f32 yawMtx[4][4];
     f32 tz;
@@ -128,9 +128,9 @@ void func_806F8004(f32 pitch, f32 yaw, f32 *outX, f32 *outY, f32 *outZ) {
 
 void slotQueueGetPosition(s32 slot, f32 *x, f32 *y, f32 *z) {
     if (slot < 0) {
-        func_806F8004(16.5f, 0.0f, x, y, z);
+        slotQueueAnglesToViewPoint(16.5f, 0.0f, x, y, z);
     } else if (slot == 8) {
-        func_806F8004(1.5 - gSlotQueue[slot].shown * 7, 26.0f, x, y, z);
+        slotQueueAnglesToViewPoint(1.5 - gSlotQueue[slot].shown * 7, 26.0f, x, y, z);
     } else {
         *x = gSlotQueue[slot].worldX;
         *y = gSlotQueue[slot].worldY;
@@ -162,11 +162,11 @@ void slotQueueUpdateGoldenBananaTotal(u8 player) {
 }
 
 
-extern s16 D_80744544;
+extern s16 gCheatFlags;
 extern u16 gMinigameCoinCount;
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
- * screen position (func_806F8004). */
+ * screen position (slotQueueAnglesToViewPoint). */
 void slotQueueInit(s32 reset) {
     s32 j;
     s32 i;
@@ -177,7 +177,7 @@ void slotQueueInit(s32 reset) {
     KongInventory *kongInv;
     s32 flag;
 
-    shownMask = D_80744544;
+    shownMask = gCheatFlags;
     world = mapGetHubWorldIndex(gCurrentWorldId, 1);
     if (gPlayerCount >= 2) {
         shownMask = 0;
@@ -210,27 +210,27 @@ void slotQueueInit(s32 reset) {
                 case 0:
                     base[j].value = &kongInv->coloredBananas[world];
                     base[j].x = 0x1E; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 13:
                     base[j].value = NULL;
                     base[j].x = 0x122; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(-5.5f, -26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(-5.5f, -26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 8:
                     base[j].value = &kongInv->goldenBananas[world];
                     base[j].x = 0x1E; base[j].y = 0x48; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(1.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(1.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 12:
                     base[j].value = NULL;
                     base[j].x = 0xC2; base[j].y = 0xD0; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 10:
                     base[j].value = NULL;
                     base[j].x = 0x52; base[j].y = 0xD0; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 9:
                     base[j].value = NULL;
@@ -243,12 +243,12 @@ void slotQueueInit(s32 reset) {
                     }
                     base[j].value = &inv->abilityEnergy;
                     base[j].x = 0x122; base[j].y = 0x8C; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(-5.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(-5.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 2:
                     base[j].value = &inv->ammo;
                     base[j].x = 0x122; base[j].y = 0x48; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 3:
                     if (shownMask & 0x4) {
@@ -257,7 +257,7 @@ void slotQueueInit(s32 reset) {
                     }
                     base[j].value = &inv->homingAmmo;
                     base[j].x = 0x122; base[j].y = 0x48; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 4:
                     if (shownMask & 0x8) {
@@ -266,7 +266,7 @@ void slotQueueInit(s32 reset) {
                     }
                     base[j].value = &inv->throwAmmo;
                     base[j].x = 0x122; base[j].y = 0x6A; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(1.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(1.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 6:
                     if (shownMask & 0x10) {
@@ -275,12 +275,12 @@ void slotQueueInit(s32 reset) {
                     }
                     base[j].value = &inv->cameraFilm;
                     base[j].x = 0x122; base[j].y = 0xD0; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(-19.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(-19.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 11:
                     base[j].value = &gMinigameCoinCount;
                     base[j].x = 0x122; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 1:
                     if (shownMask & 0x2) {
@@ -289,7 +289,7 @@ void slotQueueInit(s32 reset) {
                     }
                     base[j].value = &kongInv->coins;
                     base[j].x = 0x122; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 7:
                     if (shownMask & 0x40) {
@@ -298,12 +298,12 @@ void slotQueueInit(s32 reset) {
                     }
                     base[j].value = &kongInv->instrumentEnergy;
                     base[j].x = 0x122; base[j].y = 0xAE; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(-12.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(-12.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 14:
                     base[j].value = &gTextNumberArg;
                     base[j].x = 0x1E; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
-                    func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
+                    slotQueueAnglesToViewPoint(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 }
                 base[j].locked = flag;
@@ -1165,7 +1165,7 @@ void slotQueueSelectPlayerResource(u8 player) {
     gSlotQueueResourceKong = player;
 }
 
-extern EffectGridAsset D_807200A0, D_807201A0, D_80720268, D_8072029C, D_807203B0, D_807203D4, D_807203F8, D_8072041C, D_80720440, D_80720488, D_807204BC, D_80720508, D_8072052C, D_80720558, D_8072057C, D_807205A0, D_807205C4, D_807205E8, D_8072060C, D_807206A8, D_807207BC, D_807207E0, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, D_807209EC, D_80720A10, D_80720A34, D_80720A58, D_80721200, D_8072121C, D_80721250, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
+extern EffectGridAsset D_807200A0, D_807201A0, D_80720268, D_8072029C, gEffectSpriteCoinRed, gEffectSpriteCoinGreen, gEffectSpriteCoinBlue, D_8072041C, D_80720440, D_80720488, gEffectSpriteOrange, gEffectSpriteCrystal, gEffectSpriteGoldenBanana, D_80720558, D_8072057C, D_807205A0, gEffectSpriteBananaBlue, gEffectSpriteBananaYellow, D_8072060C, D_807206A8, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, gEffectSpriteBlueprintRed, gEffectSpriteBlueprintGreen, gEffectSpriteBlueprintYellow, gEffectSpriteBlueprintPurple, D_80721200, D_8072121C, D_80721250, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
 
 void *slotQueueGetSpriteAsset(s32 slot) {
     EffectGridAsset *result;
@@ -1184,13 +1184,13 @@ void *slotQueueGetSpriteAsset(s32 slot) {
             result = &D_8072057C;
             break;
         case 0:
-            result = &D_807205E8;
+            result = &gEffectSpriteBananaYellow;
             break;
         case 3:
             result = &D_8072060C;
             break;
         case 2:
-            result = &D_807205C4;
+            result = &gEffectSpriteBananaBlue;
             break;
         case 4:
         case 5:
@@ -1202,7 +1202,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         result = &D_80720488;
         break;
     case 4:
-        result = &D_807204BC;
+        result = &gEffectSpriteOrange;
         break;
     case 2:
     case 3:
@@ -1231,7 +1231,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
     case 14:
         switch (kong) {
         case 1:
-            result = &D_807203B0;
+            result = &gEffectSpriteCoinRed;
             break;
         case 0:
             result = &D_8072041C;
@@ -1240,16 +1240,16 @@ void *slotQueueGetSpriteAsset(s32 slot) {
             result = &D_80720440;
             break;
         case 2:
-            result = &D_807203F8;
+            result = &gEffectSpriteCoinBlue;
             break;
         case 4:
         case 5:
-            result = &D_807203D4;
+            result = &gEffectSpriteCoinGreen;
             break;
         }
         break;
     case 11:
-        result = &D_807207BC;
+        result = &gEffectSpriteDkCoin;
         break;
     case 7:
         switch (kong) {
@@ -1272,13 +1272,13 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         }
         break;
     case 5:
-        result = &D_80720508;
+        result = &gEffectSpriteCrystal;
         break;
     case 8:
-        result = &D_8072052C;
+        result = &gEffectSpriteGoldenBanana;
         break;
     case 9:
-        result = &D_8072052C;
+        result = &gEffectSpriteGoldenBanana;
         break;
     case 10:
         result = &D_80720558;
@@ -1286,20 +1286,20 @@ void *slotQueueGetSpriteAsset(s32 slot) {
     case 12:
         switch (kong) {
         case 1:
-            result = &D_807209EC;
+            result = &gEffectSpriteBlueprintRed;
             break;
         case 0:
-            result = &D_80720A34;
+            result = &gEffectSpriteBlueprintYellow;
             break;
         case 3:
-            result = &D_80720A58;
+            result = &gEffectSpriteBlueprintPurple;
             break;
         case 2:
-            result = &D_807207E0;
+            result = &gEffectSpriteBlueprintBlue;
             break;
         case 4:
         case 5:
-            result = &D_80720A10;
+            result = &gEffectSpriteBlueprintGreen;
             break;
         }
         break;
@@ -1400,7 +1400,7 @@ u8 slotQueueGetDisplayMode(u8 slot, u8 player) {
     return gSlotQueue[player * 15 + slot].displayMode;
 }
 
-s32 func_806FB418(void) {
+s32 inventoryGetGoldenBananaTotal(void) {
     s32 sum;
     s32 i;
     s32 j;

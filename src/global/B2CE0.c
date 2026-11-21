@@ -137,7 +137,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x1FD, 0x1FB, 0x1FC);
-        func_80724CA4(3, 1);
+        actorAllocBoneRotations(3, 1);
         actorClearNodeFlag(gCurrentActor, 3);
         if (gCurrentMap == 0xA5) {
             gCurrentActor->interactionType = 1;
@@ -308,7 +308,7 @@ void behaviourProjectileEnemyUpdate(void) {
         patrolState->nearDistSq = 0x2710;
         patrolState->unk2 = 0x20;
         behaviourSetAnimIds(0x2AD, 0x2AB, 0x2AC);
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
     }
     if (gCurrentActor->state != 0x32 || gActorGlobalState.damaged != 0) {
         if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
@@ -452,7 +452,7 @@ void behaviourSearchlightGuardUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x2C0, 0x2C1, 0x2C1);
-        func_80724CA4(0xE, 1);
+        actorAllocBoneRotations(0xE, 1);
         gBehaviourWorkState->flags |= 0x800;
         gCurrentActor->flags |= 0x400;
     }
@@ -540,7 +540,7 @@ void behaviourArmoredEnemyUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->segmentFlags = -1;
         behaviourSetAnimIds(0x2D9, 0x2D7, 0x2D8);
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         gCurrentActor->unkEC = 0x1770;
     }
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {

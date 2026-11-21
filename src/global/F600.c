@@ -7,12 +7,12 @@
 #include "proto/global/F600.h"
 
 extern volatile u8 gEepromWriteInProgress;
-extern s8 D_80746834;
+extern s8 gWaitPointId;
 
 // .bss 0x807ECCD0-0x807ECE00
 OSContStatus D_807ECCD0[4];
 OSMesg D_807ECCE0[4];
-OSMesgQueue D_807ECCF0;
+OSMesgQueue gSiMesgQueue;
 u8 gContReadPending;
 u8 gControllerConnectedMask;
 OSContPad gControllerPads[4];
@@ -24,29 +24,29 @@ OSContPad gContPadCur;
 u8 D_807ECD5E[2];
 OSContPad gContPadPrev;
 u16 gButtonsPressed;
-s16 D_807ECD68[4][16];
+s16 gPadRepeatTimers[4][16];
 OSContPad *gInputContPads;
 OSContPad *gCurrentContPad;
 u16 gContPressedButtons;
-OSContPad *D_807ECDF4;
-u8 D_807ECDF8;
+OSContPad *gPhysicalContPads;
+u8 gControllerActiveMask;
 u8 D_807ECDF9;
 u8 D_807ECDFA;
 u8 D_807ECDFB;
-u8 D_807ECDFC[4];
+u8 gControllerActivePorts[4];
 
 
 u8 controllerInit(void) {
-    osCreateMesgQueue(&D_807ECCF0, D_807ECCE0, 4);
-    osSetEventMesg(OS_EVENT_SI, &D_807ECCF0, NULL);
-    osContInit(&D_807ECCF0, &gControllerConnectedMask, D_807ECCD0);
+    osCreateMesgQueue(&gSiMesgQueue, D_807ECCE0, 4);
+    osSetEventMesg(OS_EVENT_SI, &gSiMesgQueue, NULL);
+    osContInit(&gSiMesgQueue, &gControllerConnectedMask, D_807ECCD0);
     osContSetCh(4);
     if (!(gControllerConnectedMask & 1)) {
         gControllerConnectedMask = 0;
     }
     gContReadPending = 0;
     gInputContPads = gControllerPads;
-    D_807ECDF4 = D_807ECD28;
+    gPhysicalContPads = D_807ECD28;
     controllerSetActiveMask(0xFF);
     rumbleInit();
     return gControllerConnectedMask;
@@ -56,15 +56,15 @@ void controllerStartRead(void) {
     controllerWaitRead();
     if (gEepromWriteInProgress == 0) {
         gContReadPending = 1;
-        osContStartReadData(&D_807ECCF0);
+        osContStartReadData(&gSiMesgQueue);
     }
 }
 
 void controllerWaitRead(void) {
     if (gContReadPending != 0) {
-        D_80746834 = 2;
-        osRecvMesg(&D_807ECCF0, NULL, OS_MESG_BLOCK);
-        D_80746834 = 0;
+        gWaitPointId = 2;
+        osRecvMesg(&gSiMesgQueue, NULL, OS_MESG_BLOCK);
+        gWaitPointId = 0;
         gContReadPending = 0;
     }
 }
@@ -75,24 +75,24 @@ void controllerSetActiveMask(u8 mask) {
     s32 j;
 
     count = 0;
-    D_807ECDF8 = gControllerConnectedMask & mask;
+    gControllerActiveMask = gControllerConnectedMask & mask;
     for (i = 0; i < 4; i++) {
         gPadPressedButtons[i] = 0;
         D_807ECD40[i] = 0;
         D_807ECD50[i] = 0;
-        D_807ECDFC[i] = 0;
+        gControllerActivePorts[i] = 0;
         for (j = 0; j < 16; j++) {
-            D_807ECD68[i][j] = 0;
+            gPadRepeatTimers[i][j] = 0;
         }
-        if (D_807ECDF8 & (1 << i)) {
-            D_807ECDFC[count] = i;
+        if (gControllerActiveMask & (1 << i)) {
+            gControllerActivePorts[count] = i;
             count++;
         }
     }
 }
 
 u8 controllerGetPort(s32 arg0) {
-    return D_807ECDFC[arg0];
+    return gControllerActivePorts[arg0];
 }
 
 void controllerCompactPads(OSContPad *pads) {
@@ -101,7 +101,7 @@ void controllerCompactPads(OSContPad *pads) {
 
     dst = 0;
     for (i = 0; i < 4; i++) {
-        if (D_807ECDF8 & (1 << i)) {
+        if (gControllerActiveMask & (1 << i)) {
             if (dst != i) {
                 pads[dst] = pads[i];
             }
@@ -111,7 +111,7 @@ void controllerCompactPads(OSContPad *pads) {
 }
 
 u8 controllerGetActiveMask(void) {
-    return D_807ECDF8;
+    return gControllerActiveMask;
 }
 
 void controllerGetReadData(OSContPad *pad) {
@@ -153,9 +153,9 @@ void controllerUpdate(void) {
     gContPadCur.stick_y = 0;
     if (gContReadPending != 0 || gEepromWriteInProgress != 0) {
         if (gEepromWriteInProgress == 0 && gContReadPending != 0) {
-            D_80746834 = 3;
-            osRecvMesg(&D_807ECCF0, NULL, OS_MESG_BLOCK);
-            D_80746834 = 0;
+            gWaitPointId = 3;
+            osRecvMesg(&gSiMesgQueue, NULL, OS_MESG_BLOCK);
+            gWaitPointId = 0;
             rumbleUpdate();
         }
         switch (gDemoPlaybackState) {
@@ -164,19 +164,19 @@ void controllerUpdate(void) {
             controllerLatchPad(gInputContPads);
             break;
         case 2:
-            controllerFilterInput(D_807ECDF4);
-            controllerLatchPad(D_807ECDF4);
+            controllerFilterInput(gPhysicalContPads);
+            controllerLatchPad(gPhysicalContPads);
             demoPlaybackReadPad(gInputContPads);
             for (i = 0; i < 4; i++) {
                 if (gControllerConnectedMask & (1 << i)) {
-                    gInputContPads[i].button |= D_807ECDF4[i].button & 0x1000;
+                    gInputContPads[i].button |= gPhysicalContPads[i].button & 0x1000;
                 }
             }
             break;
         case 3:
-            controllerFilterInput(D_807ECDF4);
-            controllerLatchPad(D_807ECDF4);
-            playerStateWaypointAimUpdate(gInputContPads, D_807ECDF4);
+            controllerFilterInput(gPhysicalContPads);
+            controllerLatchPad(gPhysicalContPads);
+            playerStateWaypointAimUpdate(gInputContPads, gPhysicalContPads);
             break;
         }
     }
@@ -197,7 +197,7 @@ void controllerUpdate(void) {
     padIdx = 0;
     for (i = 0; i < 4; i++) {
         if (compact != 0) {
-            mask = D_807ECDF8 & (1 << i);
+            mask = gControllerActiveMask & (1 << i);
         } else {
             mask = gControllerConnectedMask & (1 << i);
             padIdx = i;
@@ -221,18 +221,18 @@ void controllerUpdate(void) {
             for (k = 0; k < 16; k++) {
                 bit = 1 << k;
                 if (buttons & bit) {
-                    D_807ECD68[padIdx][k]--;
-                    if (D_807ECD68[padIdx][k] <= 0) {
+                    gPadRepeatTimers[padIdx][k]--;
+                    if (gPadRepeatTimers[padIdx][k] <= 0) {
                         CtrlARepeat[padIdx] |= bit;
-                        D_807ECD68[padIdx][k] = 2;
-                    } else if (D_807ECD68[padIdx][k] == 11) {
+                        gPadRepeatTimers[padIdx][k] = 2;
+                    } else if (gPadRepeatTimers[padIdx][k] == 11) {
                         CtrlARepeat[padIdx] |= bit;
                     } else {
                         CtrlARepeat[padIdx] &= ~bit;
                     }
                 } else {
                     CtrlARepeat[padIdx] &= ~bit;
-                    D_807ECD68[padIdx][k] = 12;
+                    gPadRepeatTimers[padIdx][k] = 12;
                 }
             }
             if (compact != 0) {

@@ -74,9 +74,9 @@ void actorUpdatePulseIntensity(u8 active) {
     q->rotZ = 0;
 }
 
-void behaviourUpdateContactAndState(); // ORIG: target loads a1 = sel before the two-argument call (lbu a0,340(s0) at 0xa20, move a1,a0 at 0xa28, default branch at 0xa34 to jal at 0xf70 in func_806B6DB0) while the owner never reads a1 (12E800 0x1ccc homes only a0, sw a0,64(sp) at 0x1ce0): the original TU had no prototype in scope
+void behaviourUpdateContactAndState(); // ORIG: target loads a1 = sel before the two-argument call (lbu a0,340(s0) at 0xa20, move a1,a0 at 0xa28, default branch at 0xa34 to jal at 0xf70 in behaviourPulseEnemyUpdate) while the owner never reads a1 (12E800 0x1ccc homes only a0, sw a0,64(sp) at 0x1ce0): the original TU had no prototype in scope
 
-void func_806B6958(void) {
+void behaviourPulseEnemyDeathChaserUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourWorkState->acceleration = gBehaviourWorkState->acceleration * 2;
@@ -92,7 +92,7 @@ void func_806B6958(void) {
         gBehaviourWorkState->turnRate--;
     }
     if (gActorGlobalState.bossFightPhase == 4) {
-        func_80724C2C(-0x96);
+        actorKnockbackFromAttacker(-0x96);
     }
     if (gBehaviourWorkState->timer == 0 || gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B2, 0xFF, 0x7F, 0x1E);
@@ -108,7 +108,7 @@ void func_806B6958(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806B6C88(s16 speed, s16 angle) {
+void behaviourPulseEnemySpawnDeathChaser(s16 speed, s16 angle) {
     if (actorSpawn(0xD3, 0x24) != 0) {
         gSpawnedActor->state = 0x23;
         actorScriptStart(gSpawnedActor, 0x237);
@@ -126,7 +126,7 @@ void func_806B6C88(s16 speed, s16 angle) {
 
 extern s32 gCurrentMap;
 
-void func_806B6DB0(s32 aggroRange) {
+void behaviourPulseEnemyUpdate(s32 aggroRange) {
     PulseState *p;
     s16 diff;
     u8 near;
@@ -142,7 +142,7 @@ void func_806B6DB0(s32 aggroRange) {
     near = ((gCurrentActor->x - gBehaviourTargetActor->x) * (gCurrentActor->x - gBehaviourTargetActor->x) + (gCurrentActor->z - gBehaviourTargetActor->z) * (gCurrentActor->z - gBehaviourTargetActor->z)) < 2500.0f;
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->nearTurnSpeedScale = 1.0f;
-        func_80724CA4(2, 2);
+        actorAllocBoneRotations(2, 2);
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
@@ -249,7 +249,7 @@ void func_806B6DB0(s32 aggroRange) {
             if (gBehaviourWorkState->flags & 1) {
                 gCurrentActor->unk155++;
             } else {
-                func_806B6C88(gBehaviourExtraState->unkD, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
+                behaviourPulseEnemySpawnDeathChaser(gBehaviourExtraState->unkD, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
                 gCurrentActor->unk155 = 5;
             }
             break;
@@ -286,21 +286,21 @@ void func_806B6DB0(s32 aggroRange) {
 
 void func_806B75F4(void) {
     behaviourFrameBegin();
-    func_806B6DB0(0x2710);
+    behaviourPulseEnemyUpdate(0x2710);
 }
 
 void func_806B761C(void) {
     behaviourFrameBegin();
     if (gActorGlobalState.bossFightPhase == 4) {
-        func_80724C2C(-0x64);
+        actorKnockbackFromAttacker(-0x64);
     }
-    func_806B6DB0(0x2710);
+    behaviourPulseEnemyUpdate(0x2710);
 }
 
 void func_806B7660(void) {
     behaviourFrameBegin();
     if (gActorGlobalState.bossFightPhase == 4) {
-        func_80724C2C(-0x64);
+        actorKnockbackFromAttacker(-0x64);
     }
-    func_806B6DB0(0x2710);
+    behaviourPulseEnemyUpdate(0x2710);
 }

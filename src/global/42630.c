@@ -215,14 +215,14 @@ s16 gHubWorldFlags[8] = { 0x1B, 0x5F, 0x8C, 0xC2, 0x101, 0x11A, 0x15D, 0 };
 // .bss 0x807F61B0-0x807F6940
 CsTimer gCsTimerQueue[8];
 CsSpawnReq gCsCountdown;
-f32 D_807F61FC;
-f32 D_807F6200;
-f32 D_807F6204;
-f32 D_807F6208;
-f32 D_807F620C;
-f32 D_807F6210;
-f32 D_807F6214;
-f32 D_807F6218;
+f32 gCsPrevPosX;
+f32 gCsPrevPosY;
+f32 gCsPrevPosZ;
+f32 gCsPrevRotX;
+f32 gCsPrevRotY;
+f32 gCsPrevRotZ;
+f32 gCsPrevScale;
+f32 gCsPrevGroundOffset;
 f32 gCsPosX;
 f32 gCsPosY;
 f32 gCsPosZ;
@@ -236,20 +236,20 @@ s16 gCsModelIds[600];
 u8 gCsVarsDirty[0x212];
 s8 gCsInvulnerable;
 u8 gCsCondFlag;
-s16 D_807F6904;
-s16 D_807F6906;
-s16 D_807F6908;
+s16 gCsGroundUpdatePending;
+s16 gCsShakeInnerRadius;
+s16 gCsShakeOuterRadius;
 s16 D_807F690A;
-f32 D_807F690C;
-f32 D_807F6910;
-f32 D_807F6914;
+f32 gCsSpawnX;
+f32 gCsSpawnY;
+f32 gCsSpawnZ;
 s16 gCsTrackedModels[16];
 u8 gCsTrackedModelCount;
 u8 D_807F6939;
-s16 D_807F693A;
-s16 D_807F693C;
+s16 gCsLightIndex;
+s16 gCsCamPathLockFlag;
 u8 gCsFlagBits;
-u8 D_807F693F;
+u8 gCsCamUseGlobalPaths;
 
 void csModelIdTableReset(void) {
     s32 i = 0;
@@ -340,9 +340,9 @@ void csTimerQueueFire(s16 timerId) {
     }
 }
 
-extern s16 D_807F693C;
+extern s16 gCsCamPathLockFlag;
 extern u8 gCsFlagBits;
-extern u8 D_807F693F;
+extern u8 gCsCamUseGlobalPaths;
 
 void csScriptLoad(s16 *scriptData) {
     s16 n;
@@ -405,11 +405,11 @@ void csScriptLoad(s16 *scriptData) {
         }
         n--;
     }
-    D_807F693F = 0;
+    gCsCamUseGlobalPaths = 0;
     gCsFlagBits = 0;
     gCsInvulnerable = 0;
     gCsCondFlag = 0;
-    D_807F693C = 0;
+    gCsCamPathLockFlag = 0;
     gCsCountdown.timerActor = NULL;
     gCsCountdown.hostActor = NULL;
     gCsCountdown.active = 0;
@@ -452,8 +452,8 @@ void csStateInit(CsState *cs) {
     cs->nextStateBytes[0] = 0;
     cs->nextStateBytes[1] = 0;
     cs->nextStateBytes[2] = 0;
-    cs->unk4E = 0;
-    cs->unk4F = 0;
+    cs->transformChanged = 0;
+    cs->floorGrabbable = 0;
     cs->pushMode = 0;
     cs->pushContact = 0;
     cs->pushInput = 0;
@@ -467,18 +467,18 @@ void csStateInit(CsState *cs) {
     cs->camPathActor = NULL;
     cs->updateMode = 0;
     cs->hitId = 0;
-    cs->unk67 = 0;
+    cs->collisionRebuildMode = 0;
     cs->contactCallbacks = 1;
-    cs->unk6F = 0;
+    cs->deferredPush = 0;
     cs->alphaTarget = 0;
     cs->alpha = 0;
     cs->alphaOverride = 0;
     cs->alphaStep = 0xFF;
     cs->collisionEnabled = 1;
-    cs->unk71 = 1;
+    cs->floorEnabled = 1;
     cs->runFlags = 0;
     cs->modelFlags = 0;
-    cs->unk98 = 0;
+    cs->lightYOffset = 0;
     cs->alphaStepFrame = 0xFFFFFFFF;
     cs->riderDriftX = 0.0f;
     cs->riderDriftZ = 0.0f;
@@ -514,17 +514,17 @@ void csStateTickTimers(CsState *cs) {
     for (i = 0; i < 3; i++) {
         cs->nextStateBytes[i] = cs->stateBytes[i];
     }
-    cs->unk4E = 0;
+    cs->transformChanged = 0;
 }
 
-extern f32 D_807F61FC;
-extern f32 D_807F6200;
-extern f32 D_807F6204;
-extern f32 D_807F6208;
-extern f32 D_807F620C;
-extern f32 D_807F6210;
-extern f32 D_807F6214;
-extern f32 D_807F6218;
+extern f32 gCsPrevPosX;
+extern f32 gCsPrevPosY;
+extern f32 gCsPrevPosZ;
+extern f32 gCsPrevRotX;
+extern f32 gCsPrevRotY;
+extern f32 gCsPrevRotZ;
+extern f32 gCsPrevScale;
+extern f32 gCsPrevGroundOffset;
 extern f32 gCsPosX;
 extern f32 gCsPosY;
 extern f32 gCsPosZ;
@@ -533,12 +533,12 @@ extern f32 gCsRotY;
 extern f32 gCsRotZ;
 extern f32 gCsScale;
 extern f32 gCsGroundOffset;
-extern s16 D_807F6904;
-extern s16 D_807F6906;
-extern s16 D_807F6908;
-extern f32 D_807F690C;
-extern f32 D_807F6910;
-extern f32 D_807F6914;
+extern s16 gCsGroundUpdatePending;
+extern s16 gCsShakeInnerRadius;
+extern s16 gCsShakeOuterRadius;
+extern f32 gCsSpawnX;
+extern f32 gCsSpawnY;
+extern f32 gCsSpawnZ;
 
 void csStateUpdate(CsState *cs, s16 csId) {
     CsNode *node;
@@ -553,17 +553,17 @@ void csStateUpdate(CsState *cs, s16 csId) {
 
     node = cs->nodes;
     if (node != NULL) {
-        modelSlotGetTransformVectors(csId, &D_807F61FC, &D_807F6200, &D_807F6204, &D_807F6208, &D_807F620C,
-                                     &D_807F6210, &D_807F6214, &D_807F6218, 1);
+        modelSlotGetTransformVectors(csId, &gCsPrevPosX, &gCsPrevPosY, &gCsPrevPosZ, &gCsPrevRotX, &gCsPrevRotY,
+                                     &gCsPrevRotZ, &gCsPrevScale, &gCsPrevGroundOffset, 1);
         modelSlotGetTransformVectors(csId, &gCsPosX, &gCsPosY, &gCsPosZ, &gCsRotX, &gCsRotY,
                                      &gCsRotZ, &gCsScale, &gCsGroundOffset, 1);
         csStateIntegrateMotion(cs);
-        D_807F6904 = 0;
-        D_807F6908 = 0x7FFF;
-        D_807F6906 = D_807F6908;
-        D_807F690C = D_807F61FC;
-        D_807F6910 = D_807F6200;
-        D_807F6914 = D_807F6204;
+        gCsGroundUpdatePending = 0;
+        gCsShakeOuterRadius = 0x7FFF;
+        gCsShakeInnerRadius = gCsShakeOuterRadius;
+        gCsSpawnX = gCsPrevPosX;
+        gCsSpawnY = gCsPrevPosY;
+        gCsSpawnZ = gCsPrevPosZ;
         while (node != NULL) {
             i = 0;
             ok = 1;
@@ -579,18 +579,18 @@ void csStateUpdate(CsState *cs, s16 csId) {
             node = node->unk4C;
         }
         stepped = modelSlotStepAnimations(csId);
-        if (D_807F61FC != gCsPosX || D_807F6200 != gCsPosY || D_807F6204 != gCsPosZ ||
-            D_807F6208 != gCsRotX || D_807F620C != gCsRotY || D_807F6210 != gCsRotZ ||
-            D_807F6214 != gCsScale || stepped != 0) {
-            moved = D_807F61FC != gCsPosX || D_807F6200 != gCsPosY || D_807F6204 != gCsPosZ;
-            rotated = D_807F6208 != gCsRotX || D_807F620C != gCsRotY || D_807F6210 != gCsRotZ;
-            scaleXZ = D_807F6214 != gCsScale;
-            scaleY = D_807F6218 != gCsGroundOffset;
+        if (gCsPrevPosX != gCsPosX || gCsPrevPosY != gCsPosY || gCsPrevPosZ != gCsPosZ ||
+            gCsPrevRotX != gCsRotX || gCsPrevRotY != gCsRotY || gCsPrevRotZ != gCsRotZ ||
+            gCsPrevScale != gCsScale || stepped != 0) {
+            moved = gCsPrevPosX != gCsPosX || gCsPrevPosY != gCsPosY || gCsPrevPosZ != gCsPosZ;
+            rotated = gCsPrevRotX != gCsRotX || gCsPrevRotY != gCsRotY || gCsPrevRotZ != gCsRotZ;
+            scaleXZ = gCsPrevScale != gCsScale;
+            scaleY = gCsPrevGroundOffset != gCsGroundOffset;
             modelSlotTransformBoundsAndNodes(csId, gCsPosX, gCsPosY, gCsPosZ, gCsRotX, gCsRotY, gCsRotZ, gCsScale,
                           gCsGroundOffset, moved, rotated, scaleXZ, scaleY, 1);
-            cs->unk4E = 1;
+            cs->transformChanged = 1;
         }
-        if (D_807F6904 != 0) {
+        if (gCsGroundUpdatePending != 0) {
             modelSlotUpdateGroundCoords(csId, 1);
         }
         csStateEndUpdate(cs);
@@ -601,7 +601,7 @@ void csStateUpdate(CsState *cs, s16 csId) {
 void csStateEndUpdate(CsState *cs) {
     Actor *actor;
 
-    cs->rotYDelta = gCsRotY - D_807F620C;
+    cs->rotYDelta = gCsRotY - gCsPrevRotY;
     cs->stateBytes[0] = cs->nextStateBytes[0];
     cs->stateBytes[1] = cs->nextStateBytes[1];
     cs->stateBytes[2] = cs->nextStateBytes[2];
@@ -622,7 +622,7 @@ void csStateEndUpdate(CsState *cs) {
             cs->camPathActor = NULL;
         }
     }
-    D_807F693F = 0;
+    gCsCamUseGlobalPaths = 0;
 }
 
 
@@ -921,9 +921,9 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = modelAnimEntryIsActive(csId, cond->arg[0]);
         break;
     case 0xC:
-        if (D_807F61FC != gCsPosX || D_807F6200 != gCsPosY || D_807F6204 != gCsPosZ ||
-            D_807F6208 != gCsRotX || D_807F620C != gCsRotY || D_807F6210 != gCsRotZ ||
-            D_807F6214 != gCsScale) {
+        if (gCsPrevPosX != gCsPosX || gCsPrevPosY != gCsPosY || gCsPrevPosZ != gCsPosZ ||
+            gCsPrevRotX != gCsRotX || gCsPrevRotY != gCsRotY || gCsPrevRotZ != gCsRotZ ||
+            gCsPrevScale != gCsScale) {
             ret = 1;
         } else {
             ret = 0;
@@ -1189,7 +1189,7 @@ extern s32 gCurrentMap;
 extern CsSpawnReq gCsCountdown;
 extern s16 gCsTrackedModels[16];
 extern u8 gCsTrackedModelCount;
-extern s16 D_807F693A;
+extern s16 gCsLightIndex;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern u32 gGlobalCutsceneFlags;
@@ -1237,7 +1237,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     bit = 0;
     switch (cmd->op) {
     case 0x95:
-        D_807F693C = 0x80;
+        gCsCamPathLockFlag = 0x80;
         break;
     case 0x92:
         playerState = gPlayerSlots->actor->customState;
@@ -1250,7 +1250,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         camSetZoneWeight(cmd->a, cmd->b);
         break;
     case 0x94:
-        func_80724994(2, cmd->a, 0, 0, 0);
+        spawnNodesSendVolumeTrigger(2, cmd->a, 0, 0, 0);
         break;
     case 0x90:
         gCsInvulnerable = cmd->a;
@@ -1265,7 +1265,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotTriBufferRelease(&gModelSlots[hashTableLookup(csId)].triBuffer);
         break;
     case 0x85:
-        func_8062D1A8();
+        mapResolveNodeAssets();
         break;
     case 0x83:
         slotQueueSetDisplayMode(cmd->a, cmd->b, cmd->c);
@@ -1335,10 +1335,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorListGetOrSetState(cmd->a, cmd->b, 1);
         break;
     case 0x6E:
-        D_807F693F = cmd->a;
+        gCsCamUseGlobalPaths = cmd->a;
         break;
     case 0x6D:
-        func_8063A8C4(csId, 1, cmd->a / 100.0);
+        modelSlotSetScaleXZ(csId, 1, cmd->a / 100.0);
         break;
     case 0x6C:
         modelSkipListAdd(cmd->a);
@@ -1378,7 +1378,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x62:
-        D_807F693A = cmd->a;
+        gCsLightIndex = cmd->a;
         break;
     case 0x60:
         actorSetTargetSlotByte(csId, cmd->a);
@@ -1409,13 +1409,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         playerRespawnResetPhysics(cmd->a);
         break;
     case 0x5A:
-        cs->unk68 = cmd->a;
-        cs->unk6A = cmd->b;
-        cs->unk6C = cmd->c;
+        cs->collisionRebuildRadiusX = cmd->a;
+        cs->collisionRebuildRadiusY = cmd->b;
+        cs->collisionRebuildRadiusZ = cmd->c;
         break;
     case 0x57:
-        lightGetColor(&cr, &cg, &cb, D_807F693A);
-        lightSetColor(cmd->a / 1000.0 + cr, cmd->b / 1000.0 + cg, cmd->c / 1000.0 + cb, D_807F693A);
+        lightGetColor(&cr, &cg, &cb, gCsLightIndex);
+        lightSetColor(cmd->a / 1000.0 + cr, cmd->b / 1000.0 + cg, cmd->c / 1000.0 + cb, gCsLightIndex);
         break;
     case 0x4F:
         if (gCsTrackedModelCount != 16) {
@@ -1430,7 +1430,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x50:
         if (gCsModelIds[cmd->a] != -1) {
-            modelSlotGetNodePos(gCsModelIds[cmd->a], 1, cmd->b, &D_807F690C, &D_807F6910, &D_807F6914);
+            modelSlotGetNodePos(gCsModelIds[cmd->a], 1, cmd->b, &gCsSpawnX, &gCsSpawnY, &gCsSpawnZ);
         }
         break;
     case 0x4E:
@@ -1452,7 +1452,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->collisionEnabled = cmd->a;
         break;
     case 0x47:
-        cs->unk71 = cmd->a;
+        cs->floorEnabled = cmd->a;
         break;
     case 0x4A:
         modelSlotUpdateTailKey(csId, 1, cmd->a, cmd->b);
@@ -1475,13 +1475,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->contactCallbacks = cmd->a;
         break;
     case 0x3E:
-        cs->unk6F = cmd->a;
+        cs->deferredPush = cmd->a;
         break;
     case 0x3D:
-        cs->unk67 = cmd->a;
+        cs->collisionRebuildMode = cmd->a;
         break;
     case 0x39:
-        cs->unk4F = cmd->a;
+        cs->floorGrabbable = cmd->a;
         break;
     case 0x36:
         csSetActorAlphaByType(cmd->a, cmd->b, csId);
@@ -1694,12 +1694,12 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->pushArcMax = (f32)cmd->b;
         break;
     case 0x9:
-        if (D_807F61FC != gCsPosX || D_807F6204 != gCsPosZ) {
+        if (gCsPrevPosX != gCsPosX || gCsPrevPosZ != gCsPosZ) {
             csSnapToGround(cmd->a, csId);
         }
         break;
     case 0x41:
-        D_807F6904 = 1;
+        gCsGroundUpdatePending = 1;
         break;
     case 0x6:
         cs->vars[cmd->a] = cmd->b / 10.0f;
@@ -1761,7 +1761,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorAppendCallbackVec3f(0, gPlayerSlots->actor, cx, cy, cz);
         break;
     case 0x2B:
-        func_80636014(csId, 1, cmd->a);
+        modelSlotSetDistanceOverride(csId, 1, cmd->a);
         break;
     case 0x1B:
         if (gCsModelIds[cmd->a] != -1) {
@@ -1819,11 +1819,11 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x29:
         playerState = gPlayerSlots->actor->customState;
-        camStartShakeFromPoint(playerState->camActor, cmd->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
+        camStartShakeFromPoint(playerState->camActor, cmd->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, gCsShakeInnerRadius, gCsShakeOuterRadius);
         break;
     case 0x44:
-        D_807F6906 = cmd->a;
-        D_807F6908 = cmd->b;
+        gCsShakeInnerRadius = cmd->a;
+        gCsShakeOuterRadius = cmd->b;
         break;
     case 0x2A:
         gModelSlots[hashTableLookup(csId)].boxBuffer.unk14 = cmd->a;
@@ -1863,7 +1863,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorAppendEvent(0, gPlayerSlots->actor, cmd->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x4D:
-        idx = modelSlotAppend(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);
+        idx = modelSlotAppend(cmd->a, gCsSpawnX, gCsSpawnY, gCsSpawnZ, gCsSpawnY - gCsPrevGroundOffset, 0);
         if (cmd->b == 0) {
             csStateShareScript(idx, csId, cmd->c);
         }
@@ -1878,19 +1878,19 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         csSendMsgByActorType(cmd->a, cmd->b);
         break;
     case 0x63:
-        func_8068B830(cmd->a, cmd->b, cmd->c);
+        weatherSetMode(cmd->a, cmd->b, cmd->c);
         break;
     case 0x64:
         enemyAggroDespawnBB();
         break;
     case 0x56:
-        func_80724994(1, cmd->a, 0, 0, 0);
+        spawnNodesSendVolumeTrigger(1, cmd->a, 0, 0, 0);
         break;
     case 0x59:
-        func_80724994(3, cmd->a, cmd->b, 0, 0);
+        spawnNodesSendVolumeTrigger(3, cmd->a, cmd->b, 0, 0);
         break;
     case 0x58:
-        if (func_805FFE50(cmd->a, cmd->b, cmd->c) == 0) {
+        if (mapSlotSetModelRecord(cmd->a, cmd->b, cmd->c) == 0) {
             csTimerQueueAdd(cmd->a, cmd->b, cmd->c);
         }
         break;
@@ -2053,30 +2053,30 @@ void csSetActorScaleFadeByType(s16 actorType, s16 mode, s16 csId) {
 void csStartCamPath(CsState *cs, s16 camIdx, s16 mode, s16 c) {
     s32 flag;
 
-    if (cs->camPathActor == NULL && func_80678014(0x14) != 0) {
+    if (cs->camPathActor == NULL && actorSpawnSkipTypeInit(0x14) != 0) {
         cs->camPathActor = gSpawnedActor;
         gSpawnedActor->collisionMode = 1;
         gSpawnedActor->x = gCsPosX;
         gSpawnedActor->y = gCsPosY;
         gSpawnedActor->z = gCsPosZ;
         gSpawnedActor->yaw = gCsRotY * 4096.0f / 360.0f;
-        if (D_807F693F != 0) {
+        if (gCsCamUseGlobalPaths != 0) {
             gSpawnedActor->eyeHeight = c;
         }
-        if (D_807F693F != 0) {
+        if (gCsCamUseGlobalPaths != 0) {
             flag = 4;
         } else {
             flag = 0;
         }
         switch (mode) {
         case 0:
-            camStartPath(cs->camPathActor, camIdx, flag | 1 | D_807F693C);
+            camStartPath(cs->camPathActor, camIdx, flag | 1 | gCsCamPathLockFlag);
             return;
         case 1:
-            camStartPath(NULL, camIdx, flag | 1 | D_807F693C);
+            camStartPath(NULL, camIdx, flag | 1 | gCsCamPathLockFlag);
             return;
         case 2:
-            camStartPath(spawnNodeActivate(c, 0x400), camIdx, flag | 1 | D_807F693C);
+            camStartPath(spawnNodeActivate(c, 0x400), camIdx, flag | 1 | gCsCamPathLockFlag);
             break;
         }
     }
@@ -2253,13 +2253,13 @@ s32 csEvaluateParamCondition(s16 packedParam, s16 compareValue) {
     ret = 0;
     switch ((u8)((packedParam >> 8) % 255)) {
     case 0:
-        v = D_807F6208;
+        v = gCsPrevRotX;
         break;
     case 1:
-        v = D_807F620C;
+        v = gCsPrevRotY;
         break;
     case 2:
-        v = D_807F6210;
+        v = gCsPrevRotZ;
         break;
     }
     mode = packedParam & 0xFF;
@@ -2356,7 +2356,7 @@ void csSetPos(s16 modeAndAxis, s16 posValue, CsState *cs, s16 csId, u8 isRelativ
     }
 }
 
-extern u8 D_8071FC58[];
+extern u8 gEffectSpriteSparklePurple[];
 
 void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 i;
@@ -2372,7 +2372,7 @@ void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDuration(2);
         effectSetSpeed(0x64);
         effectSetCallback(effectSinkBySpeedUpdate);
-        effectCreateAtPosition(D_8071FC58, 0.5f, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
+        effectCreateAtPosition(gEffectSpriteSparklePurple, 0.5f, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
     }
     lightAdd(gCsPosX, gCsPosY, gCsPosZ, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xA6, 0x30, 0xFF);
 }

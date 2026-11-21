@@ -36,8 +36,8 @@ typedef struct CsState {
     /* 0x44 */ s16 timers[2]; // countdown timers: set by a cutscene command, decremented while non-zero (42630)
     /* 0x48 */ u8 stateBytes[3]; // read and written as bytes (478F0 csCmdBeatSyncAnimation: [0] == 2, csCmdLightPulse: [1] = 1 near the end)
     /* 0x4B */ u8 nextStateBytes[3]; // next unk48: csStateTickTimers copies unk48 in, csStateEndUpdate copies it back
-    /* 0x4E */ u8 unk4E; // set when csStateUpdate moved the model, cleared each tick
-    /* 0x4F */ u8 unk4F;
+    /* 0x4E */ u8 transformChanged; // set when csStateUpdate moved the model, cleared each tick
+    /* 0x4F */ u8 floorGrabbable;
     /* 0x50 */ u8 pushMode;
     /* 0x51 */ u8 pushContact;
     /* 0x52 */ u8 pushInput;
@@ -53,14 +53,14 @@ typedef struct CsState {
     /* 0x62 */ s16 alphaTarget;
     /* 0x64 */ s16 alpha;
     /* 0x66 */ u8 alphaStep;
-    /* 0x67 */ u8 unk67;
-    /* 0x68 */ s16 unk68;
-    /* 0x6A */ s16 unk6A;
-    /* 0x6C */ s16 unk6C;
+    /* 0x67 */ u8 collisionRebuildMode;
+    /* 0x68 */ s16 collisionRebuildRadiusX;
+    /* 0x6A */ s16 collisionRebuildRadiusY;
+    /* 0x6C */ s16 collisionRebuildRadiusZ;
     /* 0x6E */ u8 contactCallbacks;
-    /* 0x6F */ u8 unk6F;
+    /* 0x6F */ u8 deferredPush;
     /* 0x70 */ u8 collisionEnabled;
-    /* 0x71 */ u8 unk71;
+    /* 0x71 */ u8 floorEnabled;
     /* 0x72 */ u8 pad72[2];
     /* 0x74 */ f32 pushSpeed;
     /* 0x78 */ f32 pushSpeedMax;
@@ -74,7 +74,7 @@ typedef struct CsState {
     /* 0x8C */ f32 pushDirX;
     /* 0x90 */ f32 pushDirZ;
     /* 0x94 */ Actor *camPathActor;
-    /* 0x98 */ s16 unk98;
+    /* 0x98 */ s16 lightYOffset;
     /* 0x9A */ u8 runFlags;
     /* 0x9B */ u8 modelFlags;
     /* 0x9C */ s16 unk9C;

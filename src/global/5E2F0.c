@@ -579,7 +579,7 @@ s32 lightCheckVolumeBounds(LightVolume *light, f32 x, f32 y, f32 z, s16 minX, s1
             guLookAt(&viewMtx, light->x, light->y, light->z, (light->x == light->targetX) ? (light->targetX + 0.2f) : light->targetX, light->targetY, light->targetZ, 0.0f, 1.0f, 0.0f);
             frustumCalculateCornerRays(light->outerAngle * 2, 1.0f, light->range);
             frustumCornersTransformByInverse(&viewMtx);
-            frustumOrientPolyNormals(light->x, light->y, light->z, gFrustumPlanes, D_807F5E20[0]);
+            frustumOrientPolyNormals(light->x, light->y, light->z, gFrustumPlanes, gFrustumCorners[0]);
             planeFromTwoPoints(light->x, light->y, light->z, light->targetX, light->targetY, light->targetZ);
             return mapBspBoxInFrustum(minX, minY, minZ, maxX, maxY, maxZ, light->x, light->y, light->z, light->range, gFrustumPlanes);
         }

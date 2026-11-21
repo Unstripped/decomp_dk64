@@ -65,8 +65,8 @@ void eepromInitConfigs(u8);
 #ifndef PROTO_SKIP_eepromResetGlobalData
 void eepromResetGlobalData(void);
 #endif
-#ifndef PROTO_SKIP_func_8060CB9C
-void func_8060CB9C(void);
+#ifndef PROTO_SKIP_eepromRequestValidateSlots
+void eepromRequestValidateSlots(void);
 #endif
 #ifndef PROTO_SKIP_eepromValidateSaveSlots
 void eepromValidateSaveSlots(void);
@@ -92,8 +92,8 @@ void eepromRefillHalfConsumables(void);
 #ifndef PROTO_SKIP_eepromLoadPlayerData
 void eepromLoadPlayerData(u8, s32);
 #endif
-#ifndef PROTO_SKIP_func_8060DEA8
-void func_8060DEA8(void);
+#ifndef PROTO_SKIP_eepromRequestSaveRecords
+void eepromRequestSaveRecords(void);
 #endif
 #ifndef PROTO_SKIP_eepromSavePlayerData
 void eepromSavePlayerData(void);

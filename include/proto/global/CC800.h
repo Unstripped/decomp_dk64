@@ -9,8 +9,8 @@ void collectibleCountsClear(void);
 #ifndef PROTO_SKIP_playerGetModelAssetId
 s32 playerGetModelAssetId(void);
 #endif
-#ifndef PROTO_SKIP_func_806C7B50
-void func_806C7B50(s32, u8, Actor *);
+#ifndef PROTO_SKIP_playerSpawnMinecart
+void playerSpawnMinecart(s32, u8, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerMountBarrel
 void playerMountBarrel(Actor *, Actor *);
@@ -24,8 +24,8 @@ struct G00Entry *cameraFindViewportEntry(u8);
 #ifndef PROTO_SKIP_playerAllocSlots
 void playerAllocSlots(s32);
 #endif
-#ifndef PROTO_SKIP_func_806C80E4
-void func_806C80E4(void);
+#ifndef PROTO_SKIP_playerRestoreHeldActor
+void playerRestoreHeldActor(void);
 #endif
 #ifndef PROTO_SKIP_cameraSetViewportYRange
 void cameraSetViewportYRange(s16, s16);
@@ -81,8 +81,8 @@ void playerCheckSpawnerFlagFixup(s32);
 #ifndef PROTO_SKIP_raceGridSpawnPoint
 G01Pos *raceGridSpawnPoint(s32);
 #endif
-#ifndef PROTO_SKIP_func_806C9830
-s8 func_806C9830(s8, Actor *);
+#ifndef PROTO_SKIP_playerResolveHitDamage
+s8 playerResolveHitDamage(s8, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerAddHealthDelta
 s32 playerAddHealthDelta(u8, s8);

@@ -17,8 +17,8 @@ void camResetPlayerViewports(s16);
 #ifndef PROTO_SKIP_camSnapToTargetHeight
 void camSnapToTargetHeight(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_8061B650
-void func_8061B650(Actor *);
+#ifndef PROTO_SKIP_camSetHoldMode
+void camSetHoldMode(Actor *);
 #endif
 #ifndef PROTO_SKIP_camApplySway
 void camApplySway(struct CamState *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
@@ -170,14 +170,14 @@ void camStartShake(Actor *, u8, u16);
 #ifndef PROTO_SKIP_camStartBlendRamp
 void camStartBlendRamp(struct CamState *, s16);
 #endif
-#ifndef PROTO_SKIP_func_8061F18C
-void func_8061F18C(Actor *, f32, f32, f32);
+#ifndef PROTO_SKIP_camStartBlendRampToEye
+void camStartBlendRampToEye(Actor *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camClosestPointOnSegment
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_8061F4B0
-void func_8061F4B0(struct CamZoneWeightLinks *);
+#ifndef PROTO_SKIP_camApplyZoneWeightLinks
+void camApplyZoneWeightLinks(struct CamZoneWeightLinks *);
 #endif
 #ifndef PROTO_SKIP_camSetZoneWeight
 void camSetZoneWeight(u8, u8);
@@ -191,8 +191,8 @@ void camFindClearYaw(Actor *, f32, s16, u8);
 #ifndef PROTO_SKIP_camResolveWallCollision
 u8 camResolveWallCollision(Actor *, f32, f32, f32 *, f32, f32 *, f32);
 #endif
-#ifndef PROTO_SKIP_func_80620F00
-s32 func_80620F00(Actor *, u8, u8);
+#ifndef PROTO_SKIP_camHandleOcclusion
+s32 camHandleOcclusion(Actor *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_camShouldAutoRotate
 u8 camShouldAutoRotate(Actor *, CamState *, Actor *);
@@ -224,8 +224,8 @@ void camComputeTargetEyePos(Actor *, f32 *, f32 *, f32 *);
 #ifndef PROTO_SKIP_camComputeTargetFocusPos
 void camComputeTargetFocusPos(struct CamState *, f32 *, f32 *, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_806228BC
-void func_806228BC(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+#ifndef PROTO_SKIP_camComputeFirstPersonEyeFocus
+void camComputeFirstPersonEyeFocus(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camAngleLerpRad
 f32 camAngleLerpRad(f32, f32, f32);
@@ -299,14 +299,14 @@ void camTransformPoint(Mtx *, f32, f32, f32, f32, f32 *, f32 *, f32 *, f32 *);
 #ifndef PROTO_SKIP_camPolarFromPoints
 void camPolarFromPoints(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
 #endif
-#ifndef PROTO_SKIP_func_8062754C
-void func_8062754C(f32);
+#ifndef PROTO_SKIP_camSetSharedViewEye
+void camSetSharedViewEye(f32);
 #endif
-#ifndef PROTO_SKIP_func_806276AC
-f32 func_806276AC(void);
+#ifndef PROTO_SKIP_camSetSharedViewFocus
+f32 camSetSharedViewFocus(void);
 #endif
-#ifndef PROTO_SKIP_func_8062773C
-s32 func_8062773C(Actor *);
+#ifndef PROTO_SKIP_camExitFirstPerson
+s32 camExitFirstPerson(Actor *);
 #endif
 #ifndef PROTO_SKIP_camSaveYaw
 void camSaveYaw(Actor *);

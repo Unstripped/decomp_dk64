@@ -72,7 +72,7 @@ void bossDogadonStep(void) {
         camSetSecondTarget(gCamActor, 0, 0);
         gCurrentActor->segmentFlags = 5;
         gCurrentActor->floorNodeId = 1;
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
         if (flagGet(0x54, 2) != 0) {
@@ -357,7 +357,7 @@ void bossKRoolTinyStep(void) {
         actorScriptStartByIndex(gPrimaryPlayerActor, 0x4B);
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
-        func_80724DB0(2, 1);
+        actorAllocBoneScales(2, 1);
         bossKRoolTinySpawnMinion(minions, 0, 0x6D);
         bossKRoolTinySpawnMinion(minions, 1, 0x6E);
         bossKRoolTinySpawnMinion(minions, 2, 0x6F);
@@ -520,7 +520,7 @@ void bossKRoolTinyUpdateMinion(void) {
     leader = (BossKRoolTinyActor *)gCurrentActor->parentActor;
     leaderState = leader->scriptState;
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80724DB0(2, 1);
+        actorAllocBoneScales(2, 1);
     }
     scaleVal = (gCurrentActor->unk15F == 1) ? leaderState->phase : 0;
     bossKRoolTinyCommonStep(leader, (u8)scaleVal);

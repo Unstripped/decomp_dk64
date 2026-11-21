@@ -265,7 +265,7 @@ void jetpacStateGameplay(Gfx **glist) {
 
 void jetpacSaveHighScore(void) {
     eepromSetField(0x11, 0, 0, 0, jetpacGame.highScore);
-    func_8060DEA8();
+    eepromRequestSaveRecords();
 }
 
 s32 flagGet(s32, s32); // ORIG: int return seen by the caller: jetpacUpdateStateAndInput 0x11d4 andi t9,v0,0xff narrows the result into the u8 local

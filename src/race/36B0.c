@@ -190,14 +190,14 @@ f32 raceGetCompletionFraction(RacePathState *cursor, RaceParticipant *state, Rac
     return result;
 }
 
-extern void *D_80720120;
+extern void *gEffectSpriteFireBurst;
 
 void raceTriggerBoostParticles(void) {
     s32 idx;
 
     for (idx = 1; idx < 3; idx++) {
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720120, 1.0f, gCurrentActor, idx, 0);
+        effectCreateAtActorBone(&gEffectSpriteFireBurst, 1.0f, gCurrentActor, idx, 0);
     }
 }
 

@@ -56,8 +56,8 @@ void mapTransitionExitCurrent(s32, s32);
 #ifndef PROTO_SKIP_mapSetTransitionExtraCounter
 void mapSetTransitionExtraCounter(u8);
 #endif
-#ifndef PROTO_SKIP_func_805FF670
-void func_805FF670(void);
+#ifndef PROTO_SKIP_mapSpawnPendingPickups
+void mapSpawnPendingPickups(void);
 #endif
 #ifndef PROTO_SKIP_mapFindPreviousSavedMap
 s32 mapFindPreviousSavedMap(s32 *, s32 *);
@@ -74,8 +74,8 @@ s32 mapFindSlotByMap(s16);
 #ifndef PROTO_SKIP_mapSaveSlotAndTransition
 void mapSaveSlotAndTransition(s32, s32, s32, s16);
 #endif
-#ifndef PROTO_SKIP_func_805FFE50
-s32 func_805FFE50(s32, s16, s16);
+#ifndef PROTO_SKIP_mapSlotSetModelRecord
+s32 mapSlotSetModelRecord(s32, s16, s16);
 #endif
 #ifndef PROTO_SKIP_mapSlotFree
 void mapSlotFree(s32);
@@ -101,7 +101,7 @@ void mapApplyLevelFlags(s16);
 #ifndef PROTO_SKIP_mapGetOverlayBufferSize
 s32 mapGetOverlayBufferSize(s16);
 #endif
-#ifndef PROTO_SKIP_func_80600454
-u8 func_80600454(s16, u8 *);
+#ifndef PROTO_SKIP_mapTitleCheckShow
+u8 mapTitleCheckShow(s16, u8 *);
 #endif
 #endif

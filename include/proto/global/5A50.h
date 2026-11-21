@@ -5,8 +5,8 @@
 #ifndef PROTO_SKIP_audioInit
 void audioInit(void);
 #endif
-#ifndef PROTO_SKIP_func_806010A0
-void func_806010A0(void);
+#ifndef PROTO_SKIP_audioLoadSeqRomOffsets
+void audioLoadSeqRomOffsets(void);
 #endif
 #ifndef PROTO_SKIP_seqPlayerPlay
 void seqPlayerPlay(u8);
@@ -50,11 +50,11 @@ void seqPlayerSetChannelMask(u8, s32, s32);
 #ifndef PROTO_SKIP_seqPlayerSetChannelFX2MixMask
 void seqPlayerSetChannelFX2MixMask(u8, s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_80601678
-void func_80601678(u8, u8, u8);
+#ifndef PROTO_SKIP_seqPlayerSetChannelLowpassGain
+void seqPlayerSetChannelLowpassGain(u8, u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_806016D0
-void func_806016D0(u8, u8, u8);
+#ifndef PROTO_SKIP_seqPlayerSetChannelLowpassKeyOffset
+void seqPlayerSetChannelLowpassKeyOffset(u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_func_80601728
 void func_80601728(u8, u8, u8);
@@ -77,8 +77,8 @@ void seqPlayerAddDeltaTime(u8, s32);
 #ifndef PROTO_SKIP_seqPlayerGetCurTime
 s32 seqPlayerGetCurTime(u8);
 #endif
-#ifndef PROTO_SKIP_func_806018D4
-void func_806018D4(u8, u8, s32);
+#ifndef PROTO_SKIP_seqPlayerFindMarkers
+void seqPlayerFindMarkers(u8, u8, s32);
 #endif
 #ifndef PROTO_SKIP_seqPlayerSetMarkerLocation
 void seqPlayerSetMarkerLocation(u8, u8);

@@ -188,11 +188,11 @@ void func_806998E8(void) {
 }
 
 
-void func_806998F0(void) {
+void actorBridgeUpdate(void) {
     actorSagWaveUpdate(8, 0);
 }
 
-void func_80699914(void) {
+void actorLongBridgeUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->drawDistance = 0x3E8;
     }
@@ -629,7 +629,7 @@ void actorSpotLightUpdateEntry(void) {
 
 extern Actor *gPrimaryPlayerActor;
 extern s16 D_80750378;
-extern EffectGridAsset D_8071FE08;
+extern EffectGridAsset gEffectSpriteStarBurst;
 extern u8 D_80720E14[];
 
 void actorNumberedTargetUpdate(void) {
@@ -666,7 +666,7 @@ void actorNumberedTargetUpdate(void) {
         }
         if (gActorGlobalState.bossFightPhase == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
-            effectCreateAtPosition(&D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteStarBurst, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
             actorDespawn(gCurrentActor);
         }
@@ -679,11 +679,11 @@ void actorNumberedTargetUpdate(void) {
     }
 }
 
-extern u8 D_8071FC58;
+extern u8 gEffectSpriteSparklePurple;
 extern u8 gEffectSpriteSparkleYellow;
 extern u8 D_8071FCC0;
 
-void func_8069B3FC(void) {
+void actorPlayerWarpEffectUpdate(void) {
     s16 *spinSpeed = gCurrentActor->customState;
     PlayerState *player = gPrimaryPlayerActor->customState;
     s32 i;
@@ -712,7 +712,7 @@ void func_8069B3FC(void) {
                     effectSetSpeed((randomNonNegative() >> 15) % 10000 % 120 + 0x50);
                     switch ((randomNonNegative() >> 15) % 10000 % 3) {
                         case 0:
-                            sel = &D_8071FC58;
+                            sel = &gEffectSpriteSparklePurple;
                             break;
                         case 1:
                             sel = &gEffectSpriteSparkleYellow;
@@ -815,7 +815,7 @@ typedef struct CarryObjectSpawnData {
 
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
-extern EffectGridAsset D_80720340;
+extern EffectGridAsset gEffectSpriteExplosion;
 
 
 void carryObjectUpdate(void) {
@@ -883,7 +883,7 @@ void carryObjectUpdate(void) {
         }
     }
     if (gActorGlobalState.pickupReceived != 0) {
-        state->holder = gActorGlobalState.unk28;
+        state->holder = gActorGlobalState.holderActor;
         gCurrentActor->state = 1;
         actorCallbackMaskDisable(gCurrentActor, 0x8000);
         actorCollisionEventsCancel(state->holder, 1);
@@ -917,7 +917,7 @@ void carryObjectUpdate(void) {
         gCurrentActor->yaw = gActorGlobalState.launchYaw;
         gCurrentActor->moveYaw = gActorGlobalState.launchYaw;
         gCurrentActor->speedY = gActorGlobalState.launchSpeedY;
-        gCurrentActor->speedXZ = gActorGlobalState.unk34;
+        gCurrentActor->speedXZ = gActorGlobalState.launchSpeedXZ;
         actorCollisionEventsCancel(state->holder, 1);
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E) {
             gCurrentActor->flags |= 0x200000;
@@ -1043,7 +1043,7 @@ void carryObjectUpdate(void) {
                     effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetSpeed(-150 - ((randomNonNegative() >> 15) % 50));
                 }
-                effectCreateAtPosition(&D_80720340, 1.6f, gCurrentActor->x + offsetX,
+                effectCreateAtPosition(&gEffectSpriteExplosion, 1.6f, gCurrentActor->x + offsetX,
                               gCurrentActor->y + offsetY, gCurrentActor->z + offsetZ);
                 if (gCurrentActor->actorType == 0x3D) {
                     offsetX = (2.0f * randomFloat()) - 1.0f;
@@ -1226,23 +1226,23 @@ void carryObjectUpdateWithDrawDistance(void) {
     carryObjectUpdate();
 }
 
-void func_8069D058(void) {
+void actorUrnType1Update(void) {
     carryObjectUpdateWithDrawDistance();
 }
 
-void func_8069D078(void) {
+void actorUrnType2Update(void) {
     carryObjectUpdateWithDrawDistance();
 }
 
-void func_8069D098(void) {
+void actorUrnType3Update(void) {
     carryObjectUpdateWithDrawDistance();
 }
 
-void func_8069D0B8(void) {
+void actorUrnType4Update(void) {
     carryObjectUpdateWithDrawDistance();
 }
 
-void func_8069D0D8(void) {
+void actorChunkyCannonballUpdate(void) {
     carryObjectUpdate();
 }
 

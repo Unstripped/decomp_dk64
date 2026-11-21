@@ -63,18 +63,18 @@ typedef void (*ScriptCommandFn)(Actor *);
 extern EffectGridAsset gEffectSpriteBlast;
 extern EffectGridAsset D_8071FC0C;
 extern EffectGridAsset gEffectSpriteBubble;
-extern EffectGridAsset D_8071FC58;
+extern EffectGridAsset gEffectSpriteSparklePurple;
 extern EffectGridAsset gEffectSpriteSparkleYellow;
 extern EffectGridAsset D_8071FCC0;
 extern EffectGridAsset gEffectSpriteDustPuff;
 extern EffectGridAsset D_80720268;
-extern EffectGridAsset D_807208F0;
-extern EffectGridAsset D_80720914;
-extern EffectGridAsset D_80720938;
-extern EffectGridAsset D_8072095C;
-extern EffectGridAsset D_80720980;
-extern EffectGridAsset D_807209A4;
-extern EffectGridAsset D_807209C8;
+extern EffectGridAsset gEffectSpriteNotePairYellow;
+extern EffectGridAsset gEffectSpriteNoteYellow;
+extern EffectGridAsset gEffectSpriteNoteGreen;
+extern EffectGridAsset gEffectSpriteNotePairPink;
+extern EffectGridAsset gEffectSpriteNotePairRed;
+extern EffectGridAsset gEffectSpriteNoteRed;
+extern EffectGridAsset gEffectSpriteNotePairPaleBlue;
 extern EffectGridAsset D_80720AD0;
 extern EffectGridAsset gEffectSpriteSmokeCloud;
 extern EffectGridAsset sEffectImpactPuffConfig;
@@ -82,13 +82,13 @@ extern EffectGridAsset sEffectSparkConfig;
 extern EffectGridAsset D_80720B58;
 
 EffectGridAsset *sScriptEffectSprites[] = {
-    &D_807208F0,
-    &D_80720914,
-    &D_80720938,
-    &D_8072095C,
-    &D_80720980,
-    &D_807209A4,
-    &D_807209C8,
+    &gEffectSpriteNotePairYellow,
+    &gEffectSpriteNoteYellow,
+    &gEffectSpriteNoteGreen,
+    &gEffectSpriteNotePairPink,
+    &gEffectSpriteNotePairRed,
+    &gEffectSpriteNoteRed,
+    &gEffectSpriteNotePairPaleBlue,
     &D_8071FC0C,
     &D_80720AD0,
     &D_80720268,
@@ -96,7 +96,7 @@ EffectGridAsset *sScriptEffectSprites[] = {
     &D_80720B58,
     &gEffectSpriteBubble,
     &sEffectImpactPuffConfig,
-    &D_8071FC58,
+    &gEffectSpriteSparklePurple,
     &gEffectSpriteSparkleYellow,
     &D_8071FCC0,
     &gEffectSpriteDustPuff,
@@ -180,7 +180,7 @@ ActorScriptCommand sScriptOpcodeTable[] = {
     scriptOpPlayMapActionSound,
     scriptOpRestartSlotSound,
     scriptOpStopSlotSound,
-    func_80617B38,
+    scriptOpPlaySlotSound,
     scriptOpSetSoundVolumeAndPan,
     scriptOpAllocateSoundChannel,
     scriptOpStopSoundChannel,
@@ -1577,7 +1577,7 @@ s32 scriptOpStopSlotSound(Actor *actor) {
     return 1;
 }
 
-s32 func_80617B38(Actor *actor) {
+s32 scriptOpPlaySlotSound(Actor *actor) {
     s16 imm;
     u8 imm2;
     u8 imm3;
@@ -1804,7 +1804,7 @@ void projectileTrySpawnFromSlot(Actor *actor) {
     }
 }
 
-extern EffectGridAsset D_8071FE08;
+extern EffectGridAsset gEffectSpriteStarBurst;
 extern f32 sSavedLightColorR[3];
 
 
@@ -1830,7 +1830,7 @@ void scriptCmdSpawnUpwardDriftEffect(Actor *actor) {
     if (imm == 0xFF) {
         effectSetDepth(0);
         effectSetDuration(1);
-        effectCreateAtPosition(&D_8071FE08, 0.7f, actor->x, actor->y + 7.0f, actor->z);
+        effectCreateAtPosition(&gEffectSpriteStarBurst, 0.7f, actor->x, actor->y + 7.0f, actor->z);
     } else {
         effectSetCallback(effectUpwardDriftUpdate);
         effectSetFrameDelay(2);

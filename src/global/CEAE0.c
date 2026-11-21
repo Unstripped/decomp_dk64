@@ -136,7 +136,7 @@ PlayerStateFn gPlayerStateHandlers[138] = {
     { playerStateTransformHold, 0 },
     { playerInputUpdate12, 0 },
     { playerStateAttachedCallbackFall, 0x40 },
-    { func_806DCA7C, 0x80 },
+    { playerStateSwingLeap, 0x80 },
     { playerStateAttachedCallbackFallCheck, 0x40 },
     { playerStateKnockbackBounce, 0x80 },
     { playerStateBounceRecover, 0 },
@@ -183,8 +183,8 @@ PlayerStateFn gPlayerStateHandlers[138] = {
     { playerStateDialogueHold, 0 },
     { OVL_FN(void (*)(void), 0x80031B08) /* menuUpdateKioskActor (menu) */, 0 },
     { OVL_FN(void (*)(void), 0x80031A5C) /* menuActorStateDispatch (menu) */, 0 },
-    { func_806DF1A0, 0 },
-    { func_806DF280, 0 },
+    { playerStateShrinkToPoint, 0 },
+    { playerStateGrowFromPoint, 0 },
     { NULL, 0 },
 };
 f32 D_80750FA0[2] = { 0.0f, 60.0f }; // unreferenced
@@ -401,9 +401,9 @@ void playerUpdateSlopeSlidePhysics(void) {
     }
 }
 
-extern s32 D_8076A090;
-extern s32 D_8076A094;
-extern s32 D_8076A098;
+extern s32 gMapActiveFrameCount;
+extern s32 gMapWarpCount;
+extern s32 gMapPauseCount;
 extern s32 gCurrentMap;
 extern u8 gSeqCurrentId[4];
 extern u8 gDemoPlaybackState;
@@ -523,7 +523,7 @@ void playerUpdateCommon(s32 mode) {
     }
     gActivePlayerState->stateStep = 0;
     gActivePlayerState->stateFlags &= ~0x40000000;
-    func_806CF580();
+    playerUpdateIdleVariantsAndBubbles();
     gActivePlayerState->prevState = gActivePlayerActor->state;
     if (gPlayerCount >= 2) {
         if (gCurrentActor->contactFlags & 1) {
@@ -652,16 +652,16 @@ void playerUpdateCommon(s32 mode) {
             case 0x30:
             case 0x48:
             case 0x57:
-                if (D_8076A094 >= 0x5DD && gActivePlayerState->idleTimeoutFlag == 0) {
+                if (gMapWarpCount >= 0x5DD && gActivePlayerState->idleTimeoutFlag == 0) {
                     mapExecuteVoidTransition();
                     gActivePlayerState->idleTimeoutFlag = 1;
                 }
-                if (D_8076A098 >= 0x5DD && !(gGlobalPauseFlags & 2) && gActivePlayerState->idleTimeoutFlag == 0) {
+                if (gMapPauseCount >= 0x5DD && !(gGlobalPauseFlags & 2) && gActivePlayerState->idleTimeoutFlag == 0) {
                     mapExecuteVoidTransition();
                     gActivePlayerState->idleTimeoutFlag = 1;
                 }
                 if ((gCurrentActor->x != gCurrentActor->prevX || gCurrentActor->y != gCurrentActor->prevY || gCurrentActor->z != gCurrentActor->prevZ || gPlayerPadState[gCurrentPlayerIndex].heldButtons != 0 || gPlayerPadState[gCurrentPlayerIndex].stickX != 0 || gPlayerPadState[gCurrentPlayerIndex].stickY != 0) && !(gGlobalPauseFlags & 2)) {
-                    if (++D_8076A090 == 0x69780) {
+                    if (++gMapActiveFrameCount == 0x69780) {
                         mapExecuteVoidTransition();
                         gActivePlayerState->idleTimeoutFlag = 1;
                     }
@@ -678,7 +678,7 @@ extern s16 gKongTurnRate[];
 extern f32 D_80753218[];
 extern s32 gCurrentMap;
 extern u8 gDemoPlaybackState;
-extern s32 D_8071FB08;
+extern s32 gEffectSpriteSparklesBlue;
 extern s32 sEffectSparkConfig;
 
 void playerUpdateScaleAndPhysics(void) {
@@ -690,7 +690,7 @@ void playerUpdateScaleAndPhysics(void) {
     if ((gActivePlayerActor->actorType == 8 || gActivePlayerActor->actorType == 9) && gActivePlayerState->unk1FD != 0) {
         if ((gActivePlayerState->stateFlags & 0x800) && gActivePlayerState->sparkTimer == 0) {
             gActivePlayerState->sparkTimer = 0x1E;
-            func_80687400();
+            effectScreenCenterFlash();
         }
         sparkTimer = gActivePlayerState->sparkTimer;
         if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && sparkTimer == 0) {
@@ -718,7 +718,7 @@ void playerUpdateScaleAndPhysics(void) {
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode != 1 || (gActivePlayerState->stateFlags & 0x30)) {
         if ((gActivePlayerState->stateFlags & 0x80000000) && gActivePlayerState->padHintTimer == 0) {
             gActivePlayerState->padHintTimer = 0x1E;
-            func_80687400();
+            effectScreenCenterFlash();
         }
         padHintTimer = gActivePlayerState->padHintTimer;
         if (padHintTimer != 0) {
@@ -798,7 +798,7 @@ void playerUpdateScaleAndPhysics(void) {
                 effectSetCallback(effectZSpinMatrixUpdate);
                 effectSetDepth(1);
                 effectSetDuration(3);
-                effectCreateAtPosition(&D_8071FB08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpriteSparklesBlue, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
             if (gActivePlayerState->transformTimer == 0) {
                 sfxStopChannel(0x6C, 0);
@@ -1050,10 +1050,10 @@ void playerApplyDecelVelocityVector(f32 unused) {
     playerClampToWaterSurface(0);
 }
 
-extern u8 D_807FD586;
+extern u8 gPlayerMoveYawForced;
 
 void playerSetUnk586Flag(void) {
-    D_807FD586 = 1;
+    gPlayerMoveYawForced = 1;
 }
 
 void playerApplyFullPhysics(void) {
@@ -1164,7 +1164,7 @@ void playerUpdateHorizontalVelocity(u8 apply) {
             ang = gCurrentActor->moveYaw;
             tracker = gActivePlayerState->actor->customState;
             gActivePlayerState->prevHasArcBounds = gCurrentActor->hasArcBounds;
-            D_807FD586 = 0;
+            gPlayerMoveYawForced = 0;
             slope = mathSinF(gCurrentActor->floorSlopeFactor * 11.4) * 10.0;
             forward = gPlayerPadState[gCurrentPlayerIndex].stickY;
             if (forward < 0.0f) {
@@ -1233,11 +1233,11 @@ void playerUpdateHorizontalVelocity(u8 apply) {
                 speed = gActivePlayerState->maxSpeed;
                 ang = gActivePlayerState->targetYaw;
             }
-            if (D_807FD586 == 0 && gActivePlayerState->prevHasArcBounds != 0 && gCurrentActor->hasArcBounds == 0) {
+            if (gPlayerMoveYawForced == 0 && gActivePlayerState->prevHasArcBounds != 0 && gCurrentActor->hasArcBounds == 0) {
                 gCurrentActor->moveYaw = ang;
             }
             gActivePlayerState->prevHasArcBounds = gCurrentActor->hasArcBounds;
-            D_807FD586 = 0;
+            gPlayerMoveYawForced = 0;
             forward = mathSinF(ang) * speed; // ORIG: the target spills this product to the forward home 76(sp) at 0x3530 (the case arm keeps the stick forward there, 0x3108); a new local makes the frame 0x58
             vx = mathSinF(gCurrentActor->floorSlopeYaw) * slope;
             vx = forward + vx;
@@ -1369,11 +1369,11 @@ s16 actorGetStateFlags(Actor *actor) {
     return flags;
 }
 
-extern f32 D_80753170[];
-extern f32 D_8075318C[];
-extern f32 D_807531A8[];
-extern f32 D_807531C4[];
-extern f32 D_807531E0[];
+extern f32 gKongStopSpeeds[];
+extern f32 gKongHighTierEnterSpeeds[];
+extern f32 gKongHighTierExitSpeeds[];
+extern f32 gKongMaxTierEnterSpeeds[];
+extern f32 gKongMaxTierExitSpeeds[];
 extern u8 gGameMode;
 
 s16 playerSelectMoveTier(Actor *actor, f32 targetSpeed, f32 speed, s16 tier, s16 character) {
@@ -1390,9 +1390,9 @@ s16 playerSelectMoveTier(Actor *actor, f32 targetSpeed, f32 speed, s16 tier, s16
             case 1:
             case 2:
                 if (speed != 0.0f) {
-                    if (speed < D_8075318C[character]) {
+                    if (speed < gKongHighTierEnterSpeeds[character]) {
                         tier = 3;
-                    } else if (speed < D_807531C4[character]) {
+                    } else if (speed < gKongMaxTierEnterSpeeds[character]) {
                         tier = 4;
                     } else {
                         tier = 5;
@@ -1400,38 +1400,38 @@ s16 playerSelectMoveTier(Actor *actor, f32 targetSpeed, f32 speed, s16 tier, s16
                 }
                 break;
             case 3:
-                if (speed == 0.0f && targetSpeed < D_80753170[character]) {
+                if (speed == 0.0f && targetSpeed < gKongStopSpeeds[character]) {
                     tier = 0;
                     break;
                 }
-                if (D_807531C4[character] < speed) {
+                if (gKongMaxTierEnterSpeeds[character] < speed) {
                     tier = 5;
-                } else if (D_8075318C[character] < speed) {
+                } else if (gKongHighTierEnterSpeeds[character] < speed) {
                     tier = 4;
                 }
                 break;
             case 4:
-                if (max < D_807531A8[character]) {
-                    if (speed < D_80753170[character]) {
+                if (max < gKongHighTierExitSpeeds[character]) {
+                    if (speed < gKongStopSpeeds[character]) {
                         tier = 0;
                     } else {
                         tier = 3;
                     }
-                } else if (D_807531C4[character] < speed) {
+                } else if (gKongMaxTierEnterSpeeds[character] < speed) {
                     tier = 5;
                 }
                 break;
             case 5:
-                if (max < D_807531E0[character]) {
+                if (max < gKongMaxTierExitSpeeds[character]) {
                     tier = 4;
                 }
                 break;
             default:
-                if (targetSpeed < D_80753170[character]) {
+                if (targetSpeed < gKongStopSpeeds[character]) {
                     tier = 0;
-                } else if (targetSpeed < D_807531A8[character]) {
+                } else if (targetSpeed < gKongHighTierExitSpeeds[character]) {
                     tier = 3;
-                } else if (targetSpeed < D_807531E0[character]) {
+                } else if (targetSpeed < gKongMaxTierExitSpeeds[character]) {
                     tier = 4;
                 } else {
                     tier = 5;
@@ -1755,7 +1755,7 @@ s16 playerSelectSurfaceMoveTier(Actor *actor, f32 targetSpeed, f32 speed, s16 ti
             case 1:
             case 2:
                 if (speed != 0.0f) {
-                    if (speed < D_807531C4[character]) {
+                    if (speed < gKongMaxTierEnterSpeeds[character]) {
                         tier = 4;
                     } else {
                         tier = 5;
@@ -1763,21 +1763,21 @@ s16 playerSelectSurfaceMoveTier(Actor *actor, f32 targetSpeed, f32 speed, s16 ti
                 }
                 break;
             case 4:
-                if (speed < D_80753170[character]) {
+                if (speed < gKongStopSpeeds[character]) {
                     tier = 0;
-                } else if (D_807531C4[character] < speed) {
+                } else if (gKongMaxTierEnterSpeeds[character] < speed) {
                     tier = 5;
                 }
                 break;
             case 5:
-                if (max < D_807531E0[character]) {
+                if (max < gKongMaxTierExitSpeeds[character]) {
                     tier = 4;
                 }
                 break;
             default:
-                if (targetSpeed < D_80753170[character]) {
+                if (targetSpeed < gKongStopSpeeds[character]) {
                     tier = 0;
-                } else if (targetSpeed < D_807531E0[character]) {
+                } else if (targetSpeed < gKongMaxTierExitSpeeds[character]) {
                     tier = 4;
                 } else {
                     tier = 5;
@@ -1854,7 +1854,7 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
     return nextState;
 }
 
-extern f32 D_807532B8[];
+extern f32 gKongCarryStopSpeeds[];
 
 s32 playerSelectCarryMoveTier(f32 targetSpeed, f32 speed) {
     s32 tier = gActivePlayerState->moveTier;
@@ -1866,12 +1866,12 @@ s32 playerSelectCarryMoveTier(f32 targetSpeed, f32 speed) {
             }
             break;
         case 1:
-            if (speed == 0.0f && targetSpeed < D_807532B8[gCurrentCharacterIndex]) {
+            if (speed == 0.0f && targetSpeed < gKongCarryStopSpeeds[gCurrentCharacterIndex]) {
                 tier = 0;
             }
             break;
         default:
-            if (targetSpeed < D_807532B8[gCurrentCharacterIndex]) {
+            if (targetSpeed < gKongCarryStopSpeeds[gCurrentCharacterIndex]) {
                 tier = 0;
             } else {
                 tier = 1;
@@ -2116,7 +2116,7 @@ void actorReleaseFromPlayerHold(Actor *actor) {
 extern u8 gMultiplayerReducedEffects;
 extern u8 gEffectSpriteBubble;
 
-void func_806CF580(void) {
+void playerUpdateIdleVariantsAndBubbles(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gActivePlayerState->unk84 = gFrameCounter;
         gActivePlayerState->unkD0 = gFrameCounter;
@@ -2165,7 +2165,7 @@ void playerSpawnJumpTrailEffects(void) {
         effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetCallback(effectZSpinMatrixUpdate);
-        effectCreateAtPosition(&D_8071FB08, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteSparklesBlue, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
 }
 
@@ -2185,7 +2185,7 @@ void playerSpawnSpiralDriftEffects(void) {
 
 
 extern f32 D_80753E10[];
-extern s16 D_80753E00[];
+extern s16 gKongLedgeGrabOffsetY[];
 
 void playerCheckLedgeGrab(void) {
     f32 ledgeY;
@@ -2209,11 +2209,11 @@ void playerCheckLedgeGrab(void) {
                 if (collisionGetHitFlags() != 0) {
                     if (gCurrentActor->y - gCurrentActor->floorY > 15.0f) {
                         if (flag != 0) {
-                            if (D_80753E00[gCurrentCharacterIndex] + gCurrentActor->y < ledgeY + 15.0f && ledgeY - D_80753E00[gCurrentCharacterIndex] - gCurrentActor->y < 80.0f) {
+                            if (gKongLedgeGrabOffsetY[gCurrentCharacterIndex] + gCurrentActor->y < ledgeY + 15.0f && ledgeY - gKongLedgeGrabOffsetY[gCurrentCharacterIndex] - gCurrentActor->y < 80.0f) {
                                 hit = 1;
                             }
                         } else {
-                            if (D_80753E00[gCurrentCharacterIndex] + gCurrentActor->y < ledgeY - 5.0f && ledgeY - D_80753E00[gCurrentCharacterIndex] - gCurrentActor->y < 15.0f) {
+                            if (gKongLedgeGrabOffsetY[gCurrentCharacterIndex] + gCurrentActor->y < ledgeY - 5.0f && ledgeY - gKongLedgeGrabOffsetY[gCurrentCharacterIndex] - gCurrentActor->y < 15.0f) {
                                 hit = 1;
                             }
                         }
@@ -2372,14 +2372,13 @@ void playerEnterBarrelTransition(Actor *actor) {
 extern s16 D_80753328[];
 extern f32 D_807532F0[];
 extern f32 D_8075330C[];
-extern f32 D_807532B8[];
 extern f32 D_807532D4[];
 
 void playerSetCarryMoveParams(void) {
     gActivePlayerState->turnRate = D_80753328[gCurrentCharacterIndex];
     gActivePlayerState->airAccel = D_807532F0[gCurrentCharacterIndex];
     gActivePlayerState->decelRate = D_8075330C[gCurrentCharacterIndex];
-    gActivePlayerState->unk34 = D_807532B8[gCurrentCharacterIndex];
+    gActivePlayerState->unk34 = gKongCarryStopSpeeds[gCurrentCharacterIndex];
     gActivePlayerState->targetSpeed = D_807532D4[gCurrentCharacterIndex];
 }
 
@@ -2389,7 +2388,7 @@ void playerSetNormalMoveParams(void) {
     gActivePlayerState->turnRate = gKongTurnRate[gCurrentCharacterIndex];
     gActivePlayerState->airAccel = gKongAirAccel[gCurrentCharacterIndex];
     gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
-    gActivePlayerState->unk34 = D_80753170[gCurrentCharacterIndex];
+    gActivePlayerState->unk34 = gKongStopSpeeds[gCurrentCharacterIndex];
     if (gActivePlayerState->gunDrawn != 0) {
         gActivePlayerState->targetSpeed = D_80753338[gCurrentCharacterIndex];
         return;
@@ -2550,7 +2549,7 @@ s32 playerSlotMatchesSizeMask(s32 mask, u8 playerIndex) {
 extern s32 gGlobalCutsceneFlags;
 
 
-void func_806D09E8(Actor *actor) {
+void playerOverrideUnderwaterSlopeType(Actor *actor) {
     u8 state;
 
     if (actor->actorType == 4) {
@@ -2668,7 +2667,7 @@ u8 playerIsSmallerThanAttacker(Actor *victim, Actor *attacker) {
     return result;
 }
 
-extern s16 D_8075388C[];
+extern s16 gKongNormalSwimSurfaceDepths[];
 extern s16 gKongSwimSurfaceDepths[];
 extern s16 D_8075387C[];
 extern s16 D_807538B8[];
@@ -2681,7 +2680,7 @@ void playerClampWaterSurfaceHeight(Actor *unused) {
 
     type = gPlayerSlots[gCurrentPlayerIndex].sizeMode;
     if (type == 1) {
-        height = D_8075388C[gCurrentCharacterIndex];
+        height = gKongNormalSwimSurfaceDepths[gCurrentCharacterIndex];
     } else {
         height = gKongSwimSurfaceDepths[gCurrentCharacterIndex];
     }

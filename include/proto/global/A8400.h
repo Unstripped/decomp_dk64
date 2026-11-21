@@ -4,8 +4,8 @@
 #include "common.h"
 #include "actor.h"
 #include "resqueue.h"
-#ifndef PROTO_SKIP_func_806A3700
-void func_806A3700(Actor *, void *);
+#ifndef PROTO_SKIP_textBoxRowStartHook
+void textBoxRowStartHook(Actor *, void *);
 #endif
 #ifndef PROTO_SKIP_textBoxRenderNode
 void textBoxRenderNode(Gfx **, ResQueueActorState *, ResRow *, ResGlyph *);

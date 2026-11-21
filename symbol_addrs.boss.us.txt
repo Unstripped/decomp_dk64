@@ -53,6 +53,7 @@ bossPufftossStep = 0x8002A92C; // type:func
 D_80036B80 = 0x80036B80; // type:f32 force_migration:True function_owner:bossSpawnerUpdate
 bossKutOutSpawnGhost = 0x8002C520; // type:func
 bossKutOutSpawnGhosts = 0x8002C5F4; // type:func
+bossAnimFrameBounceInit = 0x8002C748; // type:func
 bossKutOutFireLaser = 0x8002C8B4; // type:func
 bossKutOutStep = 0x8002C964; // type:func
 bossKRoolDkStep = 0x8002D230; // type:func

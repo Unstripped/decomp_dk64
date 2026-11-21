@@ -27,11 +27,11 @@ s32 gEepromType;
 const u8 D_80757020[4] = "7.2";
 const u8 D_80757024[30] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.- ";
 
-const MenuHighScoreEntry D_80757044[5] = {
+const MenuHighScoreEntry sRambiDefaultHighScores[5] = {
     { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
 };
 
-const MenuHighScoreEntry D_80757064[5] = {
+const MenuHighScoreEntry sEnguardeDefaultHighScores[5] = {
     { 100, "AAA" }, { 90, "AAA" }, { 80, "AAA" }, { 70, "AAA" }, { 60, "AAA" },
 };
 
@@ -90,8 +90,8 @@ void eepromInitModelCount(void) {
     }
 }
 
-extern s8 D_80746834;
-extern OSMesgQueue D_807EE0D0;
+extern s8 gWaitPointId;
+extern OSMesgQueue gSleepTimerQueue;
 
 void sleepMilliseconds(f32 ms) {
     OSTimer timer;
@@ -102,14 +102,14 @@ void sleepMilliseconds(f32 ms) {
 
     duration = (u64)(ms * 1000.0f);
     duration = (duration * 3000) / 64;
-    osSetTimer(&timer, duration, 0, &D_807EE0D0, timerMsg);
-    D_80746834 = 1;
-    osRecvMesg(&D_807EE0D0, &received, 1);
-    D_80746834 = 0;
+    osSetTimer(&timer, duration, 0, &gSleepTimerQueue, timerMsg);
+    gWaitPointId = 1;
+    osRecvMesg(&gSleepTimerQueue, &received, 1);
+    gWaitPointId = 0;
 }
 
 extern s8 gMainThreadHalted;
-extern OSMesgQueue D_807F02B8;
+extern OSMesgQueue gEepromCmdQueue;
 
 void eepromDispatchCommand(s32 cmd) {
     if (osGetThreadId(NULL) == 9) {
@@ -117,7 +117,7 @@ void eepromDispatchCommand(s32 cmd) {
         return;
     }
     if (gMainThreadHalted == 0) {
-        osSendMesg(&D_807F02B8, (void *)cmd, 0);
+        osSendMesg(&gEepromCmdQueue, (void *)cmd, 0);
     }
 }
 
@@ -474,8 +474,8 @@ void eepromSetCurrentSlot(u8 slotId, s32 save) {
     }
 }
 
-extern MenuHighScoreEntry D_80744548[];
-extern MenuHighScoreEntry D_80744568[];
+extern MenuHighScoreEntry gRambiHighScores[];
+extern MenuHighScoreEntry gEnguardeHighScores[];
 
 void eepromInitConfigs(u8 mask) {
     s32 i;
@@ -493,20 +493,20 @@ void eepromInitConfigs(u8 mask) {
     }
     if (mask & 4) {
         for (i = 0; i != 5; i++) {
-            eepromSetField(0x19, 0, i, 0, D_80757044[i].score);
-            eepromSetField(0x16, 0, i, 0, D_80757044[i].initials[0]);
-            eepromSetField(0x17, 0, i, 0, D_80757044[i].initials[1]);
-            eepromSetField(0x18, 0, i, 0, D_80757044[i].initials[2]);
-            D_80744548[i] = D_80757044[i];
+            eepromSetField(0x19, 0, i, 0, sRambiDefaultHighScores[i].score);
+            eepromSetField(0x16, 0, i, 0, sRambiDefaultHighScores[i].initials[0]);
+            eepromSetField(0x17, 0, i, 0, sRambiDefaultHighScores[i].initials[1]);
+            eepromSetField(0x18, 0, i, 0, sRambiDefaultHighScores[i].initials[2]);
+            gRambiHighScores[i] = sRambiDefaultHighScores[i];
         }
     }
     if (mask & 8) {
         for (i = 0; i != 5; i++) {
-            eepromSetField(0x1D, 0, i, 0, D_80757064[i].score);
-            eepromSetField(0x1A, 0, i, 0, D_80757064[i].initials[0]);
-            eepromSetField(0x1B, 0, i, 0, D_80757064[i].initials[1]);
-            eepromSetField(0x1C, 0, i, 0, D_80757064[i].initials[2]);
-            D_80744568[i] = D_80757064[i];
+            eepromSetField(0x1D, 0, i, 0, sEnguardeDefaultHighScores[i].score);
+            eepromSetField(0x1A, 0, i, 0, sEnguardeDefaultHighScores[i].initials[0]);
+            eepromSetField(0x1B, 0, i, 0, sEnguardeDefaultHighScores[i].initials[1]);
+            eepromSetField(0x1C, 0, i, 0, sEnguardeDefaultHighScores[i].initials[2]);
+            gEnguardeHighScores[i] = sEnguardeDefaultHighScores[i];
         }
     }
     if (mask & 0x10) {
@@ -524,12 +524,12 @@ void eepromResetGlobalData(void) {
 }
 
 
-void func_8060CB9C(void) {
+void eepromRequestValidateSlots(void) {
     eepromDispatchCommand(3);
 }
 
 extern u8 sLanguageIndex;
-extern u8 D_80744530;
+extern u8 gCamAutoRotate;
 
 
 void eepromValidateSaveSlots(void) {
@@ -624,7 +624,7 @@ void eepromValidateSaveSlots(void) {
     }
     failed |= (globalOk == 0);
     sLanguageIndex = eepromGetField(0x1F, 0, 0, 0);
-    D_80744530 = eepromGetField(0x20, 0, 0, 0);
+    gCamAutoRotate = eepromGetField(0x20, 0, 0, 0);
     if (sLanguageIndex > 0) {
         sLanguageIndex = 0;
         eepromSetField(0x1F, 0, 0, 0, sLanguageIndex);
@@ -654,7 +654,7 @@ void eepromResetAllSlots(void) {
     gEepromCurrentSlot = slot;
 }
 
-extern OSMesgQueue D_807ECCF0;
+extern OSMesgQueue gSiMesgQueue;
 
 void eepromReadAllSectors(void) {
     s32 failed;
@@ -670,7 +670,7 @@ void eepromReadAllSectors(void) {
     }
     gEepromWriteInProgress = 1;
     for (sector = 0; (sector < 0x100) && (failed == 0); sector++, dst += 8) {
-        failed |= osEepromRead(&D_807ECCF0, (u8)sector, dst);
+        failed |= osEepromRead(&gSiMesgQueue, (u8)sector, dst);
         sleepMilliseconds(15.0f);
         if (gMainThreadHalted != 0) {
             gEepromWriteInProgress = 0;
@@ -685,7 +685,7 @@ void eepromReadAllSectors(void) {
     if (failed != 0) {
         eepromResetAllSlots();
     }
-    func_8060CB9C();
+    eepromRequestValidateSlots();
 }
 
 
@@ -752,7 +752,7 @@ void eepromSaveRecords(s32 recordsOnly) {
                             gEepromWriteInProgress = 0;
                             return;
                         }
-                        osEepromWrite(&D_807ECCF0, idx + j, workingData + idx * 8 + j * 8);
+                        osEepromWrite(&gSiMesgQueue, idx + j, workingData + idx * 8 + j * 8);
                         sleepMilliseconds(15.0f);
                     }
                 }
@@ -847,7 +847,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     gPlayerCharacterId[0] = 0;
 }
 
-void func_8060DEA8(void) {
+void eepromRequestSaveRecords(void) {
     eepromDispatchCommand(2);
 }
 
@@ -895,27 +895,27 @@ void eepromThreadMain(void *arg) {
     OSMesg msg;
 
     while (TRUE) {
-        osRecvMesg(&D_807F02B8, &msg, 1);
+        osRecvMesg(&gEepromCmdQueue, &msg, 1);
         sEepromCommandHandlers[(s32)msg]();
     }
 }
 
 extern OSMesg D_807EE0B0[];
-extern OSThread D_807EE0E8;
-extern OSMesg D_807F0298[];
+extern OSThread gEepromThread;
+extern OSMesg gEepromCmdMesgs[];
 
 void eepromInit(void) {
     eepromInitModelCount();
-    gEepromType = osEepromProbe(&D_807ECCF0);
-    osCreateMesgQueue(&D_807EE0D0, D_807EE0B0, 8);
-    osCreateMesgQueue(&D_807F02B8, D_807F0298, 8);
-    osCreateThread(&D_807EE0E8, 9, eepromThreadMain, NULL, D_807F0298, 0xC);
-    osStartThread(&D_807EE0E8);
+    gEepromType = osEepromProbe(&gSiMesgQueue);
+    osCreateMesgQueue(&gSleepTimerQueue, D_807EE0B0, 8);
+    osCreateMesgQueue(&gEepromCmdQueue, gEepromCmdMesgs, 8);
+    osCreateThread(&gEepromThread, 9, eepromThreadMain, NULL, gEepromCmdMesgs, 0xC);
+    osStartThread(&gEepromThread);
     D_807467E0 = 1;
     eepromDispatchCommand(0);
 }
 
-extern u8 D_807EDEB0[];
+extern u8 sEepromScratchSlotBuffer[];
 
 u8 *eepromGetSectionBuffer(u8 section) {
     u8 *result;
@@ -925,8 +925,8 @@ u8 *eepromGetSectionBuffer(u8 section) {
     case 0:
         if ((menuIsTransitionType3Or4() != 0) || (gPlayerCount >= 2)) {
             flagsClearAllBank2();
-            bzero(D_807EDEB0, EEPROM_SLOT_BITS / 8);
-            result = D_807EDEB0;
+            bzero(sEepromScratchSlotBuffer, EEPROM_SLOT_BITS / 8);
+            result = sEepromScratchSlotBuffer;
         } else {
             result = sEepromSlotBuffer + ((EEPROM_SLOT_BITS / 8) * eepromGetSectorForSlot(gEepromCurrentSlot));
         }

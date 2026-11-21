@@ -413,29 +413,29 @@ void playerInputPlayHeldActorClimbSfx(void);
 #ifndef PROTO_SKIP_playerInputScaleHeldActorVineClimb
 void playerInputScaleHeldActorVineClimb(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8AF0
-void func_806E8AF0(void);
+#ifndef PROTO_SKIP_playerInputHandleZButtonReleaseVehicleThrottle
+void playerInputHandleZButtonReleaseVehicleThrottle(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8B28
-void func_806E8B28(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonVehicleJump
+void playerInputHandleAButtonVehicleJump(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8BA4
-void func_806E8BA4(void);
+#ifndef PROTO_SKIP_playerInputHandleRButtonVehicleSharpTurn
+void playerInputHandleRButtonVehicleSharpTurn(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8BFC
-void func_806E8BFC(void);
+#ifndef PROTO_SKIP_playerInputHandleRButtonReleaseVehicleSharpTurn
+void playerInputHandleRButtonReleaseVehicleSharpTurn(void);
 #endif
 #ifndef PROTO_SKIP_playerInputStepLane
 void playerInputStepLane(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8D54
-void func_806E8D54(void);
+#ifndef PROTO_SKIP_playerInputHandleZButtonLaneRaceThrottle
+void playerInputHandleZButtonLaneRaceThrottle(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8DB4
-void func_806E8DB4(void);
+#ifndef PROTO_SKIP_playerInputHandleZButtonReleaseLaneRaceThrottle
+void playerInputHandleZButtonReleaseLaneRaceThrottle(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8E00
-void func_806E8E00(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonLaneRaceFire
+void playerInputHandleAButtonLaneRaceFire(void);
 #endif
 #ifndef PROTO_SKIP_func_806E8E78
 void func_806E8E78(void);
@@ -452,14 +452,14 @@ void playerInputHandleAButtonLadderJump(void);
 #ifndef PROTO_SKIP_playerInputHandleRButtonFixedLook
 void playerInputHandleRButtonFixedLook(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9388
-void func_806E9388(void);
+#ifndef PROTO_SKIP_playerInputHandleBButtonSurfaceCharge
+void playerInputHandleBButtonSurfaceCharge(void);
 #endif
-#ifndef PROTO_SKIP_func_806E93F8
-void func_806E93F8(void);
+#ifndef PROTO_SKIP_playerInputHandleBButtonUnderwaterCharge
+void playerInputHandleBButtonUnderwaterCharge(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9468
-void func_806E9468(void);
+#ifndef PROTO_SKIP_playerInputDiveFromSurface
+void playerInputDiveFromSurface(void);
 #endif
 #ifndef PROTO_SKIP_playerInputPostUpdate
 s32 playerInputPostUpdate(void);
@@ -566,23 +566,23 @@ void playerInputHandleCDownLeaveFirstPersonInWater(void);
 #ifndef PROTO_SKIP_playerLeaveViewMode
 void playerLeaveViewMode(Actor *, u8);
 #endif
-#ifndef PROTO_SKIP_func_806EAC8C
-void func_806EAC8C(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonShopConfirm
+void playerInputHandleAButtonShopConfirm(void);
 #endif
-#ifndef PROTO_SKIP_func_806EACBC
-void func_806EACBC(void);
+#ifndef PROTO_SKIP_playerInputHandleBButtonShopDecline
+void playerInputHandleBButtonShopDecline(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleAButtonGroundJump
 void playerInputHandleAButtonGroundJump(void);
 #endif
-#ifndef PROTO_SKIP_func_806EAE04
-void func_806EAE04(void);
+#ifndef PROTO_SKIP_playerInputHandleBButtonPulse
+void playerInputHandleBButtonPulse(void);
 #endif
 #ifndef PROTO_SKIP_playerInputWiggleOffStatusEffect
 void playerInputWiggleOffStatusEffect(void);
 #endif
-#ifndef PROTO_SKIP_func_806EAF6C
-void func_806EAF6C(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonReelGame
+void playerInputHandleAButtonReelGame(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandlerNoop3
 void playerInputHandlerNoop3(void);

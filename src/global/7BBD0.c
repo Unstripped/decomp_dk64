@@ -568,7 +568,7 @@ CollisionInteractionEntry D_8074C078[2] = {
 CollisionTableEntry D_8074C090[2] = { { -1, D_8074C078 }, { 0, NULL } };
 
 // Per-actor-type update functions, called by 7CA80 (one more entry than actor types).
-void (*D_8074C0A0[345])(void) = {
+void (*gActorUpdateFuncs[345])(void) = {
     actorStub7CA80_00,
     actorStub7CA80_02,
     playerUpdateSoundEffect0,
@@ -582,9 +582,9 @@ void (*D_8074C0A0[345])(void) = {
     actorVolumeTriggersUpdate,
     actorSpawnNodesUpdate,
     actorCutsceneDispatchEvents,
-    func_8068B930,
-    func_8068B9B4,
-    func_8068BA2C,
+    volumeHookModelStateUpdate,
+    volumeHookActorEventUpdate,
+    volumeHookCameraLightUpdate,
     actorStub7CA80_03,
     movingLaunchBarrelUpdate,
     transformBarrelWrapperUpdateC,
@@ -600,15 +600,15 @@ void (*D_8074C0A0[345])(void) = {
     tagBarrelActorUpdate,
     OVL_FN(void (*)(void), 0x80024890) /* minecartUpdateHeadlightAndSpeed (minecart) */,
     projectileSpawnParticleEffect2,
-    func_806998F0,
+    actorBridgeUpdate,
     actorSpotLightUpdate,
     projectileBehaviourEntryB,
     OVL_FN(void (*)(void), 0x800277F8) /* bonusTargetGameUpdate (bonus) */,
     projectileDespawnOrExplode,
     projectileHomingUpdate,
-    func_8068EF54,
+    mountedBarrelUpdate,
     projectileBeamUpdate,
-    func_80699914,
+    actorLongBridgeUpdate,
     tagBarrelUpdateRecoilState0,
     projectileBounceExplodeScaledUpdate,
     projectileMultiplayerUpdate,
@@ -620,23 +620,23 @@ void (*D_8074C0A0[345])(void) = {
     projectileRotatingUpdate,
     rocketbarrelUpdate,
     projectileBounceExplodeGreenUpdate,
-    func_806A615C,
-    func_806A61D0,
+    actorAmmoCrateDropUpdate,
+    actorThrowAmmoDropUpdate,
     actorKongDropUpdate,
-    func_806A6230,
+    actorMinigameCoinDropUpdate,
     projectileParticleSpawnerTick,
     transformBarrelWrapperUpdateA,
     transformBarrelWrapperUpdateB,
     actorSpotLightUpdateEntry,
     projectileSpawnParticleEffect3,
-    func_8069B3FC,
+    actorPlayerWarpEffectUpdate,
     actorUpdateTimerBarAndRange,
     OVL_FN(void (*)(void), 0x80024B00) /* minecartReverseTrackBehaviour (minecart) */,
-    func_8069D058,
-    func_8069D078,
-    func_8069D098,
-    func_8069D0B8,
-    func_8069D0D8,
+    actorUrnType1Update,
+    actorUrnType2Update,
+    actorUrnType3Update,
+    actorUrnType4Update,
+    actorChunkyCannonballUpdate,
     projectileBehaviourEntryA,
     projectileBehaviourEntryC,
     textUpdateThreeDigitCounter,
@@ -687,10 +687,10 @@ void (*D_8074C0A0[345])(void) = {
     actorFinishInRange,
     projectileBehaviourEntryD,
     actorSparkCutsceneUpdate,
-    func_806A62D4,
-    func_806A6348,
-    func_806A63A8,
-    func_806A5FA4,
+    actorRandomEffectDropUpdate,
+    actorOpponentKnockbackDropUpdate,
+    actorSpeedBoostDropUpdate,
+    actorAbilityEnergyDropUpdate,
     effectSpawnA6230Wrapper,
     actorMirrorParentModelAxis,
     OVL_FN(void (*)(void), 0x8002A398) /* bonusPerilPathPanicGameUpdate (bonus) */,
@@ -717,7 +717,7 @@ void (*D_8074C0A0[345])(void) = {
     stub_806A1FD0,
     actorPlaceModelAtCamera,
     actorPathCollectibleUpdate1004B,
-    func_806A112C,
+    actorGroupBoneFrameUpdate,
     actorTransformCameraUpdateD,
     tagBarrelSpawnType95,
     actorStubCBEA0_12,
@@ -744,14 +744,14 @@ void (*D_8074C0A0[345])(void) = {
     actorStub7CA80_04,
     camNoop201B0,
     func_8067B280,
-    func_806B640C,
+    explodingChaserUpdate,
     hudCountdownTimerUpdate,
     func_806A36F4,
-    func_806AD54C,
+    behaviourTrackingPatrolEnemyEvadeUpdate,
     OVL_FN(void (*)(void), 0x8003575C) /* bossShockwaveTriggerDamage (boss) */,
     OVL_FN(void (*)(void), 0x800280BC) /* minecartUpdateObstacleType1 (minecart) */,
     behaviourEnemyFlySwoop,
-    func_806B63E0,
+    chaserEnemyUpdate,
     behaviourFlyPatrolState,
     OVL_FN(void (*)(void), 0x80024CB0) /* menuDispatchAction (menu) */,
     OVL_FN(void (*)(void), 0x800254D0) /* bossArmydilloStep (boss) */,
@@ -765,11 +765,11 @@ void (*D_8074C0A0[345])(void) = {
     func_806C3A8C,
     behaviourEnemyBatUpdate,
     behaviourEnemyFlyStep,
-    func_806C1640,
-    func_806C1734,
-    func_806C19F4,
-    func_806C1B50,
-    func_806C1CCC,
+    actorNpcDonkeyUpdate,
+    actorNpcDiddyUpdate,
+    actorNpcLankyUpdate,
+    actorNpcTinyUpdate,
+    actorNpcChunkyUpdate,
     func_806C1E44,
     actorPhotoUpdate,
     func_806B904C,
@@ -780,8 +780,8 @@ void (*D_8074C0A0[345])(void) = {
     func_806B761C,
     func_806B7660,
     actorUpdateLockOnCursor,
-    func_806B6958,
-    func_806AD7AC,
+    behaviourPulseEnemyDeathChaserUpdate,
+    behaviourTrackingPatrolEnemyUpdate,
     actorUpdatePeriodicParticleEmitter,
     OVL_FN(void (*)(void), 0x8002835C) /* minecartUpdateObstacleType2 (minecart) */,
     OVL_FN(void (*)(void), 0x800286EC) /* minecartUpdateObstacleType3 (minecart) */,
@@ -794,7 +794,7 @@ void (*D_8074C0A0[345])(void) = {
     OVL_FN(void (*)(void), 0x8002E82C) /* bossPhaseTick (boss) */,
     func_806B8898,
     behaviourAmbushEnemyUpdate,
-    func_806C1300,
+    actorNpcKongWarpEffectUpdate,
     func_806BDEC8,
     OVL_FN(void (*)(void), 0x8002FF74) /* bossKRoolTinyStep (boss) */,
     behaviourFairyInitPlayerScale,
@@ -809,19 +809,19 @@ void (*D_8074C0A0[345])(void) = {
     behaviourTumbleDebrisUpdate,
     behaviourMeleePatrolEnemyUpdate,
     actorPlaySoundAndFinish,
-    func_806C6B50,
+    spotlightFollowerSubmergedUpdate,
     b5ec0SetMode4,
     b5ec0SetMode2,
     b5ec0SetMode3,
     b5ec0SetMode0,
     b5ec0SetMode1,
-    func_806C6BC8,
+    timedWarpTargetUpdate,
     func_806C226C,
     actorPhotoSubjectUpdate,
-    func_806C6BA0,
+    spotlightFollowerUpdate,
     actorGatedTargetGameHostUpdate,
     OVL_FN(void (*)(void), 0x8002C964) /* bossKutOutStep (boss) */,
-    func_806BE8BC,
+    actorTargetCourseHostUpdate,
     OVL_FN(void (*)(void), 0x80032550) /* menuLightSpotlightActorUpdate (menu) */,
     actorScriptedUpdate,
     actorLightPulseUpdate,
@@ -845,7 +845,7 @@ void (*D_8074C0A0[345])(void) = {
     smokeTargetChaserUpdate,
     projectileSparkleUpdateSilver,
     actorNodeRingUpdate,
-    func_806AD9F4,
+    behaviourDropInEnemyUpdate,
     actorBehaviourNoop,
     projectileActorUpdate,
     actorShadowFollowUpdate,
@@ -857,7 +857,7 @@ void (*D_8074C0A0[345])(void) = {
     behaviourEnemyFlyIdle,
     behaviourTimedScriptCycleUpdate,
     OVL_FN(void (*)(void), 0x80027778) /* minecartUpdateFollower (minecart) */,
-    func_806ADDD8,
+    behaviourProximityChaseEnemyUpdate,
     behaviourSimplePatrolEnemyUpdate,
     actorSwellBurstUpdate,
     behaviourExplosiveAwareEnemyUpdate,
@@ -879,7 +879,7 @@ void (*D_8074C0A0[345])(void) = {
     OVL_FN(void (*)(void), 0x800294A8) /* raceCompetitorMotionUpdate (race) */,
     OVL_FN(void (*)(void), 0x8002A0AC) /* raceOpponentRacerBehaviorUpdate (race) */,
     effectActorShrinkTick,
-    func_806A8070,
+    actorStaticModelUpdate,
     OVL_FN(void (*)(void), 0x8002DC24) /* raceFinishBannerBehaviorUpdate (race) */,
     OVL_FN(void (*)(void), 0x80029054) /* raceObstacleCarBehaviorUpdate (race) */,
     actorChildEffectUpdate,
@@ -1048,7 +1048,7 @@ ActorTypeStat D_8074D0C4[344] = {
     { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 0 },
     { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 1, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 },
 };
-u16 D_8074D624[344] = {
+u16 gActorTypeCollisionFlags[344] = {
     0x0010, 0x0010, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
     0x0001, 0x0001, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
     0x0010, 0x0008, 0x0008, 0x0008, 0x0010, 0x0008, 0x0008, 0x0008,
@@ -1118,8 +1118,8 @@ u8 gActorTypeInitIndex[344] = {
     3, 2, 3, 3, 2, 2, 3, 3,
 };
 
-extern u8 D_807FB600;
-extern u8 D_807FB5FF;
+extern u8 gCollisionResolvePass;
+extern u8 gCollisionDeferredHit;
 extern u8 gCollisionDeferredPush;
 
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
@@ -1154,20 +1154,20 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
     posY = sub140->scaledY;
     posZ = sub140->scaledZ;
     radius = sub140->scaledRadius;
-    D_807FB600 = 0;
+    gCollisionResolvePass = 0;
     i = 0; if (gActiveActorCount > 0) { entry = gActiveActors; do { // LAYOUT: same-line preheader steers ugen tie-break order
         other = entry->actor;
         otherSub140 = other->collision;
         if (!(other->flags & 0x2000) && sub140 != otherSub140 && other->collisionMode != 1 && (other->flags & 0x10)) {
             if (collisionSpheresOverlap(posX, posY, posZ, radius, otherSub140->scaledX, otherSub140->scaledY, otherSub140->scaledZ, otherSub140->scaledRadius)) {
                 node = sub140->nodes;
-                D_807FB5FF = 0;
+                gCollisionDeferredHit = 0;
                 if (other->renderFlags & 0x20) {
                     gCollisionDeferredPush = 0;
                 } else {
                     gCollisionDeferredPush = 1;
                 }
-                while (node != NULL && D_807FB5FF == 0) {
+                while (node != NULL && gCollisionDeferredHit == 0) {
                     if (node->active != 0 && !(node->unk27 & 2)) {
                         hitMask |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, otherSub140->box_start, otherSub140->box_end, arcMin, arcMax);
                     }
@@ -1176,7 +1176,7 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
                 if (other->renderFlags & 0x20) {
                     self->hasArcBounds |= hitMask;
                 }
-                if (D_807FB5FF != 0) {
+                if (gCollisionDeferredHit != 0) {
                     ret |= actorCollisionReflectAndPush(self, other);
                 }
             }
@@ -1228,7 +1228,7 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
         hitMode = 2;
     }
     selfBounds->hitBoxIndex = gCollisionHitBox - otherBounds->box_start;
-    actorGetMatrix(otherBounds, otherMtx, gCollisionHitBox->unk4E);
+    actorGetMatrix(otherBounds, otherMtx, gCollisionHitBox->mtxIndex);
     matrix4Invert(invMtx, otherMtx);
     if (other->renderFlags & 0x10) {
         posX = self->x;
@@ -1264,8 +1264,8 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
         guMtxXFMF(invMtx, ptX[i], ptY[i], ptZ[i], &localPts[i][0], &localPts[i][1], &localPts[i][2]);
     }
 
-    selfBounds->hitNormalYaw = gCollisionHitBox->unk48;
-    if (gCollisionHitBox->unk4C != 0) {
+    selfBounds->hitNormalYaw = gCollisionHitBox->normalYaw;
+    if (gCollisionHitBox->normalFlipped != 0) {
         selfBounds->hitNormalYaw -= 0x800;
     }
     if (selfBounds->hitNormalYaw < 0) {
@@ -1278,10 +1278,10 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
             actorReflectCollisionAngle(self, gCollisionHitBox, selfBounds);
         }
     case 0:
-        actorAppendCollisionHit(self, other, &localPos[0], &localPts[0][0], gCollisionHitBox->unk4E, gCollisionPlaneDist, actorGetCollisionThreshold(self));
+        actorAppendCollisionHit(self, other, &localPos[0], &localPts[0][0], gCollisionHitBox->mtxIndex, gCollisionPlaneDist, actorGetCollisionThreshold(self));
         break;
     case 1:
-        actorAppendSurfaceHit(self, other, self->yaw, (s16)(s32)self->speedXZ, &localPos[0], &localPts[0][0], gCollisionHitBox->unk4E, gCollisionPlaneDist, actorGetCollisionThreshold(self));
+        actorAppendSurfaceHit(self, other, self->yaw, (s16)(s32)self->speedXZ, &localPos[0], &localPts[0][0], gCollisionHitBox->mtxIndex, gCollisionPlaneDist, actorGetCollisionThreshold(self));
         if (actorIsTargetWithinAngle(gPlayerPadState[0].stickAngle, 400) && (f64)gPlayerPadState[0].stickMag > 30.0) {
             self->yaw = selfBounds->hitNormalYaw;
         }
@@ -1310,7 +1310,7 @@ void actorGetMatrix(ActorSub140 *owner, CollisionMtxF dst, s8 mtxIndex) {
 }
 
 extern u8 D_807FB603;
-extern u8 D_807FB547;
+extern u8 gCollisionHit;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s16 D_80753D50[];
@@ -1349,8 +1349,8 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
     otherBounds = other->collision;
     D_807FB603 = selfBounds->unkAC;
     gCollisionDeferredPush = 1;
-    D_807FB600 = 1;
-    D_807FB547 = 0;
+    gCollisionResolvePass = 1;
+    gCollisionHit = 0;
     func_80672E90(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ);
     actorSetCameraBoundaryMode(other->actorType);
     if (flag != 0) {
@@ -1433,15 +1433,15 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             }
         }
     }
-    other->collisionHit = D_807FB547;
+    other->collisionHit = gCollisionHit;
 }
 
 s32 actorIsTargetWithinAngle(s16 angle, s16 threshold) {
     s16 targetAngle;
     s16 diff;
 
-    targetAngle = gCollisionHitBox->unk48;
-    if (gCollisionHitBox->unk4C != 0) {
+    targetAngle = gCollisionHitBox->normalYaw;
+    if (gCollisionHitBox->normalFlipped != 0) {
         targetAngle -= 0x800;
     }
     if (targetAngle < 0) {

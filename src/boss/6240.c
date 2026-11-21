@@ -118,13 +118,13 @@ void bossPufftossNotifyLaser(u8 targetIndex) {
     }
 }
 
-extern u8 D_80720120[];
+extern u8 gEffectSpriteFireBurst[];
 
 void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     if (!(gFrameCounter & sparkleInterval)) {
         effectSetDepth(1);
         effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
-        effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 1, 0);
+        effectCreateAtActorBone(gEffectSpriteFireBurst, scale, gCurrentActor, 1, 0);
     }
 }
 
@@ -144,7 +144,7 @@ void bossSpawnSparkles(void) {
     effectSetCallback(effectEaseToTargetNodeUpdate);
     effectSetSpeed((s32)gCurrentActor);
     effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
-    effectCreateAtPosition(D_80720120, 1.5f, sparkX, sparkY, sparkZ);
+    effectCreateAtPosition(gEffectSpriteFireBurst, 1.5f, sparkX, sparkY, sparkZ);
     for (i = 0; i < 4; i++) {
         effectSetFrameDelay(2);
         effectSetCallback(effectPuffRiseUpdate);

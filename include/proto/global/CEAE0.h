@@ -180,8 +180,8 @@ void playerDropHeldActor(Actor *);
 #ifndef PROTO_SKIP_actorReleaseFromPlayerHold
 void actorReleaseFromPlayerHold(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806CF580
-void func_806CF580(void);
+#ifndef PROTO_SKIP_playerUpdateIdleVariantsAndBubbles
+void playerUpdateIdleVariantsAndBubbles(void);
 #endif
 #ifndef PROTO_SKIP_playerSpawnJumpTrailEffects
 void playerSpawnJumpTrailEffects(void);
@@ -255,8 +255,8 @@ void playerScaleTransitionStep(void);
 #ifndef PROTO_SKIP_playerSlotMatchesSizeMask
 s32 playerSlotMatchesSizeMask(s32, u8);
 #endif
-#ifndef PROTO_SKIP_func_806D09E8
-void func_806D09E8(Actor *);
+#ifndef PROTO_SKIP_playerOverrideUnderwaterSlopeType
+void playerOverrideUnderwaterSlopeType(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerSetRenderFlag4
 void playerSetRenderFlag4(Actor *, s32, s32);

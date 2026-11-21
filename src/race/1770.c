@@ -521,7 +521,7 @@ void raceVehicleBehaviorUpdate(void) {
     }
 }
 
-extern u8 D_80720340[];
+extern u8 gEffectSpriteExplosion[];
 extern u8 sEffectSparkConfig[];
 
 
@@ -545,7 +545,7 @@ void raceProjectileBehaviorUpdate(void) {
     }
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0) || (gActorGlobalState.bossFightPhase == 5)) {
         effectSetDepth(1);
-        effectCreateAtPosition(D_80720340, 3.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(gEffectSpriteExplosion, 3.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
         hasCollided = 1;
     }

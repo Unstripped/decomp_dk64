@@ -114,7 +114,7 @@ void bossKRoolChunkyStep(void) {
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
         gCurrentActor->floorNodeId = 0;
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         gCurrentActor->attachMode = 0;
         gCurrentActor->flags &= ~0x8000;
         playerSetLargeModeScale(0.45f);

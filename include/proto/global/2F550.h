@@ -54,17 +54,17 @@ void mapOffsetSlotsSetValues(f32 *);
 #ifndef PROTO_SKIP_mapTreeCloneShape
 struct MapVisNode *mapTreeCloneShape(struct MapBspNode *);
 #endif
-#ifndef PROTO_SKIP_func_8062BAE4
-void func_8062BAE4(void);
+#ifndef PROTO_SKIP_mapUpdateModelNodes
+void mapUpdateModelNodes(void);
 #endif
-#ifndef PROTO_SKIP_func_8062BB2C
-void func_8062BB2C(struct MapBspNode *, struct MapVisNode *, u8);
+#ifndef PROTO_SKIP_mapTreeUpdateModelNodes
+void mapTreeUpdateModelNodes(MapBspNode *, struct MapVisNode *, u8);
 #endif
-#ifndef PROTO_SKIP_func_8062BCC8
-u8 func_8062BCC8(Actor *, f32, f32, f32, f32 *);
+#ifndef PROTO_SKIP_mapTestModelFloor
+u8 mapTestModelFloor(Actor *, f32, f32, f32, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_8062BDB0
-u8 func_8062BDB0(Actor *, struct MapBspNode *, struct MapVisNode *, f32, f32, f32, f32 *);
+#ifndef PROTO_SKIP_mapTreeTestModelFloor
+u8 mapTreeTestModelFloor(Actor *, MapBspNode *, struct MapVisNode *, f32, f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_playerViewsRender
 Gfx *playerViewsRender(Gfx *, void *);
@@ -81,8 +81,8 @@ Gfx *mapRenderPlayerView(Gfx *, f32, f32, f32, f32, f32, f32, f32, f32, f32);
 #ifndef PROTO_SKIP_viewportSetFromRect
 void viewportSetFromRect(s16 *, s32, s32, s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_8062CA0C
-Gfx *func_8062CA0C(Gfx *, f32, f32, f32);
+#ifndef PROTO_SKIP_renderScreenSpaceEffects
+Gfx *renderScreenSpaceEffects(Gfx *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapTreeRender
 Gfx *mapTreeRender(Gfx *, struct MapBspNode *, struct MapVisNode *, f32, f32, f32, s32);
@@ -90,20 +90,20 @@ Gfx *mapTreeRender(Gfx *, struct MapBspNode *, struct MapVisNode *, f32, f32, f3
 #ifndef PROTO_SKIP_mapViewDrawPass
 Gfx *mapViewDrawPass(Gfx *, struct MapBspNode *, u8);
 #endif
-#ifndef PROTO_SKIP_func_8062D094
-void func_8062D094(void *, u8);
+#ifndef PROTO_SKIP_mapSetDistanceOverride
+void mapSetDistanceOverride(void *, u8);
 #endif
-#ifndef PROTO_SKIP_func_8062D0CC
-u8 func_8062D0CC(struct MapBspNode *, struct MapVisNode *, void *, u8);
+#ifndef PROTO_SKIP_mapTreeSetDistanceOverride
+u8 mapTreeSetDistanceOverride(MapBspNode *, struct MapVisNode *, void *, u8);
 #endif
-#ifndef PROTO_SKIP_func_8062D1A8
-void func_8062D1A8(void);
+#ifndef PROTO_SKIP_mapResolveNodeAssets
+void mapResolveNodeAssets(void);
 #endif
 #ifndef PROTO_SKIP_mapTreeResolveNodeAssets
 void mapTreeResolveNodeAssets(struct MapBspNode *, struct MapVisNode *);
 #endif
-#ifndef PROTO_SKIP_func_8062D26C
-void func_8062D26C(void *);
+#ifndef PROTO_SKIP_renderEntryPurgeObject
+void renderEntryPurgeObject(void *);
 #endif
 #ifndef PROTO_SKIP_mapPurgeNodeList
 s32 mapPurgeNodeList(void *, s16 *, u8);
@@ -165,8 +165,8 @@ void mapChunkFreeHiddenBuffers(void);
 #ifndef PROTO_SKIP_mapHeaderLoad
 void mapHeaderLoad(struct MapFileHeader *);
 #endif
-#ifndef PROTO_SKIP_func_8062F318
-void func_8062F318(void);
+#ifndef PROTO_SKIP_renderEnableOnePrimitiveMode
+void renderEnableOnePrimitiveMode(void);
 #endif
 #ifndef PROTO_SKIP_mapRelocateOffsetTable
 void mapRelocateOffsetTable(s32);

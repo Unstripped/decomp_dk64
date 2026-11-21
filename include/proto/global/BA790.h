@@ -2,13 +2,13 @@
 #ifndef PROTO_GLOBAL_BA790_H
 #define PROTO_GLOBAL_BA790_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_806B5A90
-s32 func_806B5A90(s32, s32);
+#ifndef PROTO_SKIP_chaserEnemyStep
+s32 chaserEnemyStep(s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_806B63E0
-void func_806B63E0(void);
+#ifndef PROTO_SKIP_chaserEnemyUpdate
+void chaserEnemyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B640C
-void func_806B640C(void);
+#ifndef PROTO_SKIP_explodingChaserUpdate
+void explodingChaserUpdate(void);
 #endif
 #endif

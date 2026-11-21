@@ -109,7 +109,7 @@ void bossKRoolLankyStep(void) {
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
         gCurrentActor->floorNodeId = 1;
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         bossAttachActor();
         gCurrentActor->accelY = 0.0f;
     }

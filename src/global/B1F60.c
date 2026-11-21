@@ -78,14 +78,14 @@ void actorPatrolFollowerUpdate(s16 targetId, u8 skipStep, u16 movementFlags) {
     }
 }
 
-void func_806AD54C(void) {
+void behaviourTrackingPatrolEnemyEvadeUpdate(void) {
     Actor *found;
     f32 dx;
     f32 dz;
     s32 dir;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
         if (gCurrentMap == 0x68 || gCurrentMap == 0x88 || gCurrentMap == 0x89) {
             gCurrentActor->interactionType = 2;
@@ -118,10 +118,10 @@ void func_806AD54C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806AD7AC(void) {
+void behaviourTrackingPatrolEnemyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
     }
     actorPatrolFollowerUpdate(0x1FA, 0, 0);
@@ -167,7 +167,7 @@ void actorSpawnLinkedFollower(void) {
     gSpawnedActor->drawDistance = 0x7D0;
 }
 
-void func_806AD9F4(void) {
+void behaviourDropInEnemyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->flags |= 0x200;
@@ -241,7 +241,7 @@ void func_806AD9F4(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806ADDD8(void) {
+void behaviourProximityChaseEnemyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->flags |= 0x40;

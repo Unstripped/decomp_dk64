@@ -21,8 +21,8 @@ u8 actorGetFloorSnapped(void);
 #ifndef PROTO_SKIP_actorUpdateFloorContactAndTilt
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 #endif
-#ifndef PROTO_SKIP_func_80665AAC
-u8 func_80665AAC(Actor *);
+#ifndef PROTO_SKIP_actorFloorIsReflective
+u8 actorFloorIsReflective(Actor *);
 #endif
 #ifndef PROTO_SKIP_func_80665ACC
 void func_80665ACC(Actor *);

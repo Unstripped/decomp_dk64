@@ -48,7 +48,7 @@ void bossKutOutSpawnGhosts(void) {
 }
 
 
-void func_8002C748(animSlot)
+void bossAnimFrameBounceInit(animSlot)
 u8 animSlot;
 {
     gBehaviourWorkState->unk28 = 2;
@@ -143,8 +143,8 @@ void bossKutOutStep(void) {
     swayState = ((BossKutOutActor *)gCurrentActor)->sway;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_8002C748(0);
-        func_8002C748(1);
+        bossAnimFrameBounceInit(0);
+        bossAnimFrameBounceInit(1);
         gBehaviourAnimState->shadowScale = 2.5f;
         gBehaviourAnimState->flags &= 0xFFF7;
         gBehaviourAnimState->flags |= 0x200;

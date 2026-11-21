@@ -423,8 +423,8 @@ void playerStepForwardSpeedTowardTarget(f32);
 #ifndef PROTO_SKIP_playerStateAttachedCallbackFall
 void playerStateAttachedCallbackFall(void);
 #endif
-#ifndef PROTO_SKIP_func_806DCA7C
-void func_806DCA7C(void);
+#ifndef PROTO_SKIP_playerStateSwingLeap
+void playerStateSwingLeap(void);
 #endif
 #ifndef PROTO_SKIP_playerFindClosestTargetActor
 void playerFindClosestTargetActor(void);
@@ -459,10 +459,10 @@ void playerStateDialogueWait(void);
 #ifndef PROTO_SKIP_playerStateDialogueHold
 void playerStateDialogueHold(void);
 #endif
-#ifndef PROTO_SKIP_func_806DF1A0
-void func_806DF1A0(void);
+#ifndef PROTO_SKIP_playerStateShrinkToPoint
+void playerStateShrinkToPoint(void);
 #endif
-#ifndef PROTO_SKIP_func_806DF280
-void func_806DF280(void);
+#ifndef PROTO_SKIP_playerStateGrowFromPoint
+void playerStateGrowFromPoint(void);
 #endif
 #endif

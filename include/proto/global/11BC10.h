@@ -202,8 +202,8 @@ void effectFloorFallUpdate(EffectNode *, u8 *);
 #ifndef PROTO_SKIP_effectActorOrbitFollowUpdate
 void effectActorOrbitFollowUpdate(EffectNode *, s8 *);
 #endif
-#ifndef PROTO_SKIP_func_8071E028
-void func_8071E028(EffectNode *, s8 *);
+#ifndef PROTO_SKIP_effectBeamRotateUpdate
+void effectBeamRotateUpdate(EffectNode *, s8 *);
 #endif
 #ifndef PROTO_SKIP_effectArcMotionInit
 void effectArcMotionInit(EffectNode *, u8, u16, f32, f32, s32);
@@ -226,8 +226,8 @@ void effectProximityFadeUpdate(EffectNode *, s8 *);
 #ifndef PROTO_SKIP_effectEaseToTargetNodeUpdate
 void effectEaseToTargetNodeUpdate(EffectNode *, s32);
 #endif
-#ifndef PROTO_SKIP_func_8071EEA4
-void func_8071EEA4(EffectNode *, s32);
+#ifndef PROTO_SKIP_effectScaleYFromSpeedUpdate
+void effectScaleYFromSpeedUpdate(EffectNode *, s32);
 #endif
 #ifndef PROTO_SKIP_effectScaleSpinUpdate
 void effectScaleSpinUpdate(EffectNode *, s8 *);
@@ -235,8 +235,8 @@ void effectScaleSpinUpdate(EffectNode *, s8 *);
 #ifndef PROTO_SKIP_effectGrowFadeUpdate
 void effectGrowFadeUpdate(EffectNode *, s8 *);
 #endif
-#ifndef PROTO_SKIP_func_8071F034
-void func_8071F034(EffectNode *, s32);
+#ifndef PROTO_SKIP_effectFollowPlayerUpdate
+void effectFollowPlayerUpdate(EffectNode *, s32);
 #endif
 #ifndef PROTO_SKIP_effectScatterFallUpdate
 void effectScatterFallUpdate(EffectNode *, s8 *);

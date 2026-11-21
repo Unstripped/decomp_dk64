@@ -490,7 +490,7 @@ void actorScriptedCommandUpdate(void) {
 
 extern Actor *gSpawnedActor;
 
-void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
+void actorNpcKongTalkThenWarpOut(u8 paramA, u16 actionId, s16 scriptId) {
     f32 nodeY;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -540,7 +540,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
 
 
 
-void func_806C1300(void) {
+void actorNpcKongWarpEffectUpdate(void) {
     switch (gCurrentActor->unk155) {
         case 1:
             gCurrentActor->parentActor->flags &= ~4;
@@ -601,17 +601,17 @@ void actorShowTextOnceWhenNear(u16 actionId, u8 actionParam, s16 flagId) {
     }
 }
 
-void func_806C15E8(void) {
+void actorNpcKongInit(void) {
     gBehaviourAnimState->flags |= 0x1000;
     gCurrentActor->segmentFlags = 0;
     actorSetTargetSpeed(gCurrentActor, 0);
     gCurrentActor->floorNodeId = 1;
 }
 
-void func_806C1640(void) {
+void actorNpcDonkeyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_806C15E8();
+        actorNpcKongInit();
         if (gCurrentMap == 0x4C) {
             gCurrentActor->sub4->scaleX *= 0.8;
             gCurrentActor->sub4->scaleY *= 0.8;
@@ -625,10 +625,10 @@ void func_806C1640(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_8071FB08;
+extern u8 gEffectSpriteSparklesBlue;
 extern u8 D_807200D4;
 
-void func_806C1734(void) {
+void actorNpcDiddyUpdate(void) {
     ActorSub4 *sub;
     s32 rnd;
     AnimSlot *inner;
@@ -637,7 +637,7 @@ void func_806C1734(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_806C15E8();
+        actorNpcKongInit();
     }
     actorKongChainUpdate();
     if (gCurrentActor->flags & 0x10000000) {
@@ -652,7 +652,7 @@ void func_806C1734(void) {
                         effectSetFrameDelay(2);
                         effectSetDepth(1);
                         effectSetCallback(effectShrinkFadeMatrixUpdate);
-                        effectCreateAtActorBone(&D_8071FB08, 0.8f, gCurrentActor, 5, 0);
+                        effectCreateAtActorBone(&gEffectSpriteSparklesBlue, 0.8f, gCurrentActor, 5, 0);
                     }
                     break;
                 case 0x114:
@@ -680,7 +680,7 @@ void func_806C1734(void) {
             }
         }
     } else {
-        func_806C10A0(0, 3, 0x3D8);
+        actorNpcKongTalkThenWarpOut(0, 3, 0x3D8);
         if (flagGet(4, 0)) {
             actorShowTextOnceWhenNear(3, 3, 0);
         }
@@ -690,12 +690,12 @@ void func_806C1734(void) {
 
 extern u8 D_8071FBA0;
 
-void func_806C19F4(void) {
+void actorNpcLankyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_806C15E8();
+        actorNpcKongInit();
         gCurrentActor->collision->radius = 180.0f;
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
     }
     if (gCurrentActor->flags & 0x10000000) {
@@ -707,7 +707,7 @@ void func_806C19F4(void) {
         }
         actorTrackBoneTowardTarget(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
-        func_806C10A0(2, 6, 0x3D9);
+        actorNpcKongTalkThenWarpOut(2, 6, 0x3D9);
         actorTrackBoneTowardTarget(0);
         actorShowTextOnceWhenNear(6, 1, 6);
     }
@@ -716,13 +716,13 @@ void func_806C19F4(void) {
 
 extern u8 D_8071FB34;
 
-void func_806C1B50(void) {
+void actorNpcTinyUpdate(void) {
     u8 bone;
     u32 minFrame;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_806C15E8();
+        actorNpcKongInit();
         playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
     }
     actorKongChainUpdate();
@@ -751,7 +751,7 @@ void func_806C1B50(void) {
             }
         }
     } else {
-        func_806C10A0(2, 4, 0x3DB);
+        actorNpcKongTalkThenWarpOut(2, 4, 0x3DB);
         actorShowTextOnceWhenNear(4, 1, 8);
     }
 done:
@@ -759,13 +759,13 @@ done:
 }
 
 
-void func_806C1CCC(void) {
+void actorNpcChunkyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->terminalSpeedY = -2000.0f;
         gCurrentActor->accelY = -200.0f;
-        func_806C15E8();
-        func_80724CA4(2, 1);
+        actorNpcKongInit();
+        actorAllocBoneRotations(2, 1);
         if (gCurrentMap == 0x4C) {
             controllerAnimLoadStateAsset(gCurrentActor, 0xE);
         }
@@ -780,14 +780,14 @@ void func_806C1CCC(void) {
         }
         actorTrackBoneTowardTarget(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
-        func_806C10A0(2, 5, 0x3DA);
+        actorNpcKongTalkThenWarpOut(2, 5, 0x3DA);
         actorTrackBoneTowardTarget(0);
         actorShowTextOnceWhenNear(5, 1, 0xF);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_8071FF58[];
+extern u8 gEffectSpriteSleepZ[];
 extern u8 D_80720B58[];
 
 void func_806C1E44(void) {
@@ -837,7 +837,7 @@ void func_806C1E44(void) {
                             effectSetDepth(1);
                             effectSetDuration(0x28);
                             effectSetCallback(effectWobbleScaleUpdate);
-                            effectCreateAtActorBone(D_8071FF58, 0.05f, gCurrentActor, 1, 0);
+                            effectCreateAtActorBone(gEffectSpriteSleepZ, 0.05f, gCurrentActor, 1, 0);
                         }
                     }
             }
@@ -1115,7 +1115,7 @@ void actorScriptedUpdate(void) {
                 /* fallthrough */
             case 0x22:
             case 0x23:
-                func_80724CA4(2, 1);
+                actorAllocBoneRotations(2, 1);
                 break;
             case 1:
             case 4:
@@ -1126,7 +1126,7 @@ void actorScriptedUpdate(void) {
                 gCurrentActor->flags |= 0x400;
                 gCurrentActor->floorNodeId = 1;
                 gCurrentActor->flags |= 0x1000;
-                func_80724CA4(2, 1);
+                actorAllocBoneRotations(2, 1);
                 playerKongHolsterGun(gCurrentActor);
                 break;
             case 0x17:
@@ -1303,7 +1303,7 @@ void actorScriptedUpdate(void) {
             if (!(gFrameCounter & 3)) {
                 effectSetDepth(1);
                 effectSetCallback(effectShrinkFadeMatrixUpdate);
-                effectCreateAtActorBone(&D_8071FB08, 0.6f, gCurrentActor, 2, 0);
+                effectCreateAtActorBone(&gEffectSpriteSparklesBlue, 0.6f, gCurrentActor, 2, 0);
             }
             break;
         case 0x4C7:

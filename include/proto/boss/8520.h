@@ -8,8 +8,8 @@ void bossKutOutSpawnGhost(s16, s16, s16);
 #ifndef PROTO_SKIP_bossKutOutSpawnGhosts
 void bossKutOutSpawnGhosts(void);
 #endif
-#ifndef PROTO_SKIP_func_8002C748
-void func_8002C748();
+#ifndef PROTO_SKIP_bossAnimFrameBounceInit
+void bossAnimFrameBounceInit();
 #endif
 #ifndef PROTO_SKIP_bossAnimFrameBounceStep
 void bossAnimFrameBounceStep(void);

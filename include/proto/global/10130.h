@@ -4,8 +4,8 @@
 #include "common.h"
 #include "actor.h"
 struct PositionRecord;
-#ifndef PROTO_SKIP_func_8060B430
-void func_8060B430(Actor *, struct PositionRecord *);
+#ifndef PROTO_SKIP_demoApplyPositionRecord
+void demoApplyPositionRecord(Actor *, struct PositionRecord *);
 #endif
 #ifndef PROTO_SKIP_demoPlaybackStart
 s16 demoPlaybackStart(Actor *, s32);
@@ -28,10 +28,10 @@ void demoPlaybackFree(void);
 #ifndef PROTO_SKIP_demoPlaybackLoad
 void demoPlaybackLoad(s32);
 #endif
-#ifndef PROTO_SKIP_func_8060B7C4
-u8 func_8060B7C4(void);
+#ifndef PROTO_SKIP_demoGetStartKong
+u8 demoGetStartKong(void);
 #endif
-#ifndef PROTO_SKIP_func_8060B7D0
-void func_8060B7D0(s32 *, s32 *);
+#ifndef PROTO_SKIP_demoGetStartMap
+void demoGetStartMap(s32 *, s32 *);
 #endif
 #endif

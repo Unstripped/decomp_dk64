@@ -168,7 +168,7 @@ void actorCountGoalRewardUpdate(s32 startPathId, s32 lowCountPathId, s32 rewardP
             gCurrentActor->state = 0x40;
             return;
         }
-        func_80724CA4(1, 1);
+        actorAllocBoneRotations(1, 1);
         if (gBehaviourExtraState->id == startSpawnId) {
             pathId = startPathId;
         } else {
@@ -674,7 +674,7 @@ typedef struct CutsceneRestoreState {
 
 
 extern s16 gCurrentLevelIndex;
-extern s32 D_8071FB08;
+extern s32 gEffectSpriteSparklesBlue;
 extern s16 gPhotoSubjectDepthDist;
 extern s16 gPhotoSubjectScreenX;
 extern s16 gPhotoSubjectScreenY;
@@ -692,7 +692,7 @@ void actorPhotoSubjectUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->flags |= 0x40;
         gCurrentActor->drawDistance = 0xFA;
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
     }
     if ((randomNonNegative() >> 15) % 1000 >= 971) {
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed << 2;
@@ -702,7 +702,7 @@ void actorPhotoSubjectUpdate(void) {
     if (!(gFrameCounter & 3)) {
         effectSetDepth(1);
         effectSetCallback(effectShrinkFadeMatrixUpdate);
-        effectCreateAtPosition(&D_8071FB08, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteSparklesBlue, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
     if (!(gActivePlayerState->stateFlags & 0x8000)) {
         dz = gPlayerSlots->camZ - gCurrentActor->z;
@@ -807,7 +807,7 @@ void actorPresentBeforePlayerUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentActor->movePitch != 0) {
             gCurrentActor->unk15F = 0x14;
-            actorSpawnNodeEntryAtActor(0x2D, func_8073195C(gCurrentActor->movePitch));
+            actorSpawnNodeEntryAtActor(0x2D, flagLookupIdByIndex(gCurrentActor->movePitch));
         }
     }
     if (gCurrentActor->movePitch != 0) {

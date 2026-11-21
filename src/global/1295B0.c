@@ -60,7 +60,7 @@ void actorSetUniformScale(Actor *actor, f32 scale) {
     }
 }
 
-void func_80724994(u8 subtype, s16 value0, s16 value1, s16 value2, s16 value3) {
+void spawnNodesSendVolumeTrigger(u8 subtype, s16 value0, s16 value1, s16 value2, s16 value3) {
     s16 *payload;
     Actor *target;
 
@@ -126,7 +126,7 @@ void zoneEntryGetPosition(u8 zoneId, u8 entryIndex, f32 *outX, f32 *outY, f32 *o
 }
 
 
-void func_80724C2C(s16 speed) {
+void actorKnockbackFromAttacker(s16 speed) {
     s16 angle;
 
     angle = (gActorGlobalState.targetActor->moveYaw + 0x800) & 0xFFF;
@@ -139,7 +139,7 @@ void spawnNodesInitForMap(void *mapData) {
     spawnNodeListInitFromMap(mapData, gZoneTable, gSpawnNodeList);
 }
 
-void func_80724CA4(s16 first, s16 count) {
+void actorAllocBoneRotations(s16 first, s16 count) {
     BoneRotation *table;
 
     gCurrentActor->sub4->boneRotations = heapAlloc((count + 1) * sizeof(BoneRotation));
@@ -150,7 +150,7 @@ void func_80724CA4(s16 first, s16 count) {
     table[count].weight = 0;
 }
 
-void func_80724D28(s16 first, s16 count) {
+void actorAllocBoneOffsets(s16 first, s16 count) {
     BoneVector *table;
 
     gCurrentActor->sub4->boneOffsets = heapAlloc((count + 1) * sizeof(BoneVector));
@@ -161,7 +161,7 @@ void func_80724D28(s16 first, s16 count) {
     table[count].bone = 0xFF;
 }
 
-void func_80724DB0(s16 first, s16 count) {
+void actorAllocBoneScales(s16 first, s16 count) {
     BoneVector *table;
 
     gCurrentActor->sub4->boneScales = heapAlloc((count + 1) * sizeof(BoneVector));
@@ -1347,7 +1347,7 @@ void currentActorAnimSetFrame(u8 frame, u8 subframe) {
     animSetFrameAndSubframe(gCurrentActor, frame, subframe, 0.0f);
 }
 
-extern EffectGridAsset D_8071FB34, D_8071FB54, D_8071FC0C, gEffectSpriteBubble, D_8071FC58;
+extern EffectGridAsset D_8071FB34, D_8071FB54, D_8071FC0C, gEffectSpriteBubble, gEffectSpriteSparklePurple;
 extern void *gPuffSprites[];
 
 
@@ -1536,7 +1536,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetSpeed(0x64);
                 effectSetCallback(effectSinkBySpeedUpdate);
                 effectSetStartDelay(i / 7);
-                effectCreateAtPosition(&D_8071FC58, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
+                effectCreateAtPosition(&gEffectSpriteSparklePurple, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
             }
             return;
         }
@@ -1566,7 +1566,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
 
 
 
-void func_80729AA4(u8 id) {
+void spawnNodeSignalActor(u8 id) {
     Actor *a;
 
     a = spawnNodeActivate(id, 0);

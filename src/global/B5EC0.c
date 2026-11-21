@@ -32,7 +32,7 @@ void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     actorSpawnEffectChild(x, gCurrentActor->floorY, z, 0.05f, 0.04f, gCurrentActor, 0);
 }
 
-void func_806B1290(void) {
+void kongItemEnemyTryGroundSlam(void) {
     if (gBehaviourWorkState->stepCount >= 0x65
         && (((gBehaviourWorkState->flags & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
             || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (gCurrentActor->flags & 0x100)))) {
@@ -41,7 +41,7 @@ void func_806B1290(void) {
     }
 }
 
-void func_806B1348(void) {
+void kongItemEnemyTryAttack(void) {
     if (gBehaviourWorkState->stepCount >= 0x65 && gActorGlobalState.bossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
         gCurrentActor->state = 0x27;
         gCurrentActor->unk155 = 0;
@@ -62,7 +62,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
             gBehaviourAnimState->flags |= 0x40;
         }
         behaviourSetAnimIds(0x205, 0x203, 0x204);
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
     }
     sel = gCurrentActor->state;
     if (sel == 0x27) {
@@ -201,8 +201,8 @@ void func_806B13B4(u8 spawnSfxNodes) {
     case 0x10:
     case 0x23:
         if (camIsCutsceneActive() == 0) {
-            func_806B1290();
-            func_806B1348();
+            kongItemEnemyTryGroundSlam();
+            kongItemEnemyTryAttack();
         }
         actorTrackBoneTowardTarget((u8)(gCurrentActor->state == 1 ? 2 : 0));
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
@@ -265,7 +265,7 @@ void actorSetAnimStartFrame(u8 frame) {
 extern u8 gCurrentWorldId;
 
 
-void func_806B1DD4(u8 mode) {
+void kongItemEnemyUpdate(u8 mode) {
     u8 flag;
     s32 worldIndex;
 
@@ -283,21 +283,21 @@ void func_806B1DD4(u8 mode) {
 }
 
 void b5ec0SetMode4(void) {
-    func_806B1DD4(4);
+    kongItemEnemyUpdate(4);
 }
 
 void b5ec0SetMode2(void) {
-    func_806B1DD4(2);
+    kongItemEnemyUpdate(2);
 }
 
 void b5ec0SetMode3(void) {
-    func_806B1DD4(3);
+    kongItemEnemyUpdate(3);
 }
 
 void b5ec0SetMode0(void) {
-    func_806B1DD4(0);
+    kongItemEnemyUpdate(0);
 }
 
 void b5ec0SetMode1(void) {
-    func_806B1DD4(1);
+    kongItemEnemyUpdate(1);
 }

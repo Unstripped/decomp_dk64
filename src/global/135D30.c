@@ -19,7 +19,7 @@ typedef struct FlagRange {
 
 FlagTableEntry gFlagTempEntries[0x18];
 u8 gFlagBank2[14];
-FlagTableEntry D_80755A20[0x71] = {
+FlagTableEntry gMapObjectFlags[0x71] = {
     { 0x25, 0, 0x1, 0x3, 2, 0 }, { 0x7, 0, 0x69, 0x4, 2, 0 }, { 0x7, 0, 0x48, 0x5, 2, 0 },
     { 0x21, 0, 0x3, 0xC, 6, 0 }, { 0x7, 0, 0x68, 0x8, 5, 0 }, { 0x7, 0, 0x4F, 0x13, 4, 0 },
     { 0x7, 0, 0x4D, 0x12, 3, 0 }, { 0x7, 0, 0x50, 0x16, 6, 0 }, { 0x7, 0, 0x4C, 0x15, 5, 0 },
@@ -59,7 +59,7 @@ FlagTableEntry D_80755A20[0x71] = {
     { 0x11, 0, 0x5D, 0x248, 2, 0 }, { 0x11, 0, 0x5E, 0x249, 6, 0 }, { 0x11, 0, 0x5F, 0x24A, 4, 0 },
     { 0x11, 0, 0x60, 0x24B, 5, 0 }, { 0x11, 0, 0x61, 0x24C, 3, 0 },
 };
-FlagTableEntry D_80755DA8[0x1F] = {
+FlagTableEntry gSpawnFlagConditions[0x1F] = {
     { 0x7, 0, 0x1, 0x6, 0, 0 }, { 0x7, 0, 0x33, 0x24D, 0, 0 }, { 0xD, 0, 0x7, 0x24E, 0, 0 },
     { 0x26, 0, 0xB, 0x32, 0, 0 }, { 0x14, 0, 0x2, 0x32, 1, 0 }, { 0x14, 0, 0x1, 0x46, 0, 0 },
     { 0x10, 0, 0x13, 0x42, 0, 0 }, { 0x14, 0, 0xC, 0x258, 0, 0 }, { 0x16, 0, 0xB, 0x259, 0, 0 },
@@ -72,7 +72,7 @@ FlagTableEntry D_80755DA8[0x1F] = {
     { 0x22, 0, 0x7, 0x25F, 0, 0 }, { 0x11, 0, 0x19, 0x256, 0, 0 }, { 0x11, 0, 0x1A, 0x257, 0, 0 },
     { 0xFF, 0, 0, 0, 0, 0 },
 };
-FlagTableEntry D_80755EA0[0x16] = {
+FlagTableEntry gTriggerOnceFlags[0x16] = {
     { 0x7, 0, 0x7, 0x1B, 1, 0 }, { 0x7, 0, 0x12, 0, 0, 0 }, { 0x7, 0, 0x6, 0x2A, 1, 0 },
     { 0xD, 0, 0x2, 0xA, 0, 0 }, { 0x26, 0, 0x16, 0x5C, 1, 0 }, { 0x10, 0, 0x2, 0x5E, 1, 0 },
     { 0x14, 0, 0x2, 0x5D, 1, 0 }, { 0x26, 0, 0xC, 0x5F, 1, 0 }, { 0x1A, 0, 0xA, 0x8C, 0, 0 },
@@ -82,7 +82,7 @@ FlagTableEntry D_80755EA0[0x16] = {
     { 0x57, 0, 0x13, 0x15D, 1, 0 }, { 0x2A, 0, 0x7, 0x167, 1, 0 }, { 0xB0, 0, 0x3, 0x17A, 1, 0 },
     { 0x22, 0, 0x9, 0x186, 1, 0 },
 };
-FlagTableEntry4 D_80755F50[0x35] = {
+FlagTableEntry4 gRewardDropFlags[0x35] = {
     { 0xE0, 4, 0 }, { 0x1C4, 0, 0 }, { 0x131, 3, 0 }, { 0x132, 4, 0 }, { 0x2, 5, 0 },
     { 0x1, 4, 0 }, { 0x1C, 6, 0 }, { 0x87, 3, 0 }, { 0xE3, 5, 0 }, { 0xEB, 2, 0 },
     { 0x86, 3, 0 }, { 0x88, 6, 0 }, { 0x89, 4, 0 }, { 0xB, 4, 0 }, { 0x74, 5, 0 },
@@ -95,7 +95,7 @@ FlagTableEntry4 D_80755F50[0x35] = {
     { 0x12A, 2, 0 }, { 0xC6, 3, 0 }, { 0xC5, 6, 0 }, { 0xC8, 2, 0 }, { 0xCA, 5, 0 },
     { 0xFA, 3, 0 }, { 0x19, 6, 0 }, { 0x15E, 3, 0 },
 };
-FlagRange D_80756024[0x21] = {
+FlagRange gFlagRangeRewards[0x21] = {
     { 0x24D, 0x260, 1, 0 }, { 0x24D, 0x260, 2, 0x1 }, { 0x24D, 0x260, 6, 0xE },
     { 0x24D, 0x260, 10, 0x13 }, { 0x24D, 0x260, 15, 0x21 }, { 0x24D, 0x260, 20, 0x22 },
     { 0x6, 0x6, 1, 0x1D }, { 0x46, 0x46, 1, 0x1E }, { 0x42, 0x42, 1, 0x1F },
@@ -159,8 +159,8 @@ void flagUpdateRangeCompletion(s16 flag) {
     s32 res = -1;
     FlagRange *e;
 
-    for (i = 0; i < sizeof(D_80756024) / sizeof(D_80756024[0]) && res == -1; i++) {
-        e = &D_80756024[i];
+    for (i = 0; i < sizeof(gFlagRangeRewards) / sizeof(gFlagRangeRewards[0]) && res == -1; i++) {
+        e = &gFlagRangeRewards[i];
         if (flag >= e->first && flag <= e->last) {
             if (flagCountRange(e->first, e->last - e->first + 1, 0) == e->required) {
                 res = e->rewardFlag;
@@ -227,11 +227,11 @@ void flagTempRegister(s16 map, s16 id, s16 flag, u8 val) {
 
 void flagSetForMapObject(s16 map, s16 id) {
     s32 i;
-    s32 n = sizeof(D_80755A20) / sizeof(D_80755A20[0]);
+    s32 n = sizeof(gMapObjectFlags) / sizeof(gMapObjectFlags[0]);
 
     for (i = 0; i < n; i++) {
-        if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
-            flagSet(D_80755A20[i].flag, 1, 0);
+        if (map == gMapObjectFlags[i].map && id == gMapObjectFlags[i].id) {
+            flagSet(gMapObjectFlags[i].flag, 1, 0);
             return;
         }
     }
@@ -246,11 +246,11 @@ void flagSetForMapObject(s16 map, s16 id) {
 
 s32 flagGetForMapObject(s16 map, s16 id) {
     s32 i;
-    s32 n = sizeof(D_80755A20) / sizeof(D_80755A20[0]);
+    s32 n = sizeof(gMapObjectFlags) / sizeof(gMapObjectFlags[0]);
 
     for (i = 0; i < n; i++) {
-        if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
-            return flagGet(D_80755A20[i].flag, 0);
+        if (map == gMapObjectFlags[i].map && id == gMapObjectFlags[i].id) {
+            return flagGet(gMapObjectFlags[i].flag, 0);
         }
     }
     return 0;
@@ -258,11 +258,11 @@ s32 flagGetForMapObject(s16 map, s16 id) {
 
 u8 flagValueForMapObject(s16 map, s16 id) {
     s32 i;
-    s32 n = sizeof(D_80755A20) / sizeof(D_80755A20[0]);
+    s32 n = sizeof(gMapObjectFlags) / sizeof(gMapObjectFlags[0]);
 
     for (i = 0; i < n; i++) {
-        if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
-            return D_80755A20[i].value;
+        if (map == gMapObjectFlags[i].map && id == gMapObjectFlags[i].id) {
+            return gMapObjectFlags[i].value;
         }
     }
     for (i = 0; i < 0x18; i++) {
@@ -275,11 +275,11 @@ u8 flagValueForMapObject(s16 map, s16 id) {
 
 
 s32 spawnFlagLookup(s16 map, s16 id, s32 *outIdx) {
-    s32 n = sizeof(D_80755DA8) / sizeof(D_80755DA8[0]);
+    s32 n = sizeof(gSpawnFlagConditions) / sizeof(gSpawnFlagConditions[0]);
 
     for (*outIdx = 0; *outIdx < n; (*outIdx)++) {
-        if (map == D_80755DA8[*outIdx].map && id == D_80755DA8[*outIdx].id) {
-            return D_80755DA8[*outIdx].flag;
+        if (map == gSpawnFlagConditions[*outIdx].map && id == gSpawnFlagConditions[*outIdx].id) {
+            return gSpawnFlagConditions[*outIdx].flag;
         }
     }
     return -1;
@@ -293,10 +293,10 @@ s32 spawnFlagConditionMet(s16 map, s16 id) {
     r = spawnFlagLookup(map, id, &idx);
     if (r >= 0) {
         flag = flagGet(r, 0);
-        if (flag != 0 && D_80755DA8[idx].value != 0) {
+        if (flag != 0 && gSpawnFlagConditions[idx].value != 0) {
             return 1;
         }
-        if (flag == 0 && D_80755DA8[idx].value == 0) {
+        if (flag == 0 && gSpawnFlagConditions[idx].value == 0) {
             return 1;
         }
         return 0;
@@ -305,12 +305,12 @@ s32 spawnFlagConditionMet(s16 map, s16 id) {
 }
 
 s32 flagTryTriggerOnce(s16 map, s16 id) {
-    s32 n = sizeof(D_80755EA0) / sizeof(D_80755EA0[0]);
+    s32 n = sizeof(gTriggerOnceFlags) / sizeof(gTriggerOnceFlags[0]);
     s32 i;
     FlagTableEntry *e;
 
     for (i = 0; i < n; i++) {
-        e = &D_80755EA0[i];
+        e = &gTriggerOnceFlags[i];
         if (map == e->map && id == e->id) {
             if (flagGet(e->flag, 0) != 0) {
                 return 0;
@@ -324,20 +324,20 @@ s32 flagTryTriggerOnce(s16 map, s16 id) {
     return 1;
 }
 
-s32 func_8073195C(s16 index) {
+s32 flagLookupIdByIndex(s16 index) {
     if (index == 0) {
         return -1;
     }
-    return D_80755F50[index - 1].id;
+    return gRewardDropFlags[index - 1].id;
 }
 
 u8 flagLookupValueById(s16 id) {
     s32 i;
-    s32 n = sizeof(D_80755F50) / sizeof(D_80755F50[0]);
+    s32 n = sizeof(gRewardDropFlags) / sizeof(gRewardDropFlags[0]);
 
     for (i = 0; i < n; i++) {
-        if (id == D_80755F50[i].id) {
-            return D_80755F50[i].value;
+        if (id == gRewardDropFlags[i].id) {
+            return gRewardDropFlags[i].value;
         }
     }
     return 0;

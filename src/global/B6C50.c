@@ -19,7 +19,7 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern EffectGridAsset D_8072030C;
+extern EffectGridAsset gEffectSpriteFuseSpark;
 
 
 void timedSmokeTargetHostUpdate(void) {
@@ -44,7 +44,7 @@ void timedSmokeTargetHostUpdate(void) {
         effectSetDepth(1);
         effectSetDuration(-1);
         effectSetMaxDistance(gSpawnedActor->drawDistance * 0.75);
-        effectCreateAtActorBone(&D_8072030C, 0.28f, gSpawnedActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteFuseSpark, 0.28f, gSpawnedActor, 1, 2);
         actorScriptStart(gCurrentActor, 0x300);
         sfxPlayActorSound(gCurrentActor, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
     }
@@ -113,7 +113,7 @@ void timedSmokeTargetHostUpdate(void) {
 }
 
 extern Actor *gPrimaryPlayerActor;
-extern s32 D_80720340;
+extern s32 gEffectSpriteExplosion;
 
 f32 sqrtf(f32);
 
@@ -136,7 +136,7 @@ void smokeTargetChaserUpdate(void) {
     }
     if (gFrameCounter % 10 == 0) {
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720340, gCurrentActor->sub4->scaleY * 6.66666667 * 0.9, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteExplosion, gCurrentActor->sub4->scaleY * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
     if (actorTableContains(gBehaviourTargetActor) == 0) {
         gBehaviourWorkState->targetActor = gPrimaryPlayerActor;

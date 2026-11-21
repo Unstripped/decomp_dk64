@@ -36,7 +36,7 @@ extern ALBank *gSfxBankHigh;
 extern u16 D_8076BF30[];
 extern void *gSeqBuffers[];
 s32 gSeqBufferSizes[4] = { 0x407E, 0x11B6, 0x7B6, 0x156 };
-void func_806010A0(void);
+void audioLoadSeqRomOffsets(void);
 
 void audioInit(void) {
     GeSndpConfig sndp;
@@ -96,7 +96,7 @@ void audioInit(void) {
         n_alCSPlayerNew(arg, &seqp);
         alCSPSetBank(&gSeqPlayers[i]->al, bankA->bankArray[0]);
     }
-    func_806010A0();
+    audioLoadSeqRomOffsets();
     sndp.maxEvents = 0x40;
     sndp.maxSounds = 0x40;
     sndp.maxVoices = 0x14;
@@ -108,7 +108,7 @@ void audioInit(void) {
     audioThreadStart();
 }
 
-void func_806010A0(void) {
+void audioLoadSeqRomOffsets(void) {
     u32 size1;
     u32 size2;
     s32 pad;
@@ -223,11 +223,11 @@ void seqPlayerSetChannelFX2MixMask(u8 playerIndex, s32 chanMask, s32 fxMix) {
     }
 }
 
-void func_80601678(u8 playerIndex, u8 channel, u8 val) {
+void seqPlayerSetChannelLowpassGain(u8 playerIndex, u8 channel, u8 val) {
     alCSPSendMidi(&gSeqPlayers[playerIndex]->al, 0, (u8)(channel | AL_MIDI_ControlChange), 0x21, val);
 }
 
-void func_806016D0(u8 playerIndex, u8 channel, u8 val) {
+void seqPlayerSetChannelLowpassKeyOffset(u8 playerIndex, u8 channel, u8 val) {
     alCSPSendMidi(&gSeqPlayers[playerIndex]->al, 0, (u8)(channel | AL_MIDI_ControlChange), 0x22, val);
 }
 
@@ -255,7 +255,7 @@ void seqPlayerAddDeltaTime(u8 playerIndex, s32 delta) {
 s32 seqPlayerGetCurTime(u8 playerIndex) {
     return gSeqPlayers[playerIndex]->curTime;
 }
-void func_806018D4(u8 playerIndex, u8 byte, s32 delta) {
+void seqPlayerFindMarkers(u8 playerIndex, u8 byte, s32 delta) {
     __n_alCSeqNextDelta(&gSeqCSeqs[playerIndex], D_8076C328[playerIndex], byte, delta);
 }
 

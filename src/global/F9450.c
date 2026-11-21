@@ -812,7 +812,7 @@ void gridCollectNodesInBounds(GridNode *node, u8 playerIndex, GridBounds *bounds
         if ((node->collected == 0) &&
             (dist < gGridTypeTable[node->typeIndex].radius + bounds->radius) &&
             ((node->requiredActorType == 0) || (player->actorType == node->requiredActorType)) &&
-            (func_8063C2A8(node->modelSlot) != 0) &&
+            (modelSlotIsAlphaVisible(node->modelSlot) != 0) &&
             (gridCheckNodeCondition(node->modelSlot, playerIndex, node->modelType) != 0)) {
             node->collected = 1;
             modelSlotFreeNestedBuffer(node->modelSlot, 1);
@@ -1009,7 +1009,7 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
                     modelSlotGetTransformVectors(node->modelSlot, &vx, &vy, &vz, &unusedA, &unusedB, &unusedC, &unusedD, &unusedE, 1);
                     guMtxXFML(mtx, vx, vy, vz, &node->startX, &node->startY, &node->startZ);
                     node->started = 1;
-                    func_806398E4(node->modelSlot, 1, 0);
+                    modelSlotSetTranslucent(node->modelSlot, 1, 0);
                     if (node->playSound != 0) {
                         playerStateHandleSoundEffects(node->modelType, playerIndex);
                     }
@@ -1130,7 +1130,7 @@ s32 listContainsS16(s16 value) {
 }
 
 
-extern u8 D_8071FC58;
+extern u8 gEffectSpriteSparklePurple;
 
 void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 count) {
     f32 dx;
@@ -1142,7 +1142,7 @@ void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 cou
     effectSetSpeed(0x1006E);
     effectSetCallback(effectLightPulseTealUpdate);
     effectSetDepth(1);
-    effectCreateAtPosition(&D_8071FC58, scale, x, y, z);
+    effectCreateAtPosition(&gEffectSpriteSparklePurple, scale, x, y, z);
     half = 1000.0 / ((f64) spread + (f64) spread);
     for (i = 0; i < count; i++) {
         dx = (randomLcgNext() / 10000U % 1000U) / spread - half;
@@ -1151,7 +1151,7 @@ void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 cou
         effectSetCallback(effectRandomDirectionDriftUpdate);
         effectSetStartDelay(i + 1);
         effectSetDepth(1);
-        effectCreateAtPosition(&D_8071FC58, scale, x + dx, y + dy, z + dz);
+        effectCreateAtPosition(&gEffectSpriteSparklePurple, scale, x + dx, y + dy, z + dz);
     }
 }
 

@@ -319,7 +319,7 @@ void bossSpawnerUpdate(void) {
             state->subState = 0;
             state->phase++;
             if (state->phase == 1) {
-                func_80724994(1, 7, 0, 0, 0);
+                spawnNodesSendVolumeTrigger(1, 7, 0, 0, 0);
             }
             if (state->phase == 3) {
                 state->subState = 7;

@@ -107,7 +107,7 @@ TintKeyframe gTintKeyframes[] = {
     { 0x0000, 0xFF, 0x00, 0x00 },
 };
 
-extern FillRectEntry D_80750840[];
+extern FillRectEntry gSplitScreenDividerRects[];
 extern u8 gSplitScreenMode;
 extern u8 gSplitScreenViewMask;
 extern u8 gHiResScale;
@@ -120,10 +120,10 @@ Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
     gDPSetRenderMode(dl++, G_RM_NOOP, G_RM_NOOP2);
     gDPSetCycleType(dl++, G_CYC_FILL);
     gDPSetFillColor(dl++, 0x10001);
-    for (; D_80750840[i].players != -1; i++) {
-        if (((D_80750840[i].players == 2) && (gPlayerCount >= 2) && (D_80750840[i].viewMask & gSplitScreenViewMask)) || ((gPlayerCount == D_80750840[i].players) && (gSplitScreenMode == D_80750840[i].splitMode) && (D_80750840[i].viewMask & gSplitScreenViewMask))) {
-            gDPFillRectangle(dl++, D_80750840[i].x0 * gHiResScale, D_80750840[i].y0 * gHiResScale,
-                             (D_80750840[i].x1 + 1) * gHiResScale - 1, (D_80750840[i].y1 + 1) * gHiResScale - 1);
+    for (; gSplitScreenDividerRects[i].players != -1; i++) {
+        if (((gSplitScreenDividerRects[i].players == 2) && (gPlayerCount >= 2) && (gSplitScreenDividerRects[i].viewMask & gSplitScreenViewMask)) || ((gPlayerCount == gSplitScreenDividerRects[i].players) && (gSplitScreenMode == gSplitScreenDividerRects[i].splitMode) && (gSplitScreenDividerRects[i].viewMask & gSplitScreenViewMask))) {
+            gDPFillRectangle(dl++, gSplitScreenDividerRects[i].x0 * gHiResScale, gSplitScreenDividerRects[i].y0 * gHiResScale,
+                             (gSplitScreenDividerRects[i].x1 + 1) * gHiResScale - 1, (gSplitScreenDividerRects[i].y1 + 1) * gHiResScale - 1);
         }
     }
     gDPPipeSync(dl++);
@@ -249,15 +249,15 @@ void gfxDrawSkybox(ColorBytesView *colorView, s8 r, s8 g, s8 b) {
     colorView->b = b;
 }
 
-extern void *D_807FD8A0;
-extern Mtx D_807FD928;
-extern void *D_807FD978[8];
+extern void *gBgRotatedTexture;
+extern Mtx gBgOrthoMtx;
+extern void *gBgScrollTileTextures[8];
 
 void gfxBackgroundReset(void) {
-    D_807FD8A0 = NULL;
-    guOrtho(&D_807FD928, 0.0f, gScreenWidth * 16.0f - 1.0, gScreenHeight * 16.0f - 1.0, 0.0f, -20000.0f, 20000.0f, 1.0f);
+    gBgRotatedTexture = NULL;
+    guOrtho(&gBgOrthoMtx, 0.0f, gScreenWidth * 16.0f - 1.0, gScreenHeight * 16.0f - 1.0, 0.0f, -20000.0f, 20000.0f, 1.0f);
     gLightOverrideR = -1.0f;
-    D_807FD978[0] = NULL;
+    gBgScrollTileTextures[0] = NULL;
 }
 
 void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
@@ -407,7 +407,7 @@ void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB) {
     }
 }
 
-extern Mtx D_807FD8A8[];
+extern Mtx gBgRotatedMtx[];
 
 Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, f32 width, f32 height) {
     f32 scrollU;
@@ -438,14 +438,14 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     guMtxCatF(mtxA, mtxB, mtxA);
     guTranslateF(mtxB, 2560.0f, 1920.0f, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guMtxF2L(mtxA, &D_807FD8A8[gGfxBufferIndex]);
+    guMtxF2L(mtxA, &gBgRotatedMtx[gGfxBufferIndex]);
     rotX = 6.2831855f - rotX;
     rotY = (width / height) * (6.2831855f - rotY);
-    if (D_807FD8A0 == NULL) {
-        D_807FD8A0 = assetLoad(0xE, assetId, 0, 0);
+    if (gBgRotatedTexture == NULL) {
+        gBgRotatedTexture = assetLoad(0xE, assetId, 0, 0);
     }
-    gSPMatrix(glist++, &D_807FD8A8[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(glist++, &D_807FD928, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(glist++, &gBgRotatedMtx[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(glist++, &gBgOrthoMtx, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPPipeSync(glist++);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x404240);
     gDPSetCombineMode(glist++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
@@ -475,7 +475,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     gfxWrapRectSpan(spans, &count, 0, width);
     gfxWrapRectSpan(spans, &count, 1, height);
     for (i = 0; i < count; i++) {
-        gfxDrawTexturedTileGridSimple(&glist, D_807FD8A0, 0, width, height, 0x20, 0x20, spans[i].v[0][0], spans[i].v[0][1], spans[i].v[1][0], spans[i].v[1][1], spans[i].v[2][0], spans[i].v[2][1], 0x10, 0x10);
+        gfxDrawTexturedTileGridSimple(&glist, gBgRotatedTexture, 0, width, height, 0x20, 0x20, spans[i].v[0][0], spans[i].v[0][1], spans[i].v[1][0], spans[i].v[1][1], spans[i].v[2][0], spans[i].v[2][1], 0x10, 0x10);
     }
     return glist;
 }
@@ -510,9 +510,9 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     if (scroll >= 0x200) {
         scroll -= 0x200;
     }
-    if (D_807FD978[0] == NULL) {
+    if (gBgScrollTileTextures[0] == NULL) {
         for (n = 0; n < 8; n++) {
-            D_807FD978[n] = assetLoad(0x19, gBgScrollTileAssets[n], 0, 0);
+            gBgScrollTileTextures[n] = assetLoad(0x19, gBgScrollTileAssets[n], 0, 0);
         }
     }
     k = 0;
@@ -521,7 +521,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
         y = (j << 2) - scroll;
         do {
             gDPPipeSync(dl++);
-            tex = D_807FD978[k];
+            tex = gBgScrollTileTextures[k];
             gDPLoadTextureBlock(dl++, (u32)tex + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 64, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, G_TX_NOLOD, G_TX_NOLOD);
             x = (i << 2) - sBgScrollX;
             for (n = 0; n < 4; n++) {
@@ -570,7 +570,7 @@ Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
 }
 
 extern f32 gScreenFadeRate;
-extern u8 D_8076AEE0;
+extern u8 gTransitionFadeType;
 extern s16 gViewProbeHitsFarPlane;
 
 Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
@@ -580,7 +580,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
     f32 dist;
 
     gDPPipeSync(dl++);
-    if ((gScreenFadeRate != 0.0f) && (D_8076AEE0 == 3)) {
+    if ((gScreenFadeRate != 0.0f) && (gTransitionFadeType == 3)) {
         dl = gfxClearScreenSetViewportScissor(dl);
     }
     switch (gCurrentMap) {
@@ -683,7 +683,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
         dist = sqrtf(((x - 3000.0f) * (x - 3000.0f)) + ((z - 5000.0f) * (z - 5000.0f)));
         if (dist < 2500.0f) {
             intensity = ((2500.0f - dist) / 1000.0f > 1.0) ? 1.0 : (2500.0f - dist) / 1000.0f;
-            func_8068B830(2.0f + intensity, intensity * 400.0f, intensity * 30.0f);
+            weatherSetMode(2.0f + intensity, intensity * 400.0f, intensity * 30.0f);
             enemyAggroSetIntensityBB(intensity * -0.6 + 1.0);
         } else {
             enemyAggroDespawnBB();

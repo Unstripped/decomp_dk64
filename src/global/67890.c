@@ -46,9 +46,9 @@ void actorTargetTableLoad(MapFileHeader *header) {
 
     base = (u8 *)header;
     vtxIndex = 0;
-    gActorTargetCount = *(s32 *)(base + header->unk50);
+    gActorTargetCount = *(s32 *)(base + header->targetQuadsOff);
     if (gActorTargetCount != 0) {
-        gActorTargetQuads = (ActorTargetQuad *)(base + header->unk50 + 4);
+        gActorTargetQuads = (ActorTargetQuad *)(base + header->targetQuadsOff + 4);
         gActorTargetStates = heapAlloc(gActorTargetCount * sizeof(ActorTargetDistanceEntry));
         gActorTargetVerts = heapAlloc(gActorTargetCount * sizeof(Vtx) * 4);
         for (i = 0; i < gActorTargetCount; i++) {

@@ -4,8 +4,8 @@
 #include "proto/global/FE40.h"
 
 
-extern s8 D_80746834;
-extern OSMesgQueue D_807655F0;
+extern s8 gWaitPointId;
+extern OSMesgQueue gPiDmaMesgQueue;
 extern OSIoMesg D_807ECE00;
 extern void *D_807ECE18;
 void func_80002790(void *, void *, void *, s32);
@@ -36,20 +36,20 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, u32 *sizePtr, u8 decompressF
     }
     osInvalDCache(dmaBuf, *sizePtr);
     count = 0; ptr = dmaBuf; while (count < (*sizePtr >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
-        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, 0x4000, &D_807655F0);
-        D_80746834 = 4;
-        osRecvMesg(&D_807655F0, NULL, 1);
-        D_80746834 = 0;
+        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, 0x4000, &gPiDmaMesgQueue);
+        gWaitPointId = 4;
+        osRecvMesg(&gPiDmaMesgQueue, NULL, 1);
+        gWaitPointId = 0;
         count++;
         romAddr += 0x4000;
         ptr += 0x4000;
     }
     rem = *sizePtr - ((*sizePtr >> 14) << 14);
     if (rem != 0) {
-        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, rem, &D_807655F0);
-        D_80746834 = 5;
-        osRecvMesg(&D_807655F0, NULL, 1);
-        D_80746834 = 0;
+        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, rem, &gPiDmaMesgQueue);
+        gWaitPointId = 5;
+        osRecvMesg(&gPiDmaMesgQueue, NULL, 1);
+        gWaitPointId = 0;
     }
     D_807ECE18 = scratchBuf;
     if ((scratchBuf == NULL) && ((compressType == 1) || (compressType == 2))) {

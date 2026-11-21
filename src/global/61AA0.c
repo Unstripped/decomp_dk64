@@ -116,14 +116,14 @@ Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 fogAlpha, u8 override) {
     return gdl;
 }
 
-extern f32 D_807F5FDC;
-extern f32 D_807F5FE0;
+extern f32 gDefaultFovCos;
+extern f32 gViewFovScaledCos;
 
 f32 renderScaleDistanceByFov(f32 dist) {
     if (gPlayerSlots[gCurrentPlayerIndex].fov == 45.0) {
         return dist;
     }
-    return (dist / D_807F5FDC) * D_807F5FE0;
+    return (dist / gDefaultFovCos) * gViewFovScaledCos;
 }
 
 typedef struct {

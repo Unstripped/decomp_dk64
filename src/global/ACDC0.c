@@ -69,7 +69,7 @@ extern u8 **sPauseMenuStrings;
 extern u8 **sPauseLevelNames;
 extern s8 sPauseIconList;
 extern u8 D_807FC810;
-extern f32 D_807FC808;
+extern f32 sPauseLevelLabelHalfWidth;
 extern s8 sPauseBumpStep;
 extern s8 sPauseLastLevelSlot;
 extern s16 D_807FC82A;
@@ -94,13 +94,13 @@ extern s8 gMpWinnerIndex;
 
 f32 sqrtf(f32);
 
-extern const char D_8075AA80[], D_8075AA88[], D_8075AA90[], D_8075AA94[], D_8075AA9C[], D_8075AAA4[], D_8075AAAC[];
-extern const char D_8075AAB4[], D_8075AABC[], D_8075AAC4[], D_8075AACC[], D_8075AAD4[], D_8075AADC[], D_8075AAE4[];
+extern const char sLevelNameJungle[], sLevelNameTemple[], sLevelNameToy[], sLevelNameWreck[], sLevelNameForest[], sLevelNameCrystal[], sLevelNameSpooky[];
+extern const char sLevelNameWorld[], sLevelNameHideout[], sLevelNameBonus[], sLevelNameMulti[], sLevelNameStory[], sLevelNameTest[], sLevelNameShared[];
 extern s32 D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
 
 const char *sLevelNames[14] = {
-    D_8075AA80, D_8075AA88, D_8075AA90, D_8075AA94, D_8075AA9C, D_8075AAA4, D_8075AAAC,
-    D_8075AAB4, D_8075AABC, D_8075AAC4, D_8075AACC, D_8075AAD4, D_8075AADC, D_8075AAE4,
+    sLevelNameJungle, sLevelNameTemple, sLevelNameToy, sLevelNameWreck, sLevelNameForest, sLevelNameCrystal, sLevelNameSpooky,
+    sLevelNameWorld, sLevelNameHideout, sLevelNameBonus, sLevelNameMulti, sLevelNameStory, sLevelNameTest, sLevelNameShared,
 };
 void *gKongIconSprites[5] = { &D_807214A0, &D_807214B8, &D_807214D0, &D_807214E8, &D_80721500 };
 s8 sPauseBumpStep = 0;
@@ -145,13 +145,13 @@ s32 hudFindLevelSlot(s8 levelId) {
 
 extern OSContPad *gCurrentContPad;
 extern u8 gSaveIconTimer;
-extern s32 D_8076A098;
+extern s32 gMapPauseCount;
 extern u8 gCurrentWorldId;
-extern f32 D_807FC7FC;
+extern f32 sPauseBaseCamY;
 extern s8 D_80750580;
 extern f32 sPauseBumpFade[];
 extern s8 sPauseCarouselKong;
-extern s16 D_807FC802;
+extern s16 sPauseCarouselTurnDelta;
 extern f32 sPauseCarouselTimer;
 extern s8 sPauseCarouselIndex;
 extern s8 sPauseCarouselTarget;
@@ -204,8 +204,8 @@ void hudPauseMenuUpdate(void) {
         for (i = 0; i < 9; i++) {
             sPauseLevelNames[i] = textTableGetString(0x23, i, 0);
         }
-        D_8076A098++;
-        D_807FC7FC = gPlayerSlots->camY;
+        gMapPauseCount++;
+        sPauseBaseCamY = gPlayerSlots->camY;
         sPauseSaveCooldown = 0;
         sPauseExitRequested = 0;
         D_80750580 = 1;
@@ -231,9 +231,9 @@ void hudPauseMenuUpdate(void) {
         hud->buffer = 0;
         hud->carouselAngle = sPauseKongTables.carouselAngle[hud->kong];
         sPauseCarouselKong = hud->kong;
-        D_807FC802 = 0;
+        sPauseCarouselTurnDelta = 0;
         sPauseCarouselTimer = 0.0f;
-        D_807FC808 = 0.0f;
+        sPauseLevelLabelHalfWidth = 0.0f;
         sPauseCarouselTarget = sPauseCarouselIndex = 0;
         sPauseTextLists[0] = heapAlloc(sizeof(HudTextList) * 2);
         sPauseTextLists[1] = sPauseTextLists[0] + 1;
@@ -361,15 +361,15 @@ void hudPauseMenuUpdate(void) {
                 }
                 break;
             case 1:
-                hud->carouselAngle = sPauseKongTables.carouselAngle[sPauseCarouselKong] + (s16)(sPauseCarouselTimer * 0.5f * D_807FC802);
+                hud->carouselAngle = sPauseKongTables.carouselAngle[sPauseCarouselKong] + (s16)(sPauseCarouselTimer * 0.5f * sPauseCarouselTurnDelta);
                 hud->carouselAngle &= 0xFFF;
                 if (sPauseCarouselTimer == 0.0f) {
-                    D_807FC802 = 0;
+                    sPauseCarouselTurnDelta = 0;
                     if (moved == 0) {
                         x = gCurrentContPad->stick_x;
                         if (x < -0x28) {
                             do {
-                                D_807FC802 -= 0x333;
+                                sPauseCarouselTurnDelta -= 0x333;
                                 sPauseCarouselKong += 1;
                                 if (sPauseCarouselKong >= 5) {
                                     sPauseCarouselKong = 0;
@@ -377,7 +377,7 @@ void hudPauseMenuUpdate(void) {
                             } while (sPauseKongUnlocked[sPauseCarouselKong] == 0);
                         } else if (x >= 0x29) {
                             do {
-                                D_807FC802 += 0x333;
+                                sPauseCarouselTurnDelta += 0x333;
                                 sPauseCarouselKong -= 1;
                                 if (sPauseCarouselKong < 0) {
                                     sPauseCarouselKong = 4;
@@ -500,7 +500,7 @@ void hudPauseMenuUpdate(void) {
     if (sPauseBumpStep != 0) {
         sPauseBumpStep -= 1;
         hud->fade = sPauseBumpFade[sPauseBumpStep];
-        gPlayerSlots->camY = D_807FC7FC + hud->fade * 100.0;
+        gPlayerSlots->camY = sPauseBaseCamY + hud->fade * 100.0;
     }
     renderCallbacksRegister(hudDrawDimOverlay, gCurrentActor, 1);
     renderCallbacksRegister(hudPauseMenuRender, gCurrentActor, 5);
@@ -541,20 +541,20 @@ Gfx *hudSetupTextState(Gfx *dl) {
     return dl;
 }
 
-const char D_8075AA80[7] = "JUNGLE";
-const char D_8075AA88[7] = "TEMPLE";
-const char D_8075AA90[4] = "TOY";
-const char D_8075AA94[6] = "WRECK";
-const char D_8075AA9C[7] = "FOREST";
-const char D_8075AAA4[8] = "CRYSTAL";
-const char D_8075AAAC[7] = "SPOOKY";
-const char D_8075AAB4[6] = "WORLD";
-const char D_8075AABC[8] = "HIDEOUT";
-const char D_8075AAC4[6] = "BONUS";
-const char D_8075AACC[6] = "MULTI";
-const char D_8075AAD4[6] = "STORY";
-const char D_8075AADC[5] = "TEST";
-const char D_8075AAE4[7] = "SHARED";
+const char sLevelNameJungle[7] = "JUNGLE";
+const char sLevelNameTemple[7] = "TEMPLE";
+const char sLevelNameToy[4] = "TOY";
+const char sLevelNameWreck[6] = "WRECK";
+const char sLevelNameForest[7] = "FOREST";
+const char sLevelNameCrystal[8] = "CRYSTAL";
+const char sLevelNameSpooky[7] = "SPOOKY";
+const char sLevelNameWorld[6] = "WORLD";
+const char sLevelNameHideout[8] = "HIDEOUT";
+const char sLevelNameBonus[6] = "BONUS";
+const char sLevelNameMulti[6] = "MULTI";
+const char sLevelNameStory[6] = "STORY";
+const char sLevelNameTest[5] = "TEST";
+const char sLevelNameShared[7] = "SHARED";
 
 
 extern u8 gCurrentWorldId;
@@ -849,25 +849,25 @@ extern s8 sPauseCarouselTarget;
 extern s16 sPauseCarouselSpacing;
 extern s8 sPauseCarouselCount;
 extern void *gKongIconSprites[];
-extern EffectGridAsset D_80720C34;
-extern EffectGridAsset D_80720D38;
-extern EffectGridAsset D_80720D5C;
-extern EffectGridAsset D_80720D80;
+extern EffectGridAsset gControlStickSprite;
+extern EffectGridAsset gZButtonSprite;
+extern EffectGridAsset gCDownButtonSprite;
+extern EffectGridAsset gCUpButtonSprite;
 extern EffectGridAsset D_8072104C;
-extern EffectGridAsset D_80721094;
+extern EffectGridAsset gFairySprite;
 extern EffectGridAsset D_807210B8;
-extern EffectGridAsset D_807210EC;
+extern EffectGridAsset gCrownSprite;
 extern EffectGridAsset D_80721110;
 extern EffectGridAsset D_80721134;
-extern EffectGridAsset D_807211D0;
+extern EffectGridAsset gEffectSpriteQuestionMark;
 extern EffectGridAsset D_80721474;
-extern EffectGridAsset D_80721518;
+extern EffectGridAsset gCheckMarkSprite;
 
 
 
 void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
     // per collectible: a slotQueue sprite index (small ints) or a sprite sheet of 124780.c
-    static void *sTotalsPageIcons[8] = { (void *)9, &D_807210EC, &D_807210B8, (void *)0xA, &D_80721110, &D_80721094, &D_80721134, (void *)0xC };
+    static void *sTotalsPageIcons[8] = { (void *)9, &gCrownSprite, &D_807210B8, (void *)0xA, &D_80721110, &gFairySprite, &D_80721134, (void *)0xC };
     s32 saved;
     KongInventory *playerKong;
     KongInventory *pageKong;
@@ -962,7 +962,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
                 }
                 hudPauseMenuSpawnIcon(hud, 0xA, 0x113, 0x7D, 0.75f, 2, 2);
                 if (flagGridSumRows(0x225, i, i, gPlayerCharacterId[0])) {
-                    hudPauseMenuSpawnIcon(hud, (s32)&D_80721518, 0x113, 0x7D, 0.35f, 2, 0xD);
+                    hudPauseMenuSpawnIcon(hud, (s32)&gCheckMarkSprite, 0x113, 0x7D, 0.35f, 2, 0xD);
                 }
             }
         }
@@ -971,7 +971,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
                 if (sPauseKongUnlocked[i]) {
                     kongIcon = gKongIconSprites[i];
                 } else {
-                    kongIcon = &D_807211D0;
+                    kongIcon = &gEffectSpriteQuestionMark;
                 }
                 hudPauseMenuSpawnIcon(hud, (s32)kongIcon, i, i, 0.75f, 2, 0xA);
                 hudPauseMenuSpawnIcon(hud, (s32)kongIcon, i + 5, i + 5, 0.75f, 2, 0xA);
@@ -990,16 +990,16 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
                 sPauseIconList = flagGet(flagGridIndex(0x1D5, i, gPlayerCharacterId[0]), 0);
                 hudPauseMenuSpawnIcon(hud, 0xC, 0x26, 0x7D, 0.75f, 2, 2);
                 if (flagGet(flagGridIndex(0x1FD, i, gPlayerCharacterId[0]), 0)) {
-                    hudPauseMenuSpawnIcon(hud, (s32)&D_80721518, 0x26, 0x7D, 0.35f, 2, 0xD);
+                    hudPauseMenuSpawnIcon(hud, (s32)&gCheckMarkSprite, 0x26, 0x7D, 0.35f, 2, 0xD);
                 }
             }
         }
         if (refresh == 0) {
             hud->carouselAngle = sPauseKongTables.carouselAngle[hud->kong];
-            hudPauseMenuSpawnIcon(hud, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
+            hudPauseMenuSpawnIcon(hud, (s32)&gControlStickSprite, 0xA0, 0x78, 0.75f, 2, 0);
             if (sPauseLastLevelSlot > 0) {
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
+                hudPauseMenuSpawnIcon(hud, (s32)&gCUpButtonSprite, 0xA0, 0x19, 0.5f, 2, 0xB);
+                hudPauseMenuSpawnIcon(hud, (s32)&gCDownButtonSprite, 0xA0, 0x19, 0.5f, 2, 0xC);
             }
         }
         break;
@@ -1014,10 +1014,10 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
         for (i = 0; i < 4; i++) {
             found[i] = 0;
         }
-        for (i = 0; D_80755DA8[i].map != 0xFF; i++) {
-            j = mapGetHubWorldIndex(D_80755DA8[i].map, 1);
+        for (i = 0; gSpawnFlagConditions[i].map != 0xFF; i++) {
+            j = mapGetHubWorldIndex(gSpawnFlagConditions[i].map, 1);
             if (idx == j) {
-                flagId = D_80755DA8[i].flag;
+                flagId = gSpawnFlagConditions[i].flag;
                 if (flagId >= 0x24D && flagId < 0x261 && foundCount < 4) {
                     found[foundCount++] = flagGet(flagId, 0);
                 }
@@ -1040,43 +1040,43 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
                 }
                 hudPauseMenuSpawnIcon(hud, 0xA, sPauseKongTables.carouselAngle[i], 0, 0.75f, 2, 3);
                 if (flagGridSumRows(0x225, j, j, i)) {
-                    hudPauseMenuSpawnIcon(hud, (s32)&D_80721518, sPauseKongTables.carouselAngle[i], 0, 0.35f, 2, 0xE);
+                    hudPauseMenuSpawnIcon(hud, (s32)&gCheckMarkSprite, sPauseKongTables.carouselAngle[i], 0, 0.35f, 2, 0xE);
                 }
             }
             if (D_807FC82A > 0) {
                 sPauseIconList = flagGet(sPauseCrownFlags[idx], 0);
-                hudPauseMenuSpawnIcon(hud, (s32)&D_807210EC, 0xA0, 0x78, 1.0f, 2, 4);
+                hudPauseMenuSpawnIcon(hud, (s32)&gCrownSprite, 0xA0, 0x78, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
                 sPauseIconList = found[0];
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80721094, 0x3C, 0x78, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(hud, (s32)&gFairySprite, 0x3C, 0x78, 1.0f, 2, 6);
                 sPauseIconList = found[1];
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80721094, 0x104, 0x78, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(hud, (s32)&gFairySprite, 0x104, 0x78, 1.0f, 2, 6);
             }
         } else {
             if (D_807FC82A > 0) {
                 sPauseIconList = flagGet(sPauseCrownFlags[idx], 0);
-                hudPauseMenuSpawnIcon(hud, (s32)&D_807210EC, 0xA0, 0x55, 1.0f, 2, 4);
+                hudPauseMenuSpawnIcon(hud, (s32)&gCrownSprite, 0xA0, 0x55, 1.0f, 2, 4);
                 sPauseIconList = flagGet(sPauseCrownFlags[9], 0);
-                hudPauseMenuSpawnIcon(hud, (s32)&D_807210EC, 0xA0, 0x91, 1.0f, 2, 4);
+                hudPauseMenuSpawnIcon(hud, (s32)&gCrownSprite, 0xA0, 0x91, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
                 sPauseIconList = found[0];
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80721094, 0x3C, 0x5A, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(hud, (s32)&gFairySprite, 0x3C, 0x5A, 1.0f, 2, 6);
                 sPauseIconList = found[1];
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80721094, 0x46, 0x96, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(hud, (s32)&gFairySprite, 0x46, 0x96, 1.0f, 2, 6);
                 sPauseIconList = found[2];
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80721094, 0x104, 0x5A, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(hud, (s32)&gFairySprite, 0x104, 0x5A, 1.0f, 2, 6);
                 sPauseIconList = found[3];
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80721094, 0xFA, 0x96, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(hud, (s32)&gFairySprite, 0xFA, 0x96, 1.0f, 2, 6);
             }
         }
         if (idx != 8) {
             hudPauseMenuSpawnIcon(hud, 9, 0x91, 0xCB, 1.0f, 2, 2);
         }
         if (refresh == 0 && sPauseLastLevelSlot > 0) {
-            hudPauseMenuSpawnIcon(hud, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
-            hudPauseMenuSpawnIcon(hud, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
+            hudPauseMenuSpawnIcon(hud, (s32)&gCUpButtonSprite, 0xA0, 0x19, 0.5f, 2, 0xB);
+            hudPauseMenuSpawnIcon(hud, (s32)&gCDownButtonSprite, 0xA0, 0x19, 0.5f, 2, 0xC);
         }
         break;
     case 3:
@@ -1105,11 +1105,11 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
             }
         }
         hud->carouselAngle = sPauseCarouselSpacing * sPauseCarouselIndex;
-        hudPauseMenuSpawnIcon(hud, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
+        hudPauseMenuSpawnIcon(hud, (s32)&gControlStickSprite, 0xA0, 0x78, 0.75f, 2, 0);
         break;
     }
     if (refresh == 0 && gPauseCollectibleCounts[0] > 0) {
-        hudPauseMenuSpawnIcon(hud, (s32)&D_80720D38, 0x2D, 0xC8, 1.0f, 2, 1);
+        hudPauseMenuSpawnIcon(hud, (s32)&gZButtonSprite, 0x2D, 0xC8, 1.0f, 2, 1);
         hudPauseMenuSpawnIcon(hud, (s32)&D_8072104C, 0x113, 0xC8, 1.0f, 2, 1);
     }
     gPlayerCharacterId[0] = saved;
@@ -1269,7 +1269,7 @@ Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     y2 = y + 0x40;
     dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, label), 0x280, y2 + 0x38, 0.5f, sPauseMenuStrings[kong + 9]);
-    D_807FC808 = (f32)textGetStringWidth(1, label) * 1.4;
+    sPauseLevelLabelHalfWidth = (f32)textGetStringWidth(1, label) * 1.4;
     return dl;
 }
 
@@ -1446,10 +1446,10 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             effect->x = item->startX;
             effect->y = item->startY + bounceStep;
             if (type == 0xB) {
-                effect->x = 600.0 - D_807FC808;
+                effect->x = 600.0 - sPauseLevelLabelHalfWidth;
             }
             if (type == 0xC) {
-                effect->x = D_807FC808 + 680.0;
+                effect->x = sPauseLevelLabelHalfWidth + 680.0;
             }
             t = 0.0f;
             break;
@@ -1644,7 +1644,7 @@ void hudTextScreenUpdate(void) {
                     break;
                 case 3:
                 case 4:
-                    func_80724994(3, 7, 0x30, 0, 0);
+                    spawnNodesSendVolumeTrigger(3, 7, 0x30, 0, 0);
                     hudFreeTextAndDespawn();
                     break;
                 default:
@@ -1656,7 +1656,7 @@ void hudTextScreenUpdate(void) {
             switch (gCurrentActor->unk15F) {
                 case 3:
                 case 4:
-                    func_80724994(3, 7, 0x3C, 0, 0);
+                    spawnNodesSendVolumeTrigger(3, 7, 0x3C, 0, 0);
                 case 2:
                     hudFreeTextAndDespawn();
                     break;

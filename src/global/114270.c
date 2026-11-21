@@ -97,12 +97,12 @@ u16 D_80755244[8] = { 0x3BB, 0x3BC, 0x3BD, 0x3BE, 0x3BF, 0x3C0, 0x3C1, 0x3C2 };
 u16 D_80755254[2] = { 0x173B, 0 };
 u16 D_80755258[6] = { 0x1735, 0x1736, 0x1737, 0x1738, 0x1739, 0x173A };
 EffectSpriteTextureSetup gEffectSpriteTextureSetups[6] = {
-    { 1, 1, { 0, 0 }, D_8075523C, 3, 1, 16, 32, D_807550E8, func_8070FCCC },
-    { 1, 1, { 0, 0 }, D_80755240, 3, 1, 64, 64, D_80755128, func_80710174 },
-    { 8, 0, { 0, 0 }, D_80755244, 0, 2, 44, 44, D_80755168, func_8071006C },
-    { 1, 1, { 0, 0 }, D_80755254, 3, 1, 64, 64, D_80755128, func_807102AC },
-    { 10, 1, { 0, 0 }, D_80755228, 0, 2, 32, 32, D_807551A8, func_807103E0 },
-    { 6, 1, { 0, 0 }, D_80755258, 0, 3, 32, 16, D_807551E8, func_807103E0 },
+    { 1, 1, { 0, 0 }, D_8075523C, 3, 1, 16, 32, D_807550E8, effectSpriteParticleUpdateRain },
+    { 1, 1, { 0, 0 }, D_80755240, 3, 1, 64, 64, D_80755128, effectSpriteParticleUpdateSnow },
+    { 8, 0, { 0, 0 }, D_80755244, 0, 2, 44, 44, D_80755168, effectSpriteParticleUpdateBanana },
+    { 1, 1, { 0, 0 }, D_80755254, 3, 1, 64, 64, D_80755128, effectSpriteParticleUpdateFluff },
+    { 10, 1, { 0, 0 }, D_80755228, 0, 2, 32, 32, D_807551A8, effectSpriteParticleUpdateFlutter },
+    { 6, 1, { 0, 0 }, D_80755258, 0, 3, 32, 16, D_807551E8, effectSpriteParticleUpdateFlutter },
 };
 
 extern PlayerStruct *gPlayerSlots;
@@ -189,7 +189,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s16
     gEffectSpritePool->count++;
 }
 
-extern s16 D_807FDA1E;
+extern s16 gEffectSpriteWindAngle;
 
 void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     f32 diff;
@@ -211,7 +211,7 @@ void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     if (diff < -3.1415927f) {
         diff = -6.2831855f - diff;
     }
-    particle->x += diff * 180.0f - 0.3 * D_807FDA1E;
+    particle->x += diff * 180.0f - 0.3 * gEffectSpriteWindAngle;
     particle->x += 4.0f * dist1 * sinApprox(diff);
     ang = mathAngleBetweenPoints2D(gPlayerSlots->camX, gPlayerSlots->camZ, gPlayerSlots->eyeX, gPlayerSlots->eyeZ);
     dz = gPlayerSlots->camZ - gPlayerSlots->eyeZ;
@@ -235,12 +235,12 @@ void effectSpriteParticleWrapX(EffectSpriteParticle *particle) {
 
 extern Actor *gPrimaryPlayerActor;
 extern u32 gGlobalCutsceneFlags;
-extern f32 D_807FD9EC;
+extern f32 gEffectSpriteBottomY;
 extern u8 sEffectImpactPuffConfig;
 
 #define CAM_Y_DISTANCE(y) ((y) < gPlayerSlots->camY ? gPlayerSlots->camY - (y) : -(gPlayerSlots->camY - (y)))
 
-u8 func_8070FCCC(EffectSpriteParticle *particle) {
+u8 effectSpriteParticleUpdateRain(EffectSpriteParticle *particle) {
     f32 fallSpeed;
     f32 invScale;
     f32 bound;
@@ -277,14 +277,14 @@ u8 func_8070FCCC(EffectSpriteParticle *particle) {
         }
         return 1;
     }
-    return D_807FD9EC < particle->y;
+    return gEffectSpriteBottomY < particle->y;
 }
 
 #undef CAM_Y_DISTANCE
 
 
 
-u8 func_8071006C(EffectSpriteParticle *particle) {
+u8 effectSpriteParticleUpdateBanana(EffectSpriteParticle *particle) {
     s32 isUnderMaxAge;
     f32 invScale;
 
@@ -301,7 +301,7 @@ u8 func_8071006C(EffectSpriteParticle *particle) {
     return particle->y > 240.0f || particle->alpha < 0x50;
 }
 
-u8 func_80710174(EffectSpriteParticle *particle) {
+u8 effectSpriteParticleUpdateSnow(EffectSpriteParticle *particle) {
     s32 isUnderMaxAge;
     f32 invScale;
 
@@ -320,7 +320,7 @@ u8 func_80710174(EffectSpriteParticle *particle) {
     return particle->y > 240.0f || particle->alpha < 0xA;
 }
 
-u8 func_807102AC(EffectSpriteParticle *particle) {
+u8 effectSpriteParticleUpdateFluff(EffectSpriteParticle *particle) {
     s32 isUnderMaxAge;
     f32 invScale;
 
@@ -336,11 +336,11 @@ u8 func_807102AC(EffectSpriteParticle *particle) {
     if (!isUnderMaxAge && particle->alpha >= 0xA) {
         particle->alpha -= 0xA;
     }
-    return D_807FD9EC < particle->y || particle->alpha < 0xA;
+    return gEffectSpriteBottomY < particle->y || particle->alpha < 0xA;
 }
 
 
-u8 func_807103E0(EffectSpriteParticle *particle) {
+u8 effectSpriteParticleUpdateFlutter(EffectSpriteParticle *particle) {
     f32 absScale;
 
     effectSpriteParticleTrackCamera(particle);
@@ -354,7 +354,7 @@ u8 func_807103E0(EffectSpriteParticle *particle) {
     if (absScale * 140.0f < particle->y && particle->alpha >= 0xA) {
         particle->alpha -= 0xA;
     }
-    return D_807FD9EC < particle->y || particle->alpha < 0xA;
+    return gEffectSpriteBottomY < particle->y || particle->alpha < 0xA;
 }
 
 
@@ -379,7 +379,7 @@ extern PlayerState *gActivePlayerState;
 extern EffectSpriteParticle *D_807FDAB0;
 extern s16 D_807FDAB4;
 extern u8 gGfxBufferIndex;
-extern u8 D_807FDA1B;
+extern u8 gEffectSpriteBrightness;
 extern Gfx D_1000020[];
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
@@ -404,9 +404,9 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     if ((gPrimaryPlayerActor->state == 3) || (gPrimaryPlayerActor->state == 5)) {
         f32 rem = (gCamActor->distToFloor > 180.0f) ? 0.0f : 180.0f - gCamActor->distToFloor;
         if (count == 0) {}  // FAKE: numbers ucvt(count) ahead of the texture-if candidates, so its loop spill temp is 0x64(sp), not 0x5c
-        D_807FD9EC = rem * 0.02 * 240.0;
+        gEffectSpriteBottomY = rem * 0.02 * 240.0;
     } else {
-        D_807FD9EC = 240.0f;
+        gEffectSpriteBottomY = 240.0f;
     }
     if ((gPrimaryPlayerActor->state == 0x42) && ((gActivePlayerState->hitActorType == 0x62) || (gActivePlayerState->hitActorType == 0x88))) {
         skipTimer = 1;
@@ -428,9 +428,9 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     while (--i >= 0 && processed != count) {
         entry = &gEffectSpritePool->entries[i];
         D_807FDAB0 = entry;
-        D_807FDAB4 = D_807FDA1E;
+        D_807FDAB4 = gEffectSpriteWindAngle;
         if ((entry->age != 0) && ((entry->mapChunk == -1) || mapChunkContainsPoint(entry->drawX, entry->y, entry->mapChunk)) && !skipNearPlayer && !skipTimer) {
-            gDPSetPrimColor(glist++, 0, 0, D_807FDA1B, D_807FDA1B, D_807FDA1B, entry->alpha);
+            gDPSetPrimColor(glist++, 0, 0, gEffectSpriteBrightness, gEffectSpriteBrightness, gEffectSpriteBrightness, entry->alpha);
             if (gEffectSpritePoolType == 4) {
                 switch (entry->phase) {
                 case 8:
@@ -461,7 +461,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
                 matrixMakeRotationZ(mtxTemp, entry->tilt);
                 break;
             default:
-                matrixMakeRotationZ(mtxTemp, D_807FDA1E);
+                matrixMakeRotationZ(mtxTemp, gEffectSpriteWindAngle);
                 break;
             }
             guMtxCatF(mtxScale, mtxTemp, mtxScale);
@@ -489,7 +489,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
 extern f32 *gChunkLightR;
 extern u8 gAmbientAudioLevels[];
 
-void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scale) {
+void weatherSpawnRain(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scale) {
     f32 randX;
     f64 calcAlpha;
     f64 densityVal;
@@ -501,7 +501,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
     if (gGlobalPauseFlags & 0x10) {
         densityVal = density;
         alphaVal = alpha;
-        D_807FDA1E = cosApprox(gPlayerSlots->camYaw) * windAngle;
+        gEffectSpriteWindAngle = cosApprox(gPlayerSlots->camYaw) * windAngle;
         calcAlpha = densityVal * 255 / 3.9;
         clampedAlpha = calcAlpha > 255.0 ? 255.0 : calcAlpha;
         gAmbientAudioLevels[0] = clampedAlpha * alphaVal;
@@ -515,7 +515,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
         } else {
             count = density;
         }
-        D_807FDA1B = *gChunkLightR * 100.0f + 100.0f;
+        gEffectSpriteBrightness = *gChunkLightR * 100.0f + 100.0f;
         for (idx = 0; idx < count; idx++) {
             randX = (randomNonNegative() >> 15) % 32767 % 320;
             effectSpritePoolSpawn(0, mapChunk, ((f32)((randomNonNegative() >> 15) % 32767 % 125 / 800.0) + 0.1) * 2.5 * scale, randX, -10, 90.0f * scale);
@@ -527,14 +527,14 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
 }
 
 
-void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
+void weatherSpawnSnow(f32 density, s16 windAngle, s16 mapChunk) {
     u32 random;
     s32 count;
     s32 i;
     f32 value;
 
     if (gGlobalPauseFlags & 0x10) {
-        D_807FDA1E = cosApprox(gPlayerSlots->camYaw) * windAngle;
+        gEffectSpriteWindAngle = cosApprox(gPlayerSlots->camYaw) * windAngle;
         if (density < 1.0) {
             density *= 100.0f;
             random = randomLcgNext() / 10000;
@@ -546,7 +546,7 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
         } else {
             count = density;
         }
-        D_807FDA1B = 0xFF;
+        gEffectSpriteBrightness = 0xFF;
         for (i = 0; i < count; i++) {
             random = randomLcgNext() / 10000;
             value = random % 125 / 1000.0;
@@ -564,7 +564,7 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
 
 extern u8 D_807212E0;
 
-void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
+void weatherSpawnDriftParticles(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
     f32 randScale;
     f32 scaleVal;
     f64 scaledVal;
@@ -578,7 +578,7 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
             effectEnableFade();
             effectCreateAtPosition(&D_807212E0, (randomNonNegative() >> 15) % 100 * 0.01 + 0.4, (randomNonNegative() >> 15) % 320, 0.0f, -5.0f);
         }
-        D_807FDA1E = cosApprox(gPlayerSlots->camYaw) * windAngle;
+        gEffectSpriteWindAngle = cosApprox(gPlayerSlots->camYaw) * windAngle;
         if (density < 1.0) {
             density *= 100.0f;
             if ((s32)(randomLcgNext() / 10000 % 100) < density) {
@@ -589,7 +589,7 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
         } else {
             count = density;
         }
-        D_807FDA1B = 0xFF;
+        gEffectSpriteBrightness = 0xFF;
         for (idx = 0; idx < count; idx++) {
             randScale = (randomNonNegative() >> 15) % 32767 % 80 * 0.005;
             scaleVal = randScale;
@@ -610,12 +610,12 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
 }
 
 
-void func_80711F90(f32 density, s16 windAngle, f32 unused, s16 mapChunk, f32 scale) {
+void weatherSpawnBananas(f32 density, s16 windAngle, f32 unused, s16 mapChunk, f32 scale) {
     f32 randX;
     s32 idx;
     s32 count;
 
-    D_807FDA1E = cosApprox(gPlayerSlots->camYaw) * windAngle;
+    gEffectSpriteWindAngle = cosApprox(gPlayerSlots->camYaw) * windAngle;
     if (density < 1.0) {
         density *= 100.0f;
         if ((randomNonNegative() >> 15) % 32767 % 100 < density) {
@@ -626,7 +626,7 @@ void func_80711F90(f32 density, s16 windAngle, f32 unused, s16 mapChunk, f32 sca
     } else {
         count = density;
     }
-    D_807FDA1B = 0xFF;
+    gEffectSpriteBrightness = 0xFF;
     for (idx = 0; idx < count; idx++) {
         randX = (randomNonNegative() >> 15) % 32767 % 320;
         effectSpritePoolSpawn(2, mapChunk, ((f32)((randomNonNegative() >> 15) % 32767 % 125 / 800.0) + 0.1) * 2.5 * scale, randX, -10, 0xFF);

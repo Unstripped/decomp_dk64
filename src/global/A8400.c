@@ -17,7 +17,7 @@
 // This TU's .data (0x807503F0-0x807503F1 + 15-byte TU pad).
 u8 sTextBoxStartAlpha = 0xB4;
 
-void func_806A3700(Actor *key, void *data) {
+void textBoxRowStartHook(Actor *key, void *data) {
 }
 
 extern u8 gGfxBufferIndex;
@@ -283,7 +283,7 @@ void textBoxRowUpdateNodes(f32 y, Actor *actor, ResQueueActorState *state, ResRo
             }
             if (actor->state == 1) {
                 if (i == 0 && glyph->fade == 0) {
-                    func_806A3700(state->key, row->data);
+                    textBoxRowStartHook(state->key, row->data);
                 }
                 fade = glyph->fade;
                 if (fade != 0xFF) {

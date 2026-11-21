@@ -5,16 +5,16 @@
 #ifndef PROTO_SKIP_actorUpdateNearestSpotlight
 void actorUpdateNearestSpotlight(void);
 #endif
-#ifndef PROTO_SKIP_func_806C6884
-void func_806C6884(s16, s16, u16);
+#ifndef PROTO_SKIP_spotlightFollowerStep
+void spotlightFollowerStep(s16, s16, u16);
 #endif
-#ifndef PROTO_SKIP_func_806C6B50
-void func_806C6B50(void);
+#ifndef PROTO_SKIP_spotlightFollowerSubmergedUpdate
+void spotlightFollowerSubmergedUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C6BA0
-void func_806C6BA0(void);
+#ifndef PROTO_SKIP_spotlightFollowerUpdate
+void spotlightFollowerUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C6BC8
-void func_806C6BC8(void);
+#ifndef PROTO_SKIP_timedWarpTargetUpdate
+void timedWarpTargetUpdate(void);
 #endif
 #endif

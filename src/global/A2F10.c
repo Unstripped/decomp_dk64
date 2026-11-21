@@ -792,7 +792,7 @@ void actorMirrorParentModelY(void) {
         actorDespawn(gCurrentActor);
         return;
     }
-    if (!(func_80665AAC(sub->parent) && sub->parentType == gCurrentActor->parentActor->actorType
+    if (!(actorFloorIsReflective(sub->parent) && sub->parentType == gCurrentActor->parentActor->actorType
           && actorIsActive(sub->parent) && (sub->parent->flags2 & 0x40))) {
         actorDespawn(gCurrentActor);
         sub->parent->contactFlags &= 0xF7FF;
@@ -938,7 +938,7 @@ void actorSetNodeValuesForFrame(BoneFrameState *state) {
 
 
 
-void func_806A112C(void) {
+void actorGroupBoneFrameUpdate(void) {
     BoneFrameState *state;
     s16 i;
     u8 entry;
@@ -949,7 +949,7 @@ void func_806A112C(void) {
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x400;
-        func_80724D28(0, 7);
+        actorAllocBoneOffsets(0, 7);
         for (i = 0; i < 7; i++) {
             gCurrentActor->sub4->boneOffsets[i].bone = i;
             gCurrentActor->sub4->boneOffsets[i].lastBone = 0xFF;

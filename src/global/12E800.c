@@ -196,14 +196,14 @@ void behaviourUpdateShadowAlpha(void) {
 }
 
 
-extern EffectGridAsset D_80720120;
+extern EffectGridAsset gEffectSpriteFireBurst;
 extern u16 gEnemyDefeatCount;
 
 void behaviourCheckGroundImpactEffects(void) {
     if (gCurrentActor->collisionFlags & 2) {
         if (collisionIsGroundImpact() || collisionIsHeavyGroundImpact()) {
             if (collisionIsHeavyGroundImpact()) {
-                effectCreateAtPosition(&D_80720120, gCurrentActor->sub4->scaleY * 6.66666666999999968, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpriteFireBurst, gCurrentActor->sub4->scaleY * 6.66666666999999968, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
             gCurrentActor->state = 0x40;
             gEnemyDefeatCount++;
@@ -445,7 +445,7 @@ void behaviourSetAnimIds(s16 anim0, s16 anim1, s16 anim2) {
     gBehaviourAnimState->animId2 = anim2;
 }
 
-extern EffectGridAsset D_8071FC58;
+extern EffectGridAsset gEffectSpriteSparklePurple;
 
 void behaviourUpdateContactAndState(s32 scriptId) {
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -617,7 +617,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetDepth(1);
                     effectSetSpeed(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
-                    effectCreateAtPosition(&D_8071FC58, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
+                    effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
                     if (gBehaviourWorkState->emergeTimer != 0) {
                         f32 t;
 

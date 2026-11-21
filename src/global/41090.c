@@ -20,16 +20,16 @@ typedef struct {
 
 MapSurfaceEffect gMapSurfaceEffects[8] = {
     { NULL, NULL, NULL, 0 },
-    { envTextureInitWater, func_8063C4C4, envTextureUpdateWaterScroll, 0 },
-    { envTextureInitAsset565, func_8063C7C4, envTextureUpdateScroll78, 0 },
-    { envTextureInitAsset3B7, func_8063CB40, envTextureUpdateScroll80, 0 },
-    { envTextureInitAsset3B9, func_8063CF3C, envTextureUpdateScroll8C, 0 },
-    { envTextureInitAsset3BB, func_8063D2E4, envTextureUpdateScroll98, 0 },
-    { envTextureInitAsset3BC, func_8063D4A4, envTextureUpdateScrollA0, 0 },
-    { envTextureInitAsset3BD, func_8063D638, envTextureUpdateScrollAC, 0 },
+    { envTextureInitWater, envTextureDrawWater, envTextureUpdateWaterScroll, 0 },
+    { envTextureInitAsset565, envTextureDrawMipChain, envTextureUpdateScroll78, 0 },
+    { envTextureInitAsset3B7, envTextureDrawDualScroll, envTextureUpdateScroll80, 0 },
+    { envTextureInitAsset3B9, envTextureDrawLayered, envTextureUpdateScroll8C, 0 },
+    { envTextureInitAsset3BB, envTextureDrawFlipbook, envTextureUpdateScroll98, 0 },
+    { envTextureInitAsset3BC, envTextureDrawScrollOnly, envTextureUpdateScrollA0, 0 },
+    { envTextureInitAsset3BD, envTextureDrawSingleScroll, envTextureUpdateScrollAC, 0 },
 };
-f32 D_80747E00 = 0.0f;
-f32 D_80747E04 = 0.0f;
+f32 gEnvLayeredFastScroll = 0.0f;
+f32 gEnvLayeredSlowScroll = 0.0f;
 s16 gEnvLayeredFogAlpha = 150;
 AssetRef gEnvFlipbookFrames[11] = {
     { 0x3AC, NULL }, { 0x3AD, NULL }, { 0x3AE, NULL }, { 0x3AF, NULL },
@@ -37,8 +37,8 @@ AssetRef gEnvFlipbookFrames[11] = {
     { 0x3B4, NULL }, { 0x3B5, NULL }, { 0x3B6, NULL },
 };
 s32 D_80747E64 = 150; // unreferenced; its label is gEnvFlipbookFrames's loop-end address
-extern f32 D_807F6170;
-extern f32 D_807F6174;
+extern f32 gEnvWaterFastScroll;
+extern f32 gEnvWaterSlowScroll;
 extern f32 gEnvMipChainScroll;
 extern void *gEnvMipChainTexture;
 
@@ -73,11 +73,11 @@ void mapSurfaceEffectsUpdate(void) {
 }
 
 void envTextureInitWater(void) {
-    D_807F6170 = 255.0f;
-    D_807F6174 = 255.0f;
+    gEnvWaterFastScroll = 255.0f;
+    gEnvWaterSlowScroll = 255.0f;
 }
 
-Gfx *func_8063C4C4(Gfx *g) {
+Gfx *envTextureDrawWater(Gfx *g) {
     gDPPipeSync(g++);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
     gSPClearGeometryMode(g++, -1);
@@ -88,13 +88,13 @@ Gfx *func_8063C4C4(Gfx *g) {
     gDPSetCombine(g++, 0x1114C0, 0xFFFFFEFC);
     gDPSetEnvColor(g++, 0, 0x40, 0x7F, 0xFF);
     gDPSetPrimColor(g++, 0, 0, 0x50, 0x50, 0xB4, 0x46);
-    gDPSetTileSize(g++, 1, (s32)D_807F6170, 0, 0x7C, 0x7C);
+    gDPSetTileSize(g++, 1, (s32)gEnvWaterFastScroll, 0, 0x7C, 0x7C);
     gDPSetTile(g++, 4, 1, 0, 0, 7, 0, 1, 5, 0, 1, 5, 0);
     gDPLoadSync(g++);
     gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x200);
     gDPTileSync(g++);
     gDPSetTile(g++, 4, 1, 4, 0, 1, 0, 0, 5, 0, 0, 5, 15);
-    gDPSetTileSize(g++, 2, (s32)D_807F6174, 0, 0x7C, 0x7C);
+    gDPSetTileSize(g++, 2, (s32)gEnvWaterSlowScroll, 0, 0x7C, 0x7C);
     gDPSetTile(g++, 3, 1, 0, 0x100, 7, 0, 1, 5, 0, 1, 5, 0);
     gDPLoadSync(g++);
     gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x200);
@@ -104,13 +104,13 @@ Gfx *func_8063C4C4(Gfx *g) {
 }
 
 void envTextureUpdateWaterScroll(void) {
-    D_807F6170 -= 1.0;
-    if (D_807F6170 < 0.0) {
-        D_807F6170 = 255.0f;
+    gEnvWaterFastScroll -= 1.0;
+    if (gEnvWaterFastScroll < 0.0) {
+        gEnvWaterFastScroll = 255.0f;
     }
-    D_807F6174 -= 0.439;
-    if (D_807F6174 < 0.0) {
-        D_807F6174 = 255.0f;
+    gEnvWaterSlowScroll -= 0.439;
+    if (gEnvWaterSlowScroll < 0.0) {
+        gEnvWaterSlowScroll = 255.0f;
     }
 }
 
@@ -119,7 +119,7 @@ void envTextureInitAsset565(void) {
     gEnvMipChainTexture = assetLoad(0x19, 0x565, 1, 0);
 }
 
-Gfx *func_8063C7C4(Gfx *g) {
+Gfx *envTextureDrawMipChain(Gfx *g) {
     s32 i;
     s32 w;
     s32 h;
@@ -167,19 +167,19 @@ void envTextureUpdateScroll78(void) {
     }
 }
 
-extern f32 D_807F6180;
-extern f32 D_807F6184;
-extern void *D_807F6188;
+extern f32 gEnvDualFastScroll;
+extern f32 gEnvDualSlowScroll;
+extern void *gEnvDualFastTexture;
 extern void *D_807F618C;
 
 void envTextureInitAsset3B7(void) {
-    D_807F6180 = 255.0f;
-    D_807F6184 = 255.0f;
-    D_807F6188 = assetLoad(7, 0x3B7, 0, 0);
+    gEnvDualFastScroll = 255.0f;
+    gEnvDualSlowScroll = 255.0f;
+    gEnvDualFastTexture = assetLoad(7, 0x3B7, 0, 0);
     D_807F618C = assetLoad(7, 0x3B8, 0, 0);
 }
 
-Gfx *func_8063CB40(Gfx *g) {
+Gfx *envTextureDrawDualScroll(Gfx *g) {
     gDPPipeSync(g++);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
     gSPClearGeometryMode(g++, -1);
@@ -213,14 +213,14 @@ Gfx *func_8063CB40(Gfx *g) {
             gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 0x50);
             break;
     }
-    gDPSetTileSize(g++, 1, 0, (s32)D_807F6180, 0x7C, 0x7C);
-    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, D_807F6188);
+    gDPSetTileSize(g++, 1, 0, (s32)gEnvDualFastScroll, 0x7C, 0x7C);
+    gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gEnvDualFastTexture);
     gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 5, 0, 0, 5, 0);
     gDPLoadSync(g++);
     gDPLoadBlock(g++, 7, 0, 0, 0x3FF, 0x200);
     gDPTileSync(g++);
     gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 1, 0, 0, 5, 0, 0, 5, 0);
-    gDPSetTileSize(g++, 2, 0, (s32)D_807F6184, 0x7C, 0x7C);
+    gDPSetTileSize(g++, 2, 0, (s32)gEnvDualSlowScroll, 0x7C, 0x7C);
     gDPSetTextureImage(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, D_807F618C);
     gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0x100, 7, 0, 0, 5, 0, 0, 5, 0);
     gDPLoadSync(g++);
@@ -231,13 +231,13 @@ Gfx *func_8063CB40(Gfx *g) {
 }
 
 void envTextureUpdateScroll80(void) {
-    D_807F6180 -= 1.234;
-    if (D_807F6180 < 0.0) {
-        D_807F6180 = 255.0f;
+    gEnvDualFastScroll -= 1.234;
+    if (gEnvDualFastScroll < 0.0) {
+        gEnvDualFastScroll = 255.0f;
     }
-    D_807F6184 -= 0.45;
-    if (D_807F6184 < 0.0) {
-        D_807F6184 = 255.0f;
+    gEnvDualSlowScroll -= 0.45;
+    if (gEnvDualSlowScroll < 0.0) {
+        gEnvDualSlowScroll = 255.0f;
     }
 }
 
@@ -247,7 +247,7 @@ void envTextureInitAsset3B9(void) {
     gEnvLayeredTexture = assetLoad(7, 0x3E0, 1, 0);
 }
 
-Gfx *func_8063CF3C(Gfx *g) {
+Gfx *envTextureDrawLayered(Gfx *g) {
     gDPPipeSync(g++);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
     gSPClearGeometryMode(g++, -1);
@@ -264,21 +264,21 @@ Gfx *func_8063CF3C(Gfx *g) {
         gDPSetCombine(g++, 0xFF9441, 0xFF13FFFF);
     }
     gDPLoadTextureBlock(g++, (u32)gEnvLayeredTexture - 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
-    gDPSetTileSize(g++, 1, 0, (s32)D_80747E00, 0xFC, 0xFC);
+    gDPSetTileSize(g++, 1, 0, (s32)gEnvLayeredFastScroll, 0xFC, 0xFC);
     gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, 0, 6, 1, 0, 6, 1);
-    gDPSetTileSize(g++, 2, 0, (s32)D_80747E04, 0xFC, 0xFC);
+    gDPSetTileSize(g++, 2, 0, (s32)gEnvLayeredSlowScroll, 0xFC, 0xFC);
     gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 2, 0, 0, 6, 1, 0, 6, 1);
     return g;
 }
 
 void envTextureUpdateScroll8C(void) {
-    D_80747E00 -= 5.0;
-    if (D_80747E00 < 0.0) {
-        D_80747E00 = 255.0f;
+    gEnvLayeredFastScroll -= 5.0;
+    if (gEnvLayeredFastScroll < 0.0) {
+        gEnvLayeredFastScroll = 255.0f;
     }
-    D_80747E04 -= 2.0;
-    if (D_80747E04 < 0.0) {
-        D_80747E04 = 255.0f;
+    gEnvLayeredSlowScroll -= 2.0;
+    if (gEnvLayeredSlowScroll < 0.0) {
+        gEnvLayeredSlowScroll = 255.0f;
     }
 }
 
@@ -293,7 +293,7 @@ void envTextureInitAsset3BB(void) {
     }
 }
 
-Gfx *func_8063D2E4(Gfx *g) {
+Gfx *envTextureDrawFlipbook(Gfx *g) {
     void *tex;
 
     gDPPipeSync(g++);
@@ -323,7 +323,7 @@ void envTextureInitAsset3BC(void) {
     gEnvScrollOnlyOffset = 0.0f;
 }
 
-Gfx *func_8063D4A4(Gfx *g) {
+Gfx *envTextureDrawScrollOnly(Gfx *g) {
     gDPPipeSync(g++);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 20, 2, 0x100000);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 16, 1, 0x10000);
@@ -345,13 +345,13 @@ void envTextureUpdateScrollA0(void) {
 }
 
 extern void *D_807F619C;
-extern f32 D_807F61A0;
+extern f32 gEnvSingleScroll;
 
 void envTextureInitAsset3BD(void) {
     D_807F619C = assetLoad(0x19, 0x1765, 1, 0);
 }
 
-Gfx *func_8063D638(Gfx *g) {
+Gfx *envTextureDrawSingleScroll(Gfx *g) {
     s32 alpha;
 
     gDPPipeSync(g++);
@@ -377,7 +377,7 @@ Gfx *func_8063D638(Gfx *g) {
     }
     gDPSetPrimColor(g++, 0, 0, 255, 255, 255, alpha);
     gDPLoadTextureBlock(g++, (u32)D_807F619C - 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
-    gDPSetTileSize(g++, 0, 0, (s32)D_807F61A0, 0x7C, 0x7C);
+    gDPSetTileSize(g++, 0, 0, (s32)gEnvSingleScroll, 0x7C, 0x7C);
     gDPSetTile(g++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 1, 0, 0, 5, 0, 0, 5, 0);
     return g;
 }
@@ -385,16 +385,16 @@ Gfx *func_8063D638(Gfx *g) {
 void envTextureUpdateScrollAC(void) {
     switch (gCurrentMap) {
         case 0xBB:
-            D_807F61A0 -= 2.0;
+            gEnvSingleScroll -= 2.0;
             break;
         case 0xBC:
-            D_807F61A0 -= 1.0;
+            gEnvSingleScroll -= 1.0;
             break;
         default:
-            D_807F61A0 -= 1.0;
+            gEnvSingleScroll -= 1.0;
             break;
     }
-    if (D_807F61A0 < 0.0) {
-        D_807F61A0 = 255.0f;
+    if (gEnvSingleScroll < 0.0) {
+        gEnvSingleScroll = 255.0f;
     }
 }

@@ -29,7 +29,7 @@ typedef struct CollisionHitRecordNode {
 } CollisionHitRecordNode;
 
 
-extern u8 D_807FB606;
+extern u8 gCollisionArcWidened;
 extern CollisionHitRecordNode *gCollisionHitListHead;
 extern CollisionHitRecordNode *gCollisionHitListTail;
 extern s32 gCollisionHitCount;
@@ -55,7 +55,7 @@ u8 actorCollisionGetNodeHitPoint(Actor *self, Actor *other, f32 *outX, f32 *outZ
     cb = self->callbacks;
     matched = 0;
     foundCb = 0;
-    D_807FB606 = 0;
+    gCollisionArcWidened = 0;
     collision = self->collision;
     actorUpdateCollisionSpheres(self, 1);
     if (!actorTableContains(other)) {
@@ -89,7 +89,7 @@ u8 actorCollisionGetNodeHitPoint(Actor *self, Actor *other, f32 *outX, f32 *outZ
         cb = cb->next;
     }
 
-    if (D_807FB606 != 0) {
+    if (gCollisionArcWidened != 0) {
         other->renderFlags |= 0x100;
     }
     return matched;

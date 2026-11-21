@@ -82,13 +82,13 @@ void effectWaterInitNodes(MapFileHeader *mapData) {
     pNextNode = &gEffectNodeList;
     gEffectNodeList = NULL;
 
-    count = *(u8 *)(mapData->unk4C + (u8 *)mapData + 3);
+    count = *(u8 *)(mapData->waterSurfacesOff + (u8 *)mapData + 3);
     gWaterRippleActive = 0;
 
     if (count == (count * 0)) { // FAKE: extra use of count steers the v0/v1 pick
         return;
     }
-    base = (WaterSurfaceDef *)(mapData->unk4C + (u8 *)mapData + 4);
+    base = (WaterSurfaceDef *)(mapData->waterSurfacesOff + (u8 *)mapData + 4);
     for (i = 0; i < count; i++) {
         WaterSurface *node = heapAlloc(sizeof(WaterSurface));
         s32 gridDimX;
@@ -213,7 +213,7 @@ void effectUpdateNodes(void) {
     }
 }
 
-extern f32 D_807F5FAC;
+extern f32 gViewFarClip;
 extern PlayerStruct *gPlayerSlots;
 
 void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
@@ -248,7 +248,7 @@ void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
                     effectNodeComputeBounds(node, camX, camY, camZ, playerIndex, invPlayerMtx, frustumBounds);
                 }
                 if (mapBspBoxInFrustum(node->sub->minX, (s16)(baseHeight - maxWaveHeight), node->sub->minZ, node->sub->maxX,
-                                  (s32)(baseHeight + maxWaveHeight), node->sub->maxZ, camX, camY, camZ, D_807F5FAC, bspBounds) != 0 || node->forceVisible != 0) {
+                                  (s32)(baseHeight + maxWaveHeight), node->sub->maxZ, camX, camY, camZ, gViewFarClip, bspBounds) != 0 || node->forceVisible != 0) {
                     if ((f64)node->sub->wobbleAmpX != 0.0 || (f64)node->sub->wobbleAmpZ != 0.0) {
                         effectWaterSetMeshPositionsUV(node->meshVtx[gGfxBufferIndex], node);
                     }
@@ -649,8 +649,8 @@ s32 mathBitwiseNot(s32 val) {
     return ~val;
 }
 
-extern s8 D_80746834;
-extern OSMesgQueue D_807655F0;
+extern s8 gWaitPointId;
+extern OSMesgQueue gPiDmaMesgQueue;
 extern OSIoMesg D_807ECE00;
 
 void effectUpdateAndDispatch(void) {
@@ -667,10 +667,10 @@ void effectUpdateAndDispatch(void) {
     }
     romAddr = mathBitwiseNot(-0xF81);
     osWritebackDCache(dmaWords, 0x10);
-    osPiStartDma(&D_807ECE00, 0, 0, romAddr, dmaWords, 0x10, &D_807655F0);
-    D_80746834 = 6;
-    osRecvMesg(&D_807655F0, NULL, OS_MESG_BLOCK);
-    D_80746834 = 0;
+    osPiStartDma(&D_807ECE00, 0, 0, romAddr, dmaWords, 0x10, &gPiDmaMesgQueue);
+    gWaitPointId = 6;
+    osRecvMesg(&gPiDmaMesgQueue, NULL, OS_MESG_BLOCK);
+    gWaitPointId = 0;
     osInvalDCache(dmaWords, 0x10);
     dmaWords[0] -= 0x3E0EF0F0;
     dmaWords[1] -= 0x3E0EF0F0;
@@ -678,7 +678,7 @@ void effectUpdateAndDispatch(void) {
         // ROM check failed: DMA random ROM bytes over random RDRAM.
         u32 devAddr = randomLcgNext();
         u32 dramOffset = randomLcgNext();
-        osPiStartDma(&D_807ECE00, 0, 0, devAddr & 0xFFFF, (void *)((dramOffset & 0xFFFFE) + 0x80500000), (randomLcgNext() & 0xFF) + 0x100, &D_807655F0);
+        osPiStartDma(&D_807ECE00, 0, 0, devAddr & 0xFFFF, (void *)((dramOffset & 0xFFFFE) + 0x80500000), (randomLcgNext() & 0xFF) + 0x100, &gPiDmaMesgQueue);
     }
     if (node != NULL) {
         do {

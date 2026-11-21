@@ -245,7 +245,7 @@ extern u8 gBossWaypointLightFade[];
 extern const f32 D_80036C40[];
 extern s16 D_807502DC;
 extern f32 D_807502F0;
-extern u8 D_8071FC58[];
+extern u8 gEffectSpriteSparklePurple[];
 extern u8 D_80720054[];
 extern u8 gEffectSpriteSmokeCloud[];
 
@@ -579,7 +579,7 @@ void bossMainStep(void) {
                     effectSetDepth(1);
                     effectSetCallback(effectEaseToTargetNodeUpdate);
                     effectSetSpeed((s32)gCurrentActor);
-                    effectCreateAtPosition(D_8071FC58, 1.5f, boneX, boneY, boneZ);
+                    effectCreateAtPosition(gEffectSpriteSparklePurple, 1.5f, boneX, boneY, boneZ);
                     effectCreateAtActorBone(D_80720054, 3.0f, gCurrentActor, 1, 2);
                 }
                 break;

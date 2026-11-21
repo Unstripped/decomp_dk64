@@ -16,20 +16,20 @@ void effectSpriteParticleTrackCamera(struct M114aAngle *);
 #ifndef PROTO_SKIP_effectSpriteParticleWrapX
 void effectSpriteParticleWrapX(struct M114aAngle *);
 #endif
-#ifndef PROTO_SKIP_func_8070FCCC
-u8 func_8070FCCC(struct M114aAngle *);
+#ifndef PROTO_SKIP_effectSpriteParticleUpdateRain
+u8 effectSpriteParticleUpdateRain(struct M114aAngle *);
 #endif
-#ifndef PROTO_SKIP_func_8071006C
-u8 func_8071006C(struct M114aAngle *);
+#ifndef PROTO_SKIP_effectSpriteParticleUpdateBanana
+u8 effectSpriteParticleUpdateBanana(struct M114aAngle *);
 #endif
-#ifndef PROTO_SKIP_func_80710174
-u8 func_80710174(struct M114aAngle *);
+#ifndef PROTO_SKIP_effectSpriteParticleUpdateSnow
+u8 effectSpriteParticleUpdateSnow(struct M114aAngle *);
 #endif
-#ifndef PROTO_SKIP_func_807102AC
-u8 func_807102AC(struct M114aAngle *);
+#ifndef PROTO_SKIP_effectSpriteParticleUpdateFluff
+u8 effectSpriteParticleUpdateFluff(struct M114aAngle *);
 #endif
-#ifndef PROTO_SKIP_func_807103E0
-u8 func_807103E0(struct M114aAngle *);
+#ifndef PROTO_SKIP_effectSpriteParticleUpdateFlutter
+u8 effectSpriteParticleUpdateFlutter(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_effectSpritePoolLoadTexture
 Gfx *effectSpritePoolLoadTexture(Gfx *, u8);
@@ -37,17 +37,17 @@ Gfx *effectSpritePoolLoadTexture(Gfx *, u8);
 #ifndef PROTO_SKIP_effectSpriteRenderPool
 Gfx *effectSpriteRenderPool(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80711410
-void func_80711410(f32, s16, f32, s16, f32);
+#ifndef PROTO_SKIP_weatherSpawnRain
+void weatherSpawnRain(f32, s16, f32, s16, f32);
 #endif
-#ifndef PROTO_SKIP_func_80711950
-void func_80711950(f32, s16, s16);
+#ifndef PROTO_SKIP_weatherSpawnSnow
+void weatherSpawnSnow(f32, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80711BD0
-void func_80711BD0(f32, s16, s16, u8);
+#ifndef PROTO_SKIP_weatherSpawnDriftParticles
+void weatherSpawnDriftParticles(f32, s16, s16, u8);
 #endif
-#ifndef PROTO_SKIP_func_80711F90
-void func_80711F90(f32, s16, f32, s16, f32);
+#ifndef PROTO_SKIP_weatherSpawnBananas
+void weatherSpawnBananas(f32, s16, f32, s16, f32);
 #endif
 #ifndef PROTO_SKIP_effectSpritePoolFadeOut
 s32 effectSpritePoolFadeOut(void);

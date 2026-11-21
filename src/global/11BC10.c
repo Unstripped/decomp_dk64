@@ -1744,7 +1744,7 @@ s16 D_80755650[18] = {
     0x01D4, 0x0078, 0x026D, 0x01EE, 0x0082, 0x02F6, 0x02E5, 0x008C, 0x0254,
     0x02C3, 0x0078, 0x02FA, 0x025A, 0x006E, 0x0312, 0x025E, 0x0096, 0x026A,
 };
-extern EffectGridAsset D_8071FB08;
+extern EffectGridAsset gEffectSpriteSparklesBlue;
 
 void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
     f32 mtx[4][4];
@@ -1790,7 +1790,7 @@ void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
     if (!(gFrameCounter & 3)) {
         effectSetDepth(1);
         effectSetCallback(effectShrinkFadeMatrixUpdate);
-        effectCreateAtPosition(&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
+        effectCreateAtPosition(&gEffectSpriteSparklesBlue, 1.6f, effect->x, effect->y, effect->z);
     }
     state->rotation += state->speed;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
@@ -1838,7 +1838,7 @@ void effectWispHomeUpdate(EffectNode *effect, s8 *isDone) {
     if (!(gFrameCounter & 3)) {
         effectSetDepth(1);
         effectSetCallback(effectShrinkFadeMatrixUpdate);
-        effectCreateAtPosition(&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
+        effectCreateAtPosition(&gEffectSpriteSparklesBlue, 1.6f, effect->x, effect->y, effect->z);
     }
     state->rotation += state->speed;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
@@ -2141,7 +2141,7 @@ void effectActorOrbitFollowUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void func_8071E028(EffectNode *effect, s8 *isDone) {
+void effectBeamRotateUpdate(EffectNode *effect, s8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
 
@@ -2433,7 +2433,7 @@ void effectEaseToTargetNodeUpdate(EffectNode *effect, s32 unused) {
     effect->z = effect->z + (nodeZ - effect->z) * 0.1;
 }
 
-void func_8071EEA4(EffectNode *effect, s32 unused) {
+void effectScaleYFromSpeedUpdate(EffectNode *effect, s32 unused) {
     effect->scaleY = effect->speed / 100.0 + 1.0;
 }
 
@@ -2470,7 +2470,7 @@ void effectGrowFadeUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void func_8071F034(EffectNode *effect, s32 unused) {
+void effectFollowPlayerUpdate(EffectNode *effect, s32 unused) {
     if (effect->param == 0) {
         effect->x = gPrimaryPlayerActor->x;
         effect->y = gPrimaryPlayerActor->y;
@@ -2674,7 +2674,7 @@ void effectLerpPathUpdate(EffectNode *effect, u8 *isDone) {
         if (!(gFrameCounter & 3)) {
             effectSetDepth(1);
             effectSetCallback(effectShrinkFadeMatrixUpdate);
-            effectCreateAtPosition(&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
+            effectCreateAtPosition(&gEffectSpriteSparklesBlue, 1.6f, effect->x, effect->y, effect->z);
         }
         state->rotation += state->spinSpeed;
         guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);

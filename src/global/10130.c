@@ -32,7 +32,7 @@ s16 sDemoFrameCount = 0;
 u16 sDemoButtons = 0;
 u8 gDemoPlaybackState = 0;
 
-void func_8060B430(Actor *target, PositionRecord *record) {
+void demoApplyPositionRecord(Actor *target, PositionRecord *record) {
     target->x = record->x;
     target->y = record->y;
     target->z = record->z;
@@ -44,7 +44,7 @@ extern PositionRecord sDemoStartRecord;
 
 s16 demoPlaybackStart(Actor *target, s32 unused) {
     gDemoPlaybackState = 2;
-    func_8060B430(target, &sDemoStartRecord);
+    demoApplyPositionRecord(target, &sDemoStartRecord);
     return sDemoFrameCount;
 }
 
@@ -139,12 +139,12 @@ void demoPlaybackLoad(s32 assetIndex) {
 }
 
 
-u8 func_8060B7C4(void) {
+u8 demoGetStartKong(void) {
     return sDemoStartRecord.kongIndex;
 }
 
 
-void func_8060B7D0(s32 *outMap, s32 *outExit) {
+void demoGetStartMap(s32 *outMap, s32 *outExit) {
     *outMap = sDemoStartRecord.map;
     *outExit = sDemoStartRecord.exit;
 }

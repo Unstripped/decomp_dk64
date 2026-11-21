@@ -103,7 +103,7 @@ void enemyGridStateStep(void) {
     case 2:
         switch (st->subState) {
         case 0:
-            renderCallbacksRegister(func_806BCF98, gCurrentActor, 5);
+            renderCallbacksRegister(enemyGridDrawYesNoPrompt, gCurrentActor, 5);
             if ((gContPadCur.button & 0x8000) && !(gContPadPrev.button & 0x8000)) {
                 camResumePath();
                 st->subState = 1;
@@ -362,7 +362,7 @@ void enemyGridStateStep(void) {
 extern Gfx D_1000118[];
 extern Mtx D_2000180;
 
-Gfx *func_806BCF98(Gfx *dl, Actor *actor) {
+Gfx *enemyGridDrawYesNoPrompt(Gfx *dl, Actor *actor) {
     static const u8 sYesLabel[] = "q YES";
     static const u8 sNoLabel[] = "b NO";
     gSPDisplayList(dl++, D_1000118);

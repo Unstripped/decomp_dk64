@@ -7,45 +7,45 @@
 
 // Model asset file header (asset table 4, ModelSlot.unk24); the fields seen so far.
 typedef struct ModelAssetHeader {
-    /* 0x00 */ u32 unk0;
+    /* 0x00 */ u32 flags;
     /* 0x04 */ u8 pad4[4];
-    /* 0x08 */ s32 unk8;
+    /* 0x08 */ s32 lastUsedFrame;
     /* 0x0C */ u8 padC[0x10];
     /* 0x1C */ u8 modelKind;
     /* 0x1D */ u8 fullBright;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ s32 unk20; // collision sphere radius (collisionBuildSlotBoxes)
+    /* 0x1E */ s16 maxDist;
+    /* 0x20 */ s32 collisionRadius; // collision sphere radius (collisionBuildSlotBoxes)
     /* 0x24 */ u8 pad24[4];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ s16 unk2E;
-    /* 0x30 */ s16 unk30;
-    /* 0x32 */ u8 unk32;
-    /* 0x33 */ u8 unk33;
-    /* 0x34 */ u8 unk34;
-    /* 0x35 */ u8 unk35;
-    /* 0x36 */ u8 unk36;
-    /* 0x37 */ u8 unk37;
-    /* 0x38 */ u8 unk38;
-    /* 0x39 */ u8 unk39;
-    /* 0x3A */ u8 unk3A;
+    /* 0x28 */ s16 spriteTexture;
+    /* 0x2A */ s16 spriteAnimTextureId;
+    /* 0x2C */ s16 spriteYawOffset;
+    /* 0x2E */ s16 spriteHalfWidth;
+    /* 0x30 */ s16 spriteHalfDepth;
+    /* 0x32 */ u8 spriteTexWidth;
+    /* 0x33 */ u8 spriteTexHeight;
+    /* 0x34 */ u8 spriteTexFormat;
+    /* 0x35 */ u8 spriteTexSize;
+    /* 0x36 */ u8 spriteFullAlphaDist;
+    /* 0x37 */ u8 spriteMaxDist;
+    /* 0x38 */ u8 spriteBaseAlpha;
+    /* 0x39 */ u8 spriteZBuffered;
+    /* 0x3A */ u8 saveState;
     /* 0x3B */ u8 pad3B;
-    /* 0x3C */ s16 unk3C;
+    /* 0x3C */ s16 textureRefCount;
     /* 0x3E */ u8 pad3E[2];
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
-    /* 0x48 */ s32 unk48;
-    /* 0x4C */ s32 unk4C; // offset of the collision box table (collisionBuildSlotBoxes)
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ s32 unk58;
-    /* 0x5C */ s32 unk5C;
-    /* 0x60 */ s32 unk60;
-    /* 0x64 */ s32 unk64;
-    /* 0x68 */ s32 unk68; // offset of the animation data block (modelSlotDataSize)
-    /* 0x6C */ s32 unk6C; // offset of the texture-animation table (modelSlotInitTexAnimNodes)
-    /* 0x70 */ s32 unk70; // offset of the texture / quad table (modelSlotLinkTexAnimTextures, modelQuadBuildOutput)
+    /* 0x40 */ s32 displayListAOff;
+    /* 0x44 */ s32 displayListBOff;
+    /* 0x48 */ s32 segmentDataOff;
+    /* 0x4C */ s32 boxesOff; // offset of the collision box table (collisionBuildSlotBoxes)
+    /* 0x50 */ s32 trisOff;
+    /* 0x54 */ s32 attachPointsOff;
+    /* 0x58 */ s32 nodesOff;
+    /* 0x5C */ s32 proxPathsOff;
+    /* 0x60 */ s32 bonesOff;
+    /* 0x64 */ s32 animNodesOff;
+    /* 0x68 */ s32 animDataOff; // offset of the animation data block (modelSlotDataSize)
+    /* 0x6C */ s32 texAnimsOff; // offset of the texture-animation table (modelSlotInitTexAnimNodes)
+    /* 0x70 */ s32 quadsOff; // offset of the texture / quad table (modelSlotLinkTexAnimTextures, modelQuadBuildOutput)
 } ModelAssetHeader;
 
 // One placed model of the map's model asset (assetLoad table 9: an s32 count, then count records;

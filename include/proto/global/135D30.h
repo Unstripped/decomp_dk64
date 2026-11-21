@@ -44,8 +44,8 @@ s32 spawnFlagConditionMet(s16, s16);
 #ifndef PROTO_SKIP_flagTryTriggerOnce
 s32 flagTryTriggerOnce(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_8073195C
-s32 func_8073195C(s16);
+#ifndef PROTO_SKIP_flagLookupIdByIndex
+s32 flagLookupIdByIndex(s16);
 #endif
 #ifndef PROTO_SKIP_flagLookupValueById
 u8 flagLookupValueById(s16);

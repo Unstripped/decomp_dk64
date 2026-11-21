@@ -29,7 +29,7 @@ void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
     effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
 }
 
-void func_806B8BDC(s16 x, s16 y, s16 z) {
+void effectSpawnSinkingSpark(s16 x, s16 y, s16 z) {
     effectSetFrameDelay(2);
     effectSetCallback(effectSinkBySpeedUpdate);
     effectSetSpeed(-0x28);
@@ -90,8 +90,8 @@ void func_806B8C78(void) {
                         modelSlotOrFlags(7, 0x10);
                         sfxPlayOnFreeSlot(0x1D0, 0x58EF, 63.0f, 1.0f, 0, 0);
                         sfxAllocateChannel(0x3A, 1.0f);
-                        func_806B8BDC(0xBD, 0xAA, 0x2FB);
-                        func_806B8BDC(0x19A, 0xA6, 0x2F8);
+                        effectSpawnSinkingSpark(0xBD, 0xAA, 0x2FB);
+                        effectSpawnSinkingSpark(0x19A, 0xA6, 0x2F8);
                     }
                     actorSetTargetSlotByte(gCsModelIds[4], 0);
                     actorSetTargetSlotByte(gCsModelIds[6], 0);

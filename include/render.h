@@ -37,8 +37,8 @@ typedef struct PlanePoly {
 #define PLANE_DIST(plane, x, y, z) ((((plane).a * (x) + (plane).b * (y)) + (plane).c * (z)) + (plane).d)
 
 // The four frustum corner points in world space, one row each: written by frustumCornersTransformByInverse (2F550.c),
-// read as 12 floats by frustumOrientPolyNormals (its callers pass D_807F5E20[0]).
-extern f32 D_807F5E20[4][3];
+// read as 12 floats by frustumOrientPolyNormals (its callers pass gFrustumCorners[0]).
+extern f32 gFrustumCorners[4][3];
 
 // Per-frame matrices and sub display list (gFrameMatrices[2], gGfxCurrentFrameBuffer); 0x11B0 bytes.
 typedef struct FrameMatrices {

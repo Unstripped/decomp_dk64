@@ -47,7 +47,7 @@ typedef struct ChainOffsets4 {
     /* 0x00 */ f32 offsetX[4];
 } ChainOffsets4;
 
-FillRectEntry D_80750840[22] = {
+FillRectEntry gSplitScreenDividerRects[22] = {
     { 1, 0, 7, 0, 0, 0, 319, 9 }, { 1, 0, 7, 0, 0, 10, 9, 239 }, { 1, 0, 7, 0, 309, 10, 319, 239 },
     { 1, 0, 7, 0, 10, 229, 309, 239 }, { 2, 0, 7, 0, 0, 0, 319, 11 }, { 2, 0, 7, 0, 0, 12, 11, 239 },
     { 2, 0, 7, 0, 307, 12, 319, 239 }, { 2, 0, 7, 0, 12, 227, 307, 239 }, { 2, 0, 2, 0, 12, 119, 306, 121 },
@@ -57,7 +57,7 @@ FillRectEntry D_80750840[22] = {
     { 3, 0, 2, 0, 159, 119, 161, 226 }, { 4, 0, 7, 0, 12, 119, 306, 119 }, { 4, 0, 7, 0, 159, 12, 161, 226 },
     { -1, 0, 0, 0, 0, 0, 0, 0 },
 };
-G00Entry D_80750948[30] = {
+G00Entry gViewportLayouts[30] = {
     { 1, 0, 7, 0, 10, 10, 309, 229 }, { 1, 1, 7, 0, 10, 10, 309, 229 }, { 2, 0, 2, 0, 12, 12, 307, 119 },
     { 2, 0, 2, 1, 12, 121, 307, 227 }, { 2, 0, 1, 0, 12, 12, 159, 227 }, { 2, 0, 1, 1, 161, 12, 307, 227 },
     { 2, 0, 4, 0, 12, 12, 159, 119 }, { 2, 0, 4, 1, 161, 121, 307, 227 }, { 2, 1, 7, 0, 12, 12, 307, 227 },
@@ -111,7 +111,7 @@ typedef struct LinkedActorState {
 } LinkedActorState;
 
 
-void func_806C7B50(s32 actorType, u8 param, Actor *parent) {
+void playerSpawnMinecart(s32 actorType, u8 param, Actor *parent) {
     LinkedActorState *linked;
 
     actorSpawn(actorType, 0x82);
@@ -158,21 +158,21 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
     i = 0;
     found = 0;
     do {
-        if (gPlayerCount == D_80750948[i].unk0 && gSplitScreenMode == D_80750948[i].unk1 && playerIndex == D_80750948[i].unk3 &&
-            (D_80750948[i].unk2 & gSplitScreenViewMask)) {
+        if (gPlayerCount == gViewportLayouts[i].unk0 && gSplitScreenMode == gViewportLayouts[i].unk1 && playerIndex == gViewportLayouts[i].unk3 &&
+            (gViewportLayouts[i].unk2 & gSplitScreenViewMask)) {
             found = 1;
         } else {
             i++;
         }
     } while (found == 0);
-    return &D_80750948[i];
+    return &gViewportLayouts[i];
 }
 
 extern OSContPad gControllerPads[];
 extern u32 gViModeIndexByTvType[];
 extern f32 gGfxFarClip;
 extern u32 gGlobalCutsceneFlags;
-extern u16 D_807FD570;
+extern u16 gSavedHeldActorType;
 
 void playerAllocSlots(s32 spawnIndex) {
     PlayerStruct *blk;
@@ -239,9 +239,9 @@ void playerAllocSlots(s32 spawnIndex) {
             healthRefill(sel);
         }
     }
-    if (D_807FD570 != 0) {
-        func_806C80E4();
-        D_807FD570 = 0;
+    if (gSavedHeldActorType != 0) {
+        playerRestoreHeldActor();
+        gSavedHeldActorType = 0;
     }
     if (gPlayerCount >= 2) {
         actorSpawn(0x13E, 0);
@@ -251,21 +251,21 @@ void playerAllocSlots(s32 spawnIndex) {
 
 
 
-void func_806C80E4(void) {
+void playerRestoreHeldActor(void) {
     f32 pad0;
     f32 offsetX;
     f32 pad1;
     f32 distance;
     f32 offsetZ;
 
-    if (D_807FD570 == 0x55) {
+    if (gSavedHeldActorType == 0x55) {
         distance = 20.0f;
     } else {
         distance = 0.0f;
     }
     offsetX = mathSinF(gPrimaryPlayerActor->yaw) * distance;
     offsetZ = mathCosF(gPrimaryPlayerActor->yaw) * distance;
-    actorListSpawnNodeEntryDefault(D_807FD570, gPrimaryPlayerActor->x + offsetX, gPrimaryPlayerActor->y + 7.0,
+    actorListSpawnNodeEntryDefault(gSavedHeldActorType, gPrimaryPlayerActor->x + offsetX, gPrimaryPlayerActor->y + 7.0,
                                    gPrimaryPlayerActor->z + offsetZ, 0, 1.0f, gPrimaryPlayerActor);
     ((PlayerState *)gPrimaryPlayerActor->customState)->stateFlags |= 0x01000000;
 }
@@ -490,7 +490,7 @@ void playerSpawnMapHelpers(void) {
         gActivePlayerState->actor = gSpawnedActor;
         return;
     case 0x6:
-        func_806C7B50(0x1D, 0, gActivePlayerActor);
+        playerSpawnMinecart(0x1D, 0, gActivePlayerActor);
         return;
     case 0x20:
     case 0x79:
@@ -614,14 +614,14 @@ void playerApplyCharacterModel(const KongCharacterEntry *row) {
     slotQueueInit(0);
 }
 
-extern s16 D_8076AEE2;
+extern s16 gSavedSlotSpawnFlags;
 extern u8 gAmbientIndoors;
 
 void playerWarpToSpawnPoint(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
     G01Pos *spawn = raceGridSpawnPoint(spawnIndex);
 
-    D_8076AEE2 = 0;
+    gSavedSlotSpawnFlags = 0;
     gGlobalPauseFlags &= ~0x400;
     switch (spawn->spawnKind) {
     case 2:
@@ -722,30 +722,30 @@ void playerSyncInventoryOnSpawn(s32 spawnIndex) {
     gActivePlayerActor->pitch = 0;
 }
 
-extern G01Pos *D_807FC900;
-extern u8 D_807FC904;
-extern G01Pos D_807FC908;
-extern G01Pos D_807FD574;
+extern G01Pos *gMapSpawnPoints;
+extern u8 gMapSpawnPointCount;
+extern G01Pos gMapDefaultSpawnPoint;
+extern G01Pos gMapHeaderSpawnPos;
 
 void playerLoadSpawnerAsset(s32 mapId) {
-    D_807FC900 = assetLoad(0x17, mapId, 1, 1);
-    D_807FC904 = assetGetCachedSizeOrResolve(0x17, mapId) / 10U;
+    gMapSpawnPoints = assetLoad(0x17, mapId, 1, 1);
+    gMapSpawnPointCount = assetGetCachedSizeOrResolve(0x17, mapId) / 10U;
     playerCheckSpawnerFlagFixup(mapId);
-    D_807FC908.yaw = 0;
-    D_807FC908.x = D_807FD574.x;
-    D_807FC908.y = D_807FD574.y;
-    D_807FC908.z = D_807FD574.z;
+    gMapDefaultSpawnPoint.yaw = 0;
+    gMapDefaultSpawnPoint.x = gMapHeaderSpawnPos.x;
+    gMapDefaultSpawnPoint.y = gMapHeaderSpawnPos.y;
+    gMapDefaultSpawnPoint.z = gMapHeaderSpawnPos.z;
 }
 
 
 void playerCheckSpawnerFlagFixup(s32 mapId) {
     if (mapId == 0x1E) {
         if (flagGet(0xA0, 0) != 0) {
-            D_807FC900[18].y = 0x65D;
-            D_807FC900[23].y = 0x65D;
+            gMapSpawnPoints[18].y = 0x65D;
+            gMapSpawnPoints[23].y = 0x65D;
         } else {
-            D_807FC900[18].y = 0x626;
-            D_807FC900[23].y = 0x626;
+            gMapSpawnPoints[18].y = 0x626;
+            gMapSpawnPoints[23].y = 0x626;
         }
     }
 }
@@ -754,30 +754,30 @@ extern f32 D_8076AEE4;
 extern f32 D_8076AEE8;
 extern f32 D_8076AEEC;
 extern s16 D_8076AEF0;
-extern G01Pos D_807FC918;
+extern G01Pos gSavedSlotSpawnPoint;
 
 G01Pos *raceGridSpawnPoint(s32 spawnIndex) {
-    if (D_8076AEE2 & 1) {
-        D_807FC918.x = D_8076AEE4;
-        D_807FC918.y = D_8076AEE8;
-        D_807FC918.z = D_8076AEEC;
-        D_807FC918.yaw = (D_8076AEF0 / 4095.0) * 360.0;
-        return &D_807FC918;
+    if (gSavedSlotSpawnFlags & 1) {
+        gSavedSlotSpawnPoint.x = D_8076AEE4;
+        gSavedSlotSpawnPoint.y = D_8076AEE8;
+        gSavedSlotSpawnPoint.z = D_8076AEEC;
+        gSavedSlotSpawnPoint.yaw = (D_8076AEF0 / 4095.0) * 360.0;
+        return &gSavedSlotSpawnPoint;
     }
-    if (D_807FC904 == 0) {
-        return &D_807FC908;
+    if (gMapSpawnPointCount == 0) {
+        return &gMapDefaultSpawnPoint;
     }
-    if (spawnIndex >= D_807FC904) {
-        return D_807FC900;
+    if (spawnIndex >= gMapSpawnPointCount) {
+        return gMapSpawnPoints;
     }
-    return &D_807FC900[spawnIndex];
+    return &gMapSpawnPoints[spawnIndex];
 }
 
 void func_800268C0();
 
 /* Reading `q->collisionFlags` at each test (no flags local) and keeping `q = pl->queuedActor` as a separate copy
  * variable leaves the `move v0,a0`. */
-s8 func_806C9830(s8 delta, Actor *actor) {
+s8 playerResolveHitDamage(s8 delta, Actor *actor) {
     s8 result;
     PlayerState *ps;
     PlayerStruct *pl;

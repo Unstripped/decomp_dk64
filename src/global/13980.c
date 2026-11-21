@@ -18,10 +18,10 @@ extern s32 osGetIntMask(s32 arg0);
 // statics take their function's place (schedMain's sFirstAdvanceSkipped is 0x80746848)
 s32 gSchedSwapRetrace = 2;
 s32 gSchedPrevSwapRetrace = 1;
-u8 D_80746828 = 1;
-s16 D_8074682C = 1000;
-s8 D_80746830 = 1;
-s8 D_80746834 = 0;
+u8 gSchedGfxStartTimeArmed = 1;
+s16 gMainLoopWatchdog = 1000;
+s8 gWatchdogPaused = 1;
+s8 gWaitPointId = 0;
 SchedConfig D_80746838 = { 0xF, 0, 0x1C };
 s8 D_80746844 = 1;
 
@@ -31,8 +31,8 @@ extern u8 gScreenRenderFlags;
 // .bss 0x807F04C0-0x807F0570; 0x807F0560-0x807F0570 holds the function-local statics of
 // schedMain, schedTaskDone and schedDlDebugDump, in that order
 u64 D_807F04C0;
-u64 D_807F04C8;
-u64 D_807F04D0;
+u64 gSchedYieldTimePeak;
+u64 gSchedYieldTime;
 u32 D_807F04D8;
 u32 D_807F04DC;
 TaskNode *gSchedPendingSwapTask;
@@ -45,7 +45,7 @@ u64 gSchedRetraceTime;
 u64 D_807F0500;
 u64 D_807F0508;
 u64 D_807F0510;
-u16 D_807F0518[20];
+u16 gWatchdogFaultFrames[20];
 OSTimer gSchedAudioTimer;
 
 void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 viMode, u8 retraceCount) {
@@ -117,15 +117,15 @@ void schedMain(void *arg) {
     for (;;) {
         osRecvMesg(&sc->interruptQ, &msg, OS_MESG_BLOCK);
         if (gFaultScreenEnabled != 0) {
-            if (D_80746830 == 0) {
-                D_8074682C--;
+            if (gWatchdogPaused == 0) {
+                gMainLoopWatchdog--;
             }
-            if (D_8074682C <= 0) {
-                fbIdx = ++D_807F0518[0];
+            if (gMainLoopWatchdog <= 0) {
+                fbIdx = ++gWatchdogFaultFrames[0];
                 osViSwapBuffer((void *)gFramebuffers[(fbIdx >> 5) & 1]);
                 osViBlack(0);
-                D_807F0518[0]++;
-                if (D_8074682C < -159 && D_8074682C >= -256) {
+                gWatchdogFaultFrames[0]++;
+                if (gMainLoopWatchdog < -159 && gMainLoopWatchdog >= -256) {
                     for (i = 0; i < 2; i++) {
                         faultFontInit(gFramebuffers[i & 1], 2, 2);
                         faultPrintf("CURRENT=%x\n", IO_READ(DPC_CURRENT_REG));
@@ -136,9 +136,9 @@ void schedMain(void *arg) {
                         faultPrintf("MAIN-PC=%x\n", D_8076154C);
                     }
                 }
-                if (D_8074682C < -299) {
+                if (gMainLoopWatchdog < -299) {
                     flag = 0;
-                    if ((D_807F0518[0] & 0x1F) == 0) {
+                    if ((gWatchdogFaultFrames[0] & 0x1F) == 0) {
                         flag = 1;
                     }
                     if (flag && sFirstAdvanceSkipped == 0) {
@@ -147,7 +147,7 @@ void schedMain(void *arg) {
                     }
                     schedDlDebugDump(D_80746844, flag);
                     D_80746844 = 0;
-                    D_8074682C = -300;
+                    gMainLoopWatchdog = -300;
                 }
                 osWritebackDCacheAll();
             }
@@ -155,7 +155,7 @@ void schedMain(void *arg) {
         switch ((u32)msg) {
         case 0x29A:
             if (++sRetraceCount % 480 == 0) {
-                D_807F04C8 = D_807F04D0;
+                gSchedYieldTimePeak = gSchedYieldTime;
                 D_807F04D8 = D_807F04DC;
             }
             schedHandleRetrace(sc);
@@ -196,12 +196,12 @@ void schedStartAudioOrYield(SchedStruct *sc) {
     if (sc->curRSPTask != NULL) {
         schedYield(sc);
     } else {
-        D_807F04D0 = 0;
+        gSchedYieldTime = 0;
         schedStartTask(sc, 0);
     }
 }
 
-extern s8 D_80744510; // ORIG: this TU reads it signed (lb a0,0(s0) at 0x620 for the != 0 / == 1 tests); 450.c defines it u8
+extern s8 gBootScreenState; // ORIG: this TU reads it signed (lb a0,0(s0) at 0x620 for the != 0 / == 1 tests); 450.c defines it u8
 
 
 void schedHandleRetrace(SchedStruct *sc) {
@@ -216,8 +216,8 @@ void schedHandleRetrace(SchedStruct *sc) {
     sc->retraceCount++;
     sc->tickCount++;
     gSchedRetraceTime = osGetTime();
-    if (D_80744510 != 0) {
-        if (D_80744510 == 1) {
+    if (gBootScreenState != 0) {
+        if (gBootScreenState == 1) {
             if (sViModeDelay == 0) {
                 osViBlack(1);
             }
@@ -225,7 +225,7 @@ void schedHandleRetrace(SchedStruct *sc) {
                 osViSetMode(&osViModeTable[sViModeIndexByTvType[osTvType]]);
                 osViSetSpecialFeatures(OS_VI_GAMMA_OFF | OS_VI_DITHER_FILTER_ON);
                 osViBlack(0);
-                D_80744510 = 2;
+                gBootScreenState = 2;
             }
             sViModeDelay++;
         }
@@ -281,9 +281,9 @@ void schedHandleRSP(SchedStruct *sc) {
 
     sc->curRSPTask = NULL;
     if (task->state == 3) {
-        D_807F04D0 = osGetTime() - D_807F04C0;
-        if (D_807F04C8 < D_807F04D0) {
-            D_807F04C8 = D_807F04D0;
+        gSchedYieldTime = osGetTime() - D_807F04C0;
+        if (gSchedYieldTimePeak < gSchedYieldTime) {
+            gSchedYieldTimePeak = gSchedYieldTime;
         }
         if (osSpTaskYielded(&task->task) == 0) {
             task->state = 2;
@@ -294,7 +294,7 @@ void schedHandleRSP(SchedStruct *sc) {
     } else {
         if (task->flags & 0x40) {
             D_807F04E8 = (osGetTime() - sc->unk290) / 0x1E91;
-            D_80746828 = 1;
+            gSchedGfxStartTimeArmed = 1;
         } else if (task->task.t.type == M_AUDTASK) {
             D_807F0510 = osGetTime();
             D_807F0500 = D_807F0508;
@@ -404,10 +404,10 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
         D_807F0508 = osGetTime();
     } else {
         task = sc->gfxListHead;
-        if (D_80746828 != 0) {
+        if (gSchedGfxStartTimeArmed != 0) {
             sc->unk290 = osGetTime();
             D_807F04F0 = (osGetTime() - gSchedRetraceTime) / 0x1E91;
-            D_80746828 = 0;
+            gSchedGfxStartTimeArmed = 0;
         }
     }
     task->state = 1;

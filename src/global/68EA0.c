@@ -112,7 +112,7 @@ void modelEmittersUpdate(void) {
         for (i = 0; i < gModelEmitterCount; i++) {
             distSq = SQ(gPlayerSlots->eyeX - gModelEmitters[i].x) + SQ(gPlayerSlots->eyeY - gModelEmitters[i].y) +
                      SQ(gPlayerSlots->eyeZ - gModelEmitters[i].z);
-            if (distSq < 90000.0 && gModelEmitters[i].modelId != -1 && func_8063C2A8(gModelEmitters[i].modelId)) {
+            if (distSq < 90000.0 && gModelEmitters[i].modelId != -1 && modelSlotIsAlphaVisible(gModelEmitters[i].modelId)) {
                 switch (gModelEmitters[i].modelType) {
                     case 1:
                     case 0x10:

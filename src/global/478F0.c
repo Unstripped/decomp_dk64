@@ -258,10 +258,10 @@ void csCmdTagBarrelSpawnSmokeAndPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     tagBarrelSpawnSmokeAndPuffs(slot->x, slot->y, slot->z, slot->scale, 0, 1);
 }
 
-extern EffectGridAsset D_8071FE08;
-extern u8 D_8071FE64[];
-extern u8 D_8071FE88[];
-extern u8 D_8071FEAC[];
+extern EffectGridAsset gEffectSpriteStarBurst;
+extern u8 gEffectSpriteBarrelDebrisDark[];
+extern u8 gEffectSpriteBarrelDebrisLight[];
+extern u8 gEffectSpriteBarrelDebrisPlank[];
 
 void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -282,7 +282,7 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetDuration(1);
     effectSetSpeed(0x100C8);
     effectSetCallback(effectLightPulseOscillate);
-    effectCreateAtPosition(&D_8071FE08, 1.5f, x, y, z);
+    effectCreateAtPosition(&gEffectSpriteStarBurst, 1.5f, x, y, z);
     for (i = 0; i != 7; i++) {
         r = (s32)((u32)randomLcgNext() / 10000) % 3;
         effectSetDepth(1);
@@ -292,13 +292,13 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetSpeed(7);
         switch (r) {
             case 0:
-                effectCreateAtPosition(D_8071FE64, 0.5f, x, y, z);
+                effectCreateAtPosition(gEffectSpriteBarrelDebrisDark, 0.5f, x, y, z);
                 break;
             case 1:
-                effectCreateAtPosition(D_8071FE88, 0.5f, x, y, z);
+                effectCreateAtPosition(gEffectSpriteBarrelDebrisLight, 0.5f, x, y, z);
                 break;
             case 2:
-                effectCreateAtPosition(D_8071FEAC, 0.5f, x, y, z);
+                effectCreateAtPosition(gEffectSpriteBarrelDebrisPlank, 0.5f, x, y, z);
                 break;
         }
     }
@@ -527,7 +527,7 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
             }
         }
         if (gPlayerSlots->camChunk == 0xE || (gPlayerSlots->camChunk == 0xB && dist < D_807480DC)) {
-            func_80711410(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
+            weatherSpawnRain(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
         } else {
             gAmbientAudioLevels[0] = 0;
         }
@@ -1671,7 +1671,7 @@ void csCmdSpawnSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern u8 D_807212B0[];
 extern u8 D_807212C8[];
-extern u8 D_80720340[];
+extern u8 gEffectSpriteExplosion[];
 
 void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1755,7 +1755,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
         }
     }
     effectSetDepth(1);
-    effectCreateAtPosition(D_80720340, scale * 2.5, gCsPosX, gCsPosY + b, gCsPosZ);
+    effectCreateAtPosition(gEffectSpriteExplosion, scale * 2.5, gCsPosX, gCsPosY + b, gCsPosZ);
 }
 
 
@@ -3195,9 +3195,9 @@ typedef struct {
     s32 anim[2];
 } CsTrail;
 
-extern f32 D_807F61FC;
-extern f32 D_807F6200;
-extern f32 D_807F6204;
+extern f32 gCsPrevPosX;
+extern f32 gCsPrevPosY;
+extern f32 gCsPrevPosZ;
 s16 gCsTrailHeadIndex = 0;
 
 void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3221,9 +3221,9 @@ void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
         tr = heapAlloc(0x170);
         cs->data = tr;
         for (i = 0; i < 30; i++) {
-            tr->pts[i].x = D_807F61FC;
-            tr->pts[i].y = D_807F6200;
-            tr->pts[i].z = D_807F6204;
+            tr->pts[i].x = gCsPrevPosX;
+            tr->pts[i].y = gCsPrevPosY;
+            tr->pts[i].z = gCsPrevPosZ;
         }
     }
     tr = cs->data;
@@ -3769,7 +3769,7 @@ void csCmdSpawnBurstColoredLights(CsState *cs, s16 csId, s16 b, s16 c) {
     if (b != 11) {
         modelSlotGetNodePos(csId, 1, 1, &x, &y, &z);
     }
-    cs->unk98 = y - gCsPosY;
+    cs->lightYOffset = y - gCsPosY;
     if (cs->data == NULL) {
         q = heapAlloc(4);
         cs->data = q;
@@ -3865,7 +3865,7 @@ u8 csCondCheckFrameTimingMap(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 idx;
 
     idx = frameTimingGetMapIndex();
-    return (s16)func_806FB418() >= gWorldGoldenBananaGoals[idx];
+    return (s16)inventoryGetGoldenBananaTotal() >= gWorldGoldenBananaGoals[idx];
 }
 
 

@@ -126,7 +126,7 @@ set_color:
     }
 }
 
-extern s8 D_8074452C;
+extern s8 gSkipCutscenes;
 extern u16 gWorldLobbyMaps[];
 extern s32 gCurrentMap;
 
@@ -190,7 +190,7 @@ s32 cutsceneTriggerCheck(s16 cutsceneId) {
             }
             if (entryCutscene != -1) {
                 flagSet(flagId, 1, 0);
-                if (D_8074452C != 0) {
+                if (gSkipCutscenes != 0) {
                     mapRequestTransition(cutsceneId, extraParam);
                     return 1;
                 }
@@ -416,19 +416,19 @@ void actorCutsceneDispatchEvents(void) {
 
     switch (csState->weatherMode) {
     case 0x6:
-        func_80711BD0(csState->density, csState->windAngle, csState->mapChunk, 4);
+        weatherSpawnDriftParticles(csState->density, csState->windAngle, csState->mapChunk, 4);
         break;
     case 0x7:
-        func_80711BD0(csState->density, csState->windAngle, csState->mapChunk, 5);
+        weatherSpawnDriftParticles(csState->density, csState->windAngle, csState->mapChunk, 5);
         break;
     case 0x5:
-        func_80711BD0(csState->density, csState->windAngle, csState->mapChunk, 3);
+        weatherSpawnDriftParticles(csState->density, csState->windAngle, csState->mapChunk, 3);
         break;
     case 0x1:
-        func_80711950(csState->density, csState->windAngle, csState->mapChunk);
+        weatherSpawnSnow(csState->density, csState->windAngle, csState->mapChunk);
         break;
     case 0x4:
-        func_80711F90(csState->density, csState->windAngle, 1.0f, csState->mapChunk, 4.0f);
+        weatherSpawnBananas(csState->density, csState->windAngle, 1.0f, csState->mapChunk, 4.0f);
         break;
     case 0x3:
         if (((randomNonNegative() >> 15) % 50) == 15) {
@@ -463,7 +463,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             csState->flashTimer--;
         }
-        func_80711410(csState->density, csState->windAngle, 1.0f, csState->mapChunk, 1.0f);
+        weatherSpawnRain(csState->density, csState->windAngle, 1.0f, csState->mapChunk, 1.0f);
         break;
     case 0xFF:
         if (effectSpritePoolFadeOut() != 0) {
@@ -502,7 +502,7 @@ typedef struct {
 } WeatherActorState;
 
 
-void func_8068B830(s16 mode, s16 densityPct, s16 windAngle) {
+void weatherSetMode(s16 mode, s16 densityPct, s16 windAngle) {
     Actor *actor;
     WeatherActorState *actorState;
 
@@ -538,7 +538,7 @@ void enemyAggroDespawnBB(void) {
 }
 
 
-void func_8068B930(void) {
+void volumeHookModelStateUpdate(void) {
     s32 i;
     s16 *ptr;
 
@@ -548,10 +548,10 @@ void func_8068B930(void) {
             csModelStateSetFirstByte(ptr[0], ptr[1]);
         }
     }
-    func_8062BAE4();
+    mapUpdateModelNodes();
 }
 
-void func_8068B9B4(void) {
+void volumeHookActorEventUpdate(void) {
     s32 i;
     s16 *ptr;
 
@@ -565,7 +565,7 @@ void func_8068B9B4(void) {
 
 
 
-void func_8068BA2C(void) {
+void volumeHookCameraLightUpdate(void) {
     s32 pad;
     CamState *camState;
     PlayerState *playerState;

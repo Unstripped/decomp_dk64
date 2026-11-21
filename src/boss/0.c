@@ -122,9 +122,9 @@ void bossArmydilloInitArena(void) {
             gCurrentActor->segmentFlags = 3;
         }
     }
-    func_80724D28(1, 0xD);
-    func_80724DB0(1, 5);
-    func_80724CA4(1, 5);
+    actorAllocBoneOffsets(1, 0xD);
+    actorAllocBoneScales(1, 5);
+    actorAllocBoneRotations(1, 5);
 
     sub = gCurrentActor->sub4;
     pose = sArmydilloPiecePoses[mode];
@@ -481,7 +481,7 @@ void bossArmydilloShowCannons(void) {
     actorSetNodeFlag(gCurrentActor, 5);
 }
 
-extern u8 D_80720120[];
+extern u8 gEffectSpriteFireBurst[];
 
 void bossArmydilloSpawnExhaustSmoke(void) {
     f32 scale;
@@ -493,12 +493,12 @@ void bossArmydilloSpawnExhaustSmoke(void) {
     effectSetCallback(effectFollowParentUpdate);
     effectSetMaxDistance(1000);
     effectSetSpeed((s32)gCurrentActor);
-    effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 3, 0);
+    effectCreateAtActorBone(gEffectSpriteFireBurst, scale, gCurrentActor, 3, 0);
     effectSetDepth(1);
     effectSetCallback(effectFollowParentUpdate);
     effectSetMaxDistance(1000);
     effectSetSpeed((s32)gCurrentActor);
-    effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 4, 0);
+    effectCreateAtActorBone(gEffectSpriteFireBurst, scale, gCurrentActor, 4, 0);
 }
 
 // Armadillo boss actor: Actor plus its two component pointers (0x178 script state, 0x17C piece animation state).

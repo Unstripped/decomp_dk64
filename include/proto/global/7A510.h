@@ -12,8 +12,8 @@ void actorCollisionRunInteractionTable(Actor *, Actor *);
 #ifndef PROTO_SKIP_actorCollisionPatternMatches
 s32 actorCollisionPatternMatches(s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80675D70
-void func_80675D70(Actor *);
+#ifndef PROTO_SKIP_actorCollisionRecordDefaultHit
+void actorCollisionRecordDefaultHit(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorApplyDamage
 void actorApplyDamage(Actor *, Actor *);
@@ -27,8 +27,8 @@ void actorCollisionCheckBoundingBoxes(Actor *);
 #ifndef PROTO_SKIP_actorCollisionUpdateNodeFlags
 void actorCollisionUpdateNodeFlags(Actor *, u8);
 #endif
-#ifndef PROTO_SKIP_func_8067618C
-void func_8067618C(Actor *, u8 *);
+#ifndef PROTO_SKIP_actorCollisionOverrideNodeFlagSet
+void actorCollisionOverrideNodeFlagSet(Actor *, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorInitHealth
 void actorInitHealth(Actor *);

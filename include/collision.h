@@ -40,15 +40,15 @@ typedef struct CollisionBox {
     /* 0x3C */ s32 x2;
     /* 0x40 */ s32 y2;
     /* 0x44 */ s32 z2;
-    /* 0x48 */ s16 unk48;
+    /* 0x48 */ s16 normalYaw;
     /* 0x4A */ u8 axis; // dominant normal axis: 0 = z, 1 = y, 2 = x (collisionBuildPlane)
-    /* 0x4B */ u8 unk4B;
-    /* 0x4C */ u8 unk4C;
-    /* 0x4D */ u8 unk4D;
-    /* 0x4E */ s8 unk4E;
-    /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u8 unk50;
-    /* 0x51 */ u8 unk51;
+    /* 0x4B */ u8 slopeClass;
+    /* 0x4C */ u8 normalFlipped;
+    /* 0x4D */ u8 pushable;
+    /* 0x4E */ s8 mtxIndex;
+    /* 0x4F */ u8 partId;
+    /* 0x50 */ u8 boundaryCondition;
+    /* 0x51 */ u8 damageSurface;
     /* 0x52 */ u8 pad52[0x58 - 0x52];
 } CollisionBox; // size = 0x58
 

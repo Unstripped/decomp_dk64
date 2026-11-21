@@ -198,8 +198,8 @@ void playerStateEnterFallAndSetGravity(void);
 #ifndef PROTO_SKIP_playerStateSwimTreadWithScript
 void playerStateSwimTreadWithScript(void);
 #endif
-#ifndef PROTO_SKIP_func_806EE6B0
-void func_806EE6B0(void);
+#ifndef PROTO_SKIP_playerStateEnterFadeWarp
+void playerStateEnterFadeWarp(void);
 #endif
 #ifndef PROTO_SKIP_playerResumeLocomotionAndThrow
 void playerResumeLocomotionAndThrow(void);
@@ -264,17 +264,17 @@ void playerStateNoop1(void);
 #ifndef PROTO_SKIP_playerStateNoop2
 void playerStateNoop2(void);
 #endif
-#ifndef PROTO_SKIP_func_806F007C
-void func_806F007C(void);
+#ifndef PROTO_SKIP_playerStateEnterMpEliminated
+void playerStateEnterMpEliminated(void);
 #endif
 #ifndef PROTO_SKIP_playerStateClearCarriedSetFlags
 void playerStateClearCarriedSetFlags(void);
 #endif
-#ifndef PROTO_SKIP_func_806F014C
-void func_806F014C(void);
+#ifndef PROTO_SKIP_playerStateLockMovementAndResume
+void playerStateLockMovementAndResume(void);
 #endif
-#ifndef PROTO_SKIP_func_806F0184
-void func_806F0184(void);
+#ifndef PROTO_SKIP_playerStateEnterCutscenePause
+void playerStateEnterCutscenePause(void);
 #endif
 #ifndef PROTO_SKIP_playerStateClearCarriedAndCallF00BC
 void playerStateClearCarriedAndCallF00BC(void);
@@ -285,28 +285,28 @@ void playerStateEnterClimbTree(void);
 #ifndef PROTO_SKIP_playerStateEnterKnockbackState
 void playerStateEnterKnockbackState(void);
 #endif
-#ifndef PROTO_SKIP_func_806F0344
-void func_806F0344(void);
+#ifndef PROTO_SKIP_playerStateEnterPulseForm
+void playerStateEnterPulseForm(void);
 #endif
 #ifndef PROTO_SKIP_playerStateSetFlagsByActorType
 void playerStateSetFlagsByActorType(void);
 #endif
-#ifndef PROTO_SKIP_func_806F0624
-void func_806F0624(void);
+#ifndef PROTO_SKIP_playerStateEnterFairyReward
+void playerStateEnterFairyReward(void);
 #endif
-#ifndef PROTO_SKIP_func_806F06A4
-void func_806F06A4(void);
+#ifndef PROTO_SKIP_playerStateEnterShrinkToSavedPoint
+void playerStateEnterShrinkToSavedPoint(void);
 #endif
-#ifndef PROTO_SKIP_func_806F0700
-void func_806F0700(void);
+#ifndef PROTO_SKIP_playerStateEnterGrowFromSavedPoint
+void playerStateEnterGrowFromSavedPoint(void);
 #endif
 #ifndef PROTO_SKIP_playerStateEnterDoubleJumpWithSfx
 void playerStateEnterDoubleJumpWithSfx(void);
 #endif
-#ifndef PROTO_SKIP_func_806F0878
-void func_806F0878(void);
+#ifndef PROTO_SKIP_playerStateEnterSlideBrake
+void playerStateEnterSlideBrake(void);
 #endif
-#ifndef PROTO_SKIP_func_806F0930
-void func_806F0930(void);
+#ifndef PROTO_SKIP_playerStateEnterSlideReverse
+void playerStateEnterSlideReverse(void);
 #endif
 #endif

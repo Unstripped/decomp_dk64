@@ -61,7 +61,7 @@ extern u8 gGfxBufferIndex;
 
 extern u8 D_807444F0;
 extern u8 gGameMode;
-extern s8 D_807444C0;
+extern s8 gWidescreenEnabled;
 extern s32 gCurrentMap;
 
 f32 cameraStepAspectScale(void) {
@@ -80,7 +80,7 @@ f32 cameraStepAspectScale(void) {
     if (flag) {
         flag = gCurrentMap != 0x50;
     }
-    if (D_807444C0 != 0 && !flag) {
+    if (gWidescreenEnabled != 0 && !flag) {
         target = target * 1.2;
     }
     if (sc < target) {
@@ -97,9 +97,9 @@ f32 cameraStepAspectScale(void) {
     return sc;
 }
 
-u8 *D_807F5DE0;
-struct MapBspNode *D_807F5DE4;
-s32 D_807F5DE8;
+u8 *gMapFileBase;
+struct MapBspNode *gMapBspRoot;
+s32 gMapVtxBase;
 void *gMapDisplayListBase;
 f32 sFrustumCornerRays[12];
 
@@ -146,7 +146,7 @@ void frustumCornersTransformByInverse(Mtx *mtx) {
     guMtxL2F(viewMtx, mtx);
     matrix4Invert(invMtx, viewMtx);
     for (i = 0; i < 4; i++) {
-        guMtxXFMF(invMtx, sFrustumCornerRays[i * 3], sFrustumCornerRays[i * 3 + 1], sFrustumCornerRays[i * 3 + 2], &D_807F5E20[i][0], &D_807F5E20[i][1], &D_807F5E20[i][2]);
+        guMtxXFMF(invMtx, sFrustumCornerRays[i * 3], sFrustumCornerRays[i * 3 + 1], sFrustumCornerRays[i * 3 + 2], &gFrustumCorners[i][0], &gFrustumCorners[i][1], &gFrustumCorners[i][2]);
     }
 }
 
@@ -280,9 +280,9 @@ void mapNodeTreeInitSurfaceEffects(MapBspNode *node, s32 *slotCount) {
         if (node == NULL) {
             break;
         }
-        for (i = 0; i < node->unkC5; i++) {
-            mapSurfaceEffectInit(node->unk70[i]);
-            count = node->unkAC[i] + 1;
+        for (i = 0; i < node->surfaceCount; i++) {
+            mapSurfaceEffectInit(node->surfaceEffects[i]);
+            count = node->surfaceOffsetSlots[i] + 1;
             if (*slotCount < count) {
                 *slotCount = count;
             }
@@ -416,18 +416,18 @@ MapVisNode *mapTreeCloneShape(MapBspNode *bsp) {
 }
 
 
-extern MapVisNode *D_807F5E60;
+extern MapVisNode *gMapVisRoot;
 
 
-void func_8062BAE4(void) {
+void mapUpdateModelNodes(void) {
     modelPendingCountsReset();
-    func_8062BB2C(D_807F5DE4, D_807F5E60, 1);
+    mapTreeUpdateModelNodes(gMapBspRoot, gMapVisRoot, 1);
     modelPendingEntriesProcess();
     csFreeTrackedModels();
 }
 
 
-void func_8062BB2C(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
+void mapTreeUpdateModelNodes(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
     RenderEntry *entry;
     RenderEntry *next;
 
@@ -435,8 +435,8 @@ void func_8062BB2C(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
         return;
     }
     if (vis->visMode == 3) {
-        func_8062BB2C(node->child0, vis->child0, 0);
-        func_8062BB2C(node->child1, vis->child1, 0);
+        mapTreeUpdateModelNodes(node->child0, vis->child0, 0);
+        mapTreeUpdateModelNodes(node->child1, vis->child1, 0);
         return;
     }
     switch (node->kind) {
@@ -456,20 +456,20 @@ void func_8062BB2C(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
                 case 1:
                 case 2:
                     if (vis->camSide != 0) {
-                        func_8062BB2C(node->child1, vis->child1, allowDefault);
-                        func_8062BB2C(node->child0, vis->child0, 0);
+                        mapTreeUpdateModelNodes(node->child1, vis->child1, allowDefault);
+                        mapTreeUpdateModelNodes(node->child0, vis->child0, 0);
                     } else {
-                        func_8062BB2C(node->child0, vis->child0, allowDefault);
-                        func_8062BB2C(node->child1, vis->child1, 0);
+                        mapTreeUpdateModelNodes(node->child0, vis->child0, allowDefault);
+                        mapTreeUpdateModelNodes(node->child1, vis->child1, 0);
                     }
                     break;
                 case 0:
                     if (vis->camSide != 0) {
-                        func_8062BB2C(node->child0, vis->child0, allowDefault);
-                        func_8062BB2C(node->child1, vis->child1, allowDefault);
+                        mapTreeUpdateModelNodes(node->child0, vis->child0, allowDefault);
+                        mapTreeUpdateModelNodes(node->child1, vis->child1, allowDefault);
                     } else {
-                        func_8062BB2C(node->child1, vis->child1, allowDefault);
-                        func_8062BB2C(node->child0, vis->child0, allowDefault);
+                        mapTreeUpdateModelNodes(node->child1, vis->child1, allowDefault);
+                        mapTreeUpdateModelNodes(node->child0, vis->child0, allowDefault);
                     }
                     break;
             }
@@ -480,11 +480,11 @@ void func_8062BB2C(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
 extern struct RenderEntry *gRenderListPending;
 
 
-u8 func_8062BCC8(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
+u8 mapTestModelFloor(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
     u8 result;
     RenderEntry *item;
 
-    result = func_8062BDB0(actor, D_807F5DE4, D_807F5E60, x, z, y, outFloorY);
+    result = mapTreeTestModelFloor(actor, gMapBspRoot, gMapVisRoot, x, z, y, outFloorY);
     item = gRenderListPending;
     while (item != NULL) {
         if (item->type == 1) {
@@ -496,7 +496,7 @@ u8 func_8062BCC8(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
 }
 
 
-u8 func_8062BDB0(Actor *actor, MapBspNode *node, MapVisNode *vis, f32 x, f32 z, f32 y, f32 *outFloorY) {
+u8 mapTreeTestModelFloor(Actor *actor, MapBspNode *node, MapVisNode *vis, f32 x, f32 z, f32 y, f32 *outFloorY) {
     u8 result;
     u8 other;
     RenderEntry *item;
@@ -515,8 +515,8 @@ u8 func_8062BDB0(Actor *actor, MapBspNode *node, MapVisNode *vis, f32 x, f32 z, 
             }
             return result;
         case 0:
-            result = func_8062BDB0(actor, node->child0, vis->child0, x, z, y, outFloorY);
-            other = func_8062BDB0(actor, node->child1, vis->child1, x, z, y, outFloorY);
+            result = mapTreeTestModelFloor(actor, node->child0, vis->child0, x, z, y, outFloorY);
+            other = mapTreeTestModelFloor(actor, node->child1, vis->child1, x, z, y, outFloorY);
             return result | other;
     }
     return 0;
@@ -524,8 +524,8 @@ u8 func_8062BDB0(Actor *actor, MapBspNode *node, MapVisNode *vis, f32 x, f32 z, 
 
 extern Gfx D_1000118;
 extern u8 gViewportCount;
-extern u8 D_807F5FEC;
-extern u8 D_807F5FED;
+extern u8 gMapFirstViewPending;
+extern u8 gRenderOnePrimitive;
 extern u8 gCurrentPlayerIndex;
 extern PlayerStruct *gPlayerSlots;
 
@@ -537,7 +537,7 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
 
     mapFrameBegin(frame);
     gDPPipeSync(gfx++);
-    if (D_807F5FED != 0) {
+    if (gRenderOnePrimitive != 0) {
         gSPSetOtherMode(gfx++, G_SETOTHERMODE_H, G_MDSFT_PIPELINE, 1, G_PM_1PRIMITIVE);
     } else {
         gSPSetOtherMode(gfx++, G_SETOTHERMODE_H, G_MDSFT_PIPELINE, 1, G_PM_NPRIMITIVE);
@@ -549,7 +549,7 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
                                 gPlayerSlots[i].eyeFocusX, gPlayerSlots[i].eyeFocusY, gPlayerSlots[i].eyeFocusZ,
                                 gPlayerSlots[i].prevFov, gPlayerSlots[i].aspect * cameraStepAspectScale(),
                                 gPlayerSlots[i].farClip);
-            D_807F5FEC = 0;
+            gMapFirstViewPending = 0;
         }
         if (gPlayerSlots[i].active == 0 || gPlayerSlots[i].viewFadingOut != 0) {
             alpha = gPlayerSlots[i].actor->alpha;
@@ -580,7 +580,7 @@ void mapFrameBegin(void *frame) {
     mapChunkResetFlags();
     lightApplyToActors();
     effectUpdateNodes();
-    D_807F5FEC = 1;
+    gMapFirstViewPending = 1;
 }
 
 
@@ -600,12 +600,12 @@ void mapFrameEnd(void) {
 
 
 extern s32 D_807F5E64;
-extern f32 D_807F5FB4;
-extern f32 D_807F5FB0;
-extern f32 D_807F5FAC;
-extern f32 D_807F5FA8;
-extern f32 D_807F5FE0;
-extern f32 D_807F5FDC;
+extern f32 gViewFov;
+extern f32 gViewAspect;
+extern f32 gViewFarClip;
+extern f32 gFrustumDepth;
+extern f32 gViewFovScaledCos;
+extern f32 gDefaultFovCos;
 extern PlanePoly gFrustumPlanes[];
 extern struct RenderEntry *D_807F5FF0;
 extern Mtx D_2000180;
@@ -617,18 +617,18 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
 
     dl = gPlayerSlots[gCurrentPlayerIndex].hiliteDl[gGfxBufferIndex];
     D_807F5E64 = 0;
-    D_807F5FB4 = fov;
-    D_807F5FB0 = aspect;
-    D_807F5FAC = farClip;
-    D_807F5FA8 = D_807F5FAC;
-    D_807F5FE0 = cosApprox(fov * 0.01745329238f);
-    D_807F5FE0 = (D_807F5FE0 - D_807F5FDC) * 3.0 + D_807F5FDC;
+    gViewFov = fov;
+    gViewAspect = aspect;
+    gViewFarClip = farClip;
+    gFrustumDepth = gViewFarClip;
+    gViewFovScaledCos = cosApprox(fov * 0.01745329238f);
+    gViewFovScaledCos = (gViewFovScaledCos - gDefaultFovCos) * 3.0 + gDefaultFovCos;
     planeFromTwoPoints(eyeX, eyeY, eyeZ, atX, atY, atZ);
-    frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FA8);
+    frustumCalculateCornerRays(gViewFov, gViewAspect, gFrustumDepth);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(eyeX, eyeY, eyeZ, gFrustumPlanes, D_807F5E20[0]);
-    mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, eyeX, eyeY, eyeZ, 0, !D_807F5FEC, gViewportCount >= 2);
-    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+    frustumOrientPolyNormals(eyeX, eyeY, eyeZ, gFrustumPlanes, gFrustumCorners[0]);
+    mapTreeFrameUpdate(gMapBspRoot, gMapVisRoot, D_807F5FF0, eyeX, eyeY, eyeZ, 0, !gMapFirstViewPending, gViewportCount >= 2);
+    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
     gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
     gfx = actorBuildLightDisplayList(gfx, gPlayerSlots[gCurrentPlayerIndex].actor, gCurrentPlayerIndex);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
@@ -645,7 +645,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     gSPMatrix(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].projMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gfx = mapTreeRender(gfx, D_807F5DE4, D_807F5E60, eyeX, eyeY, eyeZ, gGlobalPauseFlags);
+    gfx = mapTreeRender(gfx, gMapBspRoot, gMapVisRoot, eyeX, eyeY, eyeZ, gGlobalPauseFlags);
     gDPPipeSync(gfx++);
     return gfx;
 }
@@ -665,7 +665,7 @@ extern RenderEntry *D_807F5FF8;
 extern u8 gRenderSetupKind;
 
 
-Gfx *func_8062CA0C(Gfx *gfx, f32 camX, f32 camY, f32 camZ) {
+Gfx *renderScreenSpaceEffects(Gfx *gfx, f32 camX, f32 camY, f32 camZ) {
     gRenderSetupKind = 0xFF;
     return renderEntryListBuildDisplayList(gfx, D_807F5FF8, camX, camY, camZ, 0x30030, -1, 0);
 }
@@ -690,7 +690,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
         case 1:
             D_807F5E64 += node->unk6E;
             if (renderMask & 0x10) {
-                gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+                gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
                 gfx = mapViewDrawPass(gfx, node, 1);
                 gfx = fogRender(gfx);
@@ -717,7 +717,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
             gRenderSetupKind = 0xFF;
             gfx = renderEntryListBuildDisplayList(gfx, vis->entries, camX, camY, camZ, renderMask, -1, 0);
             if (renderMask & 0x10) {
-                gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+                gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
                 gfx = mapViewDrawPass(gfx, node, 3);
                 gDPPipeSync(gfx++);
@@ -755,11 +755,11 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *view, u8 pass) {
     s32 i;
     u8 idx;
 
-    for (i = 0; i < view->unkC5; i++) {
-        if (pass == view->unkB9[i] && (view->unk88[i] == -1 || mapChunkIsActive(view->unk88[i]) != 0)) {
-            gfx = mapSurfaceEffectDraw(gfx, view->unk70[i]);
+    for (i = 0; i < view->surfaceCount; i++) {
+        if (pass == view->surfacePasses[i] && (view->surfaceChunks[i] == -1 || mapChunkIsActive(view->surfaceChunks[i]) != 0)) {
+            gfx = mapSurfaceEffectDraw(gfx, view->surfaceEffects[i]);
             gSPClearGeometryMode(gfx++, G_CULL_BACK);
-            idx = view->unkAC[i];
+            idx = view->surfaceOffsetSlots[i];
             if (sMapOffsetSlots[idx].value != 0.0 && sMapOffsetSlots[idx].enabled != 0) {
                 gSPMatrix(gfx++, osVirtualToPhysical(&sMapOffsetSlots[idx].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
                 gSPDisplayList(gfx++, osVirtualToPhysical(view->unk1C[i]));
@@ -774,12 +774,12 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *view, u8 pass) {
 }
 
 
-void func_8062D094(void *targetId, u8 forceInfiniteDist) {
-    func_8062D0CC(D_807F5DE4, D_807F5E60, targetId, forceInfiniteDist);
+void mapSetDistanceOverride(void *targetId, u8 forceInfiniteDist) {
+    mapTreeSetDistanceOverride(gMapBspRoot, gMapVisRoot, targetId, forceInfiniteDist);
 }
 
 
-u8 func_8062D0CC(MapBspNode *node, MapVisNode *vis, void *targetId, u8 forceInfiniteDist) {
+u8 mapTreeSetDistanceOverride(MapBspNode *node, MapVisNode *vis, void *targetId, u8 forceInfiniteDist) {
     u8 pad;
     u8 found;
 
@@ -795,17 +795,17 @@ u8 func_8062D0CC(MapBspNode *node, MapVisNode *vis, void *targetId, u8 forceInfi
             renderEntrySetDistanceOverride(vis->entries, targetId, 0, forceInfiniteDist, &found);
             return found;
         case 0:
-            if (func_8062D0CC(node->child0, vis->child0, targetId, forceInfiniteDist) != 0) {
+            if (mapTreeSetDistanceOverride(node->child0, vis->child0, targetId, forceInfiniteDist) != 0) {
                 return 1;
             }
-            return func_8062D0CC(node->child1, vis->child1, targetId, forceInfiniteDist);
+            return mapTreeSetDistanceOverride(node->child1, vis->child1, targetId, forceInfiniteDist);
     }
 }
 
 
-void func_8062D1A8(void) {
+void mapResolveNodeAssets(void) {
     if (menuIsTransitionType3Or4() == 0) {
-        mapTreeResolveNodeAssets(D_807F5DE4, D_807F5E60);
+        mapTreeResolveNodeAssets(gMapBspRoot, gMapVisRoot);
     }
 }
 
@@ -834,7 +834,7 @@ void mapTreeResolveNodeAssets(MapBspNode *node, MapVisNode *vis) {
 }
 
 
-void func_8062D26C(void *targetId) {
+void renderEntryPurgeObject(void *targetId) {
     u8 removed;
     s16 chunk;
 
@@ -844,7 +844,7 @@ void func_8062D26C(void *targetId) {
 
 
 s32 mapPurgeNodeList(void *targetId, s16 *outChunk, u8 all) {
-    return mapTreePurgeNodeList(D_807F5DE4, D_807F5E60, targetId, outChunk, all);
+    return mapTreePurgeNodeList(gMapBspRoot, gMapVisRoot, targetId, outChunk, all);
 }
 
 
@@ -871,7 +871,7 @@ u8 mapTreePurgeNodeList(MapBspNode *node, MapVisNode *vis, void *targetId, s16 *
 
 
 void mapDistributeEntries(RenderEntry *entries) {
-    mapTreeDistributeEntries(D_807F5DE4, D_807F5E60, entries);
+    mapTreeDistributeEntries(gMapBspRoot, gMapVisRoot, entries);
 }
 
 
@@ -1002,7 +1002,7 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
 
 
 s32 mapNodeBoxInFrustum(MapBspNode *node, f32 camX, f32 camY, f32 camZ) {
-    return mapBspBoxInFrustum(node->unkA0, node->unkA2, node->unkA4, node->unkA6, node->unkA8, node->unkAA, camX, camY, camZ, D_807F5FA8, gFrustumPlanes);
+    return mapBspBoxInFrustum(node->minX, node->minY, node->minZ, node->maxX, node->maxY, node->maxZ, camX, camY, camZ, gFrustumDepth, gFrustumPlanes);
 }
 
 extern f32 sViewPlane[];
@@ -1254,14 +1254,14 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     f32 nz;
     f32 d;
     *outVisMode = mapBspPlaneDistanceCheck(node, x, y, z);
-    nx = node->unk4C; ny = node->unk50; nz = node->unk54; // LAYOUT: one line lets as1 emit the loads (0x4080-0x4088) and their spills (0x4148-0x4150) as nz, ny, nx; separate lines: text=8
-    d = node->unk58;
-    ea[0] = node->unk5C[2] - node->unk5C[0];
-    ea[1] = node->unk62[2] - node->unk62[0];
-    ea[2] = node->unk68[2] - node->unk68[0];
-    eb[0] = node->unk5C[1] - node->unk5C[0];
-    eb[1] = node->unk62[1] - node->unk62[0];
-    eb[2] = node->unk68[1] - node->unk68[0];
+    nx = node->planeNx; ny = node->planeNy; nz = node->planeNz; // LAYOUT: one line lets as1 emit the loads (0x4080-0x4088) and their spills (0x4148-0x4150) as nz, ny, nx; separate lines: text=8
+    d = node->planeD;
+    ea[0] = node->planeVertX[2] - node->planeVertX[0];
+    ea[1] = node->planeVertY[2] - node->planeVertY[0];
+    ea[2] = node->planeVertZ[2] - node->planeVertZ[0];
+    eb[0] = node->planeVertX[1] - node->planeVertX[0];
+    eb[1] = node->planeVertY[1] - node->planeVertY[0];
+    eb[2] = node->planeVertZ[1] - node->planeVertZ[0];
     c[0] = ea[1] * eb[2] - ea[2] * eb[1];
     c[1] = ea[2] * eb[0] - ea[0] * eb[2];
     c[2] = ea[0] * eb[1] - ea[1] * eb[0];
@@ -1272,9 +1272,9 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     n[0] = n[0] * 20.0f;
     n[1] = n[1] * 20.0f;
     n[2] = n[2] * 20.0f;
-    p[0] = node->unk5C[0] + n[0];
-    p[1] = node->unk62[0] + n[1];
-    p[2] = node->unk68[0] + n[2];
+    p[0] = node->planeVertX[0] + n[0];
+    p[1] = node->planeVertY[0] + n[1];
+    p[2] = node->planeVertZ[0] + n[2];
     s1 = nx * x + ny * y + nz * z + d;
     if (s1 > 0.0) {
         if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
@@ -1301,8 +1301,8 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
     f64 t;
 
     i = 0;
-    dot = node->unk4C * x + node->unk50 * y + node->unk54 * z + node->unk58;
-    denom = sqrtf(node->unk4C * node->unk4C + node->unk50 * node->unk50 + node->unk54 * node->unk54);
+    dot = node->planeNx * x + node->planeNy * y + node->planeNz * z + node->planeD;
+    denom = sqrtf(node->planeNx * node->planeNx + node->planeNy * node->planeNy + node->planeNz * node->planeNz);
     dist = dot / denom;
     absd = dist;
     if (dist < 0.0) {
@@ -1312,10 +1312,10 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
         return 2;
     }
     do {
-        dx = D_807F5E20[i][0] - x;
-        dy = D_807F5E20[i][1] - y;
-        dz = D_807F5E20[i][2] - z;
-        denom = node->unk4C * dx + node->unk50 * dy + node->unk54 * dz;
+        dx = gFrustumCorners[i][0] - x;
+        dy = gFrustumCorners[i][1] - y;
+        dz = gFrustumCorners[i][2] - z;
+        denom = node->planeNx * dx + node->planeNy * dy + node->planeNz * dz;
         if (denom > 0.01 || denom < -0.01) {
             t = dot / denom;
             if (t <= 0.0 && 0.0 - t <= 1.0) {
@@ -1412,7 +1412,7 @@ extern s16 D_807F9450;
 extern s16 D_807F9452;
 extern s16 D_807F9454;
 extern s16 D_807F9456;
-extern s16 D_807FD574;
+extern s16 gMapHeaderSpawnPos;
 extern s16 D_807FD576;
 extern s16 D_807FD578;
 extern s16 gMapBoundMinX;
@@ -1433,64 +1433,64 @@ void mapHeaderLoad(MapFileHeader *header) {
     s32 pad[5];
     s32 effectSlotCount;
 
-    D_807F5DE0 = (u8 *)header;
+    gMapFileBase = (u8 *)header;
     effectSlotCount = 0;
-    D_807F5FDC = cosApprox(0.7853981853f);
-    fogSetParams(header->unk8 & 1);
-    renderSetSegment6Override((header->unk8 >> 1) & 1);
-    gGfxFarClip = header->unkA;
-    D_807FB5E0 = header->unk14 << 3;
-    D_807FB5E4 = header->unk16 << 3;
-    D_807FB5E8 = header->unk10;
-    D_807FB5EA = header->unk12;
-    D_807F9450 = header->unk1C;
-    D_807F9452 = header->unk1E;
-    D_807F9454 = header->unk18;
-    D_807F9456 = header->unk1A;
-    D_807FD574 = header->unk20;
-    D_807FD576 = header->unk22;
-    D_807FD578 = header->unk24;
-    gMapBoundMinX = header->unk26;
-    gMapBoundMinZ = header->unk28;
-    gMapBoundMaxX = header->unk2A;
-    gMapBoundMaxZ = header->unk2C;
-    trackOff = header->unk40;
-    bspOff = header->unk30;
+    gDefaultFovCos = cosApprox(0.7853981853f);
+    fogSetParams(header->renderFlags & 1);
+    renderSetSegment6Override((header->renderFlags >> 1) & 1);
+    gGfxFarClip = header->farClip;
+    D_807FB5E0 = header->staticCellSizeX << 3;
+    D_807FB5E4 = header->staticCellSizeZ << 3;
+    D_807FB5E8 = header->staticCellsX;
+    D_807FB5EA = header->staticCellsZ;
+    D_807F9450 = header->meshCellSizeX;
+    D_807F9452 = header->meshCellSizeZ;
+    D_807F9454 = header->meshCellsX;
+    D_807F9456 = header->meshCellsZ;
+    gMapHeaderSpawnPos = header->defaultSpawnX;
+    D_807FD576 = header->defaultSpawnY;
+    D_807FD578 = header->defaultSpawnZ;
+    gMapBoundMinX = header->boundMinX;
+    gMapBoundMinZ = header->boundMinZ;
+    gMapBoundMaxX = header->boundMaxX;
+    gMapBoundMaxZ = header->boundMaxZ;
+    trackOff = header->trackPointsOff;
+    bspOff = header->bspOff;
     dlOff = header->dlBase;
-    dlEndOff = header->unk38;
-    emitterOff = header->unk44;
-    chunkAnimOff = header->unk48;
-    gMinecartTrackCount = *(s32 *)(D_807F5DE0 + trackOff) + 1;
-    gMinecartTrackPoints = (TargetVec3f **)(D_807F5DE0 + trackOff + 4);
-    sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + emitterOff);
-    sMapSoundEmitters = (LevelSoundEmitter *)(D_807F5DE0 + emitterOff + 4);
-    sMapChunkAnimCount = *(s32 *)(D_807F5DE0 + chunkAnimOff);
-    sMapChunkAnims = (MapChunkAnim *)(D_807F5DE0 + chunkAnimOff + 4);
-    D_807F5DE4 = (MapBspNode *)(D_807F5DE0 + bspOff);
-    D_807F5DE8 = (s32)(D_807F5DE0 + dlEndOff);
-    gMapDisplayListBase = D_807F5DE0 + dlOff;
+    dlEndOff = header->vtxBase;
+    emitterOff = header->soundEmittersOff;
+    chunkAnimOff = header->chunkAnimsOff;
+    gMinecartTrackCount = *(s32 *)(gMapFileBase + trackOff) + 1;
+    gMinecartTrackPoints = (TargetVec3f **)(gMapFileBase + trackOff + 4);
+    sMapSoundEmitterCount = *(s32 *)(gMapFileBase + emitterOff);
+    sMapSoundEmitters = (LevelSoundEmitter *)(gMapFileBase + emitterOff + 4);
+    sMapChunkAnimCount = *(s32 *)(gMapFileBase + chunkAnimOff);
+    sMapChunkAnims = (MapChunkAnim *)(gMapFileBase + chunkAnimOff + 4);
+    gMapBspRoot = (MapBspNode *)(gMapFileBase + bspOff);
+    gMapVtxBase = (s32)(gMapFileBase + dlEndOff);
+    gMapDisplayListBase = gMapFileBase + dlOff;
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
-    matrixCacheInit(header->unkE << 10);
-    mapTreeRelocate((MapBspNode *)((s32)D_807F5DE0 + bspOff), (s32)D_807F5DE0 + bspOff, (s32)D_807F5DE0 + dlOff);
-    displayListResolveTextureImages((Gfx *)(D_807F5DE0 + dlOff), (Gfx *)(D_807F5DE0 + dlEndOff));
-    mapRelocateOffsetTable((s32)(D_807F5DE0 + trackOff));
+    matrixCacheInit(header->matrixCacheLimitKb << 10);
+    mapTreeRelocate((MapBspNode *)((s32)gMapFileBase + bspOff), (s32)gMapFileBase + bspOff, (s32)gMapFileBase + dlOff);
+    displayListResolveTextureImages((Gfx *)(gMapFileBase + dlOff), (Gfx *)(gMapFileBase + dlEndOff));
+    mapRelocateOffsetTable((s32)(gMapFileBase + trackOff));
     mapSurfaceEffectsReset();
-    mapNodeTreeInitSurfaceEffects(D_807F5DE4, &effectSlotCount);
+    mapNodeTreeInitSurfaceEffects(gMapBspRoot, &effectSlotCount);
     mapOffsetSlotsInit(effectSlotCount);
-    D_807F5E60 = mapTreeCloneShape(D_807F5DE4);
+    gMapVisRoot = mapTreeCloneShape(gMapBspRoot);
     mapChunksInitFromMapData(header);
     collisionInitStaticCache(header);
     collisionBuildCellTable(header);
     effectWaterInitNodes(header);
     actorTargetTableLoad(header);
     triggerZoneInit(header);
-    func_8062F318();
+    renderEnableOnePrimitiveMode();
 }
 
 
-void func_8062F318(void) {
-    D_807F5FED = 1;
+void renderEnableOnePrimitiveMode(void) {
+    gRenderOnePrimitive = 1;
 }
 
 
@@ -1561,7 +1561,7 @@ void mapTreeRelocate(MapBspNode *node, s32 base, s32 dlBase) {
     if (node->unk18 != -1) {
         node->unk18 += dlBase;
     }
-    for (i = 0; i < node->unkC5; i++) {
+    for (i = 0; i < node->surfaceCount; i++) {
         node->unk1C[i] = (void *)((s32)node->unk1C[i] + dlBase);
     }
 }

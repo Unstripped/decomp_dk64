@@ -670,7 +670,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
 
     patrol = B7490A->typeState;
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80724CA4(1, 1);
+        actorAllocBoneRotations(1, 1);
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         patrol->hoverHeight = gBehaviourExtraState->unkA;

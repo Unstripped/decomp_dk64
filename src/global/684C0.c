@@ -42,8 +42,8 @@ void triggerZoneInit(MapFileHeader *header) {
     TriggerZoneNode *newNode;
 
     link = &D_807F9410;
-    zoneCount = *(s32 *)(header->unk54 + (u8 *)header);
-    zones = (TriggerZoneData *)((s32 *)(header->unk54 + (u8 *)header) + 1);
+    zoneCount = *(s32 *)(header->triggerZonesOff + (u8 *)header);
+    zones = (TriggerZoneData *)((s32 *)(header->triggerZonesOff + (u8 *)header) + 1);
     *link = NULL;
     for (i = 0; i < zoneCount; i++) {
         newNode = heapAlloc(sizeof(TriggerZoneNode));

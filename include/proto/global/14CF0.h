@@ -2,8 +2,8 @@
 #ifndef PROTO_GLOBAL_14CF0_H
 #define PROTO_GLOBAL_14CF0_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_8060FFF0
-void func_8060FFF0(void);
+#ifndef PROTO_SKIP_schedInitGfxUcodes
+void schedInitGfxUcodes(void);
 #endif
 #ifndef PROTO_SKIP_schedSubmitGfxTask
 void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);

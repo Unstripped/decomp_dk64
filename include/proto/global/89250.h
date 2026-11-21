@@ -102,8 +102,8 @@ void effectActorGrowthTick(void);
 #ifndef PROTO_SKIP_effectSpawnActorBoneEffects
 void effectSpawnActorBoneEffects(u8);
 #endif
-#ifndef PROTO_SKIP_func_80687400
-void func_80687400(void);
+#ifndef PROTO_SKIP_effectScreenCenterFlash
+void effectScreenCenterFlash(void);
 #endif
 #ifndef PROTO_SKIP_actorSpawnAttachment
 void actorSpawnAttachment(Actor *, f32);

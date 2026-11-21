@@ -5,8 +5,8 @@
 #ifndef PROTO_SKIP_effectSpawnRandomParticleAtPoint
 void effectSpawnRandomParticleAtPoint(s16, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806B8BDC
-void func_806B8BDC(s16, s16, s16);
+#ifndef PROTO_SKIP_effectSpawnSinkingSpark
+void effectSpawnSinkingSpark(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_806B8C78
 void func_806B8C78(void);

@@ -5,14 +5,14 @@
 #ifndef PROTO_SKIP_actorUpdatePulseIntensity
 void actorUpdatePulseIntensity(u8);
 #endif
-#ifndef PROTO_SKIP_func_806B6958
-void func_806B6958(void);
+#ifndef PROTO_SKIP_behaviourPulseEnemyDeathChaserUpdate
+void behaviourPulseEnemyDeathChaserUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B6C88
-void func_806B6C88(s16, s16);
+#ifndef PROTO_SKIP_behaviourPulseEnemySpawnDeathChaser
+void behaviourPulseEnemySpawnDeathChaser(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806B6DB0
-void func_806B6DB0(s32);
+#ifndef PROTO_SKIP_behaviourPulseEnemyUpdate
+void behaviourPulseEnemyUpdate(s32);
 #endif
 #ifndef PROTO_SKIP_func_806B75F4
 void func_806B75F4(void);

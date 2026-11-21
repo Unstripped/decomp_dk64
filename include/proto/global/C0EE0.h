@@ -6,8 +6,8 @@
 #ifndef PROTO_SKIP_enemyGridStateStep
 void enemyGridStateStep(void);
 #endif
-#ifndef PROTO_SKIP_func_806BCF98
-Gfx *func_806BCF98(Gfx *, Actor *);
+#ifndef PROTO_SKIP_enemyGridDrawYesNoPrompt
+Gfx *enemyGridDrawYesNoPrompt(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_enemyGridCellSet
 void enemyGridCellSet(s16, s8);

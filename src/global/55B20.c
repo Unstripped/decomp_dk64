@@ -154,7 +154,7 @@ typedef struct MapPortal {
     /* 0xC */ s32 dl1;
 } MapPortal;
 
-extern s32 D_807F5DE8;
+extern s32 gMapVtxBase;
 extern s32 gMapCellCount;
 extern u8 D_807F70AB;
 extern s16 gMapFogDist;
@@ -260,7 +260,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
             gMapChunks[n].translucentList = NULL;
             gMapChunks[n].sprites = NULL;
             gMapChunks[n].streamFlags = 4;
-            gMapChunks[n].baseVtx = (u8 *)(*(s32 *)(p + 0x2C) + D_807F5DE8);
+            gMapChunks[n].baseVtx = (u8 *)(*(s32 *)(p + 0x2C) + gMapVtxBase);
             gMapChunks[n].curVtx = gMapChunks[n].baseVtx;
             lightSetTargetColor(p[0] / 255.0, p[1] / 255.0, p[2] / 255.0, n);
             lightCopyTargetColors(n);
@@ -1208,8 +1208,8 @@ void mapChunkSetIndexOverride(s8 index) {
 
 extern PlanePoly gFrustumPlanes[];
 extern u8 gGfxBufferIndex;
-extern f32 D_807F5FB4;
-extern f32 D_807F5FB0;
+extern f32 gViewFov;
+extern f32 gViewAspect;
 extern u8 sMapVisiblePortalCount;
 
 void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
@@ -1219,9 +1219,9 @@ void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
     }
     mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].farClip, gPlayerSlots[gCurrentPlayerIndex].camChunk);
     gMapFogDist = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].farClip;
-    frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)gMapFogDist);
+    frustumCalculateCornerRays(gViewFov, gViewAspect, (f32)gMapFogDist);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(x, y, z, gFrustumPlanes, D_807F5E20[0]);
+    frustumOrientPolyNormals(x, y, z, gFrustumPlanes, gFrustumCorners[0]);
     mapChunkClearBounds();
     mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].camChunk);
     mapTriggerCollectZonesAtPoint(x, y, z);
@@ -1371,7 +1371,7 @@ void mapChunkRenderNodes(f32 x, f32 y, f32 z) {
     mapTriggerApplyZones(x, y, z);
 }
 
-extern f32 D_807F5FAC;
+extern f32 gViewFarClip;
 extern PlanePoly D_807F7148[];
 
 void mapChunkBuildClipFrusta(f32 x, f32 y, f32 z) {
@@ -1380,7 +1380,7 @@ void mapChunkBuildClipFrusta(f32 x, f32 y, f32 z) {
     s32 i;
     f32 corners[4][3];
 
-    frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FAC);
+    frustumCalculateCornerRays(gViewFov, gViewAspect, gViewFarClip);
     guMtxL2F(viewMtx, &gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
     matrix4Invert(invMtx, viewMtx);
     for (i = 0; i < gMapChunkCount; i++) {
@@ -1684,7 +1684,7 @@ void mapCellUpdateVisibility(f32 x, f32 y, f32 z, s32 parent) {
                 idx = gMapCells[i].id;
                 if (mapBspBoxInFrustum(gMapCellBoxes[idx].minX, gMapCellBoxes[idx].minY, gMapCellBoxes[idx].minZ,
                                   gMapCellBoxes[idx].maxX, gMapCellBoxes[idx].maxY, gMapCellBoxes[idx].maxZ,
-                                  x, y, z, D_807F5FAC,
+                                  x, y, z, gViewFarClip,
                                   &gMapChunks[gMapCells[i].chunk].frustum[0]) != 0) {
                     gMapCells[i].visible = 1;
                     gMapCells[i].seen = 1;
@@ -1841,10 +1841,10 @@ extern s16 sMapVisiblePortals[];
 
 
 
-extern u8 D_807F5FEC;
+extern u8 gMapFirstViewPending;
 extern void *gMapDisplayListBase;
 extern u8 gRenderSetupKind;
-extern void *D_807F600C;
+extern void *gRenderLoadedTexture;
 extern struct RenderEntry *gRenderListSorted;
 extern Gfx D_2000180;
 
@@ -1858,11 +1858,11 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
     u8 flag;
 
     idx = 0;
-    flag = (D_807F5FEC != 0) && (gPlayerSlots[gCurrentPlayerIndex].fov == 45.0);
+    flag = (gMapFirstViewPending != 0) && (gPlayerSlots[gCurrentPlayerIndex].fov == 45.0);
     gDPPipeSync(gfx++);
     if (flags & 0x10) {
         gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
         gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
         gfx = mapViewDrawPass(gfx, view, 1);
         if (view->dl != -1) {
@@ -1949,7 +1949,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
     }
     if (flags & 0x10) {
         gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
         gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
         gfx = mapViewDrawPass(gfx, view, 2);
         if (gGlobalOverlayFlags & 0x1000) {
@@ -1982,7 +1982,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
     }
     if (flags & 0x10) {
         gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
+        gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
         gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
         gfx = mapViewDrawPass(gfx, view, 3);
         gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -1991,7 +1991,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
     gDPPipeSync(gfx++);
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
-    D_807F600C = NULL;
+    gRenderLoadedTexture = NULL;
     gfx = renderEntryListBuildDisplayList(gfx, gRenderListSorted, x, y, z, flags, -1, 0);
     return billboardRenderQueued(gfx, -1);
 }

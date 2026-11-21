@@ -18,11 +18,11 @@ void actorPhotoUpdateEntry(void);
 #ifndef PROTO_SKIP_func_806998E8
 void func_806998E8(void);
 #endif
-#ifndef PROTO_SKIP_func_806998F0
-void func_806998F0(void);
+#ifndef PROTO_SKIP_actorBridgeUpdate
+void actorBridgeUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_80699914
-void func_80699914(void);
+#ifndef PROTO_SKIP_actorLongBridgeUpdate
+void actorLongBridgeUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorSagWaveUpdate
 void actorSagWaveUpdate(u8, u8);
@@ -45,8 +45,8 @@ void actorSpotLightUpdateEntry(void);
 #ifndef PROTO_SKIP_actorNumberedTargetUpdate
 void actorNumberedTargetUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_8069B3FC
-void func_8069B3FC(void);
+#ifndef PROTO_SKIP_actorPlayerWarpEffectUpdate
+void actorPlayerWarpEffectUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorHasCallbackTargetThisFrame
 s32 actorHasCallbackTargetThisFrame(void);
@@ -63,20 +63,20 @@ void actorSpawnEffectAndTick(void);
 #ifndef PROTO_SKIP_carryObjectUpdateWithDrawDistance
 void carryObjectUpdateWithDrawDistance(void);
 #endif
-#ifndef PROTO_SKIP_func_8069D058
-void func_8069D058(void);
+#ifndef PROTO_SKIP_actorUrnType1Update
+void actorUrnType1Update(void);
 #endif
-#ifndef PROTO_SKIP_func_8069D078
-void func_8069D078(void);
+#ifndef PROTO_SKIP_actorUrnType2Update
+void actorUrnType2Update(void);
 #endif
-#ifndef PROTO_SKIP_func_8069D098
-void func_8069D098(void);
+#ifndef PROTO_SKIP_actorUrnType3Update
+void actorUrnType3Update(void);
 #endif
-#ifndef PROTO_SKIP_func_8069D0B8
-void func_8069D0B8(void);
+#ifndef PROTO_SKIP_actorUrnType4Update
+void actorUrnType4Update(void);
 #endif
-#ifndef PROTO_SKIP_func_8069D0D8
-void func_8069D0D8(void);
+#ifndef PROTO_SKIP_actorChunkyCannonballUpdate
+void actorChunkyCannonballUpdate(void);
 #endif
 #ifndef PROTO_SKIP_textSpawnMarker
 void textSpawnMarker(u8, s16, s16, u8 *, u16, u16, u8, u8);

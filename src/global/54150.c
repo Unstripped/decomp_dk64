@@ -21,13 +21,13 @@ void modelSlotAllocAnimBuffers(ModelData **outAnim, ModelAssetHeader *asset) {
     s32 j;
     ModelAnimEntry *entry;
 
-    if (asset->unk64 != asset->unk68) {
+    if (asset->animNodesOff != asset->animDataOff) {
         anim = heapAlloc(sizeof(ModelData));
         *outAnim = anim;
-        frameSize = *(u32 *)(asset->unk68 + (u8 *)asset);
+        frameSize = *(u32 *)(asset->animDataOff + (u8 *)asset);
         anim->frames[0] = heapAlloc(frameSize);
         anim->frames[1] = heapAlloc(frameSize);
-        data = asset->unk68 + (u8 *)asset;
+        data = asset->animDataOff + (u8 *)asset;
         dataSize = *(u32 *)(data + 4);
         memcpy(anim->frames[0], data + 8, dataSize);
         memcpy(anim->frames[1], data + 8, dataSize);
@@ -40,7 +40,7 @@ void modelSlotAllocAnimBuffers(ModelData **outAnim, ModelAssetHeader *asset) {
             mtx0++;
             mtx1++;
         }
-        nodeTable = asset->unk64 + (u8 *)asset;
+        nodeTable = asset->animNodesOff + (u8 *)asset;
         for (j = 0; j < 10; j++) {
             entry = &anim->entries[j];
             entry->node = (ModelAnimNodeHeader *)(nodeTable + ((u32 *)nodeTable)[j]);
@@ -65,7 +65,7 @@ extern ModelSlot *gModelSlots;
 u32 modelSlotDataSize(s16 slot) {
     ModelAssetHeader *asset = gModelSlots[slot].asset;
 
-    return *(u32 *)(asset->unk68 + (u8 *)asset);
+    return *(u32 *)(asset->animDataOff + (u8 *)asset);
 }
 
 void modelSlotCopyData(u8 *src, s16 slot) {
@@ -83,7 +83,7 @@ void modelSlotCopyData(u8 *src, s16 slot) {
 
     asset = gModelSlots[slot].asset;
     anim = gModelSlots[slot].anim;
-    size = *(u32 *)(asset->unk68 + (u8 *)asset);
+    size = *(u32 *)(asset->animDataOff + (u8 *)asset);
     memcpy(anim->frames[0], src, size);
     memcpy(anim->frames[1], src, size);
     modelSlotGetTransformVectors(slot, &x, &y, &z, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);

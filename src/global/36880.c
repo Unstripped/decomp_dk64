@@ -304,7 +304,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
                 }
                 if (found == 0 && modelSkipListContains(entry->modelType) == 0 &&
                     flagGetForMapObject(gCurrentMap, entry->mapObjectId) == 0 &&
-                    func_8063253C(entry->modelType, map) != 0) {
+                    modelTypeAllowedOnMap(entry->modelType, map) != 0) {
                     gModelSlots[outCount].x = entry->x;
                     gModelSlots[outCount].y = entry->y;
                     gModelSlots[outCount].z = entry->z;
@@ -331,7 +331,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
         }
         mapDistributeEntries(renderList);
         renderEntryListFree(renderList);
-        func_8062D1A8();
+        mapResolveNodeAssets();
         csScriptLoad(assetLoad(0xA, gCurrentMap, 1, 0));
         n = *(s32 *)entry;
         rec = (ModelCsVarsRecord *)((s32 *)entry + 1);
@@ -487,7 +487,7 @@ void modelNodeListSyncFlags(RenderEntry *node) {
     }
 }
 
-s32 func_8063253C(s16 type, s32 map) {
+s32 modelTypeAllowedOnMap(s16 type, s32 map) {
     return 1;
 }
 
@@ -526,7 +526,7 @@ s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     if (force == 0 && D_807F6008 != 0) {
         return -1;
     }
-    scale = func_80636A44(type);
+    scale = modelTypeGetDefaultScale(type);
     gModelSlots[gModelSlotCount].x = x;
     gModelSlots[gModelSlotCount].y = y;
     gModelSlots[gModelSlotCount].z = z;
@@ -565,17 +565,17 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     info = gModelSlots[slot].asset;
     type = info->modelKind;
     if (gGlobalCutsceneFlags & 0x100) {
-        info->unk0 &= ~0x10;
+        info->flags &= ~0x10;
     }
     modelApplyMapOverrideValue(modelType, info);
     if (gGlobalOverlayFlags & 0x100) {
-        info->unk1E = 0x7D0;
+        info->maxDist = 0x7D0;
     } else if (gGlobalOverlayFlags & 0x400000) {
-        info->unk1E = 0x1F4;
+        info->maxDist = 0x1F4;
     }
     modelSlotAllocAnimBuffers(&gModelSlots[slot].anim, info);
     gModelSlots[slot].boxBuffer.unk14 = 0;
-    gModelSlots[slot].boxBuffer.unk15 = 0;
+    gModelSlots[slot].boxBuffer.flags = 0;
     collisionBuildSlotBoxes(slot, info, x, y, z, rotX, rotY, rotZ, scale);
     dynamicBufferFree(&gModelSlots[slot].boxBuffer);
     modelSlotClearTail(slot);
@@ -597,7 +597,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
             obj2->id = gModelSlotNextId;
             obj2->flags = flags;
             obj2->light = light;
-            obj2->maxDist = info->unk1E;
+            obj2->maxDist = info->maxDist;
             obj2->fullBright = info->fullBright;
             obj2->surfaceType = groundSurfaceTypeAt(x, y, z);
         }
@@ -612,7 +612,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
         obj1->rotZ = rotZ;
         obj1->yOffset = yOffset;
         obj1->id = gModelSlotNextId;
-        obj1->maxDist = info->unk1E;
+        obj1->maxDist = info->maxDist;
         obj1->fullBright = info->fullBright;
         obj1->light = light;
         obj1->surfaceType = groundSurfaceTypeAt(x, y, z);
@@ -628,27 +628,27 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     gModelSlots[slot].modelType = modelType;
     gModelSlots[slot].modelKind = type;
     gModelSlots[slot].csState = NULL;
-    if (info->unk28 != -1) {
+    if (info->spriteTexture != -1) {
         node = heapAlloc(0x38);
         *link = node;
         node->unk34 = 0;
         node->scaleXZ = 1.0f;
-        node->baseHalfWidth = info->unk2E;
-        node->baseHalfDepth = info->unk30;
-        node->texFormat = info->unk34;
-        node->texSize = info->unk35;
-        node->texWidth = info->unk32;
-        node->texHeight = info->unk33;
-        node->animTextureId = info->unk2A;
-        node->yawOffset = info->unk2C;
-        node->fullAlphaDist = info->unk36 * 10;
-        node->maxDist = info->unk37 * 10;
-        node->baseAlpha = info->unk38;
-        node->zBuffered = info->unk39;
-        node->asset = assetLoad(0x19, info->unk28, 1, 0);
+        node->baseHalfWidth = info->spriteHalfWidth;
+        node->baseHalfDepth = info->spriteHalfDepth;
+        node->texFormat = info->spriteTexFormat;
+        node->texSize = info->spriteTexSize;
+        node->texWidth = info->spriteTexWidth;
+        node->texHeight = info->spriteTexHeight;
+        node->animTextureId = info->spriteAnimTextureId;
+        node->yawOffset = info->spriteYawOffset;
+        node->fullAlphaDist = info->spriteFullAlphaDist * 10;
+        node->maxDist = info->spriteMaxDist * 10;
+        node->baseAlpha = info->spriteBaseAlpha;
+        node->zBuffered = info->spriteZBuffered;
+        node->asset = assetLoad(0x19, info->spriteTexture, 1, 0);
         modelSlotUpdateGroundCoords(slot, 0);
     }
-    *renderListInOut = renderEntryAddOrUpdate(renderList, type, gModelSlots[slot].renderObj, x, y, z, info->unk1E, gModelSlotNextId, 0, 0, 0);
+    *renderListInOut = renderEntryAddOrUpdate(renderList, type, gModelSlots[slot].renderObj, x, y, z, info->maxDist, gModelSlotNextId, 0, 0, 0);
     gModelSlotNextId += 1;
     return gModelSlotNextId - 1;
 }
@@ -694,7 +694,7 @@ void modelApplyMapOverrideValue(s32 id, ModelAssetHeader *info) {
     count = sizeof(gMapModelOverrideValues) / sizeof(gMapModelOverrideValues[0]);
     for (i = 0; i < count; i++) {
         if (gCurrentMap == gMapModelOverrideValues[i].map && id == gMapModelOverrideValues[i].id) {
-            info->unk1E = gMapModelOverrideValues[i].val;
+            info->maxDist = gMapModelOverrideValues[i].val;
             return;
         }
     }
@@ -785,8 +785,8 @@ void modelSlotBuildProxPaths(s16 id, ModelAssetHeader *paths, f32 scale) {
     f32 az;
     f32 len;
 
-    count = *(s32 *)(paths->unk5C + (s32)paths);
-    tbl = (ModelPathEntry *)((u8 *)(paths->unk5C + (s32)paths) + 4);
+    count = *(s32 *)(paths->proxPathsOff + (s32)paths);
+    tbl = (ModelPathEntry *)((u8 *)(paths->proxPathsOff + (s32)paths) + 4);
     for (i = 1; i <= count; i++) {
         len = 0.0f;
         for (j = 0; j < tbl[i - 1].segCount; j++) {
@@ -825,7 +825,7 @@ void modelSlotBuildVertPosList(s32 slot, ModelAssetHeader *verts, f32 x, f32 y, 
     if (mode == 0) {
         *tail = NULL;
     }
-    tbl = (s32 *)(verts->unk54 + (s32)verts);
+    tbl = (s32 *)(verts->attachPointsOff + (s32)verts);
     count = *tbl;
     vert = (ModelVert *)(tbl + 1);
     if (count != 0) {
@@ -895,7 +895,7 @@ Mtx *modelSlotGetNodeMatrix(s32 slot, u8 isId, s32 index) {
         idx = hashTableLookup(slot);
     }
     verts = gModelSlots[idx].asset;
-    vert = (ModelVert *)((s32 *)(verts->unk58 + (s32)verts) + 1);
+    vert = (ModelVert *)((s32 *)(verts->nodesOff + (s32)verts) + 1);
     for (index--; vert != NULL && index != 0; index--) {
         vert++;
     }
@@ -919,7 +919,7 @@ void modelSlotBuildNodePosList(s32 slot, ModelAssetHeader *verts, f32 x, f32 y, 
     if (mode == 0) {
         *tail = NULL;
     }
-    tbl = (s32 *)(verts->unk58 + (s32)verts);
+    tbl = (s32 *)(verts->nodesOff + (s32)verts);
     count = *tbl;
     vert = (ModelVert *)(tbl + 1);
     if (count != 0) {
@@ -1023,13 +1023,13 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     } else {
         animFrame = NULL;
     }
-    boneTable = data->unk60 + (u8 *)data;
-    if (data->unk0 & 4) {
+    boneTable = data->bonesOff + (u8 *)data;
+    if (data->flags & 4) {
         buf->flags |= 2;
     } else {
         buf->flags &= ~2;
     }
-    count = *(s32 *)(data->unk50 + (u8 *)data);
+    count = *(s32 *)(data->trisOff + (u8 *)data);
     if (count == 0) {
         buf->tri_start = NULL;
         buf->tri_end = NULL;
@@ -1041,7 +1041,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
         buf->tri_start = heapAlloc(count * 0x28);
     }
     buf->flags |= 4;
-    entry = (ModelAssetTri *)(data->unk50 + (u8 *)data + 0x10);
+    entry = (ModelAssetTri *)(data->trisOff + (u8 *)data + 0x10);
     out = buf->tri_start;
     guScaleF(mtx, scale, scale, scale);
     guRotateF(rotMtx, rotX, 1.0f, 0.0f, 0.0f);
@@ -1052,7 +1052,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     guMtxCatF(mtx, rotMtx, mtx);
     guTranslateF(rotMtx, x, y, z);
     guMtxCatF(mtx, rotMtx, mtx);
-    boundsTransformToAabb(mtx, data->unk50 + (u8 *)data + 4, buf);
+    boundsTransformToAabb(mtx, data->trisOff + (u8 *)data + 4, buf);
     for (i = 0; i < count; i++) {
         if (entry->bone == -1) {
             if (modelTriangleTransform(entry, out, mtx) != 0) {
@@ -1177,8 +1177,8 @@ void modelSlotLinkTexAnimTextures(ModelAssetHeader *asset, ModelSlot *slot) {
     if (node != NULL) {
         do {
             key = node->frameTextures[0];
-            n = *(s32 *)(asset->unk70 + (u8 *)asset);
-            p = (s16 *)(asset->unk70 + (u8 *)asset + 4);
+            n = *(s32 *)(asset->quadsOff + (u8 *)asset);
+            p = (s16 *)(asset->quadsOff + (u8 *)asset + 4);
             found = 0;
             idx = 0;
             if (n != 0) {
@@ -1217,7 +1217,7 @@ void modelSlotInitTexAnimNodes(ModelAssetHeader *asset, ModelSlot *slot, s32 typ
     s32 len2;
     s32 *tbl;
 
-    tbl = (s32 *)(asset->unk6C + (u8 *)asset);
+    tbl = (s32 *)(asset->texAnimsOff + (u8 *)asset);
     count = *tbl;
     entry = tbl + 1;
     switch (type) {
@@ -1481,13 +1481,13 @@ void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 r
 
     data = owner->asset;
     out = owner->renderObj;
-    q = (ModelQuadData *)(data->unk70 + (u8 *)data + 4);
+    q = (ModelQuadData *)(data->quadsOff + (u8 *)data + 4);
     out->x = x;
     out->y = y;
     out->z = z;
     out->scale = scale;
     out->yOffset = yOffset;
-    out->quadCount = *(s32 *)(data->unk70 + (u8 *)data);
+    out->quadCount = *(s32 *)(data->quadsOff + (u8 *)data);
     sum = 0;
     out->verts = heapAlloc(out->quadCount << 6);
     for (i = 0; i < out->quadCount; i++) {
@@ -1530,8 +1530,8 @@ void modelSlotLoadAssetTextures(ModelAssetHeader *asset, ModelSlotAsset *texture
     s32 i;
     s16 *src;
 
-    src = (s16 *)(asset->unk70 + (u8 *)asset + 4);
-    if (*(s32 *)(asset->unk6C + (u8 *)asset) != 0) {
+    src = (s16 *)(asset->quadsOff + (u8 *)asset + 4);
+    if (*(s32 *)(asset->texAnimsOff + (u8 *)asset) != 0) {
         type = 7;
     } else {
         type = 0x19;
@@ -1698,13 +1698,13 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
         }
     }
     if ((setPos || setYOffset) && mapPurgeNodeList(gModelSlots[slot].renderObj, &purgeOut, 0)) {
-        renderEntryAddOrUpdate(0, gModelSlots[slot].modelKind, gModelSlots[slot].renderObj, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].asset->unk1E, gModelSlots[slot].id, 0, purgeOut, 2);
+        renderEntryAddOrUpdate(0, gModelSlots[slot].modelKind, gModelSlots[slot].renderObj, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].asset->maxDist, gModelSlots[slot].id, 0, purgeOut, 2);
     }
     if (setPos || setYOffset || setRot) {
         modelEmitterSetPosition(gModelSlots[slot].id, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].scale, gModelSlots[slot].rotY);
     }
     if (gModelSlots[slot].csState != NULL) {
-        sel = gModelSlots[slot].csState->unk67;
+        sel = gModelSlots[slot].csState->collisionRebuildMode;
         switch (sel) {
             case 0:
                 flag = 1;
@@ -1724,7 +1724,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
             case 3:
             case 4:
                 if (gPlayerSlots != NULL) {
-                    flag = activeActorBoxOverlapTest(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].csState->unk68, gModelSlots[slot].csState->unk6A, gModelSlots[slot].csState->unk6C, sel == 3 ? 0xEF : 1);
+                    flag = activeActorBoxOverlapTest(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].csState->collisionRebuildRadiusX, gModelSlots[slot].csState->collisionRebuildRadiusY, gModelSlots[slot].csState->collisionRebuildRadiusZ, sel == 3 ? 0xEF : 1);
                 }
                 break;
         }
@@ -1766,11 +1766,11 @@ s32 activeActorBoxOverlapTest(f32 x, f32 y, f32 z, s16 radiusX, s16 radiusY, s16
 }
 
 
-void func_80636014(s32 slot, u8 isId, u8 value) {
+void modelSlotSetDistanceOverride(s32 slot, u8 isId, u8 value) {
     if (isId == 1) {
         slot = hashTableLookup(slot);
     }
-    func_8062D094(gModelSlots[slot].renderObj, value);
+    mapSetDistanceOverride(gModelSlots[slot].renderObj, value);
 }
 
 
@@ -1927,10 +1927,10 @@ typedef struct DisplayListFreeRecord {
     /* 0x18 */ struct DisplayListFreeRecord *next;
 } DisplayListFreeRecord;
 
-extern DisplayListFreeRecord *D_807F6160;
+extern DisplayListFreeRecord *gDisplayListFreeQueue;
 
 void displayListFreeQueueReset(void) {
-    D_807F6160 = NULL;
+    gDisplayListFreeQueue = NULL;
 }
 
 void displayListFreeQueueAdd(s32 headStart, s32 headEnd, s32 tailStart, s32 tailEnd, ModelAssetHeader *counter) {
@@ -1938,8 +1938,8 @@ void displayListFreeQueueAdd(s32 headStart, s32 headEnd, s32 tailStart, s32 tail
     DisplayListFreeRecord *old;
 
     rec = heapAlloc(sizeof(DisplayListFreeRecord));
-    old = D_807F6160;
-    D_807F6160 = rec;
+    old = gDisplayListFreeQueue;
+    gDisplayListFreeQueue = rec;
     rec->next = old;
     rec->headStart = headStart;
     rec->headEnd = headEnd;
@@ -1956,18 +1956,18 @@ void displayListFreeQueueProcess(void) {
     DisplayListFreeRecord *prev;
     DisplayListFreeRecord *next;
 
-    cur = D_807F6160;
+    cur = gDisplayListFreeQueue;
     prev = NULL;
     if (cur != NULL) {
         do {
             next = cur->next;
             if (gFrameCounter == cur->freeFrame) {
-                cur->asset->unk3C--;
-                dlFreeUnusedTextures(cur->headStart, cur->headEnd, 0, 0, cur->asset->unk3C == 0);
-                dlFreeUnusedTextures(cur->tailStart, cur->tailEnd, 0, 1, cur->asset->unk3C == 0);
+                cur->asset->textureRefCount--;
+                dlFreeUnusedTextures(cur->headStart, cur->headEnd, 0, 0, cur->asset->textureRefCount == 0);
+                dlFreeUnusedTextures(cur->tailStart, cur->tailEnd, 0, 1, cur->asset->textureRefCount == 0);
                 assetFreeBuffer(cur->asset, 0xAB1, 7);
                 if (prev == NULL) {
-                    D_807F6160 = cur->next;
+                    gDisplayListFreeQueue = cur->next;
                 } else {
                     prev->next = cur->next;
                 }
@@ -2028,7 +2028,7 @@ void modelSegmentFreeUnusedTextures(ModelSlot *slot, ModelAssetHeader *asset, Mo
     }
     if (slot->flags & 0x20) {
         if (flag) {
-            asset->unk3C -= 1;
+            asset->textureRefCount -= 1;
             dlFreeUnusedTextures(seg->displayListA, seg->displayListA + head * 8, seg->texAnims, 0, 0);
             dlFreeUnusedTextures(seg->displayListB, seg->displayListB + tail * 8, seg->texAnims, 1, 0);
             nodes = seg->texAnims;
@@ -2120,7 +2120,7 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
     void *objData;
     RenderQuadModelObj *obj;
 
-    if (func_80636A8C(type) != 0) {
+    if (modelTypeNeedsPrivateAsset(type) != 0) {
         slot->asset = assetLoad(4, type, 1, 1);
     } else {
         slot->asset = assetLoad(4, type, 1, 0);
@@ -2147,9 +2147,9 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
         objData = seg;
         seg->modelType = type;
         seg->texAnims = 0;
-        seg->displayListA = hdr->unk40 + (u32)hdr;
-        seg->displayListB = hdr->unk44 + (u32)hdr;
-        seg->segmentData = hdr->unk48 + (u32)hdr;
+        seg->displayListA = hdr->displayListAOff + (u32)hdr;
+        seg->displayListB = hdr->displayListBOff + (u32)hdr;
+        seg->segmentData = hdr->segmentDataOff + (u32)hdr;
         seg->subNode = 0;
         seg->id = -1;
         seg->light = 0;
@@ -2157,7 +2157,7 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
     slot->renderObj = objData;
 }
 
-f32 func_80636A44(s32 type) {
+f32 modelTypeGetDefaultScale(s32 type) {
     s32 pad;
     f32 *asset;
     f32 result;
@@ -2168,7 +2168,7 @@ f32 func_80636A44(s32 type) {
     return result;
 }
 
-u8 func_80636A8C(s32 type) {
+u8 modelTypeNeedsPrivateAsset(s32 type) {
     s32 pad;
     s32 *asset;
     s32 result;
@@ -2238,11 +2238,11 @@ void modelSlotsStepSegmentCommands(void) {
             gModelSegmentStepIndex = 0;
         }
         asset = gModelSlots[gModelSegmentStepIndex].asset;
-        if (asset->unk0 & 0x10) {
-            if ((gModelSlots[gModelSegmentStepIndex].flags & 0x20) && gFrameCounter != asset->unk8) {
+        if (asset->flags & 0x10) {
+            if ((gModelSlots[gModelSegmentStepIndex].flags & 0x20) && gFrameCounter != asset->lastUsedFrame) {
                 gModelSlots[gModelSegmentStepIndex].flags &= ~0x20;
-                asset->unk3C--;
-                if (asset->unk3C != 0) {
+                asset->textureRefCount--;
+                if (asset->textureRefCount != 0) {
                     restore = 0;
                 } else {
                     restore = 1;
@@ -2277,11 +2277,11 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
     obj = slot->asset;
     seg = slot->renderObj;
     textures = slot->renderObj;
-    slot->asset->unk8 = gFrameCounter; // FAKE: store spelled as a re-read through slot->unk24 instead of obj; the target has ONE lw v0,36(a0) at 0x24 for both obj and the store (sw t8,8(v0) at 0x34, move s1,v0 at 0x40): the spelling only numbers that load candidate ahead of the slot->unk20 load
+    slot->asset->lastUsedFrame = gFrameCounter; // FAKE: store spelled as a re-read through slot->unk24 instead of obj; the target has ONE lw v0,36(a0) at 0x24 for both obj and the store (sw t8,8(v0) at 0x34, move s1,v0 at 0x40): the spelling only numbers that load candidate ahead of the slot->unk20 load
     if (!(slot->flags & 0x20)) {
-        if (!(obj->unk0 & 0x10) || force != 0) {
+        if (!(obj->flags & 0x10) || force != 0) {
             slot->flags |= 0x20;
-            obj->unk3C++;
+            obj->textureRefCount++;
             if (obj->modelKind == 1) {
                 tail = seg->segmentData - seg->displayListB;
                 cmds = seg->displayListA;
@@ -2300,7 +2300,7 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
                     if (seg->displayListA == 0) {} // FAKE: dead test only adds an empty block after the fourth call (if (1) {} matches too); without it obj takes s2, seg s1 and textures shares s0 with node (frame 0x50)
                 }
                 if (res != 0) {
-                    obj->unk0 &= ~0x10;
+                    obj->flags &= ~0x10;
                 }
             } else if (textures->texAnims != NULL || forceLoad != 0) {
                 modelSlotLoadAssetTextures(obj, textures);
@@ -2442,7 +2442,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
         slotIdx = hashTableLookup(obj->id);
         modelSlotResolveAssetTextures(&gModelSlots[slotIdx], 0, 1);
         animBuffers = gModelSlots[slotIdx].anim;
-        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].asset->unk0, gCurrentPlayerIndex) != 0) {
+        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].asset->flags, gCurrentPlayerIndex) != 0) {
             return gfx;
         }
     } else {
@@ -2465,7 +2465,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
 
         model = gModelSlots[slotIdx].csState;
         if (model != NULL) {
-            yOffset = model->unk98;
+            yOffset = model->lightYOffset;
         } else {
             yOffset = 0.0f;
         }
@@ -2544,7 +2544,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
 #define WRITE_GFX_PAIR(a, b) { Gfx *_g = (Gfx *)(gfx++); _g->words.w0 = (a); _g->words.w1 = (b); }
 
 extern u8 gRenderSetupKind;
-extern void *D_807F600C;
+extern void *gRenderLoadedTexture;
 extern s32 D_807F5FD8;
 
 
@@ -2693,7 +2693,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         case 0:
             WRITE_GFX_PAIR(0xFC1197FF, 0xFFFFFE38);
             gSPTexture(gfx++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
-            if (gRenderSetupKind != 2 || texA != (s32)D_807F600C) {
+            if (gRenderSetupKind != 2 || texA != (s32)gRenderLoadedTexture) {
                 switch (obj->texSize) {
                 case 0:
                     gDPLoadTextureBlock_4b(gfx++, texA + 0x80000000, obj->texFormat, obj->texWidth, obj->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
@@ -2725,7 +2725,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
                     break;
                 }
             }
-            D_807F600C = (void *)texA;
+            gRenderLoadedTexture = (void *)texA;
             break;
         case 1:
             WRITE_GFX_PAIR(0xFC272C03, 0x1F1C93F8);
@@ -2744,7 +2744,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
             gDPSetTileSize(gfx++, G_TX_RENDERTILE, 2, 2, ((obj->texWidth - 1) << 2) + 2, ((obj->texHeight - 1) << 2) + 2);
             gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, obj->texWidth / 4, 0x100, 1, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
             gDPSetTileSize(gfx++, 1, 2, 2, ((obj->texWidth - 1) << 2) + 2, ((obj->texHeight - 1) << 2) + 2);
-            D_807F600C = NULL;
+            gRenderLoadedTexture = NULL;
             break;
         }
         gSPVertex(gfx++, osVirtualToPhysical(obj->verts + vtxOffset), 4, 0);
@@ -2874,7 +2874,7 @@ void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
     }
 }
 
-void func_806398E4(s32 slot, u8 isId, u8 enable) {
+void modelSlotSetTranslucent(s32 slot, u8 isId, u8 enable) {
     RenderQuadModelObj *obj;
 
     if (isId == 1) {
@@ -3330,7 +3330,7 @@ SpriteDisplayNode *spriteListInsertByTexture(SpriteDisplayNode *head, SpriteDisp
     return ret;
 }
 
-void func_8063A8C4(s16 slot, u8 isId, f32 value) {
+void modelSlotSetScaleXZ(s16 slot, u8 isId, f32 value) {
     ModelKindObj *obj;
     ModelSlotSubNode *p;
 
@@ -3469,13 +3469,13 @@ Gfx *spriteListRender(Gfx *gfx, SpriteDisplayNode *list) {
 }
 
 
-extern s16 D_807F6028;
-extern s16 D_807F60A8;
+extern s16 gModelPendingQueueCount;
+extern s16 gUpdatedCsModelIdCount;
 extern u8 gCsTrackedModelCount;
 
 void modelPendingCountsReset(void) {
-    D_807F6028 = 0;
-    D_807F60A8 = 0;
+    gModelPendingQueueCount = 0;
+    gUpdatedCsModelIdCount = 0;
     gCsTrackedModelCount = 0;
 }
 
@@ -3486,8 +3486,8 @@ typedef struct ModelPendingQueueEntry {
     /* 0x5 */ u8 pad5;
 } ModelPendingQueueEntry;
 
-extern ModelPendingQueueEntry D_807F6030[];
-extern s16 D_807F60B0[];
+extern ModelPendingQueueEntry gModelPendingQueue[];
+extern s16 gUpdatedCsModelIds[];
 
 extern u8 D_807F7140;
 
@@ -3543,18 +3543,18 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                 allow &= best < (f32)obj->unk58;
                 break;
             case 5:
-                if (D_807F6028 == 0x14) return;
+                if (gModelPendingQueueCount == 0x14) return;
                 allow = 0;
-                D_807F6030[D_807F6028].id = entry->modelId;
-                D_807F6030[D_807F6028].key = obj->unk58;
-                D_807F6030[D_807F6028++].done = 0;
+                gModelPendingQueue[gModelPendingQueueCount].id = entry->modelId;
+                gModelPendingQueue[gModelPendingQueueCount].key = obj->unk58;
+                gModelPendingQueue[gModelPendingQueueCount++].done = 0;
                 break;
             }
             if (allow != 0) {
                 D_807F7140++;
-                if (D_807F60A8 != 0x46) {
-                    D_807F60B0[D_807F60A8] = slots[idx].csModelId;
-                    D_807F60A8++;
+                if (gUpdatedCsModelIdCount != 0x46) {
+                    gUpdatedCsModelIds[gUpdatedCsModelIdCount] = slots[idx].csModelId;
+                    gUpdatedCsModelIdCount++;
                     csStateTickTimers(obj);
                     csStateUpdate(obj, entry->modelId);
                 }
@@ -3573,23 +3573,23 @@ void modelPendingEntriesProcess(void) {
 
     do {
         any = 0;
-        for (i = 0; i < D_807F6028; i++) {
-            if (D_807F6030[i].done == 0) {
+        for (i = 0; i < gModelPendingQueueCount; i++) {
+            if (gModelPendingQueue[i].done == 0) {
                 found = 0;
-                for (j = 0; found == 0 && j < D_807F60A8; j++) {
-                    if (D_807F60B0[j] == D_807F6030[i].key) {
+                for (j = 0; found == 0 && j < gUpdatedCsModelIdCount; j++) {
+                    if (gUpdatedCsModelIds[j] == gModelPendingQueue[i].key) {
                         found = 1;
                         any = 1;
-                        D_807F6030[i].done = 1;
-                        slot = hashTableLookup(D_807F6030[i].id);
+                        gModelPendingQueue[i].done = 1;
+                        slot = hashTableLookup(gModelPendingQueue[i].id);
                         obj = gModelSlots[slot].csState;
-                        if (D_807F60A8 == 0x46) {
+                        if (gUpdatedCsModelIdCount == 0x46) {
                             return;
                         }
-                        D_807F60B0[D_807F60A8] = gModelSlots[slot].csModelId;
-                        D_807F60A8++;
+                        gUpdatedCsModelIds[gUpdatedCsModelIdCount] = gModelSlots[slot].csModelId;
+                        gUpdatedCsModelIdCount++;
                         csStateTickTimers(obj);
-                        csStateUpdate(obj, D_807F6030[i].id);
+                        csStateUpdate(obj, gModelPendingQueue[i].id);
                     }
                 }
             }
@@ -3692,7 +3692,7 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
 
     for (i = 0; i < gModelSlotCount; i++) {
         if (gModelSlots[i].csState != NULL) {
-            if ((gModelSlots[i].asset->unk3A != 0 || (gModelSlots[i].csState->modelFlags & 1)) && !(gModelSlots[i].csState->modelFlags & 2)) {
+            if ((gModelSlots[i].asset->saveState != 0 || (gModelSlots[i].csState->modelFlags & 1)) && !(gModelSlots[i].csState->modelFlags & 2)) {
                 count++;
                 if (gModelSlots[i].anim != NULL) {
                     size += modelSlotDataSize(i);
@@ -3705,7 +3705,7 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
         cur = buf;
         for (i = 0; i < gModelSlotCount; i++) {
             if (gModelSlots[i].csState != NULL) {
-                if ((gModelSlots[i].asset->unk3A != 0 || (gModelSlots[i].csState->modelFlags & 1)) && !(gModelSlots[i].csState->modelFlags & 2)) {
+                if ((gModelSlots[i].asset->saveState != 0 || (gModelSlots[i].csState->modelFlags & 1)) && !(gModelSlots[i].csState->modelFlags & 2)) {
                     rec = cur;
                     *(s16 *)rec = gModelSlots[i].csModelId;
                     memcpy(rec + 0xCC, gModelSlots[i].csState, 0x9C);
@@ -3819,7 +3819,7 @@ void modelSlotClearFlags(s32 csId, u8 flags) {
     obj->flags &= ~flags;
 }
 
-s32 func_8063C2A8(s16 id) {
+s32 modelSlotIsAlphaVisible(s16 id) {
     s16 idx = hashTableLookup(id);
     CsState *sub = gModelSlots[idx].csState;
 

@@ -20,7 +20,7 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-// Actor whose second component (0x178) points to an s16 countdown (func_806B640C).
+// Actor whose second component (0x178) points to an s16 countdown (explodingChaserUpdate).
 typedef struct CountdownActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ s16 *countdown;
@@ -33,7 +33,7 @@ extern s16 gSfxVoiceSoundId[];
 extern EffectGridAsset D_80720630;
 
 
-s32 func_806B5A90(s32 aggroRange, s32 unused) {
+s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
     u8 ret;
     s16 yawDiff;
     s32 step;
@@ -220,16 +220,16 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
 }
 
 
-void func_806B63E0(void) {
+void chaserEnemyUpdate(void) {
     behaviourFrameBegin();
-    func_806B5A90(0x2710, 0);
+    chaserEnemyStep(0x2710, 0);
 }
 
 extern u8 gGameMode;
 extern s32 gCurrentMap;
 
 
-void func_806B640C(void) {
+void explodingChaserUpdate(void) {
     s16 *countdown = ((CountdownActor *)gCurrentActor)->countdown;
     s16 i;
     s32 state;
@@ -266,7 +266,7 @@ void func_806B640C(void) {
     } else {
         aggroRange = 0x2710;
     }
-    if (func_806B5A90(aggroRange, *countdown) != 0) {
+    if (chaserEnemyStep(aggroRange, *countdown) != 0) {
         *countdown = -*countdown;
     }
 }

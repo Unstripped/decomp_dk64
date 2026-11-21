@@ -8,8 +8,8 @@ struct SlotQueueSlot;
 #ifndef PROTO_SKIP_slotQueueGetAddress
 struct SlotQueueSlot *slotQueueGetAddress(u8);
 #endif
-#ifndef PROTO_SKIP_func_806F8004
-void func_806F8004(f32, f32, f32 *, f32 *, f32 *);
+#ifndef PROTO_SKIP_slotQueueAnglesToViewPoint
+void slotQueueAnglesToViewPoint(f32, f32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_slotQueueGetPosition
 void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
@@ -140,7 +140,7 @@ void slotQueueSetDisplayMode(u8, u8, u8);
 #ifndef PROTO_SKIP_slotQueueGetDisplayMode
 u8 slotQueueGetDisplayMode(u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_806FB418
-s32 func_806FB418(void);
+#ifndef PROTO_SKIP_inventoryGetGoldenBananaTotal
+s32 inventoryGetGoldenBananaTotal(void);
 #endif
 #endif

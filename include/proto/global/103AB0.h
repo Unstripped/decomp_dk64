@@ -7,8 +7,8 @@
 #ifndef PROTO_SKIP_playerViewGfxSetup
 Gfx *playerViewGfxSetup(Gfx *, u8);
 #endif
-#ifndef PROTO_SKIP_func_806FEF7C
-Gfx *func_806FEF7C(Gfx *, Actor *);
+#ifndef PROTO_SKIP_playerViewDrawCenterMask
+Gfx *playerViewDrawCenterMask(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerViewDrawCrosshair
 Gfx *playerViewDrawCrosshair(Gfx *, Actor *);
@@ -37,8 +37,8 @@ u16 color5551ToSepia(u16);
 #ifndef PROTO_SKIP_sepiaCopyFramebufferTile
 u16 *sepiaCopyFramebufferTile(u16 *, u16 *);
 #endif
-#ifndef PROTO_SKIP_func_806FFF5C
-void func_806FFF5C(void);
+#ifndef PROTO_SKIP_playerViewLoadPresetPhoto
+void playerViewLoadPresetPhoto(void);
 #endif
 #ifndef PROTO_SKIP_playerViewCaptureSepiaPhoto
 u16 *playerViewCaptureSepiaPhoto(void);
@@ -70,11 +70,11 @@ void playerViewUpdateDepthProbes(void);
 #ifndef PROTO_SKIP_lensFlareDrawSource
 Gfx *lensFlareDrawSource(Gfx *, LensFlarePoint, u8);
 #endif
-#ifndef PROTO_SKIP_func_80701C90
-void func_80701C90(void);
+#ifndef PROTO_SKIP_underwaterTintReset
+void underwaterTintReset(void);
 #endif
-#ifndef PROTO_SKIP_func_80701CA0
-Gfx *func_80701CA0(Gfx *);
+#ifndef PROTO_SKIP_underwaterTintBuildDisplayList
+Gfx *underwaterTintBuildDisplayList(Gfx *);
 #endif
 #ifndef PROTO_SKIP_gfxDrawTexturedTileGridDefault
 void gfxDrawTexturedTileGridDefault(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);

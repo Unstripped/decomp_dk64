@@ -7,18 +7,18 @@ extern u8 D_80741F40[];
 extern u8 D_807432D0[];
 extern u8 D_80760840[];
 extern u8 D_80760C60[];
-extern void *D_807F0570[];
-extern void *D_807F0588[];
+extern void *gGfxTaskUcodeText[];
+extern void *gGfxTaskUcodeData[];
 
-void func_8060FFF0(void) {
-    D_807F0570[0] = D_807432D0;
-    D_807F0588[0] = D_80760C60;
-    D_807F0570[1] = D_80741F40;
-    D_807F0588[1] = D_80760840;
-    D_807F0570[2] = D_80741F40;
-    D_807F0588[2] = D_80760840;
-    D_807F0570[3] = D_80741F40;
-    D_807F0588[3] = D_80760840;
+void schedInitGfxUcodes(void) {
+    gGfxTaskUcodeText[0] = D_807432D0;
+    gGfxTaskUcodeData[0] = D_80760C60;
+    gGfxTaskUcodeText[1] = D_80741F40;
+    gGfxTaskUcodeData[1] = D_80760840;
+    gGfxTaskUcodeText[2] = D_80741F40;
+    gGfxTaskUcodeData[2] = D_80760840;
+    gGfxTaskUcodeText[3] = D_80741F40;
+    gGfxTaskUcodeData[3] = D_80760840;
 }
 
 extern s8 gMainThreadHalted;
@@ -48,8 +48,8 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     task->task.t.flags = 0;
     task->task.t.ucode_boot = (u64 *)D_805FB000;
     task->task.t.ucode_boot_size = D_805FB0D0 - D_805FB000;
-    task->task.t.ucode = D_807F0570[taskIdx];
-    task->task.t.ucode_data = D_807F0588[taskIdx];
+    task->task.t.ucode = gGfxTaskUcodeText[taskIdx];
+    task->task.t.ucode_data = gGfxTaskUcodeData[taskIdx];
     task->task.t.ucode_size = SP_UCODE_SIZE;
     task->task.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     task->task.t.dram_stack = D_8076AF20;
@@ -79,15 +79,15 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     osSendMesg(&gScheduler.interruptQ, task, OS_MESG_BLOCK);
 }
 
-extern s8 D_80746834;
+extern s8 gWaitPointId;
 
 void schedWaitGfxTask(s32 targetTaskId) {
     OSMesg receivedMsg;
 
     do {
-        D_80746834 = 8;
+        gWaitPointId = 8;
         osRecvMesg(&gGfxDoneQueue, &receivedMsg, OS_MESG_BLOCK);
-        D_80746834 = 0;
+        gWaitPointId = 0;
         gGfxTaskPending[(u32)receivedMsg >> 16] = 0;
         receivedMsg = (OSMesg)((u32)receivedMsg & 0xFFFF);
     } while ((s32)receivedMsg != targetTaskId);

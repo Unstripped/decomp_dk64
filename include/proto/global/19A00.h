@@ -282,8 +282,8 @@ s32 scriptOpSetSoundVolumeAndPan(Actor *);
 #ifndef PROTO_SKIP_scriptOpStopSlotSound
 s32 scriptOpStopSlotSound(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80617B38
-s32 func_80617B38(Actor *);
+#ifndef PROTO_SKIP_scriptOpPlaySlotSound
+s32 scriptOpPlaySlotSound(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAllocateSoundChannel
 s32 scriptOpAllocateSoundChannel(Actor *);

@@ -16,8 +16,8 @@ s32 actorSpawnFromInfo(struct ActorSpawnInfo *);
 #ifndef PROTO_SKIP_actorSpawn
 s32 actorSpawn(s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_80678014
-s32 func_80678014(s32);
+#ifndef PROTO_SKIP_actorSpawnSkipTypeInit
+s32 actorSpawnSkipTypeInit(s32);
 #endif
 #ifndef PROTO_SKIP_actorAllocate
 s32 actorAllocate();

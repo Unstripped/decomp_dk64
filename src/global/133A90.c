@@ -288,7 +288,7 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
         *outX = gModelSlots[slot].x;
         *outY = gModelSlots[slot].y;
         *outZ = gModelSlots[slot].z;
-        if (gModelSlots[slot].asset->unk0 & 1) {
+        if (gModelSlots[slot].asset->flags & 1) {
             ret = 1;
         }
         break;

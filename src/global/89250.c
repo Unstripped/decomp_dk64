@@ -33,8 +33,8 @@ typedef struct MultiTierRingParams {
 
 // This TU's .data (0x8074E880-0x8074E8B0), in address order; the puff sprites are sprite sheets of
 // 124780.c, and D_8074E8A8/D_8074E8AC are unreferenced.
-extern EffectGridAsset D_8071FC58, gEffectSpriteSparkleYellow, D_8071FCC0;
-void *gPuffSprites[3] = { &D_8071FC58, &gEffectSpriteSparkleYellow, &D_8071FCC0 };
+extern EffectGridAsset gEffectSpriteSparklePurple, gEffectSpriteSparkleYellow, D_8071FCC0;
+void *gPuffSprites[3] = { &gEffectSpriteSparklePurple, &gEffectSpriteSparkleYellow, &D_8071FCC0 };
 ScaleTierTable sGrowthTierScales = { { 1.0f, 1.7f, 3.0f } };
 MultiTierRingParams sMultiTierRingActorTypes = { { -1, 0xCF, 0xD0, 0xAE } };
 s32 D_8074E8A8 = 0;
@@ -44,17 +44,17 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern u8 gMultiplayerReducedEffects;
 extern EffectGridAsset D_8071FC0C;
-extern EffectGridAsset D_8071FE08;
+extern EffectGridAsset gEffectSpriteStarBurst;
 extern EffectGridAsset D_8071FED0;
 extern EffectGridAsset gEffectSpriteDustPuff;
 extern EffectGridAsset D_8071FF40;
 extern EffectGridAsset sEffectSparkConfig;
 extern EffectGridAsset gSparkEffectSprite;
-extern EffectGridAsset D_80720120;
+extern EffectGridAsset gEffectSpriteFireBurst;
 extern EffectGridAsset D_80720558;
 extern EffectGridAsset D_8072073C;
 extern EffectGridAsset D_80720B58;
-extern EffectGridAsset D_807210EC;
+extern EffectGridAsset gCrownSprite;
 extern EffectGridAsset D_80721158;
 extern EffectGridAsset D_8072139C;
 
@@ -64,7 +64,7 @@ void effectSpawnActorBone(Actor *owner, u8 bone, f32 scale) {
     effectSetCallback(effectFollowParentUpdate);
     effectSetSpeed((s32)owner);
     effectSetFlags(4);
-    effectCreateAtActorBone(&D_80720120, scale, gCurrentActor, bone, 0);
+    effectCreateAtActorBone(&gEffectSpriteFireBurst, scale, gCurrentActor, bone, 0);
 }
 
 void effectSpawnRandomBoneDebris(u8 minBone, u8 maxBone) {
@@ -127,7 +127,7 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
     }
 }
 
-extern EffectGridAsset D_8071FF58;
+extern EffectGridAsset gEffectSpriteSleepZ;
 
 void effectSpawnSmoke(u8 bone) {
     if (!(gFrameCounter & 0x1F)) {
@@ -136,9 +136,9 @@ void effectSpawnSmoke(u8 bone) {
         effectSetDuration(0x3C);
         effectSetCallback(effectWobbleScaleUpdate);
         if (bone) {
-            effectCreateAtActorBone(&D_8071FF58, 0.05f, gCurrentActor, bone, 0);
+            effectCreateAtActorBone(&gEffectSpriteSleepZ, 0.05f, gCurrentActor, bone, 0);
         } else {
-            effectCreateAtPosition(&D_8071FF58, 0.05f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteSleepZ, 0.05f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
     }
 }
@@ -244,7 +244,7 @@ void effectSpawnRing(void) {
     scale = gCurrentActor->sub4->scaleY / 0.15;
     effectSetDepth(0);
     effectSetDuration(1);
-    effectCreateAtPosition(&D_8071FE08, scale * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectCreateAtPosition(&gEffectSpriteStarBurst, scale * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     for (i = 0; i < 7; i++) {
         effectSetDepth(1);
         effectSetDuration(0xA);
@@ -420,7 +420,7 @@ void actorUpdateEffects(Actor *actor) {
             effectActorCheckGroundScaleSpawn(actor);
         }
     }
-    if ((actor->flags2 & 0x40) && func_80665AAC(actor) && !(actor->contactFlags & 0x800) && (actor->floorY <= actor->y)) {
+    if ((actor->flags2 & 0x40) && actorFloorIsReflective(actor) && !(actor->contactFlags & 0x800) && (actor->floorY <= actor->y)) {
         actorSpawnAttachedTo(actor);
     }
     if (actor->flags2 & 0x80) {
@@ -519,7 +519,7 @@ void particleInitDefaultState(void) {
     effectSetFlags(4);
 }
 
-extern EffectGridAsset D_8071FBF4;
+extern EffectGridAsset gEffectSpriteRing;
 
 void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY, f32 posZ) {
     f32 fallHeight;
@@ -552,16 +552,16 @@ void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY
         scale = scaleParam;
     }
     particleInitDefaultState();
-    effectCreateAtPosition(&D_8071FBF4, scale * 0.3, posX, posY, posZ);
+    effectCreateAtPosition(&gEffectSpriteRing, scale * 0.3, posX, posY, posZ);
     particleInitDefaultState();
     effectSetStartDelay(2);
-    effectCreateAtPosition(&D_8071FBF4, scale * 0.05,
+    effectCreateAtPosition(&gEffectSpriteRing, scale * 0.05,
         ((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + posX - (u8)(15.0f * scale),
         posY,
         ((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + posZ - (u8)(15.0f * scale));
     particleInitDefaultState();
     effectSetStartDelay(4);
-    effectCreateAtPosition(&D_8071FBF4, scale * 0.05,
+    effectCreateAtPosition(&gEffectSpriteRing, scale * 0.05,
         ((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + posX - (u8)(15.0f * scale),
         posY,
         ((randomNonNegative() >> 15) % (u8)(30.0f * scale)) + posZ - (u8)(15.0f * scale));
@@ -701,14 +701,14 @@ void effectSpawnActorBoneEffects(u8 effectType) {
             effectSetCallback(effectSinkBySpeedUpdate);
             effectSetSpeed(-0x3E8);
             effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
-            effectCreateAtActorBone(&D_80720120, (((randomNonNegative() >> 15) % 100) / 30.0) + 1.0, gCurrentActor, bone, 0);
+            effectCreateAtActorBone(&gEffectSpriteFireBurst, (((randomNonNegative() >> 15) % 100) / 30.0) + 1.0, gCurrentActor, bone, 0);
             break;
         }
         startBone++;
     }
 }
 
-void func_80687400(void) {
+void effectScreenCenterFlash(void) {
     sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
     effectSetDuration(0xC8);
     effectEnableFade();
@@ -803,7 +803,7 @@ void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     effectSetDepth(1);
     effectSetDuration(1);
     effectSetSpeed(beamAngle);
-    effectSetCallback(func_8071E028);
+    effectSetCallback(effectBeamRotateUpdate);
     effectCreateAtPosition(&D_80720B24, screenDist * 0.008, (posAX + posBX) * 0.5, (posAY + posBY) * 0.5, (posAZ + posBZ) * 0.5);
     if (((randomNonNegative() >> 15) % 1000) & 1) {
         lightSetFlags(1);
@@ -831,5 +831,5 @@ void effectShowCrownIcon(void) {
     effectSetDuration(0xC8);
     effectEnableFade();
     effectSetCallback(effectGrowFadeUpdate);
-    effectCreateAtPosition(&D_807210EC, 1.0f, 160.0f, 120.0f, -10.0f);
+    effectCreateAtPosition(&gCrownSprite, 1.0f, 160.0f, 120.0f, -10.0f);
 }

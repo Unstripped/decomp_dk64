@@ -51,7 +51,7 @@ extern s16 gWorldGoldenBananaGoals[];
 extern s8 D_807446E0[]; // per world: { discounted required count, kong id } byte pairs
 extern u16 gLevelCollectibleCounts[];
 extern f32 D_8002A1B0;
-extern EffectGridAsset D_8071FE08;
+extern EffectGridAsset gEffectSpriteStarBurst;
 extern EffectGridAsset gEffectSpriteGlintYellow;
 
 void critterBananaFairyUpdate(void) {
@@ -104,7 +104,7 @@ void critterBananaFairyUpdate(void) {
         s8 *pair = &D_807446E0[worldIndex + worldIndex];
 
         if (gPlayerCharacterId[0] == pair[1]) {
-            if (func_806FB418() < requiredCount && worldIndex != 7) {
+            if (inventoryGetGoldenBananaTotal() < requiredCount && worldIndex != 7) {
                 requiredCount = pair[0];
                 hasSecretDiscount = 1;
             }
@@ -148,7 +148,7 @@ void critterBananaFairyUpdate(void) {
             }
             if (*timerPtr >= 0x2E) {
                 gCurrentActor->unk155 = 0;
-                if (func_806FB418() < requiredCount) { // ORIG: target calls func_806FB418 (jal 0x5ec), compares with requiredCount (slt 0x5f8) and branches over this empty body to the case merge (beqz 0x5fc / b 0x604 to 0x994)
+                if (inventoryGetGoldenBananaTotal() < requiredCount) { // ORIG: target calls inventoryGetGoldenBananaTotal (jal 0x5ec), compares with requiredCount (slt 0x5f8) and branches over this empty body to the case merge (beqz 0x5fc / b 0x604 to 0x994)
                 }
             }
             break;
@@ -161,7 +161,7 @@ void critterBananaFairyUpdate(void) {
 
                 resQueueSetValue(1);
                 camStartPath(gCurrentActor, 0x1B, 5);
-                if (func_806FB418() < requiredCount) {
+                if (inventoryGetGoldenBananaTotal() < requiredCount) {
                     resQueueAttachActor(gCurrentActor, 0x1D, 1);
                     actorScriptStart(gCurrentActor, 0x3A1);
                     gCurrentActor->unk155 = 1;
@@ -210,7 +210,7 @@ void critterBananaFairyUpdate(void) {
             gCurrentActor->unk155 = 4;
             effectSetDepth(0);
             effectSetDuration(1);
-            effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteStarBurst, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
             break;
         case 4:
             gCurrentActor->sub4->scaleX = 0.0f;

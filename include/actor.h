@@ -291,7 +291,7 @@ typedef struct ActorGlobalState {
     /* 0x017 */ u8 unk17;
     /* 0x018 */ u8 unk18;
     /* 0x019 */ u8 unk19;
-    /* 0x01A */ u8 unk1A;
+    /* 0x01A */ u8 playerLaunchReceived;
     /* 0x01B */ u8 unk1B;
     /* 0x01C */ u8 unk1C;
     /* 0x01D */ u8 unk1D[3];
@@ -299,38 +299,38 @@ typedef struct ActorGlobalState {
     /* 0x024 */ u8 pickupReceived;
     /* 0x025 */ u8 releaseReceived;
     /* 0x026 */ u8 unk26[2];
-    /* 0x028 */ struct Actor *unk28;
+    /* 0x028 */ struct Actor *holderActor;
     /* 0x02C */ u8 launchReceived;
     /* 0x02D */ u8 unk2D[3];
     /* 0x030 */ f32 launchSpeedY;
-    /* 0x034 */ s16 unk34;
+    /* 0x034 */ s16 launchSpeedXZ;
     /* 0x036 */ s16 launchYaw;
     /* 0x038 */ u8 childFreed;
     /* 0x039 */ u8 riderCount;
     /* 0x03A */ u8 unk3A[2];
     /* 0x03C */ f32 riderPoints[4][3];
-    /* 0x06C */ s32 unk6C[4];
+    /* 0x06C */ s32 riderMtxOffsets[4];
     /* 0x07C */ struct Actor *riderActors[4];
-    /* 0x08C */ u8 unk8C[4];
+    /* 0x08C */ u8 riderSpansNodes[4];
     /* 0x090 */ u8 collisionModeReceived;
     /* 0x091 */ u8 surfaceHitReceived;
-    /* 0x092 */ s16 unk92;
-    /* 0x094 */ s16 unk94;
+    /* 0x092 */ s16 surfaceHitYaw;
+    /* 0x094 */ s16 surfaceHitSpeed;
     /* 0x096 */ u8 unk96[2];
-    /* 0x098 */ f32 unk98[3];   // surface hit payload copy (12 bytes, from payload +0x4)
-    /* 0x0A4 */ f32 unkA4[9];  // surface hit payload copy (0x24 bytes, from payload +0x10)
-    /* 0x0C8 */ s32 unkC8;
-    /* 0x0CC */ struct Actor *unkCC;
-    /* 0x0D0 */ s32 unkD0;
-    /* 0x0D4 */ s32 unkD4;
-    /* 0x0D8 */ f32 unkD8;
-    /* 0x0DC */ f32 unkDC;
-    /* 0x0E0 */ f32 unkE0;
+    /* 0x098 */ f32 surfaceHitPos[3];   // surface hit payload copy (12 bytes, from payload +0x4)
+    /* 0x0A4 */ f32 surfaceHitVerts[9];  // surface hit payload copy (0x24 bytes, from payload +0x10)
+    /* 0x0C8 */ s32 surfaceHitMtxIndex;
+    /* 0x0CC */ struct Actor *surfaceHitActor;
+    /* 0x0D0 */ s32 surfaceHitRadius;
+    /* 0x0D4 */ s32 surfaceHitMaxClamp;
+    /* 0x0D8 */ f32 destPointX;
+    /* 0x0DC */ f32 destPointY;
+    /* 0x0E0 */ f32 destPointZ;
     /* 0x0E4 */ u8 destPointReceived;
-    /* 0x0E5 */ u8 unkE5;
+    /* 0x0E5 */ u8 forcedContactReceived;
     /* 0x0E6 */ u8 unkE6[2];
-    /* 0x0E8 */ f32 unkE8;
-    /* 0x0EC */ struct Actor *unkEC;
+    /* 0x0E8 */ f32 forcedContactSpeed;
+    /* 0x0EC */ struct Actor *destPointSource;
     /* 0x0F0 */ f32 heldAlignPitch;
     /* 0x0F4 */ f32 heldAlignYaw;
     /* 0x0F8 */ ActorCollisionHit collisionHits[4];
@@ -512,7 +512,7 @@ typedef struct Actor {
 } Actor; // size = 0x178, the block actorAllocate gives a type with no components
 
 // Second component (Actor 0x178) of the pulsing actor types: actorUpdatePulseIntensity (BB300) ramps the light
-// intensity through phase; func_806B6DB0 (BB300) keeps a yaw sway there. Reached through per-type views
+// intensity through phase; behaviourPulseEnemyUpdate (BB300) keeps a yaw sway there. Reached through per-type views
 // { Actor base; PulseState *pulse; } (A6280, BB300).
 typedef struct PulseState {
     /* 0x0 */ u8 intensity;
@@ -661,7 +661,7 @@ typedef struct SpawnNode {
     /* 0x06 */ s16 y;
     /* 0x08 */ s16 z;
     /* 0x0A */ union {
-        s16 unkAWide; // lh users (armadillo patrol, func_806B640C, actorUpdateLockOnCursor, behaviourPickRandomTargetY)
+        s16 unkAWide; // lh users (armadillo patrol, explodingChaserUpdate, actorUpdateLockOnCursor, behaviourPickRandomTargetY)
         struct {
             u8 unkA;
             u8 unkB;
@@ -1017,8 +1017,8 @@ extern KongInventory *gCurrentKongInventory;
 // PlayerInventory.kong; single player uses [0].
 extern u8 gPlayerCharacterId[];
 
-// One row of the two five-entry high-score tables D_80744548 / D_80744568 (EEPROM fields 0x16-0x19 and
-// 0x1A-0x1D, see 104F0.c eepromInitConfigs; defaults D_80757044 / D_80757064).
+// One row of the two five-entry high-score tables gRambiHighScores / gEnguardeHighScores (EEPROM fields 0x16-0x19 and
+// 0x1A-0x1D, see 104F0.c eepromInitConfigs; defaults sRambiDefaultHighScores / sEnguardeDefaultHighScores).
 typedef struct MenuHighScoreEntry {
     /* 0x0 */ s16 score;
     /* 0x2 */ u8 initials[4]; // initials as characters, [3] the string terminator (menuLoadHighScores writes 0); stored on EEPROM as indices into gInitialsCharset
@@ -1030,7 +1030,7 @@ typedef struct MenuHighScoreEntry {
 // menuCalculateGamePercentage (3E10) and the 117190 gate totals; the pause menu's page 3 shows the first eight.
 extern s16 gPauseCollectibleCounts[9];
 
-// One entry of the per-map flag tables (135D30.c: D_80755A20, D_80755DA8, D_80755EA0, gFlagTempEntries).
+// One entry of the per-map flag tables (135D30.c: gMapObjectFlags, gSpawnFlagConditions, gTriggerOnceFlags, gFlagTempEntries).
 typedef struct FlagTableEntry {
     /* 0x0 */ u8 map;
     /* 0x1 */ u8 pad1;
@@ -1040,7 +1040,7 @@ typedef struct FlagTableEntry {
     /* 0x7 */ u8 active;
 } FlagTableEntry; // size = 0x8
 // 0x1F entries, ended by map 0xFF (hudPauseMenu's scan in ACDC0.c).
-extern FlagTableEntry D_80755DA8[0x1F];
+extern FlagTableEntry gSpawnFlagConditions[0x1F];
 
 // One row of the per-character table gKongCharacterTable (CC800 data, 0x10 per character id): the kong actor type, the
 // character index the row selects (gCurrentCharacterIndex), its model, and the actor flags.
@@ -1211,7 +1211,7 @@ typedef struct MirrorActorState {
     /* 0x0F */ u8 alpha;
 } MirrorActorState; // size = 0x10
 
-// Viewport layout entry (D_80750948[], cameraFindViewportEntry).
+// Viewport layout entry (gViewportLayouts[], cameraFindViewportEntry).
 typedef struct G00Entry {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 unk1;
@@ -1223,7 +1223,7 @@ typedef struct G00Entry {
     /* 0xA */ s16 bottom;
 } G00Entry;
 
-// Split-screen divider rectangle (D_80750840, defined in CC800, read by gfxDrawSplitScreenDividers;
+// Split-screen divider rectangle (gSplitScreenDividerRects, defined in CC800, read by gfxDrawSplitScreenDividers;
 // terminated by players == -1); coordinates in low-res pixels.
 typedef struct {
     s8 players; // player count it applies to; 2 = any multiplayer count

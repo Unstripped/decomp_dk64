@@ -15,8 +15,8 @@ void effectSpawnAttachedSprite(struct DropBounceState *, void *, f32);
 #ifndef PROTO_SKIP_actorHealthDropUpdate
 void actorHealthDropUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A5FA4
-void func_806A5FA4(void);
+#ifndef PROTO_SKIP_actorAbilityEnergyDropUpdate
+void actorAbilityEnergyDropUpdate(void);
 #endif
 #ifndef PROTO_SKIP_effectSpawnAttachedSpriteColored
 void effectSpawnAttachedSpriteColored(void *, s32);
@@ -36,26 +36,26 @@ void effectSpawnAttachedSpriteColoredType2(void);
 #ifndef PROTO_SKIP_effectSpawnAttachedSpriteColoredType5
 void effectSpawnAttachedSpriteColoredType5(void);
 #endif
-#ifndef PROTO_SKIP_func_806A615C
-void func_806A615C(void);
+#ifndef PROTO_SKIP_actorAmmoCrateDropUpdate
+void actorAmmoCrateDropUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A61D0
-void func_806A61D0(void);
+#ifndef PROTO_SKIP_actorThrowAmmoDropUpdate
+void actorThrowAmmoDropUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A6230
-void func_806A6230(void);
+#ifndef PROTO_SKIP_actorMinigameCoinDropUpdate
+void actorMinigameCoinDropUpdate(void);
 #endif
 #ifndef PROTO_SKIP_effectSpawnA6230Wrapper
 void effectSpawnA6230Wrapper(void);
 #endif
-#ifndef PROTO_SKIP_func_806A62D4
-void func_806A62D4(void);
+#ifndef PROTO_SKIP_actorRandomEffectDropUpdate
+void actorRandomEffectDropUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A6348
-void func_806A6348(void);
+#ifndef PROTO_SKIP_actorOpponentKnockbackDropUpdate
+void actorOpponentKnockbackDropUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A63A8
-void func_806A63A8(void);
+#ifndef PROTO_SKIP_actorSpeedBoostDropUpdate
+void actorSpeedBoostDropUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorLargeDropUpdate
 void actorLargeDropUpdate(void);
@@ -108,7 +108,7 @@ void effectActorSparkleTick(void);
 #ifndef PROTO_SKIP_effectActorShrinkTick
 void effectActorShrinkTick(void);
 #endif
-#ifndef PROTO_SKIP_func_806A8070
-void func_806A8070(void);
+#ifndef PROTO_SKIP_actorStaticModelUpdate
+void actorStaticModelUpdate(void);
 #endif
 #endif

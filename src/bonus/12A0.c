@@ -125,7 +125,7 @@ extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
 extern u8 gGameMode;
 extern struct GfSndState *gSfxFreeSlotHandles[];
-extern u8 D_80720CF0;
+extern u8 gAButtonSprite;
 
 void bonusReelGameUpdate(void) {
     PlayerState *player;
@@ -193,7 +193,7 @@ void bonusReelGameUpdate(void) {
                 effectEnableFade();
                 effectSetFrameDelay(2);
                 effectSetDuration(-1);
-                obj->effect = effectCreateAtPosition(&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
+                obj->effect = effectCreateAtPosition(&gAButtonSprite, 1.0f, 40.0f, 200.0f, 5.0f);
             }
             break;
         }

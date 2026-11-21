@@ -14,11 +14,11 @@ void actorStepMotionAndBounds(void);
 #ifndef PROTO_SKIP_actorScriptedCommandUpdate
 void actorScriptedCommandUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C10A0
-void func_806C10A0(u8, u16, s16);
+#ifndef PROTO_SKIP_actorNpcKongTalkThenWarpOut
+void actorNpcKongTalkThenWarpOut(u8, u16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806C1300
-void func_806C1300(void);
+#ifndef PROTO_SKIP_actorNpcKongWarpEffectUpdate
+void actorNpcKongWarpEffectUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorSetAnimForMoveTier
 void actorSetAnimForMoveTier(s16, s16, s16, s16, s16);
@@ -26,23 +26,23 @@ void actorSetAnimForMoveTier(s16, s16, s16, s16, s16);
 #ifndef PROTO_SKIP_actorShowTextOnceWhenNear
 void actorShowTextOnceWhenNear(u16, u8, s16);
 #endif
-#ifndef PROTO_SKIP_func_806C15E8
-void func_806C15E8(void);
+#ifndef PROTO_SKIP_actorNpcKongInit
+void actorNpcKongInit(void);
 #endif
-#ifndef PROTO_SKIP_func_806C1640
-void func_806C1640(void);
+#ifndef PROTO_SKIP_actorNpcDonkeyUpdate
+void actorNpcDonkeyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C1734
-void func_806C1734(void);
+#ifndef PROTO_SKIP_actorNpcDiddyUpdate
+void actorNpcDiddyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C19F4
-void func_806C19F4(void);
+#ifndef PROTO_SKIP_actorNpcLankyUpdate
+void actorNpcLankyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C1B50
-void func_806C1B50(void);
+#ifndef PROTO_SKIP_actorNpcTinyUpdate
+void actorNpcTinyUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C1CCC
-void func_806C1CCC(void);
+#ifndef PROTO_SKIP_actorNpcChunkyUpdate
+void actorNpcChunkyUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_806C1E44
 void func_806C1E44(void);

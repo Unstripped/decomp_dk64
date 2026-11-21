@@ -6,8 +6,8 @@
 #ifndef PROTO_SKIP_actorSetUniformScale
 void actorSetUniformScale(Actor *, f32);
 #endif
-#ifndef PROTO_SKIP_func_80724994
-void func_80724994(u8, s16, s16, s16, s16);
+#ifndef PROTO_SKIP_spawnNodesSendVolumeTrigger
+void spawnNodesSendVolumeTrigger(u8, s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_volumeTriggerApplyActorState
 s32 volumeTriggerApplyActorState(void);
@@ -18,20 +18,20 @@ void zoneEntrySetDisabled(u8, u8, u8);
 #ifndef PROTO_SKIP_zoneEntryGetPosition
 void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_80724C2C
-void func_80724C2C(s16);
+#ifndef PROTO_SKIP_actorKnockbackFromAttacker
+void actorKnockbackFromAttacker(s16);
 #endif
 #ifndef PROTO_SKIP_spawnNodesInitForMap
 void spawnNodesInitForMap(void *);
 #endif
-#ifndef PROTO_SKIP_func_80724CA4
-void func_80724CA4(s16, s16);
+#ifndef PROTO_SKIP_actorAllocBoneRotations
+void actorAllocBoneRotations(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80724D28
-void func_80724D28(s16, s16);
+#ifndef PROTO_SKIP_actorAllocBoneOffsets
+void actorAllocBoneOffsets(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80724DB0
-void func_80724DB0(s16, s16);
+#ifndef PROTO_SKIP_actorAllocBoneScales
+void actorAllocBoneScales(s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorTrackBoneTowardTarget
 void actorTrackBoneTowardTarget(u8);
@@ -135,7 +135,7 @@ void currentActorAnimSetFrame(u8, u8);
 #ifndef PROTO_SKIP_zoneEntrySpawnEffect
 void zoneEntrySpawnEffect(s16, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80729AA4
-void func_80729AA4(u8);
+#ifndef PROTO_SKIP_spawnNodeSignalActor
+void spawnNodeSignalActor(u8);
 #endif
 #endif

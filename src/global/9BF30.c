@@ -24,13 +24,13 @@ Vtx gSpriteRingQuadVtx[4] = {
     {{ { 15, 31, 0 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { -16, 31, 0 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
 };
-extern EffectGridAsset gEffectSpriteSmokeCloud, D_8071FE3C, D_80720E2C;
+extern EffectGridAsset gEffectSpriteSmokeCloud, D_8071FE3C, gEffectSpriteGooGreen;
 
 typedef struct ProjectileTriple {
     EffectGridAsset *sprite[3];
 } ProjectileTriple;
 
-ProjectileTriple sProjectileSprites = { { &gEffectSpriteSmokeCloud, &D_8071FE3C, &D_80720E2C } };
+ProjectileTriple sProjectileSprites = { { &gEffectSpriteSmokeCloud, &D_8071FE3C, &gEffectSpriteGooGreen } };
 
 extern void **gSpriteRingTextures;
 

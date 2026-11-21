@@ -58,7 +58,7 @@ void behaviourArmadilloPatrol(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x321, 0x322, 0x323);
-        func_80724CA4(0x11, 1);
+        actorAllocBoneRotations(0x11, 1);
         actorClearNodeFlag(gCurrentActor, 4);
         *rollState = gBehaviourExtraState->unkAWide * 10;
     }

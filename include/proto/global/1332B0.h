@@ -4,8 +4,8 @@
 #include "common.h"
 #include "actor.h"
 struct VolumeTrigger;
-#ifndef PROTO_SKIP_func_8072E5B0
-u8 func_8072E5B0(void);
+#ifndef PROTO_SKIP_playerIsAirborne
+u8 playerIsAirborne(void);
 #endif
 #ifndef PROTO_SKIP_volumeTriggerTableLoad
 void volumeTriggerTableLoad(s16 *);

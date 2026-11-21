@@ -84,7 +84,7 @@ void bossKRoolDiddyStep(void) {
         gCurrentActor->unk155 = 0;
         gCurrentActor->floorNodeId = 1;
         actorScriptStart(gCurrentActor, 0x3E3);
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
     }
     if (gCurrentActor->state != 0x28) {
         actorTrackBoneTowardTarget(5);

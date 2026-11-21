@@ -85,7 +85,7 @@ Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
 }
 
 
-Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
+Gfx *playerViewDrawCenterMask(Gfx *dl, Actor *player) {
     dl = playerViewGfxSetup(dl, ((PlayerState *)player->customState)->playerIndex);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
@@ -238,7 +238,7 @@ u16 *sepiaCopyFramebufferTile(u16 *dst, u16 *src) {
 }
 
 
-void func_806FFF5C(void) {
+void playerViewLoadPresetPhoto(void) {
     assetLoad(0x19, 0x138B, 1, 1);
 }
 
@@ -252,7 +252,7 @@ u16 *playerViewCaptureSepiaPhoto(void) {
     u16 *src;
 
     if (gCurrentActor->actorType == 0xD9) {
-        func_806FFF5C();
+        playerViewLoadPresetPhoto();
         return;
     }
     buf = heapAlloc(0xA000);
@@ -565,14 +565,14 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
 
 extern u8 gUnderwaterTintSnap;
 
-void func_80701C90(void) {
+void underwaterTintReset(void) {
     gUnderwaterTintSnap = 1;
 }
 
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 
-Gfx *func_80701CA0(Gfx *dl) {
+Gfx *underwaterTintBuildDisplayList(Gfx *dl) {
     PlayerState *playerState;
     CamState *camState;
     Actor *camActor;
@@ -858,8 +858,8 @@ Gfx *gfxBuildScanlineNoise(Gfx *dl, s32 unused) {
     return dl;
 }
 
-extern s16 D_807444AC;
-extern s16 D_807444B0;
+extern s16 gLetterboxTopBarBottom;
+extern s16 gLetterboxBottomBarTop;
 
 void viewportShrinkToCenter(u8 amount) {
     f32 scale;
@@ -869,8 +869,8 @@ void viewportShrinkToCenter(u8 amount) {
         gPlayerSlots->rect[1] = (s32)((f32)gGfxScreenTop + ((f32)((gScreenHeight >> 1) - gGfxScreenTop - 1) * scale));
         gPlayerSlots->rect[3] = (s32)((f32)gGfxScreenBottom + ((f32)((gScreenHeight >> 1) - gGfxScreenBottom) * scale));
     } else {
-        gPlayerSlots->rect[1] = (s32)((f32)D_807444AC + ((f32)((gScreenHeight >> 1) - D_807444AC - 1) * scale));
-        gPlayerSlots->rect[3] = (s32)((f32)D_807444B0 + ((f32)((gScreenHeight >> 1) - D_807444B0) * scale));
+        gPlayerSlots->rect[1] = (s32)((f32)gLetterboxTopBarBottom + ((f32)((gScreenHeight >> 1) - gLetterboxTopBarBottom - 1) * scale));
+        gPlayerSlots->rect[3] = (s32)((f32)gLetterboxBottomBarTop + ((f32)((gScreenHeight >> 1) - gLetterboxBottomBarTop) * scale));
     }
     gPlayerSlots->rect[0] = (s32)((f32)gGfxScreenLeft + ((f32)((gScreenWidth >> 1) - gGfxScreenLeft - 1) * scale));
     gPlayerSlots->rect[2] = (s32)((f32)gGfxScreenRight + ((f32)((gScreenWidth >> 1) - gGfxScreenRight) * scale));
@@ -1069,7 +1069,7 @@ Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
         gScreenFadeProgress += gScreenFadeRate * (mode == 2 ? 2 : 1);
         if (gScreenFadeProgress < 0.0f) {
             mapGetWorldIndex(gCurrentWorldId);
-            if (!(gScreenRenderFlags & 0x20) && func_80600454(gCurrentLevelIndex, &textIndex)) {
+            if (!(gScreenRenderFlags & 0x20) && mapTitleCheckShow(gCurrentLevelIndex, &textIndex)) {
                 textSpawnMarkerChecked(1, 0, 0x64, textTableGetString(0x23, textIndex, 1), 0, 0x28, 6, 8);
                 gScreenRenderFlags |= 0x20;
             }

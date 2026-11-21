@@ -103,7 +103,7 @@ void actorFollowParentPulseUpdate(void) {
     pulse = ((PulseActor *)gCurrentActor)->pulse;
     parent = gCurrentActor->parentActor;
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80724CA4(2, 2);
+        actorAllocBoneRotations(2, 2);
     }
     actorCopyPoseAndScale(gCurrentActor, parent, 0.15f);
     if (gCurrentActor->state != 0) {

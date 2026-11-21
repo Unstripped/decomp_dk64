@@ -56,8 +56,8 @@ extern PlayerState *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 extern void *gPuffSprites[];
-extern EffectGridAsset D_80720120;
-extern EffectGridAsset D_8072030C;
+extern EffectGridAsset gEffectSpriteFireBurst;
+extern EffectGridAsset gEffectSpriteFuseSpark;
 
 extern struct MinecartElem *gMinecartJunctionTable[];
 extern u8 D_80028C34[];
@@ -356,7 +356,7 @@ void minecartUpdateFollower(void) {
     }
     if (gFrameCounter % 3 == 0) {
         effectSetDepth(1);
-        effectCreateAtPosition(&D_80720120, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteFireBurst, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
     }
     gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(pointX, pointZ, gCurrentActor->x, gCurrentActor->z), 6.0f);
     gCurrentActor->moveYaw = gCurrentActor->yaw;
@@ -470,7 +470,7 @@ void minecartUpdateObstacleType1(void) {
     cart = ((MinecartObstacleActor *)gCurrentActor)->cart;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80724CA4(2, 1);
+        actorAllocBoneRotations(2, 1);
         gBehaviourWorkState->acceleration = 6;
     }
     if (gActorGlobalState.damaged != 0) {
@@ -539,7 +539,7 @@ void minecartUpdateObstacleType2(void) {
         }
         effectSetDepth(1);
         effectSetDuration(-1);
-        effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
+        effectCreateAtActorBone(&gEffectSpriteFuseSpark, 0.14f, gCurrentActor, 0xB, 2);
         gCurrentActor->state = 0;
     }
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) {
@@ -610,7 +610,7 @@ void minecartUpdateObstacleType3(void) {
         gBehaviourWorkState->acceleration = 2;
         effectSetDepth(1);
         effectSetDuration(-1);
-        effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
+        effectCreateAtActorBone(&gEffectSpriteFuseSpark, 0.14f, gCurrentActor, 0xB, 2);
     }
     if (gActorGlobalState.bossFightPhase == 4) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
