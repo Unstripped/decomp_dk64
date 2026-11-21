@@ -13,6 +13,7 @@ global:806A8158:other:6151e7 other: KEPT FAKE (diagnose nohit). The step limit r
 global:806A8158:other:32c920 other: KEPT FAKE (diagnose nohit). The half span reuses flag (a0, `sra t9,a0,1` / `move a0,t9` at 0xdbc/0xdc0). In the free word a dedicated half is coloured v0 (11). With sel in the word it grows the frame (42).
 Director ruling (2026-11-15): the remaining sites cannot be ORIG. ladder.md needs a store of the role value to the variable's own home slot, and none of them has one.
 Director ruling RQ2 (2026-11-20, D2 HOLD): the four sites were re-measured on the merged body (2026-11-20 CleanmenuInitMainScreenb): no lever outside this dossier, nohit -> EXHAUSTED.
+Re-measured 2026-11-21 (continue unit 1, HackACDC0) on b1c3fd15 after the names windows (gMapPauseCount, sPauseBaseCamY, sPauseCarouselTurnDelta, sPauseLevelLabelHalfWidth) and Q1582: every split reproduces, all four sites and reconstruct nohit.
 
 ## Attempts
 
@@ -57,12 +58,17 @@ Director ruling RQ2 (2026-11-20, D2 HOLD): the four sites were re-measured on th
 - variants scan (`--max 1000`): `switch (hud->page)` 187 variants, best 7; s32 credits 193, best 63; s32 limit 193, best 46; s32 half 193, best 38; all roles dedicated 211, best 82.
 - uopt -l 6 on each split: s8 page (-27vreg, bit 191) gets v0 after flag and ahead of sel; s32 credits (-44vreg, bit 241) gets a2, hubWorld a1, the map-only sel v0 (`move v0,v1` at 0xb8); s32 limit (bit 359) gets a0 and flag drops to v1 (`move v1,zero` 0xce8, `beqz v1` 0xd64); s32 half (bit 394) gets v0 (0xdb8-0xdc4). A local declared last takes -44vreg and pushes the switch temp to -48vreg (frame 0x60).
 - No lever outside this dossier: all four sites and reconstruct nohit under RQ2.
+2026-11-21 continue unit 1 HackACDC0 anthropic/claude-opus-5-5 (re-measurement on b1c3fd15: names windows renamed D_8076A098 -> gMapPauseCount, D_807FC7FC -> sPauseBaseCamY, D_807FC802 -> sPauseCarouselTurnDelta, D_807FC808 -> sPauseLevelLabelHalfWidth; Q1582 filed after the 2026-11-20 CleanhudPauseMenuUpdateb events; variants.py try full=):
+- Every split reproduces: `switch (hud->page)` 7, s8 page in the x/stickY word 7, s32 page last 38; s32 credits last 67, u8 credits in the word 202; s32 limit last 50; s32 half last 42; every role dedicated 82 (frame 0x68, `addiu sp,sp,-104` at 0xa0).
+- New: the page switch as an if/else-if chain on `hud->page` 145 (page in v0, `lb v0,18(s0)` at 0x61c; case 0 falls through after `bnez v0` at 0x624 and the 1/2/3 tests move behind it; frame 0x58 kept); limit block-scoped in a `case 3: {` block 50; half block-scoped around the carouselProgress tail 42 (each still one home word more).
+- variants scan (`--max 1000`) of the split copies: page 187 variants best 7; credits 193 best 63; limit 193 best 46; half 193 best 38 (the bests are x/stickY widened to s32 or operand swaps).
+- uopt -l 6 on b1c3fd15: base colouring unchanged (hud bit 0 s0, i bit 38 a1, sel bit 5 a1, flag bit 172 a0, x bit 291 v0, stickY bit 202 v1, hubWorld bit 87 a2, step bit 352 a1, diff bit 356 t0). `switch (hud->page)`: switch temp bit 9 -> v0 before sel -> a1. s32 credits: bit 241 a2, hubWorld a1, map-only sel v0, switch temp -44vreg -> -48vreg. s32 limit: bit 359 a0, flag v1. s32 half: bit 394 v0.
 
 ## Untried ideas
 
 - A lead ruling on whether one selector local used for both switch selectors is the same role (SKILL 5.6 "a selector local at its use"). That would make c127b7 ordinary C.
 - No further frame word is left: the census shows 10 named words, the switch temp, and the spill temp at capacity. The flag-side roles are colour-bound even with a free word (span 8: flag is a0 only while its range covers the limit region).
-- None new in natural C after the 2026-11-20 re-measurement. The page value only gets a1 when it shares a candidate with sel; a call taking the page as argument 2 would prefer a1 (Q0875) but the target has no such call.
+- None new in natural C after the 2026-11-21 re-measurement. The page value only gets a1 when it shares a candidate with sel; a call taking the page as argument 2 would prefer a1 (Q0875) but the target has no such call. The map switch keeps a jump table (`jr t6` at 0x118, .rodata+0xa4), so the shared cfe switch temp cannot be given back by turning both switches into if chains.
 
 ## Evidence
 
