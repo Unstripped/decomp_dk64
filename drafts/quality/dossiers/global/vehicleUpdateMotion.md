@@ -163,10 +163,24 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
     45, after turnRate 9, before speedGain 7 and after the heading mask 7 (kongState coloured v1, constant 2 in a0: the
     alias order). register s32 kongState 45; register on kongState/inWater/onGround with both guards removed 65.
   review nohit; FAKE comments rewritten in register terms.
+- 2026-11-21 continue unit 2 Lever936B0 anthropic/claude-opus-5-5 (copy unchanged, fdiff 0; sweep 47 checks 0 hits; uopt -l5 at 18884cf4):
+  6c8d63 diagnose nohit, new lever Q1590 (extra natural def/use breaks an exact tie) + Q1588 (candidate number):
+    removal body waterY cand 24 {48,49,70,71} 3.0 ties speedY cand 216 {49,50,51,53x2,52} 3.0, bit 24 wins $f0 (full 20).
+    18 bodies respelling the speedY reads in bb 49..53: code identical to the removal (216 stays 3.0): divide arm `-=`,
+    `-(x / 12.0f) + x`, `x / 12`, `20.0f < abs`; extra or moved reads emit code: abs arm `0.0f - x` (sub.s $f0,$f14,$f2 for
+    neg.s at 0x13c8/0x13d4, full 20), `(x * 12.0f - x) / 12.0f` 22,
+    conditional store `x = abs > 20.0f ? x - x / 12.0f : x` 23 (216: 6 uses over 6 blocks, 2.33), `x - x * (1.0f / 12.0f)` 24,
+    `x - (x + x) / 24.0f` 27, `x > 20.0f || -x > 20.0f` 27, `x * x > 400.0f` 40, `x + -x / 12.0f` 43, if/else-if pair 43,
+    `x > 20.0f || x < -20.0f` 47, `-=` ternary of 0.0f 110, split compare ternary 121; hack-shaped probes 45/25.
+    Every counted use is an instruction operand (c.lt.s 0x13bc, mov.s 0x13d0, neg.s 0x13d4, div.s/sub.s 0x13f0/0x13f4).
+    A speedY local stays a real var (ilod locals are not forwarded) and the frame has no free word. Q1588: speedY is
+    bit 216 (first read = bb 49 reload), waterY bit 24 (line-339 inWater read): no natural order numbers speedY first.
+  9b1ca1: Q1590 does not apply (no tie: piece 321 is 2 uses - 2 reload blocks = 0); nothing recorded.
+  review nohit: fresh read at 18884cf4, body unchanged, FAKE 2 kept.
 
 ## Untried ideas
 - 6c8d63: a natural construct adding a block between a waterY compare and its use (bb 48->49 or bb 70->71) with no
-  code, or one more speedY use in bb 49..53 with unchanged code; the late-arm reuse of waterY must stay (store-order probe).
+  code; the late-arm reuse of waterY must stay (store-order probe). (One more speedY use in bb 49..53: tried 2026-11-21, nohit.)
 - 9b1ca1: one more kongState use AFTER the bb 58 compare (0x1434) with no code; earlier positions colour kongState before
   the constant 2 (v1/a0 swapped). Aliases stay redundant-alias steers.
 
@@ -183,3 +197,5 @@ uopt -l5 at 08f85115 (removal copy): kongState piece 321 `live bb 19/6 needreglo
 0.00000000e+00, no split; base piece 323 `44 1 needreglod`, `58 1`, `66 1 deadout`, adjsave 2.857e-01, a0 (uopt 3).
 uopt -l5 at c5578e18: waterY cand 24 live bb 48, 49..50, 51, 72, 73 (with guard, adjsave 2.0, $f2) vs 48, 49, 70, 71
 (without, 3.0, $f0); speedY cand 217/216 adjsave 3.0 both ways.
+uopt -l5 at 18884cf4 (removal body): cand 24 `48 1 1 0`, `49 1 0 0`, `70 1 1 0`, `71 1 0 0` 3.0 (reg 24); cand 216
+`49 1 1 0`, `50 1`, `53 2 deadout`, `51 1`, default [52], 3.0 (reg 25). Conditional-store body: 216 adds `54 1`, 2.33.
