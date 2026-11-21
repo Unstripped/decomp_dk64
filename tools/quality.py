@@ -1751,13 +1751,15 @@ def tag_added(old_cursors, new_cursors, name, m):
     return sorted(set(pairs))
 
 
-def decl_renames(old_scope, old_closure, new_scope, new_closure, known):
+def decl_renames(old_scope, old_closure, new_scope, new_closure, known, addr_old, addr_new):
     """{old: new} renames of names a function reaches only through other declarations (a function
     pointer table's initialiser, a `#define` alias body): identifiers that differ pairwise between a
     reached declaration's REV and HEAD tokens, where the old name is gone at HEAD, the new one did
-    not exist at REV, and the two declarations are the same entity modulo the rename (functions:
-    same `decl_signature`; anything else: identical text with the name mapped). KNOWN renames apply
-    first; a name mapped two ways is left out."""
+    not exist at REV, both resolve to the same symbol address (ADDR_OLD / ADDR_NEW: name -> address
+    or None, as `rename_map`; a file-local static without one is never a rename here) and the two
+    declarations are the same entity modulo the rename (functions: same `decl_signature`; anything
+    else: identical text with the name mapped). KNOWN renames apply first; a name mapped two ways is
+    left out."""
     out = {}
     for name in set(old_closure) & set(new_closure):
         oc, nc = old_scope.idx.get(name, []), new_scope.idx.get(name, [])
@@ -1779,6 +1781,9 @@ def decl_renames(old_scope, old_closure, new_scope, new_closure, known):
     for a, b in out.items():
         if b is None or a in new_scope.idx or b in old_scope.idx or a not in old_scope.idx or b not in new_scope.idx:
             continue
+        addr = addr_old(a)
+        if addr is None or addr != addr_new(b):
+            continue  # another object of the same type, not the same one renamed
         ocs, ncs = old_scope.idx[a], new_scope.idx[b]
         if all(c.kind == CursorKind.FUNCTION_DECL for c in ocs + ncs):
             osig = {decl_signature(c) for c in ocs}
@@ -1790,7 +1795,8 @@ def decl_renames(old_scope, old_closure, new_scope, new_closure, known):
     return ok
 
 
-def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, old_body, new_body=None):
+def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, old_body, new_body=None,
+                   addr_old=lambda n: None, addr_new=lambda n: None):
     """(sorted records whose fields were renamed, {name: `respelled_decl`/`moved_decl`/alias
     description}, None) when every declaration OLD_CLOSURE reaches (in OLD_SCOPE: REV's text parsed
     with REV's headers) has NEW_CLOSURE's text once FWD's (`rename_map`) name renames apply (a renamed
@@ -1823,7 +1829,7 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
     used = {(field_record(t), t.spelling) for t in old_body
             if t.kind == TokenKind.IDENTIFIER and (token_meaning(t) or ("",))[0] == "field"}
     sfwd = {k: v for k, v in fwd.items() if isinstance(k, str)}
-    sfwd.update(decl_renames(old_scope, old_closure, new_scope, new_closure, sfwd))
+    sfwd.update(decl_renames(old_scope, old_closure, new_scope, new_closure, sfwd, addr_old, addr_new))
     clash = next((f"{k} renamed {v}, which REV reaches too" for k, v in sorted(sfwd.items())
                   if k in old_closure and v in old_closure), None)
     if clash:
@@ -2394,7 +2400,7 @@ def carry_renames(a, by_site, by_func):
                         paste = old["scope"].unbounded(ocl)
                         recs, hmoved, hwhy = (None, None, f"token-pasting macro {paste}") if paste else header_renames(
                             path, old["scope"], ocl, nscope, nscope.closure(body_names(nnames, fn), pastes=True),
-                            fwd, obt, nbody)
+                            fwd, obt, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
                         why = why or hwhy
                     if recs is None:
                         skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed"

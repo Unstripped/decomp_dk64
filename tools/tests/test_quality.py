@@ -1152,22 +1152,31 @@ TABLE_C = ('#include "s.h"\n%s'
            "int f(int i) {\n    if (i) {} // FAKE: steers\n    return %s;\n}\n")
 
 
-@pytest.mark.parametrize("old_decl,new_decl,old_ret,new_ret,carried", [
+TABLE_OLD = "int func_80601000(int);\nint (*tab[1])(int) = { func_80601000 };\n"
+TABLE_NEW = "int handlerA(int);\nint (*tab[1])(int) = { handlerA };\n"
+HELD_OLD = "int D_80601000[4];\n#define Held D_80601000\n"
+HELD_NEW = "int gPadHeld[4];\n#define Held gPadHeld\n"
+
+
+@pytest.mark.parametrize("old_decl,new_decl,ret,syms,carried", [
     # names window 9: a function pointer table's entries renamed (E4090 gPlayerInputHandlers)
-    ("int func_80601000(int);\nint (*tab[1])(int) = { func_80601000 };\n",
-     "int handlerA(int);\nint (*tab[1])(int) = { handlerA };\n", "tab[0](i)", "tab[0](i)", True),
+    (TABLE_OLD, TABLE_NEW, "tab[0](i)", "handlerA = 0x80601000;\n", True),
+    # another function of the same type put in the slot (another address): not a rename
+    (TABLE_OLD, TABLE_NEW, "tab[0](i)", "handlerA = 0x80602000;\n", False),
+    # the new name has no symbol address (a file-local function): not provable, not carried
+    (TABLE_OLD, TABLE_NEW, "tab[0](i)", "", False),
     # the entry's type changed too: not a rename
-    ("int func_80601000(int);\nint (*tab[1])(int) = { func_80601000 };\n",
-     "int handlerA(short);\nint (*tab[1])(int) = { (int (*)(int))handlerA };\n", "tab[0](i)", "tab[0](i)", False),
+    (TABLE_OLD, "int handlerA(short);\nint (*tab[1])(int) = { (int (*)(int))handlerA };\n", "tab[0](i)",
+     "handlerA = 0x80601000;\n", False),
     # names window 7: a file-local #define alias of a renamed global (F600 CtrlAHeld)
-    ("int D_80601000[4];\n#define Held D_80601000\n", "int gPadHeld[4];\n#define Held gPadHeld\n",
-     "Held[i]", "Held[i]", True),
+    (HELD_OLD, HELD_NEW, "Held[i]", "gPadHeld = 0x80601000;\n", True),
+    (HELD_OLD, HELD_NEW, "Held[i]", "gPadHeld = 0x80601010;\n", False),
     # the old global still declared at HEAD: not a rename
-    ("int D_80601000[4];\n#define Held D_80601000\n",
-     "int D_80601000[4];\nint gPadHeld[4];\n#define Held gPadHeld\n", "Held[i]", "Held[i]", False),
+    (HELD_OLD, "int D_80601000[4];\nint gPadHeld[4];\n#define Held gPadHeld\n", "Held[i]",
+     "gPadHeld = 0x80601000;\n", False),
 ])
-def test_carry_renames_reached_through_declarations(tmp_path, monkeypatch, capsys, old_decl, new_decl, old_ret,
-                                                    new_ret, carried):
+def test_carry_renames_reached_through_declarations(tmp_path, monkeypatch, capsys, old_decl, new_decl, ret, syms,
+                                                    carried):
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)
     (repo / "include").mkdir()
@@ -1184,13 +1193,15 @@ def test_carry_renames_reached_through_declarations(tmp_path, monkeypatch, capsy
     _git(repo, "config", "user.name", "t")
     (repo / "include" / "s.h").write_text("void g(int);\n")
     src = repo / "src" / "global" / "x.c"
-    src.write_text(TABLE_C % (old_decl, old_ret))
+    src.write_text(TABLE_C % (old_decl, ret))
+    (repo / "symbol_addrs.us.txt").write_text("")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "a")
     rev_a = _git(repo, "rev-parse", "HEAD")
     fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
     q.append_events([q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
-    src.write_text(TABLE_C % (new_decl, new_ret))
+    src.write_text(TABLE_C % (new_decl, ret))
+    (repo / "symbol_addrs.us.txt").write_text(syms)
     _git(repo, "commit", "-qam", "b")
     capsys.readouterr()
     q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
