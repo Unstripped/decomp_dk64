@@ -2621,6 +2621,10 @@ def cmd_report(a):
             cols[m.group(1)]["protos mismatch"] += 1
     segs = sorted(cols, key=lambda s: (s not in ("boot", "global"), s != "boot", s))
     total = sum(cols.values(), collections.Counter())
+    if a.json:
+        print(json.dumps({"total": {row: total[row] for row in ROWS},
+                          "segments": {s: {row: cols[s][row] for row in ROWS} for s in segs}}, indent=1))
+        return
     start = baseline(a.baseline) if a.baseline else None
     head = ["metric", *segs, "total"] + (["start"] if start is not None else [])
     body = [[row, *(str(cols[s][row]) for s in segs), str(total[row])]
@@ -2675,6 +2679,7 @@ def main(argv=None):
     c = s.add_parser("report")
     c.add_argument("--baseline")
     c.add_argument("--markdown", action="store_true")
+    c.add_argument("--json", action="store_true", help="machine-readable totals and per-segment counts")
     c.set_defaults(fn=cmd_report)
     c = s.add_parser("carry")
     c.add_argument("--rev", required=True, help="commit before the renames / header carves")
