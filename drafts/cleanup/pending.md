@@ -97,11 +97,11 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- 2026-11-20 close: every rank function is EXHAUSTED at strength 3 (SKILL §7 stop: no re-dispatch without a new lever named in
-  the brief); the close knowledge (89a58e82) staled the reviews of ACDC0 hudPauseMenuUpdate, 7CA80 actorAllocate, 80150
-  tagBarrelCheckProximityAndFall and CEAE0 playerUpdateCommon (reviewed 4,266/4,270): the next session's polish leftovers (review
-  lines only; their hack rungs are fresh). 7CA80 actorAllocate's `ALIGN8_U16` `(u16)` stays FAKE (director: reachable headerSize
-  <= 0x188, the cast never changes the value).
+- Continue unit 1 (2026-11-21): the four stale reviews and every knowledge/rename-staled hack rung were re-measured (ReviewU1/U2,
+  Hack* workers): reviewed 4,270/4,270, sites open 1; FAKE 168 -> 163 (80150 volatile via bare truth tests Q1585, 36880
+  modelPendingQueueInsert 4 -> 2, 7130 sfxUpdateLevelAmbient 4 -> 2 via a per-block element pointer Q1586). Every other rank
+  function is EXHAUSTED; re-dispatch only with a lever named in the brief (continue-unit SKILL §3: lever-transfer lists).
+  7CA80 actorAllocate's `ALIGN8_U16` `(u16)` stays FAKE (director: reachable headerSize <= 0x188, the cast never changes the value).
 - FCCD0 slotQueueDrawLabel f22aa7: the text[4] route is closed by R11 (coins F9450.c:621 item 0xB7 and the slot 9 sum are uncapped);
   a fix needs another free frame word for the int-width selector (dossier).
 - Polish proposals (2026-11-18c reports): 136820 gFaultFramebuffer s32 -> u16 * with faultFontInit's first parameter (after the
@@ -110,41 +110,24 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   menuDrawHighScoreTable `(s16)(posY * 4.0)`, menuUpdateElementTargetAndColor five `(f32)`, 1295B0 zoneCheckActorInside two
   `(f64)` + seven `(f32)` (each fdiff 0 in a probe copy, Polishglobal42630d); 70FD0 420f8c FAKE comments still say unk140.
 
-## Held names (a field rename reopens the review of every touched function: batch them with the next types item, lead review each)
-Lists: .scratch/Lead20261118/names17f.txt (17f proposals), names_close.tsv (close submissions; names_applied.tsv applied,
-names_failed.txt refused), .scratch/lead_s1115/names.md, .scratch/lead_s1115c/close.md, .scratch/CleanupLead/close-2026-11-16-closed.md.
-- PlayerState: unk50 gravityDelayFrames (read D5E10 first), unk78/unk7C/unk80, unkC2 slopeFrames (D5E10/EFDC0 unread), unk11C
-  swimStrokeTimer vs stateTimer (EFDC0 unread; 2026-11-18c Polishglobal42630c votes stateTimer: u8 per-state countdown, EFDC0.c:1609
-  sets 0x19 before state 0x39, D5E10.c:2260 `unk11C-- == 0`), unk1A0 aimPitch (936B0/CC800/D5E10 unread); every 17f field list
-  (PlayerState/PlayerStruct/ActorGlobalState/ModelSlot/ModelAnim*/Jetpac*/HealthHud); PlayerStruct.unk2C0 sizeMode.
-- JetpacItem (include/jetpac.h, 2026-11-18c Polishglobal9DD70): unk8 x, unkC y (jetpacDrawRocket passes unk8 / unkC + 52 as the sprite
-  x/y; jetpacPlaceRocketAboveScreen sets 168 / -8 + i*16), unk44 update, unk48 draw (templates set them to jetpacRocketItemUpdate /
-  jetpacBonusItemUpdate and jetpacDrawItem); dry-run touches jetpac/3480.c (60 positions) and jetpac/0.c (unk44): read them first.
-- RaceParticipant: unk1C frameTimer, unk35 (statusStep/finishStep/subPhase), unk3A (route position that wraps and bumps the lap:
-  waypointIndex/routePos/checkpoint), unk40 (holds a normal and a squared distance: not "Sq"), unk44 (missesLeft/gateMisses,
-  counts down), unk45 (outOfRace/eliminated/disqualified).
-- Actor: unkF2 arcPushYaw (69E60/80150 unread), 0xE4 pitch <-> 0xE8 roll swap (HackvehicleUpdateMotion4; confirm across users),
-  unk155 (low). ActorGlobalState: unk15 hitType (boss files unread), unk24/25/28/F0/F4 grab/hold and the other 9DD70-only fields,
-  unk2C/30/34/36 launchPending/launchSpeedY/launchSpeedXZ/launchYaw (80150 unread).
-- CamState unkA0 followDist (a reference inside CAM_MIN: rename every dry-run position by hand), unkA4 followDistGoal (201B0);
-  ActorCallbackNode callback (anonymous union: types item), unk4 subtype, unkC ownsPayload, unk10 payload (confirm users);
-  ModelSlot unk86 modelKind (63810 unread), unk8C stateFlags; SchedStruct.unk280 tickCount (8 files unread, 91 uses);
-  SpawnNode.unk38 animSpeedScale (boss/0, 12E800 unread); KongInventory.unk5; CollisionTriF unk24/unk25 slopeType/surface;
-  BehaviourWorkState.unk2E sfxCooldown (dry run touches 11 unread files); MpSettings.unk0 (mode vs gameMode; reader mpIsMatchType).
-- Globals: D_80753354 (s16 per-kong turn rate, CC800/E4090; gKongTurnRate is CEAE0's other table: pick a use-based name),
-  D_8076A0A6 (copy of gPadPressedButtons[0]), D_80757044/D_80757064 (default high-score tables), D_807FC952
-  (= gPlayerInventoryTable[0].kong[0].weaponFlags; cannot fold), D_80744544 gCheatFlags, arcade/0 D_8004BCD0 entity table,
-  race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed), 124780 effect sprite symbol_addrs (needs a split).
-- Slash-form and uncertain (17f/18): D_807444A8/AC/B0/B4 letterbox, 10130 func_8060B7C4/7D0 (func_8060B750/6CC named
-  demoPlaybackLoad/demoPlaybackReset at the 18b close, 7a1f8709), effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn/
-  effectSpawnActorScale (18c Polishglobal42630c: effectSpawnWaterRipple / effectActorCheckWaterRipple, less certain), gMenuBonusTimer
-  -> gHelmTimer, modelAnimEntrySet*, BA790 func_806B5A90 -> explodingChaserUpdate (18c Polishglobal9DD70, moderate: states 0/4 chase via
-  enemyAggroStateUpdate/actorMoveWithinZone (0x33), 0x37 explodes; held by the director at the 18c close).
-- 2026-11-20 proposals with code evidence (reports in .scratch/Lead20261120/reports/): func_806228BC camComputeFirstPersonEyeFocus,
-  func_8062773C camExitFirstPerson, D_807476B4 gCamZoneFocusOffset, D_8074682C gMainLoopWatchdog, D_80746830 gWatchdogPaused,
-  D_807F693A gCsLightIndex, D_80750650 gEnemyGridLongJump, func_806BCF98 enemyGridDrawYesNoPrompt, D_8004BCD0 gArcadeEntities,
-  D_8004C724 gArcadeScreenMode, playerCheckLandingSfx -> playerCheckLandingSlide; fields BehaviourWorkState.unk36 chaseState /
-  unk20 searchTimer, SpawnNode.unkD chaseSpeed, ActorGlobalState.unk39 riderCount / unk7C riderActors, JetpacItem.unk8/unkC x/y.
+## Held names
+Continue unit 1 (2026-11-20/21, names windows 4b47df82..741670df, union carves e14a06d4) landed ~1,360 names, including every
+field list above it (PlayerState, PlayerStruct, RaceParticipant, JetpacItem, CamState, CsState, ModelSlot, RenderEntry,
+SchedStruct, SpawnNode, BehaviourWorkState, ActorGlobalState, ActorCallbackNode, Actor 0x144/0x155/0x72/0xA8) and the 2026-11-20
+global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog, gWatchdogPaused, camComputeFirstPersonEyeFocus,
+...). Field renames now carry (quality.py carry + --header-carve): they no longer reopen reviews. What is still unnamed:
+`uv run tools/debt.py names`; queue and procedure: `.omp/skills/continue-unit/names.md`. Still held (evidence or ruling missing):
+- Audio D_80770DE8 / D_80770DDC: the original reuses them as scratch in 7130.c (818-825, 1742-1782; 465-481): user ruling pending on
+  a generic name (proposals gSfxRightLevel / gSfxPan, Hack7130 and NamesAudio).
+- Cross-segment aliases: D_80029FA0 (critter names it critterArenaTargetsLeft; global code uses it), D_80741F40, D_80760840.
+- D_80753354 (s16 per-kong turn rate; gKongTurnRate is CEAE0's other table), D_8076A0A6 (copy of gPadPressedButtons[0]),
+  D_807FC952 (= gPlayerInventoryTable[0].kong[0].weaponFlags; cannot fold), race/0 D_8002FB10/D_8002FB70 route tables, D_80750650.
+- Function renames: playerCheckLandingSfx -> playerCheckLandingSlide, effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn
+  (water ripple, less certain), gMenuBonusTimer -> gHelmTimer, csSetActorScaleFadeByType / actorSetInteractionTimer (both set
+  Actor.collisionMode, NamesActorBytes), csIsPlayerState4OrC (tests gPlayerSlots->camChunk, NamesRaceSched).
+- Fields: PlayerState unk78/unk7C/unk80, Actor 0xE4 pitch <-> 0xE8 roll swap, Actor.unk15F / unkEC (no dominant meaning: only
+  per-type union members), HudIconState unk10 offsetX / unk18 wanderTargetX (ACDC0 file-local, HackACDC0), D_807F7140
+  gCsModelUpdateCount (Hack36880).
 
 ## Tooling fixes (open)
 - None open from 2026-11-20: 73393b44 (noop-arith literal), bd5da4f3 (alias respelling), 49c6d3c4 (tag added in place), d84d0487
