@@ -247,7 +247,7 @@ def cmd_symbol(a, func):
         print(f"MV {draft} {dst}")
         if not a.dry_run and subprocess.run(["git", "mv", draft, dst], cwd=ROOT, capture_output=True).returncode:
             os.replace(os.path.join(ROOT, draft), os.path.join(ROOT, dst))
-    if not a.dry_run and os.path.exists(os.path.join(ROOT, "tools", "protos.py")):
+    if not a.dry_run and not a.no_gen and os.path.exists(os.path.join(ROOT, "tools", "protos.py")):
         r = subprocess.run(["uv", "run", "tools/protos.py", "gen"], cwd=ROOT)
         if r.returncode:
             print(f"rename: tools/protos.py gen failed (exit {r.returncode})", file=sys.stderr)
@@ -640,6 +640,8 @@ def main(argv=None):
         s.add_argument("seg")
         s.add_argument("old")
         s.add_argument("new")
+        s.add_argument("--no-gen", action="store_true",
+                       help="skip `tools/protos.py gen` (the caller runs it once after a batch of renames)")
     s = sub.add_parser("field")
     s.add_argument("path")
     s.add_argument("struct")
