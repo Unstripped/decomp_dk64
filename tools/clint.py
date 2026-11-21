@@ -35,6 +35,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import hashlib
 
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
@@ -353,11 +354,21 @@ def new_uninit_reads(cur, base):
     return new, renamed
 
 
-def analysed_uninit(path):
+def shadow_flags(copy, dirs):
+    """`-I` flags that put COPY's shadow headers (`tools/shadow.py`: headers beside the copy at an
+    include/ path and in DIRS, plus their unchanged quote-includers) ahead of include/; [] when none."""
+    import shadow  # noqa: E402 (stdlib-only sibling)
+    out = os.path.join(".scratch", "clint-shadow", hashlib.sha1(f"{copy}\0{dirs}".encode()).hexdigest()[:12])
+    rel = lambda x: os.path.relpath(os.path.abspath(x), ROOT)  # noqa: E731
+    flags = shadow.materialise(rel(copy), [rel(d) for d in dirs], out)[0]
+    return [f"-I{os.path.join(ROOT, f)}" for f in flags[1::2]]
+
+
+def analysed_uninit(path, shadow=()):
     """`uninit_reads(PATH)`, or None after printing `UNKNOWN` when its warnings-mode parse has
     errors: clang skips the uninitialised-read analysis of every function after a TU's first error,
-    so no warning there is unknown, not none."""
-    tu = parse(path, args=clang_args(warnings=True))
+    so no warning there is unknown, not none. SHADOW: shadow header dirs (`shadow_flags`)."""
+    tu = parse(path, args=[*shadow_flags(path, shadow), *clang_args(warnings=True)])
     if tu.diagnostics_errors:
         print(f"UNKNOWN {path}: {tu.diagnostics_errors} error(s) in the warnings-mode parse, uninitialised "
               f"reads not analysed; first: {first_error(tu)}")
@@ -366,7 +377,7 @@ def analysed_uninit(path):
 
 
 def cmd_uninit(a):
-    cur = analysed_uninit(a.copy)
+    cur = analysed_uninit(a.copy, a.shadow)
     for (fn, var), r in sorted((cur or {}).items(), key=lambda x: x[1]["line"]):
         print(f"UNINIT {a.copy}:{r['line']} {fn} {var}")
     base = analysed_uninit(a.base) if a.base else {}
@@ -492,7 +503,8 @@ def cmd_layout(a):
                 continue
             rel = os.path.relpath(h, "include")
             old = records(clang_args(os.path.join(tmp, "include")), rel)
-            new = records(clang_args(), rel)
+            new = records([*(shadow_flags(os.path.join(a.shadow[0], "_.c"), a.shadow[1:]) if a.shadow else []),
+                           *clang_args()], rel)
             for d in layout_diff(old, new):
                 print(f"LAYOUT CHANGED {d}")
                 bad = True
@@ -533,10 +545,15 @@ def main():
     s = sub.add_parser("uninit")
     s.add_argument("copy")
     s.add_argument("--base")
+    s.add_argument("--shadow", action="append", default=[], metavar="DIR",
+                   help="shadow header dir ahead of include/ for COPY (as fdiff.sh --shadow); a header beside COPY "
+                        "at an include/ path shadows too")
     s.set_defaults(fn=cmd_uninit)
     s = sub.add_parser("layout")
     s.add_argument("--base", required=True)
     s.add_argument("headers", nargs="+")
+    s.add_argument("--shadow", action="append", default=[], metavar="DIR",
+                   help="compare these headers' versions in DIR (at their include/-relative paths) instead of include/")
     s.set_defaults(fn=cmd_layout)
     s = sub.add_parser("compdb")
     s.set_defaults(fn=cmd_compdb)
