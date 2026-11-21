@@ -1390,9 +1390,15 @@ typedef struct {
     f32 buffer;
     f32 startX;
     f32 startY;
-    f32 unk10;
+    union {
+        f32 offsetX;   // kinds 1/2/7: fly-out x offset; kind 6: wander x offset (both added to startX)
+        f32 baseScale; // default kinds: the spawn's scale (kinds 3/4/5/8/15 scale by it)
+    };
     f32 offsetY;
-    f32 unk18;
+    union {
+        f32 baseScaleY;    // kinds 1/2/7: the effect's spawn scaleY (kind 7 wobbles around it)
+        f32 wanderTargetX; // kind 6: x offset offsetX steps toward
+    };
     f32 wanderTargetY;
     f32 wanderAngle;
     f32 wanderPause;
@@ -1430,7 +1436,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             effect->alpha = (s32)(t * 255.0f);
             if (type == 4) {
-                effect->scaleX = item->unk10 * t * 4.0;
+                effect->scaleX = item->baseScale * t * 4.0;
                 effect->scaleY = effect->scaleX;
             }
             effect->x = item->startX;
@@ -1451,9 +1457,9 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             if (type == 7) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                effect->scaleY = mathSinF(ang) * 0.35 + item->unk18;
+                effect->scaleY = mathSinF(ang) * 0.35 + item->baseScaleY;
             }
-            effect->x = item->unk10 * t + item->startX;
+            effect->x = item->offsetX * t + item->startX;
             effect->y = item->offsetY * t + item->startY + bounceStep;
             break;
         case 3:
@@ -1473,7 +1479,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                 radius = 240.0f;
             }
             radius *= t;
-            effect->scaleX = item->unk10 * t * 4.0;
+            effect->scaleX = item->baseScale * t * 4.0;
             effect->scaleY = effect->scaleX;
             t = 0.0;
             effect->x = mathSinF(ang) * radius + 640.0;
@@ -1502,7 +1508,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             break;
         case 6:
-            radius = (item->offsetY - item->wanderTargetY) * (item->offsetY - item->wanderTargetY) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18); // FAKE: radius holds the squared target distance (add.s $f2 at 0x4528, c.lt.s at 0x452c, never stored): a dedicated f32 adds a word and takes $f12 (14), the sum inlined in the test 200
+            radius = (item->offsetY - item->wanderTargetY) * (item->offsetY - item->wanderTargetY) + (item->offsetX - item->wanderTargetX) * (item->offsetX - item->wanderTargetX); // FAKE: radius holds the squared target distance (add.s $f2 at 0x4528, c.lt.s at 0x452c, never stored): a dedicated f32 adds a word and takes $f12 (14), the sum inlined in the test 200
             if (radius < 400.0f) {
                 item->wanderPause = item->wanderPause - 1.0;
                 if (item->wanderPause < 0.0) {
@@ -1511,7 +1517,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                     ang = (s32)item->wanderAngle & 0xFFF;
                     item->wanderAngle = ang;
                     radius = (randomFloat() * 40.0 + 20.0) * 4.0;
-                    item->unk18 = mathSinF(ang) * (radius * 0.8);
+                    item->wanderTargetX = mathSinF(ang) * (radius * 0.8);
                     item->wanderTargetY = mathCosF(ang) * radius;
                     if (randomFloat() < 0.25) {
                         item->wanderPause = randomFloat() * 40.0 + 15.0;
@@ -1520,12 +1526,12 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                     }
                 }
             }
-            radius = (item->unk18 - item->unk10) * 0.1; // FAKE: radius holds the clamped x and y steps ($f2: cvt.s.d at 0x4728/0x47a0, add.s at 0x4770/0x47e8, never stored): a dedicated f32 step adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10)
+            radius = (item->wanderTargetX - item->offsetX) * 0.1; // FAKE: radius holds the clamped x and y steps ($f2: cvt.s.d at 0x4728/0x47a0, add.s at 0x4770/0x47e8, never stored): a dedicated f32 step adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10)
             if (radius < -8.0) radius = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->unk14 load
             if (radius > 8.0) {
                 radius = 8.0f;
             }
-            item->unk10 += radius;
+            item->offsetX += radius;
             radius = (item->wanderTargetY - item->offsetY) * 0.1;
             if (radius < -8.0) {
                 radius = -8.0f;
@@ -1535,7 +1541,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             item->offsetY += radius;
             ang = (gFrameCounter * 0x78) & 0xFFF;
-            effect->x = item->unk10 + item->startX;
+            effect->x = item->offsetX + item->startX;
             effect->y = mathSinF(ang) * 10.0f + (item->startY + item->offsetY + bounceStep + 960.0f * t);
             t = 0.0f;
             break;
