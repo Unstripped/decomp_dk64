@@ -1518,7 +1518,7 @@ void menuMultiplayerResultsHandleInput(Actor *actor, s32 buttons) {
 }
 
 extern u8 D_80033F20[];
-extern s16 D_80744524[];
+extern s16 gMpWinCounts[];
 extern s8 gMpWinnerIndex;
 
 Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
@@ -1549,7 +1549,7 @@ Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
         dl = hudDrawScaledText(dl, x, scaledY1, 0.6f, strBuf);
         isWinner = i == gMpWinnerIndex;
         dl = hudDrawScaledText(dl, x, scaledY1 + 0x30, 0.6f, sMenuTextTable[0x1D + isWinner]);
-        _sprintf(strBuf, "%d", D_80744524[*player]);
+        _sprintf(strBuf, "%d", gMpWinCounts[*player]);
         dl = hudDrawScaledText(dl, x, scaledY2, 0.6f, strBuf);
         x += step;
     }
@@ -1573,7 +1573,7 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
             D_80033F20[sMenuResultsPlayerCount] = i;
             D_80033F24[i] = sMenuResultsPlayerCount;
             if (sMenuResultsPlayerCount == gMpWinnerIndex) {
-                D_80744524[i] += 1;
+                gMpWinCounts[i] += 1;
             }
             sMenuResultsPlayerCount++;
         }
@@ -1974,7 +1974,7 @@ void menuInitGameOptions(Actor *actor, s32 unused) {
 }
 
 
-extern s8 D_8074453C[];
+extern s8 gMenuCheatOptions[];
 
 
 void menuHandleCheatsInput(Actor *actor, s32 buttons) {
@@ -1993,22 +1993,22 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
                 if ((buttons & 0x10) && !(sMenuLastButtons & 0x10) && optionCount != 1) {
                     changed = 1;
                     do {
-                        D_8074453C[row] += 1;
-                        if (D_8074453C[row] >= optionCount) {
-                            D_8074453C[row] = 0;
+                        gMenuCheatOptions[row] += 1;
+                        if (gMenuCheatOptions[row] >= optionCount) {
+                            gMenuCheatOptions[row] = 0;
                         }
-                    } while (!(sMenuCheatOptionMasks[row] & (1 << D_8074453C[row])));
+                    } while (!(sMenuCheatOptionMasks[row] & (1 << gMenuCheatOptions[row])));
                 }
                 if ((buttons & 0x20) && !(sMenuLastButtons & 0x20) && optionCount != 1) {
                     do {
-                        D_8074453C[row] -= 1;
-                        if (D_8074453C[row] < 0) {
-                            D_8074453C[row] = optionCount - 1;
+                        gMenuCheatOptions[row] -= 1;
+                        if (gMenuCheatOptions[row] < 0) {
+                            gMenuCheatOptions[row] = optionCount - 1;
                         }
-                    } while (!(sMenuCheatOptionMasks[row] & (1 << D_8074453C[row])));
+                    } while (!(sMenuCheatOptionMasks[row] & (1 << gMenuCheatOptions[row])));
                     changed = 1;
                 }
-                choice = D_8074453C[row];
+                choice = gMenuCheatOptions[row];
                 if (buttons & 1) {
                     switch (row) {
                     case 0:
@@ -2114,20 +2114,20 @@ Gfx *menuDrawCheats(Actor *actor, Gfx *dl) {
     if (sMenuCheatOptionCounts[row] > 0) {
         switch (row) {
         case 0:
-            dl = textDrawStringVtx(dl, 1, posX, y + 0x40, sMenuTextTable[D_8074453C[0] + 0x3C], 0x81);
+            dl = textDrawStringVtx(dl, 1, posX, y + 0x40, sMenuTextTable[gMenuCheatOptions[0] + 0x3C], 0x81);
             break;
         case 1:
-            dl = textDrawStringVtx(dl, 1, posX, y + 0x40, sMenuTextTable[D_8074453C[1] + 0x52], 0x81);
+            dl = textDrawStringVtx(dl, 1, posX, y + 0x40, sMenuTextTable[gMenuCheatOptions[1] + 0x52], 0x81);
             break;
         case 2:
-            dl = textDrawStringVtx(dl, 1, posX, y + 0x40, sMenuTextTable[D_8074453C[2] + 0x4A], 0x81);
+            dl = textDrawStringVtx(dl, 1, posX, y + 0x40, sMenuTextTable[gMenuCheatOptions[2] + 0x4A], 0x81);
             break;
         case 3:
             _sprintf(strBuf, "%s:%s", sMenuTextTable[0x5E], sMenuTextTable[(D_80744544 & 1) + 0x31]);
             dl = textDrawStringVtx(dl, 1, posX, y + 0x40, strBuf, 0x81);
             break;
         case 4:
-            cheat = D_8074453C[4];
+            cheat = gMenuCheatOptions[4];
             _sprintf(strBuf, "%s:%s", sMenuTextTable[cheat + 0x56], sMenuTextTable[(((1 << (cheat + 1)) & D_80744544) != 0) + 0x31]);
             dl = textDrawStringVtx(dl, 1, posX, y + 0x40, strBuf, 0x81);
             break;
@@ -2234,15 +2234,15 @@ void menuInitCheats(Actor *actor, s32 unused) {
         optionCount = sMenuCheatOptionCounts[i];
         if (optionCount > 0) {
             s16 enabledMask = sMenuCheatOptionMasks[i];
-            if (!((1 << D_8074453C[i]) & enabledMask)) {
+            if (!((1 << gMenuCheatOptions[i]) & enabledMask)) {
                 do {
-                    D_8074453C[i] += 1;
-                    if (D_8074453C[i] >= optionCount) {
+                    gMenuCheatOptions[i] += 1;
+                    if (gMenuCheatOptions[i] >= optionCount) {
                         sMenuCheatOptionCounts[i] = 0;
-                        D_8074453C[i] = 0;
+                        gMenuCheatOptions[i] = 0;
                         optionCount = sMenuCheatOptionCounts[i];
                     }
-                } while (optionCount > 0 && !((1 << D_8074453C[i]) & enabledMask));
+                } while (optionCount > 0 && !((1 << gMenuCheatOptions[i]) & enabledMask));
             }
         }
     }
