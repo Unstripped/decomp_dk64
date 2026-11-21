@@ -3,7 +3,7 @@
 trying candidate bodies instead of per-agent trial scripts. Run in the container (re-execs through
 tools/dk on the host):
 
-  tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC [--recipes truth,swap,float,width,declswap]
+  tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC [--recipes truth,switch,swap,float,width,declswap]
         [--max 120] [-j 2] [--out DIR] [--json FILE]
   tools/dk python3 tools/variants.py try <copy.c> <src/seg/file.c> FUNC BODY.c... [-j 2]
 
