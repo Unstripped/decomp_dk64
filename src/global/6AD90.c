@@ -252,7 +252,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
     meshY = y;
     meshHit = collisionTestSubmeshBoundary(x, z, &meshY, actor);
     if ((meshHit != 0) && (actor != NULL)) {
-        actor->unkA8 = meshY;
+        actor->meshFloorY = meshY;
         actor->floorSurfaceType = D_807F949E[0];
     }
     if (gFloorQueryMode != 2) {

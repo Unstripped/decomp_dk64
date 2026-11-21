@@ -762,10 +762,10 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *view, u8 pass) {
             idx = view->surfaceOffsetSlots[i];
             if (sMapOffsetSlots[idx].value != 0.0 && sMapOffsetSlots[idx].enabled != 0) {
                 gSPMatrix(gfx++, osVirtualToPhysical(&sMapOffsetSlots[idx].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-                gSPDisplayList(gfx++, osVirtualToPhysical(view->unk1C[i]));
+                gSPDisplayList(gfx++, osVirtualToPhysical(view->surfaceDls[i]));
                 gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
             } else {
-                gSPDisplayList(gfx++, osVirtualToPhysical(view->unk1C[i]));
+                gSPDisplayList(gfx++, osVirtualToPhysical(view->surfaceDls[i]));
             }
             gDPPipeSync(gfx++);
         }
@@ -1562,7 +1562,7 @@ void mapTreeRelocate(MapBspNode *node, s32 base, s32 dlBase) {
         node->unk18 += dlBase;
     }
     for (i = 0; i < node->surfaceCount; i++) {
-        node->unk1C[i] = (void *)((s32)node->unk1C[i] + dlBase);
+        node->surfaceDls[i] = (void *)((s32)node->surfaceDls[i] + dlBase);
     }
 }
 

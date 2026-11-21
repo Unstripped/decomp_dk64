@@ -100,7 +100,7 @@ void behaviourTrackingPatrolEnemyEvadeUpdate(void) {
                     dz = found->z - gCurrentActor->z;
                     if ((dx * dx) + (dz * dz) < 1600.0f) {
                         dir = (((found->yaw - gCurrentActor->yaw) & 0xFFF) > 0x800) ? 1 : -1;
-                        gCurrentActor->speedXZ = gBehaviourExtraState->unkD * 1.8;
+                        gCurrentActor->speedXZ = gBehaviourExtraState->chaseSpeed * 1.8;
                         gCurrentActor->yaw += dir * 0x190;
                         gCurrentActor->moveYaw = gCurrentActor->yaw;
                         gBehaviourWorkState->flags |= 0x8000;

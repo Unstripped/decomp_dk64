@@ -802,17 +802,17 @@ void actorMirrorParentModelY(void) {
     gCurrentActor->segmentFlags = sub->parent->segmentFlags;
     gCurrentActor->x = sub->parent->x;
     gCurrentActor->y = sub->parent->y;
-    gCurrentActor->unkA8 = sub->parent->unkA8;
+    gCurrentActor->meshFloorY = sub->parent->meshFloorY;
     gCurrentActor->z = sub->parent->z;
     gCurrentActor->flags |= 0x200;
     gCurrentActor->boneMtx = gCurrentActor->sub4->boneMtx[gGfxBufferIndex];
     memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->boneCount << 6);
     guMtxIdentF(mtx1);
     mtx1[1][1] = -1.0f;
-    guTranslateF(mtx2, -gCurrentActor->x, -gCurrentActor->unkA8, -gCurrentActor->z);
+    guTranslateF(mtx2, -gCurrentActor->x, -gCurrentActor->meshFloorY, -gCurrentActor->z);
     guMtxCatF(mtx2, mtx1, mtx1);
     guMtxF2L(mtx1, &mtxL);
-    guTranslateF(mtx2, gCurrentActor->x, gCurrentActor->unkA8, gCurrentActor->z);
+    guTranslateF(mtx2, gCurrentActor->x, gCurrentActor->meshFloorY, gCurrentActor->z);
     dst = gCurrentActor->boneMtx;
     for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->boneCount; i++) {
         guMtxL2F(mtx3, dst);
@@ -859,7 +859,7 @@ void actorMirrorParentModelAxis(void) {
     gCurrentActor->segmentFlags = gCurrentActor->parentActor->segmentFlags;
     gCurrentActor->x = gCurrentActor->parentActor->x;
     gCurrentActor->y = gCurrentActor->parentActor->y;
-    gCurrentActor->unkA8 = gCurrentActor->parentActor->unkA8;
+    gCurrentActor->meshFloorY = gCurrentActor->parentActor->meshFloorY;
     gCurrentActor->z = gCurrentActor->parentActor->z;
     gCurrentActor->flags |= 0x200;
     gCurrentActor->boneMtx = gCurrentActor->sub4->boneMtx[gGfxBufferIndex];

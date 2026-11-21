@@ -560,7 +560,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             break;
         case 0x17:
             if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0)) {
-                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
                 gCurrentActor->speedXZ = gBehaviourWorkState->targetSpeed;
                 gBehaviourWorkState->flags &= 0xFFFD;
                 gCurrentActor->state = 0x23;
@@ -707,7 +707,7 @@ void behaviourSetChaseState(u8 state, u8 speed, s32 scriptId) {
     if (state == 7) {
         if (zoneFindBestReachablePoint(1, gCurrentActor, gBehaviourZone, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
             state = 0x10;
-            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
         }
     }
     gBehaviourWorkState->chaseState = state;
@@ -769,12 +769,12 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             if ((near & 0xFF) && (gCurrentActor->flags & 0x100) && (hasTarget != 0) && (gBehaviourWorkState->flags & 0x400)) { // ORIG: target masks near (word slot 64(sp)) with andi t9,t4,0xff at 0x305c/0x3080 before this test; plain near drops all four andi (157 lines)
                 if (gBehaviourWorkState->flags & 0x800) {
                     if (behaviourIsTargetWithinAngle(0x2710) != 0) {
-                        actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
+                        actorSetBehaviourState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                         return;
                     }
                 }
                 if (!(gBehaviourWorkState->flags & 0x800)) {
-                    actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
+                    actorSetBehaviourState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                     return;
                 }
             }
@@ -787,7 +787,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             }
         case 0x23:
             if ((ret ^ 0) != gBehaviourWorkState->chaseState && (hasTarget == 0 || (s32)ret >= 7)) { // FAKE: the uxor makes ret an op, so the unk36 load is the first beq operand (beq t5,v0 at 0x3170)
-                behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
+                behaviourSetChaseState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                 return;
             }
             if (near & 0xFF) { // ORIG: andi t7,t4,0xff at 0x3168
@@ -799,8 +799,8 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                     gBehaviourWorkState->targetZ = gBehaviourTargetActor->prevZ;
                     return;
                 }
-                if (gBehaviourWorkState->targetSpeed < gBehaviourExtraState->unkD) {
-                    actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
+                if (gBehaviourWorkState->targetSpeed < gBehaviourExtraState->chaseSpeed) {
+                    actorSetBehaviourState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                     return;
                 }
             } else {
@@ -819,12 +819,12 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                 if (!(gBehaviourWorkState->flags & 0x80)) {
                     actorSetDefaultState(gBehaviourAnimState->animId1);
                 } else {
-                    behaviourSetChaseState(7, gBehaviourExtraState->unkD, chaseScriptId);
+                    behaviourSetChaseState(7, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                 }
             }
         case 0x10:
             if (type != gBehaviourWorkState->chaseState) {
-                behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
+                behaviourSetChaseState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
             }
             if (near & 0xFF) { // ORIG: andi t7,t4,0xff at 0x33f4/0x341c
                 if (!(gBehaviourWorkState->flags & 0x400)) {
@@ -838,7 +838,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             break;
         case 0x35:
             if (gBehaviourWorkState->flags & 0x400) {
-                actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
+                actorSetBehaviourState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                 return;
             }
             near = (gBehaviourWorkState->searchTimer-- == 0); // FAKE: reuses near (t4) for the 0x35 countdown flag; its own local leaves near uncoloured, reloaded from 64(sp) at each test (185-221)

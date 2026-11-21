@@ -45,8 +45,8 @@ unsigned char cullSwap;
     gModelCache[i].refCount = 1;
     gModelCache[i].asset = asset;
 
-    delta = ((u8 *)asset - (u8 *)asset->unk0) + 0x28;
-    asset->unk0 = (u8 *)asset->unk0 + delta;
+    delta = ((u8 *)asset - (u8 *)asset->vertices) + 0x28;
+    asset->vertices = (u8 *)asset->vertices + delta;
     asset->displayLists = (void **)((u8 *)asset->displayLists + delta);
 
     for (i = 0; i < asset->displayListCount; i++) {
@@ -912,7 +912,7 @@ Gfx *renderActorDisplayList(Gfx *gdl, Actor *actor) {
     gdl = animSetSegments(gdl, actor);
     gdl = renderEmitSegmentNodes(gdl, actor, model);
     gSPSegment(gdl++, 4, osVirtualToPhysical(actor->boneMtx));
-    gSPSegment(gdl++, 3, osVirtualToPhysical(model->unk0));
+    gSPSegment(gdl++, 3, osVirtualToPhysical(model->vertices));
     for (i = 0; i < model->displayListCount; i++) {
         gSPDisplayList(gdl++, model->displayLists[i]);
     }

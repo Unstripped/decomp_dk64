@@ -128,7 +128,7 @@ void bossKRoolLankyStep(void) {
                 gCurrentActor->subState++;
                 break;
             case 2:
-                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
                 bossKRoolLankySetAnim(0x3F4, 0x678);
                 gCurrentActor->subState++;
                 break;

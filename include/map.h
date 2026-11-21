@@ -86,7 +86,7 @@ typedef struct MapBspNode {
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ void *unk1C[12]; // per-entry display lists drawn by mapViewDrawPass
+    /* 0x1C */ void *surfaceDls[12]; // per-entry display lists drawn by mapViewDrawPass
     /* 0x4C */ f32 planeNx; /* split plane normal x */
     /* 0x50 */ f32 planeNy;
     /* 0x54 */ f32 planeNz;

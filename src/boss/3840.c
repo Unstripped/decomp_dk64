@@ -217,7 +217,7 @@ patrol:
             scriptState->vars[0] = script[pos];
             scriptState->scriptPos = pos + 1;
             BOSS_ACTOR->base.subState = 1;
-            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
         } else {
             actorMoveWithinZone(0x23, gBehaviourWorkState->targetActor->x, gBehaviourWorkState->targetActor->z, turnSpeed, fwdSpeed);
             scriptState->vars[0] -= 1;

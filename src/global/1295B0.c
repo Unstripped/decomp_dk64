@@ -490,7 +490,7 @@ s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone, s16 *un
         sel = e->flags & 0x7F;
         if (!(e->flags & 0x80)) {
             if ((sel == 0) || (sel == 1) ||
-                ((sel == 5) && ((f64)actor->speedXZ < (f64)(u32)gBehaviourExtraState->unkD * 1.4))) {
+                ((sel == 5) && ((f64)actor->speedXZ < (f64)(u32)gBehaviourExtraState->chaseSpeed * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
                     if ((e->flags == 0) || (e->flags == 5)) {} // FAKE: flags + const-5 uses and 2 blocks steer count/flags (t0/a1) and s3/s4 colouring
                     if (!(((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius))) {
@@ -624,11 +624,11 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
         case 0x4E:
         case 0x4F:
         case 0x83:
-            sum = node->unkD + (node->spawnCount * 0xA);
+            sum = node->chaseSpeed + (node->spawnCount * 0xA);
             if (sum >= 0x100) {
-                node->unkD = 0xFF;
+                node->chaseSpeed = 0xFF;
             } else {
-                node->unkD = sum;
+                node->chaseSpeed = sum;
             }
             break;
         case 0x53:

@@ -477,7 +477,7 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 posX, f32 *outHeight, f
     if (snapMode) {
         if (!(camState->flags & 0x82000)) {
             if (floorY == 32767.0f || (sCamFloorHitCount == 1 && cnt == 0)) {
-                camState->unkA0 -= 10.0f;
+                camState->followDist -= 10.0f;
                 camState->orbitYaw = floorActor->yaw;
             }
         }
@@ -866,7 +866,7 @@ void camUpdateFollowHeight(CamState *cam) {
             cam->targetFloorY = cam->followBaseY = actor->y;
             gGlobalPauseFlags |= 0x2000;
         } else if (actor->state == 0x59) {
-            cam->targetFloorY = actor->unkA8;
+            cam->targetFloorY = actor->meshFloorY;
         } else {
             cam->targetFloorY = actor->floorY;
         }
@@ -943,7 +943,7 @@ void camUpdateFollowTargetDistance(Actor *camActor) {
         }
     }
     cam->stickLookY = cam->stickLookY + (((target > 20.0f) ? target : ((target < -20.0f) ? target : 0.0f)) - cam->stickLookY) * 0.05;
-    cam->unkA0 = cam->unkA0 + (cam->followDistGoal - cam->unkA0) * 0.2;
+    cam->followDist = cam->followDist + (cam->followDistGoal - cam->followDist) * 0.2;
     if (cam->flags & 0x10) {
         camActor->distToFloor = camActor->distToFloor + (300.0f - camActor->distToFloor) * 0.2;
     } else {
@@ -1257,7 +1257,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                                 st->flags &= ~0x40000;
                                 if (st->mode != 0xB && st->mode != 3) {
                                     st->followBaseY = st->targetFloorY = gPrimaryPlayerActor->y;
-                                    st->followDistGoal = st->unkA0 =
+                                    st->followDistGoal = st->followDist =
                                         sqrtf((*eyeX - gPrimaryPlayerActor->x) * (*eyeX - gPrimaryPlayerActor->x) +
                                               (*eyeZ - gPrimaryPlayerActor->z) * (*eyeZ - gPrimaryPlayerActor->z));
                                     st->orbitYaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z,
@@ -1275,9 +1275,9 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                                     if (gGlobalOverlayFlags & 1) {
                                         camSetZoomLevel(camActor, 2);
                                     } else {
-                                        camSetZoomForDistance(camActor, st->unkA0);
+                                        camSetZoomForDistance(camActor, st->followDist);
                                     }
-                                    st->lookAheadDist = st->unkA0 / 3.0;
+                                    st->lookAheadDist = st->followDist / 3.0;
                                     camStartBlendRamp(st, 0x1E);
                                     st->mode = 1;
                                     gGlobalPauseFlags &= ~0x2000;
@@ -1415,7 +1415,7 @@ void camResetPlayer(Actor *player, u8 playerIndex) {
     st->lookAheadYaw = player->yaw;
     camSetZoomLevel(cam, gCurrentMap == 0x9A ? 1 : ((gGlobalOverlayFlags & 1) ? 3 : 2));
     st->preferredZoomLevel = st->zoomLevel;
-    st->unkA0 = st->followDistGoal;
+    st->followDist = st->followDistGoal;
     cam->distToFloor = st->followHeightGoal;
     st->blendRampFrames = st->blendRampFramesLeft = 0;
     st->flags |= 0x100;
@@ -1910,23 +1910,23 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
     camSetZoomLevel(camActor, 1);
     cam->followHeightGoal = 10.0f;
     camActor->distToFloor = 10.0f;
-    cam->unkA0 = 5.0f;
+    cam->followDist = 5.0f;
     cam->flags |= 0x80000;
     do {
         again = 0;
         sawCol = camComputeFollowPos(camActor, cam->followActor, &x, &y, &z, -1.0f) == 1;
-        while (cam->unkA0 < f * 100.0f && !sawCol && (hit = collisionTestSphere(x, y, z, 10.0f * f, &out1, &out0, 1, 0xBC)) == 0) {
+        while (cam->followDist < f * 100.0f && !sawCol && (hit = collisionTestSphere(x, y, z, 10.0f * f, &out1, &out0, 1, 0xBC)) == 0) {
             saved = cam->orbitYaw;
-            cam->unkA0 += 10.0f * f;
+            cam->followDist += 10.0f * f;
             camActor->distToFloor += f * 3.0f;
             sawCol = camComputeFollowPos(camActor, cam->followActor, &x, &y, &z, -1.0f) == 1;
             cam->orbitYaw = saved;
         }
         if (hit) {
-            cam->unkA0 -= f * 10.0f;
+            cam->followDist -= f * 10.0f;
             camActor->distToFloor -= f * 3.0f;
         }
-        if (f * 60.0f < cam->unkA0 && !sawCol) {
+        if (f * 60.0f < cam->followDist && !sawCol) {
             found = 1;
         } else if ((hit || sawCol) && cnt < 0x1000) {
             again = 1;
@@ -1935,22 +1935,22 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
             if (!dir) {
                 step += 0x80;
             }
-            cam->unkA0 = 5.0f;
+            cam->followDist = 5.0f;
             cam->followHeightGoal = 10.0f;
             camActor->distToFloor = 10.0f;
             cnt += 0x80;
         }
     } while (again);
     if (found || (cnt < 0x1000 && !sawCol)) {
-        cam->followDistGoal = cam->unkA0;
-        camSetZoomForDistance(camActor, cam->unkA0);
+        cam->followDistGoal = cam->followDist;
+        camSetZoomForDistance(camActor, cam->followDist);
     } else {
         cam->clearYawFails += failCount;
         x = gPlayerSlots->eyeX;
         y = gPlayerSlots->eyeY;
         z = gPlayerSlots->eyeZ;
         camSetZoomLevel(camActor, 1);
-        cam->unkA0 = cam->followDistGoal;
+        cam->followDist = cam->followDistGoal;
         camActor->distToFloor = cam->followHeightGoal;
         cam->orbitYaw = base;
     }
@@ -1982,7 +1982,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
     camActor->hasArcBounds = 0;
     st->wallCollisionMode = 0;
     radius = 0.0f;
-    radius += 0.2 * CAM_MIN(180.0f, st->unkA0);
+    radius += 0.2 * CAM_MIN(180.0f, st->followDist);
     if (st->snapBehindFrames != 0) {
         radius -= 0.1 * st->snapBehindFrames;
     } else {
@@ -2013,13 +2013,13 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
         *eyeX = mathSinF(pushYaw) * pushDist + prevX;
         *eyeZ = mathCosF(pushYaw) * pushDist + prevZ;
         if (st->snapBehindFrames != 0) {
-            st->unkA0 -= 5.0f;
+            st->followDist -= 5.0f;
         } else {
             st->orbitYaw = mathAngleBetweenPoints2D(st->followActor->x, st->followActor->z, *eyeX, *eyeZ);
         }
         st->repositionFrames = 0;
         camActor->arcMoveYaw = pushYaw;
-        if (!(st->flags & 0x2008) && !(gGlobalOverlayFlags & 1) && gCamLookAheadTargetDist < st->unkA0) {
+        if (!(st->flags & 0x2008) && !(gGlobalOverlayFlags & 1) && gCamLookAheadTargetDist < st->followDist) {
             camSetZoomForDistance(camActor, gCamLookAheadTargetDist);
         }
     } else {
@@ -2124,7 +2124,7 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
 
     ret = 0;
     y = 0.0f;
-    dist = cam->unkA0;
+    dist = cam->followDist;
     baseY = cam->followBaseY;
     if ((targetState->stateFlags & 0x800000) && (target->contactFlags & 1) && !(target->prevContactFlags & 1)) {
         targetState->stateFlags &= ~0x800000;
@@ -2198,11 +2198,11 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
                 }
             }
         }
-        if (!(cam->flags & 0x100) && gScreenFadeProgress == 0.0f && 2.0 * cam->unkA0 < gCamLookAheadTargetDist && cam->blendRampFramesLeft == 0 &&
+        if (!(cam->flags & 0x100) && gScreenFadeProgress == 0.0f && 2.0 * cam->followDist < gCamLookAheadTargetDist && cam->blendRampFramesLeft == 0 &&
             cam->mode != 5 && !(gGlobalCutsceneFlags & 2) && !(gGlobalOverlayFlags & 0x2001)) {
             camFindClearYaw(camActor, -1.0f, cam->orbitYaw, 0);
         } else {
-            if (cam->wallCollisionMode != 0 && cam->unkA0 * 1.2 < gCamLookAheadTargetDist) {
+            if (cam->wallCollisionMode != 0 && cam->followDist * 1.2 < gCamLookAheadTargetDist) {
                 if (*outY - (cam->waterY < cam->followBaseY ? cam->followBaseY : cam->waterY) > 50.0f && cam->zoomLevel >= 2) {
                     camSetZoomLevel(camActor, 1);
                     camActor->distToFloor -= 120.0f;
@@ -2683,7 +2683,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     break;
                 default:
                     if (cam->mode == 0xA || cam->mode == 0xC || cam->mode == 0xD) {
-                        camSetZoomForDistance(camActor, cam->unkA0);
+                        camSetZoomForDistance(camActor, cam->followDist);
                         camStartBlendRamp(cam, 0x14);
                         cam->mode = 1;
                         cam->followBaseY = target->y;
@@ -2963,7 +2963,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                             }
                             break;
                         default:
-                            zoom = cam->unkA0 / 3.0;
+                            zoom = cam->followDist / 3.0;
                         check_target:
                             if (gGlobalOverlayFlags & 1) {
                                 if (cam->zoomLevel >= 2) {
@@ -2971,7 +2971,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                                 }
                                 if (cam->flags & 0x10000) {
                                     renderCallbacksRegister(renderBonusTargetMarker, camActor, 3);
-                                    zoom = cam->unkA0 / 10.0;
+                                    zoom = cam->followDist / 10.0;
                                 }
                             }
                             break;
@@ -3792,7 +3792,7 @@ s32 camExitFirstPerson(Actor *cam) {
     st->repositionFrames = 0xB;
     st->mode = 1;
     camRestoreYaw(cam);
-    st->lookAheadDist = st->unkA0 / 3.0;
+    st->lookAheadDist = st->followDist / 3.0;
     gPlayerSlots[st->playerIndex].fov = 45.0f;
     st->focusX = st->followActor->x;
     st->focusY = st->followActor->y + st->followActor->eyeHeight;

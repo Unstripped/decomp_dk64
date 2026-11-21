@@ -249,7 +249,7 @@ void behaviourPulseEnemyUpdate(s32 aggroRange) {
             if (gBehaviourWorkState->flags & 1) {
                 gCurrentActor->subState++;
             } else {
-                behaviourPulseEnemySpawnDeathChaser(gBehaviourExtraState->unkD, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
+                behaviourPulseEnemySpawnDeathChaser(gBehaviourExtraState->chaseSpeed, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
                 gCurrentActor->subState = 5;
             }
             break;

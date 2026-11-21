@@ -436,7 +436,7 @@ void minecartAdjustTargetSpeed(void) {
     if (targetAngle >= 0x47D1 && targetAngle < 0xB830) {
         gBehaviourWorkState->targetSpeed = MAX(9, gBehaviourWorkState->targetSpeed - 5);
     } else if (targetAngle < 0x3830 || targetAngle >= 0xC7D1) {
-        gBehaviourWorkState->targetSpeed = MIN(gBehaviourExtraState->unkD, gBehaviourWorkState->targetSpeed + 5);
+        gBehaviourWorkState->targetSpeed = MIN(gBehaviourExtraState->chaseSpeed, gBehaviourWorkState->targetSpeed + 5);
     } else {
         gBehaviourWorkState->targetSpeed = targetPlayerState->actor->speedXZ;
     }

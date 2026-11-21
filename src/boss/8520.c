@@ -201,7 +201,7 @@ void bossKutOutStep(void) {
                 gBehaviourWorkState->animBounceState |= 0x8000;
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->state = 0x23;
-                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
                 gCurrentActor->collisionMode = 0x24;
                 actorScriptStart(gCurrentActor, 0x2F4);
             }

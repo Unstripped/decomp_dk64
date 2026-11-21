@@ -707,7 +707,7 @@ void behaviourAmbushEnemyUpdate(void) {
         case 0x23:
             switch (gCurrentActor->subState) {
                 case 0:
-                    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
+                    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
                     gCurrentActor->subState++;
                 case 1:
                     if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {

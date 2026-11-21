@@ -203,7 +203,7 @@ typedef struct ActorSub140 {
 
 // Animated-model asset header (controllerAnimStateLoadAsset relocates it, animListInit reads unk10).
 typedef struct AnimInitData {
-    /* 0x00 */ void *unk0;
+    /* 0x00 */ void *vertices;
     /* 0x04 */ void **displayLists; // pointer table; the first entry is the display list
     /* 0x08 */ void *bones;
     /* 0x0C */ void *unkC;
@@ -420,7 +420,7 @@ typedef struct Actor {
     /* 0x09C */ f32 peakY;
     /* 0x0A0 */ f32 prevPeakY;
     /* 0x0A4 */ f32 floorY;
-    /* 0x0A8 */ f32 unkA8;
+    /* 0x0A8 */ f32 meshFloorY;
     /* 0x0AC */ f32 waterY;
     /* 0x0B0 */ s8 waterPathId[4];
     /* 0x0B4 */ f32 distToFloor;
@@ -721,7 +721,7 @@ typedef struct SpawnNode {
     };
     /* 0x0C */ u8 targetSpeed;
     union {
-        /* 0x0D */ u8 unkD;            // run/chase speed (actorSetTargetSpeed, behaviourSetChaseState, speedXZ users)
+        /* 0x0D */ u8 chaseSpeed;            // run/chase speed (actorSetTargetSpeed, behaviourSetChaseState, speedXZ users)
         /* 0x0D */ u8 burstStartDelay; // burst emitter: frames before the first burst (actorUpdateBurstProjectileEmitter, BC3B0.c)
     };
     /* 0x0E */ u8 zoneId;
@@ -1220,7 +1220,7 @@ typedef struct CamState {
     /* 0x98 */ f32 stickLookY;
     /* 0x9C */ s16 unk9C;
     /* 0x9E */ s16 lookAheadYaw;
-    /* 0xA0 */ f32 unkA0;
+    /* 0xA0 */ f32 followDist;
     /* 0xA4 */ f32 followDistGoal;
     /* 0xA8 */ f32 unkA8;
     /* 0xAC */ u32 flags;

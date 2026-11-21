@@ -13,14 +13,14 @@
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 
-s16 D_807ECEA0; // every access is lh/sh at displacement 0; IDO 8-aligns the 0x800-byte buffer after it
+s16 gModelCountTotal; // every access is lh/sh at displacement 0; IDO 8-aligns the 0x800-byte buffer after it
 u8 sEepromSlotBuffer[0x800];
 u8 sEepromImage[0x800];
 u8 gEepromSectorSlot[4];
 s32 gEepromType;
 
-// Bits of one save slot: D_807ECEA0 + 0x678 rounded up to 64, then the 32-bit CRC (the slot's last word), rounded up to a byte.
-#define EEPROM_SLOT_BITS ((((D_807ECEA0 + 0x6B7) & ~0x3F) + 0x27) & ~7)
+// Bits of one save slot: gModelCountTotal + 0x678 rounded up to 64, then the 32-bit CRC (the slot's last word), rounded up to a byte.
+#define EEPROM_SLOT_BITS ((((gModelCountTotal + 0x6B7) & ~0x3F) + 0x27) & ~7)
 // Bit offset of the global section after the four slots, 64-bit aligned.
 #define EEPROM_GLOBAL_BIT_OFFSET (((EEPROM_SLOT_BITS * 4) + 0x3F) & ~0x3F)
 
@@ -84,9 +84,9 @@ u8 *gInitialsCharset = (u8 *)D_80757024;
 void eepromInitModelCount(void) {
     s32 i;
 
-    D_807ECEA0 = 0;
+    gModelCountTotal = 0;
     for (i = 0; i != 8; i++) {
-        D_807ECEA0 += modelTypeCountGet(i);
+        gModelCountTotal += modelTypeCountGet(i);
     }
 }
 
@@ -236,7 +236,7 @@ unsigned char bitCount;
 }
 
 void eepromGetKongFieldOffset(s32 field, u8 index, u8 subIndex, u16 *offset, u8 *width) {
-    *offset = D_807ECEA0 + *offset + (index * 0xA1) + 0x320;
+    *offset = gModelCountTotal + *offset + (index * 0xA1) + 0x320;
     *width = 0;
     switch (field) {
     case 11:
@@ -284,7 +284,7 @@ void eepromGetKongFieldOffset(s32 field, u8 index, u8 subIndex, u16 *offset, u8 
 }
 
 void eepromGetSaveDataSectionOffset(s32 field, u8 index, u16 *offset, u8 *width) {
-    *offset = D_807ECEA0 + *offset + 0x645;
+    *offset = gModelCountTotal + *offset + 0x645;
     *width = 0;
     switch (field) {
     case 15:
@@ -315,7 +315,7 @@ void eepromGetSaveDataSectionOffset(s32 field, u8 index, u16 *offset, u8 *width)
 }
 
 void eepromGetGlobalFieldOffset(s32 field, u8 index, u16 *offset, u8 *width) {
-    *offset = (((((((D_807ECEA0 + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;
+    *offset = (((((((gModelCountTotal + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;
     *width = 0;
     switch (field) {
     case 32: if (*width == 0) *width = 1; *offset += 3;
@@ -716,7 +716,7 @@ void eepromSaveRecords(s32 recordsOnly) {
                 ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, len);
             }
             sector = 0;
-            offset = D_807ECEA0;
+            offset = gModelCountTotal;
             offset += 0x6B7;
             offset = (offset & ~0x3FU) + 0x27;
             offset = ((offset & ~7U) * 4) + 0x3F;
@@ -737,7 +737,7 @@ void eepromSaveRecords(s32 recordsOnly) {
         while (*contReadPending != 0) {
             sleepMilliseconds(1.0f);
         }
-        if (D_807ECEA0 & ~0x3FU) {}  // FAKE: one dead read of D_807ECEA0 through the unsigned 64-byte mask past memcpy: a use of &D_807ECEA0 after memcpy so -8 wins the exact adjsave tie (s4 = -8, s7 = &D_807ECEA0 at 0x1b28/0x1b38, s7 reused for &gEepromWriteInProgress at 0x1e0c, Q0900) and an unsigned -64 use after the calls that keeps the arm-0 masks uncoloured (li at,-64 at 0x1c64/0x1c88, Q0555)
+        if (gModelCountTotal & ~0x3FU) {}  // FAKE: one dead read of gModelCountTotal through the unsigned 64-byte mask past memcpy: a use of &gModelCountTotal after memcpy so -8 wins the exact adjsave tie (s4 = -8, s7 = &gModelCountTotal at 0x1b28/0x1b38, s7 reused for &gEepromWriteInProgress at 0x1e0c, Q0900) and an unsigned -64 use after the calls that keeps the arm-0 masks uncoloured (li at,-64 at 0x1c64/0x1c88, Q0555)
         if (gMainThreadHalted != 0) {
             gEepromWriteInProgress = 0;
         } else {

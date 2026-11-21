@@ -251,7 +251,7 @@ u8 effectSpriteParticleUpdateRain(EffectSpriteParticle *particle) {
     if (((CamState *)gCamActor->customState)->hasWater != 0 && gPlayerSlots->camY < ((CamState *)gCamActor->customState)->waterY + 3.0f) {
         bound = gPrimaryPlayerActor->waterY;
     } else {
-        bound = CAM_Y_DISTANCE(gPrimaryPlayerActor->unkA8) < CAM_Y_DISTANCE(gPrimaryPlayerActor->waterY) ? gPrimaryPlayerActor->unkA8 : gPrimaryPlayerActor->waterY;
+        bound = CAM_Y_DISTANCE(gPrimaryPlayerActor->meshFloorY) < CAM_Y_DISTANCE(gPrimaryPlayerActor->waterY) ? gPrimaryPlayerActor->meshFloorY : gPrimaryPlayerActor->waterY;
     }
     effectSpriteParticleTrackCamera(particle);
     effectSpriteParticleWrapX(particle);

@@ -58,7 +58,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentMap == 0x43) {
-            gBehaviourExtraState->unkD = 0x82;
+            gBehaviourExtraState->chaseSpeed = 0x82;
             gBehaviourAnimState->flags |= 0x40;
         }
         behaviourSetAnimIds(0x205, 0x203, 0x204);

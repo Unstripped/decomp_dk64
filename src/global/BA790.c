@@ -117,7 +117,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
         }
         if (gCurrentActor->state == 0x33) {
             ret = 1;
-            gCurrentActor->speedXZ = gBehaviourExtraState->unkD;
+            gCurrentActor->speedXZ = gBehaviourExtraState->chaseSpeed;
             angle = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
             gCurrentActor->yaw = angle;
             gCurrentActor->moveYaw = angle;

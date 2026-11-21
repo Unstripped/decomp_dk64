@@ -1040,7 +1040,7 @@ void projectileSpawnSpriteRing(u8 mode, u8 value, f32 rate, f32 limit, u8 alpha,
     tracker->rate = rate;
     tracker->limit = limit;
     tracker->value = value;
-    gSpawnedActor->y = gCurrentActor->unkA8;
+    gSpawnedActor->y = gCurrentActor->meshFloorY;
     gSpawnedActor->ringCountdown = alpha;
     gSpawnedActor->yawSpeed = spin;
 }

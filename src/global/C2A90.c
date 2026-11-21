@@ -338,7 +338,7 @@ void actorTargetCourseHostUpdate(void) {
                     camResumePath();
                     camSetZoomLevel(gCamActor, 3);
                     actorScriptStart(gCurrentActor, 0x302);
-                    actorSetTargetSpeed(gCurrentActor, (flagF8Set ? 1.5 : 1.0) * gBehaviourExtraState->unkD);
+                    actorSetTargetSpeed(gCurrentActor, (flagF8Set ? 1.5 : 1.0) * gBehaviourExtraState->chaseSpeed);
                     gCurrentActor->state = 2;
                     gCurrentActor->subState = 0;
                     camSetZoneWeight(1, 0xA);

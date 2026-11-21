@@ -4851,6 +4851,7 @@ sDemoStartRecord = 0x807ECE20;
 sDemoButtonBuffer = 0x807ECE90;
 sDemoButtonCursor = 0x807ECE94;
 sDemoInputCursor = 0x807ECE98;
+gModelCountTotal = 0x807ECEA0;
 sEepromSlotBuffer = 0x807ECEA8;
 sEepromImage = 0x807ED6A8;
 gEepromSectorSlot = 0x807EDEA8;
