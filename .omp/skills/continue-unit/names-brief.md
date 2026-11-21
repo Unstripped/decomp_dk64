@@ -17,10 +17,15 @@ Your items (from `uv run tools/debt.py names`, reference count first):
 # Rules
 - Never fetch, read or search the community DK64 decomp or any other external source of this game's C
   or symbol names; derive names from this repo's code only. A name found outside is discarded.
-- List every use first: fields `uv run tools/rename.py field --dry-run include/<h>.h <Record> <field>
-  zzProbe` (every user file:line:col; `MACRO` lines are uses inside macros); globals and functions
-  `uv run tools/rename.py global|func --dry-run <seg> <old> zzProbe`. Read every listed use (group
-  identical patterns; a file you did not read is a file your evidence does not cover).
+- List every use first: fields in one pass, a batch file of `<include/h.h> <Record> <field> zzProbe<N>` lines
+  and `uv run tools/rename.py fields <batch> --dry-run` (every user file:line:col; `REFUSE ... macro` lines
+  are uses inside macros; one field alone: `rename.py field --dry-run`, ~90 s each); globals and functions
+  `uv run tools/rename.py global|func --dry-run <seg> <old> zzProbe` (an address outside overlay VRAM
+  `0x80024000`–`0x805FB300` is seg `global`, users in every segment). Read every listed use (group
+  identical patterns; a file you did not read is a file your evidence does not cover). Before reporting,
+  dry-run your final names the same way.
+- A `D_` that is a label inside another named object (a split splat label) is not named: report it as a
+  fold, `rename.py fold <seg> <D_> <parent-expr>`.
 - Name the role the code shows: what is stored (constants, sources), how it is read (compared to,
   indexed with, passed to which named function), its lifetime (reset where, counted down where).
   Prefer the vocabulary of names already landed nearby (`include/actor.h`, `symbol_addrs*.txt`).

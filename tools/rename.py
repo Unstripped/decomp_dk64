@@ -11,6 +11,9 @@
   uv run tools/rename.py field <path> <Struct> <field> <new>
                                                      one struct's field by AST: every non-libultra src TU
                                                        when <path> is under include/, else that file only
+  uv run tools/rename.py fields <batch.txt>        many `field` renames in one pass over the TUs (lines
+                                                       `<path> <Struct> <field> <new>`); refused lines print
+                                                       `REFUSE ...` and are skipped (exit 2), the rest apply
   uv run tools/rename.py local <file.c> <FUNC> <old> <new>
                                                      a parameter or local of FUNC (works on private copies)
   uv run tools/rename.py fold <seg> <label> <parent-expr> [--per-ref] [--held SRC...]
@@ -38,6 +41,7 @@ symbol, macro or field in scope, a reference lies inside a macro expansion, or (
 in include/PR, include/PRinternal or include/libultra (`header-prototyped: <header>`).
 """
 import argparse
+import collections
 import concurrent.futures
 import glob
 import os
@@ -375,6 +379,95 @@ def cmd_field(a):
     return 0
 
 
+def scan_members_multi(job):
+    """scan_members for several fields at once: ({key: [(file, line, col)]}, {key: [(file, line, col, macro)]})."""
+    root, f, targets = job
+    set_root(root)
+    lines_of = line_cache()
+    hits, macro = collections.defaultdict(set), collections.defaultdict(set)
+    for extra in modes(f):
+        tu = clint.parse(f, extra)
+        for top in tu.cursor.get_children():
+            if not clint.same_file(top, f):
+                continue
+            for c in clint.walk(top):
+                if c.kind in (CursorKind.MEMBER_REF_EXPR, CursorKind.MEMBER_REF):
+                    r = c.referenced
+                    if r is None or r.kind != CursorKind.FIELD_DECL or (k := key(r)) not in targets:
+                        continue
+                    s, ok = site(c, targets[k], lines_of)
+                    if ok:
+                        hits[k].add(s)
+                    else:
+                        m = IDENT.match(lines_of(s[0])[s[1] - 1], s[2] - 1)
+                        macro[k].add((*s, m.group(0) if m else "?"))
+    return {k: sorted(v) for k, v in hits.items()}, {k: sorted(v) for k, v in macro.items()}
+
+
+def cmd_fields(a):
+    """Many `field` renames in one pass over the TUs: BATCH lines `<path> <Struct> <field> <new>` (# comments).
+    Each line is checked as `field` checks it; a refused line (bad name, name in use, reference inside a
+    macro) prints `REFUSE <line>: <reason>` and is skipped, the others are applied together. Exit 2 when any
+    line was refused, else 0."""
+    rows = [l.split() for l in read(rel(a.batch)).split("\n") if l.strip() and not l.lstrip().startswith("#")]
+    refused, targets, tus = [], {}, {}
+    lines_of = line_cache()
+    news = collections.Counter((r[0], r[1], r[3]) for r in rows if len(r) == 4)
+    for row in rows:
+        try:
+            if len(row) != 4:
+                raise Refuse("expected <path> <Struct> <field> <new>")
+            path, struct, old, new = rel(row[0]), *row[1:]
+            check_name(new)
+            if news[row[0], struct, new] > 1:
+                raise Refuse(f"{new} given twice for {struct}")
+            if path not in tus:
+                if path.startswith("include" + os.sep):
+                    virt = "/rename-virtual/field.c"
+                    tus[path] = clint.parse(virt, unsaved=[(virt, f'#include "common.h"\n#include "{os.path.relpath(path, "include")}"\n')])
+                else:
+                    tus[path] = clint.parse(path)
+            rec = find_record(tus[path], path, struct)
+            if rec is None:
+                raise Refuse(f"{struct} is not defined in {path}")
+            fields = list(record_fields(rec))
+            target = next((f for f in fields if f.spelling == old), None)
+            if target is None:
+                raise Refuse(f"no field {struct}.{old}")
+            if any(f.spelling == new for f in fields):
+                raise Refuse(f"in use: field {struct}.{new}")
+            if new in macro_names(tus[path]):
+                raise Refuse(f"in use: macro {new}")
+            s, ok = site(target, old, lines_of)
+            if not ok:
+                raise Refuse(f"reference inside a macro: {s[0]}:{s[1]}:{s[2]}")
+            targets[key(target)] = (row, path, old, new, s)
+        except Refuse as e:
+            refused.append((row, str(e)))
+    header = any(p.startswith("include" + os.sep) for _, p, *_ in targets.values())
+    files = clint.src_files() if header else sorted({p for _, p, *_ in targets.values()})
+    olds = {k: v[2] for k, v in targets.items()}
+    jobs = [(ROOT, f, olds) for f in files]
+    if a.j > 1 and len(jobs) > 1:
+        with concurrent.futures.ProcessPoolExecutor(a.j) as ex:
+            res = list(ex.map(scan_members_multi, jobs))
+    else:
+        res = [scan_members_multi(j) for j in jobs]
+    set_root(ROOT)
+    edits = []
+    for k, (row, _, old, new, s) in targets.items():
+        macro = sorted({m for _, ms in res for m in ms.get(k, ())})
+        if macro:
+            refused.append((row, "reference inside a macro: " + " ".join(f"{f}:{l}:{c} {n}" for f, l, c, n in macro)))
+            continue
+        edits += [(*s, old, new)] + [(f, l, c, old, new) for hs, _ in res for f, l, c in hs.get(k, ())]
+    apply(edits, a.dry_run)
+    for row, why in refused:
+        print(f"REFUSE {' '.join(row)}: {why}")
+    print(f"fields: {len(rows) - len(refused)} renamed{' (dry run)' if a.dry_run else ''}, {len(refused)} refused")
+    return 2 if refused else 0
+
+
 def cmd_local(a):
     path, old, new = rel(a.file), a.old, a.new
     check_name(new)
@@ -553,6 +646,9 @@ def main(argv=None):
     s.add_argument("field")
     s.add_argument("new")
     s.add_argument("-j", type=int, default=os.cpu_count() or 1)
+    s = sub.add_parser("fields", help="batch of field renames, one pass over the TUs")
+    s.add_argument("batch", help="lines: <path> <Struct> <field> <new>")
+    s.add_argument("-j", type=int, default=os.cpu_count() or 1)
     s = sub.add_parser("local")
     s.add_argument("file")
     s.add_argument("func")
@@ -573,6 +669,8 @@ def main(argv=None):
             return cmd_symbol(a, a.cmd == "func")
         if a.cmd == "fold":
             return cmd_fold(a)
+        if a.cmd == "fields":
+            return cmd_fields(a)
         return cmd_field(a) if a.cmd == "field" else cmd_local(a)
     except Refuse as e:
         print(f"rename: refused: {e}", file=sys.stderr)

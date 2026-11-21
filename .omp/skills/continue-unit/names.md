@@ -38,12 +38,18 @@ One line per accepted proposal, appended by the lead, deleted by the window that
 ## Apply (names window)
 
 1. Nothing checked out: no worker copy, no open types batch (`.scratch/TypesOwner/batch_*/files.txt`).
-2. `base=$(git rev-parse HEAD)`. Per line: the `rename.py` command with `--dry-run`, then
-   `python3 tools/merge_drafts.py snapshot <every src file it lists>` (the gate needs a base for each),
-   then the command without `--dry-run` (`field include/<h>.h <Record> <old> <new>`, `global <seg> <old>
-   <new>`, `func <seg> <old> <new>`). A refusal (macro, in scope) stays in the queue with the reason.
+   Names workers check out nothing, so a window may run while they work (token renames keep their
+   file:line evidence valid): apply each report's batch as it lands.
+2. `base=$(git rev-parse HEAD)`. Fields: all lines in one batch file, `rename.py fields <batch> --dry-run`
+   (seconds; refused lines print `REFUSE`), snapshot, then without `--dry-run`. Globals/functions: per line
+   `rename.py global|func --dry-run <seg> <old> <new>`, `python3 tools/merge_drafts.py snapshot <every src
+   file listed>` (the gate needs a base for each), then the command (it also renames `data_inc.us.txt`
+   rows and regenerates their `assets/inc` file). Two workers naming one symbol: the first applied wins
+   (the second prints `not found`). A refusal stays in the queue with the reason.
 3. naming.md "Round-end check" (`make split`, touch, `make`, `make expected`, `unit_check.py vanished`,
    `-w` stat compare), then one gate: `tools/merge_gate.sh --commit "<unit>: name N symbols" --stage
-   include/<h>.h... --stage symbol_addrs*.txt - - <touched src files>`.
-4. `uv run tools/quality.py carry --rev $base --unit "<unit>" <touched src files>` (field renames of
-   shared records carry; a skip line names what did not), commit `drafts/quality` with the emptied queue.
+   include/<h>.h... --stage symbol_addrs*.txt [--stage data_inc.us.txt] - - <touched src files>`.
+4. `uv run tools/quality.py carry --rev <gate commit>^ --unit "<unit>" <touched src files with functions>`
+   (`--dry-run` first: every line must say `identifier renames only`; a data-only file such as
+   arcade/E220.c cannot compile at REV after an inc rename: leave it out). Window 1 carried 826 of 826
+   functions; commit `drafts/quality` with the emptied queue.
