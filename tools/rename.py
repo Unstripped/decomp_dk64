@@ -180,6 +180,21 @@ def symbol_edits(seg, old, new, vram, func):
     return edits + [(sf, at, 0, "", text)]
 
 
+def data_inc_edits(seg, old, new):
+    """Renames of OLD's `data_inc.us.txt` manifest rows (ROM-extracted initialisers: the C includes
+    `<seg>/<name>.inc.c`, which `tools/data_inc.py gen` writes from the row's name)."""
+    mf = "data_inc.us.txt"
+    if not os.path.exists(os.path.join(ROOT, mf)):
+        return []
+    segs = {"boot", "global"} if seg in ("boot", "global") else {seg}
+    edits = []
+    for i, line in enumerate(read(mf).split("\n"), 1):
+        f = line.split()
+        if len(f) >= 6 and not line.lstrip().startswith("#") and f[0] in segs and f[1] == old:
+            edits.append((mf, i, line.index(old, len(f[0])) + 1, old, new))
+    return edits
+
+
 def cmd_symbol(a, func):
     old, new, seg = a.old, a.new, a.seg
     check_name(new)
@@ -214,7 +229,14 @@ def cmd_symbol(a, func):
     if not edits:
         raise Refuse(f"not found: {old}")
     edits += symbol_edits(seg, old, new, vram, func)
+    inc = data_inc_edits(seg, old, new)
+    edits += inc
     apply(edits, a.dry_run)
+    if inc and not a.dry_run:
+        r = subprocess.run([sys.executable, "tools/data_inc.py", "gen"], cwd=ROOT)
+        if r.returncode:
+            print(f"rename: tools/data_inc.py gen failed (exit {r.returncode})", file=sys.stderr)
+            return 1
     draft = f"drafts/{seg}/{old}.c"
     if func and os.path.exists(os.path.join(ROOT, draft)):
         dst = f"drafts/{seg}/{new}.c"

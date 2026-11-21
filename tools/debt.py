@@ -161,6 +161,13 @@ def cmd_names(a):
     print(f"unk fields {sum(fields.values())} refs / {len(fields)} fields; D_ refs {sum(drefs.values())} refs / "
           f"{len(drefs)} symbols; func_ definitions "
           + (", ".join(f"{s} {n}" for s, n in funcs.most_common() if n) or "0"))
+    by_rec = collections.Counter()
+    for (rec, _, decl), n in fields.items():
+        by_rec[rec, decl] += n
+    print(f"\n{'refs':>5}  record (declared in): top fields  -- one names worker per record or two related ones")
+    for (rec, decl), n in by_rec.most_common(a.limit // 2):
+        top = sorted(((m, f) for (r, f, d), m in fields.items() if (r, d) == (rec, decl)), reverse=True)[:6]
+        print(f"{n:>5}  {rec} ({decl}): " + " ".join(f"{f} {m}" for m, f in top))
     print(f"\n{'refs':>5} {'files':>5}  field (declared in)")
     for (rec, fld, decl), n in fields.most_common(a.limit):
         print(f"{n:>5} {len(fields_files[rec, fld, decl]):>5}  {rec}.{fld} ({decl})")
