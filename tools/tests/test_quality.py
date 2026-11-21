@@ -951,6 +951,12 @@ def test_carry_header_field_rename(tmp_path, monkeypatch, capsys, old, new, reas
     q.main(["carry", "--rev", rev_a, "--unit", "u2"])
     st = _carve_state()
     assert st["f"] == {"views": "✓", "review": "✓", "remove": "✓"}
+    n = len(q.load_events())  # a rerun (7beb5dbd 3E10 dry-run: "would carry 8 events" after the carry) adds nothing
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u3", "--dry-run"])
+    assert "would carry 0 events" in capsys.readouterr().out
+    q.main(["carry", "--rev", rev_a, "--unit", "u3"])
+    assert len(q.load_events()) == n
 
 
 def test_carry_header_field_fold_is_no_rename(tmp_path, monkeypatch, capsys):

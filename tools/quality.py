@@ -55,6 +55,8 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          headers); any other reached change (prototype, macro, typedef,
                                          enum, layout) is listed as skipped. --dry-run writes nothing.
                                          --func NAME (repeatable; REV's or HEAD's name): only those functions.
+                                         A result already recorded or carried at HEAD's fingerprints (same
+                                         method, time and outcome) is not carried again: reruns add nothing.
 
 Ledger: drafts/quality/ (env DK64_QUALITY_LEDGER overrides), append-only, sharded: units.jsonl plus
 <seg>/<VRAM top 16 bits>.jsonl (one function's events always share a shard). Functions are keyed
@@ -2312,8 +2314,14 @@ def carry_renames(a, by_site, by_func):
                     how = f"renames; {how}"
             vram, n0 = f"{fn['vram']:08X}", len(out)
             keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in pairs]
+            nfp = (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2"))
             for okey, nsite in keys:
                 evs = by_func[(seg, vram)] if okey is None else by_site.get(okey, [])
+                here = by_func[(seg, vram)] if nsite is None else by_site.get(nsite["key"], [])
+                # results already recorded or carried at HEAD's fingerprints (a carried event keeps its
+                # time): a rerun of the same carry adds nothing
+                done = {(x["method"], x["t"], x["outcome"]) for x in here if x["fp_local"] == fn["fp_local"]
+                        and (x["method"] not in AUTO or hdr_fresh(x, nfp))}
                 newest = {}
                 ofp = (fo["fp_local"], fo["fp_hdr"], fo.get("fp_hdr2"))
                 for e in evs:  # newest by time, as `mark` reads them (carried events keep their `t`)
@@ -2321,7 +2329,9 @@ def carry_renames(a, by_site, by_func):
                         if e["method"] not in newest or e["t"] >= newest[e["method"]]["t"]:
                             newest[e["method"]] = e
                 for e in newest.values():
-                    if e["method"] in AUTO and not hdr_fresh(e, (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2"))) \
+                    if (e["method"], e["t"], e["outcome"]) in done:
+                        continue
+                    if e["method"] in AUTO and not hdr_fresh(e, nfp) \
                             and not (hdr_moved and e.get("fp_hdr2") is not None):
                         continue  # reached headers changed since REV, not compared: automatic results stay stale
                     c = dict(e, unit=a.unit, agent="carry", name=fn["name"], file=path, fp_local=fn["fp_local"],
