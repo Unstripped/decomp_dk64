@@ -8,7 +8,7 @@ global:80636D38:other:b13178 other (FIXED 2026-11-18): `temp = (seg->displayList
 global:80636D38:dead-store:cb1852 dead-store (FIXED 2026-11-18b): `head = 0;` after `size0 = head * 8` kept size0 a declared variable (home 36(sp), t1) (Q0550); gone with size0 once dlResolveNodeTextures returns u8 (the `res |=` cfe temp packs into res's word, Q1515).
 global:80636D38:dead-store:bb8452 dead-store (FIXED 2026-11-18b): `tail = 0;` after `size1 = tail * 8` (home 32(sp), t1 at 0xE4) (Q0550); same u8 callee retype.
 global:80636D38:other:f52946 other (was 713dc8; renamed 2026-11-20 to slot->asset->lastUsedFrame): `slot->asset->lastUsedFrame = gFrameCounter;` re-reads slot->asset while obj holds it; the target loads it ONCE (`lw v0,36(a0)` 0x24, `sw t8,8(v0)` 0x34, `move s1,v0` 0x40): the two reads ahead of the first store make a CSE web (uilod, 3.0 -> v0) and obj a copy in s1. FAKE by load-count ruling (2026-11-18). OPEN, every single-read form measured (best 4).
-global:80636D38:dead-if:bb36c3 dead-if (EXHAUSTED, class 1 by hand; sweep classify reports class 2): `if (seg->displayListA == 0) {}` adds a block after the fourth call so obj takes s1 and seg s0 (Q1516).
+global:80636D38:dead-if:bb36c3 dead-if (FIXED 2026-11-21, Lever36880, Q1589): `if (seg->displayListA == 0) {}` added a block after the fourth call so obj takes s1 and seg s0 (Q1516). Replaced by real control flow: the `obj->modelKind == 1` if/else-if chain is a one-case `switch (obj->modelKind) { case 1: ... return; }` followed by the Load/Clear if/else (no default label). Same single compare as the target (lbu t2,28(s1) 0x7c, li at,1 0x80, bne t2,at 0x88).
 ## Attempts
 2026-11-09..2026-11-14 (263 events, rounds Clean36880 .. RereviewModelAudio): see `uv run tools/quality.py history modelSlotResolveAssetTextures` (permuter, uopt traces, natural rewrites, Q0546/Q0547/Q0549/Q0550).
 2026-11-16 HackmodelSlotResolveAssetTextures anthropic/claude-opus-5-5:high:
@@ -29,10 +29,15 @@ global:80636D38:dead-if:bb36c3 dead-if (EXHAUSTED, class 1 by hand; sweep classi
 - store through obj: last in bb0 (all 6 orders of obj/seg/textures) full=15 (lw s1,36(a0) for lw v0 + move s1,v0; the renderObj web takes a3, textures loses its 60(sp) home: move s0,a3, else arm lw t7,80(a3)); store right after obj 19; store between the seg and textures loads 93-94.
 - Q1564 u8 flags copy (`flags = slot->flags; if (!(flags & 0x20)) ... slot->flags = flags | 0x20;`) with the obj store: full=4, only the slot->asset web differs (lw s1,36(a0) / sw t8,8(s1) / lw t3,0(s1)); flags s32/u32 40, s16 44; flags copy on the tagged body 4 (byte in t0 instead of a3).
 - Q1551 order lever: flags definition at 5 positions x 6 bb0 orders of obj/seg/textures/store: best 4 (no tie to break: a single read is never a CSE candidate); `(obj = slot->asset)->lastUsedFrame` with flags 35 / 94.
+2026-11-21 continue unit 2 Lever36880 anthropic/claude-opus-5-5 (lever Q1589, base fd085ca0):
+- bb36c3 FIXED: `switch (obj->modelKind) { case 1: <arm>; return; }` + the Load/Clear if/else after the switch, dead test removed: fdiff 0.
+- other switch spellings: case 1 (break) + default holding the if/else 103; default-first 160; return in both case and default 103; case 1 return + `default: break;` 103; early-return `if (obj->modelKind == 1) { ...; return; }` without a switch 64 (= removal); nested one-case `switch (obj->modelKind)` re-read around the node part 105, around the fourth call 77.
+- f52946 re-measured on the switch body: store through obj 15, Q1564 u8 flags copy + obj store 4, flags copy + tagged store 4 (unchanged: those numbers never belonged to the dead test).
+- variants scan on the switch body: zeros are only truth/swap/decl spellings (no site change).
 ## Untried ideas
 - f52946: a construct that reads slot->asset twice before the first store without a re-read spelling (none known: macro/alias forms are the same re-read; a second local is a redundant alias).
-- bb36c3: real control flow after the fourth call that keeps seg live (the class 1 dead test is a block split); Q1561 (field-read sum kept as a variable with an earlier same-role assignment) not tried here.
 ## Evidence
+- 0x7c `lbu t2,28(s1)`, 0x80 `li at,1`, 0x88 `bne t2,at,0x178`: the one modelKind compare; the kind-1 arm ends `b 0x1b0` (0x170) into the epilogue, the Clear call (jal 0x1a8) falls through to it.
 - 0x1C `lw s0,32(a0)` (seg) then 0x2C `sw s0,60(sp)` (textures home); else arm reloads 60(sp) at 0x178, 0x198 (jal delay), 0x1ac (jal delay).
 - 0x24 `lw v0,36(a0)`, 0x34 `sw t8,8(v0)`, 0x40 `move s1,v0`, 0x54 `lw t3,0(v0)`: the store goes through the fresh slot->unk24 load, obj lives in s1. ugen emits `lw 0($17)` for obj->unk0 (as1probe keep t.s); as1 forwards the move source to v0.
 - 0x44 `lbu a3,140(t9)` byte in a3; 0x68/0x70 `ori t6,a3,0x20` (no second lbu: the field read is CSEd).
