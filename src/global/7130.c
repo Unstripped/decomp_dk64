@@ -184,10 +184,10 @@ f32 gAmbientNearestPan;
 f32 gAmbientNearestFx;
 f32 gAmbientNearestDist;
 u8 D_80770DD8[4];
-f32 gSfxPan;
+f32 gSfxPan; /* 0..127 pan; sfxCalcDistanceVolumePan first holds the source's view-relative angle (radians) here */
 f32 gSfxFrontFactor;
 f32 gSfxDistance;
-f32 gSfxRightLevel;
+f32 gSfxRightLevel; /* right-channel level; also reused as scratch (clamped volume term, voice pitch ratio) */
 f32 gSfxLeftLevel;
 f32 gSfxFrontLevel;
 f32 gSfxRearLevel;
