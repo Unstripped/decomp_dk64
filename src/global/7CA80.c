@@ -554,7 +554,7 @@ void actorInit(void) {
 
     gActorScriptAsset = assetLoad(0xD, 0, 1, 1);
     gActorScriptIndexTable = (void *)(gActorScriptAsset->indexTableOffset + (s32)gActorScriptAsset);
-    gActorScriptAnimTable = (void *)(gActorScriptAsset->animTableOffset + (s32)gActorScriptAsset);
+    gActorScriptAnimTable = (u16 *)(gActorScriptAsset->animTableOffset + (s32)gActorScriptAsset);
     gActorScriptSoundTable = (void *)(gActorScriptAsset->soundTableOffset + (s32)gActorScriptAsset);
 
     for (i = 0; i < 64; i++) {

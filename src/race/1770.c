@@ -128,7 +128,7 @@ void raceInitOpponentEntities(Actor *parent) {
     RacePair *pair;
     Actor *spawnedNode;
     Actor *spawnedActor;
-    u8 *pad;
+    s32 pad;
 
     parentPart = parent->customState;
     raceInitParticipantArray(parent, 2);

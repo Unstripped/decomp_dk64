@@ -161,11 +161,11 @@ void minecartStepSpeedToTarget(MinecartCart *cart) {
 }
 
 void minecartPlayerCartUpdate(u8 startPoint, u8 *route, s16 yawDeltaOverride, u8 maxTiltLimit) {
-    s32 pad94;
+    s32 pad;
     PlayerState *playerState;
     MinecartCart *cart;
     s32 flags;
-    s32 pad0, pad1, pad2, pad3, pad4, pad5, pad6, pad7, pad8;
+    s32 pad2[9];
     f32 nodePos[3];
 
     cart = gCurrentActor->customState;

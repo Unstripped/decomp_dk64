@@ -594,7 +594,7 @@ extern u8 gFaultScreenEnabled;
 void menuCheckCheatCodeSequence(void) {
     if (sMenuCheatCodeButtons[sMenuCheatCodePos] == gPadPressedButtons[0]) {
         sMenuCheatCodePos++;
-        if (sMenuCheatCodePos >= 7U) {
+        if (sMenuCheatCodePos >= sizeof(sMenuCheatCodeButtons) / sizeof(sMenuCheatCodeButtons[0])) {
             gFaultScreenEnabled = 1;
             sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
             sMenuCheatCodePos = 0;
