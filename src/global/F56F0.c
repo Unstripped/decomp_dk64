@@ -1333,7 +1333,7 @@ typedef struct WaypointPathTable {
     WaypointPath *paths;
 } WaypointPathTable;
 
-extern s8 gDemoPlaybackState;
+extern u8 gDemoPlaybackState;
 extern u8 gScreenRenderFlags;
 extern WaypointPath *gWaypointPathEntry;
 extern WaypointNode *gWaypointCursor;
