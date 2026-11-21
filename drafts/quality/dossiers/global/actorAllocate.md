@@ -38,6 +38,15 @@ counts unchanged. Both loops rewritten as `while (*types != 0)` (fdiff 0, was if
 (-j 2) from a third seed (macro body, guard removed, heapAlloc assigned in the if test): base 70, best 10 = the
 `tds = gGlobalOverlayFlags & 0x100` dead reuse and the known `headerSize = headerSize + 7` near miss -> ea1524 kept,
 0df6bb kept (both diagnose nohit).
+2026-11-21 continue unit 1 Hack7CA80 anthropic/claude-opus-5-5: re-measure on the renamed body (collisionMode,
+arcSpeedCapMax, mirrorCount, floorTriSurface[0], gActorTypeCollisionFlags, lightNodeId, waterPathId[0]; renames only,
+fdiff 0) after Q1573/Q1578/Q1579 (89a58e82). Fresh uopt -l5 (base and removal) counts unchanged. ea1524 removal bodies:
+plain assignments in the first loop (Q1575) 11; `for (headerSize = 0x174; *types != 0; headerSize += 4)` 11 (tds init
+before types 11); comma for-header with all three inits 12; `types++, headerSize += 4` comma increment 12; declaration
+initialisers `u16 headerSize = 0x174; u16 totalDataSize = 0;` 11; `while (*types)` 11; variants scan of the removal
+copy 21 variants best 11. 0df6bb: uncast `& ~7` 71, uncast `& 0xFFF8` 70, first use uncast 70, second use uncast 2
+(`addiu v0,a1,7` vs t5 at 0x340), u16 alignedSize local 6, + plain `tds = tds + alignedSize` 6, + every assignment
+plain 8, + heapAlloc in the if test 6 -> both kept (diagnose nohit).
 
 ## Untried ideas
 - None left that is natural C: the near-miss fix needs cand 38's PRE unit rooted at `headerSize + 7` (base ugen chain
@@ -45,9 +54,11 @@ counts unchanged. Both loops rewritten as `while (*types != 0)` (fdiff 0, was if
   narrowing before the mask (see Evidence). A reshape giving totalDataSize one more block (n 5 -> 6) needs a block
   boundary between 0x340 and the `jal heapAlloc` at 0x354, which is straight-line code.
 - 0df6bb: none natural. The narrowing can only come from a cast or a u16 lvalue; a u16 local is refuted by the frame
-  (Evidence) and every pointer/u16 local is needed, so no local can give up its 2 bytes. A lead ruling could drop the tag
-  if a result-type cast in a one-macro-for-every-recomputation define counts as ordinary C (rulings.md has no entry).
-- ea1524: none (three hack-free permuter seeds now; every 10 is the dead reuse or the refine near miss).
+  (Evidence) and every pointer/u16 local is needed, so no local can give up its 2 bytes. The director ruling of
+  2026-11-20 (rulings.md Steers: a value cast in a one-recomputation macro, headerSize <= 0x188 over all 344 lists)
+  keeps the tag; plain-vs-compound assignment frees no hidden word (Q1575 needs a call operand; 2026-11-21: 6/8).
+- ea1524: none (three hack-free permuter seeds; every 10 is the dead reuse or the refine near miss; 2026-11-21: for-loop
+  forms with headerSize as the loop variable, declaration initialisers, plain loop assignments, bare loop test all 11-12).
 
 ## Evidence
 Block/ref counts (uopt -l5, `- live bb - <bb> <loads> <stores> <argreg>`; compute_save = sum refs x 10^depth / (((n-2)>>2)+2)):
@@ -91,3 +102,8 @@ Block/ref counts (uopt -l5, `- live bb - <bb> <loads> <stores> <argreg>`; comput
   not overlapped.
 - 2026-11-20 fresh uopt -l5 on the macro + while-loop body: identical to the 2026-11-18c counts (guard: cand 8 10.667 a1,
   cand 11 8.0 a2; removal: 11.0 / 12.0 swapped). Cand 38 (aligned size) adjsave 1.0, needregsave -> sp+36.
+- 2026-11-21 fresh uopt -l5 on the renamed body (b1c3fd15): base cand 8 headerSize 10.667 (bb0 st, bb2 guard ld, bb4
+  ld+st, bb6 ld, n=7) reg 4 = a1, cand 11 tds 8.0 reg 5 = a2, aligned CSE cand 38 1.0 needregsave; removal cand 11 12.0
+  (bb4 2 ld + 1 st, arg a0) colours first -> a1, cand 8 11.0 -> a2, aligned CSE cand 36. Target 0x408-0x450: one
+  `li t6,1` feeds `sh t6,108(s0)` (prevContactFlags) and `sh t6,106(s0)` (contactFlags), a separate `li t7,1` feeds
+  `sh t7,306(s0)` (interactionType): the chained `contactFlags = prevContactFlags = 1` is the target's shape.
