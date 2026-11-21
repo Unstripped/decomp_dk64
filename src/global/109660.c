@@ -30,7 +30,7 @@ typedef struct {
 // This TU's .data (0x80754CE0-0x80754F80), in address order: IDO emits .data in definition order
 // and starts every object on a 4-byte boundary; function-local statics follow the file-scope data
 // (gfxBuildScrollingBackground's sBgScrollX/sBgScrollY at 0x80754F70/0x80754F74).
-s16 D_80754CE0 = 0; // added to sBgScrollY by gfxBuildScrollingBackground; written by menu/3E10.c
+s16 gBgScrollShakeY = 0; // added to sBgScrollY by gfxBuildScrollingBackground; written by menu/3E10.c
 f32 gBgRotatedScale = 1.0f; // gfxDrawRotatedTiledBackground scale divisor
 f32 gBackgroundBlend = 0.0f;
 s16 gBgScrollTileAssets[] = { 0x4C3, 0x4C4, 0x4C0, 0x4BF, 0x4C6, 0x4C5, 0x4C1, 0x4C2 }; // scrolling background tile assets
@@ -503,7 +503,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     gDPPipeSync(dl++);
-    scroll = sBgScrollY + D_80754CE0;
+    scroll = sBgScrollY + gBgScrollShakeY;
     if (scroll < 0) {
         scroll += 0x200;
     }

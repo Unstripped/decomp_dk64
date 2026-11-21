@@ -11,17 +11,17 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/90D80.h"
 
-// This TU's .data (0x807501E0-0x80750270), in address order; D_807501E8 is 8-aligned (Vtx).
+// This TU's .data (0x807501E0-0x80750270), in address order; gRotatedQuadVtx is 8-aligned (Vtx).
 u8 gRenderCallbackCount = 0;
-Vtx D_807501E8[4] = {
+Vtx gRotatedQuadVtx[4] = {
     {{ { -16, 16, 1000 }, 0, { 0, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 16, 16, 1000 }, 0, { 1984, 1984 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 16, -16, 1000 }, 0, { 1984, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { -16, -16, 1000 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
 };
-f32 D_80750228 = 0.0f;
-f32 D_8075022C = 0.0f;
-Vtx D_80750230[4] = {
+f32 gBackdropScrollT = 0.0f;
+f32 gBackdropScrollS = 0.0f;
+Vtx gBackdropQuadVtx[4] = {
     {{ { 0, 0, -10 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 320, 0, -10 }, 0, { 2016, 0 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
     {{ { 320, 240, -10 }, 0, { 2016, 2016 }, { 0xFF, 0xFF, 0xFF, 0xFF } }},
@@ -156,7 +156,7 @@ Gfx *renderRotatedQuad(Gfx *glist, void *tex, s16 x, s16 y, s16 angle) {
     guMtxF2L(rotMtx, mtx);
 
     gSPMatrix(glist++, mtx, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    gSPVertex(glist++, osVirtualToPhysical(D_807501E8), 4, 0);
+    gSPVertex(glist++, osVirtualToPhysical(gRotatedQuadVtx), 4, 0);
     gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
     gSPPopMatrix(glist++, G_MTX_MODELVIEW);
     gDPPipeSync(glist++);
@@ -164,7 +164,7 @@ Gfx *renderRotatedQuad(Gfx *glist, void *tex, s16 x, s16 y, s16 angle) {
     return glist;
 }
 
-extern u16 D_807FC79E;
+extern u16 sRotatedSpriteDefaultTexId;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 
@@ -183,7 +183,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, u32 siz, u8 width, u8 h
 
     siz &= ~0xC000;
     if (texId == 0) {
-        texId = D_807FC79E;
+        texId = sRotatedSpriteDefaultTexId;
     }
 
     switch (siz) {
@@ -295,35 +295,35 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
 
     gDPLoadTextureBlock(glist++, (u8 *)texBuf + 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
 
-    gDPSetTileSize(glist++, G_TX_RENDERTILE, (s32)D_8075022C, (s32)D_80750228, (64 - 1) << G_TEXTURE_IMAGE_FRAC, (64 - 1) << G_TEXTURE_IMAGE_FRAC);
+    gDPSetTileSize(glist++, G_TX_RENDERTILE, (s32)gBackdropScrollS, (s32)gBackdropScrollT, (64 - 1) << G_TEXTURE_IMAGE_FRAC, (64 - 1) << G_TEXTURE_IMAGE_FRAC);
     gDPSetTile(glist++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, G_TX_WRAP, 6, G_TX_NOLOD, G_TX_WRAP, 6, G_TX_NOLOD);
 
     gSPMatrix(glist++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPVertex(glist++, osVirtualToPhysical(D_80750230), 4, 0);
+    gSPVertex(glist++, osVirtualToPhysical(gBackdropQuadVtx), 4, 0);
     gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
     gDPPipeSync(glist++);
 
     switch (gCurrentMap) {
     case 0x26: {
         f64 step = scrollStep;
-        D_80750228 -= 2.0 * step;
-        D_8075022C -= 14.0 * step;
+        gBackdropScrollT -= 2.0 * step;
+        gBackdropScrollS -= 14.0 * step;
         break;
     }
     default: {
         f64 step = scrollStep;
-        D_80750228 -= step;
-        D_8075022C -= 0.5 * step;
+        gBackdropScrollT -= step;
+        gBackdropScrollS -= 0.5 * step;
         break;
     }
     }
 
-    if (D_80750228 < 0.0) {
-        D_80750228 = 255.0f;
+    if (gBackdropScrollT < 0.0) {
+        gBackdropScrollT = 255.0f;
     }
-    if (D_8075022C < 0.0) {
-        D_8075022C = 255.0f;
+    if (gBackdropScrollS < 0.0) {
+        gBackdropScrollS = 255.0f;
     }
 
     return glist;

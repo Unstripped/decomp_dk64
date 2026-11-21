@@ -3,7 +3,7 @@
 
 extern u8 gAudioSurroundEnabled;
 extern u8 gAudioMonoEnabled;
-extern u8 D_807FF0F2;
+extern u8 gAudioNarrowPanEnabled;
 extern u8 gAuxBusStereo[];
 extern u8 gAuxBusInvertCoefs[];
 extern u8 gAuxBusOutputMode[];
@@ -13,13 +13,13 @@ void configureCSPOutputMode(u8 mode) {
 
     gAudioSurroundEnabled = 0;
     gAudioMonoEnabled = 0;
-    D_807FF0F2 = 0;
+    gAudioNarrowPanEnabled = 0;
     switch (mode) {
         case 1:
             gAudioMonoEnabled = 1;
             break;
         case 3:
-            D_807FF0F2 = 1;
+            gAudioNarrowPanEnabled = 1;
             break;
         case 4:
             gAudioSurroundEnabled = 1;

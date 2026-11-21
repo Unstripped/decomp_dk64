@@ -149,7 +149,7 @@ AmbientSfxEntry sAmbientSfxTable[29] = {
 u8 gSeqCurrentId[4];
 f32 gSeqVolume[4];
 f32 gSeqTargetVolume[4];
-f32 D_80770588;
+f32 gSeqDefaultVolume;
 u8 gAmbientAudioLevels[3];
 f32 gSfxSpeedVolume;
 f32 gSfxPrevSpeed;
@@ -178,12 +178,12 @@ s16 gSfxVoiceSentPan[24];
 f32 gSfxVoiceSentPitch[22];
 u8 gAmbientIndoorReverb;
 u8 gAmbientIndoors;
-u8 D_80770DCA;
+u8 gAmbientPrevIndoors;
 u8 gAmbientWasOutside;
 f32 gAmbientNearestPan;
 f32 gAmbientNearestFx;
 f32 gAmbientNearestDist;
-u8 D_80770DD8[4];
+u8 gAmbientLoopSfx[4];
 f32 gSfxPan; /* 0..127 pan; sfxCalcDistanceVolumePan first holds the source's view-relative angle (radians) here */
 f32 gSfxFrontFactor;
 f32 gSfxDistance;
@@ -221,8 +221,8 @@ void sfxStartAreaAmbient(void) {
 
     sSfxAreaAmbientActive = 1;
     if (sSfxMode != 0) {
-        if (D_80770DD8[1] == 0xFF) {
-            D_80770DD8[1] = 0;
+        if (gAmbientLoopSfx[1] == 0xFF) {
+            gAmbientLoopSfx[1] = 0;
         }
         return;
     }
@@ -235,13 +235,13 @@ void sfxStartAreaAmbient(void) {
             gAmbientIndoors = sAmbientSfxTable[i].indoors;
             sfxAllocateChannel(sAmbientSfxTable[i].sfxId, 1.0f);
             if (sAmbientSfxTable[i].altSfx != 0) {
-                D_80770DD8[1] = sAmbientSfxTable[i].altSfx;
+                gAmbientLoopSfx[1] = sAmbientSfxTable[i].altSfx;
             }
             return;
         }
     }
 
-    D_80770DD8[1] = 0xFF;
+    gAmbientLoopSfx[1] = 0xFF;
 }
 void sfxPlayCurrent(u8 unused0, u8 unused1, u8 unused2) {
     sfxStartAreaAmbient();
@@ -851,7 +851,7 @@ void sfxUpdateLevelAmbient(void) {
             } else {
                 gAmbientIndoorReverb = 0;
             }
-            D_80770DD8[1] = entry->sfxId;
+            gAmbientLoopSfx[1] = entry->sfxId;
         } else {
             gAmbientWasOutside = 0;
         }
@@ -867,23 +867,23 @@ void sfxUpdateLevelAmbient(void) {
                 volume = 0.0f;
             }
         }
-        if (D_80770DD8[1] == 0xFF) {
+        if (gAmbientLoopSfx[1] == 0xFF) {
             entry = emitters;
             entry += nearest;
-            D_80770DD8[1] = entry->sfxId;
+            gAmbientLoopSfx[1] = entry->sfxId;
             gAmbientIndoorReverb = entry->reverb;
             if (gAmbientIndoors == 0) {
                 sfxAllocateChannel(entry->enterSfx, 1.0f);
             }
         }
-        if (gAmbientIndoors != 0 && D_80770DD8[1] != 0) {
-            sfxAllocateChannel(D_80770DD8[1], 1.0f);
+        if (gAmbientIndoors != 0 && gAmbientLoopSfx[1] != 0) {
+            sfxAllocateChannel(gAmbientLoopSfx[1], 1.0f);
         } else if (gAudioUnderwater != 0) {
             seqSetTargetVolume(0, 1.0f);
         } else {
-            sfxStopChannel(D_80770DD8[1], 0);
+            sfxStopChannel(gAmbientLoopSfx[1], 0);
         }
-        D_80770DCA = gAmbientIndoors;
+        gAmbientPrevIndoors = gAmbientIndoors;
         if (volume != 0.0f) {
             entry = emitters;
             entry += nearest;
@@ -1348,7 +1348,7 @@ void audioResetAll(void) {
     sSfxAreaAmbientActive = 0;
     gAmbientIndoors = 0;
     gAudioUnderwater = 0;
-    D_80770DD8[1] = 0xFF;
+    gAmbientLoopSfx[1] = 0xFF;
     for (i = 0; i < 22; i++) {
         gSfxSourceActor[i] = NULL;
         gSfxSourceModelSlot[i] = -1;
@@ -2420,7 +2420,7 @@ void seqSetVolumeInstant(s32 seqIndex, f32 volume) {
 }
 
 void seqPlayWithDefaultVolume(s32 seqIndex, u8 seqId) {
-    seqLoadAndPlay(seqIndex, seqId, D_80770588);
+    seqLoadAndPlay(seqIndex, seqId, gSeqDefaultVolume);
 }
 
 void seqLoadAndPlayWithReverb(s32 seqIndex, u8 seqId, f32 volume) {

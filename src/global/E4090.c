@@ -1126,7 +1126,7 @@ void playerUpdateMoveTargetFromStick(void) {
     }
     pad = &gPlayerPadState[gCurrentPlayerIndex];
     if ((pad->stickMag != 0.0f) && !(gActivePlayerState->stateFlags2 & 8)) {
-        prevSpeed = gActivePlayerState->unk34;
+        prevSpeed = gActivePlayerState->stopSpeed;
         gActivePlayerState->maxSpeed = (pad->stickMagNorm * (speed - prevSpeed)) + prevSpeed;
         gActivePlayerState->targetYaw = gPlayerPadState[gCurrentPlayerIndex].stickAngle;
         return;
@@ -2081,7 +2081,7 @@ void playerInputHandleAButtonKong(void) {
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->floorSlopeFactor != 0.0f)) {
         return;
     }
-    if (gActivePlayerState->unk20 > 70.0f) {
+    if (gActivePlayerState->actualSpeedXZ > 70.0f) {
         gCurrentActor->state = 0x1D;
         gCurrentActor->subState = 0;
         gActivePlayerState->jumpVelocityY = D_8075378C[gCurrentCharacterIndex];
@@ -2242,7 +2242,7 @@ void playerInputSetBaseGravity(void) {
 }
 
 
-extern f32 D_807536E4[];
+extern f32 gKongLightGravity[];
 
 void playerInputStepCannonPitch(void) {
     f32 b;
@@ -2260,8 +2260,8 @@ void playerInputStepCannonPitch(void) {
     }
     t = (s16)a;
     c = mathCosF(t);
-    b = D_807536E4[gCurrentCharacterIndex];
-    gCurrentActor->accelY = D_807536E4[gCurrentCharacterIndex] + (-2.0f * b * c);
+    b = gKongLightGravity[gCurrentCharacterIndex];
+    gCurrentActor->accelY = gKongLightGravity[gCurrentCharacterIndex] + (-2.0f * b * c);
     if (gCurrentActor->speedY < 0.0f) {
         gCurrentActor->accelY = gCurrentActor->accelY - gCurrentActor->speedY / 100.0;
     }
@@ -2286,7 +2286,7 @@ void playerInputStepCannonPitch(void) {
         a = gCurrentActor->speedXZ;
         gActivePlayerState->decelRate = (a * a) / 10000.0f + 1.0f;
     }
-    gActivePlayerState->unk1A2 = 1;
+    gActivePlayerState->thrustApplied = 1;
 }
 
 
@@ -2299,12 +2299,12 @@ void playerInputHandleCannonBButton(void) {
             playerInputStepCannonPitch();
         } else {
             sfxStopSlotSound(gCurrentActor, 0);
-            gCurrentActor->accelY = D_807536E4[gCurrentCharacterIndex];
+            gCurrentActor->accelY = gKongLightGravity[gCurrentCharacterIndex];
             temp = gCurrentActor->speedXZ;
             gActivePlayerState->decelRate = (temp * temp) / 10000.0f + 1.0f;
         }
     } else {
-        gCurrentActor->accelY = D_807536E4[gCurrentCharacterIndex];
+        gCurrentActor->accelY = gKongLightGravity[gCurrentCharacterIndex];
     }
     playerApplyDeceleration();
 }
@@ -2322,7 +2322,7 @@ void playerInputStopSoundOnZRelease(void) {
     if (!(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000)) {
         sfxStopSlotSound(gCurrentActor, 0);
     }
-    gCurrentActor->accelY = D_807536E4[gCurrentCharacterIndex];
+    gCurrentActor->accelY = gKongLightGravity[gCurrentCharacterIndex];
     temp = gCurrentActor->speedXZ;
     gActivePlayerState->decelRate = (temp * temp) / 10000.0f + 1.0f;
     playerApplyDeceleration();
@@ -2455,10 +2455,10 @@ extern f32 gKongMaxTierExitSpeeds[];
 extern f32 gKongHighTierEnterSpeeds[];
 extern f32 D_807534B8[];
 extern s16 D_807534D4[];
-extern s16 D_8075380C[];
-extern s16 D_8075381C[];
-extern s16 D_8075382C[];
-extern s16 D_8075385C[];
+extern s16 gKongChargeLaunchSpeeds[];
+extern s16 gKongChargeTargetSpeeds[];
+extern s16 gKongChargeDecelRates[];
+extern s16 gKongChargeTurnRates[];
 
 void playerInputHandleBButtonGun(void) {
     PadInputState *pad;
@@ -2466,7 +2466,7 @@ void playerInputHandleBButtonGun(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         gActivePlayerState->jumpStartTime = gScheduler.tickCount;
     }
-    if (gActorGlobalState.unk1C &&
+    if (gActorGlobalState.grabCandidateReceived &&
         (flagGet(0x185, 0) || (gGlobalOverlayFlags & 0x10000000) || (gPlayerCount >= 2) || menuIsTransitionTypeC())) {
         playerStateQueueCallback(3, 0, gCurrentPlayerIndex);
         return;
@@ -2486,20 +2486,20 @@ void playerInputHandleBButtonGun(void) {
             gCurrentActor->state = 0x2F;
             gCurrentActor->subState = 0;
             actorScriptStartByIndex(gCurrentActor, 0x48);
-            gActivePlayerState->slideLaunchSpeed = D_8075380C[gCurrentCharacterIndex];
-            gActivePlayerState->targetSpeed = D_8075381C[gCurrentCharacterIndex];
-            gActivePlayerState->decelRate = D_8075382C[gCurrentCharacterIndex];
-            gActivePlayerState->turnRate = D_8075385C[gCurrentCharacterIndex];
+            gActivePlayerState->slideLaunchSpeed = gKongChargeLaunchSpeeds[gCurrentCharacterIndex];
+            gActivePlayerState->targetSpeed = gKongChargeTargetSpeeds[gCurrentCharacterIndex];
+            gActivePlayerState->decelRate = gKongChargeDecelRates[gCurrentCharacterIndex];
+            gActivePlayerState->turnRate = gKongChargeTurnRates[gCurrentCharacterIndex];
             gCurrentActor->moveYaw = gCurrentActor->yaw;
         } else {
             gCurrentActor->state = 0x29;
             gCurrentActor->subState = 0;
             actorScriptStart(gCurrentActor, 0x1DF);
             gActivePlayerState->unk64 = 0;
-            gActivePlayerState->slideLaunchSpeed = D_8075380C[gCurrentCharacterIndex];
+            gActivePlayerState->slideLaunchSpeed = gKongChargeLaunchSpeeds[gCurrentCharacterIndex];
         }
     } else {
-        if (!mpIsMatchType(0) && (gKongMaxTierExitSpeeds[gCurrentCharacterIndex] <= gActivePlayerState->unk20) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
+        if (!mpIsMatchType(0) && (gKongMaxTierExitSpeeds[gCurrentCharacterIndex] <= gActivePlayerState->actualSpeedXZ) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
             actorScriptStartByIndex(gCurrentActor, 0x44);
             gCurrentActor->state = 0x29;
             gCurrentActor->subState = 0;
@@ -2550,7 +2550,7 @@ void playerInputHandleBButtonPunch(void) {
 
 void playerInputHandleBButtonSpecial(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        if ((gKongHighTierEnterSpeeds[gCurrentCharacterIndex] < gActivePlayerState->unk20) &&
+        if ((gKongHighTierEnterSpeeds[gCurrentCharacterIndex] < gActivePlayerState->actualSpeedXZ) &&
             ((gPlayerCharacterId[gCurrentPlayerIndex] == 3) || (gPlayerCharacterId[gCurrentPlayerIndex] == 0) || (gPlayerCharacterId[gCurrentPlayerIndex] == 5))) {
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 3) {
                 gCurrentActor->speedY = 200.0f;
@@ -2578,19 +2578,19 @@ void playerInputHandleBButtonSpecial(void) {
                         gCurrentActor->state = 0x2E;
                         gCurrentActor->subState = 0;
                         actorScriptStartByIndex(gCurrentActor, 0x48);
-                        gActivePlayerState->slideLaunchSpeed = D_8075380C[gCurrentCharacterIndex] * 4;
-                        gActivePlayerState->targetSpeed = D_8075381C[gCurrentCharacterIndex] * 2;
-                        gActivePlayerState->decelRate = D_8075382C[gCurrentCharacterIndex];
+                        gActivePlayerState->slideLaunchSpeed = gKongChargeLaunchSpeeds[gCurrentCharacterIndex] * 4;
+                        gActivePlayerState->targetSpeed = gKongChargeTargetSpeeds[gCurrentCharacterIndex] * 2;
+                        gActivePlayerState->decelRate = gKongChargeDecelRates[gCurrentCharacterIndex];
                     }
                     break;
                 case 6:
                     gCurrentActor->state = 0x2F;
                     gCurrentActor->subState = 0;
                     actorScriptStartByIndex(gCurrentActor, 0x48);
-                    gActivePlayerState->slideLaunchSpeed = D_8075380C[gCurrentCharacterIndex];
-                    gActivePlayerState->targetSpeed = D_8075381C[gCurrentCharacterIndex];
-                    gActivePlayerState->decelRate = D_8075382C[gCurrentCharacterIndex];
-                    gActivePlayerState->turnRate = D_8075385C[gCurrentCharacterIndex];
+                    gActivePlayerState->slideLaunchSpeed = gKongChargeLaunchSpeeds[gCurrentCharacterIndex];
+                    gActivePlayerState->targetSpeed = gKongChargeTargetSpeeds[gCurrentCharacterIndex];
+                    gActivePlayerState->decelRate = gKongChargeDecelRates[gCurrentCharacterIndex];
+                    gActivePlayerState->turnRate = gKongChargeTurnRates[gCurrentCharacterIndex];
                     gCurrentActor->moveYaw = gCurrentActor->yaw;
                     break;
             }
@@ -2774,8 +2774,8 @@ u8 playerInputCheckTargetMoved(Actor *mob) {
     f32 dz;
 
     if (mob->attachMode == 1) {
-        dx = mob->unk94 - mob->prevX;
-        dz = mob->unk98 - mob->prevZ;
+        dx = mob->attachWorldX - mob->prevX;
+        dz = mob->attachWorldZ - mob->prevZ;
         if (sqrtf(dx * dx + dz * dz) > 1.0) {
             return 1;
         }
@@ -2852,7 +2852,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                     gActivePlayerState->warpX = gActorGlobalState.eventX;
                     gActivePlayerState->warpY = gActorGlobalState.eventY;
                     gActivePlayerState->warpZ = gActorGlobalState.eventZ;
-                    gActivePlayerState->unk21C = gActorGlobalState.eventValue0;
+                    gActivePlayerState->warpYaw = gActorGlobalState.eventValue0;
                     playerStateQueueCallback(0x1E, 0, gCurrentPlayerIndex);
                     playerRestoreKongState(gCurrentActor, gActivePlayerState);
                     return 1;
@@ -2928,12 +2928,12 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 gCurrentActor->subState = 0;
                 gCurrentActor->speedY = 0.0f;
                 gCurrentActor->accelY = gActorGlobalState.eventValue0 * 0.2 + 2.0;
-                gActivePlayerState->unkC0 = gActorGlobalState.eventValue1;
+                gActivePlayerState->twirlTimer = gActorGlobalState.eventValue1;
                 actorScriptStart(gCurrentActor, 0x169);
                 return 1;
             case 7:
                 gCurrentActor->collisionMode = 1;
-                gActivePlayerState->unk242 = gActorGlobalState.eventValue0;
+                gActivePlayerState->destMap = gActorGlobalState.eventValue0;
                 gCurrentActor->state = 0x76;
                 gCurrentActor->subState = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x86);
@@ -3076,7 +3076,7 @@ void playerInputRequestPause(void) {
 
 
 
-extern f32 D_80753988[];
+extern f32 gKongSwimTopSpeeds[];
 extern s16 gKongStickTurnRates[];
 extern f32 D_8075396C[];
 extern f32 gKongSurfaceStrokeSpeeds[];
@@ -3101,7 +3101,7 @@ void playerInputCalculateStickForwardSpeed(void) {
     f32 temp;
 
     if (gPlayerPadState[gCurrentPlayerIndex].stickMag != 0.0f) {
-        temp = gActivePlayerState->unk34;
+        temp = gActivePlayerState->stopSpeed;
         gActivePlayerState->maxSpeed = (gPlayerPadState[gCurrentPlayerIndex].stickMagNorm * (gActivePlayerState->targetSpeed - temp)) + temp;
     } else {
         gActivePlayerState->maxSpeed = 0.0f;
@@ -3125,7 +3125,7 @@ void playerInputCalculateStickTurnRate(void) {
     }
     mathAngleStepToward(&gCurrentActor->pitch, pitch, 0x10);
     mathAngleStepToward(&gCurrentActor->roll, gActivePlayerState->subTimer, 0x10);
-    gActivePlayerState->targetSpeed = D_80753988[gCurrentCharacterIndex];
+    gActivePlayerState->targetSpeed = gKongSwimTopSpeeds[gCurrentCharacterIndex];
 }
 
 extern s16 D_80753B54[];
@@ -3189,7 +3189,7 @@ void playerInputUpdateStickTurnYaw(void) {
     gActivePlayerState->subTimer = 0;
     gActivePlayerState->pitchAngle = gCurrentActor->yaw;
     gActivePlayerState->actionTimer = D_8075395C[gCurrentCharacterIndex];
-    gActivePlayerState->targetSpeed = D_80753988[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickMagNorm;
+    gActivePlayerState->targetSpeed = gKongSwimTopSpeeds[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickMagNorm;
     if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x4000) {
         gActivePlayerState->targetSpeed = gActivePlayerState->targetSpeed * 1.33;
     }
@@ -3347,7 +3347,7 @@ typedef struct ClimbActorState {
     /* 0x00 */ s16 inputLocked;
     /* 0x02 */ s16 stickX;
     /* 0x04 */ u8 pad4[0x28];
-    /* 0x2C */ f32 unk2C;
+    /* 0x2C */ f32 junctionBlend;
     /* 0x30 */ u8 pad30[4];
     /* 0x34 */ u8 *flagsPtr;
     /* 0x38 */ u8 pad38[6];
@@ -3438,8 +3438,8 @@ u8 playerInputCanPerformFairySnap(void) {
 }
 
 
-extern s16 D_8075386C[];
-extern f32 D_8075389C[];
+extern s16 gKongNormalSwimEnterDepths[];
+extern f32 gKongSwimEnterDepths[];
 
 void playerInputHandleCDownCameraSnap(void) {
     f32 minHeight;
@@ -3451,9 +3451,9 @@ void playerInputHandleCDownCameraSnap(void) {
         return;
     }
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        minHeight = D_8075386C[gCurrentCharacterIndex];
+        minHeight = gKongNormalSwimEnterDepths[gCurrentCharacterIndex];
     } else {
-        minHeight = D_8075389C[gCurrentCharacterIndex];
+        minHeight = gKongSwimEnterDepths[gCurrentCharacterIndex];
     }
     if ((btn & 0x2000) && (minHeight < gCurrentActor->distToFloor) && playerInputCanPerformFairySnap()) {
         playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
@@ -3579,7 +3579,7 @@ void playerInputCheckLadderTopOrBottom(void) {
             gActivePlayerState->actor->speedY = D_80750338;
             gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
             oldRung = st->rung;
-            st->unk2C = 1.0f;
+            st->junctionBlend = 1.0f;
             st->prevRung = oldRung;
             if (gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F) {
                 st->rung = oldRung - 1;
@@ -4022,8 +4022,8 @@ typedef struct LockableActorState {
 
 extern f32 D_807537E0[];
 extern s16 D_80750338;
-extern s16 D_807539DC[];
-extern s16 D_807539EC[];
+extern s16 gKongDiveFrames[];
+extern s16 gKongDiveAngles[];
 
 void func_806E8F04(void) {
     if (gCurrentActor->subState == 1) {
@@ -4120,9 +4120,9 @@ void playerInputHandleBButtonUnderwaterCharge(void) {
 
 void playerInputDiveFromSurface(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xA000) {
-        gActivePlayerState->subTimer = D_807539EC[gCurrentCharacterIndex];
+        gActivePlayerState->subTimer = gKongDiveAngles[gCurrentCharacterIndex];
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
-        gActivePlayerState->actionTimer = D_807539DC[gCurrentCharacterIndex];
+        gActivePlayerState->actionTimer = gKongDiveFrames[gCurrentCharacterIndex];
         gCurrentActor->state = 0x7F;
         gCurrentActor->subState = 0;
         gCurrentActor->subState = 1;
@@ -4159,9 +4159,9 @@ s32 playerInputPostUpdate(void) {
                 playerClearCarriedItemState();
             } else if (gCurrentActor->contactFlags & 1) {
                 if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-                    depthLimit = D_8075386C[gCurrentCharacterIndex];
+                    depthLimit = gKongNormalSwimEnterDepths[gCurrentCharacterIndex];
                 } else {
-                    depthLimit = D_8075389C[gCurrentCharacterIndex];
+                    depthLimit = gKongSwimEnterDepths[gCurrentCharacterIndex];
                 }
                 if (depthLimit < depth) {
                     playerStateQueueCallback(0x3D, 0, gCurrentPlayerIndex);

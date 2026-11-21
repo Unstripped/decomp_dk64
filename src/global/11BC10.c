@@ -569,9 +569,9 @@ typedef struct EffectInterpolationState {
     f32 angle;
     f32 angleIncrement;
 } EffectInterpolationState;
-extern f32 D_807FDB50;
-extern f32 D_807FDB54;
-extern f32 D_807FDB58;
+extern f32 sEffectInterpStartX;
+extern f32 sEffectInterpStartY;
+extern f32 sEffectInterpStartZ;
 
 void effectInterpolationUpdate(EffectNode *effect, s8 *isDone) {
     EffectMatrix mtx;
@@ -584,9 +584,9 @@ void effectInterpolationUpdate(EffectNode *effect, s8 *isDone) {
     if (effect->interp == NULL) {
         effect->interp = heapAlloc(sizeof(EffectInterpolationState));
         effect->interp->progress = 0.0f;
-        effect->interp->startX = D_807FDB50;
-        effect->interp->startY = D_807FDB54;
-        effect->interp->startZ = D_807FDB58;
+        effect->interp->startX = sEffectInterpStartX;
+        effect->interp->startY = sEffectInterpStartY;
+        effect->interp->startZ = sEffectInterpStartZ;
         effect->interp->endX = effect->x;
         effect->interp->endY = effect->y;
         effect->interp->endZ = effect->z;

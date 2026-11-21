@@ -15,7 +15,7 @@ s32 D_807563F0[26] = {
     0, 1320, 5000, 0, 0, 0, 0, 0x5000,
 };
 // n_alFxNew's default parameters (no sections); word 11 holds -10.0f's bits.
-s32 D_80756458[14] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xC1200000, 0, 0 };
+s32 gFxDefaultParams[14] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xC1200000, 0, 0 };
 
 void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
     SynCoreParam *param;
@@ -180,7 +180,7 @@ void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) 
             paramTable = config->params[busIndex];
             break;
         default:
-            paramTable = D_80756458;
+            paramTable = gFxDefaultParams;
             break;
     }
 

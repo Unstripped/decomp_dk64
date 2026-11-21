@@ -894,14 +894,14 @@ void eepromThreadMain(void *arg) {
     }
 }
 
-extern OSMesg D_807EE0B0[];
+extern OSMesg gSleepTimerMesgs[];
 extern OSThread gEepromThread;
 extern OSMesg gEepromCmdMesgs[];
 
 void eepromInit(void) {
     eepromInitModelCount();
     gEepromType = osEepromProbe(&gSiMesgQueue);
-    osCreateMesgQueue(&gSleepTimerQueue, D_807EE0B0, 8);
+    osCreateMesgQueue(&gSleepTimerQueue, gSleepTimerMesgs, 8);
     osCreateMesgQueue(&gEepromCmdQueue, gEepromCmdMesgs, 8);
     osCreateThread(&gEepromThread, 9, eepromThreadMain, NULL, gEepromCmdMesgs, 0xC);
     osStartThread(&gEepromThread);

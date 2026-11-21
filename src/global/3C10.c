@@ -334,7 +334,7 @@ const u8 gMapTitleMaps[80] = {
     0x87, 0x68, 0x88, 0x89, 0x67, 0x8A, 0x8B, 0x8C, 0x65, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93,
     0x66, 0x94, 0x95, 0x96, 0x35, 0x49, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0x00, 0x00,
 };
-const u8 D_80756630[80] = {
+const u8 gMapTitleTextIds[80] = {
     0x0A, 0x0B, 0x0C, 0x0D, 0x00, 0x02, 0x03, 0x04, 0x05, 0x06, 0x0E, 0x08, 0x01, 0x0F, 0x0F, 0x0F,
     0x0F, 0x10, 0x10, 0x10, 0x10, 0x11, 0x11, 0x11, 0x11, 0x12, 0x12, 0x12, 0x12, 0x13, 0x13, 0x13,
     0x13, 0x14, 0x14, 0x14, 0x14, 0x15, 0x15, 0x15, 0x16, 0x16, 0x16, 0x17, 0x17, 0x17, 0x18, 0x18,
@@ -361,13 +361,13 @@ Struct8076A160 gSavedMapSlots[18];
 u8 gTransitionFadeType;
 u8 D_8076AEE1;
 s16 gSavedSlotSpawnFlags;
-f32 D_8076AEE4;
-f32 D_8076AEE8;
-f32 D_8076AEEC;
-s16 D_8076AEF0;
+f32 gSavedSlotSpawnX;
+f32 gSavedSlotSpawnY;
+f32 gSavedSlotSpawnZ;
+s16 gSavedSlotSpawnYaw;
 s16 gPreviousMap;
-u16 D_8076AEF4;
-u8 D_8076AEF6;
+u16 gPendingTransitionMap;
+u8 gPendingTransitionExit;
 u8 D_8076AEF7;
 u8 D_8076AEF8[8];
 
@@ -447,8 +447,8 @@ void screenApplyTransitionFadeType(void) {
 
 void mapSetPendingTransition(s16 map, u8 exitIndex) {
     gHasPendingTransition = 1;
-    D_8076AEF4 = map;
-    D_8076AEF6 = exitIndex;
+    gPendingTransitionMap = map;
+    gPendingTransitionExit = exitIndex;
 }
 
 void mapExecuteDeathTransition(s32 unused) {
@@ -466,8 +466,8 @@ void mapExecuteDeathTransition(s32 unused) {
     found = 0;
 
     if (gHasPendingTransition != 0) {
-        targetMap = D_8076AEF4;
-        exitIndex = D_8076AEF6;
+        targetMap = gPendingTransitionMap;
+        exitIndex = gPendingTransitionExit;
     } else {
         if (mapIsLobby(gCurrentMap) != 0) {
             targetMap = gCurrentMap;
@@ -559,10 +559,10 @@ void mapLoadSavedSlotSpawn(s32 map) {
 
     if (idx != -1) {
         gSavedSlotSpawnFlags = gSavedMapSlots[idx].flags;
-        D_8076AEE4 = gSavedMapSlots[idx].x;
-        D_8076AEE8 = gSavedMapSlots[idx].y;
-        D_8076AEEC = gSavedMapSlots[idx].z;
-        D_8076AEF0 = gSavedMapSlots[idx].yaw;
+        gSavedSlotSpawnX = gSavedMapSlots[idx].x;
+        gSavedSlotSpawnY = gSavedMapSlots[idx].y;
+        gSavedSlotSpawnZ = gSavedMapSlots[idx].z;
+        gSavedSlotSpawnYaw = gSavedMapSlots[idx].yaw;
     } else {
         gSavedSlotSpawnFlags = 0;
     }
@@ -659,7 +659,7 @@ s32 mapFindSlotByMap(s16 target) {
 
 extern u8 gPlayerStateSaved;
 extern s32 gMapChunkCount;
-extern s32 D_807FD56C;
+extern s32 gSavedPlayerStateFlags;
 extern s16 gSavedHeldActorType;
 
 void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
@@ -726,7 +726,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     }
     gPlayerStateSaved = TRUE;
     playerState = gPrimaryPlayerActor->customState;
-    D_807FD56C = playerState->stateFlags;
+    gSavedPlayerStateFlags = playerState->stateFlags;
     if (playerState->heldActor != NULL) {
         gSavedHeldActorType = playerState->heldActor->actorType;
     } else {
@@ -869,7 +869,7 @@ u8 mapTitleCheckShow(s16 id, u8 *outVal) {
     }
 
     if (gMapTitleMaps[i] != 0) {
-        *outVal = D_80756630[i];
+        *outVal = gMapTitleTextIds[i];
         if (i < 13) {
             flagId = i + 0x307;
             isNew = flagGet(flagId, 0) == 0;

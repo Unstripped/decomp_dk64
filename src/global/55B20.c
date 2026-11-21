@@ -22,7 +22,7 @@
 
 // This TU's .data (0x807482F0-0x807482F8 + 8-byte TU pad); D_807482F0 is unreferenced.
 s32 D_807482F0 = 2500;
-s32 D_807482F4 = 5;
+s32 gMapChunkFrustumCaptureIndex = 5;
 
 typedef struct MapChunkCell {
     /* 0x00 */ s16 id;
@@ -93,7 +93,7 @@ s32 gMapPortalSlotCount;
 struct MapGridPoint *gMapGridTrianglePlanes;
 s32 gMapChunkCount;
 u8 *gMapPortalVisible;
-s16 D_807F6C30[20];
+s16 sMapPortalChunkStack[20];
 s16 sMapVisibleChunks[20];
 s32 sMapVisibleChunkCount;
 s32 D_807F6C84; // unreferenced word between the chunk count and sMapClipQuad
@@ -105,17 +105,17 @@ typedef struct MapVec3 {
 
 MapVec3 sMapClipQuad[4];
 u8 D_807F6CB8[0xC0]; // unreferenced space before the clipping scratch buffers
-MapVec3 D_807F6D78[20];
-MapVec3 D_807F6E68[20];
-MapVec3 D_807F6F58[20];
-u8 D_807F7048[16];
+MapVec3 sMapClippedPoly[20];
+MapVec3 sMapClipScratchA[20];
+MapVec3 sMapClipScratchB[20];
+u8 sMapActiveZones[16];
 u8 sMapActiveZoneCount;
 u8 sMapBlockedPortals[16];
 u8 sMapBlockedPortalCount;
 Mtx *sMapChunkScaleMtx;
 u8 gMapChunkEnabled[0x32];
 u8 sMapChunkReleaseCursor;
-u8 D_807F70AB;
+u8 sMapCamChunkFromActor;
 s32 gMapCellCount;
 
 extern f32 *gChunkLightR;
@@ -156,7 +156,7 @@ typedef struct MapPortal {
 
 extern s32 gMapVtxBase;
 extern s32 gMapCellCount;
-extern u8 D_807F70AB;
+extern u8 sMapCamChunkFromActor;
 extern s16 gMapFogDist;
 extern u8 gMapHasCellLitChunks;
 extern u8 sMapChunkReleaseCursor;
@@ -185,10 +185,10 @@ extern MapGridPoint *gMapGridTrianglePlanes;
 extern struct MapCell *gMapCells;
 extern struct MapBox *gMapCellBoxes;
 
-extern s16 D_807F6C30[20];
+extern s16 sMapPortalChunkStack[20];
 extern s16 sMapVisibleChunks[20];
 extern u8 D_807F6CB8[0xC0];
-extern u8 D_807F7048[16];
+extern u8 sMapActiveZones[16];
 extern u8 sMapActiveZoneCount;
 extern u8 sMapBlockedPortals[16];
 extern u8 sMapBlockedPortalCount;
@@ -218,7 +218,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
 
     gMapCellCount = 0;
     gMapHasCellLitChunks = 0;
-    D_807F70AB = 0;
+    sMapCamChunkFromActor = 0;
     if (gMapChunkCount != 0) {
         file = (u8 *)data;
         gMapFogDist = data->fogDist;
@@ -673,7 +673,7 @@ u8 mapChunkPurgeNodeList(void *targetId, s16 *outChunk, u8 all) {
 
 struct MapCell;
 struct MapBox;
-extern u8 D_807F7140;
+extern u8 gCsModelUpdateCount;
 
 
 void mapChunkClearNodeFlags(u8 all) {
@@ -744,7 +744,7 @@ void mapChunkUpdateModelNodes(void) {
     void *node;
     void *next;
 
-    D_807F7140 = 0;
+    gCsModelUpdateCount = 0;
     for (i = 0; i < gMapChunkCount; i++) {
         if (gMapChunks[i].playerMask != 0) {
             flag = 1;
@@ -1203,7 +1203,7 @@ void mapChunkActivate(s16 chunkIndex) {
 
 
 void mapChunkSetIndexOverride(s8 index) {
-    D_807F70AB = index;
+    sMapCamChunkFromActor = index;
 }
 
 extern PlanePoly gFrustumPlanes[];
@@ -1214,7 +1214,7 @@ extern u8 sMapVisiblePortalCount;
 
 void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
     gPlayerSlots[gCurrentPlayerIndex].camChunk = mapChunkFindByPosition(x, y, z, gPlayerSlots[gCurrentPlayerIndex].camChunk);
-    if (D_807F70AB != 0) {
+    if (sMapCamChunkFromActor != 0) {
         gPlayerSlots[gCurrentPlayerIndex].camChunk = gPlayerSlots[gCurrentPlayerIndex].actor->chunkIndex;
     }
     mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].farClip, gPlayerSlots[gCurrentPlayerIndex].camChunk);
@@ -1372,7 +1372,7 @@ void mapChunkRenderNodes(f32 x, f32 y, f32 z) {
 }
 
 extern f32 gViewFarClip;
-extern PlanePoly D_807F7148[];
+extern PlanePoly sMapSelectedChunkFrustum[];
 
 void mapChunkBuildClipFrusta(f32 x, f32 y, f32 z) {
     f32 viewMtx[4][4];
@@ -1387,8 +1387,8 @@ void mapChunkBuildClipFrusta(f32 x, f32 y, f32 z) {
         if (gMapChunks[i].state == 1) {
             mapScreenRectBuildFrustum(gMapChunks[i].clipLeft, gMapChunks[i].clipTop, gMapChunks[i].clipRight, gMapChunks[i].clipBottom,
                           x, y, z, gCurrentPlayerIndex, invMtx, &gMapChunks[i].frustum[0], corners);
-            if (i == D_807482F4) {
-                memcpy(D_807F7148, &gMapChunks[i].frustum[0], sizeof(gMapChunks[i].frustum));
+            if (i == gMapChunkFrustumCaptureIndex) {
+                memcpy(sMapSelectedChunkFrustum, &gMapChunks[i].frustum[0], sizeof(gMapChunks[i].frustum));
             }
         }
     }
@@ -1450,7 +1450,7 @@ typedef struct MapTriangle {
 } MapTriangle;
 
 
-extern u8 D_807F7048[];
+extern u8 sMapActiveZones[];
 extern u8 sMapBlockedPortals[];
 
 
@@ -1479,7 +1479,7 @@ void mapTriggerCollectZonesAtPoint(f32 x, f32 y, f32 z) {
                         if (h <= y && y <= (f32)zone->height + h) {
                             k = 0;
                             if (sMapActiveZoneCount != 0x10) {
-                                D_807F7048[sMapActiveZoneCount] = i;
+                                sMapActiveZones[sMapActiveZoneCount] = i;
                                 sMapActiveZoneCount++;
                             }
                             for (; k < zone->linkCount; k++) {
@@ -1519,7 +1519,7 @@ void mapTriggerApplyZones(f32 x, f32 y, f32 z) {
 
     done = 0;
     for (i = 0; i < sMapActiveZoneCount; i++) {
-        idx = D_807F7048[i];
+        idx = sMapActiveZones[i];
         if (gMapZones[idx] != NULL) {
             zone = gMapZones[idx];
             if (!done) {
@@ -1698,9 +1698,9 @@ void mapCellUpdateVisibility(f32 x, f32 y, f32 z, s32 parent) {
 }
 
 
-extern f32 D_807F7EEC;
-extern f32 D_807F7EF0;
-extern f32 D_807F7EF4;
+extern f32 gLightBaseR;
+extern f32 gLightBaseG;
+extern f32 gLightBaseB;
 
 void mapChunksApplyLights(f32 x, f32 y, f32 z) {
     s32 i;
@@ -1751,9 +1751,9 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                         src = gMapChunks[i].baseVtx + gMapCells[k].vtxOffset[j] * 0x10;
                                         memcpy(gMapChunks[i].cells[nodeIdx].vtx[j], src, gMapCells[k].vtxCount[j] * 0x10);
                                         cellVtx = gMapChunks[i].cells[nodeIdx].vtx[j];
-                                        D_807F7EEC = gChunkLightR[i];
-                                        D_807F7EF0 = gChunkLightG[i];
-                                        D_807F7EF4 = gChunkLightB[i];
+                                        gLightBaseR = gChunkLightR[i];
+                                        gLightBaseG = gChunkLightG[i];
+                                        gLightBaseB = gChunkLightB[i];
                                         lightApplyToVertices((s32)cellVtx, (s32)(cellVtx + gMapCells[k].vtxCount[j]), 1, gLightCandidates, lightCount, gMapChunks[i].lightMode == 1);
                                     }
                                 }
@@ -1770,9 +1770,9 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                     gMapChunks[i].litVtx[gGfxBufferIndex] = heapAlloc(gMapChunks[i].vtxSize);
                 }
                 memcpy(gMapChunks[i].litVtx[gGfxBufferIndex], gMapChunks[i].baseVtx, gMapChunks[i].vtxSize);
-                D_807F7EEC = gChunkLightR[i];
-                D_807F7EF0 = gChunkLightG[i];
-                D_807F7EF4 = gChunkLightB[i];
+                gLightBaseR = gChunkLightR[i];
+                gLightBaseG = gChunkLightG[i];
+                gLightBaseB = gChunkLightB[i];
                 if (gGlobalPauseFlags & 0x10) {
                     lightApplyToVertices((s32)gMapChunks[i].litVtx[gGfxBufferIndex], (s32)((u8 *)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize), 1, gLightCandidates, lightCount, gMapChunks[i].lightMode == 1);
                 }
@@ -1827,7 +1827,7 @@ s32 mapNodeIdListContains(s16 id, s32 count) {
 
     i = 0;
     while (i < count) {
-        if (id == D_807F6C30[i]) {
+        if (id == sMapPortalChunkStack[i]) {
             return 1;
         } else {
             i++;
@@ -2142,7 +2142,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                             gMapChunks[id].clipTop = outTop;
                             gMapChunks[id].clipRight = outRight;
                             gMapChunks[id].clipBottom = outBottom;
-                            D_807F6C30[depth] = chunk;
+                            sMapPortalChunkStack[depth] = chunk;
                             mapChunkTraversePortals(id, depth + 1, clipLeft, clipTop, clipRight, clipBottom, x, y, z);
                         }
                     }
@@ -2413,23 +2413,23 @@ s32 mapGridQuadClipToFrustum(s32 tri, f32 x, f32 y, f32 z)
         sMapClipQuad[k].y = gMapGridTriangleVerts[tri].y[k];
         sMapClipQuad[k].z = gMapGridTriangleVerts[tri].z[k];
     }
-    mapPolyClipToFrustumPlane(sMapClipQuad, D_807F6E68, 4, &n2, 0);
+    mapPolyClipToFrustumPlane(sMapClipQuad, sMapClipScratchA, 4, &n2, 0);
     if (n2 == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(D_807F6E68, D_807F6F58, n2, &n1, 1);
+    mapPolyClipToFrustumPlane(sMapClipScratchA, sMapClipScratchB, n2, &n1, 1);
     if (n1 == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(D_807F6F58, D_807F6E68, n1, &n2, 2);
+    mapPolyClipToFrustumPlane(sMapClipScratchB, sMapClipScratchA, n1, &n2, 2);
     if (n2 == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(D_807F6E68, D_807F6F58, n2, &n1, 3);
+    mapPolyClipToFrustumPlane(sMapClipScratchA, sMapClipScratchB, n2, &n1, 3);
     if (n1 == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(D_807F6F58, D_807F6D78, n1, &n2, 4);
+    mapPolyClipToFrustumPlane(sMapClipScratchB, sMapClippedPoly, n1, &n2, 4);
     if (n2 < 3) {
         n2 = 0;
     }
@@ -2502,7 +2502,7 @@ void mapPolyProjectToScreenRect(s32 count, s32 *outLeft, s32 *outTop, s32 *outRi
     *outBottom = gPlayerSlots[gCurrentPlayerIndex].rect[1];
     flag = 0;
     for (i = 0; i < count; i++) {
-        flag |= camProjectToScreen(D_807F6D78[i].x, D_807F6D78[i].y, D_807F6D78[i].z, &sx, &sy, 0, 1.0f, gCurrentPlayerIndex); x = (s16)sx; y = (s16)sy; // LAYOUT: same-line statements steer sra scheduling
+        flag |= camProjectToScreen(sMapClippedPoly[i].x, sMapClippedPoly[i].y, sMapClippedPoly[i].z, &sx, &sy, 0, 1.0f, gCurrentPlayerIndex); x = (s16)sx; y = (s16)sy; // LAYOUT: same-line statements steer sra scheduling
         if (x < gPlayerSlots[gCurrentPlayerIndex].rect[0]) {
             x = gPlayerSlots[gCurrentPlayerIndex].rect[0];
         }
@@ -2587,10 +2587,10 @@ void mapNodeAssetParse(u8 *data) {
     }
 }
 
-extern s16 D_807F7358;
-extern s16 D_807F735A;
-extern s16 D_807F735C;
-extern s16 D_807F735E;
+extern s16 sMapClipLeft;
+extern s16 sMapClipTop;
+extern s16 sMapClipRight;
+extern s16 sMapClipBottom;
 
 
 s16 mapObjectCollectIdsByType(s8 type, s8 *out, s16 max) {
@@ -2704,10 +2704,10 @@ s16 top;
 s16 right;
 s16 bottom;
 {
-    D_807F7358 = left;
-    D_807F735A = top;
-    D_807F735C = right;
-    D_807F735E = bottom;
+    sMapClipLeft = left;
+    sMapClipTop = top;
+    sMapClipRight = right;
+    sMapClipBottom = bottom;
 }
 
 
@@ -2749,8 +2749,8 @@ s32 mapPointOutsideClipBounds(f32 x, f32 y, f32 z, u8 marginX, u8 marginY) {
         z0 = 130;
         z1 = 130;
     }
-    if ((px < D_807F7358 - x0 - marginX) || (D_807F735C + x1 + marginX < px)
-        || (py < D_807F735A - z0 - marginY) || (D_807F735E + z1 + marginY < py)) {
+    if ((px < sMapClipLeft - x0 - marginX) || (sMapClipRight + x1 + marginX < px)
+        || (py < sMapClipTop - z0 - marginY) || (sMapClipBottom + z1 + marginY < py)) {
         return 1;
     }
     return 0;

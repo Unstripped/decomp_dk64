@@ -70,13 +70,13 @@ s8 gMainThreadHalted = 0;
 Struct80744464 D_80744464 = { 0xF, 2, 0x1E };
 
 // .bss 0x80761050-0x807655F0
-OSMesgQueue D_80761050;
-OSMesg D_80761068[0xF2];
+OSMesgQueue gPiMgrCmdQueue;
+OSMesg gPiMgrCmdMesgs[0xF2];
 OSThread gMainThread;
 u8 D_807615E0[160];
-u64 D_80761680;
+u64 gMainThreadStackSentinel;
 u8 D_80761688[16216];
-OSMesgQueue *D_807655E0;
+OSMesgQueue *gBootResetQueue;
 u32 D_807655E4;
 
 // as1 schedules by source line: each segment entry stays on one line (matches the target store order)
@@ -84,9 +84,9 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
     if (haltReason != 0) {
         mainThreadHalt(queue, haltReason);
     }
-    D_807655E0 = queue;
+    gBootResetQueue = queue;
     gSegmentTable[0].vramStart = (u32)boot_VRAM; gSegmentTable[0].vramEnd = (u32)boot_VRAM_END; gSegmentTable[0].bssStart = (u32)boot_BSS_START; gSegmentTable[0].bssEnd = (u32)boot_BSS_END;
-    gSegmentTable[1].vramStart = (u32)globalInit; gSegmentTable[1].vramEnd = (u32)global_VRAM_END; gSegmentTable[1].bssStart = (u32)&D_80761050; gSegmentTable[1].bssEnd = (u32)global_BSS_END;
+    gSegmentTable[1].vramStart = (u32)globalInit; gSegmentTable[1].vramEnd = (u32)global_VRAM_END; gSegmentTable[1].bssStart = (u32)&gPiMgrCmdQueue; gSegmentTable[1].bssEnd = (u32)global_BSS_END;
     gSegmentTable[2].vramStart = (u32)multiplayer_VRAM; gSegmentTable[2].vramEnd = (u32)multiplayer_VRAM_END; gSegmentTable[2].bssStart = (u32)multiplayer_BSS_START; gSegmentTable[2].bssEnd = (u32)multiplayer_BSS_END;
     gSegmentTable[3].vramStart = (u32)minecart_VRAM; gSegmentTable[3].vramEnd = (u32)minecart_VRAM_END; gSegmentTable[3].bssStart = (u32)minecart_BSS_START; gSegmentTable[3].bssEnd = (u32)minecart_BSS_END;
     gSegmentTable[4].vramStart = (u32)bonus_VRAM; gSegmentTable[4].vramEnd = (u32)bonus_VRAM_END; gSegmentTable[4].bssStart = (u32)bonus_BSS_START; gSegmentTable[4].bssEnd = (u32)bonus_BSS_END;
@@ -97,9 +97,9 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
     gSegmentTable[9].vramStart = (u32)jetpac_VRAM; gSegmentTable[9].vramEnd = (u32)jetpac_VRAM_END; gSegmentTable[9].bssStart = (u32)jetpac_BSS_START; gSegmentTable[9].bssEnd = (u32)jetpac_BSS_END;
     gSegmentTable[10].vramStart = (u32)menu_VRAM; gSegmentTable[10].vramEnd = (u32)menu_VRAM_END; gSegmentTable[10].bssStart = (u32)menu_BSS_START; gSegmentTable[10].bssEnd = (u32)menu_BSS_END;
     osDpSetStatus(4);
-    osCreatePiManager(0x96, &D_80761050, D_80761068, 0xF2);
-    D_80761680 = 0x12345678;
-    osCreateThread(&gMainThread, 3, mainThreadLoop, NULL, &D_807655E0, 0xA);
+    osCreatePiManager(0x96, &gPiMgrCmdQueue, gPiMgrCmdMesgs, 0xF2);
+    gMainThreadStackSentinel = 0x12345678;
+    osCreateThread(&gMainThread, 3, mainThreadLoop, NULL, &gBootResetQueue, 0xA);
     osStartThread(&gMainThread);
 }
 

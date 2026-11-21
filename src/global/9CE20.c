@@ -18,16 +18,16 @@
 // unreferenced; A2F10 reads its own kong-name table (0x807503B0) as D_80750338[0x1E..0x26].
 s16 gCarryMinFallSpeed = -220;
 s16 D_807502D4 = -100;
-s16 D_807502D8 = -600;
+s16 gArmydilloTerminalSpeedY = -600;
 s16 gWaypointBossTerminalSpeedY = -500;
-s16 D_807502E0 = -220;
+s16 gDefaultActorTerminalSpeedY = -220;
 f32 gCarryGravity = -20.0f;
 f32 gDefaultActorGravity = -20.0f;
 f32 gAirPatrolAccelY = -15.0f;
 f32 gWaypointBossAccelY = -30.0f;
 f32 gActorDefaultAccelY = -30.0f;
 f32 gDefaultAccelY = -28.0f;
-f32 D_807502FC = -3.0f;
+f32 gPufftossSinkAccelY = -3.0f;
 f32 gVehicleGravity = -20.0f;
 s16 D_80750304 = 2;
 s16 D_80750308 = 10;
@@ -48,15 +48,15 @@ s16 gFlyPatrolShotInterval = 60;
 s16 gProjectileLifetime = 200;
 s16 gBounceExplodeLifetime = 200;
 s16 D_8075034C = 30;
-s16 D_80750350 = 50;
+s16 gHomingShotLifetime = 50;
 s16 D_80750354 = 50;
 s16 gShotLifetime = 50;
-s16 D_8075035C = 50;
+s16 gMultiplayerShotLifetime = 50;
 s16 D_80750360 = 50;
-s16 D_80750364 = 100;
+s16 gHomingShotLongLifetime = 100;
 s16 D_80750368 = 100;
 s16 gShotLongLifetime = 100;
-s16 D_80750370 = 100;
+s16 gMultiplayerShotLongLifetime = 100;
 s16 D_80750374 = 100;
 s16 D_80750378 = 300;
 s16 D_8075037C = 200;
@@ -75,7 +75,7 @@ typedef struct BoneChainData {
     /* 0x0C */ f32 phase;
     /* 0x10 */ f32 nodeAngle;
     /* 0x14 */ u8 playerHolding;
-    /* 0x15 */ u8 unk15;
+    /* 0x15 */ u8 leapTimer;
     /* 0x16 */ u8 sinkTimer;
     /* 0x17 */ u8 unk17;
     /* 0x18 */ f32 spinAngle;
@@ -124,7 +124,7 @@ u8 nodeCount;
         gCurrentActor->cullMarginX = 0x3C;
         gCurrentActor->cullMarginY = 0xC8;
         data->playerHolding = 0;
-        data->unk15 = 0;
+        data->leapTimer = 0;
         data->enabled = flagGet(0x183, 0) || (gGlobalOverlayFlags & 0x10000000) || menuIsTransitionType3Or4();
     }
     if (gPrimaryPlayerActor->state == 0x63 || !data->enabled ||
@@ -205,9 +205,9 @@ u8 nodeCount;
     }
     node[i].weight = 0;
     if (gPrimaryPlayerActor->state == 0x58) {
-        data->unk15 = 5;
-    } else if (data->unk15 != 0) {
-        data->unk15--;
+        data->leapTimer = 5;
+    } else if (data->leapTimer != 0) {
+        data->leapTimer--;
     }
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && data->playerHolding == 0 && gCurrentActor == player->pathOwner) {
         data->swingAmplitude = maxAmplitude;
@@ -239,11 +239,11 @@ u8 nodeCount;
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
         if (player->pathDist < 1.5 && ((data->phase > 4.0 && (f64)data->phase < 4.712389f) ||
                                      ((f64)data->phase < 1.5707964f && data->phase > 0.9))) {
-            player->unk14C = D_8075037C * (data->swingAmplitude / maxAmplitude);
-            player->unk150 = D_80750380 * (data->swingAmplitude / maxAmplitude);
+            player->leapSpeedXZ = D_8075037C * (data->swingAmplitude / maxAmplitude);
+            player->leapSpeedY = D_80750380 * (data->swingAmplitude / maxAmplitude);
         } else {
-            player->unk14C = 200.0f;
-            player->unk150 = 200.0f;
+            player->leapSpeedXZ = 200.0f;
+            player->leapSpeedY = 200.0f;
         }
         player->leapYaw = gCurrentActor->yaw & 0xFFF;
         if ((f64)data->phase < 1.5707964f || data->phase > 4.71238911151886) {

@@ -33,7 +33,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 
-u8 D_807506C0[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+u8 gTargetCourseTargetIds[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
 
 u8 bananaDeliveryNpcBeginFrame(void) {
@@ -214,11 +214,11 @@ void bananaDeliveryNpcUpdate(void) {
 void targetCourseSetTargetsSpawned(u8 spawn) {
     s16 i;
 
-    for (i = 0; i < sizeof(D_807506C0); i++) {
+    for (i = 0; i < sizeof(gTargetCourseTargetIds); i++) {
         if (spawn) {
-            actorListForceSpawnId(D_807506C0[i]);
+            actorListForceSpawnId(gTargetCourseTargetIds[i]);
         } else {
-            actorListForceDespawnId(D_807506C0[i]);
+            actorListForceDespawnId(gTargetCourseTargetIds[i]);
         }
     }
 }
@@ -428,7 +428,7 @@ void actorTargetCourseHostUpdate(void) {
             gCurrentActor->state = 2;
             gCurrentActor->subState = 0;
         default:
-            if (gCurrentActor->sequenceIndex < sizeof(D_807506C0)) {
+            if (gCurrentActor->sequenceIndex < sizeof(gTargetCourseTargetIds)) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, gCurrentActor, 3);
             }
             if (((randomNonNegative() >> 0xF) % 1000) >= 0x3DF && gCurrentActor->sub4->animId == 0x302) {
@@ -440,14 +440,14 @@ void actorTargetCourseHostUpdate(void) {
                 actorScriptStart(gCurrentActor, sel); // FAKE: the unk155 switch selector sel reused as the anim id keeps the selector in $a1 (lbu a1,0x155(s0) at 0xd18); a separate anim local gives v0 (Q0162)
             }
             if (gActorGlobalState.notifyReceived != 0) {
-                if (gActorGlobalState.notifyValue[0] >= D_807506C0[gCurrentActor->sequenceIndex] && gCurrentActor->sequenceIndex < sizeof(D_807506C0)) {
-                    if (gActorGlobalState.notifyValue[0] != D_807506C0[gCurrentActor->sequenceIndex]) {
+                if (gActorGlobalState.notifyValue[0] >= gTargetCourseTargetIds[gCurrentActor->sequenceIndex] && gCurrentActor->sequenceIndex < sizeof(gTargetCourseTargetIds)) {
+                    if (gActorGlobalState.notifyValue[0] != gTargetCourseTargetIds[gCurrentActor->sequenceIndex]) {
                         actorScriptStart(gCurrentActor, 0x301);
                         gCurrentActor->state = 0x27;
                         gCurrentActor->subState = 0;
                     } else {
                         gCurrentActor->sequenceIndex++;
-                        if (gCurrentActor->sequenceIndex >= sizeof(D_807506C0)) {
+                        if (gCurrentActor->sequenceIndex >= sizeof(gTargetCourseTargetIds)) {
                             volumeTriggerSetEnabled(0x16, 1);
                         }
                     }

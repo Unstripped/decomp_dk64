@@ -166,7 +166,7 @@ void bossClampPosition(Zone *zone) {
 extern const u8 sPufftossScriptData[];
 extern u8 D_8071FB34[];
 extern f32 gDefaultActorGravity;
-extern f32 D_807502FC;
+extern f32 gPufftossSinkAccelY;
 extern s32 gCurrentMap;
 extern ALBank *gSfxBank;
 
@@ -236,7 +236,7 @@ void bossPufftossStep(void) {
             waterRippleStop();
             gCurrentActor->state = 0x4D;
             gCurrentActor->subState = 0;
-            gCurrentActor->accelY = D_807502FC;
+            gCurrentActor->accelY = gPufftossSinkAccelY;
             actorScriptStart(gCurrentActor, 0x2CD);
             gBehaviourWorkState->targetY = -0x2BC;
             state->scriptPos = 0;

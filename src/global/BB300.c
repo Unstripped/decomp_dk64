@@ -24,7 +24,7 @@ typedef struct PulseActor {
 } PulseActor;
 
 extern Actor *gSpawnedActor;
-extern s16 D_807502E0;
+extern s16 gDefaultActorTerminalSpeedY;
 extern f32 gDefaultActorGravity;
 
 
@@ -117,7 +117,7 @@ void behaviourPulseEnemySpawnDeathChaser(s16 speed, s16 angle) {
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->floorY = gCurrentActor->floorY;
         gSpawnedActor->accelY = gDefaultActorGravity;
-        gSpawnedActor->terminalSpeedY = D_807502E0;
+        gSpawnedActor->terminalSpeedY = gDefaultActorTerminalSpeedY;
         gSpawnedActor->speedXZ = 0.0f;
         actorSetTargetSpeed(gCurrentActor, speed * 1.25);
         memcpy(gSpawnedActor->customState, gCurrentActor->customState, 0x3C);

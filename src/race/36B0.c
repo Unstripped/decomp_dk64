@@ -231,7 +231,7 @@ void raceAiUpdateSpeedAndLane(void) {
     raceTarget = ((RaceCarActor *)gCurrentActor)->raceTarget;
     distToTarget = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
     targetSpeed = raceEvaluateCurveTargetSpeed(raceTarget, distToTarget, raceCarSpeedCurve, raceCarSpeedLevels);
-    laneSettled = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
+    laneSettled = (cursor->lane == cursor->targetLane) && (cursor->laneSettleTimer == 0);
     if (raceTarget->curveMode != 0) {
         leaderActor = state->actor;
         if (raceGetCompletionFraction(cursor, state, leaderActor->customState) > 0.8) {
@@ -250,7 +250,7 @@ void raceAiUpdateSpeedAndLane(void) {
             } else if ((raceCarSpeedCurve[3].x < distToTarget) && (distToTarget < raceCarSpeedCurve[4].x) && (cursor->lane == targetCursor->lane) && laneRoll) {
                 raceChangeLaneRandom(cursor);
             }
-            laneSettled = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
+            laneSettled = (cursor->lane == cursor->targetLane) && (cursor->laneSettleTimer == 0);
             if (laneSettled) {
                 if ((distToTarget < raceCarSpeedCurve[1].x) || (raceCarSpeedCurve[2].x < distToTarget)) {
                     foundCompetitor = 0;

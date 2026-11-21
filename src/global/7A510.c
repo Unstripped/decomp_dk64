@@ -703,7 +703,7 @@ InteractionEntry gActorInteractionTable[4] = {
     { -8, -1, -1, 5, actorTriggerPlayerKnockbackSound, 0 },
 };
 
-extern CollisionTableSlot D_8074C604[];
+extern CollisionTableSlot gActorTypeCollisionTables[];
 
 
 void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
@@ -721,7 +721,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
     i = 0;
     done = 0;
     if (actorTableContains(attacker) && attacker->instanceId == ((CollisionCallbackPayload *)node->payload)->instanceId) {
-        table = D_8074C604[targetActor->actorType].table;
+        table = gActorTypeCollisionTables[targetActor->actorType].table;
         if (table == NULL) {
             if (attacker->flags & 0x20000) {
                 actorCollisionRecordDefaultHit(attacker);
@@ -759,7 +759,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                                 if (attacker->collisionFlags & 1) {
                                     playerState = attacker->customState;
                                     if (playerState->surfaceTimer != 0) {
-                                        if (D_8074C604[targetActor->actorType].unk4 != 0) {
+                                        if (gActorTypeCollisionTables[targetActor->actorType].invulnBlocksDamage != 0) {
                                             switch (gActorGlobalState.collisionEvents[gActorGlobalState.collisionEventCount - 1]) {
                                             case 5:
                                             case 0xF:
@@ -1024,18 +1024,18 @@ void actorCollisionOverrideNodeFlagSet(Actor *actor, u8 *outFlagIndex) {
 }
 
 
-extern ActorTypeStat D_8074D0C4[];
+extern ActorTypeStat gActorTypeStats[];
 
 void actorInitHealth(Actor *actor) {
-    actor->health = D_8074D0C4[actor->actorType].health;
+    actor->health = gActorTypeStats[actor->actorType].health;
 }
 
 void actorInitDamage(Actor *actor) {
-    actor->damage = D_8074D0C4[actor->actorType].damage;
+    actor->damage = gActorTypeStats[actor->actorType].damage;
 }
 
 u8 func_80676208(Actor *actor) {
-    return D_8074C604[actor->actorType].unk4;
+    return gActorTypeCollisionTables[actor->actorType].invulnBlocksDamage;
 }
 
 s32 func_80676220(s16 actorType) {

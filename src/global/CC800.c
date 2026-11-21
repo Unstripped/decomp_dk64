@@ -107,7 +107,7 @@ s32 playerGetModelAssetId(void) {
 typedef struct LinkedActorState {
     /* 0x0 */ Actor *rider;
     /* 0x4 */ Actor *target;
-    /* 0x8 */ u8 unk8;
+    /* 0x8 */ u8 riderPlayer;
 } LinkedActorState;
 
 
@@ -118,7 +118,7 @@ void playerSpawnMinecart(s32 actorType, u8 param, Actor *parent) {
     actorCopyPoseAndScale(gSpawnedActor, parent, 0.15f);
     linked = gSpawnedActor->customState;
     linked->target = parent;
-    linked->unk8 = param;
+    linked->riderPlayer = param;
 }
 
 void playerMountBarrel(Actor *rider, Actor *target) {
@@ -750,18 +750,18 @@ void playerCheckSpawnerFlagFixup(s32 mapId) {
     }
 }
 
-extern f32 D_8076AEE4;
-extern f32 D_8076AEE8;
-extern f32 D_8076AEEC;
-extern s16 D_8076AEF0;
+extern f32 gSavedSlotSpawnX;
+extern f32 gSavedSlotSpawnY;
+extern f32 gSavedSlotSpawnZ;
+extern s16 gSavedSlotSpawnYaw;
 extern G01Pos gSavedSlotSpawnPoint;
 
 G01Pos *raceGridSpawnPoint(s32 spawnIndex) {
     if (gSavedSlotSpawnFlags & 1) {
-        gSavedSlotSpawnPoint.x = D_8076AEE4;
-        gSavedSlotSpawnPoint.y = D_8076AEE8;
-        gSavedSlotSpawnPoint.z = D_8076AEEC;
-        gSavedSlotSpawnPoint.yaw = (D_8076AEF0 / 4095.0) * 360.0;
+        gSavedSlotSpawnPoint.x = gSavedSlotSpawnX;
+        gSavedSlotSpawnPoint.y = gSavedSlotSpawnY;
+        gSavedSlotSpawnPoint.z = gSavedSlotSpawnZ;
+        gSavedSlotSpawnPoint.yaw = (gSavedSlotSpawnYaw / 4095.0) * 360.0;
         return &gSavedSlotSpawnPoint;
     }
     if (gMapSpawnPointCount == 0) {
@@ -839,7 +839,7 @@ s32 playerAddHealthDelta(u8 playerIndex, s8 delta) {
     return 0;
 }
 
-extern s32 D_807FD56C;
+extern s32 gSavedPlayerStateFlags;
 
 void playerResetSpawnGlobals(void) {
     PlayerInventory *p = gPlayerInventoryTable;
@@ -866,7 +866,7 @@ void playerResetSpawnGlobals(void) {
     }
     collectibleCountsClear();
     gPlayerStateSaved = 0;
-    D_807FD56C = 0;
+    gSavedPlayerStateFlags = 0;
 }
 
 

@@ -35,7 +35,7 @@ typedef struct PulseActor {
 
 extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
-extern u8 D_807506C0[];
+extern u8 gTargetCourseTargetIds[];
 
 
 void actorSeekTargetUpdate(void) {
@@ -64,7 +64,7 @@ void actorSeekTargetUpdate(void) {
         gCurrentActor->flags &= ~0x400;
     }
     if (targetNode != NULL) {
-        if (actorId == D_807506C0[targetNode->sequenceIndex]) {
+        if (actorId == gTargetCourseTargetIds[targetNode->sequenceIndex]) {
             dx = gCurrentActor->x - gPrimaryPlayerActor->x;
             dz = gCurrentActor->z - gPrimaryPlayerActor->z;
             if (dx * dx + dz * dz > 900.0f) {

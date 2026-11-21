@@ -304,7 +304,7 @@ void __n_CSPUpdateChanFxPan(N_CSPlayer *seqp, u8 chan) {
 
 typedef s32 (*GdOscInit)(void **, f32 *, u8, u8, u8, u8, u8);
 
-extern s32 D_807FF040[];
+extern s32 gCspChanNoteOffDelta[];
 
 void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
     ALVoice *voice;
@@ -356,7 +356,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                         evt.msg.midi.byte1 = key;
                         evt.msg.midi.byte2 = 0;
                         delta = seqp->uspt * midi->duration;
-                        D_807FF040[chan] = delta;
+                        gCspChanNoteOffDelta[chan] = delta;
                         alEvtqPostEvent(&seqp->evtq, &evt, delta);
                     }
                     break;
@@ -474,11 +474,11 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                         evt.msg.midi.byte1 = key;
                         evt.msg.midi.byte2 = 0;
                         delta = seqp->uspt * midi->duration;
-                        D_807FF040[chan] = delta;
+                        gCspChanNoteOffDelta[chan] = delta;
                         alEvtqPostEvent(&seqp->evtq, &evt, delta);
                     }
                     if ((chanSt->noteNotify & 1) && seqp->eventQueue != NULL) {
-                        osSendMesg(seqp->eventQueue, (OSMesg)((D_807FF040[chan] & ~0xFF) | (chanSt->noteNotify >> 2)), 0);
+                        osSendMesg(seqp->eventQueue, (OSMesg)((gCspChanNoteOffDelta[chan] & ~0xFF) | (chanSt->noteNotify >> 2)), 0);
                     }
                 }
                 break;

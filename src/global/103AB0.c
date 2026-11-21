@@ -491,7 +491,7 @@ void playerViewUpdateDepthProbes(void) {
             halfWidth = 40;
             halfWidth += pad->stickAbsX / 1.5;
             state->depthCenter = zbufferDepthToDistance(zbufferReadDepth(x, y));
-            state->unk116 = zbufferDepthToDistance(zbufferReadDepth(x, state->targetYawAngle));
+            state->depthFeet = zbufferDepthToDistance(zbufferReadDepth(x, state->targetYawAngle));
             state->depthLeft = zbufferDepthToDistance(zbufferReadDepth(x - halfWidth, y));
             state->depthRight = zbufferDepthToDistance(zbufferReadDepth(x + halfWidth, y));
         }
@@ -879,7 +879,7 @@ void viewportShrinkToCenter(u8 amount) {
     gPlayerSlots->aspect = (f32)gPlayerSlots->rectWidth / (f32)gPlayerSlots->rectHeight;
 }
 
-Vtx D_80754C08[4] = {
+Vtx gScreenFadeSpinQuadVtx[4] = {
     {{{ -128, -128, -10 }, 0, { -16384, 18432 }, { 0, 0, 0, 0 } }},
     {{{ 128, -128, -10 }, 0, { 18432, 18432 }, { 0, 0, 0, 0 } }},
     {{{ 128, 128, -10 }, 0, { 18432, -16384 }, { 0, 0, 0, 0 } }},
@@ -960,7 +960,7 @@ Gfx *screenFadeDrawSpinTexture(Gfx *dl, u8 alpha) {
         guMtxCatF(mf, tmp, mf);
         guMtxF2L(mf, mtx);
         gSPMatrix(dl++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        gSPVertex(dl++, osVirtualToPhysical(&D_80754C08), 4, 0);
+        gSPVertex(dl++, osVirtualToPhysical(&gScreenFadeSpinQuadVtx), 4, 0);
         gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
         gDPPipeSync(dl++);
     }

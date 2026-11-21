@@ -89,7 +89,7 @@ TransformBarrelEntry gTransformBarrelRefills[8] = {
     { 72, 9, 2 },
     { 62, 5, 2 },
 };
-Vec3f D_8074E7D4 = { 0.0f, 0.0f, 0.0f };
+Vec3f gTagBarrelRestOffset = { 0.0f, 0.0f, 0.0f };
 s16 gTagBarrelDoneFlags[10] = { 60, 65, 61, 66, 62, 67, 63, 68, 64, 69 };
 f32 gCannonAimDistance = 50.0f;
 f32 gCannonYawStickScale = 1.0f;
@@ -1284,7 +1284,7 @@ void transformBarrelUpdate(void) {
             if (flag >= 0) {
                 flagSet(flag, 1, 1);
             }
-            playerState->unk1FD = 1;
+            playerState->canRevertTransform = 1;
         }
         if (gGlobalCutsceneFlags & 2) {
             state->timer = 0x1E;
@@ -1948,7 +1948,7 @@ void tagBarrelActorUpdate(void) {
     f32 yOffset;
 
     sub = gCurrentActor->customState;
-    offset = D_8074E7D4;
+    offset = gTagBarrelRestOffset;
     hidden = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         scaleFactor = gCurrentActor->sub4->scaleX / 0.15;

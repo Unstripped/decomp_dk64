@@ -92,11 +92,11 @@ void renderCalcPlayerDistanceAlpha(f32 x, f32 y, f32 z, f32 maxDist, s16 actorTy
     *outAlpha = 0xFF - *outAlpha;
 }
 
-extern f32 D_807F6940;
+extern f32 gCsFadeLevel;
 
 f32 renderAdjustActorDistance(s16 actorType, f32 dist) {
     if ((actorType == 0xB2) || (actorType == 0x253)) {
-        dist += (600.0 - dist) * D_807F6940;
+        dist += (600.0 - dist) * gCsFadeLevel;
     }
     return dist;
 }
@@ -644,15 +644,15 @@ s32 matrixCacheHash(s32 lightCount, s16 cellId, u8 subType) {
     return (cellId * 16 + lightCount * 4 + subType) % 100;
 }
 
-extern u32 D_807F9068;
+extern u32 gMatrixCacheSavedLimit;
 
 void matrixCacheSetDefaultLimit(void) {
     if (gMatrixCacheLimit != 0x9C40) {
-        D_807F9068 = gMatrixCacheLimit;
+        gMatrixCacheSavedLimit = gMatrixCacheLimit;
     }
     gMatrixCacheLimit = 0x9C40;
 }
 
 void matrixCacheRestoreLimit(void) {
-    gMatrixCacheLimit = D_807F9068;
+    gMatrixCacheLimit = gMatrixCacheSavedLimit;
 }

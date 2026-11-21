@@ -12,7 +12,7 @@ typedef struct RacePathState {
     /* 0x00 */ u8 lane;
     /* 0x01 */ u8 targetLane;
     /* 0x02 */ u16 waypoint;
-    /* 0x04 */ u8 unk4;
+    /* 0x04 */ u8 laneSettleTimer;
     /* 0x05 */ u8 pad5[3];
     /* 0x08 */ f32 laneBlend;
     /* 0x0C */ f32 laneOffset;

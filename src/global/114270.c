@@ -376,8 +376,8 @@ Gfx *effectSpritePoolLoadTexture(Gfx *glist, u8 textureIndex) {
 
 
 extern PlayerState *gActivePlayerState;
-extern EffectSpriteParticle *D_807FDAB0;
-extern s16 D_807FDAB4;
+extern EffectSpriteParticle *gEffectSpriteDrawEntry;
+extern s16 gEffectSpriteDrawWindAngle;
 extern u8 gGfxBufferIndex;
 extern u8 gEffectSpriteBrightness;
 extern Gfx D_1000020[];
@@ -427,8 +427,8 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     }
     while (--i >= 0 && processed != count) {
         entry = &gEffectSpritePool->entries[i];
-        D_807FDAB0 = entry;
-        D_807FDAB4 = gEffectSpriteWindAngle;
+        gEffectSpriteDrawEntry = entry;
+        gEffectSpriteDrawWindAngle = gEffectSpriteWindAngle;
         if ((entry->age != 0) && ((entry->mapChunk == -1) || mapChunkContainsPoint(entry->drawX, entry->y, entry->mapChunk)) && !skipNearPlayer && !skipTimer) {
             gDPSetPrimColor(glist++, 0, 0, gEffectSpriteBrightness, gEffectSpriteBrightness, gEffectSpriteBrightness, entry->alpha);
             if (gEffectSpritePoolType == 4) {

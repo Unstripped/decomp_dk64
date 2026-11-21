@@ -46,7 +46,7 @@ typedef struct BonusShooterState {
 typedef struct BonusActorExt {
     Actor actor;
     void *gameState;
-    s16 *unk17C;
+    s16 *controllerState;
 } BonusActorExt;
 
 extern Actor *gCurrentActor;
@@ -1173,7 +1173,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, sLightFlashTargetModels[i - 1]) != 0) {
             LightFlashTargetState *subExt = gSpawnedActor->customState;
-            s16 *actorProp = ((BonusActorExt *)gSpawnedActor)->unk17C;
+            s16 *actorProp = ((BonusActorExt *)gSpawnedActor)->controllerState;
             TargetVec3f *pt;
             f32 scale;
 

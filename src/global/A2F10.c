@@ -45,8 +45,8 @@ const char *D_807503B0[9] = {
     D_8075A410, D_8075A418, D_8075A420, D_8075A428, D_8075A430,
     D_8075A438, D_8075A440, D_8075A444, D_8075A44C,
 };
-u8 D_807503D4[12] = { 1, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 3 };
-u8 D_807503E0[12] = { 2, 2, 2, 0, 0, 0, 3, 3, 3, 1, 1, 1 };
+u8 gActorGroupFirstAnimFrames[12] = { 1, 1, 1, 0, 0, 0, 2, 2, 2, 3, 3, 3 };
+u8 gActorGroupSecondAnimFrames[12] = { 2, 2, 2, 0, 0, 0, 3, 3, 3, 1, 1, 1 };
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -958,7 +958,7 @@ void actorGroupBoneFrameUpdate(void) {
             scaleRatio = gCurrentActor->sub4->scaleY / 0.15;
             state->frames = assetLoad(0x13, 6, 1, 1);
             entry = 0;
-            animSetChannelFrames(gCurrentActor, D_807503D4[entry], D_807503E0[entry++]);
+            animSetChannelFrames(gCurrentActor, gActorGroupFirstAnimFrames[entry], gActorGroupSecondAnimFrames[entry++]);
             spacing = 75.0f * scaleRatio;
             for (i = 1; i < 12; i++) {
                 actorSpawn(0x94, 0xE1);
@@ -970,7 +970,7 @@ void actorGroupBoneFrameUpdate(void) {
                 gSpawnedActor->y = gCurrentActor->y + (u8)(i % 3) * 17;
                 gSpawnedActor->z = gCurrentActor->z - mathCosF(gSpawnedActor->yaw) * spacing;
                 actorSetUniformScale(gSpawnedActor, gCurrentActor->sub4->scaleY);
-                animSetChannelFrames(gSpawnedActor, D_807503D4[entry], D_807503E0[entry++]);
+                animSetChannelFrames(gSpawnedActor, gActorGroupFirstAnimFrames[entry], gActorGroupSecondAnimFrames[entry++]);
             }
             gCurrentActor->x -= spacing * mathSinF(gCurrentActor->yaw);
             gCurrentActor->z -= spacing * mathCosF(gCurrentActor->yaw);

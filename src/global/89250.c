@@ -444,8 +444,8 @@ void effectSpawnActorScale(Actor *actor) {
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern s16 D_80753A0C[];
-extern s16 D_80753A1C[];
+extern s16 gKongNormalWaterRippleDepths[];
+extern s16 gKongWaterRippleDepths[];
 
 void effectActorCheckGroundScaleSpawn(Actor *actor) {
     f32 headHeight;
@@ -455,9 +455,9 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
     if (actor->animState != NULL && actor->sub4 != NULL) {
         if (actor->collisionFlags == 1) {
             if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-                headHeight = D_80753A0C[actor->actorType - 2];
+                headHeight = gKongNormalWaterRippleDepths[actor->actorType - 2];
             } else {
-                headHeight = D_80753A1C[actor->actorType - 2];
+                headHeight = gKongWaterRippleDepths[actor->actorType - 2];
             }
         } else {
             headHeight = actor->eyeHeight;

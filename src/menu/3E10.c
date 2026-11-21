@@ -3363,7 +3363,7 @@ void menuActorStateDispatch(void) {
 
 
 
-extern s16 D_80754CE0;
+extern s16 gBgScrollShakeY;
 extern u8 gEffectSpriteBarrelDebrisDark;
 
 void menuUpdateKioskActor(void) {
@@ -3456,7 +3456,7 @@ void menuUpdateKioskActor(void) {
     gPlayerSlots->focusX = gCurrentActor->x;
     gPlayerSlots->focusY = gPlayerSlots->camY;
     gPlayerSlots->focusZ = 10020.0f;
-    D_80754CE0 = sMenuCamShakeOffsets[sMenuCamShakeFrames] * 400.0f;
+    gBgScrollShakeY = sMenuCamShakeOffsets[sMenuCamShakeFrames] * 400.0f;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

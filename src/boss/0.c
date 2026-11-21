@@ -515,7 +515,7 @@ extern const u8 D_80035CB8[];
 extern const u8 D_80035CC0[];
 extern u8 gGameMode;
 extern u8 gWeatherThunderMuted;
-extern s16 D_807502D8;
+extern s16 gArmydilloTerminalSpeedY;
 extern f32 gActorDefaultAccelY;
 extern s16 gSfxSourceVoice[];
 extern s16 gSfxVoiceSoundId[];
@@ -546,7 +546,7 @@ void bossArmydilloStep(void) {
         camSetSecondTarget(gCamActor, 0, 0);
         bossInitScriptData(D_80035CC0);
         gCurrentActor->accelY = gActorDefaultAccelY;
-        gCurrentActor->terminalSpeedY = D_807502D8;
+        gCurrentActor->terminalSpeedY = gArmydilloTerminalSpeedY;
         bossArmydilloHideCannons();
         gBehaviourAnimState->turnAnimScale = 0.01f;
         gBehaviourAnimState->shadowScale = 3.0f;

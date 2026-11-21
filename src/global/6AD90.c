@@ -159,14 +159,14 @@ s32 collisionCheckActorFloor(Actor *actor, f32 x, f32 y, f32 z, f32 *outFloorY) 
 extern u8 sHazardFloorContact;
 extern u8 sHazardFloorKind;
 extern u8 sBelowHazardSurface;
-extern u8 D_807F94B7;
+extern u8 sVoidFloorContact;
 extern u8 sFloorSource;
 
 void collisionClearFlags(void) {
     sHazardFloorContact = 0;
     sHazardFloorKind = 0;
     sBelowHazardSurface = 0;
-    D_807F94B7 = 0;
+    sVoidFloorContact = 0;
 }
 
 u8 collisionGetStateByte(void) {
@@ -175,16 +175,16 @@ u8 collisionGetStateByte(void) {
 
 
 extern f32 sCeilingClampY;
-extern u8 D_807F9464;
+extern u8 sCeilingClampActive;
 extern f32 D_807F9468;
 extern u8 D_807F946C;
 extern u8 sAllowObjectAttach;
 extern u8 D_807F946E;
-extern Actor *D_807F9470;
-extern f32 D_807F9474;
-extern f32 D_807F9478;
-extern f32 D_807F947C;
-extern u32 D_807F9480;
+extern Actor *sRiddenActor;
+extern f32 sRiderPointX;
+extern f32 sRiderPointY;
+extern f32 sRiderPointZ;
+extern u32 sRiderMtxOffset;
 extern u8 sWaterSurfaceHit;
 // Per-source floor tables indexed by source (0 mesh, 1 dynamic, 2 box); elements 1 and 2 also
 // have their own symbols (D_807F9492/94, D_807F949A/9C, D_807F949F/94A0), which the reloc check requires.
@@ -194,7 +194,7 @@ extern s16 D_807F9494;
 extern s16 sSourceTiltPitch[];
 extern s16 D_807F949A;
 extern s16 D_807F949C;
-extern u8 D_807F949E[];
+extern u8 sSourceSlopeType[];
 extern u8 D_807F949F;
 extern u8 D_807F94A0;
 extern s16 sFloorTiltYaw;
@@ -202,8 +202,8 @@ extern s16 sFloorTiltPitch;
 extern u8 sFloorGrabbable;
 extern u8 sMeshFloorGrabbable;
 extern u8 sObjectFloorGrabbable;
-extern u8 D_807F94AD;
-extern u8 D_807F94B2;
+extern u8 sActorFloorGrabbable;
+extern u8 sRiderSpansNodes;
 extern u8 sFloorOnWaterMesh;
 extern PlayerState *sFloorQueryPlayer;
 
@@ -232,7 +232,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
         actor->contactFlags &= 0xFBF1;
         actor->cutsceneId = -1;
         sFloorOnWaterMesh = 0;
-        D_807F9464 = 0;
+        sCeilingClampActive = 0;
         D_807F946C = 0;
         sAllowObjectAttach = mode;
         actor->renderFlags &= ~0x40;
@@ -244,16 +244,16 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
     sFloorSource = 0;
     sMeshFloorGrabbable = 0;
     sObjectFloorGrabbable = 0;
-    D_807F94AD = 0;
+    sActorFloorGrabbable = 0;
     collisionClearFlags();
-    D_807F94B2 = 0;
+    sRiderSpansNodes = 0;
     sWaterSurfaceHit = 0;
     sCamFloorHitCount = 0;
     meshY = y;
     meshHit = collisionTestSubmeshBoundary(x, z, &meshY, actor);
     if ((meshHit != 0) && (actor != NULL)) {
         actor->meshFloorY = meshY;
-        actor->floorSurfaceType = D_807F949E[0];
+        actor->floorSurfaceType = sSourceSlopeType[0];
     }
     if (gFloorQueryMode != 2) {
         dynY = 99999.0f;
@@ -320,7 +320,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
         break;
     case 1:
         if (actor != NULL) {
-            actor->floorSlopeType = D_807F949E[0];
+            actor->floorSlopeType = sSourceSlopeType[0];
             actor->floorTiltPitch = sSourceTiltPitch[0];
             actor->floorTiltYaw = sSourceTiltYaw[0];
             actor->floorY = meshY;
@@ -357,18 +357,18 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
             actor->floorTiltYaw = D_807F9494;
             actor->floorY = boxY;
             if (actor->prevContactFlags & 1) {
-                actorAppendRiderPoint(actor, D_807F9470, D_807F9474, D_807F9478, D_807F947C, D_807F9480, D_807F94B2);
+                actorAppendRiderPoint(actor, sRiddenActor, sRiderPointX, sRiderPointY, sRiderPointZ, sRiderMtxOffset, sRiderSpansNodes);
                 actor->contactFlags |= 8;
             }
         }
         sFloorTiltPitch = D_807F949C;
         sFloorTiltYaw = D_807F9494;
         sFloorY = boxY;
-        sFloorGrabbable = D_807F94AD;
+        sFloorGrabbable = sActorFloorGrabbable;
         sFloorSource = 3;
         break;
     }
-    *outHasFloor = D_807F9464;
+    *outHasFloor = sCeilingClampActive;
     *outFloorY = sCeilingClampY;
     *outHasWater = D_807F946C;
     *outWaterY = D_807F9468;
@@ -377,7 +377,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
 }
 
 extern u8 D_807F946E;
-extern u8 D_807F94B1;
+extern u8 sFloorTriSurface;
 
 u8 collisionGetHitStatus(void) {
     return D_807F946E;
@@ -396,7 +396,7 @@ u8 collisionGetFloorType(void) {
 }
 
 u8 collisionGetMaterialType(void) {
-    return D_807F94B7;
+    return sVoidFloorContact;
 }
 
 void collisionGetCoords(s16 *outX, s16 *outZ) {
@@ -405,14 +405,14 @@ void collisionGetCoords(s16 *outX, s16 *outZ) {
 }
 
 u8 collisionGetSurfaceFlags(void) {
-    return D_807F94B1;
+    return sFloorTriSurface;
 }
 
 u8 collisionGetHitFlags(void) {
     return sFloorGrabbable;
 }
 
-extern s16 D_807F94A6;
+extern s16 sLastNormalYaw;
 extern s16 sLastNormalPitch;
 
 void collisionStoreSurfaceNormalAngles(Actor *actor, f32 normalX, f32 normalY, f32 normalZ, u8 slopeType, u8 record, u8 source) {
@@ -433,7 +433,7 @@ void collisionStoreSurfaceNormalAngles(Actor *actor, f32 normalX, f32 normalY, f
     if (type == 0xFE) {
         slopeType = 0;
     }
-    D_807F949E[source] = slopeType;
+    sSourceSlopeType[source] = slopeType;
     if (normalZ > 0.0f) {
         absZ = normalZ;
     } else {
@@ -460,7 +460,7 @@ void collisionStoreSurfaceNormalAngles(Actor *actor, f32 normalX, f32 normalY, f
     if (record) {
         sSourceTiltYaw[source] = yaw & 0xFFF;
     }
-    D_807F94A6 = yaw & 0xFFF;
+    sLastNormalYaw = yaw & 0xFFF;
     horiz = sqrtf((normalX * normalX) + (normalZ * normalZ));
     if ((f64) horiz < 0.01) {
         pitch = 0x400;
@@ -481,12 +481,12 @@ void collisionStoreSurfaceNormalAngles(Actor *actor, f32 normalX, f32 normalY, f
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s16 gCurrentCharacterIndex;
-extern f32 D_80752F7C[];
-extern f32 D_80752F98[];
-extern f32 D_80752FB4[];
-extern f32 D_80752FD0[];
-extern f32 D_80752FEC[];
-extern f32 D_80753008[];
+extern f32 gKongCeilingMaxHeights[];
+extern f32 gKongCeilingMinHeights[];
+extern f32 gKongSmallCeilingMaxHeights[];
+extern f32 gKongSmallCeilingMinHeights[];
+extern f32 gKongGiantCeilingMaxHeights[];
+extern f32 gKongGiantCeilingMinHeights[];
 
 void collisionCheckSlopeAngle(f32 refY, f32 floorY, u8 scaled, Actor *actor, u8 halveMin) {
     f32 *maxTable;
@@ -503,14 +503,14 @@ void collisionCheckSlopeAngle(f32 refY, f32 floorY, u8 scaled, Actor *actor, u8 
             kong = gPlayerSlots[gCurrentPlayerIndex].sizeMode;
             if (kong != 0) {
                 if (kong != 2) {
-                    minTable = D_80752F98; maxTable = D_80752F7C; // LAYOUT: same-line join steers as1 scheduling (addiu order)
+                    minTable = gKongCeilingMinHeights; maxTable = gKongCeilingMaxHeights; // LAYOUT: same-line join steers as1 scheduling (addiu order)
                 } else {
-                    minTable = D_80753008;
-                    maxTable = D_80752FEC;
+                    minTable = gKongGiantCeilingMinHeights;
+                    maxTable = gKongGiantCeilingMaxHeights;
                 }
             } else {
-                minTable = D_80752FD0;
-                maxTable = D_80752FB4;
+                minTable = gKongSmallCeilingMinHeights;
+                maxTable = gKongSmallCeilingMaxHeights;
             }
             minHeight = minTable[gCurrentCharacterIndex];
             maxHeight = maxTable[gCurrentCharacterIndex];
@@ -534,7 +534,7 @@ void collisionCheckSlopeAngle(f32 refY, f32 floorY, u8 scaled, Actor *actor, u8 
                 maxStep = maxHeight;
             }
             if (diff < maxStep) {
-                D_807F9464 = 1;
+                sCeilingClampActive = 1;
                 sCeilingClampY = floorY - maxStep;
                 if (scaled) {
                     sCeilingClampY /= 6.0f;
@@ -620,7 +620,7 @@ s32 collisionPickCloserFloor(f32 firstY, f32 secondY, f32 threshold, u8 wide) {
     return 1;
 }
 
-extern f32 D_807F9488;
+extern f32 sWaterSurfaceY;
 extern u8 sFloorLightLevel;
 
 u8 collisionCheckGroundAtPoint(f32 x, f32 z, f32 *yInOut) {
@@ -635,7 +635,7 @@ u8 collisionCheckGroundAtPoint(f32 x, f32 z, f32 *yInOut) {
 }
 
 u8 collisionGetFloorHeight(f32 *outY) {
-    *outY = D_807F9488;
+    *outY = sWaterSurfaceY;
     return sWaterSurfaceHit;
 }
 
@@ -785,7 +785,7 @@ s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
                     actor->contactFlags |= 2;
                 }
                 sWaterSurfaceHit = 1;
-                D_807F9488 = floorY;
+                sWaterSurfaceY = floorY;
                 break;
             }
         }
@@ -900,7 +900,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                     h2 = ((2000.0 * (0.0 - ((((x * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * z) + d) / (ny * 2000.0)))) - 1000.0) + offset; // FAKE: recomputes the height formula instead of reusing val, keeping it a separate f64 web (f20) for add.d f24,f20,f6
                 }
                 if ((tri->flags & 0x4000) && actor != NULL && (actor->collisionFlags & 1)) {
-                    D_807F94B7 = 1;
+                    sVoidFloorContact = 1;
                 }
                 if ((tri->flags & 0x80) && (f64)(*yInOut * 6.0f) < h2) {
                     sBelowHazardSurface = 1;
@@ -960,7 +960,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                                 actor->floorTriSurface[0] = tri->surface;
                                 actor->tintA = sFloorLightLevel;
                             }
-                            D_807F94B1 = tri->surface;
+                            sFloorTriSurface = tri->surface;
                             if (tri->flags & 2) {
                                 *yInOut = floorY / 6.0f;
                                 if (!(tri->flags & 8)) {
@@ -994,7 +994,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                             collisionCheckSlopeAngle(*yInOut * 6.0f, (f32)h2, 1, actor, 1);
                         }
                         sWaterSurfaceHit = 1;
-                        D_807F9488 = (f32)(h2 / 6.0);
+                        sWaterSurfaceY = (f32)(h2 / 6.0);
                     }
                 }
             }
@@ -1372,7 +1372,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
             }
             actor->floorTriSurface[0] = hitTri->surface;
         }
-        D_807F94B1 = hitTri->surface;
+        sFloorTriSurface = hitTri->surface;
     }
     return hit;
 }
@@ -1424,7 +1424,7 @@ void actorCheckNearbyNodeInteractions(Actor *actor, s16 slot, ModelPosNode *node
                     if (dy < 25.0) {
                         collisionAttachActorToObjectNode(actor, slot, -1, 0, node->x, node->y, node->z);
                         actor->attachMode = 3;
-                        actor->unk12F = count;
+                        actor->attachNodeIndex = count;
                         D_807F946C = 1;
                         D_807F9468 = node->y - 10.0f;
                     }
@@ -1477,8 +1477,8 @@ void collisionAttachActorToObjectNode(Actor *actor, s16 slot, s8 bone, u8 surfac
     float invMtx[4][4];
 
     actor->cutsceneId = gModelSlots[slot].id;
-    actor->unk10E = surface;
-    actor->unk10F = bone;
+    actor->attachPartId = surface;
+    actor->attachBone = bone;
     modelSlotBuildTransformMatrix(slot, bone, mtx);
     matrix4Invert(invMtx, mtx);
     guMtxXFMF(invMtx, x, y, z, &actor->attachLocalX, &actor->attachLocalY, &actor->attachLocalZ);
@@ -1496,7 +1496,7 @@ void actorUpdateSubnodeRotationAndMtx(Actor *actor) {
 
     slot = hashTableLookup(actor->cutsceneId);
     if (slot != -1) {
-        modelSlotBuildTransformMatrix(slot, actor->unk10F, mtx);
+        modelSlotBuildTransformMatrix(slot, actor->attachBone, mtx);
         if (gModelSlots[slot].csState != NULL) {
             if (actor->hasArcBounds == 0) {
                 actor->yaw += (gModelSlots[slot].csState->rotYDelta * 4095.0f) / 360.0f;
@@ -1511,8 +1511,8 @@ void actorUpdateSubnodeRotationAndMtx(Actor *actor) {
             actor->attachLocalZ += gModelSlots[slot].csState->riderDriftZ;
         }
         guMtxXFMF(mtx, actor->attachLocalX, actor->attachLocalY, actor->attachLocalZ, &x, &y, &z);
-        actor->unk94 = x;
-        actor->unk98 = z;
+        actor->attachWorldX = x;
+        actor->attachWorldZ = z;
         if (actor->hasArcBounds == 0) {
             actor->x = x;
             actor->z = z;
@@ -1747,7 +1747,7 @@ s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloo
         *outFloorY = hitY;
         collisionStoreBoxTriangleNormalAngles(self, hitTri, 1);
         if (hitActor->flags2 & 8) {
-            D_807F94AD = 1;
+            sActorFloorGrabbable = 1;
         }
         if (self != NULL) {
             collisionTransformPointToActorLocal(self, hitActor, hitTri, x, hitY, z);
@@ -1771,11 +1771,6 @@ void collisionRecordBoxTriangle(CollisionBoxTri *tri, f32 height) {
 }
 
 extern u8 gGfxBufferIndex;
-extern Actor *D_807F9470;
-extern f32 D_807F9474;
-extern f32 D_807F9478;
-extern f32 D_807F947C;
-extern u32 D_807F9480;
 
 
 void collisionTransformPointToActorLocal(Actor *actor, Actor *target, CollisionBoxTri *tri, f32 x, f32 y, f32 z) {
@@ -1785,7 +1780,7 @@ void collisionTransformPointToActorLocal(Actor *actor, Actor *target, CollisionB
     u8 idx;
     Mtx *mtx;
 
-    D_807F9470 = target;
+    sRiddenActor = target;
     sub = target->collision;
     if (gFrameCounter == sub->mtxFrame) {
         idx = gGfxBufferIndex;
@@ -1794,16 +1789,16 @@ void collisionTransformPointToActorLocal(Actor *actor, Actor *target, CollisionB
     }
     mtx = sub->nodeMtx[idx];
     if ((tri->mtxOffset1 != tri->mtxOffset0) || (tri->mtxOffset2 != tri->mtxOffset0)) {
-        D_807F94B2 = 1;
+        sRiderSpansNodes = 1;
     }
-    D_807F9480 = tri->mtxOffset0;
+    sRiderMtxOffset = tri->mtxOffset0;
     if (tri->mtxOffset0 == -1) {
         memcpy(xfMtx, sub->modelMtxF, sizeof(xfMtx));
     } else {
         guMtxL2F(xfMtx, &mtx[tri->mtxOffset0 >> 6]);
     }
     matrix4Invert(invMtx, xfMtx);
-    guMtxXFMF(invMtx, x, y, z, &D_807F9474, &D_807F9478, &D_807F947C);
+    guMtxXFMF(invMtx, x, y, z, &sRiderPointX, &sRiderPointY, &sRiderPointZ);
 }
 
 void collisionTransformPointByActorMtx(Actor *actor, u32 mtxOffset, f32 *xInOut, f32 yIn, f32 *zInOut) {
@@ -1954,7 +1949,7 @@ void collisionStoreBoxTriangleNormalAngles(Actor *actor, CollisionBoxTri *tri, u
 }
 
 extern s32 D_8000DDCC;
-extern u32 *D_807F9520;
+extern u32 *sAssetTableStarts;
 extern s32 *sAssetTableOffsets[];
 extern void *sAssetRefBuckets[];
 extern s32 sDmaQueueCount;
@@ -1966,8 +1961,8 @@ void collisionInitTables(void) {
     u32 size;
 
     size = 0x80;
-    D_807F9520 = heapAlloc(0x80);
-    dmaReadAssetDecompress(D_8000DDCC, D_807F9520, &size, 0, 0, 0, 0);
+    sAssetTableStarts = heapAlloc(0x80);
+    dmaReadAssetDecompress(D_8000DDCC, sAssetTableStarts, &size, 0, 0, 0, 0);
 
     for (i = 0; i < 0x20; i++) {
         sAssetTableOffsets[i] = NULL;
@@ -2010,14 +2005,14 @@ void assetInflateAndFree(void *compressed, void *out) {
 
 extern DmaQueueEntry sDmaQueue[];
 extern s8 gWaitPointId;
-extern OSMesgQueue D_807656D0;
+extern OSMesgQueue gAssetDmaDoneQueue;
 
 void dmaDrainQueueAndFreeBuffer(void) {
     s32 i;
 
     for (i = 0; i < sDmaQueueCount; i++) {
         gWaitPointId = 7;
-        osRecvMesg(&D_807656D0, NULL, 1);
+        osRecvMesg(&gAssetDmaDoneQueue, NULL, 1);
         gWaitPointId = 0;
         if (sDmaQueue[i].compressed != 0) {
             assetInflateAndFree(sDmaQueue[i].dmaDst, sDmaQueue[i].buffer);
@@ -2063,7 +2058,7 @@ void assetSetRomTableOffset(s32 offset) {
     sAssetLoadPool = offset;
 }
 
-extern OSIoMesg D_807F9688[];
+extern OSIoMesg sDmaIoMesgs[];
 
 void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset index, or a K0 address (0x80000000-0x9FFFFFFF) returned as is
     s32 pad;
@@ -2125,7 +2120,7 @@ void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset ind
             sDmaQueue[sDmaQueueCount].dmaDst = buffer;
         }
         osInvalDCache(sDmaQueue[sDmaQueueCount].dmaDst, size);
-        osPiStartDma(&D_807F9688[sDmaQueueCount], 0, 0, romAddr, sDmaQueue[sDmaQueueCount].dmaDst, size, &D_807656D0);
+        osPiStartDma(&sDmaIoMesgs[sDmaQueueCount], 0, 0, romAddr, sDmaQueue[sDmaQueueCount].dmaDst, size, &gAssetDmaDoneQueue);
         sDmaQueueCount += 1;
     }
     assetSetTableEntry(table, index, (s32)buffer);
@@ -2211,7 +2206,7 @@ void assetEnsureTableLoaded(s32 tableIndex) {
     if (sAssetTableOffsets[tableIndex] != NULL) {
         return;
     }
-    start = D_807F9520[tableIndex];
+    start = sAssetTableStarts[tableIndex];
     dmaReadAssetDecompress(D_8000DDCC + start, &header, &headerSize, 0, 0, 0, 0);
     size = (u32)(header >> 32) - start;
     sAssetTableOffsets[tableIndex] = heapAlloc(size);

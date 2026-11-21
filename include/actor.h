@@ -291,15 +291,15 @@ typedef struct ActorGlobalState {
     /* 0x012 */ s16 eventValue1;
     /* 0x014 */ u8 eventSubtype;
     /* 0x015 */ u8 damaged;
-    /* 0x016 */ u8 unk16;
+    /* 0x016 */ u8 stompBounceReceived;
     /* 0x017 */ u8 unk17;
     /* 0x018 */ u8 unk18;
     /* 0x019 */ u8 unk19;
     /* 0x01A */ u8 playerLaunchReceived;
     /* 0x01B */ u8 unk1B;
-    /* 0x01C */ u8 unk1C;
+    /* 0x01C */ u8 grabCandidateReceived;
     /* 0x01D */ u8 unk1D[3];
-    /* 0x020 */ struct Actor *unk20;
+    /* 0x020 */ struct Actor *grabCandidate;
     /* 0x024 */ u8 pickupReceived;
     /* 0x025 */ u8 releaseReceived;
     /* 0x026 */ u8 unk26[2];
@@ -415,8 +415,8 @@ typedef struct Actor {
     /* 0x088 */ f32 prevX;
     /* 0x08C */ f32 prevY;
     /* 0x090 */ f32 prevZ;
-    /* 0x094 */ f32 unk94;
-    /* 0x098 */ f32 unk98;
+    /* 0x094 */ f32 attachWorldX;
+    /* 0x098 */ f32 attachWorldZ;
     /* 0x09C */ f32 peakY;
     /* 0x0A0 */ f32 prevPeakY;
     /* 0x0A4 */ f32 floorY;
@@ -482,8 +482,8 @@ typedef struct Actor {
     /* 0x104 */ f32 attachLocalY;
     /* 0x108 */ f32 attachLocalZ;
     /* 0x10C */ s16 cutsceneId;
-    /* 0x10E */ u8 unk10E;
-    /* 0x10F */ s8 unk10F; // attached model bone (modelSlotBuildTransformMatrix), -1 = none
+    /* 0x10E */ u8 attachPartId;
+    /* 0x10F */ s8 attachBone; // attached model bone (modelSlotBuildTransformMatrix), -1 = none
     /* 0x110 */ u8 attachMode;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
@@ -495,7 +495,7 @@ typedef struct Actor {
     /* 0x12A */ s16 drawDistance;
     /* 0x12C */ s16 chunkIndex;
     /* 0x12E */ u8 pad12E;
-    /* 0x12F */ u8 unk12F;
+    /* 0x12F */ u8 attachNodeIndex;
     /* 0x130 */ u8 cullMarginX;
     /* 0x131 */ u8 cullMarginY;
     /* 0x132 */ s16 interactionType;
@@ -507,7 +507,7 @@ typedef struct Actor {
     /* 0x144 */ u8 collisionMode;
     /* 0x145 */ u8 unk145;
     /* 0x146 */ s16 segmentFlags;
-    /* 0x148 */ void *unk148[2]; // per gfx buffer (renderActorEntryBuildDisplayList indexes gGfxBufferIndex)
+    /* 0x148 */ void *segmentBuffers[2]; // per gfx buffer (renderActorEntryBuildDisplayList indexes gGfxBufferIndex)
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
     union {
@@ -530,7 +530,7 @@ typedef struct Actor {
         /* 0x15F */ u8 ringCountdown; // type 0x107 sprite ring: rings (or frames) left, nonzero = hurts (936B0.c, 9BF30.c)
         /* 0x15F */ u8 wavesLeft;     // type 0x102 shockwave: generations still to spawn (936B0.c, A2F10.c)
         /* 0x15F */ u8 targetNumber;  // numbered targets: spawner's expected number, each target's own (C8C10.c, 9DD70.c)
-        /* 0x15F */ u8 sequenceIndex; // next entry of the D_807506C0 actor sequence (C2A90.c, A6280.c)
+        /* 0x15F */ u8 sequenceIndex; // next entry of the gTargetCourseTargetIds actor sequence (C2A90.c, A6280.c)
         /* 0x15F */ u8 followerCount; // minecart follower spawner: followers alive (minecart/25F0.c)
         /* 0x15F */ u8 savedYaw;      // camera actor: orbit yaw in 1/255 turns for the next reset (201B0.c, CC800.c)
         /* 0x15F */ u8 stageStatus;   // K. Rool Tiny phase boss/minions: 1 = active, 2 = done (boss/B100.c)
@@ -870,8 +870,8 @@ typedef struct PlayerState {
     /* 0x004 */ f32 maxSpeed;
     /* 0x008 */ s16 moveDir;
     /* 0x00A */ s16 targetYaw;
-    /* 0x00C */ s16 unkC;
-    /* 0x00E */ s16 unkE;
+    /* 0x00C */ s16 prevPrevTargetYaw;
+    /* 0x00E */ s16 prevTargetYaw;
     /* 0x010 */ s16 actionTimer;
     /* 0x012 */ s16 subTimer;
     /* 0x014 */ s16 pitchAngle;
@@ -879,14 +879,14 @@ typedef struct PlayerState {
     /* 0x018 */ s16 unk18;
     /* 0x01A */ u16 unk1A;
     /* 0x01C */ f32 slideSpeed;
-    /* 0x020 */ f32 unk20;
+    /* 0x020 */ f32 actualSpeedXZ;
     /* 0x024 */ s16 swimFrames;
     /* 0x026 */ s16 traction;
     /* 0x028 */ s16 sharpTurn;
     /* 0x02A */ u8 pad2A[2];
     /* 0x02C */ f32 airAccel;
     /* 0x030 */ f32 decelRate;
-    /* 0x034 */ f32 unk34;
+    /* 0x034 */ f32 stopSpeed;
     /* 0x038 */ f32 targetSpeed;
     /* 0x03C */ s16 airTimer;
     /* 0x03E */ s16 approachTimer;
@@ -917,7 +917,7 @@ typedef struct PlayerState {
     /* 0x07C */ f32 unk7C;
     /* 0x080 */ s16 unk80;
     /* 0x082 */ u8 pad82[2];
-    /* 0x084 */ u32 unk84;
+    /* 0x084 */ u32 idleAnimFrame;
     /* 0x088 */ Actor *actor;
     /* 0x08C */ u8 gunDrawn;
     /* 0x08D */ u8 hitStatus;
@@ -927,18 +927,18 @@ typedef struct PlayerState {
     /* 0x091 */ u8 lastFireHand;
     /* 0x092 */ u8 pad92[2];
     /* 0x094 */ f32 forwardSpeed;
-    /* 0x098 */ f32 unk98;
+    /* 0x098 */ f32 walkFacingYaw;
     /* 0x09C */ f32 walkStartX;
     /* 0x0A0 */ f32 walkStartZ;
-    /* 0x0A4 */ f32 unkA4;
-    /* 0x0A8 */ f32 unkA8;
+    /* 0x0A4 */ f32 walkEndX;
+    /* 0x0A8 */ f32 walkEndZ;
     /* 0x0AC */ f32 walkProgress;
     /* 0x0B0 */ f32 launchTargetX;
     /* 0x0B4 */ f32 launchTargetY;
     /* 0x0B8 */ f32 launchTargetZ;
     /* 0x0BC */ s16 hitActorType;
     /* 0x0BE */ s16 hitActorId;
-    /* 0x0C0 */ s16 unkC0;
+    /* 0x0C0 */ s16 twirlTimer;
     union {
         /* 0x0C2 */ s16 slopeFrames;    // frames on a slope, >= 0x15 slides (playerUpdateSlopeSlidePhysics, CEAE0.c)
         /* 0x0C2 */ s16 rideSpin; // state 0x38: spin added to the ridden actor, decays by 7 (playerStateRidingActor, D5E10.c; EFDC0.c)
@@ -949,7 +949,7 @@ typedef struct PlayerState {
     /* 0x0CB */ u8 padCB;
     /* 0x0CC */ s16 tumblePhase;
     /* 0x0CE */ u8 padCE[2];
-    /* 0x0D0 */ u32 unkD0;
+    /* 0x0D0 */ u32 bubbleFrame;
     /* 0x0D4 */ s16 surfaceTimer;
     /* 0x0D6 */ s16 breathTimer;
     /* 0x0D8 */ u8 prevHasArcBounds;
@@ -960,7 +960,7 @@ typedef struct PlayerState {
     /* 0x0E8 */ u8 stateStep;
     /* 0x0E9 */ u8 padE9;
     /* 0x0EA */ s16 wallNormalYaw;
-    /* 0x0EC */ s16 unkEC;
+    /* 0x0EC */ s16 hangFacingYaw;
     /* 0x0EE */ u8 padEE[2];
     /* 0x0F0 */ f32 ledgeY;
     /* 0x0F4 */ f32 prevLedgeY;
@@ -979,14 +979,14 @@ typedef struct PlayerState {
     /* 0x110 */ s16 targetRoll;
     /* 0x112 */ s16 targetYawAngle;
     /* 0x114 */ s16 depthCenter;
-    /* 0x116 */ s16 unk116;
+    /* 0x116 */ s16 depthFeet;
     /* 0x118 */ s16 depthLeft;
     /* 0x11A */ s16 depthRight;
     /* 0x11C */ u8 stateTimer;
     /* 0x11D */ u8 swimStrokeTriggered;
     /* 0x11E */ s16 animThresholdIndex;
     /* 0x120 */ s32 lastFrame;
-    /* 0x124 */ f32 unk124;
+    /* 0x124 */ f32 pathExitSpeedXZ;
     /* 0x128 */ f32 unk128;
     /* 0x12C */ u8 unk12C;
     /* 0x12D */ u8 pad12D[3];
@@ -994,20 +994,20 @@ typedef struct PlayerState {
     /* 0x134 */ u8 pathIndex;
     /* 0x135 */ u8 pad135[3];
     /* 0x138 */ f32 pathDist;
-    /* 0x13C */ f32 unk13C;
-    /* 0x140 */ f32 unk140;
-    /* 0x144 */ f32 unk144;
+    /* 0x13C */ f32 pathAttachX;
+    /* 0x140 */ f32 pathAttachY;
+    /* 0x144 */ f32 pathAttachZ;
     /* 0x148 */ f32 pathAttachBlend;
-    /* 0x14C */ f32 unk14C;
-    /* 0x150 */ f32 unk150;
+    /* 0x14C */ f32 leapSpeedXZ;
+    /* 0x150 */ f32 leapSpeedY;
     /* 0x154 */ s16 leapYaw;
     /* 0x156 */ u8 pad156[2];
     /* 0x158 */ Actor *leapTarget;
-    /* 0x15C */ f32 unk15C[4][4];
+    /* 0x15C */ f32 pathAttachMtx[4][4];
     /* 0x19C */ s16 pathYawMin;
     /* 0x19E */ s16 pathYawMax;
     /* 0x1A0 */ u16 aimPitch;
-    /* 0x1A2 */ u8 unk1A2;
+    /* 0x1A2 */ u8 thrustApplied;
     /* 0x1A3 */ u8 isHoldingObject;
     /* 0x1A4 */ u8 playerIndex;
     /* 0x1A5 */ u8 pad1A5[3];
@@ -1032,17 +1032,17 @@ typedef struct PlayerState {
     /* 0x1F4 */ s32 stateFlags2;
     /* 0x1F8 */ s32 prevStateFlags;
     /* 0x1FC */ u8 cartDamage;
-    /* 0x1FD */ u8 unk1FD;
+    /* 0x1FD */ u8 canRevertTransform;
     /* 0x1FE */ u16 transformTimer;
     /* 0x200 */ s16 statusEffectTimer;
     /* 0x202 */ u8 pad202[2];
     /* 0x204 */ f32 warpX;
     /* 0x208 */ f32 warpY;
     /* 0x20C */ f32 warpZ;
-    /* 0x210 */ f32 unk210;
-    /* 0x214 */ f32 unk214;
-    /* 0x218 */ f32 unk218;
-    /* 0x21C */ s16 unk21C;
+    /* 0x210 */ f32 warpEffectX;
+    /* 0x214 */ f32 warpEffectY;
+    /* 0x218 */ f32 warpEffectZ;
+    /* 0x21C */ s16 warpYaw;
     /* 0x21E */ u16 fadeLevel;
     union {
         /* 0x220 */ f32 heading[3];    // cutscene spark heading: [0] sine, [1] angle (s16 yaw as a float), [2] cosine (csCmdCameraVectorTargetUpdate, 478F0.c; func_806DF280, D5E10.c)
@@ -1061,7 +1061,7 @@ typedef struct PlayerState {
     /* 0x23F */ u8 padHintTimer;
     /* 0x240 */ u8 attachmentExitTimer;
     /* 0x241 */ u8 pad241;
-    /* 0x242 */ u16 unk242;
+    /* 0x242 */ u16 destMap;
     /* 0x244 */ u8 idleTimeoutFlag;
     /* 0x245 */ u8 damageCooldown;
     /* 0x246 */ s8 hitSourceSpawnNodeId;
@@ -1224,17 +1224,17 @@ typedef struct CamState {
     /* 0x16 */ u8 pad16[0x2];
     /* 0x18 */ f32 floorMargin;
     /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-    /* 0x40 */ f32 unk40;
+    /* 0x20 */ f32 fixedEyeX;
+    /* 0x24 */ f32 fixedEyeY;
+    /* 0x28 */ f32 fixedEyeZ;
+    /* 0x2C */ f32 fixedFocusX;
+    /* 0x30 */ f32 fixedFocusY;
+    /* 0x34 */ f32 fixedFocusZ;
+    /* 0x38 */ f32 snapEyeX;
+    /* 0x3C */ f32 snapEyeY;
+    /* 0x40 */ f32 snapEyeZ;
     /* 0x44 */ CamTargetBlock target;
-    /* 0x60 */ f32 unk60;
+    /* 0x60 */ f32 followAccel;
     /* 0x64 */ u8 pad64[0x8];
     /* 0x6C */ f32 followBaseY;
     /* 0x70 */ f32 targetFloorY;
@@ -1248,11 +1248,11 @@ typedef struct CamState {
     /* 0x90 */ f32 waterY;
     /* 0x94 */ f32 lookAheadDist;
     /* 0x98 */ f32 stickLookY;
-    /* 0x9C */ s16 unk9C;
+    /* 0x9C */ s16 eyeRaiseFrames;
     /* 0x9E */ s16 lookAheadYaw;
     /* 0xA0 */ f32 followDist;
     /* 0xA4 */ f32 followDistGoal;
-    /* 0xA8 */ f32 unkA8;
+    /* 0xA8 */ f32 camYaw;
     /* 0xAC */ u32 flags;
     /* 0xB0 */ s16 pendingTurn;
     /* 0xB2 */ s16 orbitYaw;
@@ -1396,7 +1396,7 @@ typedef struct ActorCollisionList {
     ActorCollisionEntry *entries;
 } ActorCollisionList;
 
-// Per-actor-type collision tables (D_8074C604, defined in 7BBD0.c, read by 7A510.c): a slot's table
+// Per-actor-type collision tables (gActorTypeCollisionTables, defined in 7BBD0.c, read by 7A510.c): a slot's table
 // is a list of attacker patterns ending with pattern 0, each naming a list of interactions whose
 // last entry has chain 0.
 typedef s32 (*CollisionFilterFn)(Actor *, Actor *, ActorCallbackNode *);
@@ -1418,11 +1418,11 @@ typedef struct CollisionTableEntry {
 
 typedef struct CollisionTableSlot {
     CollisionTableEntry *table;
-    u8 unk4;
+    u8 invulnBlocksDamage;
     u8 pad5[3];
 } CollisionTableSlot;
 
-// Per-actor-type health and damage (D_8074D0C4, defined in 7BBD0.c).
+// Per-actor-type health and damage (gActorTypeStats, defined in 7BBD0.c).
 typedef struct ActorTypeStat {
     s16 health;
     s16 damage;

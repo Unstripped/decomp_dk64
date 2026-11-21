@@ -1753,7 +1753,7 @@ s32 scriptOpWaitTimer(Actor *actor) {
 void scriptCmdNop(Actor *actor) {
 }
 
-extern f32 D_80753E48[];
+extern f32 gKongThrowSpeeds[];
 extern s16 gKongMaxActiveProjectiles[];
 extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
@@ -1796,11 +1796,11 @@ void projectileTrySpawnFromSlot(Actor *actor) {
             dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
             dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;
             sqrtf((dz * dz) + (dx * dx));
-            projectileSpawnNodeEntry(0x29, gCurrentKongInventory->weaponFlags, speed, mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ), D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
+            projectileSpawnNodeEntry(0x29, gCurrentKongInventory->weaponFlags, speed, mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ), gKongThrowSpeeds[gCurrentCharacterIndex], 0.0f, actor);
             return;
         }
         projectileGetTargetCoords(actor, 7);
-        projectileSpawnNodeEntry(0x29, gCurrentKongInventory->weaponFlags, speed, actor->yaw, D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
+        projectileSpawnNodeEntry(0x29, gCurrentKongInventory->weaponFlags, speed, actor->yaw, gKongThrowSpeeds[gCurrentCharacterIndex], 0.0f, actor);
     }
 }
 
@@ -2184,8 +2184,8 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
 }
 
 typedef struct ChildEffectNodeState {
-    s16 unk0;
-    s16 unk2;
+    s16 scriptA;
+    s16 scriptB;
     Actor *parent;
     s32 parentInstanceId;
     s16 parentAnimId;
@@ -2241,11 +2241,11 @@ void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
     if (spriteId != 0xFFFF) {
         effectCreateAtActorBone(sScriptEffectSprites[spriteId], scale, gSpawnedActor, 1, 2);
     }
-    node->unk0 = imm2;
+    node->scriptA = imm2;
     node->parent = actor;
     node->parentInstanceId = actor->instanceId;
     node->parentAnimId = actor->sub4->animId;
-    node->unk2 = imm4;
+    node->scriptB = imm4;
 }
 
 void scriptCmdDespawnActor(Actor *actor) {

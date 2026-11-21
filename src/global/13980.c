@@ -30,21 +30,21 @@ extern u8 gScreenRenderFlags;
 
 // .bss 0x807F04C0-0x807F0570; 0x807F0560-0x807F0570 holds the function-local statics of
 // schedMain, schedTaskDone and schedDlDebugDump, in that order
-u64 D_807F04C0;
+u64 gSchedYieldStartTime;
 u64 gSchedYieldTimePeak;
 u64 gSchedYieldTime;
 u32 D_807F04D8;
 u32 D_807F04DC;
 TaskNode *gSchedPendingSwapTask;
-u32 D_807F04E4;
-u32 D_807F04E8;
+u32 gSchedRdpTime;
+u32 gSchedRspGfxTime;
 u32 D_807F04EC;
-u32 D_807F04F0;
+u32 gSchedGfxStartDelay;
 u32 D_807F04F4;
 u64 gSchedRetraceTime;
-u64 D_807F0500;
-u64 D_807F0508;
-u64 D_807F0510;
+u64 gSchedAudioLastStartTime;
+u64 gSchedAudioStartTime;
+u64 gSchedAudioLastEndTime;
 u16 gWatchdogFaultFrames[20];
 OSTimer gSchedAudioTimer;
 
@@ -281,7 +281,7 @@ void schedHandleRSP(SchedStruct *sc) {
 
     sc->curRSPTask = NULL;
     if (task->state == 3) {
-        gSchedYieldTime = osGetTime() - D_807F04C0;
+        gSchedYieldTime = osGetTime() - gSchedYieldStartTime;
         if (gSchedYieldTimePeak < gSchedYieldTime) {
             gSchedYieldTimePeak = gSchedYieldTime;
         }
@@ -293,11 +293,11 @@ void schedHandleRSP(SchedStruct *sc) {
         schedStartTask(sc, 0);
     } else {
         if (task->flags & 0x40) {
-            D_807F04E8 = (osGetTime() - sc->rspGfxStartTime) / 0x1E91;
+            gSchedRspGfxTime = (osGetTime() - sc->rspGfxStartTime) / 0x1E91;
             gSchedGfxStartTimeArmed = 1;
         } else if (task->task.t.type == M_AUDTASK) {
-            D_807F0510 = osGetTime();
-            D_807F0500 = D_807F0508;
+            gSchedAudioLastEndTime = osGetTime();
+            gSchedAudioLastStartTime = gSchedAudioStartTime;
         }
         task->state = 2;
         task->flags |= 4;
@@ -334,7 +334,7 @@ void schedHandleRDP(SchedStruct *sc) {
         gSchedPendingSwapTask = task;
     }
 
-    D_807F04E4 = (osGetTime() - sc->rdpStartTime) / 0x1E91;
+    gSchedRdpTime = (osGetTime() - sc->rdpStartTime) / 0x1E91;
     schedTaskDone(sc, task);
 }
 
@@ -401,12 +401,12 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
         if (sc->audioListHead == NULL) {
             sc->audioListTail = (TaskNode *)&sc->audioListHead;
         }
-        D_807F0508 = osGetTime();
+        gSchedAudioStartTime = osGetTime();
     } else {
         task = sc->gfxListHead;
         if (gSchedGfxStartTimeArmed != 0) {
             sc->rspGfxStartTime = osGetTime();
-            D_807F04F0 = (osGetTime() - gSchedRetraceTime) / 0x1E91;
+            gSchedGfxStartDelay = (osGetTime() - gSchedRetraceTime) / 0x1E91;
             gSchedGfxStartTimeArmed = 0;
         }
     }
@@ -424,7 +424,7 @@ void schedYield(SchedStruct *sc) {
 
     if (task->task.t.type == M_GFXTASK) {
         task->state = 3;
-        D_807F04C0 = osGetTime();
+        gSchedYieldStartTime = osGetTime();
         osSpTaskYield();
     }
 }

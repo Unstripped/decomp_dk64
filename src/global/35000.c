@@ -13,15 +13,15 @@
 #include "proto/global/70FD0.h"
 
 
-extern RenderEntry *D_807F5FF0;
+extern RenderEntry *gRenderListWorld;
 extern RenderEntry *gRenderListPending;
-extern RenderEntry *D_807F5FF8;
+extern RenderEntry *gRenderListScreen;
 extern RenderEntry *gRenderListSorted;
 
 void renderEntryListsReset(void) {
-    D_807F5FF0 = NULL;
+    gRenderListWorld = NULL;
     gRenderListPending = NULL;
-    D_807F5FF8 = NULL;
+    gRenderListScreen = NULL;
     gRenderListSorted = NULL;
 }
 
@@ -65,13 +65,13 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, void *targetId, 
     found = 0;
     prev = NULL;
     if (listIndex == 1) {
-        list = D_807F5FF0;
+        list = gRenderListWorld;
     }
     if (listIndex == 2) {
         list = gRenderListPending;
     }
     if (listIndex == 3) {
-        list = D_807F5FF8;
+        list = gRenderListScreen;
     }
     if (listIndex == 4) {
         list = gRenderListSorted;
@@ -119,13 +119,13 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, void *targetId, 
         }
     }
     if (listIndex == 1) {
-        D_807F5FF0 = head;
+        gRenderListWorld = head;
     }
     if (listIndex == 2) {
         gRenderListPending = head;
     }
     if (listIndex == 3) {
-        D_807F5FF8 = head;
+        gRenderListScreen = head;
     }
     if (listIndex == 4) {
         gRenderListSorted = head;
@@ -142,13 +142,13 @@ RenderEntry *renderEntryRemove(RenderEntry *list, void *targetId, u8 listIndex, 
     found = 0;
     prev = NULL;
     if (listIndex == 1) {
-        list = D_807F5FF0;
+        list = gRenderListWorld;
     }
     if (listIndex == 2) {
         list = gRenderListPending;
     }
     if (listIndex == 3) {
-        list = D_807F5FF8;
+        list = gRenderListScreen;
     }
     if (listIndex == 4) {
         list = gRenderListSorted;
@@ -177,13 +177,13 @@ RenderEntry *renderEntryRemove(RenderEntry *list, void *targetId, u8 listIndex, 
     }
     *outFound = found;
     if (listIndex == 1) {
-        D_807F5FF0 = head;
+        gRenderListWorld = head;
     }
     if (listIndex == 2) {
         gRenderListPending = head;
     }
     if (listIndex == 3) {
-        D_807F5FF8 = head;
+        gRenderListScreen = head;
     }
     if (listIndex == 4) {
         gRenderListSorted = head;
@@ -240,13 +240,13 @@ void renderEntrySetDistanceOverride(RenderEntry *list, void *targetId, u8 listIn
 
     found = 0;
     if (listIndex == 1) {
-        list = D_807F5FF0;
+        list = gRenderListWorld;
     }
     if (listIndex == 2) {
         list = gRenderListPending;
     }
     if (listIndex == 3) {
-        list = D_807F5FF8;
+        list = gRenderListScreen;
     }
     if (listIndex == 4) {
         list = gRenderListSorted;
@@ -467,7 +467,7 @@ Gfx *renderActorEntryBuildDisplayList(FrameMatrices *frame, Actor *actor, Gfx *g
     if (actor->actorType == 0x135) {
         gSPClearGeometryMode(glist++, G_ZBUFFER);
     }
-    gSPSegment(glist++, 15, osVirtualToPhysical(actor->unk148[gGfxBufferIndex]));
+    gSPSegment(glist++, 15, osVirtualToPhysical(actor->segmentBuffers[gGfxBufferIndex]));
     if (actor->flags & 0x1000) {
         glist = actorBuildLightDisplayList(glist, actor, gCurrentPlayerIndex);
         gSPSetGeometryMode(glist++, G_LIGHTING);

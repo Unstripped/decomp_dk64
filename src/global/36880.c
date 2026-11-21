@@ -512,7 +512,7 @@ s32 modelSlotFindByType(s32 type, s32 *cursor, f32 *xOut, f32 *yOut, f32 *zOut, 
     return found;
 }
 
-extern u8 D_807F6008;
+extern u8 gModelSlotAppendBlocked;
 
 s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     struct RenderEntry *renderList;
@@ -523,7 +523,7 @@ s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     if (gModelSlotCount >= gModelSlotCapacity) {
         faultSetMessage(8, 0, 0, 0);
     }
-    if (force == 0 && D_807F6008 != 0) {
+    if (force == 0 && gModelSlotAppendBlocked != 0) {
         return -1;
     }
     scale = modelTypeGetDefaultScale(type);
@@ -760,7 +760,7 @@ typedef struct ModelPathSeg {
 
 typedef struct ModelPathEntry {
     /* 0x00 */ f32 moveSpeed;
-    /* 0x04 */ f32 unk4;
+    /* 0x04 */ f32 exitSpeedXZ;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 attachDist;
     /* 0x10 */ f32 detachDist;
@@ -794,7 +794,7 @@ void modelSlotBuildProxPaths(s16 id, ModelAssetHeader *paths, f32 scale) {
             modelSlotGetNodePos(id, 1, tbl[i - 1].segs[j].endNode, &bx, &by, &bz);
             len += sqrtf((az - bz) * (az - bz) + ((ax - bx) * (ax - bx) + (ay - by) * (ay - by)));
         }
-        proxPathAdd((Actor *)id, 1, i, 1, tbl[i - 1].segCount, 0.0f, len, tbl[i - 1].moveSpeed * scale, tbl[i - 1].attachDist * scale, tbl[i - 1].detachDist * scale, tbl[i - 1].detachDist * scale, tbl[i - 1].endBehavior, tbl[i - 1].unk4, tbl[i - 1].unk8, tbl[i - 1].unk15);
+        proxPathAdd((Actor *)id, 1, i, 1, tbl[i - 1].segCount, 0.0f, len, tbl[i - 1].moveSpeed * scale, tbl[i - 1].attachDist * scale, tbl[i - 1].detachDist * scale, tbl[i - 1].detachDist * scale, tbl[i - 1].endBehavior, tbl[i - 1].exitSpeedXZ, tbl[i - 1].unk8, tbl[i - 1].unk15);
         for (j = 0; j < tbl[i - 1].segCount; j++) {
             modelSlotGetNodePos(id, 1, tbl[i - 1].segs[j].startNode, &ax, &ay, &az);
             modelSlotGetNodePos(id, 1, tbl[i - 1].segs[j].endNode, &bx, &by, &bz);
@@ -2547,7 +2547,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
 
 extern u8 gRenderSetupKind;
 extern void *gRenderLoadedTexture;
-extern s32 D_807F5FD8;
+extern s32 gModelQuadDrawCount;
 
 
 Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f32 camZ, u8 useLight, s16 lightArg, s32 unused) {
@@ -2617,7 +2617,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
             return gfx;
         }
     }
-    D_807F5FD8 += 1;
+    gModelQuadDrawCount += 1;
     if (obj->textures[0] == NULL) {
         modelSlotLoadAssetTextures(gModelSlots[(s16)hashTableLookup(obj->id)].asset, (ModelSlotAsset *)obj);
     }
@@ -3491,7 +3491,7 @@ typedef struct ModelPendingQueueEntry {
 extern ModelPendingQueueEntry gModelPendingQueue[];
 extern s16 gUpdatedCsModelIds[];
 
-extern u8 D_807F7140;
+extern u8 gCsModelUpdateCount;
 
 void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     CsState *obj;
@@ -3555,7 +3555,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                 break;
             }
             if (allow != 0) {
-                D_807F7140++;
+                gCsModelUpdateCount++;
                 if (gUpdatedCsModelIdCount != 0x46) {
                     gUpdatedCsModelIds[gUpdatedCsModelIdCount] = slots[idx].csModelId;
                     gUpdatedCsModelIdCount++;

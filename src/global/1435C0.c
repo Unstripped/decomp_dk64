@@ -8,7 +8,7 @@
   
 
 // Equal-power pan/mix curve (libultra eqpower[128]); the right channel reads it backwards from entry 127.
-s16 D_80756490[128] = {
+s16 gEqualPowerCurve[128] = {
     0x7FFF, 0x7FFC, 0x7FF5, 0x7FE8, 0x7FD7, 0x7FC0, 0x7FA5, 0x7F84,
     0x7F5F, 0x7F34, 0x7F05, 0x7ED0, 0x7E97, 0x7E58, 0x7E15, 0x7DCD,
     0x7D7F, 0x7D2D, 0x7CD6, 0x7C7A, 0x7C1A, 0x7BB4, 0x7B49, 0x7ADA,
@@ -29,7 +29,7 @@ s16 D_80756490[128] = {
 
 extern u8 gAudioSurroundEnabled;
 extern u8 gAudioMonoEnabled;
-extern u8 D_807FF0F2;
+extern u8 gAudioNarrowPanEnabled;
 
 Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
     Acmd *cmd;
@@ -77,12 +77,12 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
             startVolume = (paramNode->volume + paramNode->volume) / 2;
             f->em_volume = startVolume;
             f->em_pan = paramNode->pan;
-            f->em_dryamt = (D_80756490[paramNode->fxmix & 0x7F] & 0xFFFE) | (paramNode->fxmix >> 7);
+            f->em_dryamt = (gEqualPowerCurve[paramNode->fxmix & 0x7F] & 0xFFFE) | (paramNode->fxmix >> 7);
             if (gAudioSurroundEnabled == 0) {
                 f->em_dryamt &= 0xFFFE;
             }
-            f->em_wetamt = D_80756490[127 - (paramNode->fxmix & 0x7F)] & 0xFFFE;
-            if (D_807FF0F2 != 0) {
+            f->em_wetamt = gEqualPowerCurve[127 - (paramNode->fxmix & 0x7F)] & 0xFFFE;
+            if (gAudioNarrowPanEnabled != 0) {
                 f->em_pan = (f->em_pan >> 1) + 0x20;
             } else if (gAudioMonoEnabled != 0) {
                 f->em_pan = 0x40;
@@ -91,8 +91,8 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
                 f->em_cvolL = 1;
                 f->em_cvolR = 1;
             } else {
-                f->em_cvolL = (D_80756490[f->em_pan] * f->em_volume) >> 15;
-                f->em_cvolR = (D_80756490[127 - f->em_pan] * f->em_volume) >> 15;
+                f->em_cvolL = (gEqualPowerCurve[f->em_pan] * f->em_volume) >> 15;
+                f->em_cvolR = (gEqualPowerCurve[127 - f->em_pan] * f->em_volume) >> 15;
             }
             f->rs_ratio = paramNode->pitch;
             f->lowpass.fgain = paramNode->fxPitch;
@@ -105,8 +105,8 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
         case 16:
             cmd = _pullSubFrame(f, &outOffset, &samplePtr, subSamples, cmd);
             if (f->em_delta >= f->em_segEnd) {
-                f->em_ltgt = (D_80756490[f->em_pan] * f->em_volume) >> 15;
-                f->em_rtgt = (D_80756490[127 - f->em_pan] * f->em_volume) >> 15;
+                f->em_ltgt = (gEqualPowerCurve[f->em_pan] * f->em_volume) >> 15;
+                f->em_rtgt = (gEqualPowerCurve[127 - f->em_pan] * f->em_volume) >> 15;
                 f->em_delta = f->em_segEnd;
                 f->em_cvolL = f->em_ltgt;
                 f->em_cvolR = f->em_rtgt;
@@ -121,7 +121,7 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
                 f->em_cvolR = 1;
             }
             if (f->em_ctrlList->type == 0xC) {
-                if (D_807FF0F2 != 0) {
+                if (gAudioNarrowPanEnabled != 0) {
                     f->em_pan = (f->em_ctrlList->data.s.s1 >> 1) + 0x20;
                 } else if (gAudioMonoEnabled != 0) {
                     f->em_pan = 0x40;
@@ -144,8 +144,8 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
                         f->em_wetamt ^= 1;
                     }
                 }
-                f->em_dryamt = (D_80756490[f->em_ctrlList->data.i & 0x7F] & 0xFFFE) | (f->em_dryamt & 1);
-                f->em_wetamt = (D_80756490[127 - (f->em_ctrlList->data.i & 0x7F)] & 0xFFFE) | (f->em_wetamt & 1);
+                f->em_dryamt = (gEqualPowerCurve[f->em_ctrlList->data.i & 0x7F] & 0xFFFE) | (f->em_dryamt & 1);
+                f->em_wetamt = (gEqualPowerCurve[127 - (f->em_ctrlList->data.i & 0x7F)] & 0xFFFE) | (f->em_wetamt & 1);
             }
             f->em_first = 1;
             break;
@@ -244,9 +244,9 @@ Acmd *_pullSubFrame(N_PVoice *filter, s16 *outp, s16 *samplePtr, s32 count, Acmd
     ptr = n_alResamplePull(env, outp, count, cmdList);
     if (env->em_first != 0) {
         env->em_first = 0;
-        env->em_ltgt = (D_80756490[env->em_pan] * env->em_volume) >> 15;
+        env->em_ltgt = (gEqualPowerCurve[env->em_pan] * env->em_volume) >> 15;
         env->em_lratm = _getRate(env->em_cvolL, env->em_ltgt, env->em_segEnd, &env->em_lratl);
-        env->em_rtgt = (D_80756490[127 - env->em_pan] * env->em_volume) >> 15;
+        env->em_rtgt = (gEqualPowerCurve[127 - env->em_pan] * env->em_volume) >> 15;
         env->em_rratm = _getRate(env->em_cvolR, env->em_rtgt, env->em_segEnd, &env->em_rratl);
         aSetVolume(ptr++, A_VOL | A_LEFT, env->em_cvolL, env->em_dryamt, env->em_wetamt);
         aSetVolume(ptr++, A_VOL | A_RIGHT, env->em_rtgt, env->em_rratm, env->em_rratl);

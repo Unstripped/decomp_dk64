@@ -297,7 +297,7 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
 }
 
 extern s16 gCurrentCharacterIndex;
-extern s16 D_80753B74[];
+extern s16 gKongProxPathReachBonus[];
 
 s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *outSegment) {
     s32 i;
@@ -325,7 +325,7 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
         r2 = path->detachDist * path->detachDist;
     }
     if (path->pathType == 1) {
-        r2 += D_80753B74[gCurrentCharacterIndex];
+        r2 += gKongProxPathReachBonus[gCurrentCharacterIndex];
     }
     for (i = 0; i < path->segmentCount; i++) {
         if (path->segments[i].disabled == 0) {
@@ -427,11 +427,11 @@ f32 proxPathAttachToSegment(Actor *actor, PlayerState *state, ProxPath *path, u8
             }
         }
     }
-    state->unk13C = actor->x;
-    state->unk140 = actor->y;
-    state->unk144 = actor->z;
+    state->pathAttachX = actor->x;
+    state->pathAttachY = actor->y;
+    state->pathAttachZ = actor->z;
     state->pathAttachBlend = 0.0f;
-    memcpy(state->unk15C, actor->modelMtx, 0x40);
+    memcpy(state->pathAttachMtx, actor->modelMtx, 0x40);
     actor->yaw = mathAngleBetweenPointsRad(ox, oz, actor->x, actor->z) * 57.29577637f / 360.0 * 4095.0;
     return t;
 }
@@ -482,7 +482,7 @@ void proxPathAdvance(f32 speedMultiplier) {
         gActivePlayerActor->contactFlags &= ~0x40;
         return;
     }
-    gActivePlayerState->unk124 = node->paramC;
+    gActivePlayerState->pathExitSpeedXZ = node->paramC;
     gActivePlayerState->unk128 = node->paramD;
     gActivePlayerState->unk12C = node->paramE;
     step = gFrameDelta * 0.5;
@@ -643,9 +643,9 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     proxPathInterpolatePosition(segmentIndex, t, path, &p2[0], &p2[1], &p2[2]);
     savedScale = state->pathAttachBlend;
     state->pathAttachBlend = 1.0;
-    actor->x = (p2[0] - state->unk13C) * state->pathAttachBlend + state->unk13C;
-    actor->y = (p2[1] - state->unk140) * state->pathAttachBlend + state->unk140;
-    actor->z = (p2[2] - state->unk144) * state->pathAttachBlend + state->unk144;
+    actor->x = (p2[0] - state->pathAttachX) * state->pathAttachBlend + state->pathAttachX;
+    actor->y = (p2[1] - state->pathAttachY) * state->pathAttachBlend + state->pathAttachY;
+    actor->z = (p2[2] - state->pathAttachZ) * state->pathAttachBlend + state->pathAttachZ;
     mathNudgeCoords(p0[0], p0[2], &p1[0], &p1[2]);
     yaw = mathAtan2(p1[0] - p0[0], p1[2] - p0[2]) * 57.29577637f + 180.0f;
     guTranslateF(modelF, 0.0f, state->pathAttachBlend * -80.0f, 0.0f);
@@ -667,7 +667,7 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     guMtxCatF(modelF, stepF, actor->modelMtx);
     state->pathAttachBlend = savedScale;
     if (savedScale < 1.0) {
-        guMtxF2L(state->unk15C, &prevMtx);
+        guMtxF2L(state->pathAttachMtx, &prevMtx);
         guMtxF2L(actor->modelMtx, &curMtx);
         mtxLerpL(&prevMtx, &curMtx, 1.0 - state->pathAttachBlend, &blendMtx);
         guMtxL2F(actor->modelMtx, &blendMtx);

@@ -36,7 +36,7 @@ extern PlayerStruct *gPlayerSlots;
 /* Actors with a word past the base Actor (gActivePlayerState->actor in playerStateAdjustUpwardVelocity). */
 typedef struct EfExtActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ s32 unk178;
+    /* 0x178 */ s32 path;
 } EfExtActor;
 
 typedef struct EfCallbackParams {
@@ -435,7 +435,7 @@ void playerStateAdjustUpwardVelocity(void) {
     s32 handle;
 
     actor = gActivePlayerState->actor;
-    handle = ((EfExtActor *)actor)->unk178;
+    handle = ((EfExtActor *)actor)->path;
     if (actor->state < 3) {
         func_80026004(handle, 0x1E, 1.0f);
     }
@@ -471,8 +471,8 @@ void playerStateDropAndResume(void) {
 }
 
 extern ModelSlot *gModelSlots;
-extern s16 D_807539DC[];
-extern s16 D_807539EC[];
+extern s16 gKongDiveFrames[];
+extern s16 gKongDiveAngles[];
 
 void playerStateEnterFlattened(void) {
     f32 speed;
@@ -530,9 +530,9 @@ void playerStateEnterFrozen(void) {
 }
 
 void playerStateEnterState3C(void) {
-    gActivePlayerState->subTimer = D_807539EC[gCurrentCharacterIndex];
+    gActivePlayerState->subTimer = gKongDiveAngles[gCurrentCharacterIndex];
     gActivePlayerState->pitchAngle = gCurrentActor->yaw;
-    gActivePlayerState->actionTimer = D_807539DC[gCurrentCharacterIndex];
+    gActivePlayerState->actionTimer = gKongDiveFrames[gCurrentCharacterIndex];
     gCurrentActor->state = 0x4F;
     gCurrentActor->subState = 1;
     if (gCurrentActor->speedY > 0.0f) {
@@ -551,15 +551,15 @@ extern s16 D_8075351C[];
 extern f32 D_80753908[];
 extern f32 D_80753924[];
 extern f32 D_80753940[];
-extern f32 D_80753D70[];
-extern f32 D_80753D8C[];
+extern f32 gKongNormalLedgeHangOffsets[];
+extern f32 gKongLedgeHangOffsets[];
 extern SchedStruct gScheduler;
 extern f32 gKongDecelRate[];
 extern s16 gKongNormalSwimSurfaceDepths[];
 extern s16 D_807538D8[];
-extern s16 D_807538E8[];
+extern s16 gKongWaterEntryMinSinkDepths[];
 extern s16 D_807538F8[];
-extern f32 D_80753988[];
+extern f32 gKongSwimTopSpeeds[];
 extern s16 D_807539FC[];
 extern f32 gKongSwimBuoyancy[];
 
@@ -588,7 +588,7 @@ void playerStateCheckLandingAir(void) {
     if (maxDepth < depth) {
         depth = maxDepth;
     }
-    rise = D_807538E8[gCurrentCharacterIndex] + ((D_807538F8[gCurrentCharacterIndex] - D_807538E8[gCurrentCharacterIndex]) * (depth / maxDepth));
+    rise = gKongWaterEntryMinSinkDepths[gCurrentCharacterIndex] + ((D_807538F8[gCurrentCharacterIndex] - gKongWaterEntryMinSinkDepths[gCurrentCharacterIndex]) * (depth / maxDepth));
     rise -= (waterY - gKongNormalSwimSurfaceDepths[gCurrentCharacterIndex]) - gActivePlayerActor->y;
     rise *= 40.0f;
     depth *= 40.0f;
@@ -609,7 +609,7 @@ void playerStateCheckLandingAir(void) {
     gActivePlayerState->actionTimer = 0;
     gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     speed = gCurrentActor->speedXZ;
-    maxSpeed = D_80753988[gCurrentCharacterIndex];
+    maxSpeed = gKongSwimTopSpeeds[gCurrentCharacterIndex];
     if (speed < maxSpeed) {
         gCurrentActor->speedXZ = speed;
     } else {
@@ -699,9 +699,9 @@ void playerStateEnterHoldThrow(void) {
     f32 height;
 
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        height = D_80753D70[gCurrentCharacterIndex];
+        height = gKongNormalLedgeHangOffsets[gCurrentCharacterIndex];
     } else {
-        height = D_80753D8C[gCurrentCharacterIndex];
+        height = gKongLedgeHangOffsets[gCurrentCharacterIndex];
     }
     gActivePlayerActor->state = 0x5B;
     gActivePlayerActor->subState = 0;
@@ -724,7 +724,7 @@ void playerStateEnterState57(void) {
 
 extern s32 gGlobalCutsceneFlags;
 extern f32 gKongJumpVelocityY[];
-extern s16 D_8075380C[];
+extern s16 gKongChargeLaunchSpeeds[];
 
 void playerStateEnterState59(void) {
     CamState *camState;
@@ -750,7 +750,7 @@ void playerStateEnterState17(void) {
     } else {
         gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex];
     }
-    gActivePlayerActor->speedXZ = gActivePlayerState->unk124;
+    gActivePlayerActor->speedXZ = gActivePlayerState->pathExitSpeedXZ;
     gActivePlayerState->gravityDelay = 0;
     gActivePlayerState->airTimer = 0xA;
     actorScriptStartByIndex(gCurrentActor, 0x10);
@@ -797,13 +797,13 @@ void playerStateEnterState11(void) {
 
 extern s16 D_807537FC[];
 extern s16 D_8075383C[];
-extern s16 D_8075384C[];
+extern s16 gKongSlideLaunchSpeedMax[];
 
 void playerStateEnterState12(void) {
     gActivePlayerState->gravityDelay = D_807537FC[gCurrentCharacterIndex];
     gActivePlayerState->slideLaunchSpeed += D_8075383C[gCurrentCharacterIndex];
-    if (D_8075384C[gCurrentCharacterIndex] < gActivePlayerState->slideLaunchSpeed) {
-        gActivePlayerState->slideLaunchSpeed = D_8075384C[gCurrentCharacterIndex];
+    if (gKongSlideLaunchSpeedMax[gCurrentCharacterIndex] < gActivePlayerState->slideLaunchSpeed) {
+        gActivePlayerState->slideLaunchSpeed = gKongSlideLaunchSpeedMax[gCurrentCharacterIndex];
     }
     gActivePlayerActor->speedY = 0.0f;
     gActivePlayerState->gravityDelay = 0;
@@ -815,7 +815,7 @@ void playerStateEnterState29(void) {
         gCurrentActor->subState = 0;
         actorScriptStartByIndex(gCurrentActor, 0x3F);
         gActivePlayerState->unk64 = 0;
-        gActivePlayerState->slideLaunchSpeed = D_8075380C[gCurrentCharacterIndex];
+        gActivePlayerState->slideLaunchSpeed = gKongChargeLaunchSpeeds[gCurrentCharacterIndex];
     }
 }
 
@@ -1106,9 +1106,9 @@ void playerStateSetLaunchVelocity(void) {
         playerStateApplyAttackerDamage(gPlayerSlots[gCurrentPlayerIndex].queuedActor);
     }
     if ((gActivePlayerActor->contactFlags & 4) && (gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType != 0x81)) {
-        gActivePlayerState->subTimer = D_807539EC[gCurrentCharacterIndex];
+        gActivePlayerState->subTimer = gKongDiveAngles[gCurrentCharacterIndex];
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
-        gActivePlayerState->actionTimer = D_807539DC[gCurrentCharacterIndex] * 0.5;
+        gActivePlayerState->actionTimer = gKongDiveFrames[gCurrentCharacterIndex] * 0.5;
         gCurrentActor->state = 0x4F;
         gCurrentActor->subState = 1;
         if (gCurrentActor->speedY > 0.0f) {
@@ -1366,9 +1366,9 @@ void playerStateDamageCheck3(void) {
     }
 }
 
-extern f32 gKongSwimStrokeSpeeds[], D_80753040[], gKongSwimTurnSpeeds[], D_80753078[];
-extern s16 gKongDamageInvulnFrames[], D_807530D0[], D_807530E0[], D_80753160[], D_8075386C[];
-extern f32 gKongSwimPaddleSpeeds[], gKongDamageAccelY[], gKongDamageLaunchSpeedY[], gKongSwimSpeeds[], gKongTurnDecelRates[], D_8075389C[];
+extern f32 gKongSwimStrokeSpeeds[], D_80753040[], gKongSwimTurnSpeeds[], gKongDeathLaunchSpeedY[];
+extern s16 gKongDamageInvulnFrames[], D_807530D0[], D_807530E0[], D_80753160[], gKongNormalSwimEnterDepths[];
+extern f32 gKongSwimPaddleSpeeds[], gKongDamageAccelY[], gKongDamageLaunchSpeedY[], gKongSwimSpeeds[], gKongTurnDecelRates[], gKongSwimEnterDepths[];
 
 void playerTakeDamage(s16 damage) {
     s16 yaw;
@@ -1382,9 +1382,9 @@ void playerTakeDamage(s16 damage) {
     if (gActivePlayerActor->contactFlags & 4) {
         depth = gCurrentActor->waterY - gCurrentActor->floorY;
         if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-            deepThreshold = D_8075386C[gCurrentCharacterIndex];
+            deepThreshold = gKongNormalSwimEnterDepths[gCurrentCharacterIndex];
         } else {
-            deepThreshold = D_8075389C[gCurrentCharacterIndex];
+            deepThreshold = gKongSwimEnterDepths[gCurrentCharacterIndex];
         }
         isDeep = deepThreshold < depth;
     }
@@ -1582,9 +1582,9 @@ void playerTakeDamage(s16 damage) {
                 }
                 if (gActivePlayerActor->state == 0x36) {
                     if (gActivePlayerActor->contactFlags & 4) {
-                        gActivePlayerActor->speedY = D_80753078[gCurrentCharacterIndex] / 4;
+                        gActivePlayerActor->speedY = gKongDeathLaunchSpeedY[gCurrentCharacterIndex] / 4;
                     } else {
-                        gActivePlayerActor->speedY = D_80753078[gCurrentCharacterIndex];
+                        gActivePlayerActor->speedY = gKongDeathLaunchSpeedY[gCurrentCharacterIndex];
                     }
                 }
                 gActivePlayerState->gravityDelay = 0;

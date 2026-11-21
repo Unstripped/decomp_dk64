@@ -87,17 +87,17 @@ extern u8 gTransitionFadeType;
 
 extern OSIoMesg gPiDmaIoMesg;
 extern s16 *gPhysicalContPads;
-extern s8 D_807F6008;
+extern s8 gModelSlotAppendBlocked;
 extern u8 *gSavedMapModelData;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern f32 gScreenFadeProgress;
 extern f32 gScreenFadeRate;
-extern s32 D_807FF100;
+extern s32 gSegment1DataBuffer;
 
 extern s8 gMainThreadHalted;
-extern u64 D_80761680;
-extern OSMesgQueue *D_807655E0;
+extern u64 gMainThreadStackSentinel;
+extern OSMesgQueue *gBootResetQueue;
 
 // .data 0x80744470-0x807445E0
 u16 *gFramebuffers[2] = { 0 };
@@ -167,11 +167,11 @@ s32 sViewFrameCounter[5] = { 0, 0x4B0, 0, 0, 0 };
 
 // .bss 0x807655F0-0x8076A160
 OSMesgQueue gPiDmaMesgQueue;
-OSMesg D_80765608[0x32];
-OSMesgQueue D_807656D0;
-OSMesg D_807656E8[0xC0];
+OSMesg gPiDmaMesgs[0x32];
+OSMesgQueue gAssetDmaDoneQueue;
+OSMesg gAssetDmaDoneMesgs[0xC0];
 OSMesgQueue gGfxDoneQueue;
-OSMesg D_80765A00[0x10];
+OSMesg gGfxDoneMesgs[0x10];
 u64 gSchedThreadStack[0x400];
 SchedStruct gScheduler;
 SchedClient gGfxSchedClient;
@@ -182,7 +182,7 @@ Gfx *gGfxTaskBuffers[4];
 u8 *gGfxDepthBuffer;
 u32 gFrameCounter;
 u32 gGameFrameCounter;
-s32 D_8076A06C;
+s32 gMapLoadFrame;
 s32 D_8076A070[3];
 s32 D_8076A07C;
 void *gSegment1Data;
@@ -199,7 +199,7 @@ u8 gGfxSubListEnabled;
 u8 D_8076A0A5;
 u16 D_8076A0A6;
 s32 gCurrentMap;
-s32 D_8076A0AC;
+s32 gHubReturnExit;
 u8 D_8076A0B0;
 u8 gScreenRenderFlags;
 u8 gMapLoadCountdown;
@@ -218,12 +218,12 @@ u32 gMenuPlayerCharacterVariant;
 u8 gMenuMpMatchTypeSel;
 s8 gMpWinnerIndex;
 u16 D_8076A106;
-OSMesg D_8076A108[2];
+OSMesg gBootDelayMesgs[2];
 OSMesgQueue gBootDelayMesgQueue;
-OSMesg D_8076A128;
+OSMesg gBootDelayMesg;
 u32 D_8076A12C;
 OSTimer gBootDelayTimer;
-void *D_8076A150;
+void *gGfxFrameTaskBuffer;
 u32 D_8076A154;
 
 void seg11DmaRead(s32 romOffset, s32 size, void *dst) {
@@ -358,10 +358,10 @@ void viModeSetup(u8 overlaySlot) {
 
 void mainSystemInit(void) {
     gSegment1DataSize = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
-    osCreateMesgQueue(&gPiDmaMesgQueue, D_80765608, 0x32);
-    osCreateMesgQueue(&D_807656D0, D_807656E8, 0xC0);
+    osCreateMesgQueue(&gPiDmaMesgQueue, gPiDmaMesgs, 0x32);
+    osCreateMesgQueue(&gAssetDmaDoneQueue, gAssetDmaDoneMesgs, 0xC0);
     schedCreate(&gScheduler, &gSchedThreadStack[0x400], 0x19, gViModeIndexByTvType[osTvType + osTvType], 1);
-    osCreateMesgQueue(&gGfxDoneQueue, D_80765A00, 0x10);
+    osCreateMesgQueue(&gGfxDoneQueue, gGfxDoneMesgs, 0x10);
     schedAddClient(&gScheduler, &gGfxSchedClient, &gGfxDoneQueue, 1, 1);
     gCurrentMap = gInitialMap;
     viModeSetup(0);
@@ -372,8 +372,8 @@ void mainSystemInit(void) {
     transitionSetState(0);
     faultThreadInit();
     osWritebackDCacheAll();
-    osCreateMesgQueue(&gBootDelayMesgQueue, D_8076A108, 2);
-    osSetTimer(&gBootDelayTimer, OS_USEC_TO_CYCLES(300000), 0, &gBootDelayMesgQueue, D_8076A128);
+    osCreateMesgQueue(&gBootDelayMesgQueue, gBootDelayMesgs, 2);
+    osSetTimer(&gBootDelayTimer, OS_USEC_TO_CYCLES(300000), 0, &gBootDelayMesgQueue, gBootDelayMesg);
     sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
 }
 
@@ -383,14 +383,14 @@ void mainResetEngineState(void) {
 
     osWritebackDCacheAll();
     osInvalDCache((void *)K0BASE, 0x800000);
-    gSegment1Data = &D_807FF100;
+    gSegment1Data = &gSegment1DataBuffer;
     dmaReadAssetDecompress(gSegmentTable[12].romStart, gSegment1Data, &gSegment1DataSize, 0, 0, 0, 0);
     gGfxSubListEnabled = 0;
     controllerWaitRead();
     gFrameCounter = 0;
     gGameFrameCounter = 0;
     gEepromLoaded = 0;
-    D_8076A0AC = 4;
+    gHubReturnExit = 4;
     gGlobalPauseFlags = 0x30030;
     gScreenRenderFlags |= 1;
     gMapLoadCountdown = 0;
@@ -463,11 +463,11 @@ void mainThreadLoop(void *arg) {
             playerViewUpdateDepthProbes();
         }
         heapTickDeferredFrees();
-        if (D_80761680 != 0x12345678) {
+        if (gMainThreadStackSentinel != 0x12345678) {
             faultSetMessage(2, 0, 0, 0);
         }
         if (first != 0) {
-            osSendMesg(D_807655E0, (OSMesg)0x309, OS_MESG_BLOCK);
+            osSendMesg(gBootResetQueue, (OSMesg)0x309, OS_MESG_BLOCK);
             first = 0;
         }
         if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
@@ -519,7 +519,7 @@ void gfxSubmitFrame(void) {
         gridTickPlayers();
     }
     resListTick();
-    D_8076A150 = gGfxTaskBuffers[gGfxBufferIndex];
+    gGfxFrameTaskBuffer = gGfxTaskBuffers[gGfxBufferIndex];
     if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
         glist = gGfxTaskBuffers[gGfxBufferIndex];
         gfxEnd = gGfxCurrentFrameBuffer->subDisplayList;
@@ -951,7 +951,7 @@ void mapLoadLevel(void) {
     if (gGameMode == 1) {
         gGameMode = 0;
     }
-    D_8076A06C = gFrameCounter;
+    gMapLoadFrame = gFrameCounter;
     D_80744500 = 0;
     timerQueueInit();
 
@@ -1047,7 +1047,7 @@ void mapLoadLevel(void) {
             func_8002EC08(gCurrentMap);
         }
         collisionBstRebalanceAll();
-        D_807F6008 = 0;
+        gModelSlotAppendBlocked = 0;
         if ((transitionGetState() == 0) && (gGameMode != 2)) {
             if ((gCurrentMap == 0x11) && (flagGet(0x302, 0) != 0)) {
                 sfxAllocateChannel(0x74, 1.0f);

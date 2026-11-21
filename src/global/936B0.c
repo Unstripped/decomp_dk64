@@ -232,14 +232,14 @@ void mountedBarrelUpdate(void) {
                 playerKongHolsterGun(owner);
             }
         }
-        if (playerState->unk1A2 != 0 || (camIsCutsceneActive() && gFrameCounter % 5 == 0)) {
+        if (playerState->thrustApplied != 0 || (camIsCutsceneActive() && gFrameCounter % 5 == 0)) {
             ratio = (0, owner->speedY > 0.0 ? owner->speedY : 0.0);  // FAKE: comma routes the select through the shared f64 ternary temp (M-208 adjsave 4.67 over udiv 3.33): sparkScale $f2, lightAdd 0.0 in $f16 at 0x920
             if (gFrameCounter & 1) {
                 effectSpawnActorBone(owner, 1, (f32)(ratio / 150.0 * 0.12) + 0.3);
             } else {
                 effectSpawnActorBone(owner, 2, (f32)(ratio / 150.0 * 0.12) + 0.3);
             }
-            playerState->unk1A2 = 0;
+            playerState->thrustApplied = 0;
             link->glowStartFrame = gFrameCounter;
         }
         if (gCurrentMap == 0x5C) {
@@ -1250,8 +1250,8 @@ extern u8 D_807200EC;
 extern u8 gPlayerCount;
 extern u8 D_8072029C;
 extern u8 D_80720BA0;
-extern s16 D_8075035C;
-extern s16 D_80750370;
+extern s16 gMultiplayerShotLifetime;
+extern s16 gMultiplayerShotLongLifetime;
 
 
 void projectileSpawnParticleEffect2(void) {
@@ -1322,8 +1322,8 @@ void projectileDespawnOrExplode(void) {
 
 extern u8 D_807200A0;
 extern u8 D_8071FB34;
-extern s16 D_80750350;
-extern s16 D_80750364;
+extern s16 gHomingShotLifetime;
+extern s16 gHomingShotLongLifetime;
 
 void projectileHomingUpdate(void) {
     ProjectileState *state;
@@ -1354,7 +1354,7 @@ void projectileHomingUpdate(void) {
         state->param = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         state->target = NULL;
     }
-    lifetime = D_80750350;
+    lifetime = gHomingShotLifetime;
     if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
@@ -1363,7 +1363,7 @@ void projectileHomingUpdate(void) {
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_807200A0, 0);
     }
     if (state->param & 4) {
-        lifetime = D_80750364;
+        lifetime = gHomingShotLongLifetime;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
@@ -1433,7 +1433,7 @@ void projectileMultiplayerUpdate(void) {
         state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         state->target = NULL;
     }
-    lifetime = D_8075035C;
+    lifetime = gMultiplayerShotLifetime;
     if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
@@ -1442,7 +1442,7 @@ void projectileMultiplayerUpdate(void) {
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_8072029C, 0);
     }
     if (state->param & 4) {
-        lifetime = D_80750370;
+        lifetime = gMultiplayerShotLongLifetime;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);

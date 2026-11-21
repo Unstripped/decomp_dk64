@@ -487,16 +487,16 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 posX, f32 *outHeight, f
 
 void camUpdatePlayerYaw(CamState *st) {
     gPlayerSlots[st->playerIndex].camYaw = mathAngleBetweenPointsRad(gPlayerSlots[st->playerIndex].camX, gPlayerSlots[st->playerIndex].camZ, gPlayerSlots[st->playerIndex].focusX, gPlayerSlots[st->playerIndex].focusZ);
-    st->unkA8 = gPlayerSlots[st->playerIndex].camYaw;
+    st->camYaw = gPlayerSlots[st->playerIndex].camYaw;
     switch (gDemoPlaybackState) {
         case 0:
-            gPlayerSlots[st->playerIndex].camYawInt = st->unkA8 * 4096.0 / 6.2831855f;
+            gPlayerSlots[st->playerIndex].camYawInt = st->camYaw * 4096.0 / 6.2831855f;
             break;
         case 2:
             demoPlaybackReadCamYaw(&gPlayerSlots[st->playerIndex].camYawInt);
             break;
         case 3:
-            gPlayerSlots[st->playerIndex].camYawInt = st->unkA8 * 4096.0 / 6.2831855f;
+            gPlayerSlots[st->playerIndex].camYawInt = st->camYaw * 4096.0 / 6.2831855f;
             break;
     }
     if (gPlayerSlots[st->playerIndex].unk2E9 != 0) {
@@ -526,23 +526,23 @@ void camSetFixedView(Actor *cam, f32 eyeX, f32 eyeY, f32 eyeZ, f32 focusX, f32 f
     if (gGameMode != 1 || force) {
         s->flags |= 0x80000000;
     }
-    s->unk20 = eyeX;
-    s->unk24 = eyeY;
-    s->unk28 = eyeZ;
-    s->unk2C = focusX;
-    s->unk30 = focusY;
-    s->unk34 = focusZ;
+    s->fixedEyeX = eyeX;
+    s->fixedEyeY = eyeY;
+    s->fixedEyeZ = eyeZ;
+    s->fixedFocusX = focusX;
+    s->fixedFocusY = focusY;
+    s->fixedFocusZ = focusZ;
 }
 
 void camApplyFixedView(Actor *cam) {
     CamState *s = cam->customState;
 
-    gPlayerSlots[s->playerIndex].camX = s->unk20;
-    gPlayerSlots[s->playerIndex].camY = s->unk24;
-    gPlayerSlots[s->playerIndex].camZ = s->unk28;
-    gPlayerSlots[s->playerIndex].focusX = s->unk2C;
-    gPlayerSlots[s->playerIndex].focusY = s->unk30;
-    gPlayerSlots[s->playerIndex].focusZ = s->unk34;
+    gPlayerSlots[s->playerIndex].camX = s->fixedEyeX;
+    gPlayerSlots[s->playerIndex].camY = s->fixedEyeY;
+    gPlayerSlots[s->playerIndex].camZ = s->fixedEyeZ;
+    gPlayerSlots[s->playerIndex].focusX = s->fixedFocusX;
+    gPlayerSlots[s->playerIndex].focusY = s->fixedFocusY;
+    gPlayerSlots[s->playerIndex].focusZ = s->fixedFocusZ;
 }
 
 void camSetTargetFocusActor(Actor *cam, Actor *target) {
@@ -1183,9 +1183,9 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
             if ((gGlobalPauseFlags & 0x2000) || (st->flags & 0x100000)) {
                 if (st->flags & 0x100000) {
                     st->flags &= ~0x100000;
-                    st->eyeGoalX = *eyeX = camActor->x = st->unk38;
-                    st->eyeGoalY = *eyeY = camActor->y = st->unk3C;
-                    st->eyeGoalZ = *eyeZ = camActor->z = st->unk40;
+                    st->eyeGoalX = *eyeX = camActor->x = st->snapEyeX;
+                    st->eyeGoalY = *eyeY = camActor->y = st->snapEyeY;
+                    st->eyeGoalZ = *eyeZ = camActor->z = st->snapEyeZ;
                     sfxStartAreaAmbient();
                 } else {
                     st->eyeGoalX = *eyeX = camActor->x;
@@ -1404,7 +1404,7 @@ void camResetPlayer(Actor *player, u8 playerIndex) {
     gCamActivePaths = &gCamMapPaths;
     st->followActor = player;
     st->playerIndex = playerIndex;
-    st->unk60 = 5.0f;
+    st->followAccel = 5.0f;
     if (gGameMode == 1) {
         camEndPath(cam);
     }
@@ -1956,9 +1956,9 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
     }
     cam->pendingTurn = 0;
     cam->flags |= 0x100000;
-    cam->unk38 = x;
-    cam->unk3C = y;
-    cam->unk40 = z;
+    cam->snapEyeX = x;
+    cam->snapEyeY = y;
+    cam->snapEyeZ = z;
     cam->preferredZoomLevel = cam->zoomLevel;
     cam->flags &= ~0x80000;
     cam->ceilingY = -32768.0f;
@@ -2048,7 +2048,7 @@ s32 camHandleOcclusion(Actor *camActor, u8 allowNudge, u8 requireSide) {
     pastLimit = 40.0f < gCamTargetDist && targetState->depthCenter < diff;
     pastLeft = targetState->depthLeft < diff;
     pastRight = targetState->depthRight < diff;
-    pastRetry = targetState->unk116 < diff;
+    pastRetry = targetState->depthFeet < diff;
     if (requireSide && !pastLeft && !pastRight) {
         pastLimit = 0;
     }
@@ -2299,10 +2299,10 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
             break;
     }
     if (targetState->stateFlags & 0x200) {
-        cam->unk9C = 0x3C;
+        cam->eyeRaiseFrames = 0x3C;
     }
-    if (cam->unk9C != 0) {
-        cam->unk9C--;
+    if (cam->eyeRaiseFrames != 0) {
+        cam->eyeRaiseFrames--;
         y += 130.0f;
     }
     x = target->x - mathSinF(cam->orbitYaw) * dist;
@@ -3220,7 +3220,7 @@ void camUpdateFollow(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
         dist = 0.0f;
     }
     if (camActor->speedXZ < dist) {
-        camActor->speedXZ = camApproachFloat(camActor->speedXZ, dist, st->unk60);
+        camActor->speedXZ = camApproachFloat(camActor->speedXZ, dist, st->followAccel);
     } else {
         camActor->speedXZ = dist;
     }

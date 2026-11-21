@@ -607,7 +607,7 @@ extern f32 gFrustumDepth;
 extern f32 gViewFovScaledCos;
 extern f32 gDefaultFovCos;
 extern PlanePoly gFrustumPlanes[];
-extern struct RenderEntry *D_807F5FF0;
+extern struct RenderEntry *gRenderListWorld;
 extern Mtx D_2000180;
 
 
@@ -627,7 +627,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     frustumCalculateCornerRays(gViewFov, gViewAspect, gFrustumDepth);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
     frustumOrientPolyNormals(eyeX, eyeY, eyeZ, gFrustumPlanes, gFrustumCorners[0]);
-    mapTreeFrameUpdate(gMapBspRoot, gMapVisRoot, D_807F5FF0, eyeX, eyeY, eyeZ, 0, !gMapFirstViewPending, gViewportCount >= 2);
+    mapTreeFrameUpdate(gMapBspRoot, gMapVisRoot, gRenderListWorld, eyeX, eyeY, eyeZ, 0, !gMapFirstViewPending, gViewportCount >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
     gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
     gfx = actorBuildLightDisplayList(gfx, gPlayerSlots[gCurrentPlayerIndex].actor, gCurrentPlayerIndex);
@@ -661,13 +661,13 @@ void viewportSetFromRect(s16 *vp, s32 left, s32 top, s32 right, s32 bottom) {
     vp[7] = 0;
 }
 
-extern RenderEntry *D_807F5FF8;
+extern RenderEntry *gRenderListScreen;
 extern u8 gRenderSetupKind;
 
 
 Gfx *renderScreenSpaceEffects(Gfx *gfx, f32 camX, f32 camY, f32 camZ) {
     gRenderSetupKind = 0xFF;
-    return renderEntryListBuildDisplayList(gfx, D_807F5FF8, camX, camY, camZ, 0x30030, -1, 0);
+    return renderEntryListBuildDisplayList(gfx, gRenderListScreen, camX, camY, camZ, 0x30030, -1, 0);
 }
 
 
@@ -1404,10 +1404,10 @@ void mapChunkFreeHiddenBuffers(void) {
 
 
 extern f32 gGfxFarClip;
-extern s32 D_807FB5E0;
-extern s32 D_807FB5E4;
-extern s16 D_807FB5E8;
-extern s16 D_807FB5EA;
+extern s32 gStaticCollisionCellSizeX;
+extern s32 gStaticCollisionCellSizeZ;
+extern s16 gStaticCollisionCellsX;
+extern s16 gStaticCollisionCellsZ;
 extern s16 gCollisionCellSizeX;
 extern s16 gCollisionCellSizeZ;
 extern s16 gCollisionCellsX;
@@ -1439,10 +1439,10 @@ void mapHeaderLoad(MapFileHeader *header) {
     fogSetParams(header->renderFlags & 1);
     renderSetSegment6Override((header->renderFlags >> 1) & 1);
     gGfxFarClip = header->farClip;
-    D_807FB5E0 = header->staticCellSizeX << 3;
-    D_807FB5E4 = header->staticCellSizeZ << 3;
-    D_807FB5E8 = header->staticCellsX;
-    D_807FB5EA = header->staticCellsZ;
+    gStaticCollisionCellSizeX = header->staticCellSizeX << 3;
+    gStaticCollisionCellSizeZ = header->staticCellSizeZ << 3;
+    gStaticCollisionCellsX = header->staticCellsX;
+    gStaticCollisionCellsZ = header->staticCellsZ;
     gCollisionCellSizeX = header->meshCellSizeX;
     gCollisionCellSizeZ = header->meshCellSizeZ;
     gCollisionCellsX = header->meshCellsX;

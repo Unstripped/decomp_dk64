@@ -28,10 +28,10 @@ extern u8 gHiResScale;
 extern s32 gFramebuffers[];
 extern s32 D_80744474;
 extern u16 *gGfxDepthBuffer;
-extern s32 D_807F0974;
-extern s32 D_807F0978;
-extern s32 D_807F097C;
-extern s32 D_807F0980;
+extern s32 gHeapPool16Index;
+extern s32 gHeapPool32Index;
+extern s32 gHeapPool48Index;
+extern s32 gHeapPool4KIndex;
 extern s32 gHeapUnused5A60;
 
 
@@ -187,10 +187,10 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
         gHeapSurvivorList[0] = NULL;
     }
     heapInitGeneralPool(NULL, addr[0], sizes[0]);
-    D_807F0974 = heapInitBlockPool(&D_807F0974, addr[1], sizes[1], 0x10);
-    D_807F0978 = heapInitBlockPool(&D_807F0978, addr[2], sizes[2], 0x20);
-    D_807F097C = heapInitBlockPool(&D_807F097C, addr[3], sizes[3], 0x30);
-    D_807F0980 = heapInitBlockPool(&D_807F0980, addr[4], sizes[4], 0x1000);
+    gHeapPool16Index = heapInitBlockPool(&gHeapPool16Index, addr[1], sizes[1], 0x10);
+    gHeapPool32Index = heapInitBlockPool(&gHeapPool32Index, addr[2], sizes[2], 0x20);
+    gHeapPool48Index = heapInitBlockPool(&gHeapPool48Index, addr[3], sizes[3], 0x30);
+    gHeapPool4KIndex = heapInitBlockPool(&gHeapPool4KIndex, addr[4], sizes[4], 0x1000);
     if (gHeapSurvivorCount != 0) {
         q = NULL;
         for (i = 0; i < gHeapSurvivorCount; i++) {

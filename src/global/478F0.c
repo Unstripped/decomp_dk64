@@ -1780,7 +1780,7 @@ typedef struct CsFade {
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
 extern s16 gFogNear;
-extern f32 D_807F6940;
+extern f32 gCsFadeLevel;
 
 void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFade *q;
@@ -1853,7 +1853,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
         }
     }
     gFogNear = q->level * -25.0f + 995.0f;
-    D_807F6940 = q->level;
+    gCsFadeLevel = q->level;
     if (q->level != 0.0f) {
         renderCallbacksRegister(renderScrollingBackdropQuad, &q->level, 5);
     }
@@ -2485,9 +2485,9 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if (!(actor->flags & 0x2000) && actor->actorType == 4 && actor->attachMode == 1 && csId == actor->cutsceneId) {
-            if (b != actor->unk10E && actor->unk10E != 0) {
-                modelAnimEntryStart(csId, actor->unk10E, 2);
-                csSendActorMessagePayload(actor->unk10E + 4, 0);
+            if (b != actor->attachPartId && actor->attachPartId != 0) {
+                modelAnimEntryStart(csId, actor->attachPartId, 2);
+                csSendActorMessagePayload(actor->attachPartId + 4, 0);
                 return 1;
             }
         }
@@ -2862,7 +2862,7 @@ s32 csFindPlayerSlotByModel(s32 cutsceneId, s32 b) {
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].active != 0) {
             actor = gPlayerSlots[i].actor;
-            if (actor->attachMode == 1 && actor->cutsceneId == cutsceneId && actor->unk10E == b) {
+            if (actor->attachMode == 1 && actor->cutsceneId == cutsceneId && actor->attachPartId == b) {
                 return i;
             }
         }
@@ -3355,15 +3355,15 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 s32 D_807482B4 = 0x50;
-s32 D_807482B8 = 1;
-s32 D_807482BC = 0x1E;
-s32 D_807482C0 = 0x19;
-s32 D_807482C4 = 0x82;
-s32 D_807482C8 = 5;
-f32 D_807482CC = 0.08f;
-s32 D_807482D0 = 2;
+s32 gCsBeatRampInterval = 1;
+s32 gCsBeatTopSpeedHold = 0x1E;
+s32 gCsBeatCoastSpeed = 0x19;
+s32 gCsBeatInitialPeriod = 0x82;
+s32 gCsBeatPeriodStep = 5;
+f32 gCsBeatStopTolerance = 0.08f;
+s32 gCsBeatRampStep = 2;
 s32 D_807482D4 = 2;
-f32 D_807482D8 = 0.95f;
+f32 gCsBeatAltStopTime = 0.95f;
 
 typedef struct {
     s32 phase;
@@ -3391,7 +3391,7 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
         t->phase = 0;
         t->timer = 0;
         t->parity = 0;
-        t->period = D_807482C4;
+        t->period = gCsBeatInitialPeriod;
         t->lastBeat = 0;
         t->ambientTimer = 0x14;
     }
@@ -3400,12 +3400,12 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     switch (p->phase) {
         case 0:
             if (p->timer == 0) {
-                p->timer = D_807482B8;
-                frame = frame + D_807482D0;
+                p->timer = gCsBeatRampInterval;
+                frame = frame + gCsBeatRampStep;
                 modelAnimEntrySetUnkC(csId, 1, frame);
                 if (frame >= D_807482B4) {
                     p->phase = 1;
-                    p->timer = D_807482BC;
+                    p->timer = gCsBeatTopSpeedHold;
                 }
             } else {
                 p->timer--;
@@ -3418,7 +3418,7 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
             }
             break;
         case 2:
-            if (D_807482C0 < frame) {
+            if (gCsBeatCoastSpeed < frame) {
                 frame = frame - 1;
                 modelAnimEntrySetUnkC(csId, 1, frame);
             } else {
@@ -3426,10 +3426,10 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
                 if (p->parity != 0) {
                     target = 0.5f;
                 } else {
-                    target = D_807482D8;
+                    target = gCsBeatAltStopTime;
                 }
                 d = target < animT ? animT - target : -(animT - target);
-                if (d < D_807482CC) {
+                if (d < gCsBeatStopTolerance) {
                     modelAnimEntrySetUnkC(csId, 1, 0);
                     modelAnimEntrySetTime(csId, 1, anim, target);
                     p->phase = 3;
@@ -3444,7 +3444,7 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
             if (cs->stateBytes[0] == 2) {
                 p->timer = 0;
                 cs->nextStateBytes[0] = 1;
-                p->period = p->period - D_807482C8;
+                p->period = p->period - gCsBeatPeriodStep;
             }
             if (p->timer == 0) {
                 p->phase = 0;
@@ -3931,7 +3931,7 @@ typedef struct CsBobPulseState {
 } CsBobPulseState;
 
 extern s8 gCsHintFinished;
-extern s8 D_807F6951;
+extern s8 gCsHintIndex;
 
 void csEffectBobAndPulseUpdate(EffectNode *e, u8 *flag) {
     CsBobPulseState *s;
@@ -4001,7 +4001,7 @@ void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     camStartPath(gSpawnedActor, 0x22, 5);
     sfxAllocateChannel(0xAB, 1.0f);
     sfxPlayOnFreeSlot(0x2EA, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    D_807F6951 = b;
+    gCsHintIndex = b;
     gCsHintFinished = 0;
 }
 

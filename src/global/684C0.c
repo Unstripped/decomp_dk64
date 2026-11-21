@@ -31,7 +31,7 @@ typedef struct TriggerZoneNode {
     struct TriggerZoneNode *next;
 } TriggerZoneNode;
 
-extern TriggerZoneNode *D_807F9410;
+extern TriggerZoneNode *gTriggerZoneList;
 extern Actor *gSpawnedActor;
 
 void triggerZoneInit(MapFileHeader *header) {
@@ -41,7 +41,7 @@ void triggerZoneInit(MapFileHeader *header) {
     TriggerZoneData *zones;
     TriggerZoneNode *newNode;
 
-    link = &D_807F9410;
+    link = &gTriggerZoneList;
     zoneCount = *(s32 *)(header->triggerZonesOff + (u8 *)header);
     zones = (TriggerZoneData *)((s32 *)(header->triggerZonesOff + (u8 *)header) + 1);
     *link = NULL;
@@ -60,7 +60,7 @@ void triggerZoneCheckEntry(Actor *actor) {
     TriggerZoneSubNode **subLink;
     TriggerZoneSubNode *subNode;
     TriggerZoneSubNode *newNode;
-    for (node = D_807F9410; node != NULL; node = node->next) {
+    for (node = gTriggerZoneList; node != NULL; node = node->next) {
         if ((f32)node->zone->xMin <= actor->x &&
             (f32)node->zone->yMin <= actor->y &&
             (f32)node->zone->zMin <= actor->z &&
@@ -119,7 +119,7 @@ void triggerZoneUpdate(void) {
     TriggerZoneSubNode *toFree;
     Actor *actor;
     TriggerZoneData *zone;
-    for (node = D_807F9410; node != NULL; node = node->next) {
+    for (node = gTriggerZoneList; node != NULL; node = node->next) {
         for (subListPtr = &node->subList, subNode = *subListPtr; subNode != NULL; ) {
             zone = node->zone;
             actor = subNode->actor;
@@ -149,7 +149,7 @@ void triggerZoneRemoveSpawned(Actor *spawnedActor) {
     TriggerZoneSubNode *subNode;
     Actor *spawned;
 
-    for (node = D_807F9410; node != NULL; node = node->next) {
+    for (node = gTriggerZoneList; node != NULL; node = node->next) {
         for (subListPtr = &node->subList, subNode = *subListPtr; subNode != NULL; ) {
             spawned = subNode->spawnedActor;
             if (spawnedActor == spawned) {

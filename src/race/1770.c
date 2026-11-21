@@ -314,8 +314,8 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
     if (pathState->lane != pathState->targetLane) {
         raceInterpolateWaypointPos(pathState, tgt, pos, next, next2);
-    } else if (pathState->unk4 != 0) {
-        pathState->unk4--;
+    } else if (pathState->laneSettleTimer != 0) {
+        pathState->laneSettleTimer--;
     }
     raceApplyPositionOffset(tgt, pos);
     yawDelta = mathAngleSignedDistance(gCurrentActor->moveYaw, (s16)oldAng);

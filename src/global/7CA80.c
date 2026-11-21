@@ -677,8 +677,8 @@ u16 type;
         actor->floorTriangle = NULL;
         actor->chunkIndex = -1;
         actor->spawnData = NULL;
-        actor->unk148[0] = NULL;
-        actor->unk148[1] = NULL;
+        actor->segmentBuffers[0] = NULL;
+        actor->segmentBuffers[1] = NULL;
         actor->unkD4 = &D_80748D4A;
         actor->segmentFlags = -1;
         actor->collisionFlags = gActorTypeCollisionFlags[type];
@@ -826,11 +826,11 @@ void actorFreeImmediate(Actor *actor) {
     if (actor->pathFollow != NULL) {
         heapFree(actor->pathFollow);
     }
-    if (actor->unk148[0] != NULL) {
-        heapFree(actor->unk148[0]);
+    if (actor->segmentBuffers[0] != NULL) {
+        heapFree(actor->segmentBuffers[0]);
     }
-    if (actor->unk148[1] != NULL) {
-        heapFree(actor->unk148[1]);
+    if (actor->segmentBuffers[1] != NULL) {
+        heapFree(actor->segmentBuffers[1]);
     }
     renderEntryPurgeObject(actor);
     if (actor->actorType != 0x12B) {
@@ -1282,7 +1282,7 @@ void actorDispatchCallbacks(Actor *actor) {
             case 0x2:
                 switch (node->subtype) {
                 case 0:
-                    gActorGlobalState.unk16 = 1;
+                    gActorGlobalState.stompBounceReceived = 1;
                     if (actor == gActivePlayerActor) {
                         playerStateQueueCallback(0x10, NULL, gCurrentPlayerIndex);
                     }
@@ -1380,8 +1380,8 @@ void actorDispatchCallbacks(Actor *actor) {
                 gActorGlobalState.destPointSource = node->source;
                 break;
             case 0x1000:
-                gActorGlobalState.unk1C = 1;
-                gActorGlobalState.unk20 = node->source;
+                gActorGlobalState.grabCandidateReceived = 1;
+                gActorGlobalState.grabCandidate = node->source;
                 break;
             case 0x4000:
                 launchPayload = node->payload;
@@ -1831,13 +1831,13 @@ void actorAppendEvent(Actor *source, Actor *target, u8 subtype, s16 value0, s16 
 void actorGlobalStateClearEvents(void) {
     gActorGlobalState.forcedContactReceived = 0;
     gActorGlobalState.damaged = 0;
-    gActorGlobalState.unk16 = 0;
+    gActorGlobalState.stompBounceReceived = 0;
     gActorGlobalState.unk17 = 0;
     gActorGlobalState.unk18 = 0;
     gActorGlobalState.unk19 = 0;
     gActorGlobalState.unk1B = 0;
     gActorGlobalState.playerLaunchReceived = 0;
-    gActorGlobalState.unk1C = 0;
+    gActorGlobalState.grabCandidateReceived = 0;
     gActorGlobalState.pickupReceived = 0;
     gActorGlobalState.releaseReceived = 0;
     gActorGlobalState.launchReceived = 0;

@@ -17,9 +17,9 @@ u8 gContReadPending;
 u8 gControllerConnectedMask;
 OSContPad gControllerPads[4];
 OSContPad D_807ECD28[4];
-u16 D_807ECD40[4];
+u16 gPadHeldButtons[4];
 u16 gPadPressedButtons[4];
-u16 D_807ECD50[4];
+u16 gPadRepeatButtons[4];
 OSContPad gContPadCur;
 u8 D_807ECD5E[2];
 OSContPad gContPadPrev;
@@ -78,8 +78,8 @@ void controllerSetActiveMask(u8 mask) {
     gControllerActiveMask = gControllerConnectedMask & mask;
     for (i = 0; i < 4; i++) {
         gPadPressedButtons[i] = 0;
-        D_807ECD40[i] = 0;
-        D_807ECD50[i] = 0;
+        gPadHeldButtons[i] = 0;
+        gPadRepeatButtons[i] = 0;
         gControllerActivePorts[i] = 0;
         for (j = 0; j < 16; j++) {
             gPadRepeatTimers[i][j] = 0;
@@ -124,9 +124,9 @@ void controllerGetReadData(OSContPad *pad) {
 extern u8 gDemoPlaybackState;
 extern u8 gScreenRenderFlags;
 
-#define CtrlAHeld D_807ECD40
+#define CtrlAHeld gPadHeldButtons
 #define CtrlAPressed gPadPressedButtons
-#define CtrlARepeat D_807ECD50
+#define CtrlARepeat gPadRepeatButtons
 
 void controllerUpdate(void) {
     OSContPad *pad;

@@ -309,9 +309,9 @@ s32 effectCheckTargetActive(WaterSurfaceDef *subNode) {
 extern f32 *gChunkLightR;
 extern f32 *gChunkLightG;
 extern f32 *gChunkLightB;
-extern f32 D_807F7EEC;
-extern f32 D_807F7EF0;
-extern f32 D_807F7EF4;
+extern f32 gLightBaseR;
+extern f32 gLightBaseG;
+extern f32 gLightBaseB;
 
 void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
     WaterSurface *node;
@@ -332,9 +332,9 @@ void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
                 lights = lightCollectVolumesInBounds(camX, camY, camZ, target->minX,
                                        (s32)(((f32)target->surfaceY + node->level) - (target->waveAmpZ + target->waveAmpX)), target->minZ, target->maxX,
                                        (s32)(((f32)target->surfaceY + node->level) + (target->waveAmpZ + target->waveAmpX)), target->maxZ, chunkIdx, &lightCount);
-                D_807F7EEC = gChunkLightR[chunkIdx];
-                D_807F7EF0 = gChunkLightG[chunkIdx];
-                D_807F7EF4 = gChunkLightB[chunkIdx];
+                gLightBaseR = gChunkLightR[chunkIdx];
+                gLightBaseG = gChunkLightG[chunkIdx];
+                gLightBaseB = gChunkLightB[chunkIdx];
                 if (gGlobalPauseFlags & 0x10) {
                     vtxBuffer = node->meshVtx[gGfxBufferIndex];
                     lightApplyToVertices((s32)vtxBuffer, (s32)(vtxBuffer + node->vtxCount), 1, gLightCandidates, lights, gMapChunks[chunkIdx].lightMode == 1);
@@ -377,7 +377,7 @@ Gfx *effectWaterSetScissor(Gfx *gdl, WaterSurface *water) {
     return gdl;
 }
 
-extern s32 D_807F93EC;
+extern s32 gWaterMeshTriCount;
 
 void effectWaterBuildMeshGdl(Gfx *meshGdl, Vtx *meshVtx, WaterSurface *water) {
     s32 vtxStart;
@@ -392,7 +392,7 @@ void effectWaterBuildMeshGdl(Gfx *meshGdl, Vtx *meshVtx, WaterSurface *water) {
     u8 done;
     s32 total;
 
-    D_807F93EC = 0;
+    gWaterMeshTriCount = 0;
     gdl = gWaterTypeTable[water->sub->type].buildGdl(meshGdl, water, water->sub->type);
     countX = ((water->sub->maxX - water->sub->minX) / water->gridStep) + 1;
     countZ = ((water->sub->maxZ - water->sub->minZ) / water->gridStep) + 1;
@@ -408,7 +408,7 @@ void effectWaterBuildMeshGdl(Gfx *meshGdl, Vtx *meshVtx, WaterSurface *water) {
         k = 0;
         for (i = 0; i < segLen - 1; i++) {
             gSP2Triangles(gdl++, k + 1, k, k + 16, 0, k + 16, k + 17, k + 1, 0);
-            D_807F93EC += 2;
+            gWaterMeshTriCount += 2;
             k++;
         }
         x += segLen - 1;

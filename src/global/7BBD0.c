@@ -48,7 +48,7 @@
 // 7BBD0: 7AF60 and 7BA00 sit between 7A510 and 7CA80 too, and none of these lists' pointers reaches a
 // 7BBD0 function.
 
-// Collision interaction lists and pattern tables reached through D_8074C604 (the unlabelled ones are
+// Collision interaction lists and pattern tables reached through gActorTypeCollisionTables (the unlabelled ones are
 // reached only through other unreferenced tables).
 CollisionInteractionEntry D_8074AC10[1] = { { -1, -1, NULL, 9, 5, 0 } };
 CollisionInteractionEntry D_8074AC1C[1] = { { -1, -1, NULL, 1, 0, 0 } };
@@ -915,7 +915,7 @@ void (*gActorUpdateFuncs[345])(void) = {
     hudTwoOptionMenuUpdate,
     actorStub7CA80_01,
 };
-CollisionTableSlot D_8074C604[344] = {
+CollisionTableSlot gActorTypeCollisionTables[344] = {
     { NULL, 0 }, { NULL, 0 }, { D_8074ACF4, 0 }, { D_8074ACF4, 0 },
     { D_8074ACF4, 0 }, { D_8074ACF4, 0 }, { D_8074ACF4, 0 }, { D_8074ACF4, 0 },
     { D_8074ACF4, 0 }, { D_8074ACF4, 0 }, { NULL, 0 }, { NULL, 0 },
@@ -1003,7 +1003,7 @@ CollisionTableSlot D_8074C604[344] = {
     { NULL, 0 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
     { D_8074BBEC, 1 }, { NULL, 0 }, { NULL, 0 }, { NULL, 0 },
 };
-ActorTypeStat D_8074D0C4[344] = {
+ActorTypeStat gActorTypeStats[344] = {
     { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
     { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
     { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
@@ -1188,7 +1188,7 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
 typedef f32 CollisionMtxF[4][4];
 
 extern s32 gCollisionPlanePointX;
-extern s32 D_807FB5C8;
+extern s32 gCollisionPlanePointY;
 extern s32 gCollisionPlanePointZ;
 extern s32 gCollisionPlaneDist;
 extern CollisionBox *gCollisionHitBox;
@@ -1236,7 +1236,7 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
         posZ = self->z;
     } else {
         posX = (f32)gCollisionPlanePointX / 8;
-        posY = (f32)D_807FB5C8 / 8;
+        posY = (f32)gCollisionPlanePointY / 8;
         posZ = (f32)gCollisionPlanePointZ / 8;
     }
     if (!(self->flags & 0x800)) {
@@ -1313,8 +1313,8 @@ extern u8 D_807FB603;
 extern u8 gCollisionHit;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern s16 D_80753D50[];
-extern s16 D_80753D60[];
+extern s16 gKongNormalWallContactOffsets[];
+extern s16 gKongWallContactOffsets[];
 extern s16 gCurrentCharacterIndex;
 
 void func_80672E90(s32, s32, s32);
@@ -1390,7 +1390,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             normal[1] = cross[1] / norm;
             normal[2] = cross[2] / norm;
             if (other->collisionFlags & 1) {
-                scale = (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1 ? (f32)D_80753D50[gCurrentCharacterIndex] : (f32)D_80753D60[gCurrentCharacterIndex]) / 8;
+                scale = (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1 ? (f32)gKongNormalWallContactOffsets[gCurrentCharacterIndex] : (f32)gKongWallContactOffsets[gCurrentCharacterIndex]) / 8;
                 playerState = other->customState;
                 scaledNormal[0] = normal[0] * scale;
                 scaledNormal[1] = normal[1] * scale;

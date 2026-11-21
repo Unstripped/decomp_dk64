@@ -984,7 +984,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
             p = &CS_COND_PLAYER[i];
             if (p->active != 0) {
                 a = p->actor;
-                if (a->attachMode == 1 && csId == a->cutsceneId && cond->arg[0] == a->unk10E) {
+                if (a->attachMode == 1 && csId == a->cutsceneId && cond->arg[0] == a->attachPartId) {
                     ret = 1;
                 }
             }
@@ -1009,7 +1009,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         for (h = 0; h < gActiveActorCount && !found; h++) {
             b = gActiveActors[h].actor;
             if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && b->attachMode == 1 && csId == b->cutsceneId &&
-                cond->arg[1] == b->unk10E) {
+                cond->arg[1] == b->attachPartId) {
                 found = 1;
             }
         }
@@ -1023,7 +1023,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         count = 0;
         for (h = 0; h < gActiveActorCount; h++) {
             b = gActiveActors[h].actor;
-            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && csId == b->cutsceneId && cond->arg[1] == b->unk10E) {
+            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && csId == b->cutsceneId && cond->arg[1] == b->attachPartId) {
                 count++;
             }
         }
@@ -1039,7 +1039,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
             p = &CS_COND_PLAYER[i];
             if (p->active != 0) {
                 a = p->actor;
-                if (a->attachMode == 3 && cond->arg[0] == a->unk12F && csId == a->cutsceneId) {
+                if (a->attachMode == 3 && cond->arg[0] == a->attachNodeIndex && csId == a->cutsceneId) {
                     ret = 1;
                 }
             }

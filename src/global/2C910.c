@@ -41,7 +41,7 @@ typedef struct {
     u8 b;
 } Rgb8;
 
-const Rgb8 D_80757F70[8] = {
+const Rgb8 gSubtitleTintPalette[8] = {
     { 0xFF, 0xFF, 0xFF },
     { 0xC8, 0x00, 0x32 },
     { 0xDC, 0xC8, 0x00 },
@@ -128,9 +128,9 @@ Rgb8 sScriptParticleColors[8] = {
 };
 
 void actorSetTintFromPalette(u8 paletteIdx) {
-    gSpawnedActor->tintR = D_80757F70[paletteIdx].r;
-    gSpawnedActor->tintG = D_80757F70[paletteIdx].g;
-    gSpawnedActor->tintB = D_80757F70[paletteIdx].b;
+    gSpawnedActor->tintR = gSubtitleTintPalette[paletteIdx].r;
+    gSpawnedActor->tintG = gSubtitleTintPalette[paletteIdx].g;
+    gSpawnedActor->tintB = gSubtitleTintPalette[paletteIdx].b;
 }
 
 void textSpawnMarkerChecked(); // ORIG: target passes holdTime as a default-promoted int: duration loaded once (lhu t2,222(sp) at 0x118), spilled to 56(sp) and reloaded with lw at 0x1d8/0x210/0x250 for the three calls; under the owner's u16 prototype each call reloads lhu 222(sp) instead and the frame shrinks 0xd8 -> 0xd0: the original TU had no prototype for textSpawnMarkerChecked in scope
@@ -194,8 +194,8 @@ extern s16 gPreviousMap;
 extern ALBank *gSfxBank;
 extern ALBank *gSfxBankHigh;
 
-extern struct GfSndState *D_807F5D70[];
-extern s16 D_807F5D7C;
+extern struct GfSndState *gCamPathSfxHandles[];
+extern s16 gCamPathSfxSlot;
 extern Actor *gActivePlayerActor;
 extern s32 gGlobalCutsceneFlags;
 extern PlayerStruct *gPlayerSlots;
@@ -471,19 +471,19 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                 } else {
                     actor = gPrimaryPlayerActor;
                 }
-                D_807F5D7C = sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, b, c != 0 ? c : 127.5, d != 0 ? d : 0x7F, 0, 0, 0.0f, 0);
+                gCamPathSfxSlot = sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, b, c != 0 ? c : 127.5, d != 0 ? d : 0x7F, 0, 0, 0.0f, 0);
             } else if (b < 0x800) {
-                n_alSndpPlay(gSfxBank, b, c != 0 ? c / 255.0 * 32767.0 : 16383.5, 0x3F, d != 0 ? d / 127.0 : 1.0, 0, &D_807F5D70[-1 - a]);
+                n_alSndpPlay(gSfxBank, b, c != 0 ? c / 255.0 * 32767.0 : 16383.5, 0x3F, d != 0 ? d / 127.0 : 1.0, 0, &gCamPathSfxHandles[-1 - a]);
             } else {
-                n_alSndpPlay(gSfxBankHigh, b - 0x7FF, c != 0 ? c / 255.0 * 32767.0 : 16383.5, 0x3F, d != 0 ? d / 127.0 : 1.0, 0, &D_807F5D70[-1 - a]);
+                n_alSndpPlay(gSfxBankHigh, b - 0x7FF, c != 0 ? c / 255.0 * 32767.0 : 16383.5, 0x3F, d != 0 ? d / 127.0 : 1.0, 0, &gCamPathSfxHandles[-1 - a]);
             }
             return;
         case 0x19:
             slot = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;
-            n_alSndpStop(D_807F5D70[slot]);
+            n_alSndpStop(gCamPathSfxHandles[slot]);
             return;
         case 0x1A:
-            n_alSndpStop(gSfxFreeSlotHandles[D_807F5D7C]);
+            n_alSndpStop(gSfxFreeSlotHandles[gCamPathSfxSlot]);
             return;
         case 0x38:
             if (a != 0) {

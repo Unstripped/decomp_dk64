@@ -48,11 +48,11 @@ typedef struct CollisionTri {
 
 extern BufferCacheEntry *sStaticCollisionCells;
 extern s32 sStaticCollisionCellCount;
-extern Actor *D_807FB540;
+extern Actor *sWallProbeActor;
 extern s16 sWallProbeYaw;
-extern u8 D_807FB546;
+extern u8 sWallProbeOk;
 extern u8 sStaticCollisionResident;
-extern u8 D_807FB604;
+extern u8 sWallProbeActive;
 
 
 
@@ -72,7 +72,7 @@ typedef struct CollisionAssetTri {
     /* 0x0E */ s16 y2;
     /* 0x10 */ s16 z2;
     /* 0x12 */ u8 flags;
-    /* 0x13 */ u8 unk13;
+    /* 0x13 */ u8 partId;
     /* 0x14 */ s8 bone;
 } CollisionAssetTri;
 
@@ -292,7 +292,7 @@ typedef struct CollisionStaticTriIn {
     /* 0x10 */ s16 z2;
     /* 0x12 */ s16 normalYaw;
     /* 0x14 */ u8 normalYawFlipped;
-    /* 0x15 */ u8 unk15;
+    /* 0x15 */ u8 boundaryCondition;
     /* 0x16 */ u8 flags;
 } CollisionStaticTriIn;
 
@@ -412,7 +412,7 @@ s32 collisionTransformTriangle(CollisionAssetTri *tri, CollisionBox *out, f32 (*
         out->pushable = 0;
     }
     if (tri->flags & 2) {
-        out->partId = tri->unk13;
+        out->partId = tri->partId;
     } else {
         out->partId = 0;
     }
@@ -639,7 +639,7 @@ s32 collisionBuildStaticTri(void *inData, void *outData) {
     } else {
         work.damageSurface = 0;
     }
-    work.boundaryCondition = in->unk15;
+    work.boundaryCondition = in->boundaryCondition;
     work.slopeClass = 1;
     collisionBuildPlane(&work);
 
@@ -1326,15 +1326,15 @@ u8 actorSetTargetAngleAndCheck(Actor *actor, s16 angle) {
     u8 actorHit;
 
     sWallProbeYaw = angle;
-    D_807FB540 = actor;
-    D_807FB546 = 1;
-    D_807FB604 = 1;
+    sWallProbeActor = actor;
+    sWallProbeOk = 1;
+    sWallProbeActive = 1;
     actorCheckTargetAngle(actor, &arcMin, &arcMax, &actorHit);
-    return D_807FB546;
+    return sWallProbeOk;
 }
 
 u8 actorClearTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *hit) {
-    D_807FB604 = 0;
+    sWallProbeActive = 0;
     return actorCheckTargetAngle(actor, arcMin, arcMax, hit);
 }
 
@@ -1412,7 +1412,7 @@ extern u8 gCollisionDeferredPush;
 extern u8 gCollisionDeferredHit;
 extern u8 gCollisionResolvePass;
 extern u8 sCollisionHitPart;
-extern u8 D_807FB61C;
+extern u8 gCollisionNearestFound;
 
 u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
     u8 result;
@@ -1474,7 +1474,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                         if (gModelSlots[i].csState != NULL && gModelSlots[i].csState->contactCallbacks == 0) {
                             sDamageSurfaceContact = savedFlags;
                         }
-                        if (ret && gCollisionDeferredPush == 0 && D_807FB61C != 0) {
+                        if (ret && gCollisionDeferredPush == 0 && gCollisionNearestFound != 0) {
                             actorUpdateSubActorOffsets(actor, 0);
                         }
                     }
@@ -1487,7 +1487,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
 
 
 extern s32 gCollisionPlanePointX;
-extern s32 D_807FB5C8;
+extern s32 gCollisionPlanePointY;
 extern s32 gCollisionPlanePointZ;
 extern s32 gCollisionPlaneDist;
 extern CollisionBox *gCollisionHitBox;
@@ -1528,7 +1528,7 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
             pz = actor->z;
         } else {
             px = (f32)gCollisionPlanePointX / 8;
-            py = (f32)D_807FB5C8 / 8;
+            py = (f32)gCollisionPlanePointY / 8;
             pz = (f32)gCollisionPlanePointZ / 8;
         }
         if (!(actor->flags & 0x800)) {
@@ -1723,7 +1723,7 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
                 guMtxCatF(mtx, tmp, mtx);
                 matrix4Invert(inv, mtx);
                 px = (f32)gCollisionPlanePointX / 8;
-                py = (f32)D_807FB5C8 / 8;
+                py = (f32)gCollisionPlanePointY / 8;
                 pz = (f32)gCollisionPlanePointZ / 8;
                 guMtxXFMF(inv, px, py, pz, &localX, &localY, &localZ);
                 guScaleF(mtx, scale, scale, scale);
@@ -1915,8 +1915,8 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
     return ret;
 }
 
-extern s16 D_80753D50[];
-extern s16 D_80753D60[];
+extern s16 gKongNormalWallContactOffsets[];
+extern s16 gKongWallContactOffsets[];
 extern u8 gCurrentPlayerIndex;
 extern s16 gCurrentCharacterIndex;
 
@@ -1941,9 +1941,9 @@ void actorCalcPlaneContactPoint(Actor *actor, s16 slot, ActorSub140 *hit) {
 
     player = actor->customState;
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        radius = D_80753D50[gCurrentCharacterIndex];
+        radius = gKongNormalWallContactOffsets[gCurrentCharacterIndex];
     } else {
-        radius = D_80753D60[gCurrentCharacterIndex];
+        radius = gKongWallContactOffsets[gCurrentCharacterIndex];
     }
 
     modelSlotBuildTransformMatrix(slot, hit->hitMtxIndex, mtx);
@@ -1981,9 +1981,9 @@ void actorCalcPlaneContactPoint(Actor *actor, s16 slot, ActorSub140 *hit) {
 }
 
 extern s16 sHitBoxYawMin;
-extern s16 D_807FB5EE;
-extern s16 D_807FB5F0;
-extern s16 D_807FB5F2;
+extern s16 sHitBoxYawMax;
+extern s16 sHitBoxBackYawMin;
+extern s16 sHitBoxBackYawMax;
 
 void actorSetTargetAngleBounds(CollisionBox *box) {
     s16 yaw;
@@ -1993,17 +1993,17 @@ void actorSetTargetAngleBounds(CollisionBox *box) {
     if (sHitBoxYawMin < 0) {
         sHitBoxYawMin += 0xFFF;
     }
-    D_807FB5EE = yaw + 0x32;
+    sHitBoxYawMax = yaw + 0x32;
     if (sHitBoxYawMin >= 0x1000) {
-        D_807FB5EE -= 0xFFF;
+        sHitBoxYawMax -= 0xFFF;
     }
-    D_807FB5F0 = sHitBoxYawMin + 0x800;
-    if (D_807FB5F0 >= 0x1000) {
-        D_807FB5F0 -= 0xFFF;
+    sHitBoxBackYawMin = sHitBoxYawMin + 0x800;
+    if (sHitBoxBackYawMin >= 0x1000) {
+        sHitBoxBackYawMin -= 0xFFF;
     }
-    D_807FB5F2 = D_807FB5EE + 0x800;
-    if (D_807FB5F2 >= 0x1000) {
-        D_807FB5F2 -= 0xFFF;
+    sHitBoxBackYawMax = sHitBoxYawMax + 0x800;
+    if (sHitBoxBackYawMax >= 0x1000) {
+        sHitBoxBackYawMax -= 0xFFF;
     }
 }
 
@@ -2031,7 +2031,7 @@ s32 actorCheckTargetAngleBounds(Actor *actor, s16 *arcMin, s16 *arcMax) {
             }
             node = node->next;
         }
-        if ((ret != 0 || sBoundaryTwoSided != 0) && D_807FB61C != 0) {
+        if ((ret != 0 || sBoundaryTwoSided != 0) && gCollisionNearestFound != 0) {
             actorUpdateCollisionExtents(actor);
         }
         sBoundaryTwoSided = 0;
@@ -2040,8 +2040,8 @@ s32 actorCheckTargetAngleBounds(Actor *actor, s16 *arcMin, s16 *arcMax) {
 }
 
 extern PlayerState *gActivePlayerState;
-extern s32 D_807FB5DC;
-extern s16 D_807FB5F6;
+extern s32 gCollisionNearestTri;
+extern s16 gCollisionNearestTriIndex;
 
 CollisionBox *collisionBuildHitBox(s32, s16); // asm (77B90): returns the hit box left in s0
 
@@ -2060,16 +2060,16 @@ void actorUpdateFacingAndOffset(CollisionBox *box, s32 unused1, s32 unused2, s32
     if ((facingDist < 0x321) || (backDist < 0x321)) {
         mathAngleDistance(box->normalYaw, gActivePlayerState->wallNormalYaw);
         mathAngleDistance((box->normalYaw + 0x800) & 0xFFF, gActivePlayerState->wallNormalYaw);
-        sub = D_807FB540->collision;
+        sub = sWallProbeActor->collision;
         func_806744A8(box, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
         prevThreshold = gCollisionPlaneDist;
         offsetX = (s32)(mathSinF(sWallProbeYaw) * 20.0f);
         cosYaw = mathCosF(sWallProbeYaw);
-        sub = D_807FB540->collision;
+        sub = sWallProbeActor->collision;
         func_806744A8(box, sub->scaledX + offsetX, sub->scaledY, sub->scaledZ + (s32)(cosYaw * 20.0f), sub->scaledRadius);
         threshold = gCollisionPlaneDist;
         if (prevThreshold - 2 < threshold) {
-            D_807FB546 = 0;
+            sWallProbeOk = 0;
         }
     }
 }
@@ -2083,9 +2083,9 @@ void actorUpdateCollisionExtents(Actor *actor) {
     f32 nx;
 
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        radius = D_80753D50[gCurrentCharacterIndex];
+        radius = gKongNormalWallContactOffsets[gCurrentCharacterIndex];
     } else {
-        radius = D_80753D60[gCurrentCharacterIndex];
+        radius = gKongWallContactOffsets[gCurrentCharacterIndex];
     }
     if (actor->collisionFlags & 1) {
         f32 scale;
@@ -2103,7 +2103,7 @@ void actorUpdateCollisionExtents(Actor *actor) {
         player->wallContactX = hitX - nx;
         player->wallContactZ = hitZ - nz;
         player->stateStep = 1;
-        actorReflectCollisionAngle(actor, collisionBuildHitBox(D_807FB5DC, D_807FB5F6), actor->collision);
+        actorReflectCollisionAngle(actor, collisionBuildHitBox(gCollisionNearestTri, gCollisionNearestTriIndex), actor->collision);
     }
     actorUpdateSubActorOffsets(actor, 1);
 }
@@ -2136,7 +2136,7 @@ void actorUpdateSubActorOffsets(Actor *actor, u8 useHitBox) {
     }
 }
 
-extern CollisionBox *D_807FB5D4;
+extern CollisionBox *gCollisionNearestBox;
 
 void actorComputeBoxNormal(Actor *actor, f32 *outX, f32 *outY, f32 *outZ, u8 useHitBox) {
     CollisionBox *box;
@@ -2153,9 +2153,9 @@ void actorComputeBoxNormal(Actor *actor, f32 *outX, f32 *outY, f32 *outZ, u8 use
 
     sub = actor->collision;
     if (useHitBox) {
-        box = collisionBuildHitBox(D_807FB5DC, D_807FB5F6);
+        box = collisionBuildHitBox(gCollisionNearestTri, gCollisionNearestTriIndex);
     } else {
-        box = D_807FB5D4;
+        box = gCollisionNearestBox;
     }
     x[0] = (f32)box->x0 / 8;
     y[0] = (f32)box->y0 / 8;
@@ -2720,17 +2720,17 @@ void actorClearMovementFlags(Actor *actor) {
     actor->renderFlags |= 0x2000;
 }
 
-extern s16 D_807FB5F8;
-extern s16 D_807FB5FA;
+extern s16 sCollisionTriMinYMargin;
+extern s16 sCollisionTriMaxYMargin;
 
 void actorSetCameraBoundaryMode(s32 mode) {
     sColliderActorType = mode;
     if (mode != 0 && mode != 0xBC) {
-        D_807FB5F8 = 2;
-        D_807FB5FA = 10;
+        sCollisionTriMinYMargin = 2;
+        sCollisionTriMaxYMargin = 10;
     } else {
-        D_807FB5F8 = 100;
-        D_807FB5FA = 100;
+        sCollisionTriMinYMargin = 100;
+        sCollisionTriMaxYMargin = 100;
     }
 }
 

@@ -701,9 +701,9 @@ void actorPlayerWarpEffectUpdate(void) {
         sfxAllocateChannel(0x3B, 1.0f);
     } else {
         actorGetNodePos(gCurrentActor, 1, &x, &y, &z);
-        player->unk210 = x;
-        player->unk214 = y;
-        player->unk218 = z;
+        player->warpEffectX = x;
+        player->warpEffectY = y;
+        player->warpEffectZ = z;
         if (gCurrentActor->subState < 4) {
             for (j = 2; j < 3; j++) {
                 for (i = 0; i < 2; i++) {
@@ -1563,7 +1563,7 @@ void actorPlaySoundAndFinish(void) {
 }
 
 
-extern s8 D_807F6951;
+extern s8 gCsHintIndex;
 extern s8 gCsHintFinished;
 
 void actorHintTextUpdate(void) {
@@ -1583,7 +1583,7 @@ void actorHintTextUpdate(void) {
         if (flagGet(0x178, 0) == 0) {
             flagSet(0x178, 1, 0);
         } else {
-            textIndex = frameTimingGetMapIndex() * 5 + D_807F6951 + 1;
+            textIndex = frameTimingGetMapIndex() * 5 + gCsHintIndex + 1;
         }
         resQueueAttachActor(gCurrentActor, 0x29, textIndex);
     }

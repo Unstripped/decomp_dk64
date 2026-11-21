@@ -523,7 +523,7 @@ typedef struct SpawnControllerActor {
 } SpawnControllerActor;
 
 extern f32 gDefaultActorGravity;
-extern s16 D_807502E0;
+extern s16 gDefaultActorTerminalSpeedY;
 extern s32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
 extern s32 gCurrentMap;
@@ -563,7 +563,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     actorSetPositionFromPoint(act, node);
     act->floorSlopePitch = 0x400;
     act->accelY = gDefaultActorGravity;
-    act->terminalSpeedY = D_807502E0;
+    act->terminalSpeedY = gDefaultActorTerminalSpeedY;
     act->chunkIndex = node->chunkIndex;
     if (gSpawnEntryTable[idx].spawnRange == 0) {
         act->drawDistance = 0x7D0;

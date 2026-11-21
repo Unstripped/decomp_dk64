@@ -279,7 +279,7 @@ void menuSetupDemoPlayback(void) {
 
 extern u8 gEepromLoaded;
 extern u8 gCurrentWorldId;
-extern Mtx D_807FDAC0;
+extern Mtx gMenuHalfScaleMtx;
 
 void menuCheckMapTransitionOnLoad(void) {
     u8 blocked;
@@ -294,7 +294,7 @@ void menuCheckMapTransitionOnLoad(void) {
         && menuGetTimerFlag() == 0 && blocked == 0) {
         menuTimerInit();
     }
-    guScale(&D_807FDAC0, 0.5f, 0.5f, 1.0f);
+    guScale(&gMenuHalfScaleMtx, 0.5f, 0.5f, 1.0f);
     switch (gMenuCurrentMode) {
     case 0:
         gMenuStateTimer = 0x708;
@@ -470,7 +470,7 @@ Gfx *menuDrawDemoHeaderText(Gfx *dl) {
 
     text = textTableGetString(0xC, 0, 1);
     gDPSetCombineMode(dl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-    gSPMatrix(dl++, &D_807FDAC0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(dl++, &gMenuHalfScaleMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     return textDrawStringVtx(dl, 1, 0x118, y * 2.0f * 4.0f, text, 4);
 }
 
