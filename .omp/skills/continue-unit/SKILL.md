@@ -64,6 +64,13 @@ own report is enough between full runs):
 Refill a slot the moment its worker reports and its merge lands. No rounds: nothing waits for the
 slowest worker. Names yield falls once every file has had a reader: the leftovers are held items
 (no evidence), macro uses (hand edits, inspected) and rulings; stop names slots there.
+- hack: an EXHAUSTED function returns only with a new lever: rungs staled by knowledge or renames
+  (`quality.py status` OPEN after a unit's windows: one worker per file, 5 of 12 removed FAKE in
+  unit 1), or a lever-transfer list (a scout matching new Q-entries to exhausted sites, the Q-ID in
+  the brief). A new lever that is a pure respelling goes into `tools/variants.py` as a recipe and is
+  swept, not dispatched. `// LAYOUT:` lines are not sites (rulings): never dispatched.
+- polish: uninit reads are almost all original control flow (36880: 34/34 kept, 36 plain-C fixes
+  all fdiff 1); no slots for them without a function-specific reason.
 
 ## 4. Merge and record
 
