@@ -1310,3 +1310,4 @@
 {"type": "unit", "t": "2026-11-21T00:24:40Z", "unit": "2026-11-20: cleanup Lead20261120 names", "commit": "b6244aeb5cda4ddd8c4e5f97051d1a77e339a0e0"}
 {"type": "unit", "t": "2026-11-21T00:25:19Z", "unit": "2026-11-20: cleanup CleanhudPauseMenuUpdateb", "commit": "3f5f7564fe168dd48b4d882711ae4003321c8ab2"}
 {"type": "unit", "t": "2026-11-21T00:34:28Z", "unit": "2026-11-20: cleanup CleanplayerUpdateCommonc", "commit": "fa43bfac65321eec2cd82994553e7d5fc56225d0"}
+{"type": "unit", "t": "2026-11-21T00:35:29Z", "unit": "2026-11-20: cleanup PolishglobalD1Reread", "commit": "390d50c3518222e821e9ee48e2833f68aa1b3b7b"}
