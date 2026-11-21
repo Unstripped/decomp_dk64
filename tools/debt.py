@@ -13,8 +13,9 @@ both inputs in .scratch/autoresearch/ (quality.json, progress.json), so pass tho
 --progress adds unmatched functions / asm data (segment-level, from `tools/progress.py --json`).
 
 `names` is the names stream's queue (libclang, every non-libultra src file): unkXX field references
-grouped by the record that declares them (with that declaration's file), D_ globals per segment
-(boot and global share one address space; overlays collide, so each overlay is its own) and func_
+grouped by the record that declares them (with that declaration's file), D_ globals by name space
+(an address in overlay VRAM 0x80024000-0x805FB300 belongs to the referencing overlay; any other address is
+one boot/global symbol, its refs summed over every segment, renamed with `rename.py global global`) and func_
 definitions per segment, highest reference count first: one rename retires all of its references.
 
 Streams and the procedure that retires each:
@@ -151,7 +152,9 @@ def cmd_names(a):
             fields[k] += n
             fields_files[k].add(path)
         for k, n in d.items():
-            key = (seg if seg not in ("boot", "global") else "global", k)
+            # overlays share VRAM 0x80024000-0x805FB300 (each its own name space); any other address is a
+            # boot/global symbol (one name space, `rename.py global global ...`) whichever segment references it
+            key = (seg if 0x80024000 <= int(k[2:], 16) < 0x805FB300 else "global", k)
             drefs[key] += n
             drefs_files[key].add(path)
         funcs[seg] += len(fn)

@@ -8,7 +8,9 @@ names window (unit start or close, no private copies checked out) because they t
 ## Queue
 
 `uv run tools/debt.py names [--seg SEG] [--limit N]`: unkXX fields grouped by declaring record (with
-its header), `D_` globals per segment (boot+global one space, each overlay its own), `func_`
+its header), `D_` globals by name space (an address in overlay VRAM `0x80024000`–`0x805FB300` is the
+referencing overlay's; any other is one boot/global symbol, refs summed over every segment, renamed with
+`rename.py global global`, whichever overlay file uses it), `func_`
 definitions per segment, highest reference count first. Totals equal the report's `unk fields` /
 `D_ refs` rows. Skip items already in `drafts/cleanup/names-queue.md` or held there.
 
