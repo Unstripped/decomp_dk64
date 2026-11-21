@@ -208,8 +208,6 @@ void audioThreadMain(void *arg) {
     n_alClose(&sAudioAlGlobals.globals);
 }
 
-extern u8 D_805FB000[];
-extern u8 D_805FB0D0[];
 extern u64 func_80741310[];
 extern u64 D_80760590[];
 
@@ -255,8 +253,8 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
     task->task.t.data_ptr = (u64 *)sAudioMgr.cmdBuffers[sAudioCmdBufferIndex];
     task->task.t.data_size = (cmdEnd - (Acmd *)sAudioMgr.cmdBuffers[sAudioCmdBufferIndex]) * sizeof(Acmd);
     task->task.t.type = M_AUDTASK;
-    task->task.t.ucode_boot = (u64 *)D_805FB000;
-    task->task.t.ucode_boot_size = D_805FB0D0 - D_805FB000;
+    task->task.t.ucode_boot = (u64 *)rspbootTextStart;
+    task->task.t.ucode_boot_size = (u8 *)rspbootTextEnd - (u8 *)rspbootTextStart;
     task->task.t.flags = 0;
     task->task.t.ucode = func_80741310;
     task->task.t.ucode_data = D_80760590;

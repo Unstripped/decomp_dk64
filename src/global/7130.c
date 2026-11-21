@@ -5,6 +5,7 @@
 #include "sched.h"
 #include "model.h"
 #include "cutscene.h"
+#include "segment.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/135D30.h"
 #include "proto/global/136820.h"
@@ -2315,7 +2316,6 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
     }
 }
 
-extern s32 D_8000DDCC;
 extern s32 sSeqRomOffsets[];
 extern void *gSeqBuffers[];
 extern ALCSeq gSeqCSeqs[];
@@ -2350,7 +2350,7 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     gSeqCurrentId[seqIndex] = seqId;
     buf = heapAlloc(0x8000);
     {
-        s32 addr = sSeqRomOffsets[seqId] + D_8000DDCC;
+        s32 addr = gSegmentTable[11].romStart + sSeqRomOffsets[seqId];
         u32 len = sSeqRomOffsets[seqId + 1] - sSeqRomOffsets[seqId];
         if (len & 1) {
             len++;

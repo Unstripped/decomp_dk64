@@ -615,7 +615,7 @@ s32 actorSpawnSkipTypeInit(s32 type) {
     return 0;
 }
 
-extern u16 D_80748D4A;
+extern ActorTiltTableEntry sActorTiltTable[];
 extern u16 gSpawnedActorActiveIndex;
 
 #define ALIGN8_U16(x) ((u16)(((x) + 7) & ~7)) // FAKE: (u16) result narrowing makes the aligned size one CSE unit (add t5, mask t6, sw t6 sp+0x24 at 0x350, lw t8 at 0x378); without it 71 lines
@@ -679,7 +679,7 @@ u16 type;
         actor->spawnData = NULL;
         actor->segmentBuffers[0] = NULL;
         actor->segmentBuffers[1] = NULL;
-        actor->unkD4 = &D_80748D4A;
+        actor->unkD4 = &sActorTiltTable[1];
         actor->segmentFlags = -1;
         actor->collisionFlags = gActorTypeCollisionFlags[type];
         actor->floorTiltPitch = 0x400;

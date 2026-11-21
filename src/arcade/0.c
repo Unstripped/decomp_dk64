@@ -36,8 +36,6 @@ extern u8 gArcadeAdventureMode;
 extern u8 gArcadeLevel;
 extern s32 gArcadeConveyorSpeeds[];
 
-extern s16 D_8004C72E;
-extern s16 D_8004C732;
 extern u8 gArcadeTextColorR;
 extern u8 gArcadeTextColorG;
 extern u8 gArcadeTextColorB;
@@ -152,7 +150,7 @@ void arcadeDrawString(Gfx **glistp, u8 *str) {
     gDPSetPrimColor(g++, 0, 0, gArcadeTextColorR, gArcadeTextColorG, gArcadeTextColorB, gArcadeTextColorA);
     gDPSetCombine(g++, 0x119623, 0xFF2FFFFF);
     gSPSetOtherMode(g++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504240);
-    *glistp = textDrawString(g, 2, D_8004C72E, D_8004C732, str);
+    *glistp = textDrawString(g, 2, gArcadeTextX, gArcadeTextY, str);
 }
 
 extern u32 gArcadeRandSeed;
@@ -468,11 +466,11 @@ void arcadeSetStageMusic(void) {
     }
 }
 
-extern struct GfSndState *gLoopSfxHandles;
+extern struct GfSndState *gLoopSfxHandles[];
 void arcadeStopSound(s32 soundId) {
     gArcadeMusicId = soundId;
-    if (gLoopSfxHandles != 0) {
-        n_alSndpStop(gLoopSfxHandles);
+    if (gLoopSfxHandles[0] != 0) {
+        n_alSndpStop(gLoopSfxHandles[0]);
     }
 }
 
@@ -484,8 +482,8 @@ void arcadeGameplayLoop(Gfx **glistp) {
     if ((gArcadeBonusTimer < 0xA) && ((gArcadeMusicId == 0x4D) || (gArcadeMusicId == 0x4E) || (gArcadeMusicId == 0x4F) || (gArcadeMusicId == -1))) {
         arcadeStopSound(0x48);
     }
-    if ((gLoopSfxHandles == 0) && (gArcadeMusicId > 0)) {
-        n_alSndpPlay(gSfxBank, (s16)gArcadeMusicId, 0x7FFF, 0x3F, 1.0f, 0, &gLoopSfxHandles);
+    if ((gLoopSfxHandles[0] == 0) && (gArcadeMusicId > 0)) {
+        n_alSndpPlay(gSfxBank, (s16)gArcadeMusicId, 0x7FFF, 0x3F, 1.0f, 0, &gLoopSfxHandles[0]);
     }
     if (gArcadeTopScore < gArcadeScore) {
         gArcadeTopScore = gArcadeScore;
@@ -2216,7 +2214,6 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
 extern s32 gArcadePlayerFloorRow;
 extern s32 gArcadePlayerLadder;
 extern s32 gArcadePlayerLadderDepth;
-extern struct GfSndState *D_80770DFC;
 extern ArcadeEntity gArcadeScorePopupTemplate;
 extern u16 gArcadeScoreThreeHundredSprite[];
 extern u16 gArcadeScoreFiveHundredSprite[];
@@ -2447,8 +2444,8 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             } else {
                 soundPitch.f = 0.7071120143f;
             }
-            n_alSndpPlay(gSfxBank, 0x40, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DFC);
-            n_alSndpPostEvent(D_80770DFC, 0x10, soundPitch.bits);
+            n_alSndpPlay(gSfxBank, 0x40, 0x7FFF, 0x3F, 1.0f, 0, &gLoopSfxHandles[1]);
+            n_alSndpPostEvent(gLoopSfxHandles[1], 0x10, soundPitch.bits);
         }
         floorY = arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
         gArcadeEntities[entIndex].param = gArcadeFloorRow;

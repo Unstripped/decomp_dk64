@@ -118,12 +118,10 @@ typedef struct BossKutOutActor {
 
 
 
-extern s32 D_807FBD6C;
-
 
 void behaviourFrameBegin(void);
 void tagBarrelSpawnActorSmokePuffs(u8, u8);
-void behaviourCalculateDamageForce(s32, s32);
+void behaviourCalculateDamageForce(Actor *, s32);
 void actorSetUniformScale(void *, f32);
 void actorScriptStart(void *, s32);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
@@ -161,7 +159,7 @@ void bossKutOutStep(void) {
         } else {
             camStartPath(gCurrentActor, 6, 1);
             gCurrentActor->speedY = 200.0f;
-            behaviourCalculateDamageForce(D_807FBD6C, 0x2F7);
+            behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2F7);
         }
     }
     switch (gCurrentActor->state) {

@@ -26,7 +26,6 @@ extern ALCSeqMarker gSeqLoopMarkers[][4];
 
 
 extern N_CSPlayer *gSeqPlayers[];
-extern s32 D_8000DDCC;
 extern s32 sSeqRomOffsets[];
 
 extern ALHeap gAudioHeap;
@@ -115,10 +114,10 @@ void audioLoadSeqRomOffsets(void) {
     s32 offset;
 
     size1 = 0x80;
-    dmaReadAssetDecompress(D_8000DDCC, sSeqRomOffsets, &size1, 0, 0, 0, 0);
+    dmaReadAssetDecompress(gSegmentTable[11].romStart, sSeqRomOffsets, &size1, 0, 0, 0, 0);
     offset = sSeqRomOffsets[0];
     size2 = 0x2C0;
-    dmaReadAssetDecompress(D_8000DDCC + offset, sSeqRomOffsets, &size2, 0, 0, 0, 0);
+    dmaReadAssetDecompress(gSegmentTable[11].romStart + offset, sSeqRomOffsets, &size2, 0, 0, 0, 0);
 }
 
 void seqPlayerPlay(u8 playerIndex) {

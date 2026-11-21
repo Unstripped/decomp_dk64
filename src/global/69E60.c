@@ -8,19 +8,8 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 
-typedef struct {
-    s16 slopeDivisor;
-    u8 maxPitchDegAlt;
-    u8 maxPitchDeg;
-    u8 unk4[2]; // two more pitch limits between maxPitchDeg and minPitchDeg (unread)
-    u8 minPitchDeg;
-    u8 unk7;
-    u8 reflective; // actorFloorIsReflective's per-surface flag
-    u8 pad9;
-} ActorTiltTableEntry;
-
-// This TU's .data (0x80748D40-0x80748E05 + 11-byte TU pad), in address order. D_80748D4A (entry 1,
-// read by 7CA80) is an interior label.
+// This TU's .data (0x80748D40-0x80748E05 + 11-byte TU pad), in address order. 7CA80 reads entry 1
+// (&sActorTiltTable[1]).
 ActorTiltTableEntry sActorTiltTable[19] = {
     { 1, 90, 90, { 90, 90 }, 0, 100, 0, 0 },
     { 32, 70, 53, { 45, 37 }, 30, 90, 0, 0 },

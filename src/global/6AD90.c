@@ -6,6 +6,7 @@
 #include "collision.h"
 #include "water.h"
 #include "sched.h"
+#include "segment.h"
 #define PROTO_SKIP_assetEnsureTableLoaded // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/boot/30E0.h"
 #include "proto/global/136820.h"
@@ -186,17 +187,12 @@ extern f32 sRiderPointY;
 extern f32 sRiderPointZ;
 extern u32 sRiderMtxOffset;
 extern u8 sWaterSurfaceHit;
-// Per-source floor tables indexed by source (0 mesh, 1 dynamic, 2 box); elements 1 and 2 also
-// have their own symbols (D_807F9492/94, D_807F949A/9C, D_807F949F/94A0), which the reloc check requires.
+// Per-source floor tables indexed by source (0 mesh, 1 dynamic, 2 box). The case-2 sFloorTiltPitch store in
+// collisionFindFloorAtPoint reads sSourceTiltPitch[1] through its own symbol D_807F949A, which the reloc check requires.
 extern s16 sSourceTiltYaw[];
-extern s16 D_807F9492;
-extern s16 D_807F9494;
 extern s16 sSourceTiltPitch[];
 extern s16 D_807F949A;
-extern s16 D_807F949C;
 extern u8 sSourceSlopeType[];
-extern u8 D_807F949F;
-extern u8 D_807F94A0;
 extern s16 sFloorTiltYaw;
 extern s16 sFloorTiltPitch;
 extern u8 sFloorGrabbable;
@@ -336,33 +332,33 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
         break;
     case 2:
         if (actor != NULL) {
-            actor->floorSlopeType = D_807F949F;
-            actor->floorTiltPitch = D_807F949A;
-            actor->floorTiltYaw = D_807F9492;
+            actor->floorSlopeType = sSourceSlopeType[1];
+            actor->floorTiltPitch = sSourceTiltPitch[1];
+            actor->floorTiltYaw = sSourceTiltYaw[1];
             actor->floorY = dynY;
             if (actor->prevContactFlags & 1) {
                 actor->attachMode = 1;
             }
         }
         sFloorTiltPitch = D_807F949A;
-        sFloorTiltYaw = D_807F9492;
+        sFloorTiltYaw = sSourceTiltYaw[1];
         sFloorY = dynY;
         sFloorGrabbable = sObjectFloorGrabbable;
         sFloorSource = 2;
         break;
     case 3:
         if (actor != NULL) {
-            actor->floorSlopeType = D_807F94A0;
-            actor->floorTiltPitch = D_807F949C;
-            actor->floorTiltYaw = D_807F9494;
+            actor->floorSlopeType = sSourceSlopeType[2];
+            actor->floorTiltPitch = sSourceTiltPitch[2];
+            actor->floorTiltYaw = sSourceTiltYaw[2];
             actor->floorY = boxY;
             if (actor->prevContactFlags & 1) {
                 actorAppendRiderPoint(actor, sRiddenActor, sRiderPointX, sRiderPointY, sRiderPointZ, sRiderMtxOffset, sRiderSpansNodes);
                 actor->contactFlags |= 8;
             }
         }
-        sFloorTiltPitch = D_807F949C;
-        sFloorTiltYaw = D_807F9494;
+        sFloorTiltPitch = sSourceTiltPitch[2];
+        sFloorTiltYaw = sSourceTiltYaw[2];
         sFloorY = boxY;
         sFloorGrabbable = sActorFloorGrabbable;
         sFloorSource = 3;
@@ -1948,7 +1944,6 @@ void collisionStoreBoxTriangleNormalAngles(Actor *actor, CollisionBoxTri *tri, u
     collisionStoreSurfaceNormalAngles(actor, cross[0], cross[1], cross[2], 1, record, 2);
 }
 
-extern s32 D_8000DDCC;
 extern u32 *sAssetTableStarts;
 extern s32 *sAssetTableOffsets[];
 extern void *sAssetRefBuckets[];
@@ -1962,7 +1957,7 @@ void collisionInitTables(void) {
 
     size = 0x80;
     sAssetTableStarts = heapAlloc(0x80);
-    dmaReadAssetDecompress(D_8000DDCC, sAssetTableStarts, &size, 0, 0, 0, 0);
+    dmaReadAssetDecompress(gSegmentTable[11].romStart, sAssetTableStarts, &size, 0, 0, 0, 0);
 
     for (i = 0; i < 0x20; i++) {
         sAssetTableOffsets[i] = NULL;
@@ -2172,13 +2167,13 @@ s32 assetResolveRomRange(s32 tableId, s32 assetIndex, s32 *outRomAddr, u32 *outS
     if (start & 0x80000000) {
         size = 8;
         start &= 0x7FFFFFFF;
-        dmaReadAssetDecompress(D_8000DDCC + start, &header, &size, 0, 0, 0, 0);
+        dmaReadAssetDecompress(gSegmentTable[11].romStart + start, &header, &size, 0, 0, 0, 0);
         target = (s16)(header >> 48);
         assetResolveRomRange(tableId, target, outRomAddr, outSize);
         index = target;
     } else {
         end = table[1] & 0x7FFFFFFF;
-        *outRomAddr = D_8000DDCC + start;
+        *outRomAddr = gSegmentTable[11].romStart + start;
         *outSize = end - start;
     }
     return index;
@@ -2207,10 +2202,10 @@ void assetEnsureTableLoaded(s32 tableIndex) {
         return;
     }
     start = sAssetTableStarts[tableIndex];
-    dmaReadAssetDecompress(D_8000DDCC + start, &header, &headerSize, 0, 0, 0, 0);
+    dmaReadAssetDecompress(gSegmentTable[11].romStart + start, &header, &headerSize, 0, 0, 0, 0);
     size = (u32)(header >> 32) - start;
     sAssetTableOffsets[tableIndex] = heapAlloc(size);
-    dmaReadAssetDecompress(D_8000DDCC + start, sAssetTableOffsets[tableIndex], &size, 0, 0, 0, 0);
+    dmaReadAssetDecompress(gSegmentTable[11].romStart + start, sAssetTableOffsets[tableIndex], &size, 0, 0, 0, 0);
     switch (tableIndex) {
         case 4:
         case 7:

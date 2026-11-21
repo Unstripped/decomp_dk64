@@ -1877,7 +1877,7 @@ void csCmdSpawnFallingWhiteSparks(CsState *cs, s16 csId, s16 b, s16 c) {
 extern u8 gCurrentWorldId;
 extern u8 gWorldRequiredKongs[];
 extern s16 gWorldClearedFlags[];
-extern s16 D_807505AE[];
+extern PauseKongTables sPauseKongTables;
 
 void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     static s8 sHubItemsFrames[8] = { 1, 2, 3, 4 };
@@ -1910,7 +1910,7 @@ void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         slot = sHubItemsCycle >> 2;
         frame = sHubItemsFrames[slot];
-        if (slot > 0 && flagGet(D_807505AE[slot], 0) == 0) {
+        if (slot > 0 && flagGet(sPauseKongTables.unlockFlag[slot], 0) == 0) {
             add = 5;
         } else {
             add = 0;

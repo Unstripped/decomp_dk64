@@ -74,7 +74,6 @@ extern s8 sPauseBumpStep;
 extern s8 sPauseLastLevelSlot;
 extern s16 D_807FC82A;
 extern s16 D_807FC82C;
-extern s16 D_807FC82E;
 extern s16 D_807FC830;
 extern s16 D_807FC832;
 extern s16 D_807FC834;
@@ -119,12 +118,8 @@ s8 sPauseLevelOrder[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
 s16 sPauseCollectibleTotals[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
 s8 D_80750580 = 0;
 f32 sPauseBumpFade[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
-// Two per-kong tables in one object (a separate s16[5] would start 4-aligned at 0xD0, not 0xCE); 478F0, FCCD0,
-// menu/3E10 and hudPauseMenuRefreshTotals read unlockFlag through the interior labels D_807505AE / D_807505B2.
-typedef struct PauseKongTables {
-    /* 0x00 */ s16 carouselAngle[5]; // carousel angle of each kong's icon (steps of 0x333 around the 0x1000 turn)
-    /* 0x0A */ s16 unlockFlag[5]; // flag set once each kong is freed (sPauseKongUnlocked); DK's 0 is never read
-} PauseKongTables; // size = 0x14
+// Two per-kong tables in one object (a separate s16[5] would start 4-aligned at 0xD0, not 0xCE); 478F0, FCCD0
+// and menu/3E10 read unlockFlag through it, hudPauseMenuRefreshTotals through the interior label D_807505B2.
 PauseKongTables sPauseKongTables = { { 0, 0x333, 0x666, 0x999, 0xCCC }, { 0, 6, 0x46, 0x42, 0x75 } };
 // battle crown flag per level index (0..8); [9] is the Isles' second crown
 s16 sPauseCrownFlags[10] = { 0x261, 0x262, 0x263, 0x264, 0x265, 0x268, 0x269, 0x266, 0x26A, 0x267 };
@@ -954,7 +949,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
             } else {
                 i = 7;
             }
-            if (D_807FC82E > 0) {
+            if (gPauseCollectibleCounts[3] > 0) {
                 if (idx != 8) {
                     sPauseIconList = (gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].coloredBananas[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].bananasDelivered[idx]) >= 0x4B;
                 } else {
@@ -1043,7 +1038,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
                     hudPauseMenuSpawnIcon(hud, (s32)&gCheckMarkSprite, sPauseKongTables.carouselAngle[i], 0, 0.35f, 2, 0xE);
                 }
             }
-            if (D_807FC82A > 0) {
+            if (gPauseCollectibleCounts[1] > 0) {
                 sPauseIconList = flagGet(sPauseCrownFlags[idx], 0);
                 hudPauseMenuSpawnIcon(hud, (s32)&gCrownSprite, 0xA0, 0x78, 1.0f, 2, 4);
             }
@@ -1054,7 +1049,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
                 hudPauseMenuSpawnIcon(hud, (s32)&gFairySprite, 0x104, 0x78, 1.0f, 2, 6);
             }
         } else {
-            if (D_807FC82A > 0) {
+            if (gPauseCollectibleCounts[1] > 0) {
                 sPauseIconList = flagGet(sPauseCrownFlags[idx], 0);
                 hudPauseMenuSpawnIcon(hud, (s32)&gCrownSprite, 0xA0, 0x55, 1.0f, 2, 4);
                 sPauseIconList = flagGet(sPauseCrownFlags[9], 0);
@@ -1354,7 +1349,7 @@ void hudPauseMenuRefreshTotals(void) {
 
     p0 = &D_807FC82A - 1; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         *p0++ = 0;
-    } while (p0 < &D_807FC82A + 6);
+    } while (p0 < &gPauseCollectibleCounts[1] + 6);
     n = 0;
     for (k = 0; k < 5; k++) {
         for (i = 0; i < 14; i++) {
@@ -1371,7 +1366,7 @@ void hudPauseMenuRefreshTotals(void) {
     } while (p < gKongUnlockFlags);
     D_807FC82C = n;
     D_807FC832 = flagCountRange(0x24D, 0x14, 0);
-    D_807FC82E = flagCountRange(0x225, 0x28, 0);
+    gPauseCollectibleCounts[3] = flagCountRange(0x225, 0x28, 0);
     m = 0;
     p = sPauseCrownFlags; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         if (*p >= 0 && flagGet(*p, 0) != 0) {
@@ -1379,7 +1374,7 @@ void hudPauseMenuRefreshTotals(void) {
         }
         p++;
     } while (p < sPauseCrownFlags + 10);
-    D_807FC82A = m;
+    gPauseCollectibleCounts[1] = m;
     D_807FC834 = flagGet(0x84, 0);
     D_807FC830 = flagGet(0x17B, 0);
     D_807FC836 = flagCountRange(0x1FD, 0x28, 0);

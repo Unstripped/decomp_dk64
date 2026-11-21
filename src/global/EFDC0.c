@@ -653,10 +653,8 @@ void playerStateEnterDamageKnockback(void) {
     actorScriptStartByIndex(gActivePlayerActor, 0x3C);
 }
 
-extern Actor *D_807FBB90;
-
 void playerStateEnterAirDamageReaction(void) {
-    gActivePlayerState->queuedHeldActor = D_807FBB90;
+    gActivePlayerState->queuedHeldActor = gActorGlobalState.grabCandidate;
     gActivePlayerState->queuedHeldActorId = gActivePlayerState->queuedHeldActor->instanceId;
     switch (gActivePlayerState->queuedHeldActor->actorType) {
     case 0x3D:

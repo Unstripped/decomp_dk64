@@ -2575,6 +2575,15 @@ gCsTrackedModelCount = 0x807F6938; // type:u8 size:0x1
 gCsCmdTable = 0x80747E70; // type:CsCmdFunc size:0x1D8
 gCsCondTable = 0x80748048; // type:CsCondFunc size:0x4C
 
+// RSP microcode (include/PR/ucode.h names): rspboot where boot main.c DMAs rspboot_ROM_START..END to; the gfx task
+// microcode text (global 146C40.s) and data (global 165290 rodata): F3DEX2 / L3DEX2 fifo 2.07 (ucode strings at +0x138)
+rspbootTextStart = 0x805FB000;
+rspbootTextEnd = 0x805FB0D0;
+gspF3DEX2_fifoTextStart = 0x80741F40;
+gspL3DEX2_fifoTextStart = 0x807432D0;
+gspF3DEX2_fifoDataStart = 0x80760840;
+gspL3DEX2_fifoDataStart = 0x80760C60;
+
 // libultra
 osInvalDCache = 0x80004520; // type:func
 __osPiRawStartDma = 0x800045D0; // type:func

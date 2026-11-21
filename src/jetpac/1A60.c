@@ -430,10 +430,7 @@ void jetpacUpdatePlayerDeath(JetpacPlayerActor *player) {
 
 extern JetpacState jetpacPlayer;
 
-extern f32 D_8002F054;
 extern u8 D_8002F060[];
-extern s32 D_8002F064;
-extern s32 D_8002F068;
 extern s32 D_8002F080;
 
 void jetpacDrawPlayer(void) {
@@ -447,21 +444,21 @@ void jetpacDrawPlayer(void) {
 
     player = &jetpacPlayer.player;
     draw = 1;
-    if (D_8002F064 >= 2) {
+    if (jetpacGame.player.state >= 2) {
         if (player->state == 4 && player->explosion.timer >= 8) {
             draw = 0;
         }
         frame = jetpacGetAnimFrame(player);
         x = player->x;
-        y = D_8002F054;
+        y = jetpacPlayer.player.y;
         if (draw != 0) {
             color = D_8002F060;
             if (D_8002F080 == 0) {
                 x = (s16)x & 0xFFFE;
-                jetpacGridAddTiledSprite(&jetpacPlayerWalkSprites[frame], x, y, color, D_8002F068);
+                jetpacGridAddTiledSprite(&jetpacPlayerWalkSprites[frame], x, y, color, jetpacGame.player.flip);
             } else {
-                jetpacGridAddTiledSprite(&jetpacPlayerFlySprite, x, y, color, D_8002F068);
-                if (D_8002F068 == 0) {
+                jetpacGridAddTiledSprite(&jetpacPlayerFlySprite, x, y, color, jetpacGame.player.flip);
+                if (jetpacGame.player.flip == 0) {
                     if (frame == 4) {
                         x -= 1.0f;
                     }
@@ -472,7 +469,7 @@ void jetpacDrawPlayer(void) {
                     }
                     x += 10.0f;
                 }
-                jetpacGridAddTiledSprite(&jetpacPlayerExhaustSprites[frame], x, y + 18.0f, color, D_8002F068);
+                jetpacGridAddTiledSprite(&jetpacPlayerExhaustSprites[frame], x, y + 18.0f, color, jetpacGame.player.flip);
             }
         }
         if (player->explosion.timer < 14) {
@@ -503,17 +500,17 @@ void jetpacUpdateLasers(void) {
 
 void jetpacPlayerStateUpdate(void) {
     if (!jetpacIsSpawnDelay()) {
-        s32 state = D_8002F064;
+        s32 state = jetpacGame.player.state;
 
         if (state == 1) {
             jetpacPlaySound(3);
             state = 3;
         }
-        D_8002F064 = state;
+        jetpacGame.player.state = state;
         if (state == 3) {
             jetpacUpdatePlayerMovement(&jetpacPlayer.player);
         }
-        state = D_8002F064;
+        state = jetpacGame.player.state;
         if (state == 4) {
             jetpacUpdatePlayerDeath(&jetpacPlayer.player);
         }
@@ -555,7 +552,7 @@ void jetpacInitPlayer(void) {
 }
 
 s32 jetpacIsSpawnDelay(void) {
-    s32 ret = D_8002F064 == 1;
+    s32 ret = jetpacGame.player.state == 1;
 
     if (ret) {
         return jetpacPlayer.player.timer < 180;

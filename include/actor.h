@@ -1140,6 +1140,12 @@ typedef struct MenuHighScoreEntry {
 // menuCalculateGamePercentage (3E10) and the 117190 gate totals; the pause menu's page 3 shows the first eight.
 extern s16 gPauseCollectibleCounts[9];
 
+// The pause menu's per-kong tables, sPauseKongTables (ACDC0.c, 0x807505A4).
+typedef struct PauseKongTables {
+    /* 0x00 */ s16 carouselAngle[5]; // carousel angle of each kong's icon (steps of 0x333 around the 0x1000 turn)
+    /* 0x0A */ s16 unlockFlag[5]; // flag set once each kong is freed (sPauseKongUnlocked); DK's 0 is never read
+} PauseKongTables; // size = 0x14
+
 // One entry of the per-map flag tables (135D30.c: gMapObjectFlags, gSpawnFlagConditions, gTriggerOnceFlags, gFlagTempEntries).
 typedef struct FlagTableEntry {
     /* 0x0 */ u8 map;
@@ -1309,6 +1315,19 @@ typedef struct CamFloorHit {
 
 extern CamFloorHit sCamFloorHits[];
 extern u8 sCamFloorHitCount;
+
+// One row of the floor tilt table sActorTiltTable[19] (69E60.c), indexed by an actor's floorSlopeType or
+// floorSurfaceType; actorAllocate (7CA80) points a new actor's unkD4 at entry 1.
+typedef struct {
+    s16 slopeDivisor;
+    u8 maxPitchDegAlt;
+    u8 maxPitchDeg;
+    u8 unk4[2]; // two more pitch limits between maxPitchDeg and minPitchDeg (unread)
+    u8 minPitchDeg;
+    u8 unk7;
+    u8 reflective; // actorFloorIsReflective's per-surface flag
+    u8 pad9;
+} ActorTiltTableEntry;
 
 // customState of the mirror actor 0x7B: triggerZoneSpawnTrigger (684C0) fills the plane fields from its
 // TriggerZoneData; actorMirrorParentModelY/actorMirrorParentModelAxis (A2F10) reflect the parent's model.

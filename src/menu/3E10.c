@@ -700,7 +700,7 @@ s32 menuDecodePiAddressConstant(s32 offset) {
 }
 
 extern void *gKongIconSprites[];
-extern s16 D_807505B2[];
+extern PauseKongTables sPauseKongTables;
 extern u32 gPlayTimeBaseSeconds;
 
 void menuInitFileSummary(Actor *actor, s32 unused) {
@@ -721,7 +721,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     sMenuSummaryTextY = 1600.0f;
     eepromLoadPlayerData(sMenuSelectedFile, 0);
     sMenuKongUnlocked[0] = 1;
-    for (i = 1, flagIds = D_807505B2; i < 5; i++, flagIds++) {
+    for (i = 1, flagIds = &sPauseKongTables.unlockFlag[2]; i < 5; i++, flagIds++) {
         flag = flagGet(flagIds[-1], 0);
         sMenuKongUnlocked[i] = flag;
     }

@@ -10,7 +10,6 @@
 extern u8 gCsInvulnerable;
 extern u8 gPlayerCount;
 extern PlayerStruct *gPlayerSlots;
-extern u8 D_807FBBA9;
 
 void actorCheckPlayerSmallerThanAttacker(Actor *actor, Actor *attacker, ActorCollisionList *list) {
     playerIsSmallerThanAttacker(actor, attacker);
@@ -155,7 +154,7 @@ s32 actorCheckPlayerProximityVertical(Actor *actor, Actor *player, ActorCollisio
         return 0;
     }
 
-    if (D_807FBBA9 != 0) {
+    if (gActorGlobalState.riderCount != 0) {
         return 0;
     }
 

@@ -886,7 +886,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     return gfx;
 }
 
-extern s16 D_807505AE[];
+extern PauseKongTables sPauseKongTables;
 extern Gfx D_2000180;
 
 Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
@@ -915,7 +915,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     for (i = 0; i != 5; i++) {
         valid = 1;
         if (i > 0) {
-            valid = flagGet(D_807505AE[i], 0);
+            valid = flagGet(sPauseKongTables.unlockFlag[i], 0);
         }
         if (valid != 0) {
             if (i == active) {

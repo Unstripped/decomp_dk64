@@ -100,7 +100,7 @@ OSMesgQueue *schedGetCmdQueue(SchedStruct *sc) {
 }
 
 extern u8 gFaultScreenEnabled;
-extern u32 D_8076154C;
+extern OSThread gMainThread;
 extern u32 gFramebuffers[];
 
 
@@ -133,7 +133,7 @@ void schedMain(void *arg) {
                         faultPrintf("END=%x\n", IO_READ(DPC_END_REG));
                         faultPrintf("DPSTAT=%x\n", IO_READ(DPC_STATUS_REG));
                         faultPrintf("SPSTAT=%x\n", IO_READ(SP_STATUS_REG));
-                        faultPrintf("MAIN-PC=%x\n", D_8076154C);
+                        faultPrintf("MAIN-PC=%x\n", gMainThread.context.pc);
                     }
                 }
                 if (gMainLoopWatchdog < -299) {

@@ -15,7 +15,7 @@
 // tuning scalars of the actor and player code (80150, 936B0, 9DD70, A2F10, AA960, B7490, BB300, C4620,
 // E4090, 11BC10, 1295B0 and the boss/minecart overlays keep their externs); 9CE20 reads D_8075037C and
 // D_80750380, the only text TU between 9BF30 and 9DD70. D_807502D4 and D_80750304..D_80750334 are
-// unreferenced; A2F10 reads its own kong-name table (0x807503B0) as D_80750338[0x1E..0x26].
+// unreferenced.
 s16 gCarryMinFallSpeed = -220;
 s16 D_807502D4 = -100;
 s16 gArmydilloTerminalSpeedY = -600;

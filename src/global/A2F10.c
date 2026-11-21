@@ -30,8 +30,8 @@
 #include "proto/global/AA960.h"
 #include "proto/global/EFDC0.h"
 
-// This TU's .data (0x807503B0-0x807503EC + 4-byte TU pad), in address order. The name table has no
-// label of its own: actorBannerTextRender reads it as D_80750338[0x1E..0x26] (D_80750338 is 9CE20's s16).
+// This TU's .data (0x807503B0-0x807503EC + 4-byte TU pad), in address order. actorBannerTextRender reads the
+// name table D_807503B0 for banner ids 0x1E..0x26.
 extern const char D_8075A410[];
 extern const char D_8075A418[];
 extern const char D_8075A420[];
@@ -492,8 +492,6 @@ const char D_8075A440[3] = "K.";
 const char D_8075A444[5] = "ROOL";
 const char D_8075A44C[5] = "KONG";
 
-extern char *D_80750338[];
-
 Gfx *actorBannerTextRender(Gfx *dl, Actor *actor) {
     f32 scale;
     f32 mtx[4][4];
@@ -537,7 +535,7 @@ Gfx *actorBannerTextRender(Gfx *dl, Actor *actor) {
     case 0x25:
     case 0x26:
         centered = 1;
-        _sprintf(text, D_80750338[sel]);
+        _sprintf(text, D_807503B0[sel - 0x1E]);
         break;
     default:
         if (sel & 0x80) {
