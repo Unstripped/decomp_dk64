@@ -192,11 +192,13 @@ def restore_locals(lines, base_lines):
             continue
         use = rf"(?<!\.)(?<!->)\b{re.escape(name)}\b"  # a `.prev` / `->prev` member is not a use
         # declared again elsewhere in the body, also inline after a brace (`{ s32 tv = ...;`)
-        # or inside a declarator list (`f64 nx, ny, nz;`)
+        # or inside a declarator list, earlier declarators possibly initialised (`f64 nx, ny, nz;`,
+        # `f32 *px = NULL, *py = NULL, *pz = NULL;`)
         redecl = re.compile(
             r"(?:^|[{;])\s*(?!(?:return|goto|else|case|do|default|break|continue|sizeof)\b)"
             r"(?:(?:const|volatile|static|register|unsigned|signed|struct|union|enum)\s+)*"
-            r"[A-Za-z_]\w*(?:[\s\*]+(?:const|volatile)\b)*[\s\*]+(?:\w+\s*(?:\[[^\]]*\]\s*)*,[\s\*]*)*"
+            r"[A-Za-z_]\w*(?:[\s\*]+(?:const|volatile)\b)*[\s\*]+"
+            r"(?:\w+\s*(?:\[[^\]]*\]\s*)*(?:=[^,;]*)?,[\s\*]*)*"
             rf"{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;|,)"
             # or an inline struct/union type: `union { u16 h; u8 b; } name;` / `struct {...} *name;`
             rf"|\}}[\s\*]*{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;|,)")
