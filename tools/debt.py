@@ -174,6 +174,13 @@ def cmd_names(a):
     print(f"\n{'refs':>5} {'files':>5}  global (segment)")
     for (seg, sym), n in drefs.most_common(a.limit):
         print(f"{n:>5} {len(drefs_files[seg, sym]):>5}  {sym} ({seg})")
+    per_file = collections.Counter()
+    for path, _, d, _ in res:
+        per_file[path] = sum(d.values())
+    print(f"\n{'refs':>5}  file (D_ refs in function bodies)  -- D_ workers take neighbouring files")
+    for path, n in per_file.most_common(a.limit):
+        if n:
+            print(f"{n:>5}  {path}")
 
 
 def main(argv=None):
