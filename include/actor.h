@@ -731,9 +731,10 @@ typedef struct SpawnNode {
     /* 0x08 */ s16 z;
     /* 0x0A */ union {
         s16 unkAWide; // lh users (armadillo patrol, explodingChaserUpdate, actorUpdateLockOnCursor, behaviourPickRandomTargetY)
+        u8 stateIdIndex; // spawn controller (actor type 0xFE): its controller state id is sSpawnControllerStateIds[stateIdIndex] (spawnNodeInitActorFromEntry, 1295B0.c)
         struct {
-            u8 unkA;
-            u8 unkB;
+            u8 followerSpawnInterval; // minecart follower, state 6: frames between 0x11F follower spawns (minecartFollowerBehaviour, minecart/25F0.c)
+            u8 followerPhaseFrames;   // minecart follower: state-6 phase length, loaded into the timer; 0 ends it (minecartFollowerChildBehaviour, minecart/25F0.c)
         };
         u8 attachNode; // zone-occupant model node to ride, 0 = none (behaviourAttachToZoneOccupant, behaviourRockingWalk, behaviourFairyIdle1-3, BDEE0.c)
         struct {

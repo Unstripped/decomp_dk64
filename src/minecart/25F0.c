@@ -107,7 +107,7 @@ void minecartFollowerBehaviour(void) {
         break;
     case 6:
         followDist = 0xFA;
-        if ((gFrameCounter % gBehaviourExtraState->unkA) == 0) {
+        if ((gFrameCounter % gBehaviourExtraState->followerSpawnInterval) == 0) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             actorSpawn(0x11F, 0x50);
             gSpawnedActor->parentActor = gCurrentActor;
@@ -262,7 +262,7 @@ void minecartFollowerChildBehaviour(void) {
         break;
     case 6:
         if (parent->subState == 0) {
-            targetState->timer = gBehaviourExtraState->unkB;
+            targetState->timer = gBehaviourExtraState->followerPhaseFrames;
             parent->subState = 1;
         }
         if (gCurrentActor->yawSpeed == 1) {

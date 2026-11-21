@@ -611,7 +611,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
         case 6:
             controllerState = ((SpawnControllerActor *)act)->controllerState;
             if (act->actorType == 0xFE) {
-                *controllerState = sSpawnControllerStateIds[node->unkA];
+                *controllerState = sSpawnControllerStateIds[node->stateIdIndex];
             } else {
                 *controllerState = controllerLookupModelAssetId(act);
             }

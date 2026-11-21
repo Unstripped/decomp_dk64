@@ -4374,6 +4374,7 @@ sViewFrameCounter = 0x807445CC;
 gMapHubWorldIndex = 0x807445E0;
 gWorldBananaDeliveryGoals = 0x807446C0;
 gWorldGoldenBananaGoals = 0x807446D0;
+gWorldSecretGoalDiscounts = 0x807446E0;
 gWorldRequiredKongs = 0x807446F0;
 gWorldBossMaps = 0x80744700;
 gWorldClearedFlags = 0x80744710;

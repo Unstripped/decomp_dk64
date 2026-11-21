@@ -199,11 +199,11 @@ void jetpacStateSelection(Gfx **glist) {
     _sprintf(buf, "%c1983 A.C.G. ALL RIGHTS RESERVED", 0x7F);
     jetpacDrawString(glist, buf, 0x20, 0xD8, 0);
     if (jetpacGame.coinChallenge != 0) {
-        if (!(jetpacGame.pressedButtons & 0x1000) && jetpacGame.unk799 < 0x78) {
-            jetpacGame.unk799++;
+        if (!(jetpacGame.pressedButtons & 0x1000) && jetpacGame.autoStartFrames < 0x78) {
+            jetpacGame.autoStartFrames++;
             return;
         }
-        jetpacGame.unk799 = 0;
+        jetpacGame.autoStartFrames = 0;
         jetpacStartGame();
         return;
     }
@@ -342,8 +342,8 @@ void jetpacStateGameOver(Gfx **glist) {
     jetpacDrawString(glist, textBuf, textCol * 8 + 0x20, 0x88, 0);
     if (jetpacGame.stateTimer >= 0x79) {
         if (jetpacGame.coinChallenge != 0) {
-            if (jetpacGame.unk799 == 0) {
-                jetpacGame.unk799 = 1;
+            if (jetpacGame.exitRequested == 0) {
+                jetpacGame.exitRequested = 1;
                 mapRequestTransition(5, 0);
             }
         } else {
@@ -445,7 +445,7 @@ void jetpacUpdateStateAndInput(Gfx **glist) {
         flag = flagGet(0x61, 2);
         jetpacGame.coinChallenge = flag;
         if (flag != 0) {
-            jetpacGame.unk799 = 0;
+            jetpacGame.autoStartFrames = 0;
         }
     }
     jetpacBlinkPhase = jetpacGame.stateTimer;

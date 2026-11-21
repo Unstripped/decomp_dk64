@@ -128,7 +128,10 @@ typedef struct JetpacGlobal {
     /* 0x790 */ u32 stateTimer;
     /* 0x794 */ u32 stateSettleFrames;
     /* 0x798 */ u8 coinChallenge;
-    /* 0x799 */ u8 unk799;
+    union {
+        /* 0x799 */ u8 autoStartFrames; // coin challenge, game select: frames waited without start, 0x78 starts the game (jetpac/0.c)
+        /* 0x799 */ u8 exitRequested;   // coin challenge, game over: set once mapRequestTransition(5, 0) is sent (jetpac/0.c)
+    };
 } JetpacGlobal;
 
 /* One cell of the 32x24 sprite grid. */

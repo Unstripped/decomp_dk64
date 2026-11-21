@@ -3760,8 +3760,7 @@ void modelRecordFindAndSet(u8 *records, s32 count, s16 id, s16 value) {
 typedef struct ModelSlotStateSnapshot {
     /* 0x00 */ void *heapBlock;
     /* 0x04 */ u8 pad4[0xC];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
+    /* 0x10 */ s16 sfxSources[2];
     /* 0x14 */ u8 pad14[0x80];
     /* 0x94 */ Actor *actor;
     /* 0x98 */ u8 pad98[4];
@@ -3784,8 +3783,8 @@ void modelSlotsApplyRecords(u8 *records, s32 count) {
         memcpy(&snap, gModelSlots[idx].csState, 0x9C);
         memcpy(gModelSlots[idx].csState, records + 0xCC, 0x9C);
         gModelSlots[idx].csState->data = snap.heapBlock;
-        gModelSlots[idx].csState->sfxSources[0] = snap.unk10;
-        gModelSlots[idx].csState->sfxSources[1] = snap.unk12;
+        gModelSlots[idx].csState->sfxSources[0] = snap.sfxSources[0];
+        gModelSlots[idx].csState->sfxSources[1] = snap.sfxSources[1];
         gModelSlots[idx].csState->camPathActor = snap.actor;
         gModelSlots[idx].csState->stateBytes[0] = gModelSlots[idx].csState->nextStateBytes[0];
         gModelSlots[idx].csState->stateBytes[1] = gModelSlots[idx].csState->nextStateBytes[1];

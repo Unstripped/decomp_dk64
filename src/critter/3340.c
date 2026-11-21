@@ -48,7 +48,7 @@ extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u16 gWorldBananaDeliveryGoals[];
 extern s16 gWorldGoldenBananaGoals[];
-extern s8 D_807446E0[]; // per world: { discounted required count, kong id } byte pairs
+extern s8 gWorldSecretGoalDiscounts[]; // per world: { discounted required count, kong id } byte pairs
 extern u16 gLevelCollectibleCounts[];
 extern f32 critterFairyPrevPlayerDist;
 extern EffectGridAsset gEffectSpriteStarBurst;
@@ -101,7 +101,7 @@ void critterBananaFairyUpdate(void) {
         critterFairySecretState = 0;
         critterFairyComboStep = 0;
     } else if (critterFairySecretState != 0) {
-        s8 *pair = &D_807446E0[worldIndex + worldIndex];
+        s8 *pair = &gWorldSecretGoalDiscounts[worldIndex + worldIndex];
 
         if (gPlayerCharacterId[0] == pair[1]) {
             if (inventoryGetGoldenBananaTotal() < requiredCount && worldIndex != 7) {
@@ -112,7 +112,7 @@ void critterBananaFairyUpdate(void) {
                 if (critterFairySecretState == 1) {
                     canSecretUnlock = 1;
                 } else {
-                    requiredCount = D_807446E0[7 * 2];
+                    requiredCount = gWorldSecretGoalDiscounts[7 * 2];
                     hasSecretDiscount = 1;
                 }
             }
