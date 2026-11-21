@@ -104,7 +104,7 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
     buf->scaledRadius = (s32)((f32)asset->collisionRadius * scale * 8.0f * 1.5);
     buf->scaledX = (s32)(x * 8.0f);
     buf->scaledY = (s32)(y * 8.0f);
-    buf->unk8 = (s32)(z * 8.0f);
+    buf->scaledZ = (s32)(z * 8.0f);
     count = *(s32 *)(asset->boxesOff + (u8 *)asset);
     if (count != 0) {
         buf->flags |= 2;
@@ -145,7 +145,7 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
         buf->box_end = NULL;
     }
     buf->flags |= 1;
-    buf->unk10 = gFrameCounter;
+    buf->timestamp = gFrameCounter;
 }
 
 void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
@@ -291,7 +291,7 @@ typedef struct CollisionStaticTriIn {
     /* 0x0E */ s16 y2;
     /* 0x10 */ s16 z2;
     /* 0x12 */ s16 normalYaw;
-    /* 0x14 */ u8 unk14;
+    /* 0x14 */ u8 normalYawFlipped;
     /* 0x15 */ u8 unk15;
     /* 0x16 */ u8 flags;
 } CollisionStaticTriIn;
@@ -348,7 +348,7 @@ void modelSlotExpireNextBuffers(void) {
             sModelSlotExpireCursor = 0;
         }
         buf = &gModelSlots[sModelSlotExpireCursor].boxBuffer;
-        if ((buf->flags & 1) && ((gFrameCounter - buf->unk10) >= 0x1F)) {
+        if ((buf->flags & 1) && ((gFrameCounter - buf->timestamp) >= 0x1F)) {
             dynamicBufferFree(buf);
         }
         triBuf = &gModelSlots[sModelSlotExpireCursor].triBuffer;
@@ -631,7 +631,7 @@ s32 collisionBuildStaticTri(void *inData, void *outData) {
     work.x2 *= 8; work.y2 *= 8; work.z2 *= 8;
 
     work.normalYaw = in->normalYaw;
-    work.normalFlipped = in->unk14;
+    work.normalFlipped = in->normalYawFlipped;
     work.pushable = 0;
     work.partId = 0;
     if (in->flags & 4) {
@@ -817,8 +817,8 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
                 node->scale = *((f32 *)data + 3);
                 node->mtxOffset = *((s32 *)data + 4);
                 node->active = 1;
-                node->unk24 = 0;
-                node->unk27 = 0;
+                node->ignoredCollisionFlags = 0;
+                node->collisionSkipFlags = 0;
                 data += 0x14;
                 *link = node;
                 link = &node->next;
@@ -837,7 +837,7 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
                 subnode->x = *(f32 *)data;
                 subnode->y = *((f32 *)data + 1);
                 subnode->z = *((f32 *)data + 2);
-                subnode->unk18 = *((s32 *)data + 3);
+                subnode->mtxOffset = *((s32 *)data + 3);
                 data += 0x10;
                 *subLink = subnode;
                 subLink = &subnode->next;
@@ -928,7 +928,7 @@ void actorSetNodeValue(Actor *actor, s32 index, u16 value) {
 
     node = actorGetModelNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk24 = value;
+        node->ignoredCollisionFlags = value;
     }
 }
 
@@ -937,7 +937,7 @@ void actorOrNodeFlags(Actor *actor, s32 index, u8 flags) {
 
     node = actorGetModelNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk27 |= flags;
+        node->collisionSkipFlags |= flags;
     }
 }
 
@@ -946,7 +946,7 @@ void actorClearNodeFlags(Actor *actor, s32 index, u8 flags) {
 
     node = actorGetModelNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk27 &= ~flags;
+        node->collisionSkipFlags &= ~flags;
     }
 }
 
@@ -1031,10 +1031,10 @@ void actorAppendModelSubNode(Actor *actor, f32 x, f32 y, f32 z, s32 value) {
     node->x = x;
     node->y = y;
     node->z = z;
-    node->unk18 = value;
-    node->unkC = 0;
-    node->unk10 = 0;
-    node->unk14 = 0;
+    node->mtxOffset = value;
+    node->scaledX = 0;
+    node->scaledY = 0;
+    node->scaledZ = 0;
     curr = (ModelSubNode *)sub->subNodes;
     if (curr != NULL) {
         do {
@@ -1066,8 +1066,8 @@ void actorAppendModelNode(Actor *actor, f32 x, f32 y, f32 z, f32 scale, s32 mtxO
     node->scaledZ = 0;
     node->scaledRadius = 0;
     node->active = 1;
-    node->unk24 = 0;
-    node->unk27 = 0;
+    node->ignoredCollisionFlags = 0;
+    node->collisionSkipFlags = 0;
     curr = sub->nodes;
     if (curr != NULL) {
         do {
@@ -1432,11 +1432,11 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
     for (i = 0; i < gModelSlotCount; i++) {
         buf = &gModelSlots[i].boxBuffer;
         if (buf->flags & 2) {
-            if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->scaledX, buf->scaledY, buf->unk8, buf->scaledRadius) != 0) {
+            if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->scaledX, buf->scaledY, buf->scaledZ, buf->scaledRadius) != 0) {
                 if (!(buf->flags & 1)) {
                     collisionTransformNode(i, gModelSlots[i].asset, gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, gModelSlots[i].rotX, gModelSlots[i].rotY, gModelSlots[i].rotZ, gModelSlots[i].scale);
                 } else {
-                    buf->unk10 = gFrameCounter;
+                    buf->timestamp = gFrameCounter;
                 }
                 if (!(actor->collisionFlags & 1) || playerSlotMatchesSizeMask(gModelSlots[i].asset->flags, ((PlayerState *)actor->customState)->playerIndex) == 0) {
                     actorUpdateCollisionSpheres(actor, 0);
@@ -1456,7 +1456,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                         gCollisionDeferredHit = 0;
                         ret = 0;
                         while (node != NULL && gCollisionDeferredHit == 0) {
-                            if (node->active != 0 && node->scaledRadius != 0 && !(node->unk27 & 6)) {
+                            if (node->active != 0 && node->scaledRadius != 0 && !(node->collisionSkipFlags & 6)) {
                                 ret |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, buf->box_start, buf->box_end, arcMin, arcMax);
                             }
                             node = node->next;
@@ -1546,7 +1546,7 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
         for (i = 0; i < 3; i++) {
             guMtxXFMF(inv, x[i], y[i], z[i], &sub->hitTriX[i], &sub->hitTriY[i], &sub->hitTriZ[i]);
         }
-        sub->unk26 = gModelSlots[slot].id;
+        sub->hitSlotId = gModelSlots[slot].id;
         sub->hitRadius = gCollisionPlaneDist;
         if (sub->hitRadius < 0x14) {
             sub->hitRadius = 0x14;
@@ -1792,7 +1792,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
         kind = 0;
         sub = actor->collision;
         ret = 0;
-        slot = hashTableLookup(sub->unk26);
+        slot = hashTableLookup(sub->hitSlotId);
         if (slot != -1) {
             buf = &gModelSlots[slot].boxBuffer;
             if (!(buf->flags & 1)) {
@@ -2026,7 +2026,7 @@ s32 actorCheckTargetAngleBounds(Actor *actor, s16 *arcMin, s16 *arcMax) {
         actorUpdateCollisionSpheres(actor, 0);
         node = sub->nodes;
         while (node != NULL) {
-            if (node->active != 0 && node->scaledRadius != 0 && !(node->unk27 & 1)) {
+            if (node->active != 0 && node->scaledRadius != 0 && !(node->collisionSkipFlags & 1)) {
                 ret |= func_806734E4(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, arcMin, arcMax);
             }
             node = node->next;
@@ -2186,11 +2186,11 @@ void actorComputeBoxNormal(Actor *actor, f32 *outX, f32 *outY, f32 *outZ, u8 use
     func_806744A8(box, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
     if (useHitBox) {
         if (actor->flags & 0x800) {
-            gCollisionPlanePointX = sub->unkB0;
-            gCollisionPlanePointZ = sub->unkB4;
+            gCollisionPlanePointX = sub->boxContactX;
+            gCollisionPlanePointZ = sub->boxContactZ;
         }
-        sub->unkB0 = gCollisionPlanePointX;
-        sub->unkB4 = gCollisionPlanePointZ;
+        sub->boxContactX = gCollisionPlanePointX;
+        sub->boxContactZ = gCollisionPlanePointZ;
     }
 }
 
@@ -2278,15 +2278,15 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
         if (node != NULL) {
             if (mtxBase) {} // FAKE: extra block lowers mtxBase adjsave (3.67 to 3.0) below the -1 constant (3.33), so -1 takes $s5 and mtxBase $s6
             do {
-                if (node->unk18 == -1) {
+                if (node->mtxOffset == -1) {
                     memcpy(mtx, sub->modelMtxF, sizeof(mtx));
                     guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
                 } else {
-                    guMtxXFML(&mtxBase[(u32)node->unk18 >> 6], node->x, node->y, node->z, &outX, &outY, &outZ);
+                    guMtxXFML(&mtxBase[(u32)node->mtxOffset >> 6], node->x, node->y, node->z, &outX, &outY, &outZ);
                 }
-                node->unkC = outX * 8.0f;
-                node->unk10 = outY * 8.0f;
-                node->unk14 = outZ * 8.0f;
+                node->scaledX = outX * 8.0f;
+                node->scaledY = outY * 8.0f;
+                node->scaledZ = outZ * 8.0f;
                 node = node->next;
             } while (node != NULL);
         }
@@ -2317,9 +2317,9 @@ s32 actorGetNodePos(Actor *actor, s32 index, f32 *outX, f32 *outY, f32 *outZ) {
             *outX = 0.0f;
             return 0;
         }
-        *outX = (f32)node->unkC / 8;
-        *outY = (f32)node->unk10 / 8;
-        *outZ = (f32)node->unk14 / 8;
+        *outX = (f32)node->scaledX / 8;
+        *outY = (f32)node->scaledY / 8;
+        *outZ = (f32)node->scaledZ / 8;
         return 1;
     }
     return 0;
@@ -2357,7 +2357,7 @@ s32 actorStepSubNodeList(Actor *actor, s32 index) {
         node = node->next;
     }
 
-    return (((u32)node->unk18 >> 6) << 6) + base;
+    return (((u32)node->mtxOffset >> 6) << 6) + base;
 }
 
 
@@ -2413,7 +2413,7 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
                 if (collisionSpheresOverlap(x, y, z, radius,
                                   buf->scaledX,
                                   buf->scaledY,
-                                  buf->unk8,
+                                  buf->scaledZ,
                                   buf->scaledRadius) != 0 &&
                     (buf->flags & 1) &&
                     ((hitInfo = gModelSlots[i].csState) == NULL || hitInfo->collisionEnabled != 0)) {

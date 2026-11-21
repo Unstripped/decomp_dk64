@@ -142,13 +142,13 @@ u8 bossScriptStep(const u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     switch (BOSS_ACTOR->base.state) {
     case 0x54:
         advanceScript = 0;
-        if (BOSS_ACTOR->base.unk155 != 0) {
+        if (BOSS_ACTOR->base.subState != 0) {
             if (currentActorTestClearFlag() != 0) {
                 advanceScript = 1;
             }
         } else {
             currentActorClearFlag();
-            BOSS_ACTOR->base.unk155 = 1;
+            BOSS_ACTOR->base.subState = 1;
         }
         break;
     case 0x5F:
@@ -198,11 +198,11 @@ patrol:
         break;
     case 0x55:
         advanceScript = 0;
-        if (BOSS_ACTOR->base.unk155 == 0) {
+        if (BOSS_ACTOR->base.subState == 0) {
             pos = scriptState->scriptPos;
             scriptState->vars[0] = (script[pos] << 8) + script[pos + 1];
             scriptState->scriptPos = pos + 2;
-            BOSS_ACTOR->base.unk155 = 1;
+            BOSS_ACTOR->base.subState = 1;
         } else {
             scriptState->vars[0] -= 1;
             if (scriptState->vars[0] == 0) {
@@ -212,11 +212,11 @@ patrol:
         break;
     case 0x23:
         advanceScript = 0;
-        if (BOSS_ACTOR->base.unk155 == 0) {
+        if (BOSS_ACTOR->base.subState == 0) {
             pos = scriptState->scriptPos;
             scriptState->vars[0] = script[pos];
             scriptState->scriptPos = pos + 1;
-            BOSS_ACTOR->base.unk155 = 1;
+            BOSS_ACTOR->base.subState = 1;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         } else {
             actorMoveWithinZone(0x23, gBehaviourWorkState->targetActor->x, gBehaviourWorkState->targetActor->z, turnSpeed, fwdSpeed);
@@ -234,7 +234,7 @@ patrol:
         }
         break;
     case 0x53:
-        if (BOSS_ACTOR->base.unk155 == 0) {
+        if (BOSS_ACTOR->base.subState == 0) {
             advanceScript = 0;
         }
         break;
@@ -280,13 +280,13 @@ patrol:
         bossPickRandomWaypoint(scriptState, script);
         advanceScript = 0;
         BOSS_ACTOR->base.state = 0x42;
-        BOSS_ACTOR->base.unk155 = 0;
+        BOSS_ACTOR->base.subState = 0;
         goto patrol;
     case 0x4C:
         bossPickFarthestWaypoint(scriptState, script);
         advanceScript = 0;
         BOSS_ACTOR->base.state = 0x42;
-        BOSS_ACTOR->base.unk155 = 0;
+        BOSS_ACTOR->base.subState = 0;
         goto patrol;
     case 0x4B:
         gBehaviourWorkState->waypointIndex++;
@@ -296,23 +296,23 @@ patrol:
         scriptState->scriptPos += 2;
         advanceScript = 0;
         BOSS_ACTOR->base.state = 0x42;
-        BOSS_ACTOR->base.unk155 = 0;
+        BOSS_ACTOR->base.subState = 0;
         goto patrol;
     case 0x41:
         gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos++];
         advanceScript = 0;
         BOSS_ACTOR->base.state = 0x42;
-        BOSS_ACTOR->base.unk155 = 0;
+        BOSS_ACTOR->base.subState = 0;
         goto patrol;
     case 0x49:
     case 0x4A:
         advanceScript = 0;
-        switch (BOSS_ACTOR->base.unk155) {
+        switch (BOSS_ACTOR->base.subState) {
         case 0:
             BOSS_ACTOR->base.alpha -= 0xA;
             if (BOSS_ACTOR->base.alpha < 0) {
                 BOSS_ACTOR->base.alpha = 0;
-                BOSS_ACTOR->base.unk155++;
+                BOSS_ACTOR->base.subState++;
             }
             break;
         case 1:
@@ -324,7 +324,7 @@ patrol:
             patrolPathStep(0x49, 0);
             BOSS_ACTOR->base.x = gBehaviourWorkState->targetX;
             BOSS_ACTOR->base.z = gBehaviourWorkState->targetZ;
-            BOSS_ACTOR->base.unk155++;
+            BOSS_ACTOR->base.subState++;
             break;
         case 2:
             BOSS_ACTOR->base.alpha += 0xA;
@@ -343,7 +343,7 @@ patrol:
     }
     if (advanceScript != 0) {
         BOSS_ACTOR->base.state = script[scriptState->scriptPos++];
-        BOSS_ACTOR->base.unk155 = 0;
+        BOSS_ACTOR->base.subState = 0;
     }
     return didLoop;
 }
@@ -468,7 +468,7 @@ void bossRoundFrame(const u8 *script) {
                 menuTransitionToMap(0xD7, 0);
                 gBossRoundNumber = 0;
                 BOSS_ACTOR->base.state = 0x6A;
-                BOSS_ACTOR->base.unk155 = 0;
+                BOSS_ACTOR->base.subState = 0;
             }
         }
         n_alSndpPlay(gSfxBank, 0x1E6, 0, 0x40, 1.0f, 0x80, &sound->sndHandleA);
@@ -477,30 +477,30 @@ void bossRoundFrame(const u8 *script) {
     volumeTriggerApplyActorState();
     switch (BOSS_ACTOR->base.state) {
     case 0x37:
-        if (BOSS_ACTOR->base.unk155 == 0) {
+        if (BOSS_ACTOR->base.subState == 0) {
             hudCountdownTimerHold(BOSS_ACTOR->base.parentActor);
         }
         break;
     case 0x6A:
-        if (BOSS_ACTOR->base.unk155 == 0) {
+        if (BOSS_ACTOR->base.subState == 0) {
             actorScriptStart(gCurrentActor, 0);
-            BOSS_ACTOR->base.unk155++;
+            BOSS_ACTOR->base.subState++;
         }
         break;
     case 0x6C:
-        scriptState->unk12 |= 1;
+        scriptState->flags |= 1;
         bossStartCountdownTimer();
         if ((scriptState->phase != 0) && (BOSS_ACTOR->base.actorType == 0x126)) {
             hudCountdownTimerResume(BOSS_ACTOR->base.parentActor);
         }
         BOSS_ACTOR->base.state = script[scriptState->scriptPos++];
-        BOSS_ACTOR->base.unk155 = 0;
+        BOSS_ACTOR->base.subState = 0;
         break;
     default:
         if ((BOSS_ACTOR->base.parentActor != NULL) && (BOSS_ACTOR->base.parentActor->state == 5)) {
             bossResetAudioChannels();
             BOSS_ACTOR->base.state = 0x6A;
-            BOSS_ACTOR->base.unk155 = 0;
+            BOSS_ACTOR->base.subState = 0;
             camStartPath(gCurrentActor, sBossRoundTimeUpCamPath[mapOffset], 1);
             flagSet(0x5A, 1, 2);
         }
@@ -533,7 +533,7 @@ void bossRoundFrame(const u8 *script) {
                 } else {
                     sfxStopChannel(0x2B, 0);
                     BOSS_ACTOR->base.state = 0x6A;
-                    BOSS_ACTOR->base.unk155 = 0;
+                    BOSS_ACTOR->base.subState = 0;
                     flagSet(0x5B, 1, 2);
                     menuTransitionToMap(0xD7, 1);
                     gBossRoundNumber -= 1;
@@ -610,7 +610,7 @@ void bossRoundFrame(const u8 *script) {
             sound->curVolume += 0x4650;
         }
     }
-    if ((scriptState->unk12 & 1) && (hudCanRender() != 0)) {
+    if ((scriptState->flags & 1) && (hudCanRender() != 0)) {
         renderCallbacksRegister(bossDrawRoundText, gCurrentActor, 3);
     }
 }

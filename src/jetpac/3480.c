@@ -281,7 +281,7 @@ void jetpacSpawnBonusItem(JetpacPlayer *player) {
     JetpacItem *item;
     s32 count = 5;
 
-    if (jetpacGame.unk798 != 0 && player->score >= 5000 && flagGet(0x17B, 0) == 0 && flagGet(0x62, 2) == 0) {
+    if (jetpacGame.coinChallenge != 0 && player->score >= 5000 && flagGet(0x17B, 0) == 0 && flagGet(0x62, 2) == 0) {
         count = 6;
         bonusItem.kind = count;
     } else {
@@ -573,7 +573,7 @@ void jetpacSetRocketSpriteFrames(JetpacPlayer *player) {
 }
 
 void jetpacInitLedge(JetpacLedge *ledge, s32 x1, s32 y1, s32 length, u8 r, u8 g, u8 b) {
-    ledge->unk30 = length;
+    ledge->length = length;
     ledge->unk8 = 0.0f;
     ledge->unkC = 0.0f;
     ledge->x = x1;
@@ -641,7 +641,7 @@ void jetpacDrawLedges(void) {
         y = ledge->y;
         jetpacGridAddTiledSprite(&jetpacLedgeLeftSprite, x, y, ledge->color, 0);
         x += 8;
-        for (j = 0; j < ledge->unk30; j++) {
+        for (j = 0; j < ledge->length; j++) {
             jetpacGridAddTiledSprite(&jetpacLedgeMidSprite, x, y, ledge->color, 0);
             x += 8;
         }

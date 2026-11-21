@@ -69,7 +69,7 @@ u8 actorCollisionGetNodeHitPoint(Actor *self, Actor *other, f32 *outX, f32 *outZ
     while (cb != NULL && !foundCb) {
         if ((s32)cb->callback == 0x8000 && cb->source == other) { // callback holds the s32 type for actor-attached nodes (actorAllocCallbackNode)
             hit = cb->payload;
-            for (j = 0; j < cb->unkC; j++, hit++) {
+            for (j = 0; j < cb->payloadCount; j++, hit++) {
                 hitDist = hit->dist;
                 node = collision->nodes;
                 for (i = hit->nodeIndex - 1; i != 0; i--) {
@@ -148,14 +148,14 @@ void actorCollisionCheckNodeSpheres(Actor *self) {
                 node1Idx = 1;
                 actorUpdateCollisionSpheres(actor, 0);
                 for (node1 = selfCollision->nodes; node1 != NULL; node1 = node1->next, node1Idx++) {
-                    if (node1->active != 0 && (node1->unk27 & 8) == 0) {
+                    if (node1->active != 0 && (node1->collisionSkipFlags & 8) == 0) {
                         node2Idx = 1;
                         for (node2 = otherCollision->nodes; node2 != NULL; node2 = node2->next, node2Idx++) {
-                            if (node2->active != 0 && (node2->unk27 & 8) == 0) {
+                            if (node2->active != 0 && (node2->collisionSkipFlags & 8) == 0) {
                                 if (collisionSpheresOverlap(node1->scaledX, node1->scaledY, node1->scaledZ, node1->scaledRadius,
                                                   node2->scaledX, node2->scaledY, node2->scaledZ, node2->scaledRadius)) {
-                                    mask1 = ~node1->unk24;
-                                    mask2 = ~node2->unk24;
+                                    mask1 = ~node1->ignoredCollisionFlags;
+                                    mask2 = ~node2->ignoredCollisionFlags;
                                     if ((mask1 & actor->collisionFlags) && (mask2 & self->collisionFlags)) {
                                         dist = collisionPointToSphereDistance(selfX, selfY, selfZ,
                                                              node2->scaledX, node2->scaledY, node2->scaledZ, node2->scaledRadius);

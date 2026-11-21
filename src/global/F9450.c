@@ -166,10 +166,10 @@ void gridRebuildNodeLists(void) {
 extern GridBounds gGridPlayerBounds[];
 extern GridBoundsNode *gGridPlayerExtraBounds[];
 
-extern u16 D_807F9450;
-extern u16 D_807F9452;
-extern u16 D_807F9454;
-extern u16 D_807F9456;
+extern u16 gCollisionCellSizeX;
+extern u16 gCollisionCellSizeZ;
+extern u16 gCollisionCellsX;
+extern u16 gCollisionCellsZ;
 extern s16 gGridCellCount;
 extern s16 gGridCellsX;
 extern s16 gGridCellsZ;
@@ -177,7 +177,7 @@ extern s16 gGridMapWidth;
 extern s16 gGridMapDepth;
 extern GridNode *gGridGlobalNodes;
 extern GridActiveNode *gGridActiveNodes;
-extern u8 D_807FD738;
+extern u8 gGridNodesFreed;
 extern u8 gCollectedTableIndexCount;
 
 void gridBuildNodeLists(void) {
@@ -212,7 +212,7 @@ void gridBuildNodeLists(void) {
     tail = NULL;
     head = NULL;
     entryCount = 0;
-    D_807FD738 = 0;
+    gGridNodesFreed = 0;
     if (gGlobalOverlayFlags & 0x10000) {
         gDelayedSpawnQueue = heapAlloc(60 * sizeof(DelayedSpawn));
         heapClearBlock(gDelayedSpawnQueue);
@@ -288,8 +288,8 @@ void gridBuildNodeLists(void) {
         }
         typeEntry++;
     }
-    gGridMapWidth = D_807F9450 * D_807F9454;
-    gGridMapDepth = D_807F9452 * D_807F9456;
+    gGridMapWidth = gCollisionCellSizeX * gCollisionCellsX;
+    gGridMapDepth = gCollisionCellSizeZ * gCollisionCellsZ;
     gGridCellsX = gGridMapWidth / 500 + 1;
     gGridCellsZ = gGridMapDepth / 500 + 1;
     gGridCellCount = gGridCellsX * gGridCellsZ;
@@ -513,7 +513,7 @@ void gridFreeAllActiveNodes(void) {
     GridActiveNode *node;
     GridActiveNode *next;
 
-    D_807FD738 = 1;
+    gGridNodesFreed = 1;
     node = gGridActiveNodes;
     while (node != NULL) {
         next = node->next;
@@ -1111,7 +1111,7 @@ void gridTickPlayers(void) {
         } else {
             ps->stateFlags2 &= ~2;
         }
-        if ((gPlayerSlots[i].actor->state != 0x36) && (D_807FD738 == 0)) {
+        if ((gPlayerSlots[i].actor->state != 0x36) && (gGridNodesFreed == 0)) {
             gridUpdatePlayerNodes(i);
         }
     }

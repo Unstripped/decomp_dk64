@@ -81,7 +81,7 @@ void bossKRoolDiddyStep(void) {
         camSetSecondTarget(gCamActor, 0, 0);
         gCurrentActor->segmentFlags = 5;
         gCurrentActor->state = 0x1E;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->floorNodeId = 1;
         actorScriptStart(gCurrentActor, 0x3E3);
         actorAllocBoneRotations(2, 1);
@@ -94,19 +94,19 @@ void bossKRoolDiddyStep(void) {
         scriptState->phase = 0;
         scriptState->scriptPos = 0;
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         break;
     case 0x27:
         actorScriptStart(gCurrentActor, 0x3E1);
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         break;
     case 0x2C:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gBehaviourWorkState->timer = 0x14;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
@@ -116,53 +116,53 @@ void bossKRoolDiddyStep(void) {
                 csModelStateSetFirstByte((scriptState->phase * 2) + 8, 0xA);
                 csModelStateSetFirstByte((scriptState->phase * 2) + 9, 0xA);
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x3EA);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             break;
         case 2:
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x28:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
             scriptState->byteVars[1] = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             /* fallthrough */
         case 1:
             if (camIsCutsceneActive() == 0) {
                 gBehaviourWorkState->timer = scriptState->byteVars[0];
                 actorScriptStart(gCurrentActor, 0x3EF);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 3:
             gCurrentActor->segmentFlags = 6;
             projectileGetTargetCoords(gCurrentActor, 4);
             projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->sub4->scaleY, 0, scriptState->byteVars[1] * projectileScale, 0.0f, gCurrentActor);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 5:
             actorScriptStart(gCurrentActor, 0x3F0);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 7:
             gCurrentActor->segmentFlags = 5;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             /* fallthrough */
         case 8:
             actorTrackBoneTowardTarget(0);
@@ -177,39 +177,39 @@ void bossKRoolDiddyStep(void) {
                 gBehaviourWorkState->timer--;
             } else {
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0x29:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->segmentFlags = 5;
             actorScriptStart(gCurrentActor, scriptState->phase ? 0x409 : 0x408);
             actorScriptExecute(gCurrentActor);
             controllerAnimSetStateIfChanged(scriptState->linkedActor, 0x675, 0.0f, 0.0f);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x31:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->segmentFlags = 5;
             actorScriptStart(gCurrentActor, 0);
             bossDespawnEntities();
             camStartPath(gCurrentActor, 1, 1);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gCurrentActor, 0x403);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
@@ -217,20 +217,20 @@ void bossKRoolDiddyStep(void) {
                 camStartShake(gCamActor, 5, 0x14);
                 if (scriptState->phase == 3) {
                     gCurrentActor->state = 0x37;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else {
                     bossAttachActor();
                     gCurrentActor->segmentFlags = 1;
                     actorScriptStart(gCurrentActor, 0x404);
                     actorScriptExecute(gCurrentActor);
                     controllerAnimSetStateIfChanged(scriptState->linkedActor, 0x673, 0.0f, 0.0f);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 }
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 4:
@@ -242,23 +242,23 @@ void bossKRoolDiddyStep(void) {
             actorScriptExecute(gCurrentActor);
             controllerAnimSetStateIfChanged(scriptState->linkedActor, 0x674, 0.0f, 0.0f);
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x37:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->yaw = mathAngleBetweenPoints2D(gBehaviourZone->entries[4].x, gBehaviourZone->entries[4].z, gCurrentActor->x, gCurrentActor->z);
             actorScriptStart(gCurrentActor, 0);
             camStartPath(gCurrentActor, 2, 1);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 screenSetTransitionFadeType(0);
                 mapRequestTransition(0xCD, 0);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         }

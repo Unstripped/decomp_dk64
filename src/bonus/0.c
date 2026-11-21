@@ -144,7 +144,7 @@ tail:
         case 15:
             playerSetKongByActorType(8);
             gActivePlayerActor->state = 0xC;
-            gActivePlayerActor->unk155 = 0;
+            gActivePlayerActor->subState = 0;
             actorScriptStartByIndex(gActivePlayerActor, 9);
             gActivePlayerActor->speedXZ = 0.0f;
             playerInitMoveParams();
@@ -277,8 +277,8 @@ tail:
             goto render;
         case 5:
             if (gCurrentMap == 0x85 && counter->countLeft == 1) {
-                if (gCurrentActor->unk155 == 0) {
-                    gCurrentActor->unk155 += 1;
+                if (gCurrentActor->subState == 0) {
+                    gCurrentActor->subState += 1;
                     csSendActorMessagePayload(0, 0);
                     csSendActorMessagePayload(1, 0);
                     csSendActorMessagePayload(2, 0);
@@ -468,7 +468,7 @@ void bonusMazeChallengeUpdate(void) {
         spawnNodeActivateAndSetState(3, 0x40, 0x10);
         spawnNodeActivateAndSetState(4, 0x40, 0x10);
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         camRequestPathLength();
         maze->pathDelay = camStartPath(0, 0, 1);
     }

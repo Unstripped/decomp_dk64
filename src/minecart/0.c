@@ -215,14 +215,14 @@ void minecartPlayerCartUpdate(u8 startPoint, u8 *route, s16 yawDeltaOverride, u8
         if (gCurrentActor->yawSpeed == 0 && camIsCutsceneActive() != 0) {
             gCurrentActor->yawSpeed = 1;
         }
-        if (gCurrentActor->yawSpeed == 1 && gCurrentActor->unk155 == 0) {
+        if (gCurrentActor->yawSpeed == 1 && gCurrentActor->subState == 0) {
             if (camIsCutsceneActive() != 0) {
                 playerState->stateFlags |= 8;
             } else {
                 camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
                 playerState->stateFlags &= ~8;
                 cart->targetSpeed = 0x3C;
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
         }
         actorSpawnNodeEffectFacingCamera(6, 0xFF);

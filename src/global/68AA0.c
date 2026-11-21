@@ -23,8 +23,8 @@ typedef struct ActorTargetEntry {
 } ActorTargetEntry;
 
 extern ModelSlot *gModelSlots;
-extern ActorTargetEntry *D_807F9420;
-extern s16 D_807F9424;
+extern ActorTargetEntry *gActorTargetEntries;
+extern s16 gActorTargetEntryCount;
 extern s32 gModelSlotCount;
 
 
@@ -32,29 +32,29 @@ void actorInitTargetEntries(void) {
     s32 k = 0;
     s32 i;
 
-    D_807F9424 = 0;
+    gActorTargetEntryCount = 0;
     for (i = 0; i < gModelSlotCount; i++) {
         if (mapObjectIsTargetType(i)) {
-            D_807F9424++;
+            gActorTargetEntryCount++;
         }
     }
 
-    D_807F9420 = NULL;
-    if (D_807F9424 != 0) {
-        D_807F9420 = heapAlloc(D_807F9424 * sizeof(ActorTargetEntry));
+    gActorTargetEntries = NULL;
+    if (gActorTargetEntryCount != 0) {
+        gActorTargetEntries = heapAlloc(gActorTargetEntryCount * sizeof(ActorTargetEntry));
         for (i = 0; i < gModelSlotCount; i++) {
             s32 cond = mapObjectIsTargetType(i);
             u8 res = cond;
             if (cond) {
                 s32 temp;
-                D_807F9420[k].x = gModelSlots[i].x;
-                D_807F9420[k].y = gModelSlots[i].y;
-                D_807F9420[k].z = gModelSlots[i].z;
-                D_807F9420[k].type = res;
-                D_807F9420[k].u.s.chunk = mapChunkFindByPosition(gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, 0);
-                temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.chunk, &D_807F9420[k].u.s.linkedChunks[0], 4);
+                gActorTargetEntries[k].x = gModelSlots[i].x;
+                gActorTargetEntries[k].y = gModelSlots[i].y;
+                gActorTargetEntries[k].z = gModelSlots[i].z;
+                gActorTargetEntries[k].type = res;
+                gActorTargetEntries[k].u.s.chunk = mapChunkFindByPosition(gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, 0);
+                temp = mapObjectCollectIdsByType(gActorTargetEntries[k].u.s.chunk, &gActorTargetEntries[k].u.s.linkedChunks[0], 4);
                 if (temp != 4) {
-                    D_807F9420[k].u.s.linkedChunks[temp] = -1;
+                    gActorTargetEntries[k].u.s.linkedChunks[temp] = -1;
                 }
                 k++;
             }
@@ -79,24 +79,24 @@ void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor)
     s32 j;
     s32 found;
 
-    for (i = 0; i < D_807F9424; i++) {
+    for (i = 0; i < gActorTargetEntryCount; i++) {
         j = 0;
         found = 0;
-        if (D_807F9420[i].type != targetType) {
+        if (gActorTargetEntries[i].type != targetType) {
             continue;
         }
         do {
-            if (D_807F9420[i].u.chunks[j] == gPlayerSlots[0].camChunk) {
+            if (gActorTargetEntries[i].u.chunks[j] == gPlayerSlots[0].camChunk) {
                 found = 1;
             }
             j++;
             if (j >= 5 || found) {
                 break;
             }
-        } while (D_807F9420[i].u.chunks[j] != -1);
+        } while (gActorTargetEntries[i].u.chunks[j] != -1);
 
         if (found) {
-            sfxUpdateDistanceVolumeAndPan(D_807F9420[i].x, D_807F9420[i].y, D_807F9420[i].z, volume, sfxId, factor);
+            sfxUpdateDistanceVolumeAndPan(gActorTargetEntries[i].x, gActorTargetEntries[i].y, gActorTargetEntries[i].z, volume, sfxId, factor);
         }
     }
 }

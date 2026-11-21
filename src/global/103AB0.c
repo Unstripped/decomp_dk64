@@ -201,7 +201,7 @@ void playerViewDrawCameraShutter(Gfx *gfx, Actor *actor) {
     f32 depth;
     Gfx *dl;
 
-    depth = actor->unk155 * 1.4;
+    depth = actor->subState * 1.4;
     dl = playerViewGfxSetup(gfx, ((PlayerState *)actor->customState)->playerIndex);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
@@ -607,7 +607,7 @@ Gfx *underwaterTintBuildDisplayList(Gfx *dl) {
             playerState = gPlayerSlots[i].actor->customState;
             camActor = playerState->camActor;
             camState = camActor->customState;
-            if (force != 0 || (gPlayerSlots[i].unk2E8 != 0 && gPlayerSlots[i].eyeY < gPlayerSlots[i].camWaterY + 3.0f)) {
+            if (force != 0 || (gPlayerSlots[i].camHasWater != 0 && gPlayerSlots[i].eyeY < gPlayerSlots[i].camWaterY + 3.0f)) {
                 vtx = heapAlloc(0x40);
                 heapFreeDeferred(vtx);
                 vtx[0].v.ob[0] = gPlayerSlots[i].rect[0];
@@ -660,7 +660,7 @@ Gfx *underwaterTintBuildDisplayList(Gfx *dl) {
                 drew = 1;
                 gDPPipeSync(dl++);
             }
-            gPlayerSlots[i].unk2E8 = camState->hasWater;
+            gPlayerSlots[i].camHasWater = camState->hasWater;
             gPlayerSlots[i].camWaterY = camState->waterY;
         }
     }

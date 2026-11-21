@@ -45,7 +45,7 @@ typedef struct CsState {
     /* 0x54 */ u8 updateMode;
     /* 0x55 */ u8 pad55[3];
     union {
-        /* 0x58 */ s32 unk58;    // update modes 3/4/6: squared range to the nearest player (csSetObjectTrackParam, modelPendingQueueInsert)
+        /* 0x58 */ s32 updateRangeSq;    // update modes 3/4/6: squared range to the nearest player (csSetObjectTrackParam, modelPendingQueueInsert)
         /* 0x58 */ s32 queueKey; // update mode 5: key of its model pending queue entry (csSetObjectTrackParam, modelPendingQueueInsert)
     };
     /* 0x5C */ u8 hitId;
@@ -95,13 +95,13 @@ typedef void (*CsCmdFunc)(CsState *, s16, s16, s16);
 
 // Cutscene condition/command list node (one script step).
 typedef struct CsNode {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ u8 condCount;
     /* 0x01 */ u8 pad1;
-    /* 0x02 */ CsCond unk2[5];
-    /* 0x2A */ u8 unk2A;
+    /* 0x02 */ CsCond conds[5];
+    /* 0x2A */ u8 cmdCount;
     /* 0x2B */ u8 pad2B;
-    /* 0x2C */ CsCmd unk2C[4];
-    /* 0x4C */ struct CsNode *unk4C;
+    /* 0x2C */ CsCmd cmds[4];
+    /* 0x4C */ struct CsNode *next;
 } CsNode; // size = 0x50
 
 // Countdown state of the cutscene countdown command (csCmdCountdownTimer, 478F0; heapAlloc(0x20) into

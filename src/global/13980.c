@@ -248,7 +248,7 @@ void schedHandleRetrace(SchedStruct *sc) {
         fb = osViGetCurrentFramebuffer();
         if (osViGetNextFramebuffer() == fb) {
             if (osDpGetStatus() & DPC_STATUS_FREEZE) {
-                sc->unk288 = osGetTime();
+                sc->rdpStartTime = osGetTime();
                 osDpSetStatus(DPC_CLR_FREEZE);
             }
         }
@@ -293,7 +293,7 @@ void schedHandleRSP(SchedStruct *sc) {
         schedStartTask(sc, 0);
     } else {
         if (task->flags & 0x40) {
-            D_807F04E8 = (osGetTime() - sc->unk290) / 0x1E91;
+            D_807F04E8 = (osGetTime() - sc->rspGfxStartTime) / 0x1E91;
             gSchedGfxStartTimeArmed = 1;
         } else if (task->task.t.type == M_AUDTASK) {
             D_807F0510 = osGetTime();
@@ -334,7 +334,7 @@ void schedHandleRDP(SchedStruct *sc) {
         gSchedPendingSwapTask = task;
     }
 
-    D_807F04E4 = (osGetTime() - sc->unk288) / 0x1E91;
+    D_807F04E4 = (osGetTime() - sc->rdpStartTime) / 0x1E91;
     schedTaskDone(sc, task);
 }
 
@@ -405,7 +405,7 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
     } else {
         task = sc->gfxListHead;
         if (gSchedGfxStartTimeArmed != 0) {
-            sc->unk290 = osGetTime();
+            sc->rspGfxStartTime = osGetTime();
             D_807F04F0 = (osGetTime() - gSchedRetraceTime) / 0x1E91;
             gSchedGfxStartTimeArmed = 0;
         }

@@ -168,12 +168,12 @@ void actorNodeRingUpdate(void) {
                 sfxAllocateChannel(0x7D, 1.0f);
                 actorScriptStart(gCurrentActor, 0x2F1);
                 gCurrentActor->state = 3;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 3:
-            if (gCurrentActor->unk155 & 1) {
-                gCurrentActor->unk155++;
+            if (gCurrentActor->subState & 1) {
+                gCurrentActor->subState++;
                 shakeMagnitude = 0xF; shakeDuration = 0x28; // LAYOUT: one line keeps the sh of shakeDuration to sp+0x28 at 0x510 (split lines move it one slot later)
             }
             break;
@@ -244,14 +244,14 @@ void actorRingUpdate(void) {
                 sfxPlayOnFreeSlot(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 camStartPath(gCurrentActor, 0, 1);
                 actorScriptStart(gCurrentActor, 0x291);
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 gCurrentActor->segmentFlags = 1;
             }
             break;
         case 3:
-            if (gCurrentActor->unk155 == 1) {
-                gCurrentActor->unk155++;
-            } else if (gCurrentActor->unk155 == 2) {
+            if (gCurrentActor->subState == 1) {
+                gCurrentActor->subState++;
+            } else if (gCurrentActor->subState == 2) {
                 sfxStopChannel(0x3B, 1);
                 gCurrentActor->alpha -= 8;
                 if (gCurrentActor->alpha <= 0) {
@@ -267,7 +267,7 @@ void actorRingUpdate(void) {
                         actorScriptStart(st->node, sRingNodeScripts[st->ringIdx]);
                         st->timer = 0;
                         st->node->state = 3;
-                        st->node->unk155 = 0;
+                        st->node->subState = 0;
                         camStartPath(0, 1, 1);
                         csModelStateSetFirstByte(cutsceneModelIds.b[st->ringIdx], 2);
                     }

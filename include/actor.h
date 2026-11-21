@@ -32,7 +32,7 @@ typedef struct BoneVector {
 typedef struct AnimClip {
     /* 0x00 */ f32 speed;      // a slot's starting speed
     /* 0x04 */ u16 flags;      // a slot's starting flags
-    /* 0x06 */ u16 unk6;       // advanced by 6 when the clip is loaded
+    /* 0x06 */ u16 frameDataOffset;       // advanced by 6 when the clip is loaded
     /* 0x08 */ u8 pad8[0xA];
     /* 0x12 */ u8 frameCount;
 } AnimClip;
@@ -132,9 +132,9 @@ typedef struct ModelNode {
     /* 0x18 */ s32 scaledZ;
     /* 0x1C */ s32 scaledRadius;
     /* 0x20 */ s32 mtxOffset;
-    /* 0x24 */ u16 unk24;
+    /* 0x24 */ u16 ignoredCollisionFlags;
     /* 0x26 */ u8 active;
-    /* 0x27 */ u8 unk27;
+    /* 0x27 */ u8 collisionSkipFlags;
     /* 0x28 */ struct ModelNode *next;
 } ModelNode; // size = 0x2C
 
@@ -142,10 +142,10 @@ typedef struct ModelSubNode {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;
     /* 0x08 */ f32 z;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
+    /* 0x0C */ s32 scaledX;
+    /* 0x10 */ s32 scaledY;
+    /* 0x14 */ s32 scaledZ;
+    /* 0x18 */ s32 mtxOffset;
     /* 0x1C */ struct ModelSubNode *next;
 } ModelSubNode; // size = 0x20
 
@@ -161,7 +161,7 @@ typedef struct ActorSub140 {
     /* 0x20 */ f32 pushTargetZ; /* arc contact point z */
     /* 0x24 */ u8 hasPushTarget;
     /* 0x25 */ u8 pad25;
-    /* 0x26 */ s16 unk26; // hit model entry id (actorBuildCollisionHit)
+    /* 0x26 */ s16 hitSlotId; // hit model entry id (actorBuildCollisionHit)
     /* 0x28 */ f32 hitTriX[3]; // hit triangle in the model's local space (x of the 3 vertices)
     /* 0x34 */ f32 hitTriY[3];
     /* 0x40 */ f32 hitTriZ[3];
@@ -194,20 +194,20 @@ typedef struct ActorSub140 {
     /* 0xA8 */ struct CollisionBox *box_end; /* one past the last valid box */
     /* 0xAC */ u8 unkAC;
     /* 0xAD */ u8 padAD[3];
-    /* 0xB0 */ s32 unkB0; // last box contact x/z (actorComputeBoxNormal)
-    /* 0xB4 */ s32 unkB4;
-    /* 0xB8 */ f32 unkB8; // actor position in the hit box's local space (actorCollisionReflectAndPush)
-    /* 0xBC */ f32 unkBC;
-    /* 0xC0 */ f32 unkC0;
+    /* 0xB0 */ s32 boxContactX; // last box contact x/z (actorComputeBoxNormal)
+    /* 0xB4 */ s32 boxContactZ;
+    /* 0xB8 */ f32 hitBoxPosX; // actor position in the hit box's local space (actorCollisionReflectAndPush)
+    /* 0xBC */ f32 hitBoxPosY;
+    /* 0xC0 */ f32 hitBoxPosZ;
 } ActorSub140; // size = 0xC4
 
 // Animated-model asset header (controllerAnimStateLoadAsset relocates it, animListInit reads unk10).
 typedef struct AnimInitData {
     /* 0x00 */ void *unk0;
     /* 0x04 */ void **displayLists; // pointer table; the first entry is the display list
-    /* 0x08 */ void *unk8;
+    /* 0x08 */ void *bones;
     /* 0x0C */ void *unkC;
-    /* 0x10 */ void *unk10; // s16 animation node list (animListInit)
+    /* 0x10 */ void *animTextures; // s16 animation node list (animListInit)
     /* 0x14 */ struct ControllerSubNode *segmentNodes;
     /* 0x18 */ u8 pad18[4];
     /* 0x1C */ s16 height; // model height; actorCheckPlayerProximityVertical scales it by sub4->scaleY
@@ -237,7 +237,7 @@ typedef struct HeldActorAlignArg {
 typedef struct ActorCallbackNode {
     /* 0x00 */ void *callback;
     union {
-        /* 0x04 */ u8 unk4;         // event node (actor->callbacks): the event's subtype argument (actorAllocCallbackNode, 7CA80.c)
+        /* 0x04 */ u8 subtype;         // event node (actor->callbacks): the event's subtype argument (actorAllocCallbackNode, 7CA80.c)
         /* 0x04 */ u8 dispatchPass; // global callback node (actorRegisterGlobalCallback): 0 = after the current actor's
                                     // tick, 1 = after the frame's actor passes (actorGlobalCallbacksDispatchAndFree, 7CA80.c)
     };
@@ -245,7 +245,7 @@ typedef struct ActorCallbackNode {
     union {
         struct {
             /* 0x08 */ struct Actor *source;
-            /* 0x0C */ s32 unkC;
+            /* 0x0C */ s32 payloadCount;
             /* 0x10 */ void *payload;
         };
         /* 0x08 */ HeldActorFollowArg heldFollow; // playerRegisterHeldActorFollow (CEAE0.c)
@@ -271,12 +271,12 @@ extern u16 gActiveActorCount;
 extern struct Actor *gCamActor; // camera actor (camera state in customState), defined in 201B0.c
 
 typedef struct ActorCollisionHit {
-    f32 unk0[3];
-    f32 unkC[9];
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    struct Actor *unk3C;
+    f32 pos[3];
+    f32 verts[9];
+    s32 mtxIndex;
+    s32 hitRadius;
+    s32 maxClamp;
+    struct Actor *source;
 } ActorCollisionHit; // size = 0x40
 
 typedef struct ActorGlobalState {
@@ -404,7 +404,7 @@ typedef struct Actor {
     /* 0x06C */ u16 prevContactFlags;
     /* 0x06E */ s16 soundSlots[2];
     union {
-        /* 0x072 */ s16 unk72;       // sound frame timer: counts up while sound 0x131 plays (its pitch, 7130.c), down holding 0x130 (race/36B0.c)
+        /* 0x072 */ s16 soundTimer;       // sound frame timer: counts up while sound 0x131 plays (its pitch, 7130.c), down holding 0x130 (race/36B0.c)
         /* 0x072 */ s16 soundAnimId; // anim id slot 0's script sound is bound to, stopped when the anim changes (19A00.c, 7130.c)
     };
     /* 0x074 */ f32 soundVolume;
@@ -501,7 +501,7 @@ typedef struct Actor {
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
     union {
-        /* 0x155 */ u8 unk155;         // step / in-state counter of `state`, reset with every state change
+        /* 0x155 */ u8 subState;         // step / in-state counter of `state`, reset with every state change
         /* 0x155 */ u8 projectileKind; // type 0x116: ProjectileConfig.type, read by playerHandleDamageReaction (7CA80.c)
         /* 0x155 */ u8 menuCharacter;  // type 0x151: selected character index (menuCharacterSelectUpdateActor, 3E10.c)
         /* 0x155 */ u8 optionCursor;   // type 0x157: highlighted option, 2 = quit chosen (hudTwoOptionMenuUpdate, ACDC0.c)
@@ -618,7 +618,7 @@ typedef struct ScriptedActorState {
 
 typedef struct ScriptedActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ void *unk178;
+    /* 0x178 */ void *chains;
     /* 0x17C */ ScriptedActorState *scriptState;
 } ScriptedActor;
 
@@ -676,10 +676,10 @@ typedef struct Zone {
     /* 0x12 */ u8 pad12[2];
     /* 0x14 */ ZoneEntry *entries;
     /* 0x18 */ u8 id;
-    /* 0x19 */ u8 unk19;
+    /* 0x19 */ u8 floorQueryMode;
     /* 0x1A */ u8 pad1A[2];
     /* 0x1C */ Actor *occupant;
-    /* 0x20 */ u8 unk20;
+    /* 0x20 */ u8 attachedCount;
     /* 0x21 */ u8 pad21[3];
 } Zone; // size = 0x24
 
@@ -800,7 +800,7 @@ typedef struct BehaviourWorkState {
     /* 0x1E */ u8 turnRate; // SpawnEntry.turnRate
     /* 0x1F */ u8 moveYawRate; // SpawnEntry.moveYawRate
     union {
-        /* 0x20 */ u8 unk20;       // chase countdown: reachable-point retry cooldown, state 0x35 search time (behaviourCheckTargetCollisionMode, enemyAggroStateUpdate, 12E800.c)
+        /* 0x20 */ u8 searchTimer;       // chase countdown: reachable-point retry cooldown, state 0x35 search time (behaviourCheckTargetCollisionMode, enemyAggroStateUpdate, 12E800.c)
         /* 0x20 */ u8 stuckFrames; // patrol: +2 per frame while x/z do not move, > 0x10 forces the waypoint reached (patrolPathStep, 12E800.c)
     };
     /* 0x21 */ u8 wanderDegrees; // SpawnEntry.wanderDegrees
@@ -814,11 +814,11 @@ typedef struct BehaviourWorkState {
     /* 0x26 */ s16 targetSpeed;
     union {
         /* 0x28 */ u32 idleAnimFrame; // gFrameCounter when the idle variant last played (currentActorAnimTryIdleVariant)
-        /* 0x28 */ u32 unk28; // boss/8520.c: packed anim frame (& 0xF), direction bit 0x80, flag 0x8000
+        /* 0x28 */ u32 animBounceState; // boss/8520.c: packed anim frame (& 0xF), direction bit 0x80, flag 0x8000
     };
     /* 0x2C */ s16 timer;
     union {
-        /* 0x2E */ s16 unk2E;       // countdown: set, decremented to 0 (BC3B0.c, BDEE0.c, C2A90.c, C8C10.c, CB230.c, race/0.c, boss/9230.c)
+        /* 0x2E */ s16 countdown;       // countdown: set, decremented to 0 (BC3B0.c, BDEE0.c, C2A90.c, C8C10.c, CB230.c, race/0.c, boss/9230.c)
         /* 0x2E */ s16 riseSpeed;   // Army Dillo rocket rise: +10/+4 per frame, capped 0x12C, copied to speedY (bossArmydilloStep, boss/0.c)
         /* 0x2E */ s16 spinSpeed;   // Mad Jack state 0x46: signed yaw step, eased by +-2 within +-0x32 (bossMadJackStep, boss/52B0.c)
         /* 0x2E */ s16 emergeDepth; // state 0x36 emerge: distance below the node the rise starts from (behaviourUpdateContactAndState, 12E800.c)
@@ -868,7 +868,7 @@ typedef struct PlayerState {
     /* 0x04C */ s16 moveTier;
     /* 0x04E */ s16 animIndex;
     union {
-        /* 0x050 */ s16 unk50;     // air states: frames playerApplyGravity holds gravity off (CEAE0.c; set in EFDC0.c/E4090.c)
+        /* 0x050 */ s16 gravityDelay;     // air states: frames playerApplyGravity holds gravity off (CEAE0.c; set in EFDC0.c/E4090.c)
         /* 0x050 */ s16 idleDelay; // swim states 0x7F/0x4F: frames still before the idle animation (D5E10.c; playerWarpToSpawnPoint, CC800.c)
     };
     /* 0x052 */ u8 pad52[2];
@@ -910,7 +910,7 @@ typedef struct PlayerState {
     /* 0x0BE */ s16 hitActorId;
     /* 0x0C0 */ s16 unkC0;
     union {
-        /* 0x0C2 */ s16 unkC2;    // frames on a slope, >= 0x15 slides (playerUpdateSlopeSlidePhysics, CEAE0.c)
+        /* 0x0C2 */ s16 slopeFrames;    // frames on a slope, >= 0x15 slides (playerUpdateSlopeSlidePhysics, CEAE0.c)
         /* 0x0C2 */ s16 rideSpin; // state 0x38: spin added to the ridden actor, decays by 7 (playerStateRidingActor, D5E10.c; EFDC0.c)
     };
     /* 0x0C4 */ struct GfSndState *sfxHandle;
@@ -940,7 +940,7 @@ typedef struct PlayerState {
     /* 0x100 */ s32 respawnTimer;
     /* 0x104 */ Actor *camActor;
     union {
-        /* 0x108 */ f32 unk108;     // frame countdown per tumble phase (playerStateKnockbackTumble, D5E10.c)
+        /* 0x108 */ f32 tumbleTimer;     // frame countdown per tumble phase (playerStateKnockbackTumble, D5E10.c)
         /* 0x108 */ f32 wiggleSide; // last stick side, 0.0f/1.0f (playerInputWiggleOffStatusEffect, E4090.c)
     };
     /* 0x10C */ s8 ledgeHangOffset;
@@ -1015,7 +1015,7 @@ typedef struct PlayerState {
     /* 0x21C */ s16 unk21C;
     /* 0x21E */ u16 fadeLevel;
     union {
-        /* 0x220 */ f32 unk220[3];    // cutscene spark heading: [0] sine, [1] angle (s16 yaw as a float), [2] cosine (csCmdCameraVectorTargetUpdate, 478F0.c; func_806DF280, D5E10.c)
+        /* 0x220 */ f32 heading[3];    // cutscene spark heading: [0] sine, [1] angle (s16 yaw as a float), [2] cosine (csCmdCameraVectorTargetUpdate, 478F0.c; func_806DF280, D5E10.c)
         /* 0x220 */ f32 targetPos[3]; // target point from the B-press event (playerInputCheckBButtonTarget, E4090.c; playerStateThrowCarried, D5E10.c)
     };
     /* 0x22C */ f32 savedX;
@@ -1023,7 +1023,7 @@ typedef struct PlayerState {
     /* 0x234 */ f32 savedZ;
     /* 0x238 */ f32 floatBaseY;
     union {
-        /* 0x23C */ u16 unk23C;    // frame countdown ending a state step (D5E10.c death/tag-barrel states; EFDC0.c, E4090.c)
+        /* 0x23C */ u16 stateCountdown;    // frame countdown ending a state step (D5E10.c death/tag-barrel states; EFDC0.c, E4090.c)
         /* 0x23C */ u16 rampLevel; // ramped magnitude: sparkle spin (playerStateTransformSparkles), model scale (playerStateStationaryInteraction), D5E10.c
         /* 0x23C */ u16 bobPhase;  // sine angle of the Y bob (playerStatePonytailFloat, D5E10.c)
     };
@@ -1056,7 +1056,7 @@ typedef struct PlayerState {
 // The table's declarations still differ per file; this is the row type, not a new extern.
 typedef struct KongInventory {
     union {
-        /* 0x00 */ u8 unk0[5]; // eeprom load/save walk all five bytes (104F0)
+        /* 0x00 */ u8 upgrades[5]; // eeprom load/save walk all five bytes (104F0)
         struct {
             /* 0x00 */ u8 moveLevel;       // special moves bought (0-3); users read it as unk0[0]
             /* 0x01 */ u8 slamLevel;       // slam ring tiers and shake strength (D5E10); E4090 slam handlers switch on 2/3
@@ -1292,10 +1292,10 @@ typedef struct MirrorActorState {
 
 // Viewport layout entry (gViewportLayouts[], cameraFindViewportEntry).
 typedef struct G00Entry {
-    /* 0x0 */ u8 unk0;
-    /* 0x1 */ u8 unk1;
-    /* 0x2 */ u8 unk2;
-    /* 0x3 */ u8 unk3;
+    /* 0x0 */ u8 playerCount;
+    /* 0x1 */ u8 splitScreenMode;
+    /* 0x2 */ u8 viewMask;
+    /* 0x3 */ u8 playerIndex;
     /* 0x4 */ s16 left;
     /* 0x6 */ s16 top;
     /* 0x8 */ s16 right;
@@ -1399,7 +1399,7 @@ typedef struct ActorTypeStat {
 } ActorTypeStat;
 
 typedef struct MpSettings {
-    s32 unk0;
+    s32 matchType;
     s32 gameMode;
     s32 matchPhase;
     s32 limit;

@@ -101,7 +101,7 @@ void minecartFollowerBehaviour(void) {
     switch (gCurrentActor->state) {
     case 0:
         gCurrentActor->y += 5.0f;
-        if (gCurrentActor->unk155++ >= 0x10) {
+        if (gCurrentActor->subState++ >= 0x10) {
             gCurrentActor->state = 0x3B;
         }
         break;
@@ -119,7 +119,7 @@ void minecartFollowerBehaviour(void) {
     case 3:
     case 4:
     case 5:
-        if (gCurrentActor->unk155 == 0xFF) {
+        if (gCurrentActor->subState == 0xFF) {
             actorScriptStart(gCurrentActor, 0x311);
             gCurrentActor->state = 1;
         }
@@ -195,12 +195,12 @@ void minecartFollowerChildBehaviour(void) {
         if ((gCurrentActor->yawSpeed == 1 && parent->state == 2) || (gCurrentActor->yawSpeed == -1 && parent->state == 3)) {
             playerCart = gActivePlayerState->actor->customState;
             minecartSpawnRandomParticle();
-            switch (parent->unk155) {
+            switch (parent->subState) {
             case 0:
                 if (playerCart->jumpHeight == 0) {
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     actorScriptStart(gCurrentActor, 0x312);
-                    parent->unk155 = 1;
+                    parent->subState = 1;
                     minecartSetTargetAheadOfPlayer(targetState, 2.2f);
                 }
                 break;
@@ -216,8 +216,8 @@ void minecartFollowerChildBehaviour(void) {
                 } else {
                     gCurrentActor->interactionType = 0;
                 }
-                if (gCurrentActor->unk155 != 0) {
-                    parent->unk155 = 0xFF;
+                if (gCurrentActor->subState != 0) {
+                    parent->subState = 0xFF;
                 }
                 break;
             }
@@ -227,10 +227,10 @@ void minecartFollowerChildBehaviour(void) {
     case 5:
         if ((gCurrentActor->yawSpeed == 1 && parent->state == 4) || (gCurrentActor->yawSpeed == -1 && parent->state == 5)) {
             minecartSpawnRandomParticle();
-            switch (parent->unk155) {
+            switch (parent->subState) {
             case 0:
                 targetState->timer = 0x46;
-                parent->unk155 = 1;
+                parent->subState = 1;
                 gCurrentActor->interactionType = 1;
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             case 1:
@@ -249,7 +249,7 @@ void minecartFollowerChildBehaviour(void) {
                         gCurrentActor->interactionType = 0;
                     }
                 } else {
-                    parent->unk155 = 0xFF;
+                    parent->subState = 0xFF;
                 }
                 break;
             }
@@ -261,9 +261,9 @@ void minecartFollowerChildBehaviour(void) {
         }
         break;
     case 6:
-        if (parent->unk155 == 0) {
+        if (parent->subState == 0) {
             targetState->timer = gBehaviourExtraState->unkB;
-            parent->unk155 = 1;
+            parent->subState = 1;
         }
         if (gCurrentActor->yawSpeed == 1) {
             gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0xC00, 16.0f);
@@ -274,12 +274,12 @@ void minecartFollowerChildBehaviour(void) {
         if (timer != 0) {
             targetState->timer = timer - 1;
         } else {
-            parent->unk155 = 0xFF;
+            parent->subState = 0xFF;
         }
-        if (gCurrentActor->unk155 == 0 && parent->followerCount == 4) {
+        if (gCurrentActor->subState == 0 && parent->followerCount == 4) {
             gActivePlayerState->stateFlags |= 0x10000000;
             gCurrentActor->unk15F = 0xB4;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         gCurrentActor->sideAngle = mathAngleEaseToward(gCurrentActor->sideAngle, 0x64, 10.0f);
         break;
@@ -403,7 +403,7 @@ void minecartUpdateFollower(void) {
 }
 
 void minecartStartScriptNearPlayer(void) {
-    if (gCurrentActor->unk155 != 0) {
+    if (gCurrentActor->subState != 0) {
         return;
     }
     if (behaviourIsTargetWithinAngle(10000) != 0 ||

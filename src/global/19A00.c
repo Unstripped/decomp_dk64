@@ -1016,7 +1016,7 @@ s32 scriptOpCompareSubStateToU16(Actor *actor) {
 
     sScriptPc++;
     scriptReadU16(&imm);
-    actor->sub4->scriptResult = actor->unk155 - imm;
+    actor->sub4->scriptResult = actor->subState - imm;
     return 1;
 }
 
@@ -1212,13 +1212,13 @@ s32 scriptOpSetActorState(Actor *actor) {
     sScriptPc++;
     scriptReadU8(&imm);
     actor->state = imm;
-    actor->unk155 = 0;
+    actor->subState = 0;
     return 1;
 }
 
 s32 scriptOpIncrementActorState(Actor *actor) {
     sScriptPc++;
-    actor->unk155 = 0;
+    actor->subState = 0;
     actor->state++;
     return 1;
 }
@@ -1228,13 +1228,13 @@ s32 scriptOpSetActorSubState(Actor *actor) {
 
     sScriptPc++;
     scriptReadU8(&imm);
-    actor->unk155 = imm;
+    actor->subState = imm;
     return 1;
 }
 
 s32 scriptOpIncrementActorSubState(Actor *actor) {
     sScriptPc++;
-    actor->unk155++;
+    actor->subState++;
     return 1;
 }
 
@@ -1243,7 +1243,7 @@ s32 scriptOpIncrementChildActorSubState(Actor *actor) {
 
     sScriptPc++;
     parent = actor->parentActor;
-    parent->unk155++;
+    parent->subState++;
     return 1;
 }
 

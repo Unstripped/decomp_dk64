@@ -181,7 +181,7 @@ void actorSparkCutsceneUpdate(void) {
         }
         break;
     case 2:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             if (!(gFrameCounter & 7)) {
                 for (i = 0; i < 0xC; i++) {
@@ -197,11 +197,11 @@ void actorSparkCutsceneUpdate(void) {
             break;
         case 2:
             currentActorAnimSetFrame(0, 0);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 4:
             currentActorAnimSetFrame(0, 2);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 6:
             currentActorAnimSetFrame(0, 0);
@@ -270,7 +270,7 @@ void actorSinkAndDespawn(void) {
             actorDespawn(gCurrentActor);
         }
     }
-    if (gPrimaryPlayerActor->state == 0x2D && gPrimaryPlayerActor->unk155 != 0) {
+    if (gPrimaryPlayerActor->state == 0x2D && gPrimaryPlayerActor->subState != 0) {
         found = 0;
         if (gCurrentActor->riderList != NULL) {
             count = gCurrentActor->riderList->count;
@@ -376,7 +376,7 @@ void actorOrbitPlayerMidpointUpdate(void) {
         if (sub->framesLeft == 0xB) {
             p = gCurrentActor->parentActor;
             if (p != NULL) {
-                p->unk155++;
+                p->subState++;
             }
         }
     } else {

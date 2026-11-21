@@ -70,23 +70,23 @@ void func_806BDEC8(void) {
 
     if (bananaDeliveryNpcBeginFrame() == 1) {
         gCurrentActor->state = 0x12;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     if (gCurrentActor->state == 0x12) {
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->speedY = 150.0f;
             actorScriptStart(gCurrentActor, 0x28E);
             camSetTargetCutscene(playerState->camActor, gCurrentActor, 4, 0xE77, 0xFA, 2, 0x32, 0x20, 0x3F, 0x4A, 0.16f);
             gBehaviourWorkState->timer = 0x32;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
                 actorScriptStart(gCurrentActor, 0x28F);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 gBehaviourWorkState->timer = 0x78;
             }
             break;
@@ -95,7 +95,7 @@ void func_806BDEC8(void) {
                 gBehaviourWorkState->timer--;
             } else if (mapHasCollectedSufficientItems() == 0) {
                 gCurrentActor->state = 0;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
@@ -127,8 +127,8 @@ void bananaDeliveryNpcUpdate(void) {
         gBehaviourWorkState->timer = slotQueueGetValue(0, 0);
         if (gBehaviourWorkState->timer != 0) {
             gCurrentActor->state = 0x12;
-            gCurrentActor->unk155 = 0;
-            gBehaviourWorkState->unk2E = 0x32;
+            gCurrentActor->subState = 0;
+            gBehaviourWorkState->countdown = 0x32;
             actorScriptStart(gCurrentActor, 0x28A);
             camSetTargetCutsceneUnscaled(playerState->camActor, gPrimaryPlayerActor, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
             angle = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
@@ -147,11 +147,11 @@ void bananaDeliveryNpcUpdate(void) {
     switch (gCurrentActor->state) {
     case 0x12:
         actorSetUniformScale(gCurrentActor, (target - gCurrentActor->sub4->scaleX) * 0.1 + gCurrentActor->sub4->scaleX);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
-            if (gBehaviourWorkState->unk2E != 0) {
-                gBehaviourWorkState->unk2E--;
-                if (gBehaviourWorkState->unk2E == 0) {
+            if (gBehaviourWorkState->countdown != 0) {
+                gBehaviourWorkState->countdown--;
+                if (gBehaviourWorkState->countdown == 0) {
                     camSetTargetCutsceneUnscaled(playerState->camActor, gCurrentActor, 4, 0x305, 0x14A, 3, 0x32, 0x7F, 0x5A, 0, 0.03f);
                 }
             }
@@ -173,9 +173,9 @@ void bananaDeliveryNpcUpdate(void) {
                     effectSetSpeed((s32)gCurrentActor);
                     effectCreateAtActorBone(slotQueueGetSpriteAsset(0), 0.3f, gPrimaryPlayerActor, 4, 0);
                 }
-            } else if (gBehaviourWorkState->unk2E == 0) {
+            } else if (gBehaviourWorkState->countdown == 0) {
                 gBehaviourWorkState->timer = 0x1E;
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             }
             break;
         case 1:
@@ -184,16 +184,16 @@ void bananaDeliveryNpcUpdate(void) {
             } else {
                 actorScriptStart(gCurrentActor, 0x28B);
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0x27:
-        if (gCurrentActor->unk155 == 1) {
+        if (gCurrentActor->subState == 1) {
             effectSpawnMultiTierRing(4.0f, 1, gCurrentActor->x, gCurrentActor->y + 5.0f, gCurrentActor->z);
             gCurrentActor->state = 0x28;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             gBehaviourWorkState->timer = 0x3C;
         }
         break;
@@ -201,8 +201,8 @@ void bananaDeliveryNpcUpdate(void) {
         gBehaviourWorkState->timer--;
         if (gBehaviourWorkState->timer == 0) {
             gCurrentActor->state = 0;
-            gCurrentActor->unk155 = 0;
-            gBehaviourWorkState->unk2E = 0;
+            gCurrentActor->subState = 0;
+            gBehaviourWorkState->countdown = 0;
         }
 
         break;
@@ -259,7 +259,7 @@ Gfx *targetCourseDrawCountdown(Gfx *gdl, Actor *actor) {
     gdl = textDrawStringVtx(gdl, 1, (s16)((0x140 - textGetStringWidth(1, buf)) << 1), 0xAA, buf, 1);
     n = actor->yawSpeed-- == 0;
     if (n) {
-        actor->unk155++;
+        actor->subState++;
     }
     return gdl;
 }
@@ -286,14 +286,14 @@ void actorTargetCourseHostUpdate(void) {
         actorScriptStart(gCurrentActor, 0x306);
         currentActorAnimFinish(0);
         gCurrentActor->state = 0x1E;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->sequenceIndex = 0;
     }
     switch (gCurrentActor->state) {
         case 0x26:
             actorScriptStart(gCurrentActor, 0x307);
             gCurrentActor->state = 0x27;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         case 0x1E:
             effectSpawnSmoke(1);
@@ -315,17 +315,17 @@ void actorTargetCourseHostUpdate(void) {
                 }
                 actorScriptStart(gCurrentActor, 0x309);
                 gCurrentActor->state = 0x1F;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 0x1F:
-            sel = gCurrentActor->unk155;
+            sel = gCurrentActor->subState;
             switch (sel) {
                 case 0:
                     if (currentActorTestClearFlag() != 0) {
                         camPausePath();
                         camPausePath();
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                         gCurrentActor->yawSpeed = 0x78;
                     }
                     break;
@@ -340,14 +340,14 @@ void actorTargetCourseHostUpdate(void) {
                     actorScriptStart(gCurrentActor, 0x302);
                     actorSetTargetSpeed(gCurrentActor, (flagF8Set ? 1.5 : 1.0) * gBehaviourExtraState->unkD);
                     gCurrentActor->state = 2;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     camSetZoneWeight(1, 0xA);
                     gActivePlayerState->stateFlags2 |= 0x40;
                     break;
             }
             break;
         case 0x27:
-            if (gCurrentActor->unk155 == 0) {
+            if (gCurrentActor->subState == 0) {
                 sfxStopChannel(0xA9, 0);
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0xFF;
@@ -356,12 +356,12 @@ void actorTargetCourseHostUpdate(void) {
                 gCurrentActor->yaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
                 resQueueAttachActor(gCurrentActor, 0x14, 4);
                 gCurrentActor->state = 0x37;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 gCurrentActor->y = gCurrentActor->floorY;
             }
             break;
         case 0x28:
-            sel = gCurrentActor->unk155;
+            sel = gCurrentActor->subState;
             switch (sel) {
                 case 0:
                     sfxStopChannel(0xA9, 0);
@@ -377,7 +377,7 @@ void actorTargetCourseHostUpdate(void) {
                     } else {
                         resQueueAttachActor(gCurrentActor, 0x14, 2);
                     }
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                     gCurrentActor->y = gCurrentActor->floorY;
                     break;
                 case 1:
@@ -394,7 +394,7 @@ void actorTargetCourseHostUpdate(void) {
                         }
                         flagSet(0xF8, 1, 0);
                         gCurrentActor->state = 0x37;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                         gCurrentActor->y = gCurrentActor->floorY;
                     }
                     break;
@@ -403,7 +403,7 @@ void actorTargetCourseHostUpdate(void) {
         case 0x37:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 behaviourFadeOutWithinZone(2);
-                if (gCurrentActor->unk155 != 0) {
+                if (gCurrentActor->subState != 0) {
                     gGlobalOverlayFlags &= ~4;
                     gActivePlayerState->padHintTimer = 2;
                     camSetZoneWeight(1, 0);
@@ -426,7 +426,7 @@ void actorTargetCourseHostUpdate(void) {
             actorScriptStart(gCurrentActor, 0x305);
             gCurrentActor->speedY = 200.0f;
             gCurrentActor->state = 2;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         default:
             if (gCurrentActor->sequenceIndex < sizeof(D_807506C0)) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, gCurrentActor, 3);
@@ -444,7 +444,7 @@ void actorTargetCourseHostUpdate(void) {
                     if (gActorGlobalState.notifyValue[0] != D_807506C0[gCurrentActor->sequenceIndex]) {
                         actorScriptStart(gCurrentActor, 0x301);
                         gCurrentActor->state = 0x27;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                     } else {
                         gCurrentActor->sequenceIndex++;
                         if (gCurrentActor->sequenceIndex >= sizeof(D_807506C0)) {
@@ -456,7 +456,7 @@ void actorTargetCourseHostUpdate(void) {
             for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
                 if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                     gCurrentActor->state = 0x28;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
             currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
@@ -519,7 +519,7 @@ void func_806BF218(void) {
                             actorScriptStart(gCurrentActor, 0x3A8);
                             actorScriptStart(gCurrentActor->parentActor, 0x3AA);
                             gCurrentActor->state = 4;
-                            gCurrentActor->unk155 = 0;
+                            gCurrentActor->subState = 0;
                         }
                     } else {
                         other = gCurrentActor->parentActor;
@@ -529,13 +529,13 @@ void func_806BF218(void) {
                             actorScriptStart(gCurrentActor, 0x3A9);
                             actorScriptStart(gCurrentActor->parentActor, 0x3AB);
                             gCurrentActor->state = 1;
-                            gCurrentActor->unk155 = 0;
+                            gCurrentActor->subState = 0;
                         } else if (!(gCurrentActor->flags & 0x02000000)) {
                             dx = gCurrentActor->x - gPrimaryPlayerActor->x;
                             dy = gCurrentActor->y - gPrimaryPlayerActor->y;
                             dz = gCurrentActor->z - gPrimaryPlayerActor->z;
                             if ((dx * dx + dy * dy + dz * dz) < 90000.0f) {
-                                switch (gCurrentActor->unk155) {
+                                switch (gCurrentActor->subState) {
                                     case 0:
                                         actorScriptStart(gCurrentActor, 0x3A8);
                                         actorScriptStart(gCurrentActor->parentActor, 0x3AA);
@@ -545,7 +545,7 @@ void func_806BF218(void) {
                                             camStartPath(gCurrentActor, 0x19, 1);
                                             flagSet(0x29, 1, 2);
                                         }
-                                        gCurrentActor->unk155++;
+                                        gCurrentActor->subState++;
                                         break;
                                     case 1:
                                         if (other->interactionType == 2) {
@@ -555,7 +555,7 @@ void func_806BF218(void) {
                                                 camStartPath(gCurrentActor, 0x19, 1);
                                                 flagSet(0x2A, 1, 2);
                                             }
-                                            gCurrentActor->unk155++;
+                                            gCurrentActor->subState++;
                                         }
                                         break;
                                 }
@@ -570,8 +570,8 @@ void func_806BF218(void) {
                     break;
                 case 1:
                     if (!(gCurrentActor->flags & 0x02000000)) {
-                        if (gCurrentActor->unk155 == 0) {
-                            gCurrentActor->unk155++;
+                        if (gCurrentActor->subState == 0) {
+                            gCurrentActor->subState++;
                             resQueueAttachActor(gCurrentActor, 0x16, 2);
                             other = gCurrentActor->parentActor;
                             kind = other->state;
@@ -580,13 +580,13 @@ void func_806BF218(void) {
                     if (kind == 2) {
                         gPrimaryPlayerActor->yaw += 0x800;
                         gCurrentActor->state = 2;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                         actorScriptStart(gCurrentActor, 0x3A7);
                         actorScriptStart(gCurrentActor->parentActor, 0x3AA);
                     }
                     break;
                 case 2:
-                    switch (gCurrentActor->unk155) {
+                    switch (gCurrentActor->subState) {
                         case 0:
                             ez = gCurrentActor->z - gZoneTable->zones->entries[4].z;
                             ex = gCurrentActor->x - gZoneTable->zones->entries[4].x;
@@ -595,7 +595,7 @@ void func_806BF218(void) {
                                 camStartPath(gCurrentActor, 0x17, 1);
                                 resQueueAttachActor(gCurrentActor, 0x16, 4);
                                 flagSet(0xFC, 1, 0);
-                                gCurrentActor->unk155++;
+                                gCurrentActor->subState++;
                                 actorClearMovementFlags(gPrimaryPlayerActor);
                                 zoneEntryGetPosition(1, 5, &gPrimaryPlayerActor->x, &gPrimaryPlayerActor->y, &gPrimaryPlayerActor->z);
                                 gPrimaryPlayerActor->yaw = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
@@ -603,7 +603,7 @@ void func_806BF218(void) {
                                 camStartPath(other, 0x12, 5);
                                 resQueueAttachActor(gCurrentActor, 0x16, 3);
                                 gCurrentActor->state = 3;
-                                gCurrentActor->unk155 = 0;
+                                gCurrentActor->subState = 0;
                                 gCurrentActor->flags &= ~0x8000;
                                 other = gCurrentActor->parentActor;
                                 other->flags &= ~0x8000;
@@ -614,7 +614,7 @@ void func_806BF218(void) {
                             if (!(gCurrentActor->flags & 0x02000000)) {
                                 csModelStateSetFirstByte(0x3E, 0xA);
                                 gCurrentActor->state = 4;
-                                gCurrentActor->unk155 = 0;
+                                gCurrentActor->subState = 0;
                             }
                             break;
                     }
@@ -622,11 +622,11 @@ void func_806BF218(void) {
                 case 3:
                     if (!(gCurrentActor->flags & 0x02000000)) {
                         node = other->customState;
-                        switch (gCurrentActor->unk155) {
+                        switch (gCurrentActor->subState) {
                             case 0:
                                 gCurrentActor->alpha -= 5;
                                 if (gCurrentActor->alpha < 0) {
-                                    gCurrentActor->unk155++;
+                                    gCurrentActor->subState++;
                                     gCurrentActor->alpha = 0;
                                 }
                                 gCurrentActor->parentActor->alpha = gCurrentActor->alpha;

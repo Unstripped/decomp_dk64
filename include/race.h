@@ -40,7 +40,7 @@ struct RacePair;
 // the registered participant array there.
 typedef struct RaceParticipant {
     union {
-        /* 0x00 */ s8 unk0;
+        /* 0x00 */ s8 gateKind;
         /* 0x00 */ u8 hudFlags; // manager: 2 place, 4 lap counter, 8 coin HUD, 0x10 speed-boost HUD
         /* 0x00 */ s16 heading; // 52B0 opponent racers: steering yaw (raceRacerSteerTowardWaypoint)
     };
@@ -140,11 +140,11 @@ typedef struct RaceWaypoint {
     /* 0x02 */ s16 y;
     /* 0x04 */ s16 z;
     /* 0x06 */ u16 angle;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
+    /* 0x08 */ f32 normalX;
+    /* 0x0C */ f32 normalZ;
     /* 0x10 */ u8 kind;
     /* 0x11 */ u8 pad11[3];
-    /* 0x14 */ f32 unk14;
+    /* 0x14 */ f32 gateScale;
     /* 0x18 */ u8 mode;
     /* 0x19 */ u8 pad19;
     /* 0x1A */ u16 width;
@@ -163,7 +163,7 @@ typedef struct RaceTarget {
     /* 0x0C */ u8 padC[2];
     /* 0x0E */ u8 bumpCooldown;
     /* 0x0F */ u8 curveMode;
-    /* 0x10 */ u8 unk10;
+    /* 0x10 */ u8 chaseEnabled;
     /* 0x11 */ u8 pad11[3];
     /* 0x14 */ f32 distSq;
 } RaceTarget; // size = 0x18

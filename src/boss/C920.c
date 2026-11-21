@@ -112,7 +112,7 @@ void bossKRoolChunkyStep(void) {
         camSetSecondTarget(gCamActor, 0, 0);
         gCurrentActor->segmentFlags = 5;
         gCurrentActor->state = 0x1E;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->floorNodeId = 0;
         actorAllocBoneRotations(2, 1);
         gCurrentActor->attachMode = 0;
@@ -143,12 +143,12 @@ void bossKRoolChunkyStep(void) {
         gCurrentActor->collisionMode = 1;
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->state = 0x29;
-        gCurrentActor->unk155 = 0;
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->subState = 0;
+        gCurrentActor->subState = 1;
     }
     switch (gCurrentActor->state) {
     case 0x29:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorMoveWithinZone(0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x309, 0.0f);
             break;
@@ -159,11 +159,11 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->interactionType = 4;
             bossKRoolChunkySetupFight(scriptState);
             scriptSetActorRampTarget(gCurrentActor, sKRoolChunkyPhaseRampTarget[scriptState->phase], 0.0f);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 3:
             gCurrentActor->splineT = 0.0f;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             /* fallthrough */
         case 4:
             bossKRoolChunkyInterpolatePosition(sKRoolChunkyPhaseApproachRate[scriptState->phase]);
@@ -172,13 +172,13 @@ void bossKRoolChunkyStep(void) {
             }
             break;
         case 5:
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 6:
             if (gActorGlobalState.bossFightPhase == 5 && gPrimaryPlayerActor->state == 0x24 && gCurrentActor->splineT > 0.79) {
                 if (scriptState->phase == 3) {
                     gCurrentActor->state = 0x37;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     actorScriptStart(gPrimaryPlayerActor, 0);
                     actorScriptStart(gCurrentActor, 0);
                     camStartPath(gCurrentActor, 0x16, 1);
@@ -186,7 +186,7 @@ void bossKRoolChunkyStep(void) {
                 } else {
                     gCurrentActor->alpha = 0xFF;
                     gCurrentActor->interactionType = 1;
-                    gCurrentActor->unk155 = 8;
+                    gCurrentActor->subState = 8;
                     camStartPath(gCurrentActor, 0x17, 1);
                     actorScriptStart(gCurrentActor, 0);
                 }
@@ -204,11 +204,11 @@ void bossKRoolChunkyStep(void) {
             csSendActorMessagePayload(2, 0xFF);
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
             actorScriptStart(gCurrentActor, 0);
-            gCurrentActor->unk155 = 0xA;
+            gCurrentActor->subState = 0xA;
             break;
         case 8:
             if (camIsCutsceneActive() == 0) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 9:
@@ -226,14 +226,14 @@ void bossKRoolChunkyStep(void) {
                     if (playerAddHealthDelta(0, -1) != 0) {
                         actorScriptStartByIndex(gPrimaryPlayerActor, 0x27);
                         gPrimaryPlayerActor->state = 0x36;
-                        gPrimaryPlayerActor->unk155 = 0;
+                        gPrimaryPlayerActor->subState = 0;
                     }
                     gCurrentActor->interactionType = 1;
                     scriptState->scriptPos = scriptState->loopPos;
                 }
                 bossKRoolChunkyResetPhase(scriptState);
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorScriptStart(gCurrentActor, 0x3E4);
                 bossKRoolChunkyPlayTauntSfx();
             }
@@ -243,10 +243,10 @@ void bossKRoolChunkyStep(void) {
     case 0x28:
         bossKRoolChunkyPlayTauntSfx();
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         break;
     case 0x27:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             patrolGetNextWaypointPos(&waypointCoords[2], &waypointCoords[1], &waypointCoords[0]);
             actorSetGroupState(sKRoolChunkyPathGroupState[gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex & 0x7F][0] - 1], 1);
@@ -257,7 +257,7 @@ void bossKRoolChunkyStep(void) {
                 actorScriptStart(gCurrentActor, 0x402);
             }
             actorSetTargetSpeed(gCurrentActor, 0);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->unkEC + 0x800, 10.0f);
@@ -266,7 +266,7 @@ void bossKRoolChunkyStep(void) {
         case 2:
             gCurrentActor->moveYaw = gCurrentActor->yaw;
             gCurrentActor->speedXZ = -150.0f;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             /* fallthrough */
         case 3:
             actorMoveWithinZone(0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x309, 0.0f);
@@ -277,7 +277,7 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->moveYaw = gCurrentActor->yaw;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
@@ -285,31 +285,31 @@ void bossKRoolChunkyStep(void) {
         scriptState->phase = 0;
         scriptState->scriptPos = 0;
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         break;
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x3EA);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x37:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 gPrimaryPlayerActor->flags &= ~4;
                 camStartPath(gCurrentActor, 0x1A, 1);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         }

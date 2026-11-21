@@ -48,7 +48,7 @@ u8 D_8002B6B8[0x188] = {
 u8 D_8002B840[0x180] = {
 #include "jetpac/D_8002B840.inc.c"
 };
-TextureDescriptor D_8002B9C0[6] = {
+TextureDescriptor jetpacExplosionSprites[6] = {
     { D_8002B098, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
     { D_8002B220, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
     { D_8002B3A8, 0, 24, 24, 16, 4, 1, 0, 0, 0 },
@@ -135,7 +135,7 @@ void jetpacResetPlayers(void) {
         p->stage = -1;
         p->score = 0;
         if (i < jetpacGame.numPlayers) {
-            if (jetpacGame.unk798 != 0) {
+            if (jetpacGame.coinChallenge != 0) {
                 p->lives = 3;
             } else {
                 p->lives = 5;
@@ -198,7 +198,7 @@ void jetpacStateSelection(Gfx **glist) {
     jetpacDrawString(glist, "5   START GAME", 0x50, 0xB8, 0);
     _sprintf(buf, "%c1983 A.C.G. ALL RIGHTS RESERVED", 0x7F);
     jetpacDrawString(glist, buf, 0x20, 0xD8, 0);
-    if (jetpacGame.unk798 != 0) {
+    if (jetpacGame.coinChallenge != 0) {
         if (!(jetpacGame.pressedButtons & 0x1000) && jetpacGame.unk799 < 0x78) {
             jetpacGame.unk799++;
             return;
@@ -281,7 +281,7 @@ void jetpacStatePause(Gfx **glist) {
         switch (jetpacGame.menuSelection) {
         default:
         case 0:
-            mapRequestTransition(jetpacGame.unk798 != 0 ? 5 : 0x50, 0);
+            mapRequestTransition(jetpacGame.coinChallenge != 0 ? 5 : 0x50, 0);
             break;
         case 1:
             jetpacGame.gameState = 2;
@@ -332,7 +332,7 @@ void jetpacStateGameOver(Gfx **glist) {
 
     textCol = 7;
     jetpacDrawScoreboard(glist);
-    if (jetpacGame.unk798 != 0 && flagGet(0x62, 2) != 0) {
+    if (jetpacGame.coinChallenge != 0 && flagGet(0x62, 2) != 0) {
         _sprintf(textBuf, "RAREWARE COIN COLLECTED");
         textCol = 5;
     } else {
@@ -341,7 +341,7 @@ void jetpacStateGameOver(Gfx **glist) {
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, textBuf, textCol * 8 + 0x20, 0x88, 0);
     if (jetpacGame.stateTimer >= 0x79) {
-        if (jetpacGame.unk798 != 0) {
+        if (jetpacGame.coinChallenge != 0) {
             if (jetpacGame.unk799 == 0) {
                 jetpacGame.unk799 = 1;
                 mapRequestTransition(5, 0);
@@ -379,7 +379,7 @@ void jetpacSetState(s32 state) {
     s32 pad;
     JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
 
-    jetpacGame.unk794 = 0;
+    jetpacGame.stateSettleFrames = 0;
     switch (state) {
     case 0:
     case 3:
@@ -389,7 +389,7 @@ void jetpacSetState(s32 state) {
         break;
     case 2:
         if (jetpacGame.gameState == 1) {
-            jetpacGame.unk794 = 3;
+            jetpacGame.stateSettleFrames = 3;
             player->lives--;
         }
         jetpacInitPlayer();
@@ -399,7 +399,7 @@ void jetpacSetState(s32 state) {
     case 4:
         jetpacPlayer.player.state = 1;
         jetpacPlaceRocketOnPad();
-        jetpacGame.unk794 = 3;
+        jetpacGame.stateSettleFrames = 3;
         player->lives++;
         break;
     case 5:
@@ -437,13 +437,13 @@ void jetpacUpdateStateAndInput(Gfx **glist) {
     if (*initPending != 0) {
         jetpacGame.gameState = 0;
         jetpacGame.stateTimer = 0;
-        jetpacGame.unk794 = 3;
+        jetpacGame.stateSettleFrames = 3;
         jetpacGame.numPlayers = 1;
         jetpacGame.controlType = 0;
         *initPending = 0;
         jetpacGame.highScore = eepromGetField(0x11, 0, 0, 0);
         flag = flagGet(0x61, 2);
-        jetpacGame.unk798 = flag;
+        jetpacGame.coinChallenge = flag;
         if (flag != 0) {
             jetpacGame.unk799 = 0;
         }
@@ -466,8 +466,8 @@ void jetpacUpdateStateAndInput(Gfx **glist) {
         jetpacGame.buttons |= 0x400;
     }
     jetpacGame.pressedButtons = (jetpacGame.buttons ^ jetpacGame.prevButtons) & jetpacGame.buttons;
-    if (jetpacGame.unk794 < 3) {
-        jetpacGame.unk794++;
+    if (jetpacGame.stateSettleFrames < 3) {
+        jetpacGame.stateSettleFrames++;
         return;
     }
     switch (jetpacGame.gameState) {

@@ -52,7 +52,7 @@ extern EffectGridAsset sEffectSparkConfig;
 extern EffectGridAsset gSparkEffectSprite;
 extern EffectGridAsset gEffectSpriteFireBurst;
 extern EffectGridAsset D_80720558;
-extern EffectGridAsset D_8072073C;
+extern EffectGridAsset gEffectSpriteShardGold;
 extern EffectGridAsset D_80720B58;
 extern EffectGridAsset gCrownSprite;
 extern EffectGridAsset D_80721158;
@@ -251,7 +251,7 @@ void effectSpawnRing(void) {
         effectSetCallback(effectTumbleBounceUpdate);
         effectSetFrameDelay(2);
         effectSetSpeed(0);
-        effectCreateAtPosition(&D_8072073C, scale * 0.15, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteShardGold, scale * 0.15, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
 }
 

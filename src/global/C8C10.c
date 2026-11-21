@@ -63,7 +63,7 @@ void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId)
         }
         gBehaviourExtraState->actorState = 0x27;
         gCurrentActor->state = 0x27;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     {
         s32 deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
@@ -80,7 +80,7 @@ void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId)
                 if (gPlayerSlots->sizeMode == 0) {
                     resQueueAttachActor(gCurrentActor, 0x10, 1);
                     gCurrentActor->state = 0x29;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     gBehaviourExtraState->actorState = 0x29;
                     gActivePlayerState->stateFlags |= 0x10000;
                     playerStateQueueCallback(0x54, 0, 0);
@@ -88,7 +88,7 @@ void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId)
                 } else {
                     resQueueAttachActor(gCurrentActor, 0x10, 0);
                     gCurrentActor->state = 0x28;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     gBehaviourExtraState->actorState = 0x28;
                     if (!camPathId) {
                         camSetTarget(gCamActor, gCurrentActor, 4, 0x800, 0x19, 0, 0xA, 0x14, 0xC, 0x78, 0.1f);
@@ -107,7 +107,7 @@ void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId)
                     }
                     camStartPath(gPrimaryPlayerActor, 3, 5);
                     gCurrentActor->state = 0x28;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     gBehaviourExtraState->actorState = 0x28;
                     gActivePlayerState->stateFlags &= ~0x10000;
                     gBehaviourWorkState->flags &= ~0x8000;
@@ -361,11 +361,11 @@ void targetGameEndRound(void) {
 
 
 void actorStartRewardCutscene(u8 subAction, u8 succeeded) {
-    gBehaviourWorkState->unk2E = 0;
+    gBehaviourWorkState->countdown = 0;
     resQueueSetValue(1);
     resQueueAttachActor(gCurrentActor, 0xF, subAction);
     gCurrentActor->state = 0x29;
-    gCurrentActor->unk155 = 0;
+    gCurrentActor->subState = 0;
     gCurrentActor->yawSpeed = succeeded;
     gCurrentActor->movePitch = 0;
 }
@@ -398,7 +398,7 @@ void actorTargetGameHostUpdate(void) {
                 resQueueAttachActor(gCurrentActor, 0xF, 0);
                 actorScriptStart(gCurrentActor, 0x244);
                 gCurrentActor->state = 0x27;
-                gBehaviourWorkState->unk2E = 0xF0;
+                gBehaviourWorkState->countdown = 0xF0;
             }
             break;
         case 0x27:
@@ -406,13 +406,13 @@ void actorTargetGameHostUpdate(void) {
             actorAirPatrolStep(2, 0x244, 0x246);
             if ((gBehaviourWorkState->flags & 4) && ((gBehaviourWorkState->waypointIndex & 0x7F) == 3)) {
                 gCurrentActor->state = 0x28;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorScriptStart(gCurrentActor, 0x244);
             }
             break;
         case 0x28:
             gActivePlayerState->stateFlags2 |= 0x40;
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                 case 1:
                 case 2:
@@ -423,15 +423,15 @@ void actorTargetGameHostUpdate(void) {
                     dy = gPrimaryPlayerActor->y - gCurrentActor->y;
                     dz = gPrimaryPlayerActor->z - gCurrentActor->z;
                     if (dx * dx + dy * dy + dz * dz < 6400.0f) {
-                        gCurrentActor->unk155 = 3;
+                        gCurrentActor->subState = 3;
                         camStartPath(gCurrentActor, 0x1A, 1);
                         actorScriptStart(gCurrentActor, 0x245);
-                    } else if (gBehaviourWorkState->unk2E != 0) {
-                        gBehaviourWorkState->unk2E--;
+                    } else if (gBehaviourWorkState->countdown != 0) {
+                        gBehaviourWorkState->countdown--;
                     } else {
                         gCurrentActor->state = 0x29;
-                        gCurrentActor->unk155 = 0;
-                        gBehaviourWorkState->unk2E = 0;
+                        gCurrentActor->subState = 0;
+                        gBehaviourWorkState->countdown = 0;
                         resQueueSetValue(1);
                         resQueueAttachActor(gCurrentActor, 0xF, 2);
                     }
@@ -442,7 +442,7 @@ void actorTargetGameHostUpdate(void) {
                         *cooldownPtr = 0x78;
                         gBehaviourWorkState->timer = 0xA;
                         gCurrentActor->state = 2;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                         slotQueueSetDisplayMode(5, 0, 1);
                         actorScriptStart(gCurrentActor, 0x244);
                     }
@@ -459,14 +459,14 @@ void actorTargetGameHostUpdate(void) {
                     targetGameEndRound();
                     hudSpawnTextScreen(3);
                     gCurrentActor->state = 0x2A;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else if (gCurrentActor->movePitch == 1) {
                     csModelStateSetFirstByte(0xEB, 0xA);
                     gCurrentActor->movePitch++;
                 }
                 gCurrentActor->y += 3.0f;
-                gBehaviourWorkState->unk2E++;
-                if (gBehaviourWorkState->unk2E >= 0x83) {
+                gBehaviourWorkState->countdown++;
+                if (gBehaviourWorkState->countdown >= 0x83) {
                     gBehaviourAnimState->flags &= ~4;
                     targetGameEndRound();
                     gCurrentActor->state = 0x3C;
@@ -485,7 +485,7 @@ void actorTargetGameHostUpdate(void) {
             zoneEntryGetPosition(8, 2, &gPrimaryPlayerActor->x, &gPrimaryPlayerActor->y, &gPrimaryPlayerActor->z);
             gPrimaryPlayerActor->y -= 25.0f;
             gCurrentActor->state = 0x28;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             actorScriptStart(gCurrentActor, 0x244);
             gBehaviourWorkState->waypointIndex = 2;
             slotQueueSetDisplayMode(5, 0, 1);
@@ -530,23 +530,23 @@ void actorGatedTargetGameHostUpdate(void) {
             volumeTriggerApplyActorState();
             break;
         case 0x27:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     if (camIsCutsceneActive() == 0) {
                         currentActorAnimSetFrame(0, 0);
                         camStartPath(gCurrentActor, 0x13, 1);
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                     break;
                 case 1:
                     if (currentActorTestClearFlag() != 0) {
                         actorScriptStart(gCurrentActor, 0x354);
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                     break;
                 case 3:
                     resQueueAttachActor(gCurrentActor, 0x15, 0);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     break;
                 case 4:
                     if (!(gCurrentActor->flags & 0x2000000)) {
@@ -564,16 +564,16 @@ void actorGatedTargetGameHostUpdate(void) {
                     camStartPath(gCurrentActor, 0x15, 1);
                     resQueueAttachActor(gCurrentActor, 0x15, 1);
                     gCurrentActor->state = 0x29;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
             break;
         case 0x29:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     if (!(gCurrentActor->flags & 0x2000000)) {
                         actorScriptStart(gCurrentActor, 0x358);
-                        gCurrentActor->unk155 = 1;
+                        gCurrentActor->subState = 1;
                     }
                     break;
                 case 2:
@@ -590,7 +590,7 @@ void actorGatedTargetGameHostUpdate(void) {
             }
             break;
         case 0x2A:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gCurrentActor->pitch = 0;
                     gCurrentActor->roll = 0;
@@ -599,9 +599,9 @@ void actorGatedTargetGameHostUpdate(void) {
                         targetGameHideCounter();
                         if (gCurrentActor->sub4->animId == 0x35A && gPrimaryPlayerActor->state == 0x63) {
                             hudSpawnTextScreen(4);
-                            gCurrentActor->unk155 = 3;
+                            gCurrentActor->subState = 3;
                         } else {
-                            gCurrentActor->unk155++;
+                            gCurrentActor->subState++;
                             gCurrentActor->flags &= ~0x8000;
                         }
                     }
@@ -630,7 +630,7 @@ void actorGatedTargetGameHostUpdate(void) {
             camStartPath(gCurrentActor, 0x15, 1);
             resQueueAttachActor(gCurrentActor, 0x15, 1);
             gCurrentActor->state = 0x29;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
     }
     gActivePlayerState->stateFlags2 &= ~0x40;
@@ -640,7 +640,7 @@ void actorGatedTargetGameHostUpdate(void) {
             resQueueAttachActor(gCurrentActor, 0x15, 2);
             actorScriptStart(gCurrentActor, 0x35A);
             gCurrentActor->state = 0x2A;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             camStartPath(gCurrentActor, 0x16, 1);
             break;
         case 2:
@@ -648,7 +648,7 @@ void actorGatedTargetGameHostUpdate(void) {
             resQueueAttachActor(gCurrentActor, 0x15, 3);
             actorScriptStart(gCurrentActor, 0x35B);
             gCurrentActor->state = 0x2A;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             camStartPath(gCurrentActor, 0x14, 1);
             break;
     }
@@ -752,7 +752,7 @@ void cutsceneRestoreUpdate(void) {
     restore->frameCount++;
     switch (restore->phase) {
         case 1:
-            if (gPrimaryPlayerActor->unk155 == 3) {
+            if (gPrimaryPlayerActor->subState == 3) {
                 resQueueAttachActor(gCurrentActor, 0x1E, 3);
                 restore->phase = 2;
             } else if (restore->player->state != 0x83) {

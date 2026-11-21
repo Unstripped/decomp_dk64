@@ -84,14 +84,14 @@ void critterBananaFairyUpdate(void) {
         gCurrentActor->renderFlags |= 0x20;
         if (gCurrentMap == 0x2A) {
             actorScriptStart(gCurrentActor, 0x39F);
-            gCurrentActor->unk155 = 4;
+            gCurrentActor->subState = 4;
             if (gLevelCollectibleCounts[worldIndex] < requiredCount) {
                 slotQueueUpdate(0, 1, 0);
             }
         } else {
             slotQueueUpdate(9, 1, 0);
             if (flagGet(worldIndex + 0x1CD, 0) != 0) {
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->subState = 4;
             }
             actorScriptStart(gCurrentActor, 0x39E);
             critterSetDigitFrames(requiredCount);
@@ -129,17 +129,17 @@ void critterBananaFairyUpdate(void) {
             resQueueAttachActor(gCurrentActor, 0x1D, 0);
             camStartPath(gCurrentActor, 1, 1);
             flagSet(0x17E, 1, 0);
-        } else if (canSecretUnlock != 0 && dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->state == 0x24 && gPrimaryPlayerActor->unk155 == 2 && dz > -35.0) {
+        } else if (canSecretUnlock != 0 && dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->state == 0x24 && gPrimaryPlayerActor->subState == 2 && dz > -35.0) {
             if (dx > -27.0 && dx < 27.0 && (gPrimaryPlayerActor->yaw < 0x200 || gPrimaryPlayerActor->yaw >= 0xE01)) {
                 critterFairySecretState = 2;
                 sfxPlayOnFreeSlot(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 camStartShake(gCamActor, 0xA, 0xA);
-                gCurrentActor->unk155 = 0xA;
+                gCurrentActor->subState = 0xA;
                 *timerPtr = 0;
                 actorScriptStart(gCurrentActor, 0x3A1);
             }
         }
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 10:
             *timerPtr += 1;
             if (*timerPtr == 0xA) {
@@ -147,7 +147,7 @@ void critterBananaFairyUpdate(void) {
                 sfxPlayOnFreeSlot(0xE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
             }
             if (*timerPtr >= 0x2E) {
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 if (inventoryGetGoldenBananaTotal() < requiredCount) { // ORIG: target calls inventoryGetGoldenBananaTotal (jal 0x5ec), compares with requiredCount (slt 0x5f8) and branches over this empty body to the case merge (beqz 0x5fc / b 0x604 to 0x994)
                 }
             }
@@ -164,20 +164,20 @@ void critterBananaFairyUpdate(void) {
                 if (inventoryGetGoldenBananaTotal() < requiredCount) {
                     resQueueAttachActor(gCurrentActor, 0x1D, 1);
                     actorScriptStart(gCurrentActor, 0x3A1);
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                 } else {
                     flagSet(worldIndex + 0x1CD, 1, 0);
                     kindIndex = hasSecretDiscount != 0 ? worldIndex + 2 : 2;
                     resQueueAttachActor(gCurrentActor, 0x1D, kindIndex);
                     actorScriptStart(gCurrentActor, 0x3A0);
-                    gCurrentActor->unk155 = 2;
+                    gCurrentActor->subState = 2;
                     *timerPtr = 0;
                 }
             }
             break;
         case 1:
             if (dist > 110.0) {
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 2:
@@ -207,7 +207,7 @@ void critterBananaFairyUpdate(void) {
             gCurrentActor->sub4->scaleY = 0.0f;
             gCurrentActor->sub4->scaleZ = 0.0f;
             sfxStopSlotSound(gCurrentActor, 0);
-            gCurrentActor->unk155 = 4;
+            gCurrentActor->subState = 4;
             effectSetDepth(0);
             effectSetDuration(1);
             effectCreateAtPosition(&gEffectSpriteStarBurst, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
@@ -233,7 +233,7 @@ void critterBananaFairyUpdate(void) {
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (gCurrentActor->unk155 != 4) {
+    if (gCurrentActor->subState != 4) {
         gCurrentActor->flags |= 4;
     } else {
         gCurrentActor->flags &= ~4;
@@ -276,9 +276,9 @@ void critterBananaFairyRewardUpdate(void) {
         break;
     case 2:
         savedActor = gCurrentActor;
-        if (gCurrentActor->unk155 != 0) {
-            gCurrentActor->unk155++;
-            if (gCurrentActor->unk155 < 0x4B) {
+        if (gCurrentActor->subState != 0) {
+            gCurrentActor->subState++;
+            if (gCurrentActor->subState < 0x4B) {
                 gCurrentActor = gPrimaryPlayerActor;
                 if (!(gFrameCounter & 3)) {
                     effectSpawnBurst(0);
@@ -287,15 +287,15 @@ void critterBananaFairyRewardUpdate(void) {
             } else {
                 gCurrentActor = gPrimaryPlayerActor;
                 gPrimaryPlayerActor->state = 0x2D;
-                gPrimaryPlayerActor->unk155 = 0;
+                gPrimaryPlayerActor->subState = 0;
                 actorScriptStartByIndex(gPrimaryPlayerActor, 0x42);
                 sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0xF2, 0xFF, 0x7F, 0);
                 gCurrentActor = savedActor;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 sfxStopSlotSound(gPrimaryPlayerActor, 1);
             }
         } else if (currentActorTestClearFlag() != 0) {
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             sfxPlayActorSound(gPrimaryPlayerActor, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);
             slotQueueAddValue(6, gActivePlayerState->playerIndex, 0x3E7);

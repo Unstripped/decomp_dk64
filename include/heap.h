@@ -33,9 +33,9 @@ typedef struct DeferredFree {
 typedef struct DynamicBuffer {
     /* 0x00 */ s32 scaledX;
     /* 0x04 */ s32 scaledY;
-    /* 0x08 */ s32 unk8;
+    /* 0x08 */ s32 scaledZ;
     /* 0x0C */ s32 scaledRadius;
-    /* 0x10 */ u32 unk10;
+    /* 0x10 */ u32 timestamp;
     /* 0x14 */ u8 unk14;
     /* 0x15 */ u8 flags;
     /* 0x16 */ u8 pad16[2];

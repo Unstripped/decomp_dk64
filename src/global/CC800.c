@@ -158,8 +158,8 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
     i = 0;
     found = 0;
     do {
-        if (gPlayerCount == gViewportLayouts[i].unk0 && gSplitScreenMode == gViewportLayouts[i].unk1 && playerIndex == gViewportLayouts[i].unk3 &&
-            (gViewportLayouts[i].unk2 & gSplitScreenViewMask)) {
+        if (gPlayerCount == gViewportLayouts[i].playerCount && gSplitScreenMode == gViewportLayouts[i].splitScreenMode && playerIndex == gViewportLayouts[i].playerIndex &&
+            (gViewportLayouts[i].viewMask & gSplitScreenViewMask)) {
             found = 1;
         } else {
             i++;
@@ -481,7 +481,7 @@ void playerSpawnMapHelpers(void) {
         actorScriptStart(gActivePlayerActor, 0);
         controllerAnimSetStateIfChanged(gActivePlayerActor, 0, 0.0f, 0.0f);
         gActivePlayerActor->state = 0x7D;
-        gActivePlayerActor->unk155 = 0;
+        gActivePlayerActor->subState = 0;
         gActivePlayerActor->flags &= ~0x8000;
         gActivePlayerActor->alpha = 0;
         actorSpawn(0x11A, 0x21);
@@ -508,7 +508,7 @@ void playerSpawnMapHelpers(void) {
     case 0x28:
     case 0x51:
         gActivePlayerActor->state = 0x77;
-        gActivePlayerActor->unk155 = 0;
+        gActivePlayerActor->subState = 0;
         return;
     case 0x4E:
     case 0x4F:
@@ -516,12 +516,12 @@ void playerSpawnMapHelpers(void) {
         playerKongDrawGun(gActivePlayerActor);
         gActivePlayerState->turnRate = D_80753354[gCurrentCharacterIndex];
         gActivePlayerActor->state = 0x62;
-        gActivePlayerActor->unk155 = 0;
+        gActivePlayerActor->subState = 0;
         actorScriptStartByIndex(gActivePlayerActor, 0x52);
         return;
     case 0xD3:
         gActivePlayerActor->state = 0x5F;
-        gActivePlayerActor->unk155 = 0;
+        gActivePlayerActor->subState = 0;
         actorScriptStartByIndex(gActivePlayerActor, 0x4B);
         return;
     case 0x53:
@@ -530,7 +530,7 @@ void playerSpawnMapHelpers(void) {
     case 0xD0:
     case 0xD5:
         gActivePlayerActor->state = 0x77;
-        gActivePlayerActor->unk155 = 0;
+        gActivePlayerActor->subState = 0;
         return;
     case 0x6F:
         actorSpawnChildActor(gActivePlayerActor);
@@ -626,7 +626,7 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
     switch (spawn->spawnKind) {
     case 2:
         gActivePlayerActor->state = 0x4F;
-        gActivePlayerActor->unk155 = 3;
+        gActivePlayerActor->subState = 3;
         scriptSetActorRampTarget(gActivePlayerActor, 0.5f, 0.0f);
         ps->idleDelay = 1;
         gActivePlayerActor->contactFlags |= 4;
@@ -822,7 +822,7 @@ s32 playerAddHealthDelta(u8 playerIndex, s8 delta) {
     PlayerStruct *pl;
 
     pl = &gPlayerSlots[playerIndex];
-    pl->unk2E2 |= 0x11;
+    pl->healthHudFlags |= 0x11;
     if (gPlayerCount >= 2 && delta < 0 && gMpSettings.matchPhase == 1) {
         func_80026E20(playerIndex, delta);
     }
@@ -833,7 +833,7 @@ s32 playerAddHealthDelta(u8 playerIndex, s8 delta) {
         gPlayerInventoryTable[playerIndex].healthDelta += delta;
     }
     if (gPlayerInventoryTable[playerIndex].healthDelta + gPlayerInventoryTable[playerIndex].health <= 0) {
-        pl->unk2E2 |= 0xC0;
+        pl->healthHudFlags |= 0xC0;
         return 1;
     }
     return 0;
@@ -849,7 +849,7 @@ void playerResetSpawnGlobals(void) {
     for (i = 0; i < 4; i++) {
         bzero(p, sizeof(PlayerInventory));
         if (gActivePlayerCount >= 2) {
-            if (gMpSettings.unk0 == 1) {
+            if (gMpSettings.matchType == 1) {
                 for (j = 0; j < 6; j++) {
                     p->kong[j].weaponFlags = 7;
                 }

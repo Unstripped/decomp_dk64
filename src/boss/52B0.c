@@ -80,76 +80,76 @@ void bossMadJackStep(void) {
         scriptState->phase = 0;
         scriptState->scriptPos = 0;
         gCurrentActor->state = 0x1E;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     volumeTriggerApplyActorState();
     switch (gCurrentActor->state) {
     case 0x2D:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x219);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             bossMadJackSpawnShockwave(1.8f);
             gBehaviourWorkState->timer = 0x14;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 3:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
                 bossMadJackSpawnShockwave(1.0f);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 5:
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x1E:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gPrimaryPlayerActor, 0x3B1);
                 actorScriptStart(gActivePlayerState->actor, 0x3B7);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gPrimaryPlayerActor, 0x3B2);
                 actorScriptStart(gActivePlayerState->actor, 0x3B8);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gPrimaryPlayerActor, 0x3B3);
                 actorScriptStart(gActivePlayerState->actor, 0x3B9);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gCurrentActor, 0x217);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gPrimaryPlayerActor, 0x3B4);
                 actorScriptStart(gActivePlayerState->actor, 0x3BA);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 5:
             if (currentActorTestClearFlag() != 0) {
                 controllerAnimSetStateIfChanged(gPrimaryPlayerActor, 0x1C7, 0.0f, 0.0f);
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
@@ -157,32 +157,32 @@ void bossMadJackStep(void) {
     case 0x2C:
         csModelStateSetFirstByte(scriptOpcodes[scriptState->scriptPos++], 0xA);
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         break;
     case 0x2B:
         csModelStateSetFirstByte(scriptOpcodes[scriptState->scriptPos++], 0);
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         break;
     case 0x4D:
         if (scriptState->phase == 4) {
             gCurrentActor->state = 0x37;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             camStartPath(gCurrentActor, 4, 1);
             actorAppendActiveCallback8();
         } else {
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 gCurrentActor->yaw = 0;
                 actorScriptStart(gCurrentActor, 0x213);
                 camStartPath(gCurrentActor, 2, 1);
                 actorAppendActiveCallback8();
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             case 1:
                 if (currentActorTestClearFlag() != 0) {
                     actorScriptStart(gCurrentActor, 0x21A);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 }
                 break;
             case 2:
@@ -204,7 +204,7 @@ void bossMadJackStep(void) {
                 scriptState->phase++;
                 scriptOpcodes = gMadJackPhaseScripts[scriptState->phase];
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 break;
             }
         }
@@ -231,16 +231,16 @@ void bossMadJackStep(void) {
             }
         }
 attackSequence:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
             scriptState->byteVars[1] = scriptState->byteVars[0];
             scriptState->vars[0] = scriptOpcodes[scriptState->scriptPos++];
             if (gCurrentActor->state == 0x46) {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             } else {
                 actorScriptStart(gCurrentActor, 0x214);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
@@ -248,11 +248,11 @@ attackSequence:
                 if (gCurrentActor->state == 0x46) {
                     if (mathAngleDistance(gCurrentActor->yaw, mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z)) < 0x320) {
                         actorScriptStart(gCurrentActor, 0x218);
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                 } else {
                     actorScriptStart(gCurrentActor, 0x215);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 }
             }
             break;
@@ -264,22 +264,22 @@ attackSequence:
                 projectileAimAndSpawn(0xA9, 1, 1.0f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + 2.0f, gPrimaryPlayerActor->z, 450.0f, gCurrentActor);
                 actorScriptStart(gCurrentActor, 0x213);
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 break;
             case 0x46:
                 projectileSpawnNodeEntry(0x1E, 0x63, 0.7f, gCurrentActor->yaw, 300.0f, 0.0f, gCurrentActor);
                 gBehaviourWorkState->timer = scriptState->vars[0];
-                gCurrentActor->unk155 = 8;
+                gCurrentActor->subState = 8;
                 break;
             default:
                 projectileSpawnNodeEntry(0x1E, 5, 0.7f, gCurrentActor->yaw, 600.0f, 500.0f, gCurrentActor);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             }
             break;
         case 6:
             actorScriptStart(gCurrentActor, 0x213);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             scriptState->byteVars[0] = scriptState->byteVars[1];
             break;
         case 7:
@@ -289,7 +289,7 @@ attackSequence:
             projectileSetTargetCoords(targetX, gBehaviourTargetActor->y + 500.0f, targetZ);
             projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, gBehaviourTargetActor->y, targetZ, 600.0f, gCurrentActor);
             gBehaviourWorkState->timer = scriptState->vars[0];
-            gCurrentActor->unk155 = 9;
+            gCurrentActor->subState = 9;
             /* fallthrough */
         case 9:
         case 10:
@@ -299,14 +299,14 @@ attackSequence:
                 scriptState->byteVars[0]--;
                 if (scriptState->byteVars[0] != 0) {
                     if (gCurrentActor->state == 0x46) {
-                        gCurrentActor->unk155 = 2;
+                        gCurrentActor->subState = 2;
                     } else {
-                        gCurrentActor->unk155 = 7;
+                        gCurrentActor->subState = 7;
                     }
                 } else {
                     actorScriptStart(gCurrentActor, 0x213);
                     gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
             break;
@@ -319,19 +319,19 @@ attackSequence:
         }
         break;
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
         case 1:
             actorScriptStart(gCurrentActor, 0x213);
             scriptState->vars[0] = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 2;
+            gCurrentActor->subState = 2;
             break;
         default:
             if (scriptState->vars[0] != 0) {
                 scriptState->vars[0]--;
             } else {
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }

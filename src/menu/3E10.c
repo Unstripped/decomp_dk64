@@ -462,7 +462,7 @@ void menuInitMainScreen(Actor *actor, s32 unused) {
     D_800337F8 = 0;
     sMenuMainInputLockFrames = 0;
     gPrimaryPlayerActor->state = 0x85;
-    gPrimaryPlayerActor->unk155 = 0;
+    gPrimaryPlayerActor->subState = 0;
     gAudioOutputMode = eepromGetField(0x1E, 0, 0, 0);
     menuSetAudioMode();
     state->selection = gMenuScreenSelection[1];
@@ -1167,7 +1167,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     }
                 }
                 controllerSetActiveMask(mask);
-                gMpSettings.unk0 = D_8003382C[gMenuMpMatchTypeSel];
+                gMpSettings.matchType = D_8003382C[gMenuMpMatchTypeSel];
                 gMpSettings.gameMode = sMenuMpGameModes[gMenuMpModeSel];
                 gMpSettings.limit = gMenuMpLimit;
                 gMpSettings.mapIndex = gMenuMpMapSel;
@@ -2650,9 +2650,9 @@ void menuInit(void) {
         if (gMenuReturnContext != 0) {
             sMenuKioskPodPhase = 0x15;
             gPrimaryPlayerActor->state = 0x85;
-            gPrimaryPlayerActor->unk155 = 0;
+            gPrimaryPlayerActor->subState = 0;
             actorScriptStart(gPrimaryPlayerActor, 0x347);
-            gPrimaryPlayerActor->unk155 = 6;
+            gPrimaryPlayerActor->subState = 6;
             camSetHoldMode(gCamActor);
             sMenuMainEnterProgress = 1.0f;
             kioskState->phaseFrames = 0x50;
@@ -2678,7 +2678,7 @@ void menuInit(void) {
         default:
             actorScriptStart(gSpawnedActor, 0x349);
             gPrimaryPlayerActor->state = 0x86;
-            gPrimaryPlayerActor->unk155 = 0;
+            gPrimaryPlayerActor->subState = 0;
             state->screen = 0;
             break;
         }
@@ -3339,15 +3339,15 @@ f32 menuEvaluateSpline(f32 *coeffs, f32 t, f32 *outDeriv) {
 void menuActorStateDispatch(void) {
     Actor *actor = gCurrentActor;
 
-    switch (actor->unk155) {
+    switch (actor->subState) {
     case 0:
         actorScriptStart(actor, 0x345);
         gCurrentActor->yaw = 0;
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->subState = 1;
         camStartPath(gCurrentActor, 0x13, 5);
         break;
     case 2:
-        actor->unk155++;
+        actor->subState++;
         break;
     case 4:
         if (sMenuTitleAutoAdvanceFrames == 0) {
@@ -3375,10 +3375,10 @@ void menuUpdateKioskActor(void) {
     if (sMenuKioskOffsetY > 0.0f) {
         sMenuKioskOffsetY = 0.0f;
     }
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->yaw = 0x800;
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->subState = 1;
         actorScriptStart(gCurrentActor, 0x346);
         camSetHoldMode(gCamActor);
         sMenuKioskOffsetY = -35.0f;
@@ -3386,7 +3386,7 @@ void menuUpdateKioskActor(void) {
     case 1:
         if (sMenuKioskOffsetY == 0.0f) {
             actorScriptStart(gCurrentActor, 0x347);
-            gCurrentActor->unk155 = 2;
+            gCurrentActor->subState = 2;
             kioskState->phaseFrames = 0;
         }
         break;
@@ -3401,7 +3401,7 @@ void menuUpdateKioskActor(void) {
         if (*gPlayerSlots->heldButtonsPtr & 0x8000) {
             if (sMenuMainSelectable == 1) {
                 actorScriptStart(gCurrentActor, 0x348);
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->subState = 4;
                 sMenuMainInputLockFrames = 0x3C;
             } else if (sMenuMainSelectable == -1) {
                 sfxPlayOnFreeSlot(0x98, 0x61A8, 63.0f, 1.0f, 0, 0);
@@ -3413,7 +3413,7 @@ void menuUpdateKioskActor(void) {
         sMenuMainEnterProgress = sMenuMainEnterSpeed;
         sMenuMainInputLockFrames = 0;
         kioskState->phaseFrames = 0;
-        gCurrentActor->unk155 = 6;
+        gCurrentActor->subState = 6;
         break;
     case 6:
     case 7:
@@ -3441,7 +3441,7 @@ void menuUpdateKioskActor(void) {
     if (sMenuKioskPodHideFrames != 0) {
         sMenuKioskPodHideFrames -= 1;
     }
-    if (gCurrentActor->unk155 < 6) {
+    if (gCurrentActor->subState < 6) {
         if (sMenuKioskOffsetY > -30.0) {
             gGlobalPauseFlags |= 0x10000;
         } else {
@@ -3476,7 +3476,7 @@ void menuUpdateKioskPodActor(void) {
     s32 pad2;
 
     podState = gCurrentActor->customState;
-    if (gPrimaryPlayerActor->unk155 < 6) {
+    if (gPrimaryPlayerActor->subState < 6) {
         if (sMenuKioskPodPhase == 0x14) {
             actorDespawn(gCurrentActor);
             sMenuKioskPodPhase += 1;

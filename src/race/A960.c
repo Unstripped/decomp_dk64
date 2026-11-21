@@ -153,7 +153,7 @@ void raceSpawnGateActor(f32 scaleFactor, s32 kind, u8 mode) {
     }
     actorState = gSpawnedActor->customState;
     raceScaleVelocity(gSpawnedActor, scaleFactor);
-    actorState->unk0 = kind;
+    actorState->gateKind = kind;
 }
 
 void raceInitGateActors(RaceWaypoint *node) {
@@ -167,7 +167,7 @@ void raceInitGateActors(RaceWaypoint *node) {
         if (node->mode == 2) {
             xoff = (f32)node->width * 0.5f;
             for (i = 0; i < 2; i++) {
-                raceSpawnGateActor(node->unk14, node->kind, i ^ 1);
+                raceSpawnGateActor(node->gateScale, node->kind, i ^ 1);
                 node->actors[i] = gSpawnedActor;
                 gSpawnedActor->yaw = (node->angle + 0x800) & 0xFFF;
                 if (i) {
@@ -179,7 +179,7 @@ void raceInitGateActors(RaceWaypoint *node) {
                 guMtxXFMF(mA, xoff, 0.0f, 0.0f, &gSpawnedActor->x, &gSpawnedActor->y, &gSpawnedActor->z);
             }
         } else {
-            raceSpawnGateActor(node->unk14, node->kind, node->mode == 1);
+            raceSpawnGateActor(node->gateScale, node->kind, node->mode == 1);
             node->actors[0] = gSpawnedActor;
             gSpawnedActor->yaw = (node->angle + 0x800) & 0xFFF;
             gSpawnedActor->x = node->x;
@@ -226,14 +226,14 @@ u8 raceCheckGateCrossed(RaceWaypoint *node) {
             gateZ = b->z;
             break;
         case 0:
-            gateDx = -node->unkC;
-            gateDz = node->unk8;
+            gateDx = -node->normalZ;
+            gateDz = node->normalX;
             gateX = node->x;
             gateZ = node->z;
             break;
         case 1:
-            gateDx = node->unkC;
-            gateDz = -node->unk8;
+            gateDx = node->normalZ;
+            gateDz = -node->normalX;
             gateX = node->x;
             gateZ = node->z;
             break;
@@ -267,8 +267,8 @@ u8 raceIsFacingWaypoint(RaceWaypoint *node) {
 }
 
 f32 raceGetNormalDistanceToWaypoint(RaceWaypoint *node, f32 x, f32 z) {
-    f32 normZ = node->unkC;
-    f32 normX = node->unk8;
+    f32 normZ = node->normalZ;
+    f32 normX = node->normalX;
 
     return raceLineIntersectParam((f32)node->x, (f32)node->z, -normZ, normX, x, z, normX, normZ);
 }

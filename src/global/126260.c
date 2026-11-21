@@ -48,7 +48,7 @@ typedef struct Command {
     u8 type;
 } Command;
 
-extern CommandState D_807FDB60;
+extern CommandState gLightAmbient;
 extern Command *gLightCommandQueue;
 
 void commandSetParameters(s16 angleOffset, s16 distance, s16 heightOffset, u8 red, u8 green, u8 blue) {
@@ -61,9 +61,9 @@ void commandSetParameters(s16 angleOffset, s16 distance, s16 heightOffset, u8 re
 }
 
 void commandSetColor(s8 red, s8 green, s8 blue) {
-    D_807FDB60.red = red;
-    D_807FDB60.green = green;
-    D_807FDB60.blue = blue;
+    gLightAmbient.red = red;
+    gLightAmbient.green = green;
+    gLightAmbient.blue = blue;
 }
 
 void commandSetFlags(s8 ambientFlag, s8 directionalFlag) {
@@ -72,13 +72,13 @@ void commandSetFlags(s8 ambientFlag, s8 directionalFlag) {
 }
 
 void commandStateInit(void) {
-    D_807FDB60.z = 0;
-    D_807FDB60.red = 0x6B;
-    D_807FDB60.green = 0x30;
-    D_807FDB60.blue = 0x50;
-    D_807FDB60.type = 7;
-    D_807FDB60.y = D_807FDB60.z;
-    D_807FDB60.x = D_807FDB60.z;
+    gLightAmbient.z = 0;
+    gLightAmbient.red = 0x6B;
+    gLightAmbient.green = 0x30;
+    gLightAmbient.blue = 0x50;
+    gLightAmbient.type = 7;
+    gLightAmbient.y = gLightAmbient.z;
+    gLightAmbient.x = gLightAmbient.z;
     gLightCommandQueue = heapAlloc(0x200);
     commandSetParameters(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
     commandSetFlags(1, 1);
@@ -209,12 +209,12 @@ extern f32 *gChunkLightR;
 extern f32 *gChunkLightG;
 extern f32 *gChunkLightB;
 extern PlayerStruct *gPlayerSlots;
-extern f32 D_807444CC;
-extern f32 D_807444D0;
-extern f32 D_807444D4;
-extern f32 D_807444D8;
-extern f32 D_807444DC;
-extern f32 D_807444E0;
+extern f32 gHiliteKeyDirX;
+extern f32 gHiliteKeyDirY;
+extern f32 gHiliteKeyDirZ;
+extern f32 gHiliteFillDirX;
+extern f32 gHiliteFillDirY;
+extern f32 gHiliteFillDirZ;
 
 
 Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIndex) {
@@ -292,9 +292,9 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         color[2] = gChunkLightB[chunk];
     }
 
-    primary->l.col[0] = primary->l.colc[0] = (u8)((gLightAmbientTint ? color[0] * scale : 1.0) * D_807FDB60.red);
-    primary->l.col[1] = primary->l.colc[1] = (u8)((gLightAmbientTint ? color[1] * scale : 1.0) * D_807FDB60.green);
-    primary->l.col[2] = primary->l.colc[2] = (u8)((gLightAmbientTint ? color[2] * scale : 1.0) * D_807FDB60.blue);
+    primary->l.col[0] = primary->l.colc[0] = (u8)((gLightAmbientTint ? color[0] * scale : 1.0) * gLightAmbient.red);
+    primary->l.col[1] = primary->l.colc[1] = (u8)((gLightAmbientTint ? color[1] * scale : 1.0) * gLightAmbient.green);
+    primary->l.col[2] = primary->l.colc[2] = (u8)((gLightAmbientTint ? color[2] * scale : 1.0) * gLightAmbient.blue);
 
     secondary->l.col[0] = (u8)(s32)((gLightDirectionalTint ? color[0] * scale : 1.0) * dest_red);
     secondary->l.col[1] = (u8)(s32)((gLightDirectionalTint ? color[1] * scale : 1.0) * dest_green);
@@ -313,12 +313,12 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     secondary->l.dir[2] = (s8)(dz * inv_distance);
 
     if (is_player) {
-        D_807444CC = secondary->l.dir[0];
-        D_807444D0 = secondary->l.dir[1];
-        D_807444D4 = secondary->l.dir[2];
-        D_807444D8 = 10.0f;
-        D_807444DC = -10.0f;
-        D_807444E0 = 10.0f;
+        gHiliteKeyDirX = secondary->l.dir[0];
+        gHiliteKeyDirY = secondary->l.dir[1];
+        gHiliteKeyDirZ = secondary->l.dir[2];
+        gHiliteFillDirX = 10.0f;
+        gHiliteFillDirY = -10.0f;
+        gHiliteFillDirZ = 10.0f;
         gPlayerLightHeight += -gPlayerLightHeight * 0.05;
         gPlayerLightRed += (gLightRed - gPlayerLightRed) * 0.05;
         gPlayerLightBlue += (gLightGreen - gPlayerLightBlue) * 0.05;

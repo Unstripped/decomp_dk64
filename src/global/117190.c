@@ -197,7 +197,7 @@ void playerRefillHealth(Actor *player, s32 playerIndex) {
 
     healthRefill(playerIndex);
     if (gGlobalOverlayFlags & 1) {
-        player->unk155++;
+        player->subState++;
         if (gGlobalCutsceneFlags & 2) {
             flagSet(0x5C, 1, 2);
             map = 0x22;
@@ -215,7 +215,7 @@ void playerRefillHealth(Actor *player, s32 playerIndex) {
         return;
     }
     if (gGlobalOverlayFlags & 0x400) {
-        player->unk155++;
+        player->subState++;
         mapFindPreviousSavedMap(&savedMap, &savedExit);
         mapRequestTransition(savedMap, savedExit);
         return;
@@ -882,7 +882,7 @@ void mpStartMatch(void) {
 
     playerResetSpawnGlobals();
     gSplitScreenMode = 0;
-    if (gMpSettings.unk0 == 0) {
+    if (gMpSettings.matchType == 0) {
         gSplitScreenMode = 1;
         map = 0x6B;
     } else {
@@ -901,7 +901,7 @@ s32 mpIsMatchType(s32 value) {
 
     isMultiplayer = gPlayerCount >= 2;
     if (isMultiplayer) {
-        return value == gMpSettings.unk0;
+        return value == gMpSettings.matchType;
     }
 }
 

@@ -30,7 +30,7 @@ void timedSmokeTargetHostUpdate(void) {
         gBehaviourAnimState->flags |= 0xA0;
         gCurrentActor->flags |= 0x400;
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         actorSpawn(0x73, 0x7D);
         gBehaviourWorkState->targetActor = gSpawnedActor;
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.3f);
@@ -53,9 +53,9 @@ void timedSmokeTargetHostUpdate(void) {
         camStartPath(gCurrentActor, 6, 5);
         gCurrentActor->collisionMode = 1;
         gCurrentActor->state = 0x37;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     } else if (gActorGlobalState.bossFightPhase == 4) {
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     }
     switch (gCurrentActor->state) {
         case 0:
@@ -63,20 +63,20 @@ void timedSmokeTargetHostUpdate(void) {
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x1E);
                 hudCountdownTimerStart(gCurrentActor->parentActor);
                 gCurrentActor->state = 7;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 0x27:
             break;
         case 0x37:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0x3C:
                     gCurrentActor->flags &= ~4;
                     gCurrentActor->flags2 &= ~0x40;
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xED, 0xFF, 0x7F, 0x14);
                     tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->sub4->scaleY * 2 / 0.15, 0, 1);
                     actorDespawn(gBehaviourTargetActor);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     break;
                 case 0x64:
                     actorDespawn(gCurrentActor->parentActor);
@@ -84,7 +84,7 @@ void timedSmokeTargetHostUpdate(void) {
                     sfxAllocateChannel(0x2A, 1.0f);
                     // fall through
                 default:
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     break;
             }
             break;
@@ -96,14 +96,14 @@ void timedSmokeTargetHostUpdate(void) {
                 effectFreeByResource(gBehaviourTargetActor);
                 actorDespawn(gCurrentActor->parentActor);
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 camStartPath(gCurrentActor, 3, 1);
                 actorScriptStart(gCurrentActor, 0x307);
                 gCurrentActor->yaw += 0x800;
                 gCurrentActor->z += 5.0f;
             }
-            if (gCurrentActor->unk155 != 0 && actorTableContains(gBehaviourTargetActor) != 0 && gFrameCounter % 7 == 0) {
-                tint = (6 - gCurrentActor->unk155) * 30;
+            if (gCurrentActor->subState != 0 && actorTableContains(gBehaviourTargetActor) != 0 && gFrameCounter % 7 == 0) {
+                tint = (6 - gCurrentActor->subState) * 30;
                 effectSetFrameDelay(3);
                 effectSetColor(tint, tint, tint, gCurrentActor->alpha);
                 effectSpawnBoneDefault(gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);

@@ -40,17 +40,17 @@ extern const u8 D_80036C20[8];
 extern const u8 D_80036C28[8];
 extern const u8 D_80036C30[16];
 
-BossWaypointPick D_80035B80 = { { 5, 6, 9, 10 } };
+BossWaypointPick gBossCenterWaypoints = { { 5, 6, 9, 10 } };
 const u8 *gBossWaypointPhaseScripts[5] = { D_80036C10, D_80036C18, D_80036C20, D_80036C28, D_80036C30 };
-u16 D_80035B98[32] = {
+u16 gBossWaypointLightPatterns[32] = {
     0x000F, 0x00F0, 0x0F00, 0xF000, 0x1111, 0x2222, 0x4444, 0x8888,
     0x0001, 0x0012, 0x0124, 0x1248, 0x2480, 0x4800, 0x8000, 0x0000,
     0x0001, 0x0002, 0x0004, 0x0008, 0x0080, 0x0040, 0x0020, 0x0010,
     0x0100, 0x0200, 0x0400, 0x0800, 0x8000, 0x4000, 0x2000, 0x1000,
 };
 u8 gBossIntroWaypointPath[4] = { 9, 10, 14, 0 };
-u8 D_80035BDC[8] = { 0x10, 0x12, 0x15, 0x17, 0x18, 0x1A, 0x1D, 0x1F };
-u8 D_80035BE4[8] = { 0x11, 0x13, 0x14, 0x16, 0x19, 0x1B, 0x1C, 0x1E };
+u8 gBossPlainPillarObjects[8] = { 0x10, 0x12, 0x15, 0x17, 0x18, 0x1A, 0x1D, 0x1F };
+u8 gBossSpecialPillarObjects[8] = { 0x11, 0x13, 0x14, 0x16, 0x19, 0x1B, 0x1C, 0x1E };
 u8 gBossWaypointIsSpecial[16] = { 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0 };
 
 // Waypoint component of the boss actor (Actor+0x17C): indices into the 16 gBehaviourZone pillar entries.
@@ -85,7 +85,7 @@ u8 bossPickWaypointStep(BossScriptState *scriptState, BossWaypointState *waypoin
     }
 
     if (gPrimaryPlayerActor->y < gCurrentActor->y - 10.0f) {
-        BossWaypointPick center = D_80035B80;
+        BossWaypointPick center = gBossCenterWaypoints;
         return center.b[(randomNonNegative() >> 15) % 4];
     }
 
@@ -176,21 +176,21 @@ void bossSetRandomObjectPair(BossWaypointState *waypoints, u8 stateByte) {
     if (stateByte) {
         do {
             idx = (randomNonNegative() >> 15) % 8;
-        } while (waypoints->current + 0x10 == (val = D_80035BDC[idx]) ||
-                  waypoints->playerNearest + 0x10 == D_80035BDC[idx] ||
-                  waypoints->playerNearest + 0x0F == D_80035BDC[idx] ||
-                  waypoints->playerNearest + 0x11 == D_80035BDC[idx] ||
-                  waypoints->playerNearest + 0x0C == D_80035BDC[idx] ||
-                  waypoints->playerNearest + 0x14 == D_80035BDC[idx]);
+        } while (waypoints->current + 0x10 == (val = gBossPlainPillarObjects[idx]) ||
+                  waypoints->playerNearest + 0x10 == gBossPlainPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x0F == gBossPlainPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x11 == gBossPlainPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x0C == gBossPlainPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x14 == gBossPlainPillarObjects[idx]);
         waypoints->objectA = val;
         do {
             idx = (randomNonNegative() >> 15) % 8;
-        } while (waypoints->current + 0x10 == (val = D_80035BE4[idx]) ||
-                  waypoints->playerNearest + 0x10 == D_80035BE4[idx] ||
-                  waypoints->playerNearest + 0x0F == D_80035BE4[idx] ||
-                  waypoints->playerNearest + 0x11 == D_80035BE4[idx] ||
-                  waypoints->playerNearest + 0x0C == D_80035BE4[idx] ||
-                  waypoints->playerNearest + 0x14 == D_80035BE4[idx]);
+        } while (waypoints->current + 0x10 == (val = gBossSpecialPillarObjects[idx]) ||
+                  waypoints->playerNearest + 0x10 == gBossSpecialPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x0F == gBossSpecialPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x11 == gBossSpecialPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x0C == gBossSpecialPillarObjects[idx] ||
+                  waypoints->playerNearest + 0x14 == gBossSpecialPillarObjects[idx]);
         waypoints->objectB = val;
     }
 
@@ -215,7 +215,7 @@ s32 bossCheckPlayerBelow(BossScriptState *scriptState, const u8 *scriptOpcodes) 
     if ((gPrimaryPlayerActor->y < (gCurrentActor->y - 10.0f)) && (scriptState->phase < 5)) {
         scriptState->scriptPos = scriptState->loopPos;
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         actorScriptStart(gCurrentActor, 0);
         return 1;
     }
@@ -227,10 +227,10 @@ void bossAdjustHealth(s8 healthDelta) {
     gCurrentActor->alpha += healthDelta;
     if (gCurrentActor->alpha < 0) {
         gCurrentActor->alpha = 0;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     } else if (gCurrentActor->alpha >= 0x100) {
         gCurrentActor->alpha = 0xFF;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     }
 }
 
@@ -242,11 +242,11 @@ typedef struct BossWaypointActor {
 } BossWaypointActor;
 
 extern u8 gBossWaypointLightFade[];
-extern const f32 D_80036C40[];
-extern s16 D_807502DC;
-extern f32 D_807502F0;
+extern const f32 gBossWaypointPhaseAnimSpeeds[];
+extern s16 gWaypointBossTerminalSpeedY;
+extern f32 gWaypointBossAccelY;
 extern u8 gEffectSpriteSparklePurple[];
-extern u8 D_80720054[];
+extern u8 gEffectSpriteGlowRed[];
 extern u8 gEffectSpriteSmokeCloud[];
 
 void bossMainStep(void) {
@@ -291,22 +291,22 @@ void bossMainStep(void) {
             waypoints->current = 9;
             waypoints->previous = 5;
             gCurrentActor->state = 0x20;
-            gCurrentActor->unk155 = 0;
-            gCurrentActor->unk155 = 0xB;
+            gCurrentActor->subState = 0;
+            gCurrentActor->subState = 0xB;
             gCurrentActor->attachMode = 0;
         } else {
             gCurrentActor->segmentFlags = 0;
             gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
             actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale * 0.333);
             gCurrentActor->state = 0x1E;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             gCurrentActor->y += 650.0f;
             gCurrentActor->flags &= ~0x8000;
             waypoints->current = 0xF;
         }
         gCurrentActor->contactFlags &= ~1;
-        gCurrentActor->accelY = D_807502F0;
-        gCurrentActor->terminalSpeedY = D_807502DC;
+        gCurrentActor->accelY = gWaypointBossAccelY;
+        gCurrentActor->terminalSpeedY = gWaypointBossTerminalSpeedY;
     }
     if (scriptState->phase < 2) {
         if (waypoints->objectA != 0) {
@@ -335,21 +335,21 @@ void bossMainStep(void) {
     if ((gCurrentActor->state == 0x27 && scriptState->phase == 4) || (gActorGlobalState.damaged != 0 && gCurrentActor->state != 0x37)) {
         if (gPrimaryPlayerActor->state == 0x36) {
             gCurrentActor->state = 0x2B;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         } else {
             actorScriptStart(gCurrentActor, 0x226);
             gCurrentActor->state = 0x37;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
-    if (gCurrentActor->state == 0x23 && gCurrentActor->unk155 == 1 && playerAbove == 0 && waypoints->playerWasAbove != 0) {
+    if (gCurrentActor->state == 0x23 && gCurrentActor->subState == 1 && playerAbove == 0 && waypoints->playerWasAbove != 0) {
         gCurrentActor->state = 0x2B;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     switch (gCurrentActor->state) {
     case 0x1E:
         for (i = 0; i < 0x10; i++) {
-            if (D_80035B98[gBehaviourWorkState->timer & 0x1F] & (1 << i)) {
+            if (gBossWaypointLightPatterns[gBehaviourWorkState->timer & 0x1F] & (1 << i)) {
                 gBossWaypointLightFade[i] = 0xFA;
             }
             if (gBossWaypointLightFade[i] != 0) {
@@ -365,7 +365,7 @@ void bossMainStep(void) {
         }
         if (gActorGlobalState.volumeTriggerQueueCount != 0) {
             gCurrentActor->state = 0x1F;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     case 0x1F:
@@ -375,12 +375,12 @@ void bossMainStep(void) {
         if (currentActorTestClearFlag() != 0) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
             gCurrentActor->state = 0x20;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     case 0x20:
         behaviourUpdateShadowAlpha();
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             effectSpawnBoneDebris(4, 1);
             debrisSfx = 1;
@@ -388,12 +388,12 @@ void bossMainStep(void) {
             actorApplyVelocityCustom(gCurrentActor, 0.0f, gCurrentActor->speedY);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             if (gCurrentActor->attachMode == 1) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
@@ -402,11 +402,11 @@ void bossMainStep(void) {
             scriptState->byteVars[0] = 2;
             waypoints->next = gBossIntroWaypointPath[scriptState->byteVars[0]];
             waypoints->previous = 0xFF;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             gCurrentActor->contactFlags |= 1;
         case 3:
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         case 4:
             actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
@@ -426,10 +426,10 @@ void bossMainStep(void) {
             if (v) {
                 scriptState->byteVars[0] = left;
                 waypoints->next = gBossIntroWaypointPath[left];
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
             } else {
                 actorScriptStart(gCurrentActor, 0x224);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 6:
@@ -437,10 +437,10 @@ void bossMainStep(void) {
             break;
         case 7:
             actorScriptStart(gCurrentActor, 0x222);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         case 8:
             if (currentActorTestClearFlag() != 0) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x128, 0xFF, 0x19, 0);
             }
             break;
@@ -451,14 +451,14 @@ void bossMainStep(void) {
                 debrisSfx = 1;
             } else {
                 actorScriptStart(gCurrentActor, 0x227);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 11:
             gCurrentActor->contactFlags &= ~1;
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gCurrentActor, 0x22C);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 13:
@@ -466,42 +466,42 @@ void bossMainStep(void) {
             scriptState->phase = 0;
             scriptState->scriptPos = 0;
             gCurrentActor->state = tbl[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             waypoints->previous = 5;
             break;
         }
         break;
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
         case 1:
         case 2:
             bossSetRandomObjectPair(waypoints, 0);
             actorScriptStart(gCurrentActor, 0x226);
-            gCurrentActor->unk155 = 3;
+            gCurrentActor->subState = 3;
             break;
         case 3:
             if (gPrimaryPlayerActor->state != 0x33) {
                 scriptState->scriptPos = scriptState->loopPos;
                 gCurrentActor->state = tbl[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0x23:
         behaviourUpdateShadowAlpha();
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             scriptState->byteVars[0] = tbl[scriptState->scriptPos++];
             scriptState->byteVars[1] = scriptState->byteVars[0];
             bossSetAnimationByWaypoint(waypoints);
             waypoints->next = bossPickWaypointStep(scriptState, waypoints);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             gCurrentActor->contactFlags |= 1;
         case 1:
-            gCurrentActor->unk155 = 2;
-            scriptSetActorRampTarget(gCurrentActor, D_80036C40[scriptState->phase], 0.0f);
+            gCurrentActor->subState = 2;
+            scriptSetActorRampTarget(gCurrentActor, gBossWaypointPhaseAnimSpeeds[scriptState->phase], 0.0f);
             waypoints->playerWasAbove = playerAbove;
         case 2:
             actorUpdatePrevContactFlags(gCurrentActor);
@@ -530,10 +530,10 @@ void bossMainStep(void) {
                 waypoints->next = bossPickWaypointStep(scriptState, waypoints);
                 scriptState->byteVars[0]--;
                 bossSetAnimationByWaypoint(waypoints);
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             } else {
                 gCurrentActor->state = tbl[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
@@ -544,13 +544,13 @@ void bossMainStep(void) {
         if (bossCheckPlayerBelow(scriptState, tbl) != 0) {
             bossSetRandomObjectPair(waypoints, 0);
         } else if (volumeTriggerApplyActorState() == 0) {
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 bossSetRandomObjectPair(waypoints, 0xA);
                 scriptState->byteVars[0] = tbl[scriptState->scriptPos++] - 1;
                 scriptState->byteVars[1] = tbl[scriptState->scriptPos++];
                 actorScriptStart(gCurrentActor, 0x229);
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
                 break;
             case 2:
                 if (gCurrentActor->state == 0x25) {
@@ -565,7 +565,7 @@ void bossMainStep(void) {
                     }
                     actorScriptStart(gCurrentActor, 0x22F);
                 }
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 break;
             case 3:
                 if (gCurrentActor->state == 0x25) {
@@ -580,7 +580,7 @@ void bossMainStep(void) {
                     effectSetCallback(effectEaseToTargetNodeUpdate);
                     effectSetSpeed((s32)gCurrentActor);
                     effectCreateAtPosition(gEffectSpriteSparklePurple, 1.5f, boneX, boneY, boneZ);
-                    effectCreateAtActorBone(D_80720054, 3.0f, gCurrentActor, 1, 2);
+                    effectCreateAtActorBone(gEffectSpriteGlowRed, 3.0f, gCurrentActor, 1, 2);
                 }
                 break;
             case 4:
@@ -591,16 +591,16 @@ void bossMainStep(void) {
                     waypoints->next = bossPickWaypointStep(scriptState, waypoints);
                     bossSpawnObjectAtWaypoint(waypoints);
                 }
-                gCurrentActor->unk155 = 5;
+                gCurrentActor->subState = 5;
                 break;
             case 6:
                 if (scriptState->byteVars[0] != 0) {
                     scriptState->byteVars[0]--;
                     gBehaviourWorkState->timer = scriptState->byteVars[1];
-                    gCurrentActor->unk155 = 7;
+                    gCurrentActor->subState = 7;
                 } else {
                     actorScriptStart(gCurrentActor, 0x22D);
-                    gCurrentActor->unk155 = 8;
+                    gCurrentActor->subState = 8;
                 }
                 break;
             case 7:
@@ -611,23 +611,23 @@ void bossMainStep(void) {
                         gBehaviourWorkState->timer--;
                     }
                 } else {
-                    gCurrentActor->unk155 = 2;
+                    gCurrentActor->subState = 2;
                 }
                 break;
             case 9:
                 bossSetRandomObjectPair(waypoints, 0);
                 actorScriptStart(gCurrentActor, 0x22C);
-                gCurrentActor->unk155 = 0xA;
+                gCurrentActor->subState = 0xA;
                 break;
             case 11:
                 gCurrentActor->state = tbl[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 break;
             }
         }
         break;
     case 0x27:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
         case 1:
         case 2:
@@ -637,7 +637,7 @@ void bossMainStep(void) {
             camStartPath(gCurrentActor, 2, 1);
             actorSpawnAttachment(gCurrentActor, 1.2f);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x305, 0xFF, 0x7F, 0, 0, 0.0f, 0);
-            gCurrentActor->unk155 = 3;
+            gCurrentActor->subState = 3;
             break;
         case 4:
             effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
@@ -646,16 +646,16 @@ void bossMainStep(void) {
         case 5:
             effectSpawnRandomBoneDebris(7, 0x20);
             if (currentActorTestClearFlag() != 0 || camIsCutsceneActive() == 0) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 6:
             if (scriptState->phase < 3) {
                 actorScriptStart(gCurrentActor, 0x22C);
             } else {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 8:
             currentActorClearFlag();
@@ -663,17 +663,17 @@ void bossMainStep(void) {
             scriptState->phase++;
             tbl = gBossWaypointPhaseScripts[scriptState->phase];
             gCurrentActor->state = tbl[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x29:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->flags &= ~0x8000;
             actorScriptStart(gCurrentActor, 0x231);
             scriptState->vars[0] = (s8)tbl[scriptState->scriptPos++];
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             effectSpawnBoneDebris(2, 1);
@@ -690,16 +690,16 @@ void bossMainStep(void) {
             break;
         case 5:
             gCurrentActor->state = tbl[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x2B:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x222);
             gBehaviourWorkState->timer = 0x5A;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (gBehaviourWorkState->timer != 0) {
@@ -707,20 +707,20 @@ void bossMainStep(void) {
             } else {
                 scriptState->scriptPos = scriptState->loopPos;
                 gCurrentActor->state = tbl[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0x37:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             camStartPath(gCurrentActor, 6, 0x81);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
@@ -729,14 +729,14 @@ void bossMainStep(void) {
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 csModelStateSetFirstByte(waypoints->current, 0x1E);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
                 effectSpawnScatterRandom(gEffectSpriteSmokeCloud, 0, 6.0f, 6, 0x50, 0x64, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
                 effectSpawnScatterRandom(gEffectSpriteSmokeCloud, 0x14, 6.0f, 8, 0x96, 0x46, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 5:
@@ -773,7 +773,7 @@ void bossMainStep(void) {
 void bossShockwaveTriggerDamage(void) {
     f32 dx, dz;
 
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 1:
         if (gCurrentActor->state == 0) {
             dx = gPrimaryPlayerActor->x - gCurrentActor->x;
@@ -799,4 +799,4 @@ const u8 D_80036C18[8] = { 0x4F, 0x23, 0x0A, 0x25, 0x05, 0x2D, 0x50, 0x00 };
 const u8 D_80036C20[8] = { 0x4F, 0x23, 0x0B, 0x25, 0x04, 0x28, 0x50, 0x00 };
 const u8 D_80036C28[8] = { 0x4F, 0x23, 0x0C, 0x28, 0x04, 0x05, 0x50, 0x00 };
 const u8 D_80036C30[16] = { 0x5F, 0x0A, 0x54, 0x29, 0xFB, 0x54, 0x4F, 0x23, 0x0E, 0x28, 0x04, 0x01, 0x50, 0x00, 0x00, 0x00 };
-const f32 D_80036C40[5] = { 0.8f, 0.9f, 1.0f, 1.1f, 1.2f };
+const f32 gBossWaypointPhaseAnimSpeeds[5] = { 0.8f, 0.9f, 1.0f, 1.1f, 1.2f };

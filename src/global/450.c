@@ -85,7 +85,7 @@ extern s32 gGfxTaskBufferCap;
 extern s16 gCurrentLevelIndex;
 extern u8 gTransitionFadeType;
 
-extern OSIoMesg D_807ECE00;
+extern OSIoMesg gPiDmaIoMesg;
 extern s16 *gPhysicalContPads;
 extern s8 D_807F6008;
 extern u8 *gSavedMapModelData;
@@ -122,12 +122,12 @@ f32 gGfxAspect = 1.0f;
 s8 gWidescreenEnabled = 0;
 f32 gGfxFarClip = 1500.0f;
 f32 gGfxNearClip = 10.0f;
-f32 D_807444CC = 1.0f;
-f32 D_807444D0 = 1.0f;
-f32 D_807444D4 = 1.0f;
-f32 D_807444D8 = 1.0f;
-f32 D_807444DC = 1.0f;
-f32 D_807444E0 = 1.0f;
+f32 gHiliteKeyDirX = 1.0f;
+f32 gHiliteKeyDirY = 1.0f;
+f32 gHiliteKeyDirZ = 1.0f;
+f32 gHiliteFillDirX = 1.0f;
+f32 gHiliteFillDirY = 1.0f;
+f32 gHiliteFillDirZ = 1.0f;
 s32 gInitialMap = 0x28;
 s32 gInitialExit = 0;
 u8 gGameMode = 0;
@@ -231,7 +231,7 @@ void seg11DmaRead(s32 romOffset, s32 size, void *dst) {
 
     romBase = gSegmentTable[11].romStart;
     osWritebackDCache(dst, size);
-    osPiStartDma(&D_807ECE00, OS_MESG_PRI_NORMAL, OS_READ, romBase + romOffset, dst, size, &gPiDmaMesgQueue);
+    osPiStartDma(&gPiDmaIoMesg, OS_MESG_PRI_NORMAL, OS_READ, romBase + romOffset, dst, size, &gPiDmaMesgQueue);
     osRecvMesg(&gPiDmaMesgQueue, NULL, OS_MESG_BLOCK);
     osInvalDCache(dst, size);
 }
@@ -648,8 +648,8 @@ void playerViewsBuildMatrices(FrameMatrices *frame) {
                            gPlayerSlots[i].camX + eyeOffset, gPlayerSlots[i].camY, gPlayerSlots[i].camZ + eyeOffset,
                            gPlayerSlots[i].focusX, gPlayerSlots[i].focusY, gPlayerSlots[i].focusZ,
                            gPlayerSlots[i].upX, gPlayerSlots[i].upY, gPlayerSlots[i].upZ,
-                           D_807444CC, D_807444D0, D_807444D4,
-                           D_807444D8, D_807444DC, D_807444E0,
+                           gHiliteKeyDirX, gHiliteKeyDirY, gHiliteKeyDirZ,
+                           gHiliteFillDirX, gHiliteFillDirY, gHiliteFillDirZ,
                            0x20, 0x20);
             viewAspect = gPlayerSlots[i].aspect;
             playerState = gPlayerSlots[i].actor->customState;
@@ -671,7 +671,7 @@ void playerViewsBuildMatrices(FrameMatrices *frame) {
         eyeOffset = 0.0f;
     }
     guPerspective(&frame->perspective, &gPerspNorm, gPlayerSlots->fov, viewAspect * aspectScale, gPlayerSlots->nearClip, gPlayerSlots->farClip, 1.0f);
-    guLookAt(&frame->unk200, gPlayerSlots->camX + eyeOffset, gPlayerSlots->camY, gPlayerSlots->camZ + eyeOffset,
+    guLookAt(&frame->lookAt, gPlayerSlots->camX + eyeOffset, gPlayerSlots->camY, gPlayerSlots->camZ + eyeOffset,
              gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ,
              gPlayerSlots->upX, gPlayerSlots->upY, gPlayerSlots->upZ);
     frameCount[0]++;

@@ -35,7 +35,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
-extern EffectGridAsset D_8072073C;
+extern EffectGridAsset gEffectSpriteShardGold;
 extern s16 gFlyPatrolShotInterval;
 
 
@@ -53,10 +53,10 @@ void behaviourSwimLungeUpdate(void) {
     switch (st) {
         case 0x27:
             flag = 0;
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     actorScriptStart(gCurrentActor, 0x2E0);
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                     break;
                 case 2:
                     flag = 1;
@@ -89,7 +89,7 @@ void behaviourSwimLungeUpdate(void) {
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->eyeHeight) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->eyeHeight) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (gActorGlobalState.bossFightPhase == 2) {
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 2:
@@ -99,7 +99,7 @@ void behaviourSwimLungeUpdate(void) {
             actorPitchEaseTowardPoint(st, 0, gBehaviourWorkState->targetX, (gBehaviourWorkState->targetY < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? gBehaviourWorkState->targetY : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         case 0x37:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 7.0f);
                     break;
@@ -147,15 +147,15 @@ void behaviourSwimShooterUpdate(void) {
     switch (gCurrentActor->state) {
         case 0x31:
             effectSpawnSparks(0x1F, 2);
-            if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
+            if ((gCurrentActor->subState != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
                 actorSetDefaultState(0x2E2);
             }
             break;
         case 0x27:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     actorScriptStart(gCurrentActor, 0x2E6);
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                     break;
                 case 2:
                     gCurrentActor->interactionType = 2;
@@ -169,10 +169,10 @@ void behaviourSwimShooterUpdate(void) {
             }
             break;
         case 0x25:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     actorScriptStart(gCurrentActor, 0x2E4);
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                     break;
                 case 2:
                     projectileGetTargetCoords(gCurrentActor, 1);
@@ -198,7 +198,7 @@ void behaviourSwimShooterUpdate(void) {
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->eyeHeight) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->eyeHeight) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (gActorGlobalState.bossFightPhase == 2) {
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 2:
@@ -210,7 +210,7 @@ void behaviourSwimShooterUpdate(void) {
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (gBehaviourWorkState->targetY < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? gBehaviourWorkState->targetY : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         case 0x37:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 7.0f);
                     break;
@@ -254,7 +254,7 @@ void behaviourTimedScriptCycleUpdate(void) {
         gCurrentActor->flags |= 0x400;
         gBehaviourWorkState->timer = 0x5A;
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         actorUpdatePrevContactFlags(gCurrentActor);
         actorClearNodeFlag(gCurrentActor, 1);
     }
@@ -274,13 +274,13 @@ void behaviourTimedScriptCycleUpdate(void) {
                 actorScriptStart(gCurrentActor, 0x35D);
                 scriptSetActorRampTarget(gCurrentActor, 0.5f, 0.0f);
                 gCurrentActor->state = 1;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 1:
-            if (gCurrentActor->unk155 != 0) {
+            if (gCurrentActor->subState != 0) {
                 gCurrentActor->state = 2;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 gBehaviourWorkState->timer = 0x5A;
             }
             break;
@@ -291,14 +291,14 @@ void behaviourTimedScriptCycleUpdate(void) {
                 gCurrentActor->interactionType = 2;
                 scriptSetActorRampTarget(gCurrentActor, 0.5f, 0.0f);
                 gCurrentActor->state = 3;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 3:
-            if (gCurrentActor->unk155 != 0) {
+            if (gCurrentActor->subState != 0) {
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->state = 0;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 gBehaviourWorkState->timer = 0x5A;
             }
             break;
@@ -332,12 +332,12 @@ void actorSwellBurstUpdate(void) {
     }
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x27)) {
         gCurrentActor->state = 0x27;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     } else if (gCurrentActor->state != 0x27) {
         dx = gBehaviourTargetActor->x - gCurrentActor->x;
         if (dx * dx + (gBehaviourTargetActor->y - gCurrentActor->y) * (gBehaviourTargetActor->y - gCurrentActor->y) + (gBehaviourTargetActor->z - gCurrentActor->z) * (gBehaviourTargetActor->z - gCurrentActor->z) < rangeSq) {
             gCurrentActor->state = 0x27;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     effectSpawnSparks(0x1F, 0);
@@ -353,11 +353,11 @@ void actorSwellBurstUpdate(void) {
             actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
             break;
         case 0x27:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C2, 0xFF, 0x7F, 0);
                     gBehaviourWorkState->scale = 2.0 * gCurrentActor->sub4->scaleY;
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     /* fallthrough */
                 case 1:
                     if (gBehaviourWorkState->scale > gCurrentActor->sub4->scaleY) {
@@ -369,7 +369,7 @@ void actorSwellBurstUpdate(void) {
                             effectSetSpeed(i + 0x0B020000);
                             effectSetCallback(effectRadialSprayUpdate);
                             effectSetFrameDelay(1);
-                            effectCreateAtPosition(&D_8072073C, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                            effectCreateAtPosition(&gEffectSpriteShardGold, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                         }
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3D, 0xFF, 0x7F, 0);
                         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
@@ -377,14 +377,14 @@ void actorSwellBurstUpdate(void) {
                         actorGetOrSetNodeScale(gCurrentActor, 1, gCurrentActor->collision->scaledRadius * scaleMultiplier);
                         actorSetCollisionRadius(gCurrentActor, gCurrentActor->collision->scaledRadius * scaleMultiplier);
                         gCurrentActor->flags &= ~4;
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                     break;
                 case 5:
                     gCurrentActor->state = 0x40;
                     break;
                 default:
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
             }
             break;
         case 2:
@@ -414,16 +414,16 @@ void projectileAimAtTargetFromActor(void) {
 
 
 void projectileSpawnScriptedInRange(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             if (behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
                 actorScriptStart(gCurrentActor, 0x253);
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             }
             break;
         case 2:
             projectileSpawnFromActorNode(2);
-            gCurrentActor->unk155 = 3;
+            gCurrentActor->subState = 3;
             break;
     }
 }
@@ -457,7 +457,7 @@ void behaviourCheckZoneReachAndSpawn(void) {
     }
     if (zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gBehaviourZone) && behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
         gCurrentActor->state = 0x26;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
 }
 
@@ -465,7 +465,7 @@ void behaviourCheckZoneReachAndSpawn(void) {
 void behaviourRandomZoneWander(void) {
     if (((randomNonNegative() >> 15) % 1000) >= 0x3E4) {
         gCurrentActor->state = 0x1C;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
 }
 
@@ -569,18 +569,18 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
             gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 5.0f);
             break;
         case 0x26:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gBehaviourWorkState->targetX = gBehaviourTargetActor->x;
                     gBehaviourWorkState->targetY = gBehaviourTargetActor->y;
                     gBehaviourWorkState->targetZ = gBehaviourTargetActor->z;
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     gBehaviourWorkState->timer = 0x64;
                     /* fallthrough */
                 case 1:
                     if ((actorFlyTowardPosition(gBehaviourWorkState, 0x23) & 1) || gCurrentActor->y < gBehaviourWorkState->targetY + 0xF) {
                         gCurrentActor->state = gBehaviourExtraState->actorState;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                     }
                     break;
             }
@@ -591,18 +591,18 @@ void behaviourFlyPatrolWithCallback(void (*callback)(void), u16 animId1, u16 ani
             if (gBehaviourWorkState->timer == 0) {
                 sfxStopSlotSound(gCurrentActor, 0);
             }
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
                     break;
                 case 1:
                     sfxSpawnTableNodes(gCurrentActor);
                     if (gCurrentActor->actorType == 0x11D) {
-                        gCurrentActor->unk155 = 3;
+                        gCurrentActor->subState = 3;
                         break;
                     }
                     gCurrentActor->speedY = 50.0f;
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     /* fallthrough */
                 case 2:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x222, 0.0f);
@@ -679,18 +679,18 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
     targetHeight = gBehaviourExtraState->y + patrol->hoverHeight;
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (action != 0x37)) {
         gCurrentActor->state = 0x37;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     switch (action) {
         case 2:
         case 3:
-            if (gCurrentActor->unk155 == 0) {
+            if (gCurrentActor->subState == 0) {
                 actorScriptStart(gCurrentActor, animId1);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             actorMoveWithinZone(action, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0xE1, 0.0f);
             if (gCurrentActor->y < targetHeight) {
-                if (gCurrentActor->unk155 == 2) {
+                if (gCurrentActor->subState == 2) {
                     gCurrentActor->y += (f32) gBehaviourExtraState->climbRate * 0.03125;
                 } else {
                     gCurrentActor->y += (f32) gBehaviourExtraState->climbRate * 0.015625;
@@ -699,12 +699,12 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
             gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 5.0f);
             break;
         case 0x26:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                 case 1:
                 case 2:
                     actorScriptStart(gCurrentActor, animId2);
-                    gCurrentActor->unk155 = 3;
+                    gCurrentActor->subState = 3;
                 case 3:
                     actorFlyTowardPosition(gBehaviourWorkState, 0x26);
                     break;
@@ -730,7 +730,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
         case 0x26:
             if (patrolPathStep(action, 1) != 0) {
                 gCurrentActor->state = gBehaviourExtraState->actorState;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
     }
@@ -756,7 +756,7 @@ void behaviourEnemyBatUpdate(void) {
     patrol->hoverHeight = (deltaHeight < 0) ? 0 : deltaHeight;
     if ((gActorGlobalState.bossFightPhase == 9) && (gCurrentActor->state != 0x37)) {
         gCurrentActor->state = 0x37;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         actorScriptStart(gCurrentActor, 0x248);
         actorAttachChildCallbacks();
         sfxAllocateChannel(0x14, 1.0f);
@@ -898,7 +898,7 @@ void behaviourEnemyFlyReturn(void) {
         sfxStopSlotSound(gCurrentActor, 0);
         actorScriptStart(gCurrentActor, 0x331);
         gCurrentActor->state = 0x37;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0x16, 0xFF, 0x7F, 0x1E);
     }
     if (!(gCurrentActor->flags & 0x10)) {
@@ -906,7 +906,7 @@ void behaviourEnemyFlyReturn(void) {
         gBehaviourAnimState->flags &= 0xFFF7;
         gCurrentActor->speedXZ = 40.0f;
         gCurrentActor->state = 0x23;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->alphaStep = ((randomNonNegative() >> 15) % 7) + 0xF;
         state->targetX = gCurrentActor->x;
         state->targetY = gCurrentActor->y;
@@ -963,7 +963,7 @@ void behaviourEnemyFlyReturn(void) {
             if (gCurrentActor->alpha < 0) {
                 gCurrentActor->alpha = 0;
                 gCurrentActor->state = 0x40;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 gCurrentActor->collisionMode = 1;
                 if (gCurrentMap == 0xA7) {
                     gEnemyDefeatCount++;

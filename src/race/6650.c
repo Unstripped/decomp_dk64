@@ -110,7 +110,7 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
         gCurrentActor->collisionMode = 0x3C;
         gCurrentActor->flags |= 0x10400;
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->accelY = -20.0f;
         gCurrentActor->terminalSpeedY = -900.0f;
@@ -437,7 +437,7 @@ void raceOpponentRacerMotionUpdate(void) {
     target = ((RaceComponentActor *)gCurrentActor)->target;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        target->unk10 = 1;
+        target->chaseEnabled = 1;
         raceSetPiecewiseCurveMode(target, 5, D_8002FC70, &D_8002FCA0);
         gCurrentActor->collisionMode = 0x3C;
         gCurrentActor->flags &= ~0x20001;

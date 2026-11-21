@@ -105,7 +105,7 @@ typedef struct ModelTriBuffer {
     /* 0x08 */ u32 timestamp; // gFrameCounter at the last build
     /* 0x0C */ CollisionBoundingBox bbox;
     /* 0x24 */ u8 flags; // 1 = built (tri_start owned), 2 = model data flag 4, 4 = has triangles
-    /* 0x25 */ u8 unk25[2];
+    /* 0x25 */ u8 disabledPartIds[2];
 } ModelTriBuffer; // size = 0x28
 
 // Model position list node (ModelSlot.unk70/unk74, modelPosNodeListFree); 0x10 bytes.
@@ -131,7 +131,7 @@ typedef struct ModelSlot {
     /* 0x28 */ DynamicBuffer boxBuffer;
     /* 0x48 */ ModelTriBuffer triBuffer;
     /* 0x70 */ struct ModelPosNode *attachPoints;
-    /* 0x74 */ struct ModelPosNode *unk74;
+    /* 0x74 */ struct ModelPosNode *nodePosList;
     /* 0x78 */ ModelData *anim;
     /* 0x7C */ struct CsState *csState; // per-model cutscene state (csStateInit)
     /* 0x80 */ u8 pad80[4];

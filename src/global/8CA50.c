@@ -27,7 +27,7 @@ void animListInit(Actor *actor, AnimInitData *initData) {
             return;
         }
     }
-    src = initData->unk10;
+    src = initData->animTextures;
     next_ptr = &actor->animList;
     count = *src++;
     if (count != 0) {

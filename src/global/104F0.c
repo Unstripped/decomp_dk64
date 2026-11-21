@@ -828,7 +828,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     gPlayTimeBaseSeconds = eepromGetField(0xE, 0, 0, slot);
     for (i = 0; i != 5; i++, entry++) {
         for (j = 0; j != 5; j++) {
-            entry->unk0[j] = eepromGetField(j + 4, i, 0, slot);
+            entry->upgrades[j] = eepromGetField(j + 4, i, 0, slot);
         }
         entry->coins = eepromGetField(9, i, 0, slot);
         entry->unk5 = eepromGetField(0xA, i, 0, slot);
@@ -875,7 +875,7 @@ void eepromSavePlayerData(void) {
             eepromSetField(0x10, 0, 0, gEepromCurrentSlot, saveCount);
             for (i = 0; i < 5; i++, entry++) {
                 for (j = 0; j < 5; j++) {
-                    eepromSetField(j + 4, i, 0, gEepromCurrentSlot, entry->unk0[j]);
+                    eepromSetField(j + 4, i, 0, gEepromCurrentSlot, entry->upgrades[j]);
                 }
                 eepromSetField(9, i, 0, gEepromCurrentSlot, entry->coins);
                 eepromSetField(0xA, i, 0, gEepromCurrentSlot, entry->unk5 & 0x7F);

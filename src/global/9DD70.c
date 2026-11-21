@@ -44,8 +44,8 @@ typedef struct SpritePair {
 // This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad); the debris sprites are sprite sheets of
 // 124780.c.
 s16 sSpotLightRelightDelay = 200;
-extern EffectGridAsset D_807212C8, D_807212B0;
-SpritePair gCarryDebrisSprites = { { &D_807212C8, &D_807212B0 } };
+extern EffectGridAsset gEffectSpriteDebrisGreen, gEffectSpriteDebrisGrey;
+SpritePair gCarryDebrisSprites = { { &gEffectSpriteDebrisGreen, &gEffectSpriteDebrisGrey } };
 
 s32 actorUpdatePrevContactFlags(Actor *); // ORIG: target loads the actorType switch value into v1 right after jal actorUpdatePrevContactFlags (jal at 0x2d78, lw v1,88(s0) at 0x2d88, beq v1,at at 0x2d8c): the original TU declared the callee non-void (the shared void prototype puts it in v0)
 
@@ -123,14 +123,14 @@ void actorPhotoUpdate(void) {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->fadeTextures[gGfxBufferIndex]);
     } else {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->texture);
-        if (gCurrentActor->unk155 == 0) {
+        if (gCurrentActor->subState == 0) {
             if (gActivePlayerState->photoSubjectStatus == 1) {
                 slotQueueAddValue(0xC, gActivePlayerState->playerIndex, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
             } else if (gActivePlayerState->photoSubjectStatus == 2) {
                 sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         if (gActivePlayerState->photoSubjectStatus != 0xFF && subState->timer != 0) {
             renderCallbacksRegister(&playerViewDrawPhotoResult, gCurrentActor, 3);
@@ -704,7 +704,7 @@ void actorPlayerWarpEffectUpdate(void) {
         player->unk210 = x;
         player->unk214 = y;
         player->unk218 = z;
-        if (gCurrentActor->unk155 < 4) {
+        if (gCurrentActor->subState < 4) {
             for (j = 2; j < 3; j++) {
                 for (i = 0; i < 2; i++) {
                     effectSetCallback(effectSinkBySpeedUpdate);
@@ -725,13 +725,13 @@ void actorPlayerWarpEffectUpdate(void) {
                 }
             }
         }
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
             case 0:
                 *spinSpeed += 0x1E;
                 break;
             case 1:
-                gPrimaryPlayerActor->unk155++;
-                gCurrentActor->unk155++;
+                gPrimaryPlayerActor->subState++;
+                gCurrentActor->subState++;
                 break;
             case 2:
                 *spinSpeed -= 0x2A;
@@ -744,10 +744,10 @@ void actorPlayerWarpEffectUpdate(void) {
                 if (*spinSpeed < 0) {
                     *spinSpeed = 0;
                 }
-                gPrimaryPlayerActor->unk155++;
+                gPrimaryPlayerActor->subState++;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0xFF;
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             case 4:
                 *spinSpeed -= 0x2A;
@@ -756,7 +756,7 @@ void actorPlayerWarpEffectUpdate(void) {
                 }
                 gCurrentActor->alpha -= 0x28;
                 if (gCurrentActor->alpha < 0x28) {
-                    gPrimaryPlayerActor->unk155++;
+                    gPrimaryPlayerActor->subState++;
                     sfxStopChannel(0x3B, 0);
                     actorDespawn(gCurrentActor);
                 }
@@ -841,7 +841,7 @@ void carryObjectUpdate(void) {
             gCurrentActor->collisionMode = 2;
             gCurrentActor->flags2 |= 1;
             gCurrentActor->state = 2;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             state->settleTimer = 0x1E;
         }
         state->respawns = ((CarryObjectSpawnData *)gCurrentActor->spawnData)->respawns;
@@ -891,7 +891,7 @@ void carryObjectUpdate(void) {
     }
     if (gActorGlobalState.releaseReceived != 0) {
         gCurrentActor->state = 2;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         state->settleTimer = 0x1E;
         gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
@@ -972,14 +972,14 @@ void carryObjectUpdate(void) {
         } else if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
             state->settleTimer = 0x1E;
         }
-        if ((gCurrentActor->contactFlags & 1) && gCurrentActor->unk155 == 0) {
+        if ((gCurrentActor->contactFlags & 1) && gCurrentActor->subState == 0) {
             if (gCurrentActor->actorType == 0x55) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, 0x64, 0x7F, 0x14);
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x97, 0x64, 0x7F, 0x14);
             } else {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x97, 0xFF, 0x7F, 0x14);
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         gCurrentActor->speedY = -200.0f;
         gCurrentActor->speedXZ = 0.0f;
@@ -1336,7 +1336,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     gSPDisplayList(gfx++, &D_1000118);
     gDPSetCombine(gfx++, 0x119623, 0xFF2FFFFF);
 
-    switch (actor->unk155) {
+    switch (actor->subState) {
         case 2:
             vtxGradientSetPosition(actor->fadeValue * 3 + 0x4000);
             break;
@@ -1432,16 +1432,16 @@ void textMarkerUpdate(void) {
         }
         break;
     case 1:
-        if (gCurrentActor->unk155 != 3) {
+        if (gCurrentActor->subState != 3) {
             renderCallbacksRegister(textMarkerRenderString, gCurrentActor, 3);
         }
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             if (gCurrentActor->fadeValue <= 0xFF - marker->fadeInStep) {
                 gCurrentActor->fadeValue += marker->fadeInStep;
             } else {
                 gCurrentActor->fadeValue = 0xFF;
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 gCurrentActor->yawSpeed = marker->holdTime;
             }
             break;
@@ -1449,14 +1449,14 @@ void textMarkerUpdate(void) {
             if (gCurrentActor->yawSpeed != 0) {
                 gCurrentActor->yawSpeed--;
             } else {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
             if (gCurrentActor->fadeValue >= marker->fadeOutStep) {
                 gCurrentActor->fadeValue -= marker->fadeOutStep;
             } else {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 gCurrentActor->fadeValue = 0;
             }
             break;

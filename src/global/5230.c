@@ -7,9 +7,9 @@ extern s32 gCurrentMap;
 extern SchedStruct gScheduler;
 
 // .bss 0x8076AF00-0x8076AF20
-s16 D_8076AF00[8];
-s32 D_8076AF10;
-u8 D_8076AF14;
+s16 sFrameTimingSamples[8];
+s32 sFrameTimingLastRetrace;
+u8 sFrameTimingPaced;
 u8 D_8076AF15;
 u16 D_8076AF16;
 u8 D_8076AF18[8];
@@ -37,10 +37,10 @@ void frameTimingReset(s32 mapId) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        D_8076AF00[i] = 2;
+        sFrameTimingSamples[i] = 2;
     }
 
-    D_8076AF10 = gScheduler.retraceCount;
+    sFrameTimingLastRetrace = gScheduler.retraceCount;
     switch (mapId) {
     case 0x6:
     case 0x1B:
@@ -53,16 +53,16 @@ void frameTimingReset(s32 mapId) {
     case 0x99:
     case 0xAC:
     case 0xD0:
-        D_8076AF14 = 0;
+        sFrameTimingPaced = 0;
         break;
     default:
-        D_8076AF14 = 1;
+        sFrameTimingPaced = 1;
         break;
     }
 }
 
 extern u32 gFrameDelta;
-u8 D_80745290 = 0;
+u8 sFrameTimingSampleIndex = 0;
 // The scheduler thread increments retraceCount; frame timing polls it, so these reads must not be cached.
 #define SCHED_RETRACE_COUNT (*(volatile s32 *)&gScheduler.retraceCount)
 
@@ -79,15 +79,15 @@ void frameTimingUpdate(void) {
 
     max = 1;
     min = 20;
-    if (D_8076AF14 != 0) {
-        sample = SCHED_RETRACE_COUNT - D_8076AF10;
+    if (sFrameTimingPaced != 0) {
+        sample = SCHED_RETRACE_COUNT - sFrameTimingLastRetrace;
         if (sample <= 0) {
             sample = 1;
         }
-        D_8076AF00[D_80745290] = sample;
-        D_80745290++;
-        if (D_80745290 == 8) {
-            D_80745290 = 0;
+        sFrameTimingSamples[sFrameTimingSampleIndex] = sample;
+        sFrameTimingSampleIndex++;
+        if (sFrameTimingSampleIndex == 8) {
+            sFrameTimingSampleIndex = 0;
         }
         if (gFrameDelta >= 4) {
             n = 1;
@@ -96,15 +96,15 @@ void frameTimingUpdate(void) {
         } else {
             n = 4;
         }
-        idx = D_80745290;
+        idx = sFrameTimingSampleIndex;
         flag = 0;
         for (i = 0; i < n; i++) {
             idx--;
             if (idx < 0) {
                 idx = 7;
             }
-            max = MAX(max, D_8076AF00[idx]);
-            min = MIN(min, D_8076AF00[idx]);
+            max = MAX(max, sFrameTimingSamples[idx]);
+            min = MIN(min, sFrameTimingSamples[idx]);
         }
         if (gFrameDelta < sample && gFrameDelta < min) {
             flag = 1;
@@ -116,13 +116,13 @@ void frameTimingUpdate(void) {
         }
         if (gFrameCounter >= 0xB) {
             p = &gScheduler.retraceCount;
-            limit = D_8076AF10 + gFrameDelta;
+            limit = sFrameTimingLastRetrace + gFrameDelta;
             while (*p < limit) {
             }
         }
-        D_8076AF10 = SCHED_RETRACE_COUNT;
+        sFrameTimingLastRetrace = SCHED_RETRACE_COUNT;
     } else {
-        gFrameDelta = SCHED_RETRACE_COUNT - D_8076AF10;
-        D_8076AF10 = SCHED_RETRACE_COUNT;
+        gFrameDelta = SCHED_RETRACE_COUNT - sFrameTimingLastRetrace;
+        sFrameTimingLastRetrace = SCHED_RETRACE_COUNT;
     }
 }

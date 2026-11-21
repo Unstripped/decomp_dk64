@@ -54,15 +54,15 @@ extern EffectGridAsset gEffectSpriteRing, D_8071FC0C, gEffectSpriteBubble, gEffe
 extern EffectGridAsset D_8071FCC0, D_8071FCF4, D_8071FD50, D_8071FDAC, gEffectSpriteStarBurst;
 extern EffectGridAsset D_8071FE3C, gEffectSpriteBarrelDebrisDark, gEffectSpriteBarrelDebrisLight, gEffectSpriteBarrelDebrisPlank, D_8071FED0;
 extern EffectGridAsset sEffectImpactPuffConfig, gEffectSpriteDustPuff, D_8071FF40, gEffectSpriteSleepZ, D_8071FF70;
-extern EffectGridAsset D_8071FF88, sEffectSparkConfig, D_8071FFD4, D_80720020, D_80720054;
+extern EffectGridAsset D_8071FF88, sEffectSparkConfig, D_8071FFD4, D_80720020, gEffectSpriteGlowRed;
 extern EffectGridAsset gSparkEffectSprite, D_807200A0, D_807200D4, D_807200EC, gEffectSpriteFireBurst;
-extern EffectGridAsset D_8072014C, D_80720180, D_807201A0, D_807201D4, D_80720268;
+extern EffectGridAsset D_8072014C, D_80720180, D_807201A0, gEffectSpriteFlame, D_80720268;
 extern EffectGridAsset D_8072029C, D_807202D0, gEffectSpriteFuseSpark, gEffectSpriteExplosion, gEffectSpriteEmber;
 extern EffectGridAsset gEffectSpriteCoinRed, gEffectSpriteCoinGreen, gEffectSpriteCoinBlue, D_8072041C, D_80720440;
 extern EffectGridAsset D_80720464, D_80720488, gEffectSpriteOrange, gEffectSpriteCrystal, gEffectSpriteGoldenBanana;
 extern EffectGridAsset D_80720558, D_8072057C, D_807205A0, gEffectSpriteBananaBlue, gEffectSpriteBananaYellow;
 extern EffectGridAsset D_8072060C, D_80720630, D_80720690, D_807206A8, D_807206DC;
-extern EffectGridAsset gEffectSpriteMelonSlice, D_8072073C, gEffectSpriteCrate, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue;
+extern EffectGridAsset gEffectSpriteMelonSlice, gEffectSpriteShardGold, gEffectSpriteCrate, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue;
 extern EffectGridAsset D_80720804, D_80720830, D_80720854, D_80720878, D_80720890;
 extern EffectGridAsset D_807208A8, D_807208C0, D_807208D8, gEffectSpriteNotePairYellow, gEffectSpriteNoteYellow;
 extern EffectGridAsset gEffectSpriteNoteGreen, gEffectSpriteNotePairPink, gEffectSpriteNotePairRed, gEffectSpriteNoteRed, gEffectSpriteNotePairPaleBlue;
@@ -78,7 +78,7 @@ extern EffectGridAsset D_80720F98, D_80720FBC, D_80720FE0, gEffectSpriteBananaBa
 extern EffectGridAsset D_8072104C, D_80721070, gFairySprite, D_807210B8, gCrownSprite;
 extern EffectGridAsset D_80721110, D_80721134, D_80721158, D_80721170, D_80721194;
 extern EffectGridAsset D_807211AC, gEffectSpriteQuestionMark, D_80721200, D_8072121C, D_80721238;
-extern EffectGridAsset D_80721250, D_8072126C, D_80721298, D_807212B0, D_807212C8;
+extern EffectGridAsset D_80721250, D_8072126C, D_80721298, gEffectSpriteDebrisGrey, gEffectSpriteDebrisGreen;
 extern EffectGridAsset D_807212E0, D_80721300, D_80721318, D_80721330, D_80721358;
 extern EffectGridAsset gEffectSpriteRainbowCoin, D_8072139C, D_807213D0, D_807213F4, effectAssetPathTrail;
 extern EffectGridAsset D_8072142C, D_80721444, D_8072145C, D_80721474, D_807214A0;
@@ -92,13 +92,13 @@ EffectGridAsset *gEffectGridAssets[176] = {
     &gEffectSpriteBubble, &gEffectSpriteSparklePurple, &gEffectSpriteSparkleYellow, &D_8071FCC0, &D_8071FCF4, &D_8071FD50,
     &D_8071FDAC, &gEffectSpriteStarBurst, &D_8071FE3C, &gEffectSpriteBarrelDebrisDark, &gEffectSpriteBarrelDebrisLight, &gEffectSpriteBarrelDebrisPlank,
     &D_8071FED0, &sEffectImpactPuffConfig, &gEffectSpriteDustPuff, &D_8071FF40, &gEffectSpriteSleepZ, &D_8071FF70,
-    &D_8071FF88, &sEffectSparkConfig, &D_8071FFD4, &D_80720020, &D_80720054, &gSparkEffectSprite,
+    &D_8071FF88, &sEffectSparkConfig, &D_8071FFD4, &D_80720020, &gEffectSpriteGlowRed, &gSparkEffectSprite,
     &D_807200A0, &D_807200D4, &D_807200EC, &gEffectSpriteFireBurst, &D_8072014C, &D_80720180,
-    &D_807201A0, &D_807201D4, &D_80720268, &D_8072029C, &D_807202D0, &gEffectSpriteFuseSpark,
+    &D_807201A0, &gEffectSpriteFlame, &D_80720268, &D_8072029C, &D_807202D0, &gEffectSpriteFuseSpark,
     &gEffectSpriteExplosion, &gEffectSpriteEmber, &gEffectSpriteCoinRed, &gEffectSpriteCoinGreen, &gEffectSpriteCoinBlue, &D_8072041C,
     &D_80720440, &D_80720464, &D_80720488, &gEffectSpriteOrange, &gEffectSpriteCrystal, &gEffectSpriteGoldenBanana,
     &D_80720558, &D_8072057C, &D_807205A0, &gEffectSpriteBananaBlue, &gEffectSpriteBananaYellow, &D_8072060C,
-    &D_80720630, &D_80720690, &D_807206A8, &D_807206DC, &gEffectSpriteMelonSlice, &D_8072073C,
+    &D_80720630, &D_80720690, &D_807206A8, &D_807206DC, &gEffectSpriteMelonSlice, &gEffectSpriteShardGold,
     &gEffectSpriteCrate, &gEffectSpriteDkCoin, &gEffectSpriteBlueprintBlue, &D_80720804, &D_80720830, &D_80720854,
     &D_80720878, &D_80720890, &D_807208A8, &D_807208C0, &D_807208D8, &gEffectSpriteNotePairYellow,
     &gEffectSpriteNoteYellow, &gEffectSpriteNoteGreen, &gEffectSpriteNotePairPink, &gEffectSpriteNotePairRed, &gEffectSpriteNoteRed, &gEffectSpriteNotePairPaleBlue,
@@ -112,7 +112,7 @@ EffectGridAsset *gEffectGridAssets[176] = {
     &D_80720FE0, &gEffectSpriteBananaBalloonBlue, &D_80721028, &D_8072104C, &D_80721070, &gFairySprite,
     &D_807210B8, &gCrownSprite, &D_80721110, &D_80721134, &D_80721158, &D_80721170,
     &D_80721194, &D_807211AC, &gEffectSpriteQuestionMark, &D_80721200, &D_8072121C, &D_80721238,
-    &D_80721250, &D_8072126C, &D_80721298, &D_807212B0, &D_807212C8, &D_807212E0,
+    &D_80721250, &D_8072126C, &D_80721298, &gEffectSpriteDebrisGrey, &gEffectSpriteDebrisGreen, &D_807212E0,
     &D_80721300, &D_80721318, &D_80721330, &D_80721358, &gEffectSpriteRainbowCoin, &D_8072139C,
     &D_807213D0, &D_807213F4, &effectAssetPathTrail, &D_8072142C, &D_80721444, &D_8072145C,
     &D_80721474, &D_807214A0, &D_807214B8, &D_807214D0, &D_807214E8, &D_80721500,

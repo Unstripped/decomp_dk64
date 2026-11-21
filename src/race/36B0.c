@@ -277,10 +277,10 @@ void raceAiUpdateSpeedAndLane(void) {
         if (gCurrentActor->soundSlots[1] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x130, 0, 1, 1, 0xFF, 1.0f, 0);
         }
-        gCurrentActor->unk72 = 0x14;
+        gCurrentActor->soundTimer = 0x14;
     }
-    if (gCurrentActor->unk72 > 0) {
-        gCurrentActor->unk72--;
+    if (gCurrentActor->soundTimer > 0) {
+        gCurrentActor->soundTimer--;
     } else if (gCurrentActor->soundSlots[1] != -1) {
         sfxStopSlotSound(gCurrentActor, 1);
     }
@@ -389,7 +389,7 @@ void raceOpponentCarBehaviorUpdate(void) {
         cursor->lane = cursor->targetLane = 2;
         raceTarget->distSq = 0.0f;
         cursor->waypoint = raceGetPrevWaypointIndex(count, 0);
-        raceTarget->unk10 = 1;
+        raceTarget->chaseEnabled = 1;
         raceSetPiecewiseCurveMode(raceTarget, 5, raceCarSpeedCurve, raceCarSpeedLevels);
         state->raceStatus = 0;
         if ((flagGet(0x12, 2) == 0) && (flagGet(0x8B, 0) == 0) && (menuIsTransitionType3Or4() == 0)) {

@@ -1611,19 +1611,19 @@ void sfxUpdateSourceGroups(void) {
                         case 0x131:
                             if (actor->actorType == 0xB9) {
                                 gSfxVoiceFxLevel[i] = 8;
-                                gSfxVoiceCurPitch[i] = (actor->unk72 / 80.0) + 1.0;
+                                gSfxVoiceCurPitch[i] = (actor->soundTimer / 80.0) + 1.0;
                                 volume *= 1.0f / gSfxVoiceCurPitch[i];
                             } else {
                                 gSfxVoicePitch[i] = 0.0f;
                                 gSfxVoiceCurPitch[i] = 200.0f;
                                 for (j = 0; j < gSfxVoiceSourceCount[i]; j++) {
-                                    if (gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 < gSfxVoiceCurPitch[i]) {
-                                        gSfxVoiceCurPitch[i] = gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72;
+                                    if (gSfxSourceActor[gSfxVoiceSources[i][j]]->soundTimer < gSfxVoiceCurPitch[i]) {
+                                        gSfxVoiceCurPitch[i] = gSfxSourceActor[gSfxVoiceSources[i][j]]->soundTimer;
                                         gSfxVoicePitch[i] = j;
                                     }
                                 }
                                 j = gSfxVoicePitch[i];
-                                gSfxVoiceCurPitch[i] = 2.0 - (((gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120) > 0 ? (gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120) : -(gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120)) / 120.0);
+                                gSfxVoiceCurPitch[i] = 2.0 - (((gSfxSourceActor[gSfxVoiceSources[i][j]]->soundTimer - 120) > 0 ? (gSfxSourceActor[gSfxVoiceSources[i][j]]->soundTimer - 120) : -(gSfxSourceActor[gSfxVoiceSources[i][j]]->soundTimer - 120)) / 120.0);
                                 gSfxVoiceCurPitch[i] = (gSfxVoiceCurPitch[i] > 0.2) ? gSfxVoiceCurPitch[i] : 0.2;
                                 gSfxVoicePitch[i] = gSfxSourceActor[gSfxVoiceSources[i][j]]->soundVolume / 20.0;
                                 gSfxVoicePitch[i] = (gSfxVoicePitch[i] < 1.0f) ? gSfxVoicePitch[i] : 1.0f;

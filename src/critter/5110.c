@@ -29,7 +29,7 @@ s32 critterBitwiseNot(s32 val) {
 extern u8 gGameMode;
 extern OSMesgQueue gPiDmaMesgQueue;
 extern s32 gCurrentMap;
-extern OSIoMesg D_807ECE00;
+extern OSIoMesg gPiDmaIoMesg;
 extern Actor *gCurrentActor;
 
 void critterBattleArenaUpdate(void) {
@@ -118,7 +118,7 @@ void critterBattleArenaUpdate(void) {
         }
         dcacheFunc(alignedBuf, 0x10);
         dmaRomOffset = critterBitwiseNot(-0xDC1);
-        ((void (*)(void *, s32, s32, s32, void *, s32, void *))critterBitwiseNot(~(s32)osPiStartDma))(&D_807ECE00, 0, 0, dmaRomOffset, alignedBuf, 0x10, &gPiDmaMesgQueue);
+        ((void (*)(void *, s32, s32, s32, void *, s32, void *))critterBitwiseNot(~(s32)osPiStartDma))(&gPiDmaIoMesg, 0, 0, dmaRomOffset, alignedBuf, 0x10, &gPiDmaMesgQueue);
         if (gCurrentActor->parentActor->state == 5) {
             gCurrentActor->state = 0xFF;
         }

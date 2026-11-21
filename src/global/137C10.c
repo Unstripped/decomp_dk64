@@ -43,11 +43,11 @@ void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
     seqp->initOsc = c->initOsc;
     seqp->updateOsc = c->updateOsc;
     seqp->stopOsc = c->stopOsc;
-    seqp->unk7C = 0.0f;
-    seqp->unk80 = 1.0f;
+    seqp->fxMixOffset = 0.0f;
+    seqp->fxMixScale = 1.0f;
     seqp->eventQueue = NULL;
-    seqp->unk89 = 0;
-    seqp->unk88 = c->maxVoices;
+    seqp->voiceCount = 0;
+    seqp->maxVoices = c->maxVoices;
     seqp->nextEvent.type = 9;
     seqp->maxChannels = c->maxChannels;
     seqp->chanState = alHeapDBAlloc(NULL, 0, hp, c->maxChannels, 0x34);
@@ -153,8 +153,8 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 }
                 break;
             case AL_VIB_OSC_EVT + 1:
-                seqp->unk7C = seqp->nextEvent.msg.fpair.f0;
-                seqp->unk80 = seqp->nextEvent.msg.fpair.f1;
+                seqp->fxMixOffset = seqp->nextEvent.msg.fpair.f0;
+                seqp->fxMixScale = seqp->nextEvent.msg.fpair.f1;
                 for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                     n_alSynSetVoiceUnkC(&vs->voice, n_alCSPClampVoiceFXMix(vs, seqp));
                 }
@@ -790,5 +790,5 @@ void __n_CSPPostNextSeqEvent(N_CSPlayer *seqp) {
 }
 
 void n_alCSPSetMaxVoices(N_CSPlayer *seqp, u8 arg) {
-    seqp->unk88 = arg;
+    seqp->maxVoices = arg;
 }

@@ -473,7 +473,7 @@ extern Mtx D_20000C0;
 // The owner's component (Actor.customState) as actorDrawAnimatedEffect reads it: a byte pointer at 0x34.
 typedef struct AnimatedEffectOwnerState {
     u8 pad[0x34];
-    u8 *unk34;
+    u8 *routeCursor;
 } AnimatedEffectOwnerState;
 
 #define ANIM_TEX (((gFrameCounter >> 1) % 12) + 0x83)
@@ -490,7 +490,7 @@ Gfx *actorDrawAnimatedEffect(Gfx *glist, Actor *actor) {
         s16 yaw = actor->yaw;
         AnimatedEffectOwnerState *state = actor->customState;
         if (yaw < 0x200 || yaw >= 0xE01 || (yaw >= 0x601 && yaw < 0xA00)) {
-            if (*state->unk34 != 0x10 && *state->unk34 != 0x13) {
+            if (*state->routeCursor != 0x10 && *state->routeCursor != 0x13) {
                 glist = renderRotatedSprite(glist, ANIM_TEX, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 120, 480, 4.0f, 4.0f, 0, 0.0f);
                 glist = renderRotatedSprite(glist, ANIM_TEX, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 1160, 480, 4.0f, 4.0f, 180, 0.0f);
             }

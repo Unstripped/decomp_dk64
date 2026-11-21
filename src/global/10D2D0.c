@@ -68,16 +68,16 @@ Gfx *healthHudDraw(Gfx *glist, PlayerInventory *inv, KongInventory *kong, Player
 
 void healthHudReset(HealthHudInit *hudInit) {
     if (gGlobalOverlayFlags & 0x800) {
-        hudInit->unk6 = 0x20;
+        hudInit->flags = 0x20;
     } else {
-        hudInit->unk6 = 1;
+        hudInit->flags = 1;
     }
     if (menuIsTransitionType3Or4() != 0) {
-        hudInit->unk6 = 0x20;
+        hudInit->flags = 0x20;
     }
     hudInit->unkA = 0;
-    hudInit->unk8 = 0;
-    hudInit->unk4 = 0;
+    hudInit->mode = 0;
+    hudInit->reveal = 0;
     hudInit->unk0 = 4.0f;
 }
 
@@ -89,9 +89,9 @@ void healthApplyPendingDelta(s32 playerIndex, PlayerStruct *player, PlayerInvent
     u8 flags;
     s32 perMelon;
 
-    flags = player->unk2E2;
+    flags = player->healthHudFlags;
     if (flags & 0x10) {
-        player->unk2E2 ^= 0x10;
+        player->healthHudFlags ^= 0x10;
         if (inv->healthDelta > 0) {
             perMelon = healthGetPerMelon();
             if (inv->health + inv->healthDelta < inv->melons * perMelon) {
@@ -138,15 +138,15 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
     kongId = playerGetResolvedKongId(playerIndex);
     kong = &inv->kong[kongId];
     mode = player->healthHudMode;
-    flags = player->unk2E3;
+    flags = player->healthHudFlagsLow;
     singlePlayer = gPlayerCount == 1;
     if (!singlePlayer) {
         mode = 0;
     }
     if (!singlePlayer) {
         healthApplyPendingDelta(playerIndex, player, inv, kong);
-        player->unk2E2 &= 0xFFEA;
-        flags = player->unk2E3;
+        player->healthHudFlags &= 0xFFEA;
+        flags = player->healthHudFlagsLow;
     }
     if (flags & 0x10) {
         switch (mode) {
@@ -160,7 +160,7 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
         }
     }
     if (flags & 1) {
-        player->unk2E2 ^= 1;
+        player->healthHudFlags ^= 1;
         switch (mode) {
         case 0:
             player->healthHudTimer = 18;
@@ -175,9 +175,9 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
         }
     } else if (flags & 4) {
         player->healthHudTimer = 1;
-        player->unk2E2 ^= 4;
+        player->healthHudFlags ^= 4;
         player->healthHudMode = 2;
-        player->unk2E2 &= 8;
+        player->healthHudFlags &= 8;
     } else {
         switch (mode) {
         case 1:
@@ -201,7 +201,7 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
         }
     }
     if (hudCanRender() != 0 || (flags & 0x80)) {
-        if (player->healthHudMode != 0 || player->unk2E2 != 0) {
+        if (player->healthHudMode != 0 || player->healthHudFlags != 0) {
             glist = healthHudDraw(glist, inv, kong, player);
         }
     }
@@ -217,7 +217,7 @@ Gfx *healthHudDrawAll(Gfx *glist) {
 
     for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
         if (gPlayerSlots[playerIndex].active) {
-            flags = gPlayerSlots[playerIndex].unk2E2;
+            flags = gPlayerSlots[playerIndex].healthHudFlags;
             if (!(flags & 0x20) && (((gPlayerSlots[playerIndex].healthHudMode || flags) && !gMapLoadPauseFrames) || (flags & 0x10))) {
                 glist = healthHudUpdateDraw(glist, playerIndex, &gPlayerSlots[playerIndex]);
             }

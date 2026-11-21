@@ -1780,7 +1780,7 @@ void movingLaunchBarrelUpdate(void) {
             effectCreateAtActorBone(&gEffectSpriteBlast, 1.6f, gCurrentActor, 1, 2);
             gCurrentActor->flags &= ~0x400;
             gCurrentActor->state = 2;
-            gCurrentActor->unk155 = 0x1E;
+            gCurrentActor->subState = 0x1E;
         } else {
             cam = ((PlayerState *)sub->rider->customState)->camActor;
             switch (sub->mode) {
@@ -1816,8 +1816,8 @@ void movingLaunchBarrelUpdate(void) {
         break;
     case 2:
         tagBarrelDespawnOnKongDeselect();
-        gCurrentActor->unk155--;
-        if (gCurrentActor->unk155 == 0) {
+        gCurrentActor->subState--;
+        if (gCurrentActor->subState == 0) {
             gCurrentActor->y = sub->baseY;
             sub->phase = (sub->frequency != 0.0) ? 4.71238899230957031 / sub->frequency : 0;
             gCurrentActor->yaw = sub->baseYaw;
@@ -2793,7 +2793,7 @@ s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
                 flagSet(info.value, 1, 0);
                 camStartPath(gPrimaryPlayerActor, 0x19, 4);
                 gCurrentActor->collisionMode = 1;
-                gCurrentActor->unk155 = 0xB;
+                gCurrentActor->subState = 0xB;
             }
         }
         ret = p->found != 0; // FAKE: alias p: found read as a uilod through p (lw v0,0x28(sp) at 0x7f60) is not copy-propagated into the test, so ret stays a candidate coloured $v0 (move v0,t3 at 0x7f6c); info.found propagates ret away (lw t3; sltu t4; beqzl t4)
@@ -2813,11 +2813,11 @@ void tagBarrelStartSelection(TagBarrelData *data) {
     s32 kong;
     s32 light;
 
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0xB:
         if (camIsCutsceneActive() == 0) {
             gCurrentActor->collisionMode = 2;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     case 0:
@@ -2826,7 +2826,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
             data->player = gActorGlobalState.targetActor;
             data->player->collisionMode = 1;
             ((PlayerState *)data->player->customState)->stateFlags |= 0x20000000;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             data->timer = 2;
             data->frames = 0;
         }
@@ -2868,7 +2868,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
             camSetHoldMode(playerState->camActor);
             slotQueueClearAllFlags();
             gCurrentActor->state = 1;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     }
@@ -2951,7 +2951,7 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
                         data->kongs[i] = NULL;
                     }
                     gCurrentActor->state = 2;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     data->timer = 30;
                     playerState->stateFlags &= ~0x20000000;
                     kong = gTagBarrelKongs[data->selected].kongIndex;
@@ -2963,7 +2963,7 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
                     camResetPlayer(player, 0);
                     screenWipeStart(3);
                     healthRefill(0);
-                    gPlayerSlots->unk2E2 |= 0x11;
+                    gPlayerSlots->healthHudFlags |= 0x11;
                     return;
                 }
                 sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -3135,9 +3135,9 @@ void tagBarrelUpdate(void) {
         } else {
             tagBarrelStartSelection(sub);
         }
-        if (gCurrentActor->unk155 == 0xA) {
+        if (gCurrentActor->subState == 0xA) {
             if (gPrimaryPlayerActor->contactFlags & 4 || playerKongHasWorldGoldenBanana() != 0) {
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else if (gPrimaryPlayerActor->attachMode != 1 && (gPrimaryPlayerActor->contactFlags & gPrimaryPlayerActor->prevContactFlags & 1)) {
                 tagBarrelCheckKongFlag(gPrimaryPlayerActor->actorType, 1);
             }
@@ -3155,9 +3155,9 @@ void tagBarrelUpdate(void) {
             actorAppendCallback(sub->player, gCurrentActor, 0x40, 1, 0, 0);
             slotQueuePopActiveMask();
             gCurrentActor->state = 0;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             if (tagBarrelCheckKongFlag(gPrimaryPlayerActor->actorType, 0) != 0) {
-                gCurrentActor->unk155 = 0xA;
+                gCurrentActor->subState = 0xA;
             }
             sub->timer = 0x1E;
         }

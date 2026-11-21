@@ -374,19 +374,19 @@ void csScriptLoad(s16 *scriptData) {
             while (m != 0) {
                 node = heapAlloc(sizeof(CsNode));
                 *tail = node;
-                node->unk4C = NULL;
+                node->next = NULL;
                 c1 = *p;
                 p++;
                 len1 = c1 * 4;
-                tail = &node->unk4C;
-                node->unk0 = c1;
-                memcpy(node->unk2, p, len1 * 2);
+                tail = &node->next;
+                node->condCount = c1;
+                memcpy(node->conds, p, len1 * 2);
                 p += len1;
                 c2 = *p;
                 p++;
                 len2 = c2 * 4;
-                node->unk2A = c2;
-                memcpy(node->unk2C, p, len2 * 2);
+                node->cmdCount = c2;
+                memcpy(node->cmds, p, len2 * 2);
                 p += len2;
                 m--;
             }
@@ -425,7 +425,7 @@ void csStateFree(CsState *loadState) {
     }
     node = loadState->nodes;
     while (node != NULL) {
-        next = node->unk4C;
+        next = node->next;
         heapFree(node);
         node = next;
     }
@@ -567,16 +567,16 @@ void csStateUpdate(CsState *cs, s16 csId) {
         while (node != NULL) {
             i = 0;
             ok = 1;
-            while (i < node->unk0 && ok) {
-                ok = csCondEval(&node->unk2[i], cs, csId);
+            while (i < node->condCount && ok) {
+                ok = csCondEval(&node->conds[i], cs, csId);
                 i++;
             }
             if (ok) {
-                for (j = 0; j < node->unk2A; j++) {
-                    csCmdExec(&node->unk2C[j], cs, csId);
+                for (j = 0; j < node->cmdCount; j++) {
+                    csCmdExec(&node->cmds[j], cs, csId);
                 }
             }
-            node = node->unk4C;
+            node = node->next;
         }
         stepped = modelSlotStepAnimations(csId);
         if (gCsPrevPosX != gCsPosX || gCsPrevPosY != gCsPosY || gCsPrevPosZ != gCsPosZ ||
@@ -1104,7 +1104,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
                 if (cond->arg[0] == a->state) {
                     if (cond->arg[1] != 0) {
                         value = cond->arg[1];
-                        if (a->unk155 == value) {
+                        if (a->subState == value) {
                             ret = 1;
                         }
                     } else {
@@ -1118,7 +1118,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->active != 0 && cond->arg[0] == p->actor->unk155) {
+            if (p->active != 0 && cond->arg[0] == p->actor->subState) {
                 ret = 1;
             }
         }
@@ -1972,7 +1972,7 @@ void csSetObjectTrackParam(void *obj, s16 b, s16 c) {
     case 3:
     case 4:
     case 6:
-        o->unk58 = c * c;
+        o->updateRangeSq = c * c;
         break;
     case 5:
         o->queueKey = c;

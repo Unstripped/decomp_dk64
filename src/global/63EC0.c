@@ -107,7 +107,7 @@ void effectWaterInitNodes(MapFileHeader *mapData) {
         node->wavePhaseZ = 0;
         node->wobblePhaseX = 0;
         node->wobblePhaseZ = 0;
-        node->unk4A = 0;
+        node->hazardFlags = 0;
         node->primAlpha = 0;
         node->targetAmpX = base[i].waveAmpX;
         node->targetAmpZ = base[i].waveAmpZ;
@@ -651,7 +651,7 @@ s32 mathBitwiseNot(s32 val) {
 
 extern s8 gWaitPointId;
 extern OSMesgQueue gPiDmaMesgQueue;
-extern OSIoMesg D_807ECE00;
+extern OSIoMesg gPiDmaIoMesg;
 
 void effectUpdateAndDispatch(void) {
     u32 dmaBuf[6];
@@ -667,7 +667,7 @@ void effectUpdateAndDispatch(void) {
     }
     romAddr = mathBitwiseNot(-0xF81);
     osWritebackDCache(dmaWords, 0x10);
-    osPiStartDma(&D_807ECE00, 0, 0, romAddr, dmaWords, 0x10, &gPiDmaMesgQueue);
+    osPiStartDma(&gPiDmaIoMesg, 0, 0, romAddr, dmaWords, 0x10, &gPiDmaMesgQueue);
     gWaitPointId = 6;
     osRecvMesg(&gPiDmaMesgQueue, NULL, OS_MESG_BLOCK);
     gWaitPointId = 0;
@@ -678,7 +678,7 @@ void effectUpdateAndDispatch(void) {
         // ROM check failed: DMA random ROM bytes over random RDRAM.
         u32 devAddr = randomLcgNext();
         u32 dramOffset = randomLcgNext();
-        osPiStartDma(&D_807ECE00, 0, 0, devAddr & 0xFFFF, (void *)((dramOffset & 0xFFFFE) + 0x80500000), (randomLcgNext() & 0xFF) + 0x100, &gPiDmaMesgQueue);
+        osPiStartDma(&gPiDmaIoMesg, 0, 0, devAddr & 0xFFFF, (void *)((dramOffset & 0xFFFFE) + 0x80500000), (randomLcgNext() & 0xFF) + 0x100, &gPiDmaMesgQueue);
     }
     if (node != NULL) {
         do {
@@ -720,7 +720,7 @@ void effectNodeSetUnk4A(s32 nodeIndex, u8 val) {
         nodeIndex--;
     }
     if (node != NULL) {
-        node->unk4A = val;
+        node->hazardFlags = val;
     }
 }
 

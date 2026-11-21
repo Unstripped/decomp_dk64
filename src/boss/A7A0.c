@@ -39,7 +39,7 @@ void bossResetMinions(Actor *excludeActor) {
         if ((excludeActor == NULL || actor != excludeActor) && actor->actorType == 0xDE) {
             actor->flags &= ~0x8000;
             actor->state = 1;
-            actor->unk155 = 0;
+            actor->subState = 0;
         }
     }
 }
@@ -58,17 +58,17 @@ void bossPhaseTick(void) {
         } else {
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->state = 1;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     if (((gActorGlobalState.damaged != 0) || (gActorGlobalState.bossFightPhase == 9)) &&
         ((other = gActorGlobalState.targetActor)->state == 0x2B) &&
-        (other->unk155 == 3)) {
+        (other->subState == 3)) {
         gCurrentActor->state = 1;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->parentActor->state = 0x64;
-        gCurrentActor->parentActor->unk155 = 0;
-        other->unk155 = 0;
+        gCurrentActor->parentActor->subState = 0;
+        other->subState = 0;
         other->state = 0x31;
     }
     if (gCurrentActor->state == 1) {
@@ -107,7 +107,7 @@ void bossKRoolLankyStep(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->segmentFlags = 1;
         gCurrentActor->state = 0x1E;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->floorNodeId = 1;
         actorAllocBoneRotations(2, 1);
         bossAttachActor();
@@ -120,55 +120,55 @@ void bossKRoolLankyStep(void) {
     if ((camIsPlayingPath(0) == 0) && (camIsPlayingPath(1) == 0) && ((gPrimaryPlayerActor->state != 0x67) || (gCurrentActor->state != 0x42))) {
         switch (gCurrentActor->state) {
         case 0x2B:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 actorSetTargetSpeed(gCurrentActor, 0);
                 camStartPath(gPrimaryPlayerActor, 9, 1);
                 bossKRoolLankySetAnim(0x3F5, 0x679);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             case 2:
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
                 bossKRoolLankySetAnim(0x3F4, 0x678);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             case 3:
                 if (gActorGlobalState.unk1B != 0) {
                     gCurrentActor->state = 0x31;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else if (gActorGlobalState.bossFightPhase == 2) {
                     bossResetMinions(NULL);
                     gCurrentActor->state = 0x2C;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
                 actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
                 break;
             }
             break;
         case 0x2C:
-            if (gCurrentActor->unk155 == 0) {
+            if (gCurrentActor->subState == 0) {
                 playerStateQueueCallback(0x36, gCurrentActor, 0);
                 bossKRoolLankyRunTowardPlayer();
                 gCurrentActor->state = 0x42;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 0x1E:
             scriptState->phase = 0;
             scriptState->scriptPos = 0;
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         case 0:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 bossKRoolLankySetAnim(0x3F5, 0x679);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             case 2:
                 bossKRoolLankyRunTowardPlayer();
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorSetCollisionRadius(gPrimaryPlayerActor, gPrimaryPlayerActor->collision->scaledRadius * 2);
                 actorOrNodeFlags(gPrimaryPlayerActor, 6, 1);
                 actorOrNodeFlags(gPrimaryPlayerActor, 7, 1);
@@ -180,16 +180,16 @@ void bossKRoolLankyStep(void) {
             }
             break;
         case 0x31:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 if (scriptState->phase == 3) {
                     gCurrentActor->state = 0x37;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else {
                     actorScriptStart(gCurrentActor, 0x3F2);
                     actorScriptStart(scriptState->linkedActor, 0x3F1);
                     actorSetTargetSpeed(gCurrentActor, 0);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 }
                 break;
             case 1:
@@ -202,23 +202,23 @@ void bossKRoolLankyStep(void) {
                 scriptState->phase++;
                 scriptOpcodes = bossKRoolLankyPhaseScripts[scriptState->phase];
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 break;
             }
             break;
         case 0x37:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 actorDespawn(scriptState->linkedActor);
                 actorScriptStart(gCurrentActor, 0);
                 camStartPath(gCurrentActor, 5, 1);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             case 1:
                 if (currentActorTestClearFlag() != 0) {
                     screenSetTransitionFadeType(0);
                     mapRequestTransition(0xCE, 0);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 }
                 break;
             }

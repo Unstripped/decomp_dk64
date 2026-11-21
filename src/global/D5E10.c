@@ -69,7 +69,7 @@ s32 D_80750FE0[4] = { 2, 4, 6, 5 };
 // The player's actor is larger than the shared Actor: its component data continues at 0x178.
 typedef struct ActorExt {
     /* 0x000 */ Actor base;
-    /* 0x178 */ void *unk178;
+    /* 0x178 */ void *chains;
 } ActorExt;
 
 #define ACTOR_EXT ((ActorExt *)gCurrentActor)
@@ -115,13 +115,13 @@ void playerInputUpdate1AndCheckLocomotion(void) {
 
 void playerStateUnderwaterSwim(void) {
     gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, 50.0f, 4.0f);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gActivePlayerState->swimFrames = 0;
             gActivePlayerState->targetSpeed = 100.0f;
             playerInputUpdate(0x67);
             playerApplyMotionWithHorizontalVelocity();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             playerApplyMotionWithHorizontalVelocity();
@@ -140,7 +140,7 @@ void playerStateUnderwaterSwim(void) {
 
 void playerStateSurfaceDiving(void) {
     gActivePlayerState->swimFrames = 0;
-    if (gCurrentActor->unk155 == 0) {
+    if (gCurrentActor->subState == 0) {
         gActivePlayerState->turnRate = 0xA;
         gCurrentActor->accelY = -8.0f;
         gCurrentActor->roll = mathAngleFromVector2D(gCurrentActor->speedXZ, gCurrentActor->speedY);
@@ -152,7 +152,7 @@ void playerStateSurfaceDiving(void) {
     }
     if ((gCurrentActor->y + 4.0f < gCurrentActor->waterY) && (gCurrentActor->speedY < 0.0f)) {
         gCurrentActor->state = 0x7F;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gActivePlayerState->slideSpeed = 2.0f;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -168,16 +168,16 @@ void playerStateUnderwaterSwimming(void) {
 
     gActivePlayerState->swimFrames++;
     gActivePlayerState->airAccel = gKongSwimAccel[gCurrentCharacterIndex];
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x4C);
             step = -gCurrentActor->speedY * 0.125;
             gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, 0.0f, step);
             if (gActivePlayerState->swimFrames >= 6) {
                 if ((gCurrentActor->speedXZ != 0.0f) || (gActivePlayerState->actionTimer != 0)) {
-                    gCurrentActor->unk155 = 3;
+                    gCurrentActor->subState = 3;
                 } else {
-                    gCurrentActor->unk155 = 2;
+                    gCurrentActor->subState = 2;
                 }
                 gCurrentActor->sub4->scriptWaitFlags &= ~0x4000;
             }
@@ -189,7 +189,7 @@ void playerStateUnderwaterSwimming(void) {
             playerInputUpdate(0x57);
             playerApplyDecelVelocityVector(0.0f);
             if (gActivePlayerState->actionTimer == 0) {
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
             }
             break;
         case 2:
@@ -198,7 +198,7 @@ void playerStateUnderwaterSwimming(void) {
             if (gCurrentActor->state == 0x7F) {
                 if (gCurrentActor->speedXZ != 0.0f) {
                     gActivePlayerState->unk18 = 0;
-                    gCurrentActor->unk155 = 3;
+                    gCurrentActor->subState = 3;
                 } else {
                     if (gActivePlayerState->idleDelay != 0) {
                         gActivePlayerState->idleDelay--;
@@ -209,7 +209,7 @@ void playerStateUnderwaterSwimming(void) {
                 }
                 if (gCurrentActor->waterY < gCurrentActor->y + 4.0f) {
                     gCurrentActor->state = 0x7E;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
             break;
@@ -222,17 +222,17 @@ void playerStateUnderwaterSwimming(void) {
             if ((gCurrentActor->speedXZ == 0.0f) || (gActivePlayerState->unk18 != 0)) {
                 gActivePlayerState->idleDelay = D_80753A78[gCurrentCharacterIndex];
                 scriptSetActorRampTarget(gCurrentActor, 0.5f, gActivePlayerState->idleDelay);
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             if (gCurrentActor->waterY < gCurrentActor->y + 4.0f) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x10, 0xFF, 0x7F, 1);
                 if (gCurrentActor->speedY > 150.0f) {
                     gCurrentActor->state = 0x82;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     actorScriptStart(gCurrentActor, 0);
                 } else {
                     gCurrentActor->state = 0x7E;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
             break;
@@ -242,7 +242,7 @@ void playerStateUnderwaterSwimming(void) {
 
 void playerStateUnderwaterTurn(void) {
     gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, 50.0f, 4.0f);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gActivePlayerState->turnRate = 0x50;
             playerInputUpdate(0x68);
@@ -266,10 +266,10 @@ void playerStateUnderwaterTurn(void) {
             playerApplyMotionWithHorizontalVelocity();
             if (gCurrentActor->waterY < gCurrentActor->y + 4.0f) {
                 gCurrentActor->state = 0x7E;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else {
                 gCurrentActor->state = 0x7F;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
     }
@@ -278,7 +278,7 @@ void playerStateUnderwaterTurn(void) {
 }
 
 void playerStateUnderwaterCharge(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x69);
             playerApplyDeceleration();
@@ -303,11 +303,11 @@ void playerStateUnderwaterCharge(void) {
             playerApplyHorizontalMotion();
             if (gCurrentActor->waterY < gCurrentActor->y + 4.0f) {
                 gCurrentActor->state = 0x7E;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorScriptStart(gCurrentActor, 0x317);
             } else {
                 gCurrentActor->state = 0x7F;
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 actorScriptStart(gCurrentActor, 0x318);
                 gActivePlayerState->targetSpeed = 300.0f;
                 gActivePlayerState->actionTimer = 0xF;
@@ -337,7 +337,7 @@ void playerStateDeathTransition(void) {
     gActivePlayerState->maxSpeed = 0.0f;
     gActivePlayerState->decelRate = 20.0f;
     playerApplyFullPhysics();
-    if ((currentActorTestClearFlag() != 0) || (gCurrentActor->unk155 == 1) || --gActivePlayerState->unk23C == 0) {
+    if ((currentActorTestClearFlag() != 0) || (gCurrentActor->subState == 1) || --gActivePlayerState->stateCountdown == 0) {
         mapTransitionToMenuOrPrevious();
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -349,9 +349,9 @@ void playerStateExitTransition(void) {
     gActivePlayerState->decelRate = 20.0f;
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     playerApplyFullPhysics();
-    if (gCurrentActor->unk155 != 0) {
+    if (gCurrentActor->subState != 0) {
         mapTransitionToPreviousOrExit();
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -370,9 +370,9 @@ void playerStateGameOver(void) {
         gCurrentActor->speedY = gCurrentActor->speedY * 0.25;
         playerApplyFullPhysics();
     }
-    if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
+    if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->stateCountdown == 0) {
         hudSpawnTextScreen(0);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -396,13 +396,13 @@ void playerStateSquishDeath(void) {
         gCurrentActor->speedY = gCurrentActor->speedY * 0.25;
         playerApplyMotionWithHorizontalVelocity();
     }
-    if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
+    if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->stateCountdown == 0) {
         if (menuIsTransitionTypeD() == 0) {
             target = mapFindClosestTargetNearSavedPos(table.types, 3, &map);
             actorListSetCustomFloat(map, target, 7, 2.0f);
         }
         mapTransitionToPreviousOrExit();
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -417,9 +417,9 @@ void playerInputUpdate0(void) {
 
 void playerInputUpdate1InitScript0(void) {
     playerInputUpdate(1);
-    if (gCurrentActor->unk155 == 0) {
+    if (gCurrentActor->subState == 0) {
         actorScriptStartByIndex(gCurrentActor, 0);
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->subState = 1;
         gCurrentActor->flags &= ~4;
     }
 }
@@ -430,17 +430,17 @@ void playerInputUpdate1(void) {
 
 void playerInputUpdate62(void) {
     playerInputUpdate(0x62);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 1:
         case 2:
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 0:
         case 0x3C:
         case 0x3D:
             break;
         default:
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
     }
 }
 
@@ -476,7 +476,7 @@ void playerInputUpdateByMap(void) {
         case 0x82:
             if ((gActivePlayerState->stateFlags & 8) && (currentActorTestClearFlag() != 0)) {
                 gActivePlayerState->actor->state = 0xA;
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             playerInputUpdate(0x5B);
             playerApplyMotion();
@@ -498,7 +498,7 @@ void playerInputUpdate5D(void) {
 
 void playerInputUpdate5E(void) {
     actorRegisterSnapToBoneCallback();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x5E);
             playerApplyGravityAndMotion();
@@ -506,7 +506,7 @@ void playerInputUpdate5E(void) {
         case 1:
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x5E);
             playerSetBaseGravityIfFalling();
             playerApplyGravityAndMotion();
@@ -583,7 +583,7 @@ void playerInputUpdate63(void) {
         if (gCurrentActor->sub4->animId != 0x3B0) {
             actorScriptStart(gCurrentActor, 0x3B0);
         }
-        if ((currentActorTestClearFlag() != 0) || (gCurrentActor->unk155 != 0)) {
+        if ((currentActorTestClearFlag() != 0) || (gCurrentActor->subState != 0)) {
             mapTransitionToMenuOrPrevious();
         }
     }
@@ -593,9 +593,9 @@ void playerStateRidingActor(void) {
     s16 *counter;
 
     counter = gActivePlayerState->actor->customState;
-    if (gCurrentActor->unk155 != 0) {
+    if (gCurrentActor->subState != 0) {
         gCurrentActor->state = 0x6D;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     } else {
         playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     }
@@ -616,7 +616,7 @@ void playerInputUpdate64(void) {
 
 void playerInputUpdateWaitC9(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (gCurrentActor->unk155++ >= 0xC9) {
+    if (gCurrentActor->subState++ >= 0xC9) {
         playerResumeLocomotion(gCurrentActor);
     }
 }
@@ -631,17 +631,17 @@ void playerRegisterWeaponHudRenderCallback(s16 inputId) {
             renderCallbacksRegister(&playerViewDrawCrosshair, gCurrentActor, 5);
         }
     }
-    if (gCurrentActor->unk155 != 0) {
+    if (gCurrentActor->subState != 0) {
         inputId = 5;
-        gCurrentActor->unk155--;
+        gCurrentActor->subState--;
     }
     playerInputUpdate(inputId);
 }
 
 void playerRegisterInstrumentHudRenderCallback(s16 inputId) {
-    if (gCurrentActor->unk155 != 0) {
+    if (gCurrentActor->subState != 0) {
         inputId = 5;
-        gCurrentActor->unk155--;
+        gCurrentActor->subState--;
     }
     if (hudCanRender() != 0) {
         if (playerInputUpdate(inputId) == 0) {
@@ -653,14 +653,14 @@ void playerRegisterInstrumentHudRenderCallback(s16 inputId) {
 
 void playerRegisterCameraHudRenderCallback(s16 nextState) {
     playerInputUpdate(1);
-    if (gCurrentActor->unk155 < 6) {
+    if (gCurrentActor->subState < 6) {
         renderCallbacksRegister(&playerViewDrawCameraShutter, gCurrentActor, 3);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     } else {
         gCurrentActor->state = nextState;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
-    if (gCurrentActor->unk155 == 2) {
+    if (gCurrentActor->subState == 2) {
         actorSpawn(0xCA, 0x8D);
         gActivePlayerState->actor = gSpawnedActor;
         *(void **)gSpawnedActor->customState = gActivePlayerState;
@@ -728,8 +728,8 @@ void playerStateClimbTree(void) {
 
     gCurrentActor->moveYaw = gCurrentActor->yaw;
     gCurrentActor->renderFlags |= 0x200;
-    if (gCurrentActor->unk155 != 0) {
-        gCurrentActor->unk155--;
+    if (gCurrentActor->subState != 0) {
+        gCurrentActor->subState--;
         sel = 0x14;
     }
     if ((gFrameCounter >= 2) && (playerInputUpdate(sel) == 0)) {
@@ -737,7 +737,7 @@ void playerStateClimbTree(void) {
 
         if (nextState != 0xC) {
             gCurrentActor->state = nextState;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     playerApplyFullPhysics();
@@ -828,7 +828,7 @@ void playerStateClimbTop(void) {
 
         if (nextState != 0x5D) {
             gCurrentActor->state = nextState;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     playerApplyFullPhysics();
@@ -848,8 +848,8 @@ void playerStateMinecart(void) {
 extern f32 gKongMaxTierExitSpeeds[];
 
 void playerStateClimbLadder(void) {
-    if (gCurrentActor->unk155 == 0) {
-        gCurrentActor->unk155++;
+    if (gCurrentActor->subState == 0) {
+        gCurrentActor->subState++;
         gActivePlayerState->unkC = -1;
         gActivePlayerState->unkE = -1;
     }
@@ -858,14 +858,14 @@ void playerStateClimbLadder(void) {
 
         if (nextState != 0xD) {
             gCurrentActor->state = nextState;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     if ((camIsCutsceneActive() == 0) && (gKongMaxTierExitSpeeds[gCurrentCharacterIndex] < gCurrentActor->speedXZ) && (gKongMaxTierExitSpeeds[gCurrentCharacterIndex] < gActivePlayerState->maxSpeed) &&
         (gActivePlayerState->unkC >= 0) && (mathAngleDistance(gActivePlayerState->unkC, gActivePlayerState->targetYaw) >= 0x401) &&
         (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->targetYaw) >= 0x539)) {
         gCurrentActor->state = 0xE;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         playerApplyGravityAndMotion();
     } else {
         playerApplyFullPhysics();
@@ -881,7 +881,7 @@ void playerStateSlideDownLadder(void) {
 
         if (nextState != 0x5E) {
             gCurrentActor->state = nextState;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     playerApplyFullPhysics();
@@ -915,7 +915,7 @@ void playerUpdateFallAndStepSounds(void) {
 
 
 void playerStateFallDamageLand(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x20);
             playerUpdateFallAndStepSounds();
@@ -930,7 +930,7 @@ void playerStateFallDamageLand(void) {
 }
 
 void playerStateFallDamageHard(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x20);
             playerUpdateFallAndStepSounds();
@@ -945,7 +945,7 @@ void playerStateFallDamageHard(void) {
 }
 
 void playerStateFallDamageCrouch(void) {
-    if (gCurrentActor->unk155 == 0) {
+    if (gCurrentActor->subState == 0) {
         playerInputUpdate(0x20);
         playerApplyFullPhysics();
         if (gCurrentActor->contactFlags & 1) {
@@ -977,9 +977,9 @@ void playerApplyImpactRumble(s32 inputId) {
             gCurrentActor->speedY = (gCurrentActor->speedY > 0.0f) ? 0.0f : gCurrentActor->speedY;
         }
         gCurrentActor->state = 0x14;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gActivePlayerState->jumpVelocityY = gCurrentActor->speedY;
-        gActivePlayerState->unk50 = 0;
+        gActivePlayerState->gravityDelay = 0;
         actorScriptStartByIndex(gCurrentActor, 0x67);
     }
     playerInputUpdate(inputId);
@@ -993,9 +993,9 @@ void playerApplyImpactRumble(s32 inputId) {
 }
 
 void playerStateSlideCameraInit(void) {
-    if (gCurrentActor->unk155 == 0) {
+    if (gCurrentActor->subState == 0) {
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     }
     playerApplyImpactRumble(0x3D);
 }
@@ -1024,8 +1024,8 @@ void playerStateSlideGentle(void) {
 void playerStateSlideRecover(void) {
     gActivePlayerState->maxSpeed = 0.0f;
     playerApplyFullPhysics();
-    gCurrentActor->unk155++;
-    if (gCurrentActor->unk155 == 0x32) {
+    gCurrentActor->subState++;
+    if (gCurrentActor->subState == 0x32) {
         PlayerCustomState *e = gActivePlayerState->actor->customState;
         e->unk45 = 1;
     }
@@ -1035,10 +1035,10 @@ void playerStateSlideRecover(void) {
 void playerStateSlideFall(void) {
     playerInputUpdate(0x3E);
     playerApplyFullPhysics();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (gCurrentMap == 0xE) {
@@ -1050,7 +1050,7 @@ void playerStateSlideFall(void) {
                 gCurrentActor->contactFlags &= ~0x1000;
                 playerSetBaseGravity();
                 gCurrentActor->state = 0xF;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x5E);
             } else {
                 playerUpdateFallTimer();
@@ -1084,14 +1084,14 @@ extern f32 D_8075327C[];
 extern s16 D_80753298[];
 
 void playerStateSkidTurn(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x41);
             actorScriptStartByIndex(gCurrentActor, 5);
             gActivePlayerState->decelRate = D_8075327C[gCurrentCharacterIndex];
             playerApplyDeceleration();
             playerApplyGravityAndMotion();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             playerInputUpdate(0x41);
@@ -1128,7 +1128,7 @@ extern SchedStruct gScheduler;
 extern f32 D_80753604[];
 
 void playerStateDoubleJump(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x2C);
             playerApplyFullPhysics();
@@ -1137,7 +1137,7 @@ void playerStateDoubleJump(void) {
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
             playerUpdateTargetYawFromStick();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
             playerApplyFullPhysics();
@@ -1157,9 +1157,9 @@ void playerStateDoubleJump(void) {
             }
             if (gScheduler.tickCount - gActivePlayerState->jumpTimer < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
                 gCurrentActor->state = 0x1A;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 gActivePlayerState->jumpVelocityY = D_80753604[gCurrentCharacterIndex];
-                gActivePlayerState->unk50 = 0;
+                gActivePlayerState->gravityDelay = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x13);
             }
             playerInputUpdate(0x30);
@@ -1179,7 +1179,7 @@ void playerInputUpdate5(void) {
 extern f32 gKongAirAccel[];
 
 void playerStateLongJump(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x2C);
             if (gActivePlayerState->airTimer != 0) {
@@ -1201,7 +1201,7 @@ void playerStateLongJump(void) {
             }
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
             break;
@@ -1229,9 +1229,9 @@ void playerStateLongJump(void) {
             }
             if (gScheduler.tickCount - gActivePlayerState->jumpTimer < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
                 gCurrentActor->state = 0x1A;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 gActivePlayerState->jumpVelocityY = D_80753604[gCurrentCharacterIndex];
-                gActivePlayerState->unk50 = 0;
+                gActivePlayerState->gravityDelay = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x13);
             }
             playerInputUpdate(0x30);
@@ -1243,7 +1243,7 @@ void playerStateLongJump(void) {
 
 
 void playerStateLaunchAir(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x2C);
             playerApplyFullPhysics();
@@ -1252,7 +1252,7 @@ void playerStateLaunchAir(void) {
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
             playerUpdateTargetYawFromStick();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
             playerApplyFullPhysics();
@@ -1270,9 +1270,9 @@ void playerStateLaunchAir(void) {
         case 3:
             gActivePlayerState->moveTier = -1;
             gCurrentActor->state = playerSelectSurfaceState(gCurrentActor, gCurrentActor->speedXZ, gActivePlayerState->maxSpeed, 1);
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             if (gCurrentActor->state == 0x3F) {
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             }
             playerInputUpdate(0x46);
             playerApplyFullPhysics();
@@ -1282,7 +1282,7 @@ void playerStateLaunchAir(void) {
 }
 
 void playerStateApproachVelocity(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             if (gActivePlayerState->approachTimer != 0) {
                 if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {} // FAKE: block split after the call; the gActivePlayerState piece stops at the jal, so $v0 is not forbidden (Q0198, Q0738)
@@ -1318,7 +1318,7 @@ void playerStateApproachVelocity(void) {
 }
 
 void playerStateCrouchJump(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x26);
             playerApplyFullPhysics();
@@ -1327,7 +1327,7 @@ void playerStateCrouchJump(void) {
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
             playerUpdateTargetYawFromStick();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x25);
             playerSetBaseGravityIfFalling();
             playerApplyFullPhysics();
@@ -1351,7 +1351,7 @@ void playerStateCrouchJump(void) {
 
 
 void playerStateBackflip(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         if (gActivePlayerState->approachTimer != 0) {
             mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw);
@@ -1361,7 +1361,7 @@ void playerStateBackflip(void) {
         playerApplyFullPhysics();
         if (gCurrentActor->speedY <= -15.0f) {
             gCurrentActor->speedY = -15.0f;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         playerInputUpdate(0x24);
         if (gCurrentActor->contactFlags & 1) {
@@ -1397,7 +1397,7 @@ extern f32 D_80753620[];
 extern f32 D_8075363C[];
 
 void playerStateFlapGlide(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         playerInputUpdate(0x2C);
@@ -1406,7 +1406,7 @@ void playerStateFlapGlide(void) {
     case 1:
         gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
         gCurrentActor->accelY = D_8075363C[gCurrentCharacterIndex];
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerUpdateTargetYawFromStick();
         playerInputUpdate(0x2B);
         gActivePlayerState->targetSpeed = D_80753620[gCurrentCharacterIndex];
@@ -1438,7 +1438,7 @@ extern f32 D_807536C8[];
 
 void playerStateHover(void) {
     playerSpawnJumpTrailEffects();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         playerInputUpdate(0x2C);
@@ -1448,7 +1448,7 @@ void playerStateHover(void) {
         gCurrentActor->speedY = D_80753674[gCurrentCharacterIndex];
         gCurrentActor->accelY = D_80753690[gCurrentCharacterIndex];
         playerUpdateTargetYawFromStick();
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerInputUpdate(0x2B);
         playerApplyFullPhysics();
         break;
@@ -1468,7 +1468,7 @@ void playerStateHover(void) {
     case 5:
         gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
         gCurrentActor->accelY = D_807536E4[gCurrentCharacterIndex];
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerInputUpdate(0x2B);
         gActivePlayerState->targetSpeed = D_807536C8[gCurrentCharacterIndex];
         playerApplyFullPhysics();
@@ -1489,7 +1489,7 @@ void playerStateHover(void) {
 }
 
 void playerStateGroundPound(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->speedY = 0.0f;
@@ -1501,7 +1501,7 @@ void playerStateGroundPound(void) {
         gCurrentActor->accelY = -30.0f;
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->speedY = -100.0f;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerApplyGravityAndMotion();
         break;
     case 2:
@@ -1517,7 +1517,7 @@ void playerStateGroundPound(void) {
             camStartShake(gActivePlayerState->camActor, 0x14, gCurrentKongInventory->slamLevel * 5);
         }
         scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerApplyGravityAndMotion();
         break;
     case 4:
@@ -1526,7 +1526,7 @@ void playerStateGroundPound(void) {
         break;
     case 5:
         playerInputUpdate(0x2F);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerApplyFullPhysics();
         break;
     case 6:
@@ -1538,10 +1538,10 @@ void playerStateGroundPound(void) {
 }
 
 void playerStateTurnDecel(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gActivePlayerState->decelRate = gActivePlayerState->decelRate / 1.8;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     case 1:
         playerInputUpdate(5);
         playerApplyFullPhysics();
@@ -1565,7 +1565,7 @@ void playerStateSlopeSlide(void) {
     f32 z;
     s32 i;
 
-    if (gCurrentActor->unk155 < 2 || D_80750FD8 < gCurrentActor->speedXZ) {
+    if (gCurrentActor->subState < 2 || D_80750FD8 < gCurrentActor->speedXZ) {
         scale = gCurrentActor->sub4->scaleY / 0.15;
         actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
         for (i = 0; i < D_80750FD4; i++) {
@@ -1578,7 +1578,7 @@ void playerStateSlopeSlide(void) {
             effectCreateAtPosition(gPuffSprites[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + nodeX, y * scale + nodeY, z * scale + nodeZ);
         }
     }
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerInputUpdate(5);
         gActivePlayerState->maxSpeed = 0.0f;
@@ -1590,7 +1590,7 @@ void playerStateSlopeSlide(void) {
             gCurrentActor->speedXZ = 140.0f;
         }
         gActivePlayerState->decelRate = 6.0f;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 2:
         if (gCurrentActor->hasArcBounds != 0) {
@@ -1621,10 +1621,10 @@ void playerInputUpdate1WithZeroUnk4(void) {
 }
 
 void playerStateRunDecel(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gActivePlayerState->decelRate = gActivePlayerState->decelRate / 1.8;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         gActivePlayerState->jumpStartTime = gScheduler.tickCount - 0x64;
         gActivePlayerState->turnRate = 0x50;
     case 1:
@@ -1638,12 +1638,12 @@ void playerStateRunDecel(void) {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                 case 2:
                     gCurrentActor->state = 0x27;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     actorScriptStartByIndex(gCurrentActor, 0x40);
                     break;
                 default:
                     gCurrentActor->state = 0x28;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     actorScriptStartByIndex(gCurrentActor, 0x41);
                     break;
             }
@@ -1655,10 +1655,10 @@ void playerStateRunDecel(void) {
 }
 
 void playerStateWalkDecel(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gActivePlayerState->decelRate = gActivePlayerState->decelRate / 1.8;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             gActivePlayerState->jumpStartTime = gScheduler.tickCount - 0x64;
         case 1:
             playerInputUpdate(9);
@@ -1669,7 +1669,7 @@ void playerStateWalkDecel(void) {
         case 2:
             if (gScheduler.tickCount - gActivePlayerState->jumpStartTime < 0x32) {
                 gCurrentActor->state = 0x28;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x41);
             }
             break;
@@ -1679,13 +1679,13 @@ void playerStateWalkDecel(void) {
 }
 
 void playerStateBrake(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gActivePlayerState->decelRate = gActivePlayerState->decelRate / 1.8;
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 3) {
                 gCurrentActor->speedXZ = 50.0f;
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         case 1:
             playerInputUpdate(0xA);
             mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
@@ -1708,7 +1708,7 @@ void playerStateSlopeSlideByCharacter(void) {
     playerUpdateFallAndStepSounds();
     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
         case 1:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     playerSetTerminalVelocity5B0();
                     playerInputUpdate(0x17);
@@ -1722,7 +1722,7 @@ void playerStateSlopeSlideByCharacter(void) {
             }
             break;
         case 0:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gActivePlayerState->decelRate = 7.0f;
                     gActivePlayerState->airAccel = 8.0f;
@@ -1745,7 +1745,7 @@ void playerStateSlopeSlideByCharacter(void) {
                     playerInputUpdate(0x15);
                     gActivePlayerState->maxSpeed = 200.0f;
                     playerApplyFullPhysics();
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     break;
                 case 3:
                     gCurrentActor->speedXZ = 200.0f;
@@ -1757,7 +1757,7 @@ void playerStateSlopeSlideByCharacter(void) {
             break;
         default:
         case 3:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gActivePlayerState->sharpTurn = 0;
                     gActivePlayerState->decelRate = 0.2f;
@@ -1777,7 +1777,7 @@ void playerStateSlopeSlideByCharacter(void) {
                     gActivePlayerState->sharpTurn = 1;
                     if (gScheduler.tickCount - gActivePlayerState->jumpStartTime < 0x14) {
                         gCurrentActor->state = 0x26;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                         actorScriptStartByIndex(gCurrentActor, 0x3F);
                     }
                     playerInputUpdate(0x15);
@@ -1786,7 +1786,7 @@ void playerStateSlopeSlideByCharacter(void) {
             }
             break;
         case 6:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gActivePlayerState->sharpTurn = 0;
                     gActivePlayerState->airAccel = 20.0f;
@@ -1820,7 +1820,7 @@ extern s16 D_80753568[];
 void playerStateSteepSlide(void) {
     mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->moveYaw, gActivePlayerState->turnRate);
     playerUpdateFallAndStepSounds();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gActivePlayerState->decelRate = 0.2f;
             gActivePlayerState->airAccel = 10.0f;
@@ -1844,7 +1844,7 @@ void playerStateSteepSlide(void) {
             playerInputUpdate(0x18);
             playerApplyGravityAndMotion();
             gCurrentActor->speedY = 150.0f;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             playerInputUpdate(0x18);
@@ -1888,7 +1888,7 @@ extern s16 D_80753548[];
 
 void playerStateDecelMotion(void) {
     playerUpdateFallAndStepSounds();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gActivePlayerState->decelRate = 20.0f;
             playerApplyDeceleration();
@@ -1908,7 +1908,7 @@ void playerStateDecelMotion(void) {
             if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 gCurrentActor->moveYaw = (gCurrentActor->yaw + 0x800) % 4096;
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 gCurrentActor->speedXZ = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
                 gActivePlayerState->slideLaunchSpeed = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
                 break;
@@ -1927,7 +1927,7 @@ void playerStateDecelMotion(void) {
             if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 gCurrentActor->moveYaw = (gCurrentActor->yaw + 0x800) % 4096;
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 gCurrentActor->speedXZ = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
                 gActivePlayerState->slideLaunchSpeed = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
                 break;
@@ -1969,7 +1969,7 @@ s32 playerCheckSlopeLaunchArc(void) {
             if (gCurrentActor->speedXZ > 150.0f) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 gCurrentActor->moveYaw = (gCurrentActor->yaw + 0x800) % 4096;
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
                 gCurrentActor->speedXZ = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
                 gActivePlayerState->slideLaunchSpeed = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
             } else {
@@ -1986,7 +1986,7 @@ extern EffectGridAsset gEffectSpriteDustPuff;
 
 void playerStateSlopeSlideArc(void) {
     playerUpdateFallAndStepSounds();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gActivePlayerState->sharpTurn = 0;
         playerInputUpdate(0x1A);
@@ -2072,7 +2072,7 @@ void playerInputUpdate8(void) {
 void playerStateSwimTurn(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     gCurrentActor->renderFlags |= 0x200;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerInputUpdate(3);
         gActivePlayerState->maxSpeed = gKongSwimTurnSpeeds[gCurrentCharacterIndex];
@@ -2095,7 +2095,7 @@ void playerStateSwimTurn(void) {
 void playerStateSwimTread(void) {
     playerInputUpdate(3);
     gCurrentActor->renderFlags |= 0x200;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, (s16)(gActivePlayerState->damageSource->yaw + 0x800), 8.0f);
         gActivePlayerState->maxSpeed = 0.0f;
@@ -2112,7 +2112,7 @@ void playerStateSwimTread(void) {
 void playerStateSwimIdle(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     playerInputUpdate(3);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gActivePlayerState->maxSpeed = 0.0f;
         gCurrentActor->speedXZ = 0.0f;
@@ -2144,7 +2144,7 @@ void playerStateSwimDrown(void) {
 void playerStateSwimPaddle(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     gCurrentActor->renderFlags |= 0x200;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerInputUpdate(3);
         gActivePlayerState->maxSpeed = gKongSwimPaddleSpeeds[gCurrentCharacterIndex];
@@ -2184,7 +2184,7 @@ void playerStateSwimPaddle(void) {
 
 void playerStateSwimBackwards(void) {
     gCurrentActor->renderFlags |= 0x200;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
         playerInputUpdate(4);
@@ -2217,7 +2217,7 @@ void playerStateSwimBackwards(void) {
 void playerStateSurfaceSwimSprint(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     gCurrentActor->renderFlags |= 0x200;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->speedXZ = gKongSwimSpeeds[gCurrentCharacterIndex];
         playerInputUpdate(5);
@@ -2251,21 +2251,21 @@ void playerStateSwimSink(void) {
         gCurrentActor->alpha = 0;
     }
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerApplyFullPhysics();
         break;
     case 1:
         playerApplyFullPhysics();
         if (gActivePlayerState->stateTimer-- == 0) {
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         break;
     case 2:
         if (gCurrentMap != 0x52 && gCurrentMap != 0xE) {
             playerRefillHealth(gCurrentActor, gCurrentPlayerIndex);
         }
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2286,7 +2286,7 @@ void playerStateSwimStroke(void) {
 
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     playerInputUpdate(1);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->accelY = gKongSwimStrokeSpeeds[gCurrentCharacterIndex];
             if (gGlobalCutsceneFlags & 2) {
@@ -2295,7 +2295,7 @@ void playerStateSwimStroke(void) {
             if (gPlayerCount == 1) {
                 camStartPathNearWall(gPrimaryPlayerActor, 0xC, 0x25, 0x85);
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             /* fallthrough */
         case 1:
             gActivePlayerState->maxSpeed = gKongSwimStrokeMaxSpeeds[gCurrentCharacterIndex];
@@ -2306,7 +2306,7 @@ void playerStateSwimStroke(void) {
             gActivePlayerState->swimStrokeTriggered = 0;
             break;
         case 2:
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             gCurrentActor->speedXZ = 0.0f;
             playerApplyMotion();
             break;
@@ -2349,7 +2349,7 @@ void playerStateSwimStroke(void) {
 }
 
 void playerStateUnderwaterPaddle(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x45);
             gActivePlayerState->maxSpeed = 0.0f;
@@ -2366,7 +2366,7 @@ void playerStateUnderwaterPaddle(void) {
 void playerStateUnderwaterSink(void) {
     s16 nextState;
 
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x46);
             gActivePlayerState->maxSpeed = 0.0f;
@@ -2376,7 +2376,7 @@ void playerStateUnderwaterSink(void) {
                 nextState = playerSelectSurfaceState(gCurrentActor, gCurrentActor->speedXZ, gActivePlayerState->maxSpeed, 1);
                 if (nextState != 0x3F) {
                     gCurrentActor->state = nextState;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
             break;
@@ -2393,9 +2393,9 @@ void playerStateUnderwaterLand(void) {
         nextState = playerSelectSurfaceState(gCurrentActor, gCurrentActor->speedXZ, gActivePlayerState->maxSpeed, 1);
         if (nextState != 0x40) {
             gCurrentActor->state = nextState;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             if (nextState == 0x3F) {
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             }
         }
     }
@@ -2404,13 +2404,13 @@ void playerStateUnderwaterLand(void) {
 }
 
 void playerStateScriptTransition(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(1);
             break;
         case 1:
             gCurrentActor->state = 0x3C;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             actorScriptStartByIndex(gCurrentActor, 0xB);
             break;
     }
@@ -2431,7 +2431,7 @@ extern s16 D_807534A8[];
 extern f32 D_80753738[];
 
 void playerStateUnderwaterRamp(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
             playerInputUpdate(0x47);
@@ -2446,7 +2446,7 @@ void playerStateUnderwaterRamp(void) {
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             gCurrentActor->accelY = D_80753738[gCurrentCharacterIndex];
             gCurrentActor->speedXZ = 0.0f;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x47);
             playerSetTerminalVelocity754();
             playerApplyGravityAndMotion();
@@ -2477,7 +2477,7 @@ extern f32 D_807537A8[];
 extern f32 D_807537C4[];
 
 void playerStateDive(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->targetYaw = gCurrentActor->moveYaw;
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
@@ -2489,7 +2489,7 @@ void playerStateDive(void) {
             gCurrentActor->accelY = D_807537A8[gCurrentCharacterIndex];
             gCurrentActor->speedXZ = D_80753770[gCurrentCharacterIndex];
             gCurrentActor->targetYaw = gCurrentActor->moveYaw;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x48);
             playerSetTerminalVelocity754();
             playerApplyGravityAndMotion();
@@ -2535,13 +2535,13 @@ s32 playerCanPerformActionCheck(void) {
     } else {
         surfaceOffset = gKongSwimSurfaceDepths[gCurrentCharacterIndex];
     }
-    if (gCurrentActor->state == 0x4E && playerInputCanPerformFairySnap() != 0 && gCurrentActor->unk155 != 0 &&
+    if (gCurrentActor->state == 0x4E && playerInputCanPerformFairySnap() != 0 && gCurrentActor->subState != 0 &&
         gCurrentActor->y + surfaceOffset < gCurrentActor->waterY - 10.0f) {
         gActivePlayerState->subTimer = D_807539EC[gCurrentCharacterIndex];
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
         gActivePlayerState->actionTimer = (s32)(D_807539DC[gCurrentCharacterIndex] * 0.5);
         gCurrentActor->state = 0x4F;
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->subState = 1;
         if (gCurrentActor->speedY > 0.0f) {
             gCurrentActor->speedY = 0.0f;
         }
@@ -2583,7 +2583,7 @@ void playerStateSurfaceSwim(void) {
     curSpeedY = gCurrentActor->speedY;
     gCurrentActor->speedY = mathApproachF32(curSpeedY, target, step);
     gActivePlayerState->swimFrames = 0;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x4E);
             playerApplyMotionWithHorizontalVelocity();
@@ -2593,7 +2593,7 @@ void playerStateSurfaceSwim(void) {
             playerApplyMotionWithHorizontalVelocity();
             if (gCurrentActor->speedXZ != 0.0f) {
                 actorScriptStartByIndex(gCurrentActor, 0x3A);
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             break;
         default:
@@ -2601,7 +2601,7 @@ void playerStateSurfaceSwim(void) {
             playerApplyMotionWithHorizontalVelocity();
             if (gCurrentActor->speedXZ == 0.0f) {
                 actorScriptStartByIndex(gCurrentActor, 0x33);
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             } else {
                 t = gActivePlayerState->maxSpeed * 1.5 / 40.0;
                 if (gCurrentActor->sub4->speed < t) {
@@ -2619,7 +2619,7 @@ void playerStateSurfaceSwim(void) {
 
 void playerStateSurfaceSwimStroke(void) {
     gActivePlayerState->swimFrames = 0;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
             playerInputUpdate(0x4B);
@@ -2642,16 +2642,16 @@ void playerStateSurfaceTreadWater(void) {
 
     gActivePlayerState->swimFrames++;
     gActivePlayerState->airAccel = gKongSwimAccel[gCurrentCharacterIndex];
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerInputUpdate(0x4C);
             target = gKongSwimBuoyancy[gCurrentCharacterIndex];
             gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, target, gActivePlayerState->slideSpeed);
             if (target <= gCurrentActor->speedY) {
                 if (gCurrentActor->speedXZ != 0.0f || gActivePlayerState->actionTimer != 0) {
-                    gCurrentActor->unk155 = 3;
+                    gCurrentActor->subState = 3;
                 } else {
-                    gCurrentActor->unk155 = 2;
+                    gCurrentActor->subState = 2;
                 }
                 gCurrentActor->sub4->scriptWaitFlags &= ~0x4000;
             }
@@ -2662,7 +2662,7 @@ void playerStateSurfaceTreadWater(void) {
             playerInputUpdate(0x4F);
             playerApplyDecelVelocityVector(0.0f);
             if (gActivePlayerState->actionTimer == 0) {
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
             }
             target = gActivePlayerState->actionTimer / 7.5 + 1.0;
             if (gCurrentActor->sub4->speed < target) {
@@ -2680,7 +2680,7 @@ void playerStateSurfaceTreadWater(void) {
             playerApplyDecelVelocityVector(gKongSwimBuoyancy[gCurrentCharacterIndex]);
             if (gCurrentActor->speedXZ != 0.0f) {
                 gActivePlayerState->unk18 = 0;
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
             } else if (gActivePlayerState->idleDelay != 0) {
                 gActivePlayerState->idleDelay--;
                 if (gActivePlayerState->idleDelay == 0) {
@@ -2700,7 +2700,7 @@ void playerStateSurfaceTreadWater(void) {
             gActivePlayerState->targetSpeed = D_80753AE0[gCurrentCharacterIndex];
             gActivePlayerState->actionTimer = D_80753A88[gCurrentCharacterIndex];
             playerApplyDecelVelocityVector(0.0f);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 5:
             playerInputUpdate(0x51);
@@ -2722,7 +2722,7 @@ void playerStateSurfaceTreadWater(void) {
     if (gCurrentActor->speedXZ == 0.0f || gActivePlayerState->unk18 != 0) {
         gActivePlayerState->idleDelay = D_80753A78[gCurrentCharacterIndex];
         scriptSetActorRampTarget(gCurrentActor, 0.5f, gActivePlayerState->idleDelay);
-        gCurrentActor->unk155 = 2;
+        gCurrentActor->subState = 2;
     }
     playerClampWaterSurfaceHeight(gCurrentActor);
 end:
@@ -2733,7 +2733,7 @@ void playerStateSurfacePaddleTurn(void) {
     gActivePlayerState->swimFrames = 0;
     gCurrentActor->pitch = 0;
     gCurrentActor->roll = 0;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerUpdateTargetYawFromStick();
             playerInputUpdate(0x21);
@@ -2743,7 +2743,7 @@ void playerStateSurfacePaddleTurn(void) {
             playerApplyFullPhysics();
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->subState = gCurrentActor->subState + 1;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
             break;
@@ -2822,7 +2822,7 @@ void playerStateDamageFallTumble(void) {
     f32 flightFrames;
     s32 decel;
 
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->flags &= 0xFFBFFFFF;
             if (gCurrentActor->hasArcBounds || ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1))) {
@@ -2862,12 +2862,12 @@ void playerStateDamageFallTumble(void) {
             gPrimaryPlayerActor->accelY = -0.001f;
             if (flightFrames < 2.0f || launchSpeed < 2.0) {
                 playerSetBaseGravity();
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             if (gCurrentActor->hasArcBounds) {
                 gCurrentActor->speedXZ = 0.0f;
                 playerSetBaseGravity();
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             playerInputUpdate(1);
             break;
@@ -2876,7 +2876,7 @@ void playerStateDamageFallTumble(void) {
             actorScriptStartByIndex(gCurrentActor, 0x23);
             gCurrentActor->roll = 0;
             playerSetBaseGravity();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             playerInputUpdate(0x20);
@@ -2884,7 +2884,7 @@ void playerStateDamageFallTumble(void) {
         case 3:
             sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x10, 0);
             gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             /* fallthrough */
         case 4:
             playerApplyDeceleration();
@@ -2910,7 +2910,7 @@ void playerUpdateAirTumble(void) {
     f32 v;
 
     playerInputUpdate(0x4A);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             if (gActivePlayerState->targetSpeed < gCurrentActor->speedXZ) {
                 playerApplyDeceleration();
@@ -2940,12 +2940,12 @@ void playerStateCutsceneIdle(void) {
     f32 vol;
 
     playerInputUpdate(1);
-    if (gCurrentActor->unk155 < 3 ||
+    if (gCurrentActor->subState < 3 ||
         (camIsPathFlag4Active() != 0 && (camIsPlayingPath(7) != 0 || camIsPlayingPath(0) != 0 || camIsPlayingPath(4) != 0 ||
                                   camIsPlayingPath(9) != 0 || camIsPlayingPath(8) != 0))) {
         mapChunkSetIndexOverride(1);
     }
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             if (!(gGlobalCutsceneFlags & 2)) {
                 gCurrentActor->collisionMode = 1;
@@ -2972,7 +2972,7 @@ void playerStateCutsceneIdle(void) {
                     break;
             }
             sfxAllocateChannel(ch, vol);
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->subState = gCurrentActor->subState + 1;
             break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2987,7 +2987,7 @@ void playerStateTransformSparkles(void) {
     f32 posY;
 
     playerInputUpdate(1);
-    if (gCurrentActor->unk155 == 1 || gCurrentActor->unk155 == 2) {
+    if (gCurrentActor->subState == 1 || gCurrentActor->subState == 2) {
         randomNonNegative();
         posY = (s32)(randomNonNegative() >> 15) % 30 + gCurrentActor->y;
         randomNonNegative();
@@ -2996,10 +2996,10 @@ void playerStateTransformSparkles(void) {
         effectSetCallback(effectOrbitXZUpdate);
         effectCreateAtPosition(&gEffectSpriteSparkleYellow, 0.5f, gCurrentActor->x, posY, gCurrentActor->z);
     }
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gActivePlayerState->rampLevel = 0;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         gCurrentActor->flags &= 0xFFFF7FFF;
         gCurrentActor->alpha = 0xFF;
         break;
@@ -3015,13 +3015,13 @@ void playerStateTransformSparkles(void) {
             gActivePlayerState->stateFlags &= ~0x40;
             gCurrentActor->alpha -= 5;
             if (gCurrentActor->alpha < 0xA) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
         }
         break;
     case 2:
         mapSaveSlotAndTransition(gActivePlayerState->unk242, 0, 0, 3);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -3030,7 +3030,7 @@ void playerStateTransformSparkles(void) {
 void playerStatePonytailFloat(void) {
     f32 v;
 
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->speedY = 0.0f;
         gCurrentActor->speedXZ = 0.0f;
@@ -3039,7 +3039,7 @@ void playerStatePonytailFloat(void) {
         gCurrentActor->accelY = 2.0f;
         gActivePlayerState->bobPhase = 0;
         gActivePlayerState->floatBaseY = gCurrentActor->y;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 1:
         playerInputUpdate(0x43);
@@ -3070,7 +3070,7 @@ void playerStatePonytailFloat(void) {
 }
 
 void playerStatePonytailTwirl(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->speedY = 0.0f;
         gCurrentActor->speedXZ = 0.0f;
@@ -3087,10 +3087,10 @@ void playerStatePonytailTwirl(void) {
             gCurrentActor->speedY = 0.0f;
             gCurrentActor->accelY = -0.01f;
             gCurrentActor->yawSpeed = 0;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) {
-            gCurrentActor->unk155 = 3;
+            gCurrentActor->subState = 3;
             gCurrentActor->accelY = -1.0f;
         }
         break;
@@ -3104,14 +3104,14 @@ void playerStatePonytailTwirl(void) {
         sfxSetChannelTempo(0x6B, 0.995f);
         gActivePlayerState->unkC0--;
         if (gActivePlayerState->unkC0 < 0 || (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000)) {
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         break;
     case 3:
         actorScriptStart(gCurrentActor, 0x16A);
         playerInputUpdate(0x43);
         playerApplyFullPhysics();
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 4:
         gCurrentActor->accelY -= 1.0f;
@@ -3168,7 +3168,7 @@ void playerStateHoldPickup(void) {
         actorUpdateModelMatrix(gCurrentActor, 0);
         return;
     }
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->speedXZ = 0.0f;
         gActivePlayerState->maxSpeed = 0.0f;
@@ -3176,7 +3176,7 @@ void playerStateHoldPickup(void) {
         gCurrentActor->x += gActivePlayerState->unk78;
         gCurrentActor->z += gActivePlayerState->unk7C;
         gCurrentActor->yaw = gActivePlayerState->unk80;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 1:
         gCurrentActor->x += gActivePlayerState->unk78;
@@ -3189,7 +3189,7 @@ void playerStateHoldPickup(void) {
         actorAppendCallback(gActivePlayerState->heldActor, gCurrentActor, 0x2000, 1, 0, 0);
         playerRegisterHeldActorFollow(0.4f);
         playerComputePickupHoldPitch();
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 3:
         playerInputUpdate(5);
@@ -3199,7 +3199,7 @@ void playerStateHoldPickup(void) {
     case 4:
         playerInputUpdate(5);
         actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0 * gCurrentActor->sub4->scale[0] / 0.15, 0); // FAKE: scale[0] union-array spelling of scaleX orders the mul.d operands (scaleX gives full=1)
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 5:
         playerInputUpdate(5);
@@ -3210,7 +3210,7 @@ void playerStateHoldPickup(void) {
         actorAppendCallback(gActivePlayerState->heldActor, gCurrentActor, 0x2000, 1, 0, 0);
         playerRegisterHeldActorFollow(0.4f);
         playerComputePickupHoldPitch();
-        gCurrentActor->unk155 = 3;
+        gCurrentActor->subState = 3;
         break;
     }
     playerApplyFullPhysics();
@@ -3245,7 +3245,7 @@ void playerStateHoldWalk(void) {
     playerRegisterHeldActorAlign();
     playerComputePickupHoldPitch();
     gCurrentActor->state = playerSelectCarryMoveState(gCurrentActor, gCurrentActor->speedXZ, gActivePlayerState->maxSpeed, 1);
-    gCurrentActor->unk155 = 0;
+    gCurrentActor->subState = 0;
     playerInputUpdate(0x37);
     if (!(gCurrentActor->contactFlags & 1)) {
         playerUpdateFallAndStepSounds();
@@ -3260,7 +3260,7 @@ void playerStateHoldRun(void) {
     playerRegisterHeldActorAlign();
     playerComputePickupHoldPitch();
     gCurrentActor->state = playerSelectCarryMoveState(gCurrentActor, gCurrentActor->speedXZ, gActivePlayerState->maxSpeed, 1);
-    gCurrentActor->unk155 = 0;
+    gCurrentActor->subState = 0;
     playerInputUpdate(0x37);
     if (!(gCurrentActor->contactFlags & 1)) {
         playerUpdateFallAndStepSounds();
@@ -3273,7 +3273,7 @@ void playerStateHoldIdle(void) {
     gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerInputUpdate(0x3A);
     playerComputePickupHoldPitch();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerRegisterHeldActorFollow(0.5f);
             break;
@@ -3284,7 +3284,7 @@ void playerStateHoldIdle(void) {
             }
             gActivePlayerState->heldActor = NULL;
             gActivePlayerState->queuedHeldActor = NULL;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
     }
     playerApplyFullPhysics();
@@ -3298,7 +3298,7 @@ extern f32 gKongHoldPutDownOffsets[];
 void playerStateHoldPutDown(void) {
     gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerInputUpdate(1);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerRegisterHeldActorFollow(1.0f);
             gCurrentActor->speedXZ = 0.0f;
@@ -3307,7 +3307,7 @@ void playerStateHoldPutDown(void) {
             actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldPutDownAngles[gCurrentCharacterIndex], gKongHoldPutDownOffsets[gCurrentCharacterIndex]);
             gActivePlayerState->heldActor = NULL;
             gActivePlayerState->queuedHeldActor = NULL;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             gCurrentActor->speedXZ = D_80753364[gCurrentCharacterIndex];
             gCurrentActor->moveYaw = gCurrentActor->yaw;
             break;
@@ -3331,7 +3331,7 @@ extern f32 gKongHoldThrowAngles[];
 void playerStateHoldThrow(void) {
     gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerInputUpdate(1);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             playerRegisterHeldActorFollow(1.0f);
             gCurrentActor->speedXZ = 0.0f;
@@ -3340,7 +3340,7 @@ void playerStateHoldThrow(void) {
             actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldThrowAngles[gCurrentCharacterIndex], gKongHoldThrowOffsets[gCurrentCharacterIndex]);
             gActivePlayerState->heldActor = NULL;
             gActivePlayerState->queuedHeldActor = NULL;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             gCurrentActor->speedXZ = D_80753364[gCurrentCharacterIndex];
             gCurrentActor->moveYaw = gCurrentActor->yaw;
             break;
@@ -3362,7 +3362,7 @@ void playerStateHoldJump(void) {
     gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerRegisterHeldActorFollow(1.0f);
     playerComputePickupHoldPitch();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
             playerInputUpdate(0x21);
@@ -3371,7 +3371,7 @@ void playerStateHoldJump(void) {
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
             playerUpdateTargetYawFromStick();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
             break;
@@ -3437,19 +3437,19 @@ void playerStateTransformHold(void) {
 
 void playerStateTagBarrelFade(void) {
     gCurrentActor->speedXZ = 0.0f;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->collisionMode = 1;
             gCurrentActor->flags &= 0xFFFF7FFF;
             gCurrentActor->alpha = 0xFF;
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             gCurrentActor->alpha -= 0xF;
             if (gCurrentActor->alpha < 0x10) {
                 matrixCacheSetDefaultLimit();
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
@@ -3458,24 +3458,24 @@ void playerStateTagBarrelFade(void) {
             gCurrentActor->y = gActivePlayerState->warpY + 10.0;
             gCurrentActor->prevY = gCurrentActor->y;
             gCurrentActor->z = gActivePlayerState->warpZ;
-            kongChainInit(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
+            kongChainInit(0, ACTOR_EXT->chains, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
             screenWipeStart(6);
-            gActivePlayerState->unk23C = 0x14;
+            gActivePlayerState->stateCountdown = 0x14;
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 3:
-            gActivePlayerState->unk23C--;
-            if (gActivePlayerState->unk23C == 0) {
-                gCurrentActor->unk155++;
+            gActivePlayerState->stateCountdown--;
+            if (gActivePlayerState->stateCountdown == 0) {
+                gCurrentActor->subState++;
             }
             break;
         case 4:
             gCurrentActor->alpha += 0xF;
             if (gCurrentActor->alpha >= 0xF1) {
                 gCurrentActor->flags |= 0x8000;
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 5:
@@ -3491,25 +3491,25 @@ void playerStateTagBarrelFade(void) {
 
 void playerStateTagBarrelPadEnter(void) {
     gCurrentActor->speedXZ = 0.0f;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 0:
             gCurrentActor->collisionMode = 1;
             if (actorSpawn(0x3C, 0x98)) {
                 actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
-            gCurrentActor->unk155++;
-            gActivePlayerState->unk23C = 4;
+            gCurrentActor->subState++;
+            gActivePlayerState->stateCountdown = 4;
             break;
         case 2:
             gCurrentActor->x = (gActivePlayerState->unk210 - gCurrentActor->x) * 0.5 + gCurrentActor->x;
             gCurrentActor->y = (gActivePlayerState->unk214 - gCurrentActor->y) * 0.5 + gCurrentActor->y;
             gCurrentActor->z = (gActivePlayerState->unk218 - gCurrentActor->z) * 0.5 + gCurrentActor->z;
-            if (gActivePlayerState->unk23C != 0) {
-                gActivePlayerState->unk23C--;
-                if (gActivePlayerState->unk23C == 0) {
+            if (gActivePlayerState->stateCountdown != 0) {
+                gActivePlayerState->stateCountdown--;
+                if (gActivePlayerState->stateCountdown == 0) {
                     gCurrentActor->flags &= 0xFFFF7FFF;
                     gCurrentActor->alpha = 0;
                 }
@@ -3518,16 +3518,16 @@ void playerStateTagBarrelPadEnter(void) {
         case 3:
             gCurrentActor->flags &= 0xFFFF7FFF;
             gCurrentActor->alpha = 0;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 5:
-            gActivePlayerState->unk23C = 0x14;
+            gActivePlayerState->stateCountdown = 0x14;
             break;
         case 6:
-            gActivePlayerState->unk23C--;
-            if (gActivePlayerState->unk23C == 0) {
+            gActivePlayerState->stateCountdown--;
+            if (gActivePlayerState->stateCountdown == 0) {
                 matrixCacheSetDefaultLimit();
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 7:
@@ -3537,28 +3537,28 @@ void playerStateTagBarrelPadEnter(void) {
             gCurrentActor->y = gActivePlayerState->warpY;
             gCurrentActor->prevY = gCurrentActor->y;
             gCurrentActor->z = gActivePlayerState->warpZ;
-            kongChainInit(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
+            kongChainInit(0, ACTOR_EXT->chains, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
-            gActivePlayerState->unk23C = 0x14;
+            gActivePlayerState->stateCountdown = 0x14;
             screenWipeStart(2);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 8:
             gGlobalPauseFlags |= 0x30020;
-            gActivePlayerState->unk23C--;
-            if (gActivePlayerState->unk23C == 0) {
+            gActivePlayerState->stateCountdown--;
+            if (gActivePlayerState->stateCountdown == 0) {
                 sfxStartAreaAmbient();
                 if (actorSpawn(0x3C, 0x98)) {
                     actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
                 }
-                gCurrentActor->unk155++;
-                gActivePlayerState->unk23C = 0xC;
+                gCurrentActor->subState++;
+                gActivePlayerState->stateCountdown = 0xC;
             }
             break;
         case 10:
-            if (gActivePlayerState->unk23C != 0) {
-                gActivePlayerState->unk23C--;
-                if (gActivePlayerState->unk23C == 0) {
+            if (gActivePlayerState->stateCountdown != 0) {
+                gActivePlayerState->stateCountdown--;
+                if (gActivePlayerState->stateCountdown == 0) {
                     gCurrentActor->x = gActivePlayerState->unk210;
                     gCurrentActor->y = gActivePlayerState->unk214;
                     gCurrentActor->z = gActivePlayerState->unk218;
@@ -3570,7 +3570,7 @@ void playerStateTagBarrelPadEnter(void) {
             playerInputUpdate(0x20);
             actorScriptStartByIndex(gCurrentActor, 0x1B);
             playerSetBaseGravity();
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 12:
         case 13:
@@ -3579,7 +3579,7 @@ void playerStateTagBarrelPadEnter(void) {
             break;
         case 14:
             sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x2F, 0);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         case 15:
             actorSetInteractionTimer(gCurrentActor);
             matrixCacheRestoreLimit();
@@ -3604,36 +3604,36 @@ void playerStateKnockbackTumble(void) {
     f32 s;
 
     playerInputUpdate(1);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
-        gActivePlayerState->unk108 = 50.0f;
-        gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+        gActivePlayerState->tumbleTimer = 50.0f;
+        gCurrentActor->subState = gCurrentActor->subState + 1;
         break;
     case 1:
-        if (gActivePlayerState->unk108 != 0.0f) {
-            gActivePlayerState->unk108 = gActivePlayerState->unk108 - 1.0f;
+        if (gActivePlayerState->tumbleTimer != 0.0f) {
+            gActivePlayerState->tumbleTimer = gActivePlayerState->tumbleTimer - 1.0f;
         } else if (gCurrentActor->y - gCurrentActor->floorY < 60.0f) {
             gCurrentActor->y = gCurrentActor->y + 1.0f;
         } else {
-            gActivePlayerState->unk108 = 150.0f;
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gActivePlayerState->tumbleTimer = 150.0f;
+            gCurrentActor->subState = gCurrentActor->subState + 1;
             camSetTargetScaled(gActivePlayerState->camActor, gCurrentActor, 6, 0, 0x1E, 0, 5, 0x2D, 0x14, 0xC8, 0.15f);
         }
         break;
     case 2:
-        gActivePlayerState->unk108 = gActivePlayerState->unk108 - 1.0f;
-        if (gActivePlayerState->unk108 == 0.0f) {
-            gActivePlayerState->unk108 = 150.0f;
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+        gActivePlayerState->tumbleTimer = gActivePlayerState->tumbleTimer - 1.0f;
+        if (gActivePlayerState->tumbleTimer == 0.0f) {
+            gActivePlayerState->tumbleTimer = 150.0f;
+            gCurrentActor->subState = gCurrentActor->subState + 1;
         }
         s = (mathSinF(gActivePlayerState->tumblePhase) > 0.0f) ? mathSinF(gActivePlayerState->tumblePhase) : -mathSinF(gActivePlayerState->tumblePhase);
         gCurrentActor->yaw = gCurrentActor->yaw + 120.0 * (0.5 + s);
         break;
     case 3:
-        gActivePlayerState->unk108 = gActivePlayerState->unk108 - 1.0f;
-        if (gActivePlayerState->unk108 == 0.0f) {
-            gActivePlayerState->unk108 = 500.0f;
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+        gActivePlayerState->tumbleTimer = gActivePlayerState->tumbleTimer - 1.0f;
+        if (gActivePlayerState->tumbleTimer == 0.0f) {
+            gActivePlayerState->tumbleTimer = 500.0f;
+            gCurrentActor->subState = gCurrentActor->subState + 1;
         }
         s = (mathSinF(gActivePlayerState->tumblePhase) > 0.0f) ? mathSinF(gActivePlayerState->tumblePhase) : -mathSinF(gActivePlayerState->tumblePhase);
         gCurrentActor->yaw = gCurrentActor->yaw + 120.0 * (0.5 + s);
@@ -3682,18 +3682,18 @@ void playerStateStationaryInteraction(void) {
 
     playerInputUpdate(1);
     gCurrentActor->speedXZ = 0.0f;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         gCurrentActor->collisionMode = 1;
         gActivePlayerState->rampLevel = 0xA;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2EB, 0xFF, 0x7F, 2);
         break;
     case 1:
         if (gActivePlayerState->rampLevel >= 2) {
             gActivePlayerState->rampLevel--;
         } else {
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         break;
     case 2:
@@ -3706,14 +3706,14 @@ void playerStateStationaryInteraction(void) {
         gCurrentActor->moveYaw = yaw;
         gCurrentActor->yaw = yaw;
         camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
-        kongChainInit(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
-        gCurrentActor->unk155++;
+        kongChainInit(0, ACTOR_EXT->chains, gCurrentActor->actorType);
+        gCurrentActor->subState++;
         break;
     case 3:
         if (gActivePlayerState->rampLevel < 0xA) {
             gActivePlayerState->rampLevel++;
         } else {
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         break;
     case 4:
@@ -3760,7 +3760,7 @@ void playerStateAttachedCallbackFall(void) {
     f32 f;
     f64 d;
 
-    if (gCurrentActor->unk155 != 0 && !(gCurrentActor->contactFlags & 0x40)) {
+    if (gCurrentActor->subState != 0 && !(gCurrentActor->contactFlags & 0x40)) {
         playerEnterFall(gCurrentActor);
         if (gActivePlayerState->gunDrawn != 0) {
             playerStateFallDamageHard();
@@ -3776,7 +3776,7 @@ void playerStateAttachedCallbackFall(void) {
     node->dispatchPass = 1;
     actorRegisterGlobalCallback(node);
     mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->moveYaw, 0xC8);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerInputUpdate(5);
         gActivePlayerState->forwardSpeed = 0.0f;
@@ -3791,7 +3791,7 @@ void playerStateAttachedCallbackFall(void) {
             switch (gActivePlayerState->moveDir) {
             case 1:
                 targetSpeed = gKongPathAccelUp[gCurrentCharacterIndex];
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6A);
                 break;
             case 0:
@@ -3799,7 +3799,7 @@ void playerStateAttachedCallbackFall(void) {
                 break;
             case -1:
                 targetSpeed = gKongPathAccelDown[gCurrentCharacterIndex];
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->subState = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6B);
                 break;
             }
@@ -3810,13 +3810,13 @@ void playerStateAttachedCallbackFall(void) {
     case 2:
         if (playerInputUpdate(0x58) == 0) {
             if (gActivePlayerState->forwardSpeed == 0.0f && gActivePlayerState->maxSpeed == 0.0f) {
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6C);
             } else if (gActivePlayerState->forwardSpeed > 0.0f && gActivePlayerState->maxSpeed > 0.0f) {
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6A);
             } else if (gActivePlayerState->forwardSpeed < 0.0f && gActivePlayerState->maxSpeed < 0.0f) {
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->subState = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6B);
             }
             playerStepForwardSpeedTowardTarget(gKongPathAccelNeutral[gCurrentCharacterIndex]);
@@ -3832,7 +3832,7 @@ void playerStateAttachedCallbackFall(void) {
     case 3:
         if (playerInputUpdate(0x58) == 0) {
             if (gActivePlayerState->forwardSpeed <= 0.0f) {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             switch (gActivePlayerState->moveDir) {
             case -1:
@@ -3858,7 +3858,7 @@ void playerStateAttachedCallbackFall(void) {
     case 4:
         if (playerInputUpdate(0x58) == 0) {
             if (gActivePlayerState->forwardSpeed >= 0.0f) {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             switch (gActivePlayerState->moveDir) {
             case -1:
@@ -3901,7 +3901,7 @@ void playerStateSwingLeap(void) {
     gCurrentActor->contactFlags &= 0xFFBF;
     t = gCurrentActor->roll;
     gCurrentActor->roll = t + -t * 0.1;
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerFindClosestTargetActor();
         gCurrentActor->speedXZ = gActivePlayerState->unk14C / 2;
@@ -3925,7 +3925,7 @@ void playerStateSwingLeap(void) {
         }
         mathAngleStepTowardThreshold(&gCurrentActor->yaw, gCurrentActor->moveYaw, 0x78, 0x600);
         gCurrentActor->speedY = gActivePlayerState->unk150;
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerInputUpdate(0x27);
         gActivePlayerState->decelRate = gActivePlayerState->decelRate / 2;
         playerApplyGravityAndMotion();
@@ -3933,7 +3933,7 @@ void playerStateSwingLeap(void) {
     case 2:
         if (gActivePlayerState->leapTarget == 0) {
             actorScriptStartByIndex(gActivePlayerActor, 0x6F);
-            gCurrentActor->unk155 = 3;
+            gCurrentActor->subState = 3;
             break;
         }
     case 1:
@@ -3991,7 +3991,7 @@ void playerFindClosestTargetActor(void) {
     f32 dist;
     f32 v;
 
-    if ((cur != NULL) || (gCurrentActor->unk155 == 1)) {
+    if ((cur != NULL) || (gCurrentActor->subState == 1)) {
         if (cur == NULL) {
             for (i = 0; i < gActiveActorCount; i++) {
                 a = gActiveActors[i].actor;
@@ -4033,7 +4033,7 @@ void playerStateAttachedCallbackFallCheck(void) {
     f32 f;
     f64 d;
 
-    if (gCurrentActor->unk155 != 0 && (!(gCurrentActor->contactFlags & 0x40) || ((gCurrentActor->contactFlags & 4) && gCurrentActor->waterY - gCurrentActor->y > 3.0))) {
+    if (gCurrentActor->subState != 0 && (!(gCurrentActor->contactFlags & 0x40) || ((gCurrentActor->contactFlags & 4) && gCurrentActor->waterY - gCurrentActor->y > 3.0))) {
         playerEnterFall(gCurrentActor);
         if (gActivePlayerState->gunDrawn != 0) {
             playerStateFallDamageHard();
@@ -4048,7 +4048,7 @@ void playerStateAttachedCallbackFallCheck(void) {
     node->source = gActivePlayerActor;
     node->dispatchPass = 1;
     actorRegisterGlobalCallback(node);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerInputUpdate(5);
         gActivePlayerState->forwardSpeed = 0.0f;
@@ -4058,7 +4058,7 @@ void playerStateAttachedCallbackFallCheck(void) {
             switch (gActivePlayerState->moveDir) {
             case 1:
                 targetSpeed = gKongPathAccelUp[gCurrentCharacterIndex];
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 actorScriptStartByIndex(gActivePlayerActor, 0x71);
                 break;
             case 0:
@@ -4066,7 +4066,7 @@ void playerStateAttachedCallbackFallCheck(void) {
                 break;
             case -1:
                 targetSpeed = gKongPathAccelDown[gCurrentCharacterIndex];
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->subState = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x72);
                 break;
             }
@@ -4077,13 +4077,13 @@ void playerStateAttachedCallbackFallCheck(void) {
     case 2:
         if (playerInputUpdate(0x59) == 0) {
             if (gActivePlayerState->forwardSpeed == 0.0f && gActivePlayerState->maxSpeed == 0.0f) {
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
                 actorScriptStartByIndex(gActivePlayerActor, 0x73);
             } else if (gActivePlayerState->forwardSpeed > 0.0f && gActivePlayerState->maxSpeed > 0.0f) {
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 actorScriptStartByIndex(gActivePlayerActor, 0x71);
             } else if (gActivePlayerState->forwardSpeed < 0.0f && gActivePlayerState->maxSpeed < 0.0f) {
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->subState = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x72);
             }
             playerStepForwardSpeedTowardTarget(gKongPathAccelNeutral[gCurrentCharacterIndex]);
@@ -4099,7 +4099,7 @@ void playerStateAttachedCallbackFallCheck(void) {
     case 3:
         if (playerInputUpdate(0x59) == 0) {
             if (gActivePlayerState->forwardSpeed <= 0.0f) {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             switch (gActivePlayerState->moveDir) {
             case -1:
@@ -4125,7 +4125,7 @@ void playerStateAttachedCallbackFallCheck(void) {
     case 4:
         if (playerInputUpdate(0x59) == 0) {
             if (gActivePlayerState->forwardSpeed >= 0.0f) {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             switch (gActivePlayerState->moveDir) {
             case -1:
@@ -4157,13 +4157,13 @@ extern f32 gKongKnockbackSpeeds[];
 void playerStateKnockbackBounce(void) {
     gCurrentActor->arcSpeedCap = 0x12C;
     playerSetUnk586Flag();
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 1:
         gCurrentActor->moveYaw = (gCurrentActor->yaw + 0x800) & 0xFFF;
         gCurrentActor->speedY = gKongKnockbackSpeeds[gCurrentCharacterIndex];
         gCurrentActor->speedXZ = 100.0f;
         playerSetTerminalVelocity5B0();
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         gActivePlayerState->airTimer = 3;
         playerInputUpdate(0x29);
         gActivePlayerState->airAccel = 30.0f;
@@ -4228,12 +4228,12 @@ void playerStateBounceRecover(void) {
     } else {
         ledgeOffset = D_80753D8C[gCurrentCharacterIndex];
     }
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         playerInputUpdate(0x5A);
         gActivePlayerState->unkEC = gCurrentActor->yaw;
         gActivePlayerState->hangInputDelay = 5;
-        gCurrentActor->unk155 = 2;
+        gCurrentActor->subState = 2;
         break;
     case 1:
     case 2:
@@ -4244,29 +4244,29 @@ void playerStateBounceRecover(void) {
         if (playerInputUpdate(0x5A) == 0) {
             switch (gActivePlayerState->moveDir) {
             case -1:
-                if (gCurrentActor->unk155 == 1) {
+                if (gCurrentActor->subState == 1) {
                     t = gCurrentActor->speedXZ * 0.025;
                     f = t > 0.1 ? t : 0.1;
                     scriptSetActorRampTarget(gCurrentActor, f, 1.0f);
                 } else {
                     actorScriptStartByIndex(gActivePlayerActor, 0x77);
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                 }
                 break;
             case 0:
-                if (gCurrentActor->unk155 != 2) {
+                if (gCurrentActor->subState != 2) {
                     actorScriptStartByIndex(gActivePlayerActor, 0x76);
-                    gCurrentActor->unk155 = 2;
+                    gCurrentActor->subState = 2;
                 }
                 break;
             case 1:
-                if (gCurrentActor->unk155 == 3) {
+                if (gCurrentActor->subState == 3) {
                     t = gCurrentActor->speedXZ * 0.025;
                     f = t > 0.1 ? t : 0.1;
                     scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
                 } else {
                     actorScriptStartByIndex(gActivePlayerActor, 0x78);
-                    gCurrentActor->unk155 = 3;
+                    gCurrentActor->subState = 3;
                 }
                 break;
             }
@@ -4329,7 +4329,7 @@ void playerStateBounceRecover(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].stickY >= 0x33 && gActivePlayerState->hangInputDelay == 0 && v == 0) {
         actorScriptStartByIndex(gActivePlayerActor, 0x79);
         gCurrentActor->state = 0x5C;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gActivePlayerState->ledgeY = gCurrentActor->y + ledgeOffset;
         gActivePlayerState->prevLedgeY = gActivePlayerState->ledgeY;
     }
@@ -4368,7 +4368,7 @@ void playerStateLandRecover(void) {
     gCurrentActor->flags |= 0x08000000;
     actorUpdateModelMatrix(gCurrentActor, 0);
     actorCheckBoundsAndMotion(gCurrentActor);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         switch (gCurrentActor->actorType) {
         case 4:
@@ -4498,31 +4498,31 @@ void playerStateCutsceneTransition(void) {
 }
 
 void playerStateCutscenePause(void) {
-    if (gCurrentActor->unk155 == 0) {
+    if (gCurrentActor->subState == 0) {
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     }
     playerApplyImpactRumble(1);
     gActivePlayerState->decelRate = D_80750FDC;
 }
 
 void playerStateBarrelBlast(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         camSetTargetScaled(gActivePlayerState->camActor, gCurrentActor, 4, 0, 0x19, 0, 5, -3, 0xA, 0, 0.15f);
         actorScriptStartByIndex(gCurrentActor, 0x85);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
     case 2:
         camSetTargetScaled(gActivePlayerState->camActor, gCurrentActor, 4, 0x396, 0x19, 0, 5, 0xB, 0xB, 0, 0.15f);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 4:
         camSetTargetScaled(gActivePlayerState->camActor, gCurrentActor, 4, 0xE74, 0x14, 0, 5, 0x13, 0xA, 0, 0.15f);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 6:
         camSetTargetScaled(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x11, 0, 5, 0x29, 0xA, 0, 0.15f);
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         break;
     case 8:
         camResetPlayer(gCurrentActor, 0);
@@ -4533,9 +4533,9 @@ void playerStateBarrelBlast(void) {
 }
 
 void playerStateResumeFromCutscene(void) {
-    if (gCurrentActor->unk155 == 1) {
+    if (gCurrentActor->subState == 1) {
         camResumePath();
-        gCurrentActor->unk155++;
+        gCurrentActor->subState++;
         playerResumeLocomotion(gCurrentActor);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -4563,7 +4563,7 @@ void playerStateDialogueWait(void) {
 
     playerInputUpdate(1);
     playerClearPitchRollFlags(gCurrentActor);
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
     case 0:
         if (countBananaFairies() == 0x14) {
             pathIndex = 0x1A;
@@ -4571,7 +4571,7 @@ void playerStateDialogueWait(void) {
             pathIndex = 0x11;
         }
         camStartPath(gCurrentActor, pathIndex, 5);
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->subState = 1;
         break;
     case 1:
         gGlobalPauseFlags &= ~0x10030;
@@ -4599,14 +4599,14 @@ void playerStateDialogueWait(void) {
         gSpawnedActor->flags |= 0x40000000;
         light->effectActor = gSpawnedActor;
         light->allFairies = countBananaFairies() == 0x14;
-        gCurrentActor->unk155 = 2;
+        gCurrentActor->subState = 2;
         break;
     case 2:
         if (currentActorTestClearFlag()) {
             currentActorClearFlag();
             effectSpawnKongRing();
             sfxAllocateChannel(0x3B, 1.0f);
-            gCurrentActor->unk155 = 3;
+            gCurrentActor->subState = 3;
         }
         /* fallthrough */
     case 3:
@@ -4671,13 +4671,13 @@ void playerStateGrowFromPoint(void) {
     if (gCurrentActor->sub4->scaleX > 0.15) {
         gCurrentActor->sub4->scaleX = 0.15f;
         gCurrentActor->state = 0xC;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->pitch = -0xFF;
     }
     gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleX;
     gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
-    gCurrentActor->x += ps->unk220[0];
-    gCurrentActor->z += ps->unk220[2];
+    gCurrentActor->x += ps->heading[0];
+    gCurrentActor->z += ps->heading[2];
     gCurrentActor->pitch += 0xFF;
     gCurrentActor->pitch &= 0xFFF;
     actorUpdateModelMatrix(gCurrentActor, 0);

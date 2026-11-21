@@ -197,7 +197,7 @@ void raceOpponentBehaviourUpdate(void) {
         gCurrentActor->flags |= 0x10400;
         gCurrentActor->flags &= ~0x20000;
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->accelY = -20.0f;
         gCurrentActor->terminalSpeedY = -900.0f;
@@ -252,7 +252,7 @@ void raceOpponentBehaviourUpdate(void) {
     case 0:
         if (managerData != NULL && managerData->phaseTimer == 0) {
             gCurrentActor->state++;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             gCurrentActor->contactFlags |= 0x200;
         }
         break;
@@ -303,7 +303,7 @@ void raceOpponentBehaviourUpdate(void) {
                 gCurrentActor->state = 9;
             }
             actorScriptStart(gCurrentActor, 0);
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     case 3:
@@ -318,11 +318,11 @@ void raceOpponentBehaviourUpdate(void) {
         actorApproachTargetSpeed(0x200);
         break;
     case 6:
-        if (gBehaviourWorkState->unk2E != 0) {
-            gBehaviourWorkState->unk2E--;
+        if (gBehaviourWorkState->countdown != 0) {
+            gBehaviourWorkState->countdown--;
         } else if (gCurrentActor->hasArcBounds != 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0x46, 0x7F, 2);
-            gBehaviourWorkState->unk2E = 0x14;
+            gBehaviourWorkState->countdown = 0x14;
         }
         if (gBehaviourWorkState->waypointIndex == routeRows[gBehaviourWorkState->routeRow].waypoint && routeRows[gBehaviourWorkState->routeRow].action == 1) {
             yawDiff = gCurrentActor->moveYaw - gCurrentActor->yaw;
@@ -377,27 +377,27 @@ void raceOpponentBehaviourUpdate(void) {
         gBehaviourWorkState->acceleration = 8;
         actorSetTargetSpeed(gCurrentActor, 0);
         actorApproachTargetSpeed(0x200);
-        if (gCurrentActor->unk155 == 0) {
+        if (gCurrentActor->subState == 0) {
             actorScriptStart(gCurrentActor, 0x287);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         }
         break;
     case 10:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             gBehaviourWorkState->acceleration = 8;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         case 1:
             if (gCurrentActor->speedXZ == 0.0f) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
             gBehaviourWorkState->acceleration = 0;
             actorScriptStart(gCurrentActor, 0x288);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         }
         actorApproachTargetSpeed(0x200);
@@ -467,10 +467,10 @@ void raceOpponentBehaviourUpdate(void) {
                 gCurrentActor->speedXZ = 0.0f;
                 if (raceCheckCoinRequirement(controller, config) != 0) {
                     gCurrentActor->state = 0xA;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else {
                     gCurrentActor->state = 9;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
             controller->statusStep++;

@@ -956,7 +956,7 @@ void raceSetPiecewiseCurveMode(RaceTarget *target, u8 mode, RaceCurvePoint *poin
         points[5].y = values->z;
         break;
     }
-    gCurrentActor->unk155 = 0;
+    gCurrentActor->subState = 0;
     target->curveMode = mode;
 }
 
@@ -972,7 +972,7 @@ f32 raceEvaluateCurveWithRubberband(RaceTarget *target, f32 t, RaceCurvePoint *p
         break;
     case 1:
         ret = raceEvaluatePiecewiseCurve(t, points);
-        if (target->unk10 != 0) {
+        if (target->chaseEnabled != 0) {
             if (points[4].x < t) {
                 if ((u32)randomLcgNext() % 0xFF < 0xA) {
                     raceSetPiecewiseCurveMode(target, 2, points, values);
@@ -983,7 +983,7 @@ f32 raceEvaluateCurveWithRubberband(RaceTarget *target, f32 t, RaceCurvePoint *p
     case 2:
     case 3:
     case 4:
-        if (target->curveMode == 3 || target->curveMode == 4 || target->unk10 != 0) {
+        if (target->curveMode == 3 || target->curveMode == 4 || target->chaseEnabled != 0) {
             chased = target->participant;
             lim = chased->throttle;
             points[0].y = lim < values->x ? lim : values->x;
@@ -1031,7 +1031,7 @@ f32 raceEvaluateCurveTargetSpeed(RaceTarget *target, f32 t, RaceCurvePoint *poin
         break;
     case 1:
         ret = raceEvaluatePiecewiseCurve(t, points);
-        if (target->unk10 != 0) {
+        if (target->chaseEnabled != 0) {
             if (points[4].x < t) {
                 raceSetPiecewiseCurveMode(target, 5, points, values);
             }
@@ -1112,7 +1112,7 @@ void racePlayerTrackerBehaviorUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         playerStateQueueCallback(0x4E, gCurrentActor, raceData->playerIdx);
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     if ((raceData->raceStatus == 2) && (gCurrentActor->state == 0)) {
         playerStateQueueCallback(0x57, NULL, raceData->playerIdx);

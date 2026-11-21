@@ -53,15 +53,15 @@ unsigned char cullSwap;
         asset->displayLists[i] = (u8 *)asset->displayLists[i] + delta;
     }
 
-    if (asset->unk8 != NULL) {
-        asset->unk8 = (u8 *)asset->unk8 + delta;
+    if (asset->bones != NULL) {
+        asset->bones = (u8 *)asset->bones + delta;
     } else {
-        asset->unk8 = gDefaultModelBone;
+        asset->bones = gDefaultModelBone;
         asset->boneCount = 1;
     }
 
     asset->unkC = (u8 *)asset->unkC + delta;
-    asset->unk10 = (u8 *)asset->unk10 + delta;
+    asset->animTextures = (u8 *)asset->animTextures + delta;
 
     controllerBuildSubcommandList(*asset->displayLists, asset->displayLists, &asset->segmentNodes);
     renderReplaceSegment6Commands(*asset->displayLists, asset->displayLists);
@@ -636,7 +636,7 @@ AnimClip *controllerAnimCacheGetOrLoad(s32 id) {
     }
 
     clip = assetLoad(0xB, id, 1, 1);
-    clip->unk6 += 6;
+    clip->frameDataOffset += 6;
     slot = gAnimClipCacheCount;
     entry = &gAnimClipCache[slot];
     entry->asset = clip;

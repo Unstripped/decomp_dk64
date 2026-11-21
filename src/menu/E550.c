@@ -24,7 +24,7 @@ void menuLightSpotlightActorUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->lightNodeId = 1;
         gCurrentActor->flags &= ~4;
     }
@@ -33,12 +33,12 @@ void menuLightSpotlightActorUpdate(void) {
     }
     switch (gCurrentActor->state) {
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 actorScriptStart(gCurrentActor, 0x2A7);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         }
@@ -66,7 +66,7 @@ void menuUpdateLightFadeActor(void) {
             currentActorClearFlag();
             actorScriptStart(gCurrentActor, 0x2D6);
             gCurrentActor->state++;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             gGlobalPauseFlags &= ~0x30;
         }
         break;

@@ -18,10 +18,10 @@ typedef struct CollisionTriF {
     /* 0x00 */ f32 x[3];
     /* 0x0C */ f32 y[3];
     /* 0x18 */ f32 z[3];
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25;
-    /* 0x26 */ s8 unk26;
-    /* 0x27 */ u8 unk27;
+    /* 0x24 */ u8 slopeType;
+    /* 0x25 */ u8 surface;
+    /* 0x26 */ s8 bone;
+    /* 0x27 */ u8 partId;
 } CollisionTriF; // size = 0x28
 
 // Transformed collision box (ActorSub140.unkA4 array, built by actorSub140BuildBoxes); 0x58 bytes.

@@ -211,7 +211,7 @@ void bossPufftossStep(void) {
         gBehaviourAnimState->flags |= 0x20;
         state->sndHandle = 0;
         gCurrentActor->state = scriptData[state->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     gActivePlayerState->surfaceTimer = (gActivePlayerState->surfaceTimer < 50) ? gActivePlayerState->surfaceTimer : 50;
     gCurrentActor->tintR = mathSinF(gFrameCounter * 0x64) * 50.0 + 200.0;
@@ -228,14 +228,14 @@ void bossPufftossStep(void) {
             actorGetOrSetNodeScale(gCurrentActor, 1, 200.0f);
             bossPufftossNotifyLaser(0);
             gCurrentActor->state = 0x56;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             actorScriptStart(gCurrentActor, 0x2D1);
             gBehaviourWorkState->timer = 0x12C;
         } else {
             effectFreeAll();
             waterRippleStop();
             gCurrentActor->state = 0x4D;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             gCurrentActor->accelY = D_807502FC;
             actorScriptStart(gCurrentActor, 0x2CD);
             gBehaviourWorkState->targetY = -0x2BC;
@@ -276,21 +276,21 @@ void bossPufftossStep(void) {
         camSetFollowMode(gCamActor);
         camStartPath(gCurrentActor, 8, 1);
         gCurrentActor->state = 0x37;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->flags &= ~4;
     }
-    if (!(state->unk12 & 1) && (effectNodeGetValue(1) > 640.0f) && (gPrimaryPlayerActor->state != 0x42)) {
+    if (!(state->flags & 1) && (effectNodeGetValue(1) > 640.0f) && (gPrimaryPlayerActor->state != 0x42)) {
         if (gPlayerSlots->sizeMode != 1) {
             playerSetSizeMode(gPrimaryPlayerActor, 1);
             gActivePlayerState->scaleChangeRate = 0.1f;
         }
         camStartPath(gCurrentActor, 0xA, 1);
-        state->unk12 |= 1;
+        state->flags |= 1;
         state->phase = 4;
         state->scriptPos = 0;
         scriptData = sPufftossStateScripts[(gCurrentMap == 0xC5) ? 0 : 1][state->phase];
         gCurrentActor->state = scriptData[state->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     switch (gCurrentActor->state) {
     case 0x6A:
@@ -299,11 +299,11 @@ void bossPufftossStep(void) {
         updateY = 0;
         gCurrentActor->interactionType = 4;
         actorMoveWithinZone(0x45, 606.0f, 566.0f, 0x292, 0.0f);
-        if (gCurrentActor->unk155 == 1) {
+        if (gCurrentActor->subState == 1) {
             bossClampPosition(&gBehaviourZone[1]);
         }
-        if ((gCurrentActor->unk155 == 0) && (gPrimaryPlayerActor->state == 0x42)) {
-            gCurrentActor->unk155 = 1;
+        if ((gCurrentActor->subState == 0) && (gPrimaryPlayerActor->state == 0x42)) {
+            gCurrentActor->subState = 1;
             camSetTarget(gCamActor, gCurrentActor, 4, 0xD48, 0x320, 0, 0, 0xC8, 0x64, 0, 0.03f);
             camSetTargetFocusActor(gCamActor, gPrimaryPlayerActor);
         }
@@ -330,7 +330,7 @@ void bossPufftossStep(void) {
                 bossPufftossNotifyLaser(1);
                 state->scriptPos = state->loopPos;
                 gCurrentActor->state = scriptData[state->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
         }
         break;
@@ -339,14 +339,14 @@ void bossPufftossStep(void) {
         updateY = 0;
         gCurrentActor->interactionType = 4;
         bossClampPosition(&gBehaviourZone[1]);
-        if ((gCurrentActor->unk155 == 0) && (currentActorTestClearFlag() != 0)) {
-            gCurrentActor->unk155++;
+        if ((gCurrentActor->subState == 0) && (currentActorTestClearFlag() != 0)) {
+            gCurrentActor->subState++;
             bossSpawnParticleRing(0xEC, gBehaviourZone->entries[16].x, gBehaviourZone->entries[16].y + 0x14, gBehaviourZone->entries[16].z, 0x5DC, 4);
         }
         break;
     case 0x27:
         updateY = 0;
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             if ((gCurrentMap == 0xC5) || (flagGet(0x69, 2) != 0)) {
                 if (gCurrentMap == 0xC5) {
@@ -354,64 +354,64 @@ void bossPufftossStep(void) {
                 } else {
                     actorScriptStart(gCurrentActor, 0x2C6);
                 }
-                gCurrentActor->unk155 = 6;
+                gCurrentActor->subState = 6;
             } else {
                 controllerAnimSetStateIfChanged(gCurrentActor, 0x539, 0, 0);
                 scriptSetActorRampTarget(gCurrentActor, 0, 0);
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             }
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(gCurrentActor, 0x2C4);
                 scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 gBehaviourWorkState->targetY = 0x1F4;
                 actorScriptStart(gCurrentActor, 0x2C5);
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->subState = 4;
             }
             break;
         case 5:
             if ((gCurrentActor->floorY + 180.0f) < gCurrentActor->y) {
                 gCurrentActor->state = 0x11;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             gCurrentActor->y += ((gCurrentActor->floorY + 200.0f) - gCurrentActor->y) * 0.12;
             break;
         case 6:
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->state = scriptData[state->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0x2B:
         gCurrentActor->interactionType = 2;
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x2CF);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 csModelStateSetFirstByte(0, 1);
                 gCurrentActor->state = scriptData[state->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0x29:
         gCurrentActor->interactionType = 2;
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x2CE);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         case 2:
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x14A, 0xFF, 0x7F, 0, 0, 0, 0);
@@ -420,19 +420,19 @@ void bossPufftossStep(void) {
             controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0, 0);
             scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0);
             gCurrentActor->state = scriptData[state->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x28:
         actorTurnTowardTarget(0x23, 606.0f, 566.0f, 0);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gBehaviourWorkState->waypointIndex += 4;
             patrolPathStep(0x42, 0);
             gBehaviourWorkState->waypointIndex -= 4;
             actorScriptStart(gCurrentActor, 0x2CB);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             gBehaviourWorkState->timer = 0;
             break;
         case 2:
@@ -452,7 +452,7 @@ void bossPufftossStep(void) {
             break;
         case 7:
             gCurrentActor->state = scriptData[state->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
@@ -460,17 +460,17 @@ void bossPufftossStep(void) {
     case 0x2C:
         updateY = 0;
         gCurrentActor->interactionType = 2;
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gBehaviourWorkState->waypointIndex += 4;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             /* fallthrough */
         case 1:
             actorMoveWithinZone(0x42, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x291, 0.0f);
             if (patrolPathStep(0x42, 0) != 0) {
                 gCurrentActor->speedY = 100.0f;
                 actorScriptStart(gCurrentActor, 0x2C8);
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
                 gBehaviourWorkState->waypointIndex -= 4;
                 if (gCurrentActor->state == 0x2C) {
                     camStartPath(gCurrentActor, 6, 1);
@@ -482,40 +482,40 @@ void bossPufftossStep(void) {
             break;
         case 3:
             gCurrentActor->state = scriptData[state->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x48:
         gCurrentActor->interactionType = 2;
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x2C9);
             gBehaviourWorkState->timer = scriptData[state->scriptPos++];
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             /* fallthrough */
         case 1:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
                 gCurrentActor->state = scriptData[state->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
         break;
     case 0x43:
         gCurrentActor->interactionType = 2;
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x2CA);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         case 2:
             if ((gCurrentActor->floorY + 180.0f) < gCurrentActor->y) {
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
                 gCurrentActor->state = scriptData[state->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             gCurrentActor->y += ((gCurrentActor->floorY + 200.0f) - gCurrentActor->y) * 0.12;
             updateY = 0;
@@ -526,20 +526,20 @@ void bossPufftossStep(void) {
         actorMoveWithinZone(0x45, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x293, 0.0f);
         if (currentActorTestClearFlag() != 0) {
             gCurrentActor->state = scriptData[state->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     case 0x46:
         actorMoveWithinZone(0x45, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x293, 0.0f);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             state->byteVars[0] = scriptData[state->scriptPos++];
             swing->swingYaw = mathAngleBetweenPoints2D(606.0f, 566.0f, gCurrentActor->x, gCurrentActor->z) + 0x400;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             /* fallthrough */
         case 1:
             actorScriptStart(gCurrentActor, 0x2C7);
-            gCurrentActor->unk155 = 2;
+            gCurrentActor->subState = 2;
             break;
         case 2:
             bossPufftossSpawnGlow(0, gCurrentActor->sub4->model->frame * 0.06 + 2.0);
@@ -547,14 +547,14 @@ void bossPufftossStep(void) {
         case 3:
             projectileGetTargetCoords(gCurrentActor, 1);
             projectileClampAngleAndSpawn(gCurrentActor->yaw, 0x320, 0x1E, 0xB, 1.2f, gBehaviourTargetActor->x, gBehaviourTargetActor->y + 30.0f, gBehaviourTargetActor->z, state->phase * 0x50 + 0x2BC, gCurrentActor);
-            gCurrentActor->unk155 = 4;
+            gCurrentActor->subState = 4;
             break;
         case 5:
             if (state->byteVars[0]--) {
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             } else {
                 gCurrentActor->state = scriptData[state->scriptPos++];
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
@@ -562,7 +562,7 @@ void bossPufftossStep(void) {
         break;
     case 0x4D:
         updateY = 0;
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 1:
             bossPufftossSpawnGlow(3, 3.0f);
             break;
@@ -571,7 +571,7 @@ void bossPufftossStep(void) {
             actorApplyGravity();
             gCurrentActor->y += gCurrentActor->speedY;
             if (gCurrentActor->y < gBehaviourWorkState->targetY) {
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
             if ((gCurrentMap == 0xC5) && (state->phase == 3) && (currentActorTestClearFlag() != 0)) {
@@ -583,11 +583,11 @@ void bossPufftossStep(void) {
             if (currentActorTestClearFlag() != 0) {
                 if ((gCurrentMap == 0xC5) && (state->phase == 3)) {
                     gCurrentActor->state = 0x37;
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                 } else {
                     gCurrentActor->accelY = gDefaultActorGravity;
                     actorScriptStart(gCurrentActor, 0x2CC);
-                    gCurrentActor->unk155 = 4;
+                    gCurrentActor->subState = 4;
                     gBehaviourWorkState->targetY = 0xC8;
                 }
             }
@@ -605,7 +605,7 @@ void bossPufftossStep(void) {
             }
             if (gBehaviourWorkState->targetY < gCurrentActor->y) {
                 actorScriptStart(gCurrentActor, 0x2D0);
-                gCurrentActor->unk155 = 5;
+                gCurrentActor->subState = 5;
             }
             break;
         case 5:
@@ -617,7 +617,7 @@ void bossPufftossStep(void) {
         case 7:
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             gCurrentActor->state = 0x11;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;

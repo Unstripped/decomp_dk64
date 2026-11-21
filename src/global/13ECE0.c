@@ -49,7 +49,7 @@ void __n_unmapVoice(N_CSPlayer *seqp, ALVoice *voice) {
             }
             vs->next = seqp->vFreeList;
             seqp->vFreeList = vs;
-            seqp->unk89--;
+            seqp->voiceCount--;
             return;
         }
         prev = vs;
@@ -132,7 +132,7 @@ N_VoiceState *__n_mapVoice(N_CSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
     N_VoiceState *vs;
 
     vs = seqp->vFreeList;
-    if (seqp->unk89 > seqp->unk88) {
+    if (seqp->voiceCount > seqp->maxVoices) {
         return NULL;
     }
     if (vs != NULL) {
@@ -148,7 +148,7 @@ N_VoiceState *__n_mapVoice(N_CSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
         vs->key = key;
         vs->velocity = velocity;
         vs->voice.clientPrivate = vs;
-        seqp->unk89++;
+        seqp->voiceCount++;
     }
     return vs;
 }
@@ -214,7 +214,7 @@ u8 n_alCSPClampVoiceFXMix(N_VoiceState *vs, N_CSPlayer *seqp) {
     s32 mix;
 
     flags = seqp->chanState[vs->channel].fxmix & 0x80;
-    mix = (s32)(((s32)(seqp->unk7C * 127.0f) + (seqp->chanState[vs->channel].fxmix & 0x7F)) * seqp->unk80);
+    mix = (s32)(((s32)(seqp->fxMixOffset * 127.0f) + (seqp->chanState[vs->channel].fxmix & 0x7F)) * seqp->fxMixScale);
     return ((mix > 0x7F ? 0x7F : mix) < 0 ? 0 : (mix > 0x7F ? 0x7F : mix)) | flags;
 }
 

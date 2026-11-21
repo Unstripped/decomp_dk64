@@ -37,14 +37,14 @@ void kongItemEnemyTryGroundSlam(void) {
         && (((gBehaviourWorkState->flags & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
             || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (gCurrentActor->flags & 0x100)))) {
         gCurrentActor->state = 0x28;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
 }
 
 void kongItemEnemyTryAttack(void) {
     if (gBehaviourWorkState->stepCount >= 0x65 && gActorGlobalState.bossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
         gCurrentActor->state = 0x27;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
 }
 
@@ -94,14 +94,14 @@ void func_806B13B4(u8 spawnSfxNodes) {
     sel = gCurrentActor->state;
     switch (sel) {
     case 0x31:
-        if (gCurrentActor->unk155 != 0 || gCurrentActor->sub4->model->speed == 0.0f) {
+        if (gCurrentActor->subState != 0 || gCurrentActor->sub4->model->speed == 0.0f) {
             actorSetDefaultState(0x203);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
         break;
     case 0x32:
         gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
             break;
@@ -112,17 +112,17 @@ void func_806B13B4(u8 spawnSfxNodes) {
         }
         break;
     case 0x28:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x20D);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         case 2:
             actorSpawnGroundEffectAtNode(1);
             actorSpawnGroundEffectAtNode(2);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D5, 0xFF, 0x7F, 1);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x25A, 0xFF, 0x7F, 1);
-            gCurrentActor->unk155 = 3;
+            gCurrentActor->subState = 3;
             break;
         case 4:
             actorSetDefaultState(0x203);
@@ -131,15 +131,15 @@ void func_806B13B4(u8 spawnSfxNodes) {
         break;
     case 0x11:
         actorTrackBoneTowardTarget(5);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x205);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         case 1:
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
             if (gCurrentActor->speedXZ < 1.0f) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 2:
@@ -152,15 +152,15 @@ void func_806B13B4(u8 spawnSfxNodes) {
         break;
     case 0x27:
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             if ((randomNonNegative() >> 15) % 1000 >= 0x259) {
                 actorScriptStart(gCurrentActor, 0x208);
-                gCurrentActor->unk155 = 5;
+                gCurrentActor->subState = 5;
             } else {
                 actorScriptStart(gCurrentActor, 0x206);
-                gCurrentActor->unk155 = 1;
+                gCurrentActor->subState = 1;
             }
             break;
         case 1:
@@ -173,7 +173,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
             if (gBehaviourWorkState->flags & 0x100) {
                 gBehaviourWorkState->flags &= ~0x100;
                 actorScriptStart(gCurrentActor, 0x207);
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
             } else {
                 actorSetDefaultState(0x203);
             }
@@ -182,7 +182,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
             if (gBehaviourWorkState->flags & 0x100) {
                 gBehaviourWorkState->flags &= ~0x100;
                 actorScriptStart(gCurrentActor, 0x208);
-                gCurrentActor->unk155 = 5;
+                gCurrentActor->subState = 5;
             }
             break;
         case 4:
@@ -196,7 +196,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
     case 1:
         if (behaviourCheckRandomAnimTrigger() != 0) {
             gCurrentActor->state = 0x11;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     case 0x10:
     case 0x23:
@@ -216,7 +216,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
         break;
     case 0x37:
         gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             break;
@@ -224,7 +224,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
             if (spawnSfxNodes != 0) {
                 sfxSpawnTableNodes(gCurrentActor);
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             behaviourFadeOutWithinZone(8);

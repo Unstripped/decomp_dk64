@@ -105,7 +105,7 @@ typedef struct JetpacLedge {
     /* 0x24 */ s32 boxX2;
     /* 0x28 */ s32 boxY2;
     /* 0x2C */ u8 pad2C[4];
-    /* 0x30 */ s32 unk30;
+    /* 0x30 */ s32 length;
 } JetpacLedge; // size 0x34
 
 /* jetpacGame; jetpacLedges, jetpacPlayer, jetpacLasers and jetpacActors are symbols inside it. */
@@ -126,8 +126,8 @@ typedef struct JetpacGlobal {
     /* 0x5AC */ JetpacActor actors[6];
     /* 0x78C */ s32 gameState;
     /* 0x790 */ u32 stateTimer;
-    /* 0x794 */ u32 unk794;
-    /* 0x798 */ u8 unk798;
+    /* 0x794 */ u32 stateSettleFrames;
+    /* 0x798 */ u8 coinChallenge;
     /* 0x799 */ u8 unk799;
 } JetpacGlobal;
 

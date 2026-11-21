@@ -1168,7 +1168,7 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
                     gCollisionDeferredPush = 1;
                 }
                 while (node != NULL && gCollisionDeferredHit == 0) {
-                    if (node->active != 0 && !(node->unk27 & 2)) {
+                    if (node->active != 0 && !(node->collisionSkipFlags & 2)) {
                         hitMask |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, otherSub140->box_start, otherSub140->box_end, arcMin, arcMax);
                     }
                     node = node->next;
@@ -1242,13 +1242,13 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
     if (!(self->flags & 0x800)) {
         guMtxXFMF(invMtx, posX, posY, posZ, &localPos[0], &localPos[1], &localPos[2]);
     } else {
-        localPos[0] = selfBounds->unkB8;
-        localPos[1] = selfBounds->unkBC;
-        localPos[2] = selfBounds->unkC0;
+        localPos[0] = selfBounds->hitBoxPosX;
+        localPos[1] = selfBounds->hitBoxPosY;
+        localPos[2] = selfBounds->hitBoxPosZ;
     }
-    selfBounds->unkB8 = localPos[0];
-    selfBounds->unkBC = localPos[1];
-    selfBounds->unkC0 = localPos[2];
+    selfBounds->hitBoxPosX = localPos[0];
+    selfBounds->hitBoxPosY = localPos[1];
+    selfBounds->hitBoxPosZ = localPos[2];
 
     ptX[0] = (f32)gCollisionHitBox->x0 / 8;
     ptY[0] = (f32)gCollisionHitBox->y0 / 8;

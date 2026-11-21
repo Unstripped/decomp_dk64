@@ -166,9 +166,9 @@ void timedWarpTargetUpdate(void) {
         gCurrentActor->cullMarginY = 0xFF;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->state = 0x27;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
-        gBehaviourWorkState->unk2E = 0x96;
+        gBehaviourWorkState->countdown = 0x96;
         gBehaviourAnimState->flags |= 0x60;
         hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);
         hudCountdownTimerStart(gSpawnedActor);
@@ -182,7 +182,7 @@ void timedWarpTargetUpdate(void) {
     switch (gCurrentActor->state) {
         case 0:
             if (gBehaviourWorkState->timer != 0) {
-                ratio = (f32)gBehaviourWorkState->timer / (f32)gBehaviourWorkState->unk2E;
+                ratio = (f32)gBehaviourWorkState->timer / (f32)gBehaviourWorkState->countdown;
                 actorGetNodePos(gCurrentActor, 2, &x, &y, &z);
                 actorSetUniformScale(gPrimaryPlayerActor, ratio * 0.13 + 0.02);
                 gPrimaryPlayerActor->x += (x - gPrimaryPlayerActor->x) * 0.05;
@@ -195,13 +195,13 @@ void timedWarpTargetUpdate(void) {
             }
             break;
         case 0x27:
-            if (gBehaviourWorkState->unk2E != 0) {
+            if (gBehaviourWorkState->countdown != 0) {
                 gCurrentActor->y += 2.0f;
-                gBehaviourWorkState->unk2E--;
-                actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (0.01 - gBehaviourWorkState->scale) * (gBehaviourWorkState->unk2E / 150.0));
+                gBehaviourWorkState->countdown--;
+                actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (0.01 - gBehaviourWorkState->scale) * (gBehaviourWorkState->countdown / 150.0));
             } else {
                 gCurrentActor->state = 2;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 2:
@@ -209,27 +209,27 @@ void timedWarpTargetUpdate(void) {
                 actorScriptStart(gCurrentActor, 0);
                 scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
                 gCurrentActor->state = 0;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 camRequestPathLength();
                 gBehaviourWorkState->timer = camStartPath(gCurrentActor, 0x18, 1) - 0x1E;
-                gBehaviourWorkState->unk2E = gBehaviourWorkState->timer;
+                gBehaviourWorkState->countdown = gBehaviourWorkState->timer;
                 gCurrentActor->collisionMode = 1;
             } else {
-                switch (gCurrentActor->unk155) {
+                switch (gCurrentActor->subState) {
                     case 5:
                         actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                         break;
                     case 3:
                         actorSetTargetSpeed(gCurrentActor, 0);
                         actorScriptStart(gCurrentActor, 0x2BB);
-                        gCurrentActor->unk155 = 4;
+                        gCurrentActor->subState = 4;
                     case 4:
                     case 0:
                         effectSpawnSparks(3, 1);
-                        if (gCurrentActor->unk155 == 0) {
+                        if (gCurrentActor->subState == 0) {
                             if ((randomNonNegative() >> 15) % 1000 >= 0x3DF) {
-                                gCurrentActor->unk155 = 3;
+                                gCurrentActor->subState = 3;
                             }
                         }
                         if (gCurrentActor->parentActor->state == 5 || gPrimaryPlayerActor->actorType != 3) {
@@ -237,7 +237,7 @@ void timedWarpTargetUpdate(void) {
                             scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
                             csModelStateSetFirstByte(0x33, 0);
                             actorDespawn(gCurrentActor->parentActor);
-                            gCurrentActor->unk155 = 1;
+                            gCurrentActor->subState = 1;
                         }
                         actorPitchEaseTowardPoint(2, 0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, 0x46, 30.0f, 100.0f, 0x200);
                         patrolPathStep(2, 0);

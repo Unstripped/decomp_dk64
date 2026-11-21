@@ -7,13 +7,13 @@ jetpac D_8002B3A8 0x8002B3A8 0x188 1 src/jetpac/0.c
 jetpac D_8002B530 0x8002B530 0x188 1 src/jetpac/0.c
 jetpac D_8002B6B8 0x8002B6B8 0x188 1 src/jetpac/0.c
 jetpac D_8002B840 0x8002B840 0x180 1 src/jetpac/0.c
-jetpac D_8002BA88 0x8002BA88 0x188 1 src/jetpac/1A60.c
-jetpac D_8002BC10 0x8002BC10 0x108 1 src/jetpac/1A60.c
+jetpac jetpacPlayerFlyPixels 0x8002BA88 0x188 1 src/jetpac/1A60.c
+jetpac jetpacPlayerExhaustPixels 0x8002BC10 0x108 1 src/jetpac/1A60.c
 jetpac D_8002BD18 0x8002BD18 0x188 1 src/jetpac/1A60.c
 jetpac D_8002BEA0 0x8002BEA0 0x188 1 src/jetpac/1A60.c
 jetpac D_8002C028 0x8002C028 0x188 1 src/jetpac/1A60.c
 jetpac D_8002C1B0 0x8002C1B0 0x180 1 src/jetpac/1A60.c
-jetpac D_8002C410 0x8002C410 0xC0 1 src/jetpac/1A60.c
+jetpac jetpacLaserPixels 0x8002C410 0xC0 1 src/jetpac/1A60.c
 jetpac D_8002C578 0x8002C578 0x308 1 src/jetpac/3480.c
 jetpac D_8002C880 0x8002C880 0x308 1 src/jetpac/3480.c
 jetpac D_8002CB88 0x8002CB88 0x308 1 src/jetpac/3480.c

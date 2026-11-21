@@ -6,15 +6,15 @@
 #include "proto/jetpac/3060.h"
 #include "proto/jetpac/3480.h"
 #include "proto/jetpac/4FC0.h"
-extern TextureDescriptor D_8002B9C0[];
+extern TextureDescriptor jetpacExplosionSprites[];
 
 // .data 0x8002BA80-0x8002C570 (sprite pixel layout: see 0.c).
 Gfx D_8002BA80[1] = { gsSPEndDisplayList() };
-u8 D_8002BA88[0x188] = {
-#include "jetpac/D_8002BA88.inc.c"
+u8 jetpacPlayerFlyPixels[0x188] = {
+#include "jetpac/jetpacPlayerFlyPixels.inc.c"
 };
-u8 D_8002BC10[0x108] = {
-#include "jetpac/D_8002BC10.inc.c"
+u8 jetpacPlayerExhaustPixels[0x108] = {
+#include "jetpac/jetpacPlayerExhaustPixels.inc.c"
 };
 u8 D_8002BD18[0x188] = {
 #include "jetpac/D_8002BD18.inc.c"
@@ -28,27 +28,27 @@ u8 D_8002C028[0x188] = {
 u8 D_8002C1B0[0x180] = {
 #include "jetpac/D_8002C1B0.inc.c"
 };
-TextureDescriptor D_8002C330 = { D_8002BA88, 0, 16, 16, 24, 4, 1, 0, 0, 0 };
-TextureDescriptor D_8002C348[4] = {
-    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 0, 0 },
-    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 8, 0 },
-    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 16, 0 },
-    { D_8002BC10, 0, 8, 8, 8, 4, 1, 0, 24, 0 },
+TextureDescriptor jetpacPlayerFlySprite = { jetpacPlayerFlyPixels, 0, 16, 16, 24, 4, 1, 0, 0, 0 };
+TextureDescriptor jetpacPlayerExhaustSprites[4] = {
+    { jetpacPlayerExhaustPixels, 0, 8, 8, 8, 4, 1, 0, 0, 0 },
+    { jetpacPlayerExhaustPixels, 0, 8, 8, 8, 4, 1, 0, 8, 0 },
+    { jetpacPlayerExhaustPixels, 0, 8, 8, 8, 4, 1, 0, 16, 0 },
+    { jetpacPlayerExhaustPixels, 0, 8, 8, 8, 4, 1, 0, 24, 0 },
 };
-TextureDescriptor D_8002C3A8[4] = {
+TextureDescriptor jetpacPlayerWalkSprites[4] = {
     { D_8002BD18, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
     { D_8002BEA0, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
     { D_8002C028, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
     { D_8002C1B0, 0, 16, 16, 24, 4, 1, 0, 0, 0 },
 };
 Gfx D_8002C408[1] = { gsSPEndDisplayList() };
-u8 D_8002C410[0xC0] = {
-#include "jetpac/D_8002C410.inc.c"
+u8 jetpacLaserPixels[0xC0] = {
+#include "jetpac/jetpacLaserPixels.inc.c"
 };
-TextureDescriptor D_8002C4D0[3] = {
-    { D_8002C410, 0, 24, 8, 8, 4, 1, 16, 0, 0 },
-    { D_8002C410, 0, 24, 8, 8, 4, 1, 8, 0, 0 },
-    { D_8002C410, 0, 24, 8, 8, 4, 1, 0, 0, 0 },
+TextureDescriptor jetpacLaserSprites[3] = {
+    { jetpacLaserPixels, 0, 24, 8, 8, 4, 1, 16, 0, 0 },
+    { jetpacLaserPixels, 0, 24, 8, 8, 4, 1, 8, 0, 0 },
+    { jetpacLaserPixels, 0, 24, 8, 8, 4, 1, 0, 0, 0 },
 };
 // Idle laser template: jetpacInitPlayer copies it into every laser.
 JetpacActor jetpacLaserTemplate = {
@@ -71,7 +71,7 @@ void jetpacUpdateExplosion(JetpacExplosion *explosion) {
             explosion->color[2] = 0xFF;
         }
     }
-    jetpacGridAddTiledSprite(&D_8002B9C0[frame], explosion->x, explosion->y, explosion->color, 0);
+    jetpacGridAddTiledSprite(&jetpacExplosionSprites[frame], explosion->x, explosion->y, explosion->color, 0);
     explosion->timer++;
 }
 
@@ -176,7 +176,7 @@ void jetpacUpdateLaser(JetpacActor *laser) {
 }
 
 void jetpacDrawLaserSegment(s32 spriteIndex, s32 *pX, s32 stepX, s32 y, u8 *color, s32 flip) {
-    jetpacGridAddTiledSprite(&D_8002C4D0[spriteIndex], *pX, y, color, flip);
+    jetpacGridAddTiledSprite(&jetpacLaserSprites[spriteIndex], *pX, y, color, flip);
     *pX += stepX;
     if (*pX < 0) {
         *pX += 0x100;
@@ -458,9 +458,9 @@ void jetpacDrawPlayer(void) {
             color = D_8002F060;
             if (D_8002F080 == 0) {
                 x = (s16)x & 0xFFFE;
-                jetpacGridAddTiledSprite(&D_8002C3A8[frame], x, y, color, D_8002F068);
+                jetpacGridAddTiledSprite(&jetpacPlayerWalkSprites[frame], x, y, color, D_8002F068);
             } else {
-                jetpacGridAddTiledSprite(&D_8002C330, x, y, color, D_8002F068);
+                jetpacGridAddTiledSprite(&jetpacPlayerFlySprite, x, y, color, D_8002F068);
                 if (D_8002F068 == 0) {
                     if (frame == 4) {
                         x -= 1.0f;
@@ -472,7 +472,7 @@ void jetpacDrawPlayer(void) {
                     }
                     x += 10.0f;
                 }
-                jetpacGridAddTiledSprite(&D_8002C348[frame], x, y + 18.0f, color, D_8002F068);
+                jetpacGridAddTiledSprite(&jetpacPlayerExhaustSprites[frame], x, y + 18.0f, color, D_8002F068);
             }
         }
         if (player->explosion.timer < 14) {

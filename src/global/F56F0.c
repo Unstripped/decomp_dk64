@@ -1205,7 +1205,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
         case 2:
             switch (actor->state) {
             case 0x26:
-                if (actor->unk155 != 0) {
+                if (actor->subState != 0) {
                     t = actor->sub4->model->frame;
                     if (t < 6.0f) {
                         v = 0.0f;

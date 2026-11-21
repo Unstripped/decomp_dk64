@@ -30,7 +30,7 @@ typedef struct WaterSurfaceDef {
     /* 0x4C */ s16 maxZ;
     /* 0x4E */ s16 surfaceY;
     /* 0x50 */ s16 chunkIds[8];
-    /* 0x60 */ u8 unk60;
+    /* 0x60 */ u8 collisionKind;
     /* 0x61 */ u8 r;
     /* 0x62 */ u8 g;
     /* 0x63 */ u8 b;
@@ -63,7 +63,7 @@ typedef struct WaterSurface {
     s16 scissorRight;
     s16 scissorBottom;
     s16 vtxCount;
-    u8 unk4A;
+    u8 hazardFlags;
     u8 primAlpha;
     u8 flags;
     u8 forceVisible;

@@ -49,14 +49,14 @@ void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
 
 void hudCountdownTimerStart(Actor *actor) {
     actor->state = 2;
-    actor->unk155 = 0;
+    actor->subState = 0;
     actor->alpha = 0xFF;
 }
 
 void hudCountdownTimerHold(Actor *actor) {
     if (actor != NULL) {
         actor->state = 1;
-        actor->unk155 = 0;
+        actor->subState = 0;
     }
 }
 
@@ -66,7 +66,7 @@ void hudCountdownTimerSaveElapsed(Actor *actor) {
 
 void hudCountdownTimerResume(Actor *actor) {
     actor->state = 3;
-    actor->unk155 = 0;
+    actor->subState = 0;
 }
 
 extern Gfx D_1000118;
@@ -139,7 +139,7 @@ void hudCountdownTimerUpdate(void) {
     if (gCurrentActor->state == 3) {
         timer->startTime = osGetTime() - gHudCountdownSavedElapsed;
         gCurrentActor->state = 2;
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->subState = 1;
     }
     timer->startTime += gLastPauseDuration;
     if (gCurrentActor->timerMode == 0xB) {
@@ -168,11 +168,11 @@ void hudCountdownTimerUpdate(void) {
         break;
     case 4:
         gCurrentActor->state = 2;
-        gCurrentActor->unk155 = 0xFF;
+        gCurrentActor->subState = 0xFF;
         // fallthrough
     case 2:
-        if (gCurrentActor->unk155 == 0) {
-            gCurrentActor->unk155++;
+        if (gCurrentActor->subState == 0) {
+            gCurrentActor->subState++;
             timer->startTime = osGetTime();
             timer->elapsedSecs = 0;
             angle = 1.5707964f;
@@ -185,7 +185,7 @@ void hudCountdownTimerUpdate(void) {
                 if (timer->elapsedSecs >= timer->totalSecs
                     && (gCurrentActor->timerMode == 6 || timer->totalSecs < timer->elapsedSecs || gHudCountdownHundredths >= 91)) {
                     gCurrentActor->state = 5;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else if (gCurrentActor->timerMode == 6) {
                     if ((s32)(nextBeepAngle / 3.1415927f) & 1) {
                         sfxPlayOnFreeSlot(0x8E, 0x58EF, 63.0f, 1.0f, 5, 0);
@@ -208,7 +208,7 @@ void hudCountdownTimerUpdate(void) {
             gfxResourceSetString(timer->textId, text);
         } else {
             gCurrentActor->state = 5;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             gfxResourceSetString(timer->textId, "00:00:00");
         }
         break;
@@ -224,7 +224,7 @@ void hudCountdownTimerUpdate(void) {
         case 0xA0:
         case 0xA1:
         case 0xA2:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
             case 7:
             case 14:
@@ -235,7 +235,7 @@ void hudCountdownTimerUpdate(void) {
                 sfxPlayOnFreeSlot(0x3BD, 0x7FFF, 63.0f, 1.15f, 1, 0x80);
                 break;
             }
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 0x13:
         case 0x15:
@@ -249,9 +249,9 @@ void hudCountdownTimerUpdate(void) {
         case 0xCF:
             break;
         default:
-            if (gCurrentActor->unk155 == 0) {
+            if (gCurrentActor->subState == 0) {
                 sfxPlayOnFreeSlot(0x1BB, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         }

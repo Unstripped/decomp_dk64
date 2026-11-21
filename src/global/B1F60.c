@@ -39,18 +39,18 @@ void actorPatrolFollowerUpdate(s16 targetId, u8 skipStep, u16 movementFlags) {
             actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, movementFlags, 0.0f);
             break;
         case 0x37:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
                 case 1:
                     sfxSpawnTableNodes(gCurrentActor);
                     if (skipStep != 0) {
-                        gCurrentActor->unk155 = 2;
+                        gCurrentActor->subState = 2;
                         break;
                     }
                     gCurrentActor->speedY = 100.0f;
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 case 2:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
@@ -105,7 +105,7 @@ void behaviourTrackingPatrolEnemyEvadeUpdate(void) {
                         gCurrentActor->moveYaw = gCurrentActor->yaw;
                         gBehaviourWorkState->flags |= 0x8000;
                         gCurrentActor->state = 0x10;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                     }
                 }
             } else {
@@ -191,7 +191,7 @@ void behaviourDropInEnemyUpdate(void) {
     switch (gCurrentActor->state) {
         case 0x1E:
             actorMoveWithinZone(0, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x4202, 0.0f);
-            if (gCurrentActor->unk155 != 0) {
+            if (gCurrentActor->subState != 0) {
                 actorSetDefaultState(0x2F4);
             }
             break;
@@ -204,21 +204,21 @@ void behaviourDropInEnemyUpdate(void) {
                 gBehaviourWorkState->timer = 0;
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
             }
-            if (gCurrentActor->unk155 != 0 && gBehaviourWorkState->timer == 0) {
+            if (gCurrentActor->subState != 0 && gBehaviourWorkState->timer == 0) {
                 gCurrentActor->interactionType = 1;
                 actorSetDefaultState(0x2F4);
             }
             break;
         case 0x28:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     actorSetTargetSpeed(gCurrentActor, 0);
                     actorScriptStart(gCurrentActor, 0x2F5);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 case 1:
                     actorMoveWithinZone(0, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x4200, 0.0f);
                     if (gCurrentActor->speedXZ < 1.0f) {
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                     break;
                 case 3:
@@ -230,7 +230,7 @@ void behaviourDropInEnemyUpdate(void) {
             if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
                 if (gCurrentActor->contactFlags & 1) {
                     gCurrentActor->state = 0x28;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
             }
         default:
@@ -253,23 +253,23 @@ void behaviourProximityChaseEnemyUpdate(void) {
             if (actorIsTargetWithinDistance(0x12C) != 0) {
                 actorScriptStart(gCurrentActor, 0x31A);
                 gCurrentActor->state = 0x23;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 4:
             if (gCurrentActor->sub4->animId != 0x319) {
                 gCurrentActor->state = 0x23;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else if (actorIsTargetWithinDistance(0x64) != 0) {
                 actorScriptStart(gCurrentActor, 0x31B);
                 gCurrentActor->state = 0x1E;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 0x1E:
             if (gCurrentActor->sub4->animId == 0x31A) {
                 gCurrentActor->state = 0x23;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 0x23:
@@ -279,7 +279,7 @@ void behaviourProximityChaseEnemyUpdate(void) {
             if (actorIsTargetWithinDistance(0x12C) == 0) {
                 actorScriptStart(gCurrentActor, 0x31C);
                 gCurrentActor->state = 0;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         default:

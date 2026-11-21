@@ -40,8 +40,8 @@ typedef struct SchedStruct {
     /* 0x27C */ u32 frameCount;
     /* 0x280 */ u32 tickCount;
     /* 0x284 */ s32 retraceCount; // retraces since boot, incremented by the scheduler thread; polled by frameTimingUpdate
-    /* 0x288 */ u64 unk288;
-    /* 0x290 */ u64 unk290;
+    /* 0x288 */ u64 rdpStartTime;
+    /* 0x290 */ u64 rspGfxStartTime;
 } SchedStruct;
 
 // Scheduler config copied in schedCreate (0xC bytes)
@@ -70,9 +70,9 @@ struct Actor;
 // Health HUD state block (PlayerStruct.healthHud, healthHudReset in 10D2D0.c).
 typedef struct HealthHudInit {
     /* 0x0 */ f32 unk0;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ s16 unk6;
-    /* 0x8 */ u8 unk8;
+    /* 0x4 */ s16 reveal;
+    /* 0x6 */ s16 flags;
+    /* 0x8 */ u8 mode;
     /* 0x9 */ u8 unk9;
     /* 0xA */ u8 unkA;
 } HealthHudInit; // size = 0xC
@@ -145,10 +145,10 @@ typedef struct {
             /* 0x2DC */ f32 unk2DC;
             /* 0x2E0 */ u16 healthHudReveal; // health HUD flash phase (sinApprox * 65535)
             union {
-                /* 0x2E2 */ u16 unk2E2; // HUD flags
+                /* 0x2E2 */ u16 healthHudFlags; // HUD flags
                 struct {
                     /* 0x2E2 */ u8 pad2E2;
-                    /* 0x2E3 */ u8 unk2E3; // low byte of unk2E2, read on its own by the health HUD
+                    /* 0x2E3 */ u8 healthHudFlagsLow; // low byte of unk2E2, read on its own by the health HUD
                 };
             };
             /* 0x2E4 */ u8 healthHudMode;
@@ -157,7 +157,7 @@ typedef struct {
             /* 0x2E7 */ u8 pad2E7;
         };
     };
-    /* 0x2E8 */ u8 unk2E8;
+    /* 0x2E8 */ u8 camHasWater;
     /* 0x2E9 */ u8 unk2E9;
     u8 viewFadingOut;
     u8 rumbleDisabled;

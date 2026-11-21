@@ -753,12 +753,12 @@ s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
                 floorY = collisionTriangleHeightAtXZ(&tri, px, pz) / 6.0f;
             }
 
-            switch (node->sub->unk60) {
+            switch (node->sub->collisionKind) {
             case 0:
             case 2:
             case 3:
-                if ((node->sub->unk60 == 2 || node->sub->unk60 == 3) && (floorY < *height ? *height - floorY : -(*height - floorY)) < 6.0f) {
-                    switch (node->sub->unk60) {
+                if ((node->sub->collisionKind == 2 || node->sub->collisionKind == 3) && (floorY < *height ? *height - floorY : -(*height - floorY)) < 6.0f) {
+                    switch (node->sub->collisionKind) {
                     case 2:
                         sHazardFloorKind = 2;
                         break;
@@ -777,7 +777,7 @@ s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
                     if (actor->y < floorY) {
                         actor->contactFlags |= 4;
                         actor->waterPathId[0] = -1;
-                        if (node->unk4A & 1) {
+                        if (node->hazardFlags & 1) {
                             sBelowHazardSurface = 1;
                         }
                     }
@@ -815,10 +815,10 @@ f32 collisionTriangleHeightAtXZ(CollisionStaticTri *tri, f32 x, f32 z) {
 
 extern s32 sCollisionCellCount;
 extern s32 gCurrentMap;
-extern u16 D_807F9450;
-extern u16 D_807F9452;
-extern u16 D_807F9454;
-extern u16 D_807F9456;
+extern u16 gCollisionCellSizeX;
+extern u16 gCollisionCellSizeZ;
+extern u16 gCollisionCellsX;
+extern u16 gCollisionCellsZ;
 extern u8 sMapOffsetSlotsMoving;
 
 u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
@@ -849,20 +849,20 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
 
     hit = 0;
     floorY = 999999.0f;
-    cell = ((s32)z / D_807F9452) * D_807F9454 + (s32)x / D_807F9450;
+    cell = ((s32)z / gCollisionCellSizeZ) * gCollisionCellsX + (s32)x / gCollisionCellSizeX;
     cur = *yInOut;
     threshold = (f32)((f64)*yInOut + 4.0);
     threshold = threshold * 6.0f;
     if (cell >= sCollisionCellCount) {
         return 0;
     }
-    if (D_807F9454 <= x / D_807F9450 || x < 0.0) {
+    if (gCollisionCellsX <= x / gCollisionCellSizeX || x < 0.0) {
         if (gCurrentMap == 0x57 && actor != NULL) {
             return collisionTestHardcodedFloorPlane(&floorY, threshold, cur, yInOut);
         }
         return 0;
     }
-    if (D_807F9456 <= z / D_807F9452 || z < 0.0) {
+    if (gCollisionCellsZ <= z / gCollisionCellSizeZ || z < 0.0) {
         if (gCurrentMap == 0x57 && actor != NULL) {
             return collisionTestHardcodedFloorPlane(&floorY, threshold, cur, yInOut);
         }
@@ -1319,7 +1319,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
         do {
             if (collisionCheckTriangleBoundingBoxXZ(tri, x, z) != 0 &&
                 collisionCheckTriangleContainsPointXZ(tri, x, z) != 0 &&
-                collisionCheckSurfaceFilter(tri->unk27, buf->unk25) != 0) {
+                collisionCheckSurfaceFilter(tri->partId, buf->disabledPartIds) != 0) {
                 dx01 = tri->x[0] - tri->x[1];
                 dy01 = tri->y[0] - tri->y[1];
                 dz01 = tri->z[0] - tri->z[1];
@@ -1335,7 +1335,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
                         val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         y = (2000.0 * val) - 1000.0;
                         collisionCheckSlopeAngle(refY, y, 0, actor, 0);
-                        if (collisionGetFloorTriangleNormal(refY, y, 0, tri->unk24) != 0 && sAllowObjectAttach != 0) {
+                        if (collisionGetFloorTriangleNormal(refY, y, 0, tri->slopeType) != 0 && sAllowObjectAttach != 0) {
                             collisionAttachActorToObjectNode(actor, slotIdx, -1, 0, x, y, z);
                             actor->attachMode = 2;
                         }
@@ -1368,11 +1368,11 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
         }
         if (actor != NULL) {
             if (actor->attachMode != 2 && actor->attachMode != 3) {
-                collisionAttachActorToObjectNode(actor, slotIdx, hitTri->unk26, hitTri->unk27, x, hitY, z);
+                collisionAttachActorToObjectNode(actor, slotIdx, hitTri->bone, hitTri->partId, x, hitY, z);
             }
-            actor->floorTriSurface[0] = hitTri->unk25;
+            actor->floorTriSurface[0] = hitTri->surface;
         }
-        D_807F94B1 = hitTri->unk25;
+        D_807F94B1 = hitTri->surface;
     }
     return hit;
 }
@@ -1450,7 +1450,7 @@ void collisionStoreTriangleNormalAnglesF32(Actor *actor, CollisionTriF *tri, u8 
     cross[0] = (v1[1] * v0[2]) - (v1[2] * v0[1]);
     cross[1] = (v1[2] * v0[0]) - (v1[0] * v0[2]);
     cross[2] = (v1[0] * v0[1]) - (v1[1] * v0[0]);
-    collisionStoreSurfaceNormalAngles(actor, cross[0], cross[1], cross[2], tri->unk24, record, 1);
+    collisionStoreSurfaceNormalAngles(actor, cross[0], cross[1], cross[2], tri->slopeType, record, 1);
 }
 
 s32 collisionCheckTriangleWindingF32(CollisionTriF *tri) {

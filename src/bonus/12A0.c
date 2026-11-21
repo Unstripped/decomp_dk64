@@ -103,7 +103,7 @@ void bonusReelNextRound(LB3Obj *obj) {
     PlayerState *player = gPrimaryPlayerActor->customState;
     camSetTarget(player->camActor, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     gCurrentActor->state = 3;
-    gCurrentActor->unk155 = 1;
+    gCurrentActor->subState = 1;
     gCurrentActor->yawSpeed = 0;
 }
 
@@ -175,21 +175,21 @@ void bonusReelGameUpdate(void) {
     }
     if (obj->reelsStarted != 0 && gCurrentActor->parentActor->state == 5) {
         gCurrentActor->state = 1;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
     }
     switch (gCurrentActor->state) {
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             if (gGameMode != 1) {
                 resQueueAttachActor(gCurrentActor, 0, 3);
-                gCurrentActor->unk155 += 1;
+                gCurrentActor->subState += 1;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 3;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 effectEnableFade();
                 effectSetFrameDelay(2);
                 effectSetDuration(-1);
@@ -199,10 +199,10 @@ void bonusReelGameUpdate(void) {
         }
         break;
     case 3:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             hudSpawnCountdownTimer(0xDC, 0x2A, obj->timerSeconds);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             /* fallthrough */
         case 1:
             if (obj->act[3]->state == 0) {
@@ -212,11 +212,11 @@ void bonusReelGameUpdate(void) {
         }
         break;
     case 4:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             obj->spinPhase = 0x400;
             obj->spinStep = 0x40;
-            gCurrentActor->unk155 += 1;
+            gCurrentActor->subState += 1;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x179, 0xFF, 0x7F, 1);
             if (obj->reelsStarted == 0) {
                 obj->reelsStarted = 1;
@@ -234,7 +234,7 @@ void bonusReelGameUpdate(void) {
                 camSetTarget(player->camActor, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->spinPhase < 0x400) {
                 gCurrentActor->state = 5;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         }
@@ -242,15 +242,15 @@ void bonusReelGameUpdate(void) {
     case 5:
         if (gCurrentActor->yawSpeed == 4) {
             gCurrentActor->state = 7;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
-        if (gCurrentActor->unk155 != 0) {
+        if (gCurrentActor->subState != 0) {
             bonusSpawnEffectBurst(obj->act[gCurrentActor->yawSpeed]->x, obj->act[gCurrentActor->yawSpeed]->y, obj->act[gCurrentActor->yawSpeed]->z + 20.0f, 0xF);
             obj->act[gCurrentActor->yawSpeed]->state += 1;
             gCurrentActor->yawSpeed += 1;
             gCurrentActor->state = 6;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     case 7:
@@ -264,7 +264,7 @@ void bonusReelGameUpdate(void) {
                 gfxResourceSetTimer(obj->hitTextId, 3.1415927f);
                 obj->hitsLeft -= 1;
                 if (obj->hitsLeft == 0) {
-                    gPrimaryPlayerActor->unk155 = 1;
+                    gPrimaryPlayerActor->subState = 1;
                     bonusEndWin(0, 0);
                     gCurrentActor->state = 8;
                     obj->spinPhase = 0;
@@ -279,7 +279,7 @@ void bonusReelGameUpdate(void) {
                 bonusReelNextRound(obj);
             }
         } else {
-            gPrimaryPlayerActor->unk155 = 2;
+            gPrimaryPlayerActor->subState = 2;
             bonusEndLose(0, 1);
             gCurrentActor->state = 9;
             obj->spinPhase = 0;
@@ -339,7 +339,7 @@ void bonusReelUpdate(void) {
             gCurrentActor->state += 1;
             if (obj->controller->state < 8) {
                 obj->controller->state = 5;
-                obj->controller->unk155 = 0;
+                obj->controller->subState = 0;
             }
             gCurrentActor->splineT = asinApprox((obj->spinSpeed - toNextSymbol) * 0.015625);
             gCurrentActor->yawSpeed = (gCurrentActor->roll + toNextSymbol) & 0xFFF;

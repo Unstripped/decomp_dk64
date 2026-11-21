@@ -28,10 +28,10 @@
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
 
-RaceCurvePoint D_8002FC20[6] = {
+RaceCurvePoint raceOpponentSpeedCurve[6] = {
     { -1000.0f, 0.8f }, { -150.0f, 1.0f }, { -70.0f, 1.0f }, { 90.0f, 1.0f }, { 100.0f, 1.0f }, { 200.0f, 2.5f },
 };
-RaceVec3f D_8002FC50 = { 0.8f, 1.0f, 2.5f };
+RaceVec3f raceOpponentSpeedLevels = { 0.8f, 1.0f, 2.5f };
 s32 raceOpponentFinishCamIds[5] = { 3, 0, 1, 2, 0 };
 
 // Competitor racers (raceCompetitorMotionUpdate): the participant record at 0x174 and the motion state
@@ -215,13 +215,13 @@ f32 raceRacerSteerTowardWaypoint(void) {
     if (distToWaypoint < gBehaviourZone->entries[idx].radius) {
         gBehaviourWorkState->waypointIndex++;
         gBehaviourWorkState->waypointIndex %= gBehaviourExtraState->pathCount;
-        target->unk10 = (gBehaviourZone->entries[idx].height == 0) && (target->curveMode != 0);
+        target->chaseEnabled = (gBehaviourZone->entries[idx].height == 0) && (target->curveMode != 0);
         switch (gBehaviourZone->entries[idx].height) {
             case 2:
                 if (leadDistance < 0.0f) {
                     actorScriptStart(gCurrentActor, 0x29E);
                     if (target->curveMode >= 2) {
-                        raceSetPiecewiseCurveMode(target, 1, D_8002FC20, &D_8002FC50);
+                        raceSetPiecewiseCurveMode(target, 1, raceOpponentSpeedCurve, &raceOpponentSpeedLevels);
                     }
                     participant->statusStep = 1;
                 }
@@ -245,19 +245,19 @@ f32 raceRacerSteerTowardWaypoint(void) {
         return leadDistance;
     }
     if (target->curveMode != 0 && raceGetProgressPercent(route, participant, managerData) > 0.75) {
-        raceSetPiecewiseCurveMode(target, 0, D_8002FC20, &D_8002FC50);
+        raceSetPiecewiseCurveMode(target, 0, raceOpponentSpeedCurve, &raceOpponentSpeedLevels);
     }
     switch (target->curveMode) {
         case 0:
         case 1:
             switch (participant->statusStep) {
                 case 0:
-                    if (gCurrentActor->sub4->animId == 0x29E && target->unk10 != 0 && D_8002FC20[1].x < leadDistance && leadDistance < D_8002FC20[2].x && (randomLcgNext() & 0xFF) < 0xF) {
+                    if (gCurrentActor->sub4->animId == 0x29E && target->chaseEnabled != 0 && raceOpponentSpeedCurve[1].x < leadDistance && leadDistance < raceOpponentSpeedCurve[2].x && (randomLcgNext() & 0xFF) < 0xF) {
                         actorScriptStart(gCurrentActor, 0x29F);
                     }
                     break;
                 case 1:
-                    targetSpeed = D_8002FC50.z;
+                    targetSpeed = raceOpponentSpeedLevels.z;
                     gCurrentActor->accelY = -50.0f;
                     break;
                 case 2:
@@ -275,7 +275,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     if (gCurrentActor->y <= gCurrentActor->waterY) {
                         actorScriptStart(gCurrentActor, 0x29D);
                         participant->statusStep = 0;
-                        target->unk10 = target->curveMode != 0;
+                        target->chaseEnabled = target->curveMode != 0;
                     }
                     break;
             }
@@ -291,7 +291,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     ang &= 0xFFF;
                     break;
                 case 4:
-                    raceSetPiecewiseCurveMode(target, 5, D_8002FC20, &D_8002FC50);
+                    raceSetPiecewiseCurveMode(target, 5, raceOpponentSpeedCurve, &raceOpponentSpeedLevels);
                     participant->yawOffset = 0;
                     break;
             }
@@ -300,7 +300,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     }
     if (targetSpeed == 0.0f) {
         prevCurveMode = target->curveMode;
-        targetSpeed = raceEvaluateCurveWithRubberband(target, leadDistance, D_8002FC20, &D_8002FC50);
+        targetSpeed = raceEvaluateCurveWithRubberband(target, leadDistance, raceOpponentSpeedCurve, &raceOpponentSpeedLevels);
         if (prevCurveMode == 2 && target->curveMode == 3) {
             actorScriptStart(gCurrentActor, 0x2A0);
         }
@@ -379,7 +379,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         participant->steerGain = 1.0f;
         gCurrentActor->flags &= ~0x20001;
         gCurrentActor->drawDistance = 0x5DC;
-        raceSetPiecewiseCurveMode(target, 5, D_8002FC20, &D_8002FC50);
+        raceSetPiecewiseCurveMode(target, 5, raceOpponentSpeedCurve, &raceOpponentSpeedLevels);
         participant->raceStatus = 0;
         camRequestPathLength();
         pathFrames = camStartPath(gCurrentActor, 1, 1) - 0x3C;
@@ -469,7 +469,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         break;
     case 0x2A0:
         if (gCurrentActor->sub4->model->animId == 0x4A7) {
-            raceAdjustRubberbandTargetSpeed(gCurrentActor, participant, gCurrentActor->speedXZ - target->actor->speedXZ, (leadDistance - D_8002FC20[2].x) * 40.0f, 23.0f);
+            raceAdjustRubberbandTargetSpeed(gCurrentActor, participant, gCurrentActor->speedXZ - target->actor->speedXZ, (leadDistance - raceOpponentSpeedCurve[2].x) * 40.0f, 23.0f);
             break;
         }
     default:

@@ -50,7 +50,7 @@ typedef struct FrameMatrices {
     /* 0x140 */ Mtx orthoDouble;
     /* 0x180 */ Mtx identity;
     /* 0x1C0 */ Mtx unk1C0;
-    /* 0x200 */ Mtx unk200; // transition camera look-at (transitionBeginDisplayList)
+    /* 0x200 */ Mtx lookAt; // transition camera look-at (transitionBeginDisplayList)
     /* 0x240 */ u8 pad240[0x270 - 0x240];
     /* 0x270 */ Lights7 lightSets[24]; // per light set (gLightSetIndex: reset by commandQueueReset, capped at 0x17 by actorBuildLightDisplayList)
     /* 0xDB0 */ Gfx subDisplayList[(0x11B0 - 0xDB0) / sizeof(Gfx)];

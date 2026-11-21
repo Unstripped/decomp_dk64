@@ -1401,7 +1401,7 @@ typedef struct {
     f32 startX;
     f32 startY;
     f32 unk10;
-    f32 unk14;
+    f32 offsetY;
     f32 unk18;
     f32 wanderTargetY;
     f32 wanderAngle;
@@ -1464,7 +1464,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                 effect->scaleY = mathSinF(ang) * 0.35 + item->unk18;
             }
             effect->x = item->unk10 * t + item->startX;
-            effect->y = item->unk14 * t + item->startY + bounceStep;
+            effect->y = item->offsetY * t + item->startY + bounceStep;
             break;
         case 3:
         case 5:
@@ -1512,7 +1512,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             break;
         case 6:
-            radius = (item->unk14 - item->wanderTargetY) * (item->unk14 - item->wanderTargetY) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18); // FAKE: radius holds the squared target distance (add.s $f2 at 0x4528, c.lt.s at 0x452c, never stored): a dedicated f32 adds a word and takes $f12 (14), the sum inlined in the test 200
+            radius = (item->offsetY - item->wanderTargetY) * (item->offsetY - item->wanderTargetY) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18); // FAKE: radius holds the squared target distance (add.s $f2 at 0x4528, c.lt.s at 0x452c, never stored): a dedicated f32 adds a word and takes $f12 (14), the sum inlined in the test 200
             if (radius < 400.0f) {
                 item->wanderPause = item->wanderPause - 1.0;
                 if (item->wanderPause < 0.0) {
@@ -1536,17 +1536,17 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                 radius = 8.0f;
             }
             item->unk10 += radius;
-            radius = (item->wanderTargetY - item->unk14) * 0.1;
+            radius = (item->wanderTargetY - item->offsetY) * 0.1;
             if (radius < -8.0) {
                 radius = -8.0f;
             }
             if (radius > 8.0) {
                 radius = 8.0f;
             }
-            item->unk14 += radius;
+            item->offsetY += radius;
             ang = (gFrameCounter * 0x78) & 0xFFF;
             effect->x = item->unk10 + item->startX;
-            effect->y = mathSinF(ang) * 10.0f + (item->startY + item->unk14 + bounceStep + 960.0f * t);
+            effect->y = mathSinF(ang) * 10.0f + (item->startY + item->offsetY + bounceStep + 960.0f * t);
             t = 0.0f;
             break;
         case 10:

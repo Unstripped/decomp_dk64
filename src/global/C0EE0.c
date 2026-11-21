@@ -108,14 +108,14 @@ void enemyGridStateStep(void) {
                 camResumePath();
                 st->subState = 1;
                 gPrimaryPlayerActor->state = 0xC;
-                gPrimaryPlayerActor->unk155 = 0;
+                gPrimaryPlayerActor->subState = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
             }
             if ((gContPadCur.button & 0x4000) && !(gContPadPrev.button & 0x4000)) {
                 camResumePath();
                 st->subState = 2;
                 gPrimaryPlayerActor->state = 0xC;
-                gPrimaryPlayerActor->unk155 = 0;
+                gPrimaryPlayerActor->subState = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
             }
             break;

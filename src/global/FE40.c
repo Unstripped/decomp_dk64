@@ -6,8 +6,8 @@
 
 extern s8 gWaitPointId;
 extern OSMesgQueue gPiDmaMesgQueue;
-extern OSIoMesg D_807ECE00;
-extern void *D_807ECE18;
+extern OSIoMesg gPiDmaIoMesg;
+extern void *sDecompressScratch;
 void func_80002790(void *, void *, void *, s32);
 
 void dmaReadAssetDecompress(u32 romAddr, void *dst, u32 *sizePtr, u8 decompressFlag1, u8 decompressFlag2, u8 compressType, void *scratchBuf) {
@@ -36,7 +36,7 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, u32 *sizePtr, u8 decompressF
     }
     osInvalDCache(dmaBuf, *sizePtr);
     count = 0; ptr = dmaBuf; while (count < (*sizePtr >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
-        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, 0x4000, &gPiDmaMesgQueue);
+        osPiStartDma(&gPiDmaIoMesg, 0, 0, romAddr, ptr, 0x4000, &gPiDmaMesgQueue);
         gWaitPointId = 4;
         osRecvMesg(&gPiDmaMesgQueue, NULL, 1);
         gWaitPointId = 0;
@@ -46,35 +46,35 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, u32 *sizePtr, u8 decompressF
     }
     rem = *sizePtr - ((*sizePtr >> 14) << 14);
     if (rem != 0) {
-        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, rem, &gPiDmaMesgQueue);
+        osPiStartDma(&gPiDmaIoMesg, 0, 0, romAddr, ptr, rem, &gPiDmaMesgQueue);
         gWaitPointId = 5;
         osRecvMesg(&gPiDmaMesgQueue, NULL, 1);
         gWaitPointId = 0;
     }
-    D_807ECE18 = scratchBuf;
+    sDecompressScratch = scratchBuf;
     if ((scratchBuf == NULL) && ((compressType == 1) || (compressType == 2))) {
-        D_807ECE18 = heapAlloc(0x4000);
+        sDecompressScratch = heapAlloc(0x4000);
     }
     switch (compressType) {
     case 1:
         if (decompressFlag1) {
-            gunzip(&dmaBuf, &dst, D_807ECE18);
+            gunzip(&dmaBuf, &dst, sDecompressScratch);
         }
         if (decompressFlag2) {
-            gunzip(&dmaBuf, &dst, D_807ECE18);
+            gunzip(&dmaBuf, &dst, sDecompressScratch);
         }
         break;
     case 2:
         if (decompressFlag1) {
-            func_80002790(&dmaBuf, &dst, D_807ECE18, decompressFlag1);
+            func_80002790(&dmaBuf, &dst, sDecompressScratch, decompressFlag1);
         }
         if (decompressFlag2) {
-            func_80002790(&dmaBuf, &dst, D_807ECE18, decompressFlag2);
+            func_80002790(&dmaBuf, &dst, sDecompressScratch, decompressFlag2);
         }
         break;
     }
     if ((scratchBuf == NULL) && ((compressType == 1) || (compressType == 2))) {
-        heapFree(D_807ECE18);
+        heapFree(sDecompressScratch);
     }
     if (decompressFlag1 || decompressFlag2) {
         *sizePtr = (u8 *)dst - dstStart;

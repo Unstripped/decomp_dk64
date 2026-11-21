@@ -413,7 +413,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             if (actor != NULL) {
                 actorCopyPoseAndScale(actor, gPrimaryPlayerActor, gPrimaryPlayerActor->sub4->scaleY);
                 gPrimaryPlayerActor->state = 0x77;
-                gPrimaryPlayerActor->unk155 = 0;
+                gPrimaryPlayerActor->subState = 0;
             }
             break;
         case 0x29:

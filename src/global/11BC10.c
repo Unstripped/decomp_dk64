@@ -753,9 +753,9 @@ typedef struct {
     s32 bounceCount;
 } TumbleBounceState;
 
-extern EffectGridAsset D_8072073C;
-extern EffectGridAsset D_807212B0;
-extern EffectGridAsset D_807212C8;
+extern EffectGridAsset gEffectSpriteShardGold;
+extern EffectGridAsset gEffectSpriteDebrisGrey;
+extern EffectGridAsset gEffectSpriteDebrisGreen;
 
 
 void effectTumbleBounceUpdate(EffectNode *effect, s8 *isDone) {
@@ -792,9 +792,9 @@ void effectTumbleBounceUpdate(EffectNode *effect, s8 *isDone) {
     effect->y += ((TumbleBounceState *) effect->allocation)->velocityY;
     if (effect->y < ((TumbleBounceState *) effect->allocation)->groundY) {
         sfxId = 0x56;
-        if (effect->grid->asset == &D_8072073C) {
+        if (effect->grid->asset == &gEffectSpriteShardGold) {
             sfxId = 0x1B1;
-        } else if (effect->grid->asset == &D_807212C8 || effect->grid->asset == &D_807212B0) {
+        } else if (effect->grid->asset == &gEffectSpriteDebrisGreen || effect->grid->asset == &gEffectSpriteDebrisGrey) {
             sfxId = 7;
         }
         sfxPlayAtPositionPooled(effect->x, effect->y, effect->z, sfxId,
@@ -1564,7 +1564,7 @@ void effectWaveMotionUpdate(EffectNode *effect, s8 *isDone) {
     effect->state = 3;
 }
 
-extern EffectGridAsset D_807201D4;
+extern EffectGridAsset gEffectSpriteFlame;
 
 void timedLightPulse(EffectNode *effect, s8 *isDone) {
     f64 ratio;
@@ -1590,7 +1590,7 @@ void timedLightPulse(EffectNode *effect, s8 *isDone) {
                 effectSetDuration(-1);
                 effectSetDepth(1);
                 effectSetCallback(effectFallingSparkUpdate);
-                effectCreateAtPosition(&D_807201D4, 0.8f, effect->x, effect->y, effect->z);
+                effectCreateAtPosition(&gEffectSpriteFlame, 0.8f, effect->x, effect->y, effect->z);
                 return;
             }
             total = effect->grid->frameCount * 2;
@@ -1740,7 +1740,7 @@ typedef struct {
     s16 rotation;
 } WispWanderState;
 
-s16 D_80755650[18] = {
+s16 sWispWanderHomes[18] = {
     0x01D4, 0x0078, 0x026D, 0x01EE, 0x0082, 0x02F6, 0x02E5, 0x008C, 0x0254,
     0x02C3, 0x0078, 0x02FA, 0x025A, 0x006E, 0x0312, 0x025E, 0x0096, 0x026A,
 };
@@ -1759,7 +1759,7 @@ void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
         effect->allocation = heapAlloc(sizeof(WispWanderState));
         state = effect->allocation;
         state->speed = ((randomNonNegative() >> 0xF) % 5) + 10;
-        home = &D_80755650[homeIndex * 3];
+        home = &sWispWanderHomes[homeIndex * 3];
         state->homeX = home[0];
         state->homeY = home[1];
         state->homeZ = home[2];
@@ -1780,7 +1780,7 @@ void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
     effect->y = mathSinF((state->speed + 0x32) * gFrameCounter) * 40.0 + (state->y + 0x28);
     if ((randomNonNegative() >> 0xF) % 1000 >= 991) {
         homeIndex = (randomNonNegative() >> 0xF) % 1000 % 6;
-        home = &D_80755650[homeIndex * 3];
+        home = &sWispWanderHomes[homeIndex * 3];
         state->homeX = home[0];
         state->homeY = home[1];
         state->homeZ = home[2];

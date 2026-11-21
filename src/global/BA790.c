@@ -56,13 +56,13 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
                 if (gGameMode == 1) {
                     if (gCurrentActor->flags & 4) {
                         gCurrentActor->state = 0x38;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                     } else {
                         behaviourSetFloorAndState40();
                     }
                 } else {
                     gCurrentActor->state = 0x37;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
                 break;
             case 0xB6:
@@ -90,7 +90,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
             gCurrentActor->speedY = 150.0f;
             gCurrentActor->moveYaw = gActorGlobalState.targetActor->moveYaw;
         }
-        if (gCurrentActor->unk155) {
+        if (gCurrentActor->subState) {
             x = 0;
         } else {
             x = 2;
@@ -103,9 +103,9 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
     case 0:
     case 4:
         sfxStopSlotSound(gCurrentActor, 0);
-        if (gCurrentActor->unk155 == 0) {
+        if (gCurrentActor->subState == 0) {
             actorUpdateFloorContactAndTilt(gCurrentActor, 6.0f);
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
         }
         if (gGameMode != 1) {
             if (gCurrentActor->actorType == 0xB6) {
@@ -124,12 +124,12 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
         }
         break;
     case 0x38:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 1:
             break;
         case 0:
             actorScriptStart(gCurrentActor, 0x24B);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             tagBarrelSpawnActorSmokePuffs(0, 1);
@@ -138,7 +138,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
         }
         break;
     case 0x37:
-        step = gCurrentActor->unk155;
+        step = gCurrentActor->subState;
         if (step >= 2) {
             if (step - 0x82 < 0) {
                 x = 0;
@@ -156,7 +156,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
             } else {
                 behaviourSetFloorAndState40();
             }
-            step = gCurrentActor->unk155;
+            step = gCurrentActor->subState;
             if (step >= 0x17) {
                 x = 0x16;
             } else {
@@ -167,23 +167,23 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
                 lightRadius = 200.0f;
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, lightRadius, 0, 0xFF, 0xFF, 0xFF);
-            step = gCurrentActor->unk155;
+            step = gCurrentActor->subState;
         }
         if (step < 4) {
             actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x20, 6.0f);
-            step = gCurrentActor->unk155;
+            step = gCurrentActor->subState;
         }
         switch (step) {
         case 0:
             actorScriptStart(gCurrentActor, 0x24B);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             sfxSpawnTableNodes(gCurrentActor);
             tagBarrelSpawnActorSmokePuffs(1, 1);
             actorSetNodeFlag(gCurrentActor, 3);
             camStartShakeFromPoint(gCamActor, 5, 0x14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 4:
             sfxStopSlotSound(gCurrentActor, 0);
@@ -197,7 +197,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
             effectSetCallback(effectSparkSpawnUpdate);
             effectCreateAtPosition(&D_80720630, 0.3f, gCurrentActor->x, gCurrentActor->floorY + 7.0f, gCurrentActor->z);
             gCurrentActor->flags &= ~4;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
         case 3:
@@ -207,7 +207,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
             actorClearNodeFlag(gCurrentActor, 3);
             /* fallthrough */
         default:
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         }
         break;

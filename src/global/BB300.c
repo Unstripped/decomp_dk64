@@ -166,10 +166,10 @@ void behaviourPulseEnemyUpdate(s32 aggroRange) {
     }
     switch (sel) {
     case 0x14:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             gBehaviourWorkState->timer = 0x1E;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (gBehaviourWorkState->timer != 0) {
@@ -180,7 +180,7 @@ void behaviourPulseEnemyUpdate(s32 aggroRange) {
                     behaviourSpawnDropParticle();
                 }
             } else {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             break;
         case 2:
@@ -196,7 +196,7 @@ void behaviourPulseEnemyUpdate(s32 aggroRange) {
     case 1:
         if ((randomNonNegative() >> 15) % 1000 >= 0x3E3) {
             gCurrentActor->state = 0x11;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     /* fallthrough */
     case 0x10:
@@ -219,13 +219,13 @@ void behaviourPulseEnemyUpdate(s32 aggroRange) {
         currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
         actorUpdatePulseIntensity(0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 2, 0.0f);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 1:
             break;
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x234);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, 0x232);
@@ -233,24 +233,24 @@ void behaviourPulseEnemyUpdate(s32 aggroRange) {
         }
         break;
     case 0x37:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 1:
             sfxSpawnTableNodes(gCurrentActor);
             gCurrentActor->speedY = 100.0f;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
         /* fallthrough */
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 3:
             if (gBehaviourWorkState->flags & 1) {
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             } else {
                 behaviourPulseEnemySpawnDeathChaser(gBehaviourExtraState->unkD, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
-                gCurrentActor->unk155 = 5;
+                gCurrentActor->subState = 5;
             }
             break;
         case 4:

@@ -83,7 +83,7 @@ s32 volumeTriggerApplyActorState(void) {
         if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
             found = 1;
             gCurrentActor->state = gActorGlobalState.volumeTriggerQueueId[i][1];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     return found;
@@ -596,7 +596,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     st->acceleration = gSpawnEntryTable[idx].acceleration;
     st->engageState = gSpawnEntryTable[idx].engageState;
     act->state = node->actorState;
-    act->unk155 = 0;
+    act->subState = 0;
     switch (type) {
         case 0:
         case 2:
@@ -640,7 +640,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
             act->cullMarginX = 0x3C;
             act->cullMarginY = 0x3C;
             act->state = 0;
-            act->unk155 = 0;
+            act->subState = 0;
             act->collisionMode = 1;
             act->flags |= 0x10000000;
         case 0x6:
@@ -780,7 +780,7 @@ void spawnNodeActivateAndSetState(s16 id, u8 state, u16 flags) {
 
     if (a != NULL) {
         a->state = state;
-        a->unk155 = 0;
+        a->subState = 0;
     }
 }
 
@@ -856,7 +856,7 @@ void spawnNodeSpawnAtTablePoint(s16 id, u8 slot) {
     yaw = (s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, gBehaviourZone->entries[point].x, gBehaviourZone->entries[point].z) * 4096.0f) / 360.0f);
     if (spawnNodeSpawnById(id, gBehaviourZone->entries[point].x, gBehaviourZone->entries[point].y, gBehaviourZone->entries[point].z, yaw, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
         gSpawnedActor->state = 0x17;
-        gSpawnedActor->unk155 = 0;
+        gSpawnedActor->subState = 0;
     }
 }
 
@@ -877,7 +877,7 @@ void spawnNodeSpawnFacingPoint(s16 id, s16 x, s16 y, s16 z, s16 targetX, s16 tar
     speed = sqrtf((dx * dx) + (dz * dz)) / (dist / duration);
     if (spawnNodeSpawnById(id, x, y, z, yaw, speed, speedY) != 0) {
         gSpawnedActor->state = 0x17;
-        gSpawnedActor->unk155 = 0;
+        gSpawnedActor->subState = 0;
     }
 }
 
@@ -1018,7 +1018,7 @@ void spawnNodesUpdate(void) {
                 if ((node->actor->collisionFlags & 2) && (node->state == 5)) {
                     if ((node->actor->state != 0x16) && (node->actor->state != 0x37) && !(node->flags & 0x40)) {
                         node->actor->state = 0x16;
-                        node->actor->unk155 = 0;
+                        node->actor->subState = 0;
                     }
                 }
             }
@@ -1158,7 +1158,7 @@ void spawnNodeAssignZone(SpawnNode *node) {
     zone = gZoneTable->zones;
     for (i = 0; i < gZoneTable->count; i++, zone++) {
         zone->occupant = NULL;
-        zone->unk20 = 0;
+        zone->attachedCount = 0;
         if (zone->id == node->zoneId) {
             node->zone = zone;
             break;
@@ -1266,9 +1266,9 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         src = q;
         if (src != NULL) {
             rec->id = *src++;
-            rec->unk19 = *src++;
+            rec->floorQueryMode = *src++;
             if (sameY != 0) {
-                rec->unk19 = 1;
+                rec->floorQueryMode = 1;
             }
         }
     }

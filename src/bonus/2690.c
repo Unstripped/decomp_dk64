@@ -351,15 +351,15 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
                         bonusExt->ammoIconSlide[ammoIndex] = 10;
                     }
                 } else if (bonusExt->ammoCount == 0) {
-                    if (gCurrentActor->unk155 == 0) {
+                    if (gCurrentActor->subState == 0) {
                         fireStatus = 2;
-                        gCurrentActor->unk155 = 1;
+                        gCurrentActor->subState = 1;
                     }
                 }
             } else if (bonusExt->ammoCount < 5) {
                 bonusExt->ammoCount = 5;
                 bonusResetAmmo(bonusExt);
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
         }
     }
@@ -454,7 +454,7 @@ void bonusTargetGameUpdate(void) {
                     bonusSpawnTarget(p->x, p->y, p->z, idx, game);
                 }
             }
-            if (gCurrentActor->parentActor->state == 4 && gCurrentActor->parentActor->unk155 != 0xFF) {
+            if (gCurrentActor->parentActor->state == 4 && gCurrentActor->parentActor->subState != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
@@ -589,7 +589,7 @@ void bonusTurtleTroubleGameUpdate(void) {
             if (gCurrentActor->parentActor->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
-            if (gCurrentActor->parentActor->state == 4 && gCurrentActor->parentActor->unk155 != 0xFF) {
+            if (gCurrentActor->parentActor->state == 4 && gCurrentActor->parentActor->subState != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
@@ -597,7 +597,7 @@ void bonusTurtleTroubleGameUpdate(void) {
             bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
             gCurrentActor->state = 1;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         case 0xFE:
             bonusExt->bannerTextAlpha = 0xFF;
@@ -607,7 +607,7 @@ void bonusTurtleTroubleGameUpdate(void) {
             bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
             gCurrentActor->state = 1;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         }
     } else {
@@ -656,13 +656,13 @@ void bonusTargetUpdate(void) {
             gfxResourceSetTimer(game->counterTextId, 3.1415927f);
             actorScriptStart(gCurrentActor, (target->targetType != 0) ? 0x212 : 0x210);
             gCurrentActor->state = 1;
-            gCurrentActor->unk155 = 0;
-        } else if (gCurrentActor->unk155 != 0) {
+            gCurrentActor->subState = 0;
+        } else if (gCurrentActor->subState != 0) {
             bonusDespawnTarget(target, game);
         }
         break;
     case 1:
-        if (gCurrentActor->unk155 != 0) {
+        if (gCurrentActor->subState != 0) {
             bonusDespawnTarget(target, game);
         }
         break;
@@ -786,7 +786,7 @@ void bonusTurtleTroubleSnakeUpdate(void) {
                 fy = fy * 0.5;
             }
         }
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             snake->tiredBlend = snake->tiredBlend + (invScale - snake->tiredBlend) * 0.1;
             break;
@@ -1563,7 +1563,7 @@ void bonusBigBugBashGameUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
-        gPrimaryPlayerActor->unk155 = 0;
+        gPrimaryPlayerActor->subState = 0;
         game->centerX = gCurrentActor->x + 10.0;
         game->centerZ = gCurrentActor->z + 8.0;
         gCurrentActor->y = gCurrentActor->y + 50.0;
@@ -1920,7 +1920,7 @@ void bonusSearchlightSeekGameUpdate(void) {
     f32 scale;
     if (!(gCurrentActor->flags & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
-        gPrimaryPlayerActor->unk155 = 0;
+        gPrimaryPlayerActor->subState = 0;
         gPrimaryPlayerActor->collisionMode = 1;
         subExt->lightLevel = 1.0f;
         subExt->centerX = gCurrentActor->x;

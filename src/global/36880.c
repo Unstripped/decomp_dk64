@@ -746,12 +746,12 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
 }
 
 typedef struct ModelPathSeg {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
+    /* 0x00 */ f32 startOffset;
+    /* 0x04 */ f32 endOffset;
     /* 0x08 */ s16 minAngle;
-    /* 0x0A */ s16 unkA;
+    /* 0x0A */ s16 endMinAngle;
     /* 0x0C */ s16 maxAngle;
-    /* 0x0E */ s16 unkE;
+    /* 0x0E */ s16 endMaxAngle;
     /* 0x10 */ u8 startNode;
     /* 0x11 */ u8 endNode;
     /* 0x12 */ u8 disabled;
@@ -798,7 +798,7 @@ void modelSlotBuildProxPaths(s16 id, ModelAssetHeader *paths, f32 scale) {
         for (j = 0; j < tbl[i - 1].segCount; j++) {
             modelSlotGetNodePos(id, 1, tbl[i - 1].segs[j].startNode, &ax, &ay, &az);
             modelSlotGetNodePos(id, 1, tbl[i - 1].segs[j].endNode, &bx, &by, &bz);
-            proxPathSetSegment((Actor *)id, i, j, tbl[i - 1].segs[j].startNode, tbl[i - 1].segs[j].endNode, sqrtf((az - bz) * (az - bz) + ((ax - bx) * (ax - bx) + (ay - by) * (ay - by))), tbl[i - 1].segs[j].unk0 * scale, tbl[i - 1].segs[j].unk4 * scale, tbl[i - 1].segs[j].disabled, tbl[i - 1].segs[j].minAngle, tbl[i - 1].segs[j].maxAngle, tbl[i - 1].segs[j].unkA, tbl[i - 1].segs[j].unkE);
+            proxPathSetSegment((Actor *)id, i, j, tbl[i - 1].segs[j].startNode, tbl[i - 1].segs[j].endNode, sqrtf((az - bz) * (az - bz) + ((ax - bx) * (ax - bx) + (ay - by) * (ay - by))), tbl[i - 1].segs[j].startOffset * scale, tbl[i - 1].segs[j].endOffset * scale, tbl[i - 1].segs[j].disabled, tbl[i - 1].segs[j].minAngle, tbl[i - 1].segs[j].maxAngle, tbl[i - 1].segs[j].endMinAngle, tbl[i - 1].segs[j].endMaxAngle);
         }
     }
 }
@@ -870,7 +870,7 @@ void modelSlotGetNodePos(s32 slot, u8 isId, s32 index, f32 *xOut, f32 *yOut, f32
     if (isId == 1) {
         slot = hashTableLookup(slot);
     }
-    node = gModelSlots[slot].unk74;
+    node = gModelSlots[slot].nodePosList;
     for (n = index - 1; node != NULL && n != 0; n--) {
         node = node->next;
     }
@@ -915,7 +915,7 @@ void modelSlotBuildNodePosList(s32 slot, ModelAssetHeader *verts, f32 x, f32 y, 
     s32 count;
 
     node = NULL;
-    tail = &gModelSlots[slot].unk74;
+    tail = &gModelSlots[slot].nodePosList;
     if (mode == 0) {
         *tail = NULL;
     }
@@ -962,7 +962,7 @@ void modelSlotClearTail(s32 slot) {
     u8 i;
 
     for (i = 0; i < 2; i++) {
-        p->unk25[i] = 0xFF;
+        p->disabledPartIds[i] = 0xFF;
     }
     p->flags = 0;
 }
@@ -976,7 +976,7 @@ void modelSlotUpdateTailKey(s32 slot, u8 isId, u8 newKey, u8 remove) {
     if (isId == 1) {
         slot = hashTableLookup(slot);
     }
-    p = gModelSlots[slot].triBuffer.unk25;
+    p = gModelSlots[slot].triBuffer.disabledPartIds;
     key = remove ? newKey : 0xFF;
     while (i < 2 && found == 0) {
         if (key == p[i]) {
@@ -1585,7 +1585,7 @@ u8 isId;
     dynamicBufferFree(&gModelSlots[slot].boxBuffer);
     modelSlotTriBufferRelease(&gModelSlots[slot].triBuffer);
     modelPosNodeListFree(gModelSlots[slot].attachPoints);
-    modelLinkedNodeListFree(gModelSlots[slot].unk74);
+    modelLinkedNodeListFree(gModelSlots[slot].nodePosList);
     modelSlotFree(gModelSlots[slot].anim);
     modelSlotFreeTexAnimNodes(&gModelSlots[slot]);
     if (gModelSlots[slot].csState != NULL) {
@@ -3540,7 +3540,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                     }
                     if (slots && slots) {}  // FAKE: dead test steers register colouring
                 }
-                allow &= best < (f32)obj->unk58;
+                allow &= best < (f32)obj->updateRangeSq;
                 break;
             case 5:
                 if (gModelPendingQueueCount == 0x14) return;

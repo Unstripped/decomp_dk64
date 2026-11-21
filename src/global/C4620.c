@@ -68,7 +68,7 @@ void actorKongChainUpdate(void) {
         }
         if (bufferSize != 0) {
             gCurrentActor->sub4->boneRotations = heapAlloc(0x100);
-            kongChainInit(0, C46V->unk178, bufferSize);
+            kongChainInit(0, C46V->chains, bufferSize);
         }
     }
     switch (state->animAssetId) {
@@ -100,7 +100,7 @@ void actorScriptedAnimSideEffects(u16 animId) {
         case 0x23F:
         case 0x240:
         case 0x4C7:
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         case 0x112:
             playerKongDrawGun(gCurrentActor);
@@ -223,7 +223,7 @@ void actorScriptedCommandUpdate(void) {
                     pathPlaybackSetLoopLimit(state->pathPlayback, 1);
                     pathPlaybackSetActive(state->pathPlayback, 1);
                     gCurrentActor->state = 0xC;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     break;
                 case 0:
                     gCurrentActor->speedY = cmd->args[0];
@@ -260,7 +260,7 @@ void actorScriptedCommandUpdate(void) {
                     break;
                 case 5:
                     gCurrentActor->state = 2;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     if (gBehaviourAnimState->path != NULL) {
                         heapFree(gBehaviourAnimState->path);
                     }
@@ -336,14 +336,14 @@ void actorScriptedCommandUpdate(void) {
                     state->zoneFrom = cmd->args[1];
                     state->lerpTimer = state->lerpSteps;
                     gCurrentActor->state = 0xE;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     break;
                 case 14:
                     state->zoneTo = cmd->args[0];
                     state->zoneFrom = cmd->args[1];
                     state->lerpTimer = state->lerpSteps;
                     gCurrentActor->state = 0xF;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     break;
                 case 10:
                     state->unk18 = (cmd->args[0] << 12) / 360;
@@ -357,7 +357,7 @@ void actorScriptedCommandUpdate(void) {
                 case 17:
                     gCurrentActor->flags &= ~0x8000;
                     gCurrentActor->state = 0x37;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     break;
                 case 18:
                     gCurrentActor->flags &= ~0x800000;
@@ -366,11 +366,11 @@ void actorScriptedCommandUpdate(void) {
                     gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->args[0], 0);
                     gCurrentActor->unk15F = cmd->args[1];
                     gCurrentActor->state = 0xD;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     break;
                 case 22:
                     gCurrentActor->state = 2;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                     break;
             }
         }
@@ -454,7 +454,7 @@ void actorScriptedCommandUpdate(void) {
                 }
             } else {
                 gCurrentActor->state = 0;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorSetTargetSpeed(gCurrentActor, 0);
             }
             break;
@@ -462,7 +462,7 @@ void actorScriptedCommandUpdate(void) {
             actorMoveWithinZone(2, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x210, 0.0f);
             if (patrolPathStep(2, 0) != 0) {
                 gCurrentActor->state = 0;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 actorSetTargetSpeed(gCurrentActor, 0);
             }
             break;
@@ -474,7 +474,7 @@ void actorScriptedCommandUpdate(void) {
             actorApplyVelocityCustom(gCurrentActor, 0.0f, gCurrentActor->speedY);
             break;
         case 0x37:
-            if (gCurrentActor->unk155 != 0) {
+            if (gCurrentActor->subState != 0) {
                 gCurrentActor->state = 0x40;
             } else {
                 behaviourFadeOutWithinZone(0xA);
@@ -505,7 +505,7 @@ void actorNpcKongTalkThenWarpOut(u8 paramA, u16 actionId, s16 scriptId) {
         case 0:
             if (currentActorTestClearFlag()) {
                 gCurrentActor->state = 0x12;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 2:
@@ -513,11 +513,11 @@ void actorNpcKongTalkThenWarpOut(u8 paramA, u16 actionId, s16 scriptId) {
             patrolPathStep(2, 0);
             break;
         case 0x12:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     resQueueAttachActor(gCurrentActor, actionId, paramA);
                     actorScriptStart(gCurrentActor, scriptId);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     break;
                 case 2:
                     if (!(gCurrentActor->flags & 0x2000000)) {
@@ -527,7 +527,7 @@ void actorNpcKongTalkThenWarpOut(u8 paramA, u16 actionId, s16 scriptId) {
                         actorGetNodePos(gCurrentActor, 1, &gSpawnedActor->x, &nodeY, &gSpawnedActor->z);
                         actorScriptStart(gSpawnedActor, 0x298);
                         gSpawnedActor->parentActor = gCurrentActor;
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                     break;
                 case 3:
@@ -541,10 +541,10 @@ void actorNpcKongTalkThenWarpOut(u8 paramA, u16 actionId, s16 scriptId) {
 
 
 void actorNpcKongWarpEffectUpdate(void) {
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->subState) {
         case 1:
             gCurrentActor->parentActor->flags &= ~4;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 3:
             camEndPath(gCamActor);
@@ -661,8 +661,8 @@ void actorNpcDiddyUpdate(void) {
                     }
                     break;
                 case 0xEA:
-                    if (gCurrentActor->unk155 != 0 && animFrame >= 10) {
-                        gCurrentActor->unk155 = 0;
+                    if (gCurrentActor->subState != 0 && animFrame >= 10) {
+                        gCurrentActor->subState = 0;
                         projectileGetTargetCoords(gCurrentActor, 7);
                         projectileSpawnNodeEntry(0x29, 0xCA, 0.4f, gCurrentActor->yaw, 250.0f, 0.0f, gCurrentActor);
                     }
@@ -728,7 +728,7 @@ void actorNpcTinyUpdate(void) {
     actorKongChainUpdate();
     if (gCurrentActor->flags & 0x10000000) {
         actorScriptedCommandUpdate();
-        if ((gCurrentActor->flags & 4) && gCurrentActor->unk155 != 0) {
+        if ((gCurrentActor->flags & 4) && gCurrentActor->subState != 0) {
             switch (gCurrentActor->sub4->model->animId) {
                 case 0x23E:
                     bone = 0xD;
@@ -747,7 +747,7 @@ void actorNpcTinyUpdate(void) {
             }
             if (minFrame < gCurrentActor->sub4->model->frame) {
                 effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, bone, 0);
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
         }
     } else {
@@ -805,33 +805,33 @@ void func_806C1E44(void) {
                     animSetFrameAndSubframe(gCurrentActor, 0, 1, 0);
                     actorScriptStart(gCurrentActor, 0x2BD);
                     gCurrentActor->state = 0;
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else {
                     gCurrentActor->state = 0x27;
-                    gCurrentActor->unk155 = 0;
-                    gCurrentActor->unk155 = 4;
+                    gCurrentActor->subState = 0;
+                    gCurrentActor->subState = 4;
                 }
                 break;
             case 0x26:
                 animSetFrameAndSubframe(gCurrentActor, 0, 0, 0);
                 gCurrentActor->state = 5;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 break;
         }
     }
     switch (gCurrentActor->state) {
         case 0:
             volumeTriggerApplyActorState();
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 1:
                     gBehaviourWorkState->timer = 3;
-                    gCurrentActor->unk155 = 2;
+                    gCurrentActor->subState = 2;
                 case 2:
                     if (!(gFrameCounter & 7)) {
                         if (gBehaviourWorkState->timer != 0) {
                             gBehaviourWorkState->timer--;
                             if (gBehaviourWorkState->timer == 0) {
-                                gCurrentActor->unk155 = 0;
+                                gCurrentActor->subState = 0;
                             }
                             effectSetFrameDelay(2);
                             effectSetDepth(1);
@@ -843,11 +843,11 @@ void func_806C1E44(void) {
             }
             break;
         case 0x27:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     animSetFrameAndSubframe(gCurrentActor, 0, 0, 0);
                     actorScriptStart(gCurrentActor, 0x2BE);
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                     break;
                 case 3:
                     i = 0;
@@ -859,7 +859,7 @@ void func_806C1E44(void) {
                         effectCreateAtActorBone(D_80720B58, 0.7f, gCurrentActor, 1, 0);
                         i++;
                     } while (i != 10);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     break;
             }
             break;
@@ -869,16 +869,16 @@ void func_806C1E44(void) {
             actorSetAnimForMoveTier(4, 0x4F1, 0x4F7, 0x4F7, 0x4F7);
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->state = 0x12;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
             break;
         case 0x12:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     actorScriptStart(gCurrentActor, 0x2BF);
                     animSetFrameAndSubframe(gCurrentActor, 0, 2, 0);
                     actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                     break;
                 case 2:
                     actorMoveWithinZone(2, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
@@ -905,7 +905,7 @@ void func_806C226C(void) {
         if (flagGet(0x9E, 0) != 0) {
             if (gBehaviourExtraState->id == 0x16) {
                 gCurrentActor->state = 0x28;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else {
                 gCurrentActor->state = 0x40;
             }
@@ -917,7 +917,7 @@ void func_806C226C(void) {
         if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
             actorScriptStart(gCurrentActor, 0x2A3);
             gCurrentActor->state = 0x27;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             camStartPath(gCurrentActor, 0x16, 1);
             flagSet(0x9E, 1, 0);
         }
@@ -947,16 +947,16 @@ void func_806C226C(void) {
             }
             break;
         case 0x28:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     zoneEntryGetPosition(2, 3, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
                     actorScriptStart(gCurrentActor, 0x2A6);
                     gCurrentActor->roll = 0;
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     /* fallthrough */
                 case 1:
                     if (actorIsTargetWithinDistance(0xC8) != 0) {
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                         if (flagGet(0xC1, 0) != 0) {
                             if (gPlayerCharacterId[0] == 0 && flagGet(0xA5, 0) == 0) {
                                 resQueueAttachActor(gCurrentActor, 0x1C, 2);
@@ -967,7 +967,7 @@ void func_806C226C(void) {
                             camStartPath(gCurrentActor, 0x1E, 1);
                             resQueueSetValue(1);
                             resQueueAttachActor(gCurrentActor, 0x1C, 1);
-                            gCurrentActor->unk155 = 0x63;
+                            gCurrentActor->subState = 0x63;
                         } else {
                             resQueueAttachActor(gCurrentActor, 0x1C, 0);
                         }
@@ -975,13 +975,13 @@ void func_806C226C(void) {
                     break;
                 case 2:
                     if (flagGet(0xC1, 0) == 0 && actorIsTargetWithinDistance(0x12C) == 0) {
-                        gCurrentActor->unk155 = 1;
+                        gCurrentActor->subState = 1;
                     }
                     break;
                 case 0x63:
                     if (camIsCutsceneActive() == 0 && !(gCurrentActor->flags & 0x2000000)) {
                         resQueueAttachActor(gCurrentActor, 0x1C, 2);
-                        gCurrentActor->unk155 = 3;
+                        gCurrentActor->subState = 3;
                     }
                     break;
             }
@@ -1307,8 +1307,8 @@ void actorScriptedUpdate(void) {
             }
             break;
         case 0x4C7:
-            if (gCurrentActor->sub4->model->frame >= 23.0f && gCurrentActor->unk155 != 0) {
-                gCurrentActor->unk155 = 0;
+            if (gCurrentActor->sub4->model->frame >= 23.0f && gCurrentActor->subState != 0) {
+                gCurrentActor->subState = 0;
                 projectileGetTargetCoords(gCurrentActor, 2);
                 projectileSpawnNodeEntry(0x29, 0xCB, 0.4f, gCurrentActor->yaw, 400.0f, 0, gCurrentActor);
             }
@@ -1365,7 +1365,7 @@ void actorScriptedUpdate(void) {
         commandQueuePush(gCurrentActor, gCurrentActor->x, gCurrentActor->y + 30.0f, gCurrentActor->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     }
     if (gCurrentActor->sub4->animId == 0x22A) {
-        if ((randomNonNegative() >> 15) % 100 >= 0x47 || gCurrentActor->unk155 != 0) {
+        if ((randomNonNegative() >> 15) % 100 >= 0x47 || gCurrentActor->subState != 0) {
             effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
             effectSpawnJointBeam(0xC, 0x10, 0x11, 0x20);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x8A, 0x64, 0x7F, 0x28, 0, 0.3f, 0);
@@ -1400,27 +1400,27 @@ void func_806C3A8C(void) {
         if (flagGet(0xBF, 0) == 0) {
             if (flagGet(0xBA, 0) && flagGet(0xBB, 0) && flagGet(0xBC, 0) && flagGet(0xBD, 0) && flagGet(0xBE, 0)) {
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else if (flagGet(0xBA, 0) || flagGet(0xBB, 0) || flagGet(0xBC, 0) || flagGet(0xBD, 0) || flagGet(0xBE, 0)) {
                 gCurrentActor->state = 0x1F;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else {
                 gCurrentActor->state = 0x1E;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             }
         } else {
             gCurrentActor->state = 0x20;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     actorScriptedCommandUpdate();
     switch (gCurrentActor->state) {
         case 0x1E:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     inRange = dist < 0xF424;
                     if (inRange) {
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                     break;
                 case 1:
@@ -1428,45 +1428,45 @@ void func_806C3A8C(void) {
                     if (inRange) {
                         actorScriptStart(gCurrentActor, 0x3A4);
                         resQueueAttachActor(gCurrentActor, 0x17, 0);
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                     }
                     break;
             }
             break;
         case 0x1F:
             inRange = dist < 0x2710;
-            if (inRange && gCurrentActor->unk155 == 0) {
+            if (inRange && gCurrentActor->subState == 0) {
                 flag4 = flagGet(0xBD, 0);
                 flag3 = flagGet(0xBC, 0);
                 flag2 = flagGet(0xBB, 0);
                 flag1 = flagGet(0xBA, 0);
                 gTextNumberArg = flagGet(0xBE, 0) + flag1 + flag2 + flag3 + flag4;
                 resQueueAttachActor(gCurrentActor, 0x17, 2);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 0x20:
             inRange = dist < 0x2710;
-            if (inRange && gCurrentActor->unk155 == 0 && camIsCutsceneActive() == 0) {
+            if (inRange && gCurrentActor->subState == 0 && camIsCutsceneActive() == 0) {
                 camStartPath(gCurrentActor, 0x18, 1);
                 resQueueAttachActor(gCurrentActor, 0x17, 3);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         case 0x27:
             if (camIsCutsceneActive() == 0) {
-                switch (gCurrentActor->unk155) {
+                switch (gCurrentActor->subState) {
                     case 0:
                         camStartPath(gCurrentActor, 0x17, 1);
                         resQueueSetValue(1);
                         resQueueAttachActor(gCurrentActor, 0x17, 1);
-                        gCurrentActor->unk155++;
+                        gCurrentActor->subState++;
                         break;
                     case 1:
                         if (!(gCurrentActor->flags & 0x2000000)) {
                             csModelStateSetFirstByte(0xE, 0xA);
                             gCurrentActor->state = 0x20;
-                            gCurrentActor->unk155 = 0;
+                            gCurrentActor->subState = 0;
                         }
                         break;
                 }

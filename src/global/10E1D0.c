@@ -51,7 +51,7 @@ u8 mode;
     n_alSndpPlay(gSfxBank, 0x1BC, 0x7FFF, 0x3F, 1.0f, 0, &sTransitionSound);
 }
 
-/* A texture tile: texel offset into its RGBA16 image (the framebuffer or D_80754FC8), width and height. */
+/* A texture tile: texel offset into its RGBA16 image (the framebuffer or sSolidTileTexels), width and height. */
 typedef struct TexTile {
     s32 offset;
     s32 width;
@@ -229,15 +229,15 @@ s32 meshComputeVertexRanges(MeshBlob *mesh) {
     return 1;
 }
 
-/* The solid 4x4 RGBA16 textures in D_80754FC8, drawn by mesh cells with a negative texture index. */
-TexTile D_80754F80[] = {
+/* The solid 4x4 RGBA16 textures in sSolidTileTexels, drawn by mesh cells with a negative texture index. */
+TexTile sSolidTileTable[] = {
     { 0x00, 4, 4 }, { 0x10, 4, 4 }, { 0x20, 4, 4 }, { 0x30, 4, 4 }, { 0x40, 4, 4 },
 };
 // Unreferenced: nothing in the ROM points at this display list.
 Gfx D_80754FC0[] = {
     gsSPEndDisplayList(),
 };
-u16 D_80754FC8[] = {
+u16 sSolidTileTexels[] = {
     0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001,
     0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
     0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843, 0x0843,
@@ -267,7 +267,7 @@ void meshDrawTextured(Gfx **gdl, MeshBlob *mesh, u16 *framebuffer) {
                 prev = texture;
                 if (texture < 0) {
                     texture = -1 - texture;
-                    gDPLoadTextureBlock(glist++, D_80754FC8 + D_80754F80[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80754F80[texture].width, D_80754F80[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock(glist++, sSolidTileTexels + sSolidTileTable[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, sSolidTileTable[texture].width, sSolidTileTable[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 } else {
                     gDPLoadTextureTile(glist++, framebuffer + gFbTileTable[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, gFbTileTable[texture].width, gFbTileTable[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 }
@@ -467,7 +467,7 @@ void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
     gDPPipeSync(dl++);
     gDPSetCycleType(dl++, G_CYC_1CYCLE);
     guTranslate(&frame->identity, 0.0f, 0.0f, 0.0f);
-    guLookAt(&frame->unk200, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    guLookAt(&frame->lookAt, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
     guPerspective(&frame->perspective, &gPerspNorm, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
     gDPPipeSync(dl++);
     dl = gfxSetFrameBufferColorImage(dl);

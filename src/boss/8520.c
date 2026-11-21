@@ -51,18 +51,18 @@ void bossKutOutSpawnGhosts(void) {
 void bossAnimFrameBounceInit(animSlot)
 u8 animSlot;
 {
-    gBehaviourWorkState->unk28 = 2;
+    gBehaviourWorkState->animBounceState = 2;
     animSetLoopLimit(gCurrentActor, animSlot, 1);
     animSetFinished(gCurrentActor, animSlot, 1);
-    animSetFrameAndSubframe(gCurrentActor, animSlot, gBehaviourWorkState->unk28 & 0xF, 0.0f);
+    animSetFrameAndSubframe(gCurrentActor, animSlot, gBehaviourWorkState->animBounceState & 0xF, 0.0f);
 }
 
 void bossAnimFrameBounceStep(void) {
     u16 directionBit = 0;
     u8 directionFlag;
     u8 val;
-    directionFlag = gBehaviourWorkState->unk28 & 0x80;
-    val = gBehaviourWorkState->unk28 & 0xF;
+    directionFlag = gBehaviourWorkState->animBounceState & 0x80;
+    val = gBehaviourWorkState->animBounceState & 0xF;
     if (directionFlag) {
         val += 1;
         if (val >= 2) {
@@ -80,7 +80,7 @@ void bossAnimFrameBounceStep(void) {
     }
     animSetFrameAndSubframe(gCurrentActor, 0, (s16)val, 0.0f);
     animSetFrameAndSubframe(gCurrentActor, 1, (s16)val, 0.0f);
-    gBehaviourWorkState->unk28 = directionBit | val | directionFlag;
+    gBehaviourWorkState->animBounceState = directionBit | val | directionFlag;
 }
 
 
@@ -166,19 +166,19 @@ void bossKutOutStep(void) {
     }
     switch (gCurrentActor->state) {
     case 0x28:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             camStartPath(gCurrentActor, 8, 1);
             actorScriptStart(gCurrentActor, 0);
             controllerAnimSetStateIfChanged(gCurrentActor, 0x589, 0.0f, 0.0f);
             gBehaviourWorkState->timer = 0;
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             gCurrentActor->collisionMode = 1;
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2FC, 0xFF, 0x7F, 0, 0, 0.0f, 0);
         case 1:
             gBehaviourWorkState->timer += 8;
             if (gBehaviourWorkState->timer >= 0x259) {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
             }
             gCurrentActor->y += 2.0f;
             gCurrentActor->yaw += gBehaviourWorkState->timer;
@@ -191,14 +191,14 @@ void bossKutOutStep(void) {
             }
             gCurrentActor->yaw += gBehaviourWorkState->timer;
             if (currentActorTestClearFlag() != 0) {
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
                 gCurrentActor->flags &= ~4;
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->eyeHeight = 0xA;
-                gBehaviourWorkState->unk28 |= 0x8000;
+                gBehaviourWorkState->animBounceState |= 0x8000;
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->state = 0x23;
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
@@ -209,25 +209,25 @@ void bossKutOutStep(void) {
         }
         break;
     case 0x1E:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
-                gBehaviourWorkState->unk28 |= 0x8000;
-                gCurrentActor->unk155 = 1;
+                gBehaviourWorkState->animBounceState |= 0x8000;
+                gCurrentActor->subState = 1;
             }
             break;
         case 2:
             if ((gCurrentActor->y - gCurrentActor->floorY) > 300.0f) {
                 gCurrentActor->y -= 10.0f;
             } else {
-                gBehaviourWorkState->unk28 |= 0x8000;
-                gCurrentActor->unk155 = 3;
+                gBehaviourWorkState->animBounceState |= 0x8000;
+                gCurrentActor->subState = 3;
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
                 camSetSecondTarget(gCamActor, 0, 0);
             }
             break;
@@ -235,22 +235,22 @@ void bossKutOutStep(void) {
         break;
     case 0x27:
         gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z), 8.0f);
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             bossKutOutSpawnGhosts();
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             break;
         case 1:
             if ((spawnNodeHasActor(2) == 0) && (spawnNodeHasActor(3) == 0) && (spawnNodeHasActor(4) == 0)) {
-                gCurrentActor->unk155 = 2;
+                gCurrentActor->subState = 2;
                 gBehaviourWorkState->timer = 0x96;
-                gBehaviourWorkState->unk28 |= 0x8000;
+                gBehaviourWorkState->animBounceState |= 0x8000;
                 gCurrentActor->interactionType = 8;
                 actorScriptStart(gCurrentActor, 0x2FA);
             }
             if ((camIsCutsceneActive() == 0) && ((randomNonNegative() >> 15) % 1000 >= 0x3E4)) {
                 actorScriptStart(gCurrentActor, 0x2FD);
-                gCurrentActor->unk155 = 3;
+                gCurrentActor->subState = 3;
             }
             break;
         case 2:
@@ -265,16 +265,16 @@ void bossKutOutStep(void) {
                     gCurrentActor->moveYaw = gCurrentActor->yaw;
                     if (gCurrentActor->health == 1) {
                         gCurrentActor->state = 0x28;
-                        gCurrentActor->unk155 = 0;
+                        gCurrentActor->subState = 0;
                     }
                 }
                 gCurrentActor->interactionType = 4;
-                gBehaviourWorkState->unk28 |= 0x8000;
-                gCurrentActor->unk155 = 0;
+                gBehaviourWorkState->animBounceState |= 0x8000;
+                gCurrentActor->subState = 0;
             }
             break;
         case 4:
-            gCurrentActor->unk155 = 1;
+            gCurrentActor->subState = 1;
             bossKutOutFireLaser();
             break;
         }
@@ -295,7 +295,7 @@ void bossKutOutStep(void) {
         gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * swayState->offset + gBehaviourExtraState->z;
         gCurrentActor->y = gBehaviourExtraState->y - sqrtf(0x1C390 - swayState->offset * swayState->offset);
     }
-    if (gBehaviourWorkState->unk28 & 0x8000) {
+    if (gBehaviourWorkState->animBounceState & 0x8000) {
         bossAnimFrameBounceStep();
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

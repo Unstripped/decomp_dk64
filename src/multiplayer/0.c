@@ -410,7 +410,7 @@ Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
     gDPPipeSync(glistp++);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     if (!paused) {
-        if (gMpSettings.unk0 == 0) {
+        if (gMpSettings.matchType == 0) {
             if ((gMpSettings.matchPhase == 1) || matchOver) {
                 glistp = mpDrawPlayerScores(glistp, controller);
             }
@@ -630,7 +630,7 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
         }
         if (controllerState->spawnerActor != NULL) {
             controllerState->spawnerActor->state = 0x36;
-            controllerState->spawnerActor->unk155 = 0;
+            controllerState->spawnerActor->subState = 0;
         }
     }
 }
@@ -773,7 +773,7 @@ void mpUpdate(void) {
             slotQueueInit(0);
             break;
         }
-        if (gMpSettings.unk0 == 0 && gCurrentMap == 0x6B) {
+        if (gMpSettings.matchType == 0 && gCurrentMap == 0x6B) {
             delayedSpawnQueueAddRandomEffectPickup(0x24E, 0xD4, 0x205);
             delayedSpawnQueueAddRandomEffectPickup(0x24E, 0xD4, 0x285);
             delayedSpawnQueueAddRandomEffectPickup(0x212, 0xD4, 0x24E);
@@ -814,7 +814,7 @@ void mpUpdate(void) {
     case 3:
         break;
     }
-    if (gMpSettings.unk0 == 0) {
+    if (gMpSettings.matchType == 0) {
         for (i = 0; i < gPlayerCount; i++) {
             mpApplyPendingEffect(i);
         }
@@ -1020,13 +1020,13 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
 void mpRespawnPlayer(Actor *playerActor, s32 playerIndex) {
     if (gMpSettings.gameMode == 4 && mpGetPlayerScore(playerIndex) == 0) {
         gPlayerInventoryTable[playerIndex].health = 0;
-        playerActor->unk155++;
+        playerActor->subState++;
         playerStateQueueCallback(0x5B, 0, playerIndex);
         playerActor->collisionMode = 1;
         return;
     }
     playerSyncInventoryOnSpawn(mpFindFurthestSpawn(playerIndex));
-    gPlayerSlots[playerIndex].unk2E2 |= 1;
+    gPlayerSlots[playerIndex].healthHudFlags |= 1;
     playerResumeLocomotion(playerActor);
 }
 

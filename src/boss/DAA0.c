@@ -118,7 +118,7 @@ void bossSpawnerUpdate(void) {
         gBossKongsFreed = 0;
         if (gPrimaryPlayerActor != NULL) {
             gPrimaryPlayerActor->state = 0x77;
-            gPrimaryPlayerActor->unk155 = 0;
+            gPrimaryPlayerActor->subState = 0;
         }
         gCurrentActor->drawDistance = 0x7D0;
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->floorY);
@@ -146,7 +146,7 @@ void bossSpawnerUpdate(void) {
             playerSetKongByActorType(kong);
             playerKongStopAudioChannels(gPrimaryPlayerActor, kong);
             gPrimaryPlayerActor->state = 0xC;
-            gPrimaryPlayerActor->unk155 = 0;
+            gPrimaryPlayerActor->subState = 0;
             actorAppendPlayerLaunch(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
             gCurrentActor->state = 1;
             gPrimaryPlayerActor->collisionMode = D_80035B38;
@@ -181,7 +181,7 @@ void bossSpawnerUpdate(void) {
     gCurrentActor->yaw += 0x32;
     gCurrentActor->yaw &= 0xFFF;
     gCurrentActor->y = mathSinF(gCurrentActor->yaw) * 5.0 + state->baseY;
-    if (gPrimaryPlayerActor->state == 0x45 && gPrimaryPlayerActor->unk155 >= 2 && gBossFollowerPlayerDistSq < 10000.0) {
+    if (gPrimaryPlayerActor->state == 0x45 && gPrimaryPlayerActor->subState >= 2 && gBossFollowerPlayerDistSq < 10000.0) {
         hitPlayer = 1;
     }
     bounceDir = 0;

@@ -46,11 +46,11 @@ void func_806B8C78(void) {
 
     switch (gCurrentActor->state) {
         case 1:
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     gCurrentActor->speedY = 0.0f;
                     actorScriptStart(gCurrentActor, 0x290);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                     break;
                 case 2:
                     if (gCurrentActor->y > -20.0f) {
@@ -134,7 +134,7 @@ void func_806B904C(void) {
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
             gCurrentActor->state = gActorGlobalState.volumeTriggerQueueId[i][1];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
     }
     func_806B8C78();

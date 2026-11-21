@@ -108,7 +108,7 @@ s32 menuOtherKongHasUpgrade(MenuShopState *state, s32 bitOffset) {
 
     for (i = 0; found == 0 && i != 5; i++) {
         if (i != gPlayerCharacterId[0]) {
-            found |= gPlayerInventoryTable[0].kong[i].unk0[state->itemSlot] & (1 << (bitOffset - 1));
+            found |= gPlayerInventoryTable[0].kong[i].upgrades[state->itemSlot] & (1 << (bitOffset - 1));
         }
     }
     return found;
@@ -165,11 +165,11 @@ typedef struct {
 extern Actor *gCurrentActor;
 
 void menuSetBitgridValue(MenuShopState *state, s32 slot) {
-    gPlayerInventoryTable[0].kong[slot].unk0[state->itemSlot] = state->itemLevel;
+    gPlayerInventoryTable[0].kong[slot].upgrades[state->itemSlot] = state->itemLevel;
 }
 
 void menuSetBitgridBit(MenuShopState *state, s32 slot) {
-    u8 *ptr = &gPlayerInventoryTable[0].kong[slot].unk0[state->itemSlot];
+    u8 *ptr = &gPlayerInventoryTable[0].kong[slot].upgrades[state->itemSlot];
     *ptr |= 1 << (state->itemLevel - 1);
 }
 
@@ -214,7 +214,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
         if (gPlayerInventoryTable[0].melons < newMelons) {
             gPlayerInventoryTable[0].melons = newMelons;
             healthRefill(0);
-            gPlayerSlots->unk2E2 |= 0x11;
+            gPlayerSlots->healthHudFlags |= 0x11;
         }
     }
     switch (state->itemSlot) {
@@ -778,15 +778,15 @@ void menuUpdateCrankyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 5) {
         st = ((MenuShopActor *)gCurrentActor)->shop;
-        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
+        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].upgrades;
         if (!(gCurrentActor->flags & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else {
-                gCurrentActor->unk155 = 0xFF;
+                gCurrentActor->subState = 0xFF;
             }
         }
-        if (gCurrentActor->unk155 != 0xFF) {
+        if (gCurrentActor->subState != 0xFF) {
             flagId = 0x17F;
             if (mapGetHubWorldIndex(gCurrentWorldId, 0) != 7) {
                 flagId = 0x177;
@@ -909,7 +909,7 @@ void menuUpdateCandyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 0x19) {
         st = ((MenuShopActor *)gCurrentActor)->shop;
-        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
+        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].upgrades;
 
         if (!(gCurrentActor->flags & 0x10)) {
 
@@ -942,7 +942,7 @@ void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
         MenuShopState *st = ((MenuShopActor *)gCurrentActor)->shop;
-        u8 *inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].unk0;
+        u8 *inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].upgrades;
 
         if (!(gCurrentActor->flags & 0x10)) {
             menuExitSubmenu(st, inventory, 0x176);

@@ -322,7 +322,7 @@ void csCmdPeriodicEffectPair(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern u8 D_807201D4[];
+extern u8 gEffectSpriteFlame[];
 
 void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
@@ -352,7 +352,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetSpeed(-0x190);
         effectSetColor(0xFF, 0xFF, 0xFF, 1);
         effectSetCallback(effectFadeInSinkUpdate);
-        effectCreateAtPosition(D_807201D4, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
+        effectCreateAtPosition(gEffectSpriteFlame, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
     }
     if (t < 0.1) {
         cs->stateBytes[1] = 1;
@@ -1074,7 +1074,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         if (gPrimaryPlayerActor->chunkIndex == 0xD) {
             ok = 0;
             a = spawnNodeActivate(0x1F, 0);
-            if (a != NULL && a->state == 0x27 && a->sub4->animId == 0x362 && a->unk155 == 2) {
+            if (a != NULL && a->state == 0x27 && a->sub4->animId == 0x362 && a->subState == 2) {
                 p->timer = 0x65;
                 ok = 1;
             }
@@ -1669,8 +1669,8 @@ void csCmdSpawnSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern u8 D_807212B0[];
-extern u8 D_807212C8[];
+extern u8 gEffectSpriteDebrisGrey[];
+extern u8 gEffectSpriteDebrisGreen[];
 extern u8 gEffectSpriteExplosion[];
 
 void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -1697,7 +1697,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     base = b & 0xFF;
     spread = base;
-    tbl = D_807212B0;
+    tbl = gEffectSpriteDebrisGrey;
     n = 0x14;
     switch (c) {
         case 1:
@@ -1714,7 +1714,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
             spread *= 1.5;
             break;
         default:
-            tbl = D_807212C8;
+            tbl = gEffectSpriteDebrisGreen;
             scale *= 1.75;
             break;
     }
@@ -2004,9 +2004,9 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     p->savedX = gCsPosX;
     p->savedY = gCsPosY + 15.0;
     p->savedZ = gCsPosZ;
-    p->unk220[0] = mathSinF(ang);
-    p->unk220[1] = ang;
-    p->unk220[2] = mathCosF(ang);
+    p->heading[0] = mathSinF(ang);
+    p->heading[1] = ang;
+    p->heading[2] = mathCosF(ang);
     if (c == 0) {
         fast = 1;
         sfxPlayOnFreeSlot(0xF2, 0x5DC0, 63.0f, 1.0f, 0, 0);
@@ -2014,12 +2014,12 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         fast = 0;
         sfxPlayOnFreeSlot(0x2EB, 0x7D00, 63.0f, 0.6f, 0, 0);
     }
-    negCos = -p->unk220[2];
-    sinA = p->unk220[0];
+    negCos = -p->heading[2];
+    sinA = p->heading[0];
     x[0] = gCsPosX; y[0] = gCsPosY + 15.0; z[0] = gCsPosZ; // LAYOUT: one line keeps as1's x/y/z[0] load order (Q0183)
-    ex = x[0] + p->unk220[0] * 50.0;
+    ex = x[0] + p->heading[0] * 50.0;
     ang = 0;
-    ez = z[0] + p->unk220[2] * 50.0;
+    ez = z[0] + p->heading[2] * 50.0;
     for (i = 0; i != 4; i++) {
         t = mathCosF(ang) * 100.0;
         x[1] = t * negCos + ex;
@@ -2564,7 +2564,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (p->cool == 0) {
         pl = gPlayerSlots->actor;
-        if (pl->state == 0x1C && pl->unk155 < 7 && gPlayerCharacterId[0] == 0 && pl->attachMode == 1) {
+        if (pl->state == 0x1C && pl->subState < 7 && gPlayerCharacterId[0] == 0 && pl->attachMode == 1) {
             if (csId == pl->cutsceneId) {
                 bestD = 100000.0f;
                 best = -1;

@@ -112,7 +112,7 @@ s32 mathPickCloserTargetPoint3D(f32 x, f32 y, f32 z, TargetVec3f *segAStart, Tar
 
 extern PlayerStruct *gPlayerSlots;
 extern Actor *gCurrentActor;
-extern u8 D_80720054;
+extern u8 gEffectSpriteGlowRed;
 
 void actorSpawnNodeEffectFacingCamera(s32 node, u8 alphaMax) {
     f32 tgt;
@@ -155,7 +155,7 @@ void actorSpawnNodeEffectFacingCamera(s32 node, u8 alphaMax) {
                 vol *= gCurrentActor->sub4->scaleY;
             }
             effectSetColor(0xFF, 0xFF, 0xFF, alpha);
-            effectCreateAtActorBone(&D_80720054, vol, gCurrentActor, node, 2);
+            effectCreateAtActorBone(&gEffectSpriteGlowRed, vol, gCurrentActor, node, 2);
         }
     }
 }
@@ -342,7 +342,7 @@ u8 tilt;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x10400;
         gCurrentActor->state = 0;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->speedXZ = 0.0f;
         vehicle->raceStatus = 0;
         vehicle->statusStep = 0;
@@ -1227,7 +1227,7 @@ void projectileSparkleUpdate(u8 silver) {
     }
 }
 
-extern u8 D_807201D4;
+extern u8 gEffectSpriteFlame;
 
 void projectileSparkleUpdateGold(void) {
     projectileSparkleUpdate(0);
@@ -1238,7 +1238,7 @@ void projectileSparkleUpdateSilver(void) {
 }
 
 void projectileSpawnParticleEffect(void) {
-    projectileBounceParticleUpdate(&D_807201D4);
+    projectileBounceParticleUpdate(&gEffectSpriteFlame);
 }
 
 
@@ -1255,11 +1255,11 @@ extern s16 D_80750370;
 
 
 void projectileSpawnParticleEffect2(void) {
-    projectileBounceParticleUpdate(&D_807201D4);
+    projectileBounceParticleUpdate(&gEffectSpriteFlame);
 }
 
 void projectileSpawnParticleEffect3(void) {
-    projectileBounceParticleUpdate(&D_807201D4);
+    projectileBounceParticleUpdate(&gEffectSpriteFlame);
 }
 
 void projectileSpawnParticleEffectWithScale(void) {
@@ -1267,7 +1267,7 @@ void projectileSpawnParticleEffectWithScale(void) {
     f32 minSpeedY;
 
     state = gCurrentActor->customState;
-    projectileBounceParticleUpdate(&D_807201D4);
+    projectileBounceParticleUpdate(&gEffectSpriteFlame);
     if (state->param == 1) {
         gCurrentActor->speedY += gCarryGravity;
         minSpeedY = (f32)gCarryMinFallSpeed;
@@ -2342,9 +2342,9 @@ void projectileFallBounceUpdate(void) {
             actorUpdateFloorContactAndTilt(gCurrentActor, (f32)(((f64)mathCosF((s16)(gCurrentActor->roll + 0x800)) * 0.5 + 0.5) * 15.0));
             onGround = gCurrentActor->contactFlags & 1;
             if (onGround != 0 && !(gCurrentActor->prevContactFlags & 1)) {
-                bounces = gCurrentActor->unk155;
+                bounces = gCurrentActor->subState;
                 if (bounces < 2) {
-                    gCurrentActor->unk155 = bounces + 1;
+                    gCurrentActor->subState = bounces + 1;
                     gCurrentActor->speedY = (f32)((f64)(gCurrentActor->prevPeakY - gCurrentActor->y) * 1.5);
                     camStartShake(gActivePlayerState->camActor, 0xA, 0x14);
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C1, 0xFF, 0x7F, 0x1E);
@@ -2422,7 +2422,7 @@ void projectileChaseTargetUpdate(void) {
         actorDespawn(gCurrentActor);
         parent = gCurrentActor->parentActor;
         if (parent != NULL && parent->actorType == 0xB9 && parent->state != 0x37) {
-            parent->unk155++;
+            parent->subState++;
         }
     }
     targetYaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
@@ -2436,7 +2436,7 @@ void projectileChaseTargetUpdate(void) {
     case 0:
         if (yawDiff > 1000) {
             gCurrentActor->state = 1;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         /* fallthrough */
     case 2:
@@ -2463,7 +2463,7 @@ void projectileChaseTargetUpdate(void) {
         }
         if (gCurrentActor->speedXZ <= 5.0f) {
             gCurrentActor->state = 2;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         }
         break;
     }

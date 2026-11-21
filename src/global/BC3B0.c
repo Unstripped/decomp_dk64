@@ -136,22 +136,22 @@ void actorUpdateLockOnCursor(void) {
         gBehaviourAnimState->flags |= 0x60;
         gGlobalOverlayFlags |= 2;
         hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkAWide ? gBehaviourExtraState->unkAWide : 10);
-        gBehaviourWorkState->unk2E = gBehaviourExtraState->unkAWide != 0 ? 0xF : 0x78;
+        gBehaviourWorkState->countdown = gBehaviourExtraState->unkAWide != 0 ? 0xF : 0x78;
         if (gBehaviourExtraState->unkAWide != 0) {
             c->beepInterval = gBehaviourExtraState->unkAWide;
         } else {
             c->beepInterval = 10.0f;
         }
     }
-    if (gBehaviourWorkState->unk2E != 0) {
+    if (gBehaviourWorkState->countdown != 0) {
         if (camIsCutsceneActive() == 0) {
-            gBehaviourWorkState->unk2E--;
+            gBehaviourWorkState->countdown--;
         }
-        if (gBehaviourWorkState->unk2E != 0) {
+        if (gBehaviourWorkState->countdown != 0) {
             return;
         }
         gCurrentActor->state = 0x23;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
         hudCountdownTimerStart(gCurrentActor->parentActor);
         gGlobalCutsceneFlags |= 1;
@@ -163,7 +163,7 @@ void actorUpdateLockOnCursor(void) {
         }
         camStartPath(0, 6, 5);
         gCurrentActor->state = 0x11;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         c->lockX = gBehaviourTargetActor->x;
         c->lockY = gBehaviourTargetActor->y + gBehaviourTargetActor->eyeHeight;
         c->lockZ = gBehaviourTargetActor->z;
@@ -193,7 +193,7 @@ void actorUpdateLockOnCursor(void) {
             }
         } else {
             actorCursorFireProjectile(c);
-            gBehaviourWorkState->unk2E = 0x64;
+            gBehaviourWorkState->countdown = 0x64;
             if (gBehaviourExtraState->unkAWide != 0) {
                 c->beepInterval = gBehaviourExtraState->unkAWide;
             } else {
@@ -213,7 +213,7 @@ typedef struct BC3B0EmitterActor {
     /* 0x17C */ s16 *burstCooldown;
 } BC3B0EmitterActor;
 
-extern u8 D_807201D4[];
+extern u8 gEffectSpriteFlame[];
 
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
@@ -235,7 +235,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
         effectSetDepth(1);
         effectSetSpeed(-0x1C2);
         effectSetCallback(effectSinkBySpeedUpdate);
-        effectCreateAtPosition(D_807201D4, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
+        effectCreateAtPosition(gEffectSpriteFlame, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
     }
     if (gBehaviourWorkState->timer != 0) {
         lightAdd(gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);
@@ -249,14 +249,14 @@ void actorUpdatePeriodicParticleEmitter(void) {
 void actorUpdateAimedProjectileEmitter(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourWorkState->unk2E = gBehaviourAnimState->burstInterval;
+        gBehaviourWorkState->countdown = gBehaviourAnimState->burstInterval;
     }
-    if (gBehaviourWorkState->unk2E == 0) {
+    if (gBehaviourWorkState->countdown == 0) {
         gBehaviourWorkState->timer = gBehaviourAnimState->burstLength;
-        gBehaviourWorkState->unk2E = gBehaviourAnimState->burstInterval;
+        gBehaviourWorkState->countdown = gBehaviourAnimState->burstInterval;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
-    gBehaviourWorkState->unk2E--;
+    gBehaviourWorkState->countdown--;
     if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
         projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         projectileAimAndSpawn(0x51, 1, 0.3f, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, 80.0f, gCurrentActor);

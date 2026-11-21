@@ -122,11 +122,11 @@ typedef struct N_CSPlayer {
             /* 0x78 */ ALOscStop stopOsc;
         };
     };
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
+    /* 0x7C */ f32 fxMixOffset;
+    /* 0x80 */ f32 fxMixScale;
     /* 0x84 */ OSMesgQueue *eventQueue; // song-event messages (__n_CSPHandleMIDIMsg osSendMesg; set by alCSPSetEventQueue)
-    /* 0x88 */ u8 unk88;
-    /* 0x89 */ u8 unk89;
+    /* 0x88 */ u8 maxVoices;
+    /* 0x89 */ u8 voiceCount;
 } N_CSPlayer; // size = 0x8C
 
 #endif

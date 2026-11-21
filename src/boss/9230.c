@@ -46,7 +46,7 @@ void bossKRoolDkStep(void) {
         camSetSecondTarget(gCamActor, 0, 0);
         gCurrentActor->segmentFlags = 5;
         gCurrentActor->state = 0x1E;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->floorNodeId = 1;
     }
     switch (gCurrentActor->state) {
@@ -56,24 +56,24 @@ void bossKRoolDkStep(void) {
         csSendActorMessagePayload(3, 0);
         csSendActorMessagePayload(4, 0);
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         break;
     case 0x1E:
         scriptState->phase = 0;
         scriptState->scriptPos = 0;
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->subState = 0;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         break;
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0x3EA);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 2:
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
@@ -84,45 +84,45 @@ void bossKRoolDkStep(void) {
             csSendActorMessagePayload(gActivePlayerState->hitActorId, 1);
             if (scriptState->phase == 3) {
                 gCurrentActor->state = 0x37;
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->subState = 0;
             } else {
                 behaviourSpawnExplosionAndSound(0x3EE, 0x31, gPrimaryPlayerActor);
                 camStartPath(gCurrentActor, 1, 1);
                 gCurrentActor->speedXZ *= 0.7;
             }
-        } else if (gActorGlobalState.bossFightPhase == 2 && gCurrentActor->unk155 > 0) {
+        } else if (gActorGlobalState.bossFightPhase == 2 && gCurrentActor->subState > 0) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->state = 0;
-            gCurrentActor->unk155 = 0;
-        } else if (gPrimaryPlayerActor->state != 0x42 && gPrimaryPlayerActor->state != 0x44 && gCurrentActor->unk155 > 0) {
+            gCurrentActor->subState = 0;
+        } else if (gPrimaryPlayerActor->state != 0x42 && gPrimaryPlayerActor->state != 0x44 && gCurrentActor->subState > 0) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         } else {
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
                 scriptState->byteVars[1] = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 /* fallthrough */
             case 1:
                 gBehaviourWorkState->timer = scriptState->byteVars[0];
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 /* fallthrough */
             case 2:
                 gCurrentActor->interactionType = 1;
                 actorScriptStart(gCurrentActor, 0x3EC);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 break;
             case 4:
                 if (gBehaviourWorkState->timer != 0) {
                     gBehaviourWorkState->timer--;
-                    gCurrentActor->unk155 = 2;
+                    gCurrentActor->subState = 2;
                 } else {
                     gCurrentActor->interactionType = 2;
                     actorScriptStart(gCurrentActor, 0x3E9);
                     gBehaviourWorkState->timer = scriptState->byteVars[1];
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 }
                 break;
             case 5:
@@ -130,9 +130,9 @@ void bossKRoolDkStep(void) {
                     gBehaviourWorkState->timer--;
                 } else if (gCurrentActor->state == 0x2A) {
                     gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 } else {
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                 }
                 break;
             }
@@ -141,35 +141,35 @@ void bossKRoolDkStep(void) {
     case 0x28:
     case 0x2C:
         actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
-        if (gPrimaryPlayerActor->state == 0x42 && gCurrentActor->unk155 > 0) {
+        if (gPrimaryPlayerActor->state == 0x42 && gCurrentActor->subState > 0) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
         } else {
-            switch (gCurrentActor->unk155) {
+            switch (gCurrentActor->subState) {
             case 0:
                 scriptState->byteVars[0] = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
                 /* fallthrough */
             case 1:
                 if (camIsCutsceneActive() == 0) {
                     gBehaviourWorkState->timer = scriptState->byteVars[0];
-                    gBehaviourWorkState->unk2E = 9;
+                    gBehaviourWorkState->countdown = 9;
                     actorScriptStart(gCurrentActor, 0x3E7);
-                    gCurrentActor->unk155++;
+                    gCurrentActor->subState++;
                 }
                 break;
             case 3:
-                if (gCurrentActor->state == 0x28 || (gCurrentActor->state == 0x2C && (gBehaviourWorkState->unk2E % 3) == 0)) {
+                if (gCurrentActor->state == 0x28 || (gCurrentActor->state == 0x2C && (gBehaviourWorkState->countdown % 3) == 0)) {
                     projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 3, scriptState->phase * 0.01 + 1.04, 0.0f, 0.0f, 0.0f);
                     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                     controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                     scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0.0f);
                 }
-                if (gCurrentActor->state == 0x28 || (gCurrentActor->state == 0x2C && gBehaviourWorkState->unk2E == 0)) {
-                    gCurrentActor->unk155++;
+                if (gCurrentActor->state == 0x28 || (gCurrentActor->state == 0x2C && gBehaviourWorkState->countdown == 0)) {
+                    gCurrentActor->subState++;
                 } else {
-                    gBehaviourWorkState->unk2E--;
+                    gBehaviourWorkState->countdown--;
                     break;
                 }
                 /* fallthrough */
@@ -177,23 +177,23 @@ void bossKRoolDkStep(void) {
                 if (gBehaviourWorkState->timer != 0) {
                     gBehaviourWorkState->timer--;
                 } else if (scriptState->loopPos != 0) {
-                    gCurrentActor->unk155 = 1;
+                    gCurrentActor->subState = 1;
                 } else {
                     gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->subState = 0;
                 }
                 break;
             }
         }
         break;
     case 0x31:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4310, 0.0f);
             break;
         case 1:
             gCurrentActor->speedXZ = -40.0f;
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             /* fallthrough */
         case 2:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4310, 0.0f);
@@ -206,22 +206,22 @@ void bossKRoolDkStep(void) {
             scriptOpcodes = sKRoolDkPhaseScripts[scriptState->phase];
             actorScriptStart(gCurrentActor, 0x3E3);
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->subState = 0;
             break;
         }
         break;
     case 0x37:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->subState) {
         case 0:
             actorScriptStart(gCurrentActor, 0);
             camStartPath(gCurrentActor, 2, 1);
-            gCurrentActor->unk155++;
+            gCurrentActor->subState++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 screenSetTransitionFadeType(0);
                 mapRequestTransition(0xCC, 0);
-                gCurrentActor->unk155++;
+                gCurrentActor->subState++;
             }
             break;
         }

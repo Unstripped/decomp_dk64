@@ -1155,13 +1155,13 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
             if (st->mode == 9) {
                 return;
             }
-            if (target->state == 0x54 && target->unk155 < 3) {
+            if (target->state == 0x54 && target->subState < 3) {
                 return;
             }
-            if (target->state == 0x52 && target->unk155 < 8) {
+            if (target->state == 0x52 && target->subState < 8) {
                 return;
             }
-            if (target->state == 0x53 && target->unk155 < 3) {
+            if (target->state == 0x53 && target->subState < 3) {
                 return;
             }
             if (target->state == 0x42) {
@@ -1678,9 +1678,9 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                                         if ((e->flags & 0x20) && !(st->flags & 0x40000)) {
                                             break;
                                         }
-                                        if ((e->flags & 0x10) && !((tgt->state == 0x54 && tgt->unk155 >= 3) ||
-                                                                   (tgt->state == 0x52 && tgt->unk155 >= 8) ||
-                                                                   (tgt->state == 0x53 && tgt->unk155 >= 3))) {
+                                        if ((e->flags & 0x10) && !((tgt->state == 0x54 && tgt->subState >= 3) ||
+                                                                   (tgt->state == 0x52 && tgt->subState >= 8) ||
+                                                                   (tgt->state == 0x53 && tgt->subState >= 3))) {
                                             break;
                                         }
                                         if ((e->flags & 2) && (e->flags & 4)) {

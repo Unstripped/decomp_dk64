@@ -13,11 +13,11 @@
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
-s8 D_8002D910[10] = { 7, 20, 8, 9, 11, 10, 12, 13, 15, 14 };
-s8 D_8002D91C[4] = { 8, 11, 12, 14 };
-s8 D_8002D920 = 0;
-s8 D_8002D924 = 0;
-s8 D_8002D928 = 0;
+s8 sLapTargetOrder[10] = { 7, 20, 8, 9, 11, 10, 12, 13, 15, 14 };
+s8 sExtraPointTargetIds[4] = { 8, 11, 12, 14 };
+s8 sLastTargetIndex = 0;
+s8 sLapStreak = 0;
+s8 sPendingScore = 0;
 s8 sHitCount = 0;
 s8 sComboTimer = 0;
 extern s8 sHitPoints[];
@@ -100,9 +100,9 @@ void bonusScoreHudUpdate(void) {
         gMinigameScore = 0;
         hud->scoreLabel = gfxResourceCreate(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
         hud->lapBonusLabel = gfxResourceCreate(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
-        D_8002D920 = 0;
-        D_8002D924 = 0;
-        D_8002D928 = 0;
+        sLastTargetIndex = 0;
+        sLapStreak = 0;
+        sPendingScore = 0;
     }
     switch (gCurrentActor->state) {
     case 0:
@@ -158,12 +158,12 @@ void bonusScoreHudUpdate(void) {
             }
             break;
         case 0xB8:
-            if (D_8002D928 != 0) {
-                hud->score += D_8002D928;
-                if (D_8002D928 >= 0x33) {
+            if (sPendingScore != 0) {
+                hud->score += sPendingScore;
+                if (sPendingScore >= 0x33) {
                     hud->lapBonusTimer = 0x3C;
                 }
-                D_8002D928 = 0;
+                sPendingScore = 0;
             }
             break;
         }
@@ -185,30 +185,30 @@ void bonusQueueScore(s16 targetId) {
     s32 i;
     s32 j;
 
-    D_8002D928 = 5;
+    sPendingScore = 5;
     for (i = 0; i < 4; i++) {
-        if (targetId == D_8002D91C[i]) {
-            D_8002D928 += 0xF;
+        if (targetId == sExtraPointTargetIds[i]) {
+            sPendingScore += 0xF;
         }
     }
     i = 0;
-    while (i < 10 && targetId != D_8002D910[i]) {
+    while (i < 10 && targetId != sLapTargetOrder[i]) {
         i++;
     }
     j = i - 1;
     if (j < 0) {
         j = 10;
     }
-    if (j == D_8002D920) {
-        D_8002D924 += 1;
-        if (D_8002D924 >= 10) {
-            D_8002D924 = 0;
-            D_8002D928 += 0x32;
+    if (j == sLastTargetIndex) {
+        sLapStreak += 1;
+        if (sLapStreak >= 10) {
+            sLapStreak = 0;
+            sPendingScore += 0x32;
         }
     } else {
-        D_8002D924 = 0;
+        sLapStreak = 0;
     }
-    D_8002D920 = i;
+    sLastTargetIndex = i;
 }
 
 

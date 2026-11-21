@@ -916,7 +916,7 @@ void actorSetGroupState(u8 group, u8 state) {
         actor = gActiveActors[i].actor;
         if (actor->actorType == 0x94 && actor->formationIndex / 3 == group) {
             actor->state = state;
-            actor->unk155 = 0;
+            actor->subState = 0;
         }
     }
 }

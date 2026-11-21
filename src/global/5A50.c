@@ -22,15 +22,15 @@ void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
 void alCSPSetChlFX2Mix(ALCSPlayer *, u8, u8);
 
 extern ALCSeq gSeqCSeqs[];
-extern ALCSeqMarker D_8076C328[][4];
+extern ALCSeqMarker gSeqLoopMarkers[][4];
 
 
 extern N_CSPlayer *gSeqPlayers[];
 extern s32 D_8000DDCC;
 extern s32 sSeqRomOffsets[];
 
-extern ALHeap D_8076D1E8;
-extern u8 D_80770F50[];
+extern ALHeap gAudioHeap;
+extern u8 gAudioHeapBuffer[];
 extern ALBank *gSfxBank;
 extern ALBank *gSfxBankHigh;
 extern u16 D_8076BF30[];
@@ -51,7 +51,7 @@ void audioInit(void) {
     N_CSPlayer *player;
     N_CSPlayer *arg;
 
-    alHeapInit(&D_8076D1E8, D_80770F50, 0x7BD80);
+    alHeapInit(&gAudioHeap, gAudioHeapBuffer, 0x7BD80);
     args.maxVVoices = 0x2C;
     args.maxPVoices = 0x1E;
     args.maxUpdates = 0x40;
@@ -60,7 +60,7 @@ void audioInit(void) {
     args.fxType[0] = AL_FX_CUSTOM;
     args.fxType[1] = AL_FX_CUSTOM;
     args.outputRate = 0;
-    args.heap = &D_8076D1E8;
+    args.heap = &gAudioHeap;
     task.outputRate = 22050;
     task.framesPerField = 2;
     task.cmdCount = 0xC00;
@@ -68,14 +68,14 @@ void audioInit(void) {
     len = gSegmentTable[15].romEnd - gSegmentTable[15].romStart;
     tmp = heapAlloc(0x38000);
     dmaReadAssetDecompress(gSegmentTable[15].romStart, tmp, &len, 0xD, 0, 2, 0);
-    bankA = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
+    bankA = alHeapDBAlloc(NULL, 0, &gAudioHeap, 1, len);
     dmaReadAssetDecompress(gSegmentTable[15].romStart, bankA, &len, 0xD, 0, 2, 0);
     alBnkfNew(bankA, (u8 *)gSegmentTable[14].romStart);
     gSfxBankHigh = bankA->bankArray[0];
     len = gSegmentTable[16].romEnd - gSegmentTable[16].romStart;
     dmaReadAssetDecompress(gSegmentTable[16].romStart, tmp, &len, 0xD, 0, 2, 0);
     heapFree(tmp);
-    bankB = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
+    bankB = alHeapDBAlloc(NULL, 0, &gAudioHeap, 1, len);
     dmaReadAssetDecompress(gSegmentTable[16].romStart, bankB, &len, 0xD, 0, 2, 0);
     alBnkfNew(bankB, (u8 *)gSegmentTable[17].romStart);
     gSfxBank = bankB->bankArray[0];
@@ -83,12 +83,12 @@ void audioInit(void) {
     seqp.maxEvents = 0x40;
     seqp.debugFlags = 0;
     seqp.maxChannels = 0x10;
-    seqp.heap = &D_8076D1E8;
+    seqp.heap = &gAudioHeap;
     oscSetupConfig(&seqp, 0x58);
     for (i = 0; i < 4; i++) {
         D_8076BF30[i] = 0xFFFF;
-        gSeqBuffers[i] = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, gSeqBufferSizes[i]);
-        player = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, 0x8C);
+        gSeqBuffers[i] = alHeapDBAlloc(NULL, 0, &gAudioHeap, 1, gSeqBufferSizes[i]);
+        player = alHeapDBAlloc(NULL, 0, &gAudioHeap, 1, 0x8C);
         gSeqPlayers[i] = player;
         if (gSeqBuffers[i] == NULL || (arg = player) == NULL) {
             arg = gSeqPlayers[i];
@@ -101,7 +101,7 @@ void audioInit(void) {
     sndp.maxSounds = 0x40;
     sndp.maxVoices = 0x14;
     sndp.maxStates = 8;
-    sndp.heap = &D_8076D1E8;
+    sndp.heap = &gAudioHeap;
     n_alSndpNew(&sndp);
     configureCSPOutputMode(4);
     updateCSPOutputChannelMode(0, 4);
@@ -256,11 +256,11 @@ s32 seqPlayerGetCurTime(u8 playerIndex) {
     return gSeqPlayers[playerIndex]->curTime;
 }
 void seqPlayerFindMarkers(u8 playerIndex, u8 byte, s32 delta) {
-    __n_alCSeqNextDelta(&gSeqCSeqs[playerIndex], D_8076C328[playerIndex], byte, delta);
+    __n_alCSeqNextDelta(&gSeqCSeqs[playerIndex], gSeqLoopMarkers[playerIndex], byte, delta);
 }
 
 void seqPlayerSetMarkerLocation(u8 playerIndex, u8 markerIndex) {
-    alCSeqSetLoc(&gSeqCSeqs[playerIndex], &D_8076C328[playerIndex][markerIndex]);
+    alCSeqSetLoc(&gSeqCSeqs[playerIndex], &gSeqLoopMarkers[playerIndex][markerIndex]);
 }
 
 void seqPlayerSendMidi(u8 playerIndex, s32 ticks, u8 status, u8 byte1, s32 byte2) {

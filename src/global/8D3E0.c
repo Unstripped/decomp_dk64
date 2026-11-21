@@ -224,10 +224,10 @@ extern Actor *gCurrentActor;
 extern ActorListNode *gActorListHead;
 extern ActorListFlagEntry *sActorListFlagEntries;
 extern u8 sActorListFlagEntryCount;
-extern s16 D_807FC5D0[16];
-extern s16 D_807FC5F0[16];
-extern u8 D_807FC610;
-extern u8 D_807FC611;
+extern s16 sActorListForcedSpawnIds[16];
+extern s16 sActorListForcedDespawnIds[16];
+extern u8 sActorListForcedSpawnCount;
+extern u8 sActorListForcedDespawnCount;
 
 
 extern s16 gCurrentLevelIndex;
@@ -1003,26 +1003,26 @@ u8 actorListIsPlayerOutsideRadius(ActorListNode *node) {
 }
 
 void actorListClearForcedIds(void) {
-    D_807FC610 = 0;
-    D_807FC611 = 0;
+    sActorListForcedSpawnCount = 0;
+    sActorListForcedDespawnCount = 0;
 }
 
 void actorListForceSpawnId(s16 targetId) {
-    if (D_807FC610 != 0x10) {
-        D_807FC5D0[D_807FC610++] = targetId;
+    if (sActorListForcedSpawnCount != 0x10) {
+        sActorListForcedSpawnIds[sActorListForcedSpawnCount++] = targetId;
     }
 }
 
 void actorListForceDespawnId(s16 targetId) {
-    if (D_807FC611 != 0x10) {
-        D_807FC5F0[D_807FC611++] = targetId;
+    if (sActorListForcedDespawnCount != 0x10) {
+        sActorListForcedDespawnIds[sActorListForcedDespawnCount++] = targetId;
     }
 }
 
 s32 actorListSpawnIfForced(ActorListNode *node) {
     s32 i;
-    for (i = 0; i < D_807FC610; i++) {
-        if (node->id == D_807FC5D0[i] && node->spawned == 0) {
+    for (i = 0; i < sActorListForcedSpawnCount; i++) {
+        if (node->id == sActorListForcedSpawnIds[i] && node->spawned == 0) {
             return 1;
         }
     }
@@ -1031,8 +1031,8 @@ s32 actorListSpawnIfForced(ActorListNode *node) {
 
 s32 actorListDespawnIfForced(ActorListNode *node) {
     s32 i;
-    for (i = 0; i < D_807FC611; i++) {
-        if (node->id == D_807FC5F0[i] && node->spawned != 0) {
+    for (i = 0; i < sActorListForcedDespawnCount; i++) {
+        if (node->id == sActorListForcedDespawnIds[i] && node->spawned != 0) {
             return 1;
         }
     }
