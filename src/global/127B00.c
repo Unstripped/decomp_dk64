@@ -7,7 +7,7 @@
 #include "proto/global/6AD90.h"
 
 typedef struct PathPoint {
-    s16 unk0;
+    s16 floorY;
     s16 x;
     s16 y;
     s16 z;
@@ -540,7 +540,7 @@ f32 pathSplineDistance(s32 pathId, f32 x, f32 y, f32 z, s32 pointIndex, f32 t) {
         ids[3] = pointIndex + 2;
     }
     sx = splineEvalCubic(t, e->points[ids[0]].x, e->points[ids[1]].x, e->points[ids[2]].x, e->points[ids[3]].x);
-    sy = splineEvalCubic(t, e->points[ids[0]].unk0, e->points[ids[1]].unk0, e->points[ids[2]].unk0, e->points[ids[3]].unk0);
+    sy = splineEvalCubic(t, e->points[ids[0]].floorY, e->points[ids[1]].floorY, e->points[ids[2]].floorY, e->points[ids[3]].floorY);
     sz = splineEvalCubic(t, e->points[ids[0]].z, e->points[ids[1]].z, e->points[ids[2]].z, e->points[ids[3]].z);
     return sqrtf((x - sx) * (x - sx) + (y - sy) * (y - sy) + (z - sz) * (z - sz));
 }

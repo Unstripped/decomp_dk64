@@ -136,7 +136,7 @@ typedef struct {
     /* 0x2CA */ s16 camYInt;
     /* 0x2CC */ s16 skyRoll;
     /* 0x2CE */ u8 pad2CE[2];
-    /* 0x2D0 */ f32 unk2D0;
+    /* 0x2D0 */ f32 camResetYaw;
     /* 0x2D4 */ f32 bgRotX;
     /* 0x2D8 */ f32 bgRotY;
     union {
@@ -158,7 +158,7 @@ typedef struct {
         };
     };
     /* 0x2E8 */ u8 camHasWater;
-    /* 0x2E9 */ u8 unk2E9;
+    /* 0x2E9 */ u8 camResetTimer;
     u8 viewFadingOut;
     u8 rumbleDisabled;
     u8 pad2EC[4];

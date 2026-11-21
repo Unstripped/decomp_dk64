@@ -599,7 +599,7 @@ void mapFrameEnd(void) {
 }
 
 
-extern s32 D_807F5E64;
+extern s32 gViewTriCount;
 extern f32 gViewFov;
 extern f32 gViewAspect;
 extern f32 gViewFarClip;
@@ -616,7 +616,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     s32 pad[25];
 
     dl = gPlayerSlots[gCurrentPlayerIndex].hiliteDl[gGfxBufferIndex];
-    D_807F5E64 = 0;
+    gViewTriCount = 0;
     gViewFov = fov;
     gViewAspect = aspect;
     gViewFarClip = farClip;
@@ -688,7 +688,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
             gfx = mapChunksRender(gfx, node, camX, camY, camZ, renderMask);
             break;
         case 1:
-            D_807F5E64 += node->unk6E;
+            gViewTriCount += node->triCount;
             if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapVtxBase));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(gMapDisplayListBase));
@@ -698,14 +698,14 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
                 if (node->dl != -1) {
                     gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->dl));
                 }
-                if (node->unkC != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unkC));
+                if (node->opaqueDl != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->opaqueDl));
                 }
                 if (node->unk14 != -1) {
                     gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unk14));
                 }
-                if (node->unk10 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unk10));
+                if (node->translucentDl != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->translucentDl));
                 }
                 if (node->unk18 != -1) {
                     gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unk18));
@@ -1549,11 +1549,11 @@ void mapTreeRelocate(MapBspNode *node, s32 base, s32 dlBase) {
     if (node->dl != -1) {
         node->dl += dlBase;
     }
-    if (node->unkC != -1) {
-        node->unkC += dlBase;
+    if (node->opaqueDl != -1) {
+        node->opaqueDl += dlBase;
     }
-    if (node->unk10 != -1) {
-        node->unk10 += dlBase;
+    if (node->translucentDl != -1) {
+        node->translucentDl += dlBase;
     }
     if (node->unk14 != -1) {
         node->unk14 += dlBase;

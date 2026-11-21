@@ -300,8 +300,8 @@ void camCueTimerTick(void) {
 }
 
 void camResetPlayerViewports(s16 playerIndex) {
-    gPlayerSlots[playerIndex].unk2D0 = gPlayerSlots[playerIndex].camYaw;
-    gPlayerSlots[playerIndex].unk2E9 = 0x18;
+    gPlayerSlots[playerIndex].camResetYaw = gPlayerSlots[playerIndex].camYaw;
+    gPlayerSlots[playerIndex].camResetTimer = 0x18;
 }
 
 void camSnapToTargetHeight(Actor *cam) {
@@ -499,8 +499,8 @@ void camUpdatePlayerYaw(CamState *st) {
             gPlayerSlots[st->playerIndex].camYawInt = st->camYaw * 4096.0 / 6.2831855f;
             break;
     }
-    if (gPlayerSlots[st->playerIndex].unk2E9 != 0) {
-        gPlayerSlots[st->playerIndex].unk2E9--;
+    if (gPlayerSlots[st->playerIndex].camResetTimer != 0) {
+        gPlayerSlots[st->playerIndex].camResetTimer--;
     }
 }
 

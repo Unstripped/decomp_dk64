@@ -5229,6 +5229,7 @@ sFrustumCornerRays = 0x807F5DF0;
 gFrustumCorners = 0x807F5E20;
 sViewPlane = 0x807F5E50;
 gMapVisRoot = 0x807F5E60;
+gViewTriCount = 0x807F5E64;
 gFrustumPlanes = 0x807F5E68;
 gFrustumDepth = 0x807F5FA8;
 gViewFarClip = 0x807F5FAC;

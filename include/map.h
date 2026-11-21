@@ -82,8 +82,8 @@ typedef struct MapBspNode {
     /* 0x00 */ struct MapBspNode *child0;
     /* 0x04 */ struct MapBspNode *child1;
     /* 0x08 */ s32 dl; // display list address, or -1 when the node has none
-    /* 0x0C */ s32 unkC; // leaf display lists, -1 when absent
-    /* 0x10 */ s32 unk10;
+    /* 0x0C */ s32 opaqueDl; // leaf display lists, -1 when absent
+    /* 0x10 */ s32 translucentDl;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
     /* 0x1C */ void *surfaceDls[12]; // per-entry display lists drawn by mapViewDrawPass
@@ -94,7 +94,7 @@ typedef struct MapBspNode {
     /* 0x5C */ s16 planeVertX[3];
     /* 0x62 */ s16 planeVertY[3];
     /* 0x68 */ s16 planeVertZ[3];
-    /* 0x6E */ s16 unk6E; // added to D_807F5E64 when a leaf is drawn
+    /* 0x6E */ s16 triCount; // added to gViewTriCount when a leaf is drawn
     /* 0x70 */ s16 surfaceEffects[12];
     /* 0x88 */ s16 surfaceChunks[12];
     /* 0xA0 */ s16 minX; /* bounds min x/y/z, max x/y/z */
