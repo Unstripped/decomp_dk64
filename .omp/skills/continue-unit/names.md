@@ -46,10 +46,16 @@ One line per accepted proposal, appended by the lead, deleted by the window that
    file listed>` (the gate needs a base for each), then the command (it also renames `data_inc.us.txt`
    rows and regenerates their `assets/inc` file). Two workers naming one symbol: the first applied wins
    (the second prints `not found`). A refusal stays in the queue with the reason.
-3. naming.md "Round-end check" (`make split`, touch, `make`, `make expected`, `unit_check.py vanished`,
-   `-w` stat compare), then one gate: `tools/merge_gate.sh --commit "<unit>: name N symbols" --stage
-   include/<h>.h... --stage symbol_addrs*.txt [--stage data_inc.us.txt] - - <touched src files>`.
-4. `uv run tools/quality.py carry --rev <gate commit>^ --unit "<unit>" <touched src files with functions>`
-   (`--dry-run` first: every line must say `identifier renames only`; a data-only file such as
-   arcade/E220.c cannot compile at REV after an inc rename: leave it out). Window 1 carried 826 of 826
-   functions; commit `drafts/quality` with the emptied queue.
+3. All of steps 2-4 in one command: `python3 tools/names_window.py --unit "<unit>" --message MSG
+   [--fields F]... [--globals SEG:F.tsv]... [--funcs SEG:F.tsv]... [--macro-arg FILE:LINE:COL]...
+   [--in-macros D_X]...` (dry-run first with `--dry-run`; keep func and global tsv names distinct: a
+   `w-global-*` glob once swallowed func files). It snapshots, renames, splits, builds, gates, then
+   runs `carry --rev <gate>^` over the touched files (aliasing renamed `assets/inc` files for REV's
+   text) and `carry --header-carve` when a header changed: without it every function reaching a
+   renamed field loses its automatic rungs (unit 1: sites_open 8 -> 120). Commit `drafts/quality`.
+4. Macro uses: a field spelled as a macro argument at the call site (`MIN(p->unkD, x)`) or a global in
+   a `#define` body is renamed only after reading that line: `--macro-arg` with the exact column,
+   `--in-macros` per global. A field used inside a macro's own body stays unnamed (rename the macro).
+5. Check carry's skip lines: `not a pure rename` on functions whose bodies only changed by renames
+   means a carry gap (fix `tools/quality.py`, e.g. renamed callees), not a re-review; a union carve's
+   moved sites are real re-reviews (one ledger-only worker).

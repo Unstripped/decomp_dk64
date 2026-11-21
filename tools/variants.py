@@ -3,12 +3,16 @@
 trying candidate bodies instead of per-agent trial scripts. Run in the container (re-execs through
 tools/dk on the host):
 
-  tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC [--recipes swap,float,width,declswap]
+  tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC [--recipes truth,swap,float,width,declswap]
         [--max 120] [-j 2] [--out DIR] [--json FILE]
   tools/dk python3 tools/variants.py try <copy.c> <src/seg/file.c> FUNC BODY.c... [-j 2]
 
   scan   FUNC's definition in <copy.c> (plain, or parked under NON_MATCHING) is the start body. Each recipe
          makes one-edit variants of it, in this order, truncated to --max:
+           truth     a truth test respelled inside a condition: `x != 0` <-> bare `x`, `x == 0` <-> `!x`
+                     (operand a plain name/member/array element; only where the test is a whole operand
+                     of `(`, `!`, `&&`, `||`): the same value, but cfe compares the variable itself instead
+                     of a widened copy (Q1116/Q1066: 80150 tagBarrelCheckProximityAndFall lost its volatile)
            swap      a comparison mirrored, `a < b->c` -> `b->c > a` (== and != keep their operator); only
                      where both operands are plain names/members/array elements/literals bounded by
                      lower-precedence operators, so the meaning never changes
@@ -36,7 +40,7 @@ if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):
 sys.path.insert(0, str(ROOT / "tools"))
 import deadsweep  # noqa: E402
 
-RECIPES = ("swap", "float", "width", "declswap")
+RECIPES = ("truth", "swap", "float", "width", "declswap")
 OPND = r"(?:[A-Za-z_]\w*(?:(?:->|\.)\w+|\[[^\]\[]*\])*|0x[0-9A-Fa-f]+[uUlL]*|-?\d+(?:\.\d+)?[fFuUlL]*)"
 OPND_END = re.compile(OPND + r"(?=\s*$)")
 OPND_START = re.compile(r"\s*(" + OPND + r")")
@@ -156,7 +160,43 @@ def gen_declswap(text):
     return out
 
 
-GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswap": gen_declswap}
+TRUTH_CMP = re.compile(r"(\s*)(" + OPND + r")\s*(!=|==)\s*0(?![\w.xX])(?=\s*(?:\)|&&|\|\|))")
+TRUTH_BARE = re.compile(r"(\s*)(!?)(" + OPND + r")(?=\s*(?:\)|&&|\|\|))")
+
+
+def bool_context(pre):
+    """Whether an operand right after PRE is read only for its truth: an operand of `&&`/`||`, or the whole
+    test of an `if (`/`while (` or of `!(`/`&&(`/`||(` (never a call argument, cast or arithmetic paren)."""
+    p = pre.rstrip()
+    return p.endswith(("&&", "||")) or bool(re.search(r"(?:\b(?:if|while)\s*|!\s*|&&\s*|\|\|\s*)\($", p))
+
+
+def gen_truth(text):
+    out, lines = [], text.split("\n")
+    for n, line in enumerate(lines):
+        sc = split_code(line)
+        if not sc or not re.search(r"\b(?:if|while)\s*\(|&&|\|\|", sc[0]):
+            continue
+        code, cm = sc
+        for pat in (TRUTH_CMP, TRUTH_BARE):
+            for m in pat.finditer(code):
+                if not bool_context(code[:m.start()]):
+                    continue
+                if m.start() and (code[m.start() - 1].isalnum() or code[m.start() - 1] in "_.>]"):
+                    continue  # the match starts inside a longer operand
+                if pat is TRUTH_CMP:
+                    rep = m.group(1) + ("" if m.group(3) == "!=" else "!") + m.group(2)
+                else:
+                    if re.fullmatch(r"-?\d.*|0x.*", m.group(3)):
+                        continue  # a literal (`if (1)`): no variable to compare
+                    rep = m.group(1) + m.group(3) + (" == 0" if m.group(2) else " != 0")
+                new = code[:m.start()] + rep + code[m.end():]
+                out.append(("truth", f"line {n + 1}: `{m.group().strip()}` -> `{rep.strip()}`",
+                            "\n".join(lines[:n] + [new + cm] + lines[n + 1:])))
+    return out
+
+
+GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswap": gen_declswap, "truth": gen_truth}
 
 
 def variants(text, recipes=RECIPES, max_n=None):
