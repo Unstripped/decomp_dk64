@@ -119,7 +119,13 @@ s8 sPauseLevelOrder[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
 s16 sPauseCollectibleTotals[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
 s8 D_80750580 = 0;
 f32 sPauseBumpFade[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
-s16 D_807505A4[10] = { 0, 0x333, 0x666, 0x999, 0xCCC, 0, 6, 0x46, 0x42, 0x75 };
+// Two per-kong tables in one object (a separate s16[5] would start 4-aligned at 0xD0, not 0xCE); 478F0, FCCD0,
+// menu/3E10 and hudPauseMenuRefreshTotals read unlockFlag through the interior labels D_807505AE / D_807505B2.
+typedef struct PauseKongTables {
+    /* 0x00 */ s16 carouselAngle[5]; // carousel angle of each kong's icon (steps of 0x333 around the 0x1000 turn)
+    /* 0x0A */ s16 unlockFlag[5]; // flag set once each kong is freed (sPauseKongUnlocked); DK's 0 is never read
+} PauseKongTables; // size = 0x14
+PauseKongTables sPauseKongTables = { { 0, 0x333, 0x666, 0x999, 0xCCC }, { 0, 6, 0x46, 0x42, 0x75 } };
 // battle crown flag per level index (0..8); [9] is the Isles' second crown
 s16 sPauseCrownFlags[10] = { 0x261, 0x262, 0x263, 0x264, 0x265, 0x268, 0x269, 0x266, 0x26A, 0x267 };
 s8 gPauseMenuMode = 0;
@@ -143,7 +149,6 @@ extern s32 D_8076A098;
 extern u8 gCurrentWorldId;
 extern f32 D_807FC7FC;
 extern s8 D_80750580;
-extern s16 D_807505A4[];
 extern f32 sPauseBumpFade[];
 extern s8 sPauseCarouselKong;
 extern s16 D_807FC802;
@@ -224,7 +229,7 @@ void hudPauseMenuUpdate(void) {
         hud->slideY[0] = 0;
         hud->slideY[1] = 0xF0;
         hud->buffer = 0;
-        hud->carouselAngle = D_807505A4[hud->kong];
+        hud->carouselAngle = sPauseKongTables.carouselAngle[hud->kong];
         sPauseCarouselKong = hud->kong;
         D_807FC802 = 0;
         sPauseCarouselTimer = 0.0f;
@@ -356,7 +361,7 @@ void hudPauseMenuUpdate(void) {
                 }
                 break;
             case 1:
-                hud->carouselAngle = D_807505A4[sPauseCarouselKong] + (s16)(sPauseCarouselTimer * 0.5f * D_807FC802);
+                hud->carouselAngle = sPauseKongTables.carouselAngle[sPauseCarouselKong] + (s16)(sPauseCarouselTimer * 0.5f * D_807FC802);
                 hud->carouselAngle &= 0xFFF;
                 if (sPauseCarouselTimer == 0.0f) {
                     D_807FC802 = 0;
@@ -844,7 +849,6 @@ extern s8 sPauseCarouselTarget;
 extern s16 sPauseCarouselSpacing;
 extern s8 sPauseCarouselCount;
 extern void *gKongIconSprites[];
-extern s16 D_807505A4[];
 extern EffectGridAsset D_80720C34;
 extern EffectGridAsset D_80720D38;
 extern EffectGridAsset D_80720D5C;
@@ -991,7 +995,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
             }
         }
         if (refresh == 0) {
-            hud->carouselAngle = D_807505A4[hud->kong];
+            hud->carouselAngle = sPauseKongTables.carouselAngle[hud->kong];
             hudPauseMenuSpawnIcon(hud, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
             if (sPauseLastLevelSlot > 0) {
                 hudPauseMenuSpawnIcon(hud, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
@@ -1034,9 +1038,9 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
                 } else {
                     sPauseIconList = flagGridSumRows(0x225, j, j, i);
                 }
-                hudPauseMenuSpawnIcon(hud, 0xA, D_807505A4[i], 0, 0.75f, 2, 3);
+                hudPauseMenuSpawnIcon(hud, 0xA, sPauseKongTables.carouselAngle[i], 0, 0.75f, 2, 3);
                 if (flagGridSumRows(0x225, j, j, i)) {
-                    hudPauseMenuSpawnIcon(hud, (s32)&D_80721518, D_807505A4[i], 0, 0.35f, 2, 0xE);
+                    hudPauseMenuSpawnIcon(hud, (s32)&D_80721518, sPauseKongTables.carouselAngle[i], 0, 0.35f, 2, 0xE);
                 }
             }
             if (D_807FC82A > 0) {

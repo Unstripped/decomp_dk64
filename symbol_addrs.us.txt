@@ -4216,6 +4216,7 @@ sPauseKongColors = 0x8075054C;
 sPauseLevelOrder = 0x80750560;
 sPauseCollectibleTotals = 0x8075056C;
 sPauseBumpFade = 0x80750584;
+sPauseKongTables = 0x807505A4;
 sPauseCrownFlags = 0x807505B8;
 gPauseMenuMode = 0x807505CC;
 sPauseLastLevelSlot = 0x807505D0;
