@@ -52,6 +52,15 @@ Result: no change (fdiff 0, 1 FAKE + 1 ORIG).
 - no eq, `if (gWaypointIndex + 2 != count)` with the advance arm first: 42 (block order inverted).
 - pointer local `s16 *index = &gWaypointIndex;` for both the read and `(*index)++`: 75.
 Result: no change.
+2026-11-20 "2026-11-20: cleanup CleanbonusControllerUpdated" CleanbonusControllerUpdated claude-opus-5-5
+(re-measure at 3da6b8de after TypesOwner14 batch_15 part D2, `extern u8 gDemoPlaybackState`, was s8):
+- guard removed 3 (gWaypointIndex in v1 at 0x3534/0x3540/0x35f4), single `if (gWaypointIndex) {}` 3, two-term 0;
+  variants scan of the guard-free body (49) best 3, no zero.
+- uopt -l5/-l6 guard-free: eq {1047|0} bit 60 adjsave 2.0 -> $v0, load {1055|0} bit 64 1.5 -> $v1,
+  &gWaypointIndex {1121} bit 218 -> $a0; with the guard the load is 2.5 ($v0), eq 2.0 ($v1). Same bits and
+  savings as 2026-11-18 (only the uopt hashes renumbered). gDemoPlaybackState is only stored here
+  (`sb zero` 0x3554), so the D2 width change adds no candidate.
+Result: no change.
 
 ## Untried ideas
 - a real (code-free) then-arm use of gWaypointIndex to replace the 8092af guard; none found.
@@ -67,3 +76,6 @@ masked again. 0x3534 `lh v0,0(a0)` (gWaypointIndex), 0x3540 `addiu t9,v0,2`, 0x3
 v1 is not used in the target between 0x341c and 0x3ac8 (first use: `lb v1,3(a1)` at 0x3ac8, stick_y blend):
 in the close arm it is held by an invisible candidate (the fused eq compare), coloured after the index load
 (v0) and before &gWaypointIndex (a0, adjsave 0.5).
+gDemoPlaybackState (u8 since 3da6b8de, the definition's type): `lui at` 0x3550 + `sb zero,0(at)` 0x3554 in the
+eq arm, its only access in this function. `(u32)cur->speed`: `lbu t6,9(t0)` 0x3450, `bgez t6` 0x3464 and the
+2^32 `add.d` fixup 0x346c-0x3478 are the cast's own unsigned conversion (kept cast).
