@@ -707,16 +707,15 @@ u8 sSfxVoiceDefaults[69][2] = {
 extern SchedStruct gScheduler;
 extern ALBank *gSfxBank;
 extern ALBank *gSfxBankHigh;
-extern u8 D_80770DD9;
 extern PlayerState *gActivePlayerState;
 
 
 void sfxUpdateLevelAmbient(void) {
     s8 nearest;
-    s8 pad;
+    u8 emitterCount; // FAKE: u8 width chosen for codegen: the count is a per-map constant (li s1,N at 0x1088..0x1194), never a byte load or store; its int promotion is the ucvt copy uopt colours s3 (move s3,s1 at 0x1254) as the loop bound; on the entry-pointer body (byte slot 0xe6) s32/u32 counts are text 32/33 at their best slot, u16 50, s16 67 (replaces the n bound copy of 417de3)
     u8 fxFlags;
     u8 extraSfx;
-    u8 emitterCount; // FAKE: u8 width chosen for codegen: the count is a per-map constant (li s1,N at 0x1088..0x1194), never a byte load or store; its int promotion is the ucvt copy uopt colours s3 (move s3,s1 at 0x1254) as the loop bound; u16 matches the same way, s32/s16/u32 counts are 21-22 (replaces the n bound copy of 417de3)
+    AmbientEmitter *entry;
     s16 group;
     s16 k;
     f32 volume;
@@ -825,9 +824,11 @@ void sfxUpdateLevelAmbient(void) {
             volume += D_80770DE8;
         }
         gSfxDistance = gAmbientNearestDist;
-        if (nearest >= 0 && gSfxDistance < emitters[nearest].radius) {
-            if (emitters[nearest].facing >= 0x1001) {
-                gAmbientIndoors = emitters[nearest].facing & 1;
+        entry = emitters;
+        entry += nearest;
+        if (nearest >= 0 && gSfxDistance < entry->radius) {
+            if (entry->facing >= 0x1001) {
+                gAmbientIndoors = entry->facing & 1;
             } else {
                 if (angle > 2048.0f) {
                     angle -= 4096.0f;
@@ -842,15 +843,15 @@ void sfxUpdateLevelAmbient(void) {
                 } else {
                     gAmbientWasOutside = 1;
                     gAmbientIndoors = 0;
-                    sfxAllocateChannel(emitters[nearest].enterSfx, 1.0f);
+                    sfxAllocateChannel(entry->enterSfx, 1.0f);
                 }
             }
             if (gAmbientIndoors != 0) {
-                gAmbientIndoorReverb = emitters[nearest].reverb;
+                gAmbientIndoorReverb = entry->reverb;
             } else {
                 gAmbientIndoorReverb = 0;
             }
-            D_80770DD9 = emitters[nearest].sfxId;  // FAKE: the D_80770DD9 linker alias (byte 1 of D_80770DD8) keeps this store on its own lui at/sb t3 at 0x15d0/0x15d8; D_80770DD8[1] joins the &D_80770DD8 web hoisted into s1 (text 7)
+            D_80770DD8[1] = entry->sfxId;
         } else {
             gAmbientWasOutside = 0;
         }
@@ -867,10 +868,12 @@ void sfxUpdateLevelAmbient(void) {
             }
         }
         if (D_80770DD8[1] == 0xFF) {
-            D_80770DD8[1] = emitters[nearest].sfxId;
-            gAmbientIndoorReverb = emitters[nearest].reverb;
+            entry = emitters;
+            entry += nearest;
+            D_80770DD8[1] = entry->sfxId;
+            gAmbientIndoorReverb = entry->reverb;
             if (gAmbientIndoors == 0) {
-                sfxAllocateChannel(emitters[nearest].enterSfx, 1.0f);
+                sfxAllocateChannel(entry->enterSfx, 1.0f);
             }
         }
         if (gAmbientIndoors != 0 && D_80770DD8[1] != 0) {
@@ -882,7 +885,9 @@ void sfxUpdateLevelAmbient(void) {
         }
         D_80770DCA = gAmbientIndoors;
         if (volume != 0.0f) {
-            if ((extraSfx = emitters[nearest].extraSfx)) {
+            entry = emitters;
+            entry += nearest;
+            if ((extraSfx = entry->extraSfx)) {
                 sfxAllocateChannel(extraSfx, 1.0f);
             }
         }
@@ -1042,7 +1047,6 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
-        if (gAmbientIndoorReverb) {}  // FAKE: dead read stops &gAmbientIndoorReverb being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static retires it (Q0981, text 0) but IDO orders .bss by symbol number mod 256 (Q1470): the static is numbered 96 after gSfxVoiceSentPitch and lands at .bss+0x9d8; 0x80770DC8 needs 160 more file-scope definitions
         gAmbientAudioLevels[0] = 0;
     }
     if (gAmbientAudioLevels[0] != 0) {
@@ -1053,7 +1057,9 @@ void sfxUpdateLevelAmbient(void) {
             n_alSndpPostEvent(sRainSfxHandle, 8, (gAmbientAudioLevels[0] * 10767.0) / 255.0);
             pitch = 1.0 - ((gAmbientAudioLevels[2] * 0.5) / 255);
             if (gAmbientIndoors & (gAmbientNearestDist < 1000.0f)) {
-                angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->camYaw;
+                entry = emitters;
+                entry += nearest;
+                angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, entry->x, entry->z) - gPlayerSlots->camYaw;
                 if (angle < 0.0f) {
                     angle += 6.2831855f;
                 }

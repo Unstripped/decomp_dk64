@@ -336,8 +336,5 @@ D_80750531 = 0x80750531;
 D_807505AE = 0x807505AE;
 D_807505B2 = 0x807505B2;
 
-/* 7130 bss interior label (inside an object defined in C: D_80770DD8[4] (7130 sfxUpdateLevelAmbient)) */
-D_80770DD9 = 0x80770DD9;
-
 /* 69E60 data interior label (inside D_80748D40[19] defined in C: entry 1, read by 7CA80) */
 D_80748D4A = 0x80748D4A;
