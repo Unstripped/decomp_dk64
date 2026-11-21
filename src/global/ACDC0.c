@@ -1527,7 +1527,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
                 }
             }
             radius = (item->wanderTargetX - item->offsetX) * 0.1; // FAKE: radius holds the clamped x and y steps ($f2: cvt.s.d at 0x4728/0x47a0, add.s at 0x4770/0x47e8, never stored): a dedicated f32 step adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10)
-            if (radius < -8.0) radius = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->unk14 load
+            if (radius < -8.0) radius = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->offsetY load
             if (radius > 8.0) {
                 radius = 8.0f;
             }
