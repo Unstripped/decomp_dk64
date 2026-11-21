@@ -77,6 +77,7 @@ critterFairyComboButtons = 0x80029F90;
 critterArenaTargetsLeft = 0x80029FA0;
 critterArenaSavedAmmo = 0x80029FA4;
 critterArenaWon = 0x80029FA8;
+critterFairyPrevPlayerDist = 0x8002A1B0;
 critterTextTable = 0x8002A1C0;
 critterTextActor = 0x8002A1C4;
 critterWordTimings = 0x8002A1C8;

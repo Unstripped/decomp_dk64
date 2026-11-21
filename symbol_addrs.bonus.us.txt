@@ -48,6 +48,7 @@ bonusSearchlightSeekGameUpdate = 0x8002BF98; // type:func
 bonusSearchlightSeekTargetUpdate = 0x8002C8EC; // type:func
 bonusSearchlightSeekRenderHud = 0x8002CC08; // type:func
 sBonusChallengeResources = 0x8002D860;
+sReelSymbolStrips = 0x8002D8B0;
 sTurtleWarnSfx = 0x8002D8C0; // type:s16 size:0x8
 sLightFlashTargetModels = 0x8002D8C8; // type:s16 size:0xC
 sLightFlashTargetScripts = 0x8002D8D4;

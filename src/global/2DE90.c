@@ -12,13 +12,13 @@ u8 sScreenWipeCooldown = 0;
 s32 sScreenWipeMtxReady = 0;
 s32 sBlurKernelWidth = 11;
 u8 *sBlurDivTable = NULL;
-s32 D_80747B30 = 320;
-s32 D_80747B34 = 240;
+s32 sBlurImageWidth = 320;
+s32 sBlurImageHeight = 240;
 s32 sBlurPassCount = 0;
 s32 sBlurPassLimit = 0;
 u8 sScreenBufferAllocated = 0;
-f32 D_80747B44 = 100.0f;
-f32 D_80747B48 = 150.0f;
+f32 sScreenRectWidth = 100.0f;
+f32 sScreenRectHeight = 150.0f;
 f32 D_80747B4C = 0.0f;
 f32 D_80747B50 = 0.0f;
 
@@ -307,7 +307,7 @@ void screenBlurApply(void) {
             sBlurDivTable = NULL;
         }
     } else {
-        for (row = 0; row < D_80747B34; row++) {
+        for (row = 0; row < sBlurImageHeight; row++) {
             sumR = 0;
             sumB = 0;
             sumG = 0;
@@ -330,7 +330,7 @@ void screenBlurApply(void) {
                 sumB += vb;
             }
             idx = 0;
-            for (i = 0; i < D_80747B30 - sBlurKernelWidth / 2; i++, idx++) {
+            for (i = 0; i < sBlurImageWidth - sBlurKernelWidth / 2; i++, idx++) {
                 pix = *src++;
                 if (idx >= sBlurKernelWidth) {
                     idx = 0;
@@ -349,7 +349,7 @@ void screenBlurApply(void) {
                 sumB += vb;
                 *dst++ = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
             }
-            for (i = D_80747B30 - sBlurKernelWidth / 2; i < D_80747B30; i++, idx++) {
+            for (i = sBlurImageWidth - sBlurKernelWidth / 2; i < sBlurImageWidth; i++, idx++) {
                 if (idx >= sBlurKernelWidth) {
                     idx = 0;
                 }
@@ -387,8 +387,8 @@ void screenBufferFree(void) {
 void screenRectSetSize(s32 width, s32 height) {
     D_80747B4C = 2.0f;
     D_80747B50 = 2.0f;
-    D_80747B44 = width;
-    D_80747B48 = height;
+    sScreenRectWidth = width;
+    sScreenRectHeight = height;
 }
 
 Gfx *gfxPassThrough(Gfx *glist) {

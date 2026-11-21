@@ -612,7 +612,7 @@ MapAudioEntry gMapAudioTable[230] = {
     { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
     { 0x58, 0x0, 1 }, { 0x58, 0x0, 1 },
 };
-AmbientEmitter D_80745F74[7] = {
+AmbientEmitter sAmbientEmittersJungleJapes[7] = {
     { 1538, 281, 307, 1024, 100, 0x7F, 0x1E, 0x1, 0x26 },
     { 1506, 281, 1281, 2035, 100, 0x7F, 0x1E, 0xA0, 0x26 },
     { 2506, 285, 1691, 503, 100, 0x7F, 0x1E, 0xA0, 0x26 },
@@ -621,13 +621,13 @@ AmbientEmitter D_80745F74[7] = {
     { 1611, 281, 2179, 4077, 100, 0x7F, 0x1E, 0xA0, 0x26 },
     { 1710, 225, 3386, 2048, 130, 0x7F, 0x1E, 0xA1, 0x26 },
 };
-AmbientEmitter D_80745FD8[4] = {
+AmbientEmitter sAmbientEmittersAngryAztec[4] = {
     { 1945, 121, 874, 3100, 100, 0x7F, 0x25, 0x0, 0x0 },
     { 2685, 121, 1523, 0, 100, 0x7F, 0x25, 0x0, 0x0 },
     { 3541, 121, 2957, 2048, 100, 0x7F, 0x25, 0x0, 0x0 },
     { 3204, 113, 4437, 0, 100, 0x7F, 0x25, 0x0, 0x0 },
 };
-AmbientEmitter D_80746010[3] = {
+AmbientEmitter sAmbientEmittersGloomyGalleon[3] = {
     { 2382, 1621, 2573, 138, 100, 0x7F, 0x3E, 0x0, 0x26 },
     { 2054, 1621, 3533, 1512, 100, 0x7F, 0x3E, 0x0, 0x26 },
     { 2037, 1437, 1477, 2421, 100, 0x0, 0x3E, 0x0, 0x0 },
@@ -638,7 +638,7 @@ AmbientEmitter D_8074603C[4] = {
     { 2183, 41, 1583, 1024, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 1578, 41, 899, 2048, 100, 0xFF, 0x0, 0x0, 0x0 },
 };
-AmbientEmitter D_80746074[4] = {
+AmbientEmitter sAmbientEmittersFranticFactory[4] = {
     { 3363, 1264, 1062, 1137, 120, 0x0, 0x33, 0x0, 0x0 },
     { 4357, 1336, 936, 3140, 120, 0x0, 0x33, 0x0, 0x0 },
     { 142, 7, 1351, 1024, 100, 0x0, 0x34, 0x0, 0x0 },
@@ -662,7 +662,7 @@ AmbientEmitter D_807460E4[10] = {
     { 3294, 5, 1539, 844, 100, 0xFF, 0x0, 0x0, 0x0 },
     { 2695, 5, 3194, 1023, 100, 0xFF, 0x0, 0x0, 0x0 },
 };
-AmbientEmitter D_80746170[8] = {
+AmbientEmitter sAmbientEmittersFungiForest[8] = {
     { 1754, 179, 1982, 2844, 100, 0xC8, 0x0, 0x0, 0x0 },
     { 1622, 179, 1556, 625, 100, 0xC8, 0x0, 0x0, 0x0 },
     { 412, 179, 1650, 3663, 100, 0xC8, 0x0, 0x0, 0x0 },
@@ -681,7 +681,7 @@ AmbientEmitter D_807461E0[7] = {
     { 4308, 1074, 1526, 4005, 100, 0x7F, 0x0, 0x0, 0x0 },
     { 4160, 1020, 547, 1889, 100, 0x7F, 0x0, 0x0, 0x0 },
 };
-AmbientEmitter D_80746244[4] = {
+AmbientEmitter sAmbientEmittersDkIsles[4] = {
     { 2076, 477, 3750, -1, 980, 0x0, 0x6E, 0x0, 0x0 },
     { 2843, 477, 1385, -1, 1420, 0x0, 0x6D, 0x0, 0x0 },
     { 947, 477, 2401, -1, 600, 0x0, 0x6F, 0x0, 0x0 },
@@ -734,15 +734,15 @@ void sfxUpdateLevelAmbient(void) {
     switch (gCurrentMap) {
     case 7:
         emitterCount = 7;
-        emitters = D_80745F74;
+        emitters = sAmbientEmittersJungleJapes;
         break;
     case 0x26:
         emitterCount = 4;
-        emitters = D_80745FD8;
+        emitters = sAmbientEmittersAngryAztec;
         break;
     case 0x1E:
         emitterCount = 3;
-        emitters = D_80746010;
+        emitters = sAmbientEmittersGloomyGalleon;
         break;
     case 0x27:
         emitterCount = 4;
@@ -750,7 +750,7 @@ void sfxUpdateLevelAmbient(void) {
         break;
     case 0x1A:
         emitterCount = 4;
-        emitters = D_80746074;
+        emitters = sAmbientEmittersFranticFactory;
         break;
     case 0xE:
         emitterCount = 4;
@@ -766,14 +766,14 @@ void sfxUpdateLevelAmbient(void) {
         break;
     case 0x22:
         emitterCount = 4;
-        emitters = D_80746244;
+        emitters = sAmbientEmittersDkIsles;
         break;
     case 0xB0:
         emitterCount = 3;
         emitters = D_8074627C;
         break;
     case 0x30:
-        emitters = D_80746170;
+        emitters = sAmbientEmittersFungiForest;
         emitterCount = 8;
         if (gActivePlayerState->stateFlags & 0x100000) {
             sfxStopChannel(0x44, 0);

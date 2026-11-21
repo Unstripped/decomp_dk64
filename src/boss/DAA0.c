@@ -28,7 +28,7 @@ s8 gBossFollowerRaisedMask = -1;
 s16 gBossFollowerPitch = 0;
 s8 gBossRaisedMaskSteps[4] = { 7, 3, 1, 0 };
 s8 gBossRaisedMaskStep = 0;
-u8 D_80035B38 = 0xFF;
+u8 gBossSavedPlayerCollisionMode = 0xFF;
 f32 gBossSpawnerSpinFrame = 0.0f;
 s8 gBossSpawnerPrevBounceDir = 0;
 s8 gBossKongOrder[5] = { 2, 3, 4, 0, 1 };
@@ -130,8 +130,8 @@ void bossSpawnerUpdate(void) {
         gPrimaryPlayerActor->x = gCurrentActor->x;
         gPrimaryPlayerActor->y = gCurrentActor->y;
         gPrimaryPlayerActor->z = gCurrentActor->z;
-        if (D_80035B38 == -1) {
-            D_80035B38 = gPrimaryPlayerActor->collisionMode;
+        if (gBossSavedPlayerCollisionMode == -1) {
+            gBossSavedPlayerCollisionMode = gPrimaryPlayerActor->collisionMode;
         }
         gPrimaryPlayerActor->flags &= ~4;
         gPrimaryPlayerActor->collisionMode = 1;
@@ -149,7 +149,7 @@ void bossSpawnerUpdate(void) {
             gPrimaryPlayerActor->subState = 0;
             actorAppendPlayerLaunch(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
             gCurrentActor->state = 1;
-            gPrimaryPlayerActor->collisionMode = D_80035B38;
+            gPrimaryPlayerActor->collisionMode = gBossSavedPlayerCollisionMode;
         }
         break;
     case 1:

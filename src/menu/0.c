@@ -119,7 +119,7 @@ void menuStartNextCamPath(MenuState *menu) {
 }
 
 
-extern EffectGridAsset D_80720268;
+extern EffectGridAsset gEffectSpriteOrangeGrenade;
 
 void menuSpawnFallingEffect(MenuState *menu) {
     menu->velY = 11.35f;
@@ -130,7 +130,7 @@ void menuSpawnFallingEffect(MenuState *menu) {
     effectSetDepth(1);
     effectSetDuration(-1);
     effectSetFrameDelay(0);
-    menu->fallingEffect = effectCreateAtPosition(&D_80720268, 0.3f, 181.0f, 3.0f, 82.0f);
+    menu->fallingEffect = effectCreateAtPosition(&gEffectSpriteOrangeGrenade, 0.3f, 181.0f, 3.0f, 82.0f);
 }
 
 

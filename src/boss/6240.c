@@ -164,7 +164,7 @@ void bossClampPosition(Zone *zone) {
 
 
 extern const u8 sPufftossScriptData[];
-extern u8 D_8071FB34[];
+extern u8 gEffectSpriteImpactFlash[];
 extern f32 gDefaultActorGravity;
 extern f32 gPufftossSinkAccelY;
 extern s32 gCurrentMap;
@@ -257,7 +257,7 @@ void bossPufftossStep(void) {
         }
         gBehaviourWorkState->targetAnimId = gBehaviourTargetActor->sub4->model->animId;
         gCurrentActor->flags |= 0x20000000;
-        effectCreateAtPosition(D_8071FB34, 2.0f, ((randomNonNegative() >> 15) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeZ) - 15.0f);
+        effectCreateAtPosition(gEffectSpriteImpactFlash, 2.0f, ((randomNonNegative() >> 15) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeZ) - 15.0f);
         sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
         roll = (randomNonNegative() >> 15) % 2048;
         if (roll < 0x2A8) {

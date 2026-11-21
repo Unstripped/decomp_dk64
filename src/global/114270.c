@@ -562,7 +562,7 @@ void weatherSpawnSnow(f32 density, s16 windAngle, s16 mapChunk) {
 
 
 
-extern u8 D_807212E0;
+extern u8 gEffectSpriteLeaf;
 
 void weatherSpawnDriftParticles(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
     f32 randScale;
@@ -576,7 +576,7 @@ void weatherSpawnDriftParticles(f32 density, s16 windAngle, s16 mapChunk, u8 poo
             effectSetDuration(-1);
             effectSetCallback(&effectSwayRiseUpdate);
             effectEnableFade();
-            effectCreateAtPosition(&D_807212E0, (randomNonNegative() >> 15) % 100 * 0.01 + 0.4, (randomNonNegative() >> 15) % 320, 0.0f, -5.0f);
+            effectCreateAtPosition(&gEffectSpriteLeaf, (randomNonNegative() >> 15) % 100 * 0.01 + 0.4, (randomNonNegative() >> 15) % 320, 0.0f, -5.0f);
         }
         gEffectSpriteWindAngle = cosApprox(gPlayerSlots->camYaw) * windAngle;
         if (density < 1.0) {

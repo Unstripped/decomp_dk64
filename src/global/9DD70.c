@@ -681,7 +681,7 @@ void actorNumberedTargetUpdate(void) {
 
 extern u8 gEffectSpriteSparklePurple;
 extern u8 gEffectSpriteSparkleYellow;
-extern u8 D_8071FCC0;
+extern u8 gEffectSpriteSparkleGreen;
 
 void actorPlayerWarpEffectUpdate(void) {
     s16 *spinSpeed = gCurrentActor->customState;
@@ -718,7 +718,7 @@ void actorPlayerWarpEffectUpdate(void) {
                             sel = &gEffectSpriteSparkleYellow;
                             break;
                         case 2:
-                            sel = &D_8071FCC0;
+                            sel = &gEffectSpriteSparkleGreen;
                             break;
                     }
                     effectCreateAtActorBone(sel, 0.6f, gCurrentActor, j, 0);

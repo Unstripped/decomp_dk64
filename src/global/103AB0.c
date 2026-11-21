@@ -485,13 +485,13 @@ void playerViewUpdateDepthProbes(void) {
         if (gPlayerSlots[i].active != 0) {
             state = gPlayerSlots[i].actor->customState;
             pad = &gPlayerPadState[i];
-            x = state->targetPitch;
-            y = state->targetRoll - 0x14;
+            x = state->headScreenX;
+            y = state->headScreenY - 0x14;
             x += pad->stickX;
             halfWidth = 40;
             halfWidth += pad->stickAbsX / 1.5;
             state->depthCenter = zbufferDepthToDistance(zbufferReadDepth(x, y));
-            state->depthFeet = zbufferDepthToDistance(zbufferReadDepth(x, state->targetYawAngle));
+            state->depthFeet = zbufferDepthToDistance(zbufferReadDepth(x, state->feetScreenY));
             state->depthLeft = zbufferDepthToDistance(zbufferReadDepth(x - halfWidth, y));
             state->depthRight = zbufferDepthToDistance(zbufferReadDepth(x + halfWidth, y));
         }

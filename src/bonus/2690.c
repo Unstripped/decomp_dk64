@@ -89,7 +89,7 @@ extern u8 D_20000C0[];
 extern u8 gCurrentPlayerIndex;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 D_8071FFD4[];
+extern u8 gEffectSpriteMelonWobble[];
 
 extern Actor *gSpawnedActor;
 
@@ -306,7 +306,7 @@ void bonusResetAmmo(BonusShooterState *ammo) {
         effectSetParam(i * 3);
         effectSetCallback(effectSpriteMatrixUpdate);
         effectSetSpeed((s32)&ammo->ammoIconSlide[i]);
-        ammo->ammoIcons[i] = effectCreateAtPosition(D_8071FFD4, 1.0f, y, 210.0f, -10.0f);
+        ammo->ammoIcons[i] = effectCreateAtPosition(gEffectSpriteMelonWobble, 1.0f, y, 210.0f, -10.0f);
         y -= 0x1E;
     }
     sfxPlayOnFreeSlot(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);

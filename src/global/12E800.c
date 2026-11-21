@@ -1061,15 +1061,15 @@ void behaviourSetFloorAndState40(void) {
     gEnemyDefeatCount++;
 }
 
-extern EffectGridAsset D_8071FB34;
+extern EffectGridAsset gEffectSpriteImpactFlash;
 
 void behaviourSpawnPuffParticle(void) {
-    effectCreateAtPosition(&D_8071FB34, 0.55f, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight * 0.5, gCurrentActor->z);
+    effectCreateAtPosition(&gEffectSpriteImpactFlash, 0.55f, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight * 0.5, gCurrentActor->z);
 }
 
 
 void sfxPlayAtFBD6CPosition(void) {
-    effectCreateAtPosition(&D_8071FB34, 0.55f, gActorGlobalState.targetActor->x, gActorGlobalState.targetActor->y, gActorGlobalState.targetActor->z);
+    effectCreateAtPosition(&gEffectSpriteImpactFlash, 0.55f, gActorGlobalState.targetActor->x, gActorGlobalState.targetActor->y, gActorGlobalState.targetActor->z);
 }
 
 extern EffectGridAsset gEffectSpriteDustPuff;

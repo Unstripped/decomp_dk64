@@ -1319,18 +1319,18 @@ extern TextureDescriptor gArcadeEntityTextures[][80];
 
 extern f32 D_8004BCF4;
 
-extern u16 D_80034610[];
-extern u16 D_80034818[];
-extern u16 D_80034A20[];
-extern u16 D_80034C28[];
-extern u16 D_80034E30[];
-extern u16 D_80035038[];
-extern u16 D_80035240[];
-extern u16 D_80035448[];
-extern u16 D_80035650[];
-extern u16 D_80035898[];
-extern u16 D_80035AE0[];
-extern u16 D_80035CE8[];
+extern u16 gArcadeBarrelRollTopLeftSprite[];
+extern u16 gArcadeBarrelRollBottomLeftSprite[];
+extern u16 gArcadeBarrelRollBottomRightSprite[];
+extern u16 gArcadeBarrelRollTopRightSprite[];
+extern u16 gArcadeBarrelBlueRollTopLeftSprite[];
+extern u16 gArcadeBarrelBlueRollBottomLeftSprite[];
+extern u16 gArcadeBarrelBlueRollBottomRightSprite[];
+extern u16 gArcadeBarrelBlueRollTopRightSprite[];
+extern u16 gArcadeBarrelSideDarkBandSprite[];
+extern u16 gArcadeBarrelSideLightBandSprite[];
+extern u16 gArcadeBarrelBlueSideDarkBandSprite[];
+extern u16 gArcadeBarrelBlueSideLightBandSprite[];
 
 
 extern u8 gArcadeRoundStages[];
@@ -2071,18 +2071,18 @@ s32 arcadeAbs(s32 val) {
 }
 
 extern u16 gArcadePlayerStandSprite[];
-extern u16 D_8003B3C8[];
-extern u16 D_8003B610[];
+extern u16 gArcadePlayerWalkFrontLegUpSprite[];
+extern u16 gArcadePlayerWalkBackLegUpSprite[];
 extern u16 gArcadePlayerClimbSprite[];
-extern u16 D_8003BAA0[];
-extern u16 D_8003BCE8[];
+extern u16 gArcadePlayerClimbOverHunchSprite[];
+extern u16 gArcadePlayerClimbOverCrawlSprite[];
 extern u16 gArcadePlayerClimbEndSprite[];
 extern u16 gArcadePlayerHammerUpSprite[];
 extern u16 gArcadePlayerHammerDownSprite[];
-extern u16 D_8003C608[];
-extern u16 D_8003C850[];
-extern u16 D_8003CA98[];
-extern u16 D_8003CCE0[];
+extern u16 gArcadePlayerHammerUpWalkFrontLegUpSprite[];
+extern u16 gArcadePlayerHammerDownWalkFrontLegUpSprite[];
+extern u16 gArcadePlayerHammerUpWalkBackLegUpSprite[];
+extern u16 gArcadePlayerHammerDownWalkBackLegUpSprite[];
 extern u16 gArcadePlayerJumpSprite[];
 extern u16 gArcadePlayerLandSprite[];
 extern u16 gArcadePlayerSpinFrontSprite[];
@@ -2111,10 +2111,10 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                     gArcadeEntities[entIndex].sprite = gArcadePlayerHammerUpSprite;
                     break;
                 case 1:
-                    gArcadeEntities[entIndex].sprite = D_8003C608;
+                    gArcadeEntities[entIndex].sprite = gArcadePlayerHammerUpWalkFrontLegUpSprite;
                     break;
                 case 3:
-                    gArcadeEntities[entIndex].sprite = D_8003CA98;
+                    gArcadeEntities[entIndex].sprite = gArcadePlayerHammerUpWalkBackLegUpSprite;
                     break;
                 }
             } else {
@@ -2124,10 +2124,10 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                     gArcadeEntities[entIndex].sprite = gArcadePlayerHammerDownSprite;
                     break;
                 case 1:
-                    gArcadeEntities[entIndex].sprite = D_8003C850;
+                    gArcadeEntities[entIndex].sprite = gArcadePlayerHammerDownWalkFrontLegUpSprite;
                     break;
                 case 3:
-                    gArcadeEntities[entIndex].sprite = D_8003CCE0;
+                    gArcadeEntities[entIndex].sprite = gArcadePlayerHammerDownWalkBackLegUpSprite;
                     break;
                 }
             }
@@ -2138,10 +2138,10 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                 gArcadeEntities[entIndex].sprite = gArcadePlayerStandSprite;
                 break;
             case 1:
-                gArcadeEntities[entIndex].sprite = D_8003B3C8;
+                gArcadeEntities[entIndex].sprite = gArcadePlayerWalkFrontLegUpSprite;
                 break;
             case 3:
-                gArcadeEntities[entIndex].sprite = D_8003B610;
+                gArcadeEntities[entIndex].sprite = gArcadePlayerWalkBackLegUpSprite;
                 break;
             }
         }
@@ -2154,9 +2154,9 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
         } else if (y - gArcadeLadderTop < 6.0f) {
             gArcadeEntities[entIndex].sprite = gArcadePlayerClimbSprite;
         } else if (y - gArcadeLadderTop < 10.0f) {
-            gArcadeEntities[entIndex].sprite = D_8003BCE8;
+            gArcadeEntities[entIndex].sprite = gArcadePlayerClimbOverCrawlSprite;
         } else if (y - gArcadeLadderTop < 14.0f) {
-            gArcadeEntities[entIndex].sprite = D_8003BAA0;
+            gArcadeEntities[entIndex].sprite = gArcadePlayerClimbOverHunchSprite;
         } else {
             gArcadeEntities[entIndex].sprite = gArcadePlayerClimbSprite;
         }
@@ -2490,19 +2490,19 @@ void arcadeUpdateEntitySprite(s32 entIndex) {
         if (ptr->param2 != 0) {
             switch (frame & 1) {
             case 0:
-                ptr->sprite = D_80035AE0;
+                ptr->sprite = gArcadeBarrelBlueSideDarkBandSprite;
                 return;
             case 1:
-                ptr->sprite = D_80035CE8;
+                ptr->sprite = gArcadeBarrelBlueSideLightBandSprite;
                 return;
             }
         } else {
             switch (frame & 1) {
             case 0:
-                ptr->sprite = D_80035650;
+                ptr->sprite = gArcadeBarrelSideDarkBandSprite;
                 return;
             case 1:
-                ptr->sprite = D_80035898;
+                ptr->sprite = gArcadeBarrelSideLightBandSprite;
                 return;
             }
         }
@@ -2510,31 +2510,31 @@ void arcadeUpdateEntitySprite(s32 entIndex) {
         if (ptr->param2 != 0) {
             switch (frame & 3) {
             case 0:
-                ptr->sprite = D_80035448;
+                ptr->sprite = gArcadeBarrelBlueRollTopRightSprite;
                 return;
             case 1:
-                ptr->sprite = D_80035240;
+                ptr->sprite = gArcadeBarrelBlueRollBottomRightSprite;
                 return;
             case 2:
-                ptr->sprite = D_80035038;
+                ptr->sprite = gArcadeBarrelBlueRollBottomLeftSprite;
                 return;
             case 3:
-                ptr->sprite = D_80034E30;
+                ptr->sprite = gArcadeBarrelBlueRollTopLeftSprite;
                 return;
             }
         } else {
             switch (frame & 3) {
             case 0:
-                ptr->sprite = D_80034C28;
+                ptr->sprite = gArcadeBarrelRollTopRightSprite;
                 return;
             case 1:
-                ptr->sprite = D_80034A20;
+                ptr->sprite = gArcadeBarrelRollBottomRightSprite;
                 return;
             case 2:
-                ptr->sprite = D_80034818;
+                ptr->sprite = gArcadeBarrelRollBottomLeftSprite;
                 return;
             case 3:
-                ptr->sprite = D_80034610;
+                ptr->sprite = gArcadeBarrelRollTopLeftSprite;
                 return;
             }
         }
@@ -2664,9 +2664,9 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
     }
 }
 
-extern u16 D_80037B98[];
-extern u16 D_80037DA0[];
-extern u16 D_80037FA8[];
+extern u16 gArcadeConveyorPulleyTiltRightSprite[];
+extern u16 gArcadeConveyorPulleyFlatSprite[];
+extern u16 gArcadeConveyorPulleyTiltLeftSprite[];
 extern u16 gArcadePaulineLowerSprite[];
 extern u16 gArcadeScoreEightHundredSprite[];
 extern u16 gArcadeSmashRingSprite[];
@@ -2676,20 +2676,20 @@ extern u16 gArcadeSmashBurstSprite[];
 extern u16 gArcadeCoinSprite[];
 extern u16 gArcadeHeartSprite[];
 extern u16 gArcadePaulineUpperSprite[];
-extern u16 D_8003DD60[];
+extern u16 gArcadePaulineUpperFrontSprite[];
 extern u16 gArcadeBrokenHeartSprite[];
 extern u16 gArcadeHelpSprite[];
 extern u16 gArcadeHelpBlueSprite[];
 extern s32 gArcadeFireballSpawnPoints[];
 
-extern u16 D_80035EF0[];
-extern u16 D_80036138[];
-extern u16 D_80036380[];
-extern u16 D_800365C8[];
-extern u16 D_80036810[];
-extern u16 D_80036A58[];
-extern u16 D_80036CA0[];
-extern u16 D_80036EE8[];
+extern u16 gArcadeFireballSprite[];
+extern u16 gArcadeFireballFlickerSprite[];
+extern u16 gArcadeFireballStage2Sprite[];
+extern u16 gArcadeFireballStage2FlickerSprite[];
+extern u16 gArcadeFireballStage2BlueSprite[];
+extern u16 gArcadeFireballStage2BlueFlickerSprite[];
+extern u16 gArcadeFireballBlueSprite[];
+extern u16 gArcadeFireballBlueFlickerSprite[];
 void arcadeUpdateBouncingBarrel(s32 entIndex) {
     s32 floorY;
     s32 bias;
@@ -2704,25 +2704,25 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
     if (gArcadeStage == 2) {
         if (gArcadeHammerTimer != 0) {
             if ((gArcadeScreenTimer / 4) & 1) {
-                gArcadeEntities[entIndex].sprite = D_80036810;
+                gArcadeEntities[entIndex].sprite = gArcadeFireballStage2BlueSprite;
             } else {
-                gArcadeEntities[entIndex].sprite = D_80036A58;
+                gArcadeEntities[entIndex].sprite = gArcadeFireballStage2BlueFlickerSprite;
             }
         } else if ((gArcadeScreenTimer / 4) & 1) {
-            gArcadeEntities[entIndex].sprite = D_80036380;
+            gArcadeEntities[entIndex].sprite = gArcadeFireballStage2Sprite;
         } else {
-            gArcadeEntities[entIndex].sprite = D_800365C8;
+            gArcadeEntities[entIndex].sprite = gArcadeFireballStage2FlickerSprite;
         }
     } else if (gArcadeHammerTimer != 0) {
         if ((gArcadeScreenTimer / 4) & 1) {
-            gArcadeEntities[entIndex].sprite = D_80036CA0;
+            gArcadeEntities[entIndex].sprite = gArcadeFireballBlueSprite;
         } else {
-            gArcadeEntities[entIndex].sprite = D_80036EE8;
+            gArcadeEntities[entIndex].sprite = gArcadeFireballBlueFlickerSprite;
         }
     } else if ((gArcadeScreenTimer / 4) & 1) {
-        gArcadeEntities[entIndex].sprite = D_80035EF0;
+        gArcadeEntities[entIndex].sprite = gArcadeFireballSprite;
     } else {
-        gArcadeEntities[entIndex].sprite = D_80036138;
+        gArcadeEntities[entIndex].sprite = gArcadeFireballFlickerSprite;
     }
     floorY = arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
     arcadeCheckStageLadders((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
@@ -2803,8 +2803,8 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
     }
 }
 
-extern u16 D_80037788[];
-extern u16 D_80037990[];
+extern u16 gArcadeSpringExtendedSprite[];
+extern u16 gArcadeSpringCompressedSprite[];
 
 void arcadeUpdateSpringEntity(s32 entIndex) {
     s32 frame;
@@ -2815,10 +2815,10 @@ void arcadeUpdateSpringEntity(s32 entIndex) {
         frame = (s32)gArcadeEntities[entIndex].animTimer;
         switch (frame & 1) {
         case 0:
-            gArcadeEntities[entIndex].sprite = D_80037788;
+            gArcadeEntities[entIndex].sprite = gArcadeSpringExtendedSprite;
             break;
         case 1:
-            gArcadeEntities[entIndex].sprite = D_80037990;
+            gArcadeEntities[entIndex].sprite = gArcadeSpringCompressedSprite;
             break;
         }
         gArcadeEntities[entIndex].y += gArcadeEntities[entIndex].vy;
@@ -2848,10 +2848,10 @@ void arcadeUpdateSpringEntity(s32 entIndex) {
     }
 }
 
-extern u16 D_80032228[];
-extern u16 D_80032470[];
-extern u16 D_800326B8[];
-extern u16 D_80032900[];
+extern u16 gArcadeOilFireSprite[];
+extern u16 gArcadeOilFireFlickerSprite[];
+extern u16 gArcadeOilFireFlareSprite[];
+extern u16 gArcadeOilFireFlareFlickerSprite[];
 
 void arcadeUpdateOilDrumEntity(s32 entIndex) {
     s32 n; // FAKE: one local for the case-2 barrel-count limit (home sp+0x24, sw/lw +0x15c/+0x160) and the case-3 new slot (register only); a separate slot local keeps the frame 0x28 but moves the a1 spill 0x1c -> 0x18
@@ -2865,10 +2865,10 @@ void arcadeUpdateOilDrumEntity(s32 entIndex) {
         case 2:
             switch (gArcadeEntities[entIndex].param2) {
             case 0:
-                gArcadeEntities[entIndex].sprite = D_80032228;
+                gArcadeEntities[entIndex].sprite = gArcadeOilFireSprite;
                 break;
             case 1:
-                gArcadeEntities[entIndex].sprite = D_80032470;
+                gArcadeEntities[entIndex].sprite = gArcadeOilFireFlickerSprite;
                 break;
             }
             n = arcadeMinFloat(gArcadeLevel, 5.0f);
@@ -2904,10 +2904,10 @@ void arcadeUpdateOilDrumEntity(s32 entIndex) {
             }
             switch (gArcadeEntities[entIndex].param2) {
             case 0:
-                gArcadeEntities[entIndex].sprite = D_800326B8;
+                gArcadeEntities[entIndex].sprite = gArcadeOilFireFlareSprite;
                 return;
             case 1:
-                gArcadeEntities[entIndex].sprite = D_80032900;
+                gArcadeEntities[entIndex].sprite = gArcadeOilFireFlareFlickerSprite;
                 break;
             }
             break;
@@ -2955,7 +2955,7 @@ void arcadeUpdatePaulineUpper(s32 entIndex) {
         if ((entry->param++ & 0xC8) || (gArcadeScreenMode == 1)) {
             entry->sprite = gArcadePaulineUpperSprite;
         } else {
-            entry->sprite = D_8003DD60;
+            entry->sprite = gArcadePaulineUpperFrontSprite;
         }
     }
 }
@@ -3028,21 +3028,21 @@ void arcadeUpdateConveyorPulleys(s32 entIndex) {
         }
         switch ((phase / 8) % 3) {
         case 0:
-            entity->sprite = D_80037B98;
+            entity->sprite = gArcadeConveyorPulleyTiltRightSprite;
             return;
         case 1:
-            entity->sprite = D_80037DA0;
+            entity->sprite = gArcadeConveyorPulleyFlatSprite;
             return;
         case 2:
-            entity->sprite = D_80037FA8;
+            entity->sprite = gArcadeConveyorPulleyTiltLeftSprite;
             break;
         }
     }
 }
 extern u16 gArcadeKongGrinSprite[];
 extern u16 gArcadeKongStandSprite[];
-extern u16 D_80044460[];
-extern u16 D_80045428[];
+extern u16 gArcadeKongCarryClimbReachSprite[];
+extern u16 gArcadeKongCarryClimbPullSprite[];
 
 void arcadeUpdateDonkeyKongIntro(s32 entIndex) {
     if (gArcadeScreenTimer == 0x3C) {
@@ -3081,10 +3081,10 @@ void arcadeUpdateDonkeyKongIntro(s32 entIndex) {
                 gArcadeEntities[entIndex].vx = 0.0f;
                 gArcadeEntities[entIndex].y = 0xC5 - ((gArcadeScreenTimer - 0x3C) / 2);
                 if (gArcadeScreenTimer & 8) {
-                    gArcadeEntities[entIndex].sprite = D_80044460;
+                    gArcadeEntities[entIndex].sprite = gArcadeKongCarryClimbReachSprite;
                     return;
                 }
-                gArcadeEntities[entIndex].sprite = D_80045428;
+                gArcadeEntities[entIndex].sprite = gArcadeKongCarryClimbPullSprite;
             }
         }
     }
@@ -3215,9 +3215,9 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                 } else {
                     gArcadeEntities[entIndex].facing = 0;
                     if ((s32)(gArcadeEntities[entIndex].animTimer / 8) & 1) {
-                        gArcadeEntities[entIndex].sprite = D_80045428;
+                        gArcadeEntities[entIndex].sprite = gArcadeKongCarryClimbPullSprite;
                     } else {
-                        gArcadeEntities[entIndex].sprite = D_80044460;
+                        gArcadeEntities[entIndex].sprite = gArcadeKongCarryClimbReachSprite;
                     }
                 }
                 if (gArcadeStage != 4) {
@@ -3245,9 +3245,9 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
     }
 }
 
-extern u16 D_800473B8[];
-extern u16 D_80048380[];
-extern u16 D_80049348[];
+extern u16 gArcadeKongDazedEyesRightSprite[];
+extern u16 gArcadeKongDazedEyesUpLeftSprite[];
+extern u16 gArcadeKongDazedEyesDownSprite[];
 extern ArcadeEntity gArcadeKongStarsTemplate;
 
 void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
@@ -3314,11 +3314,11 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
                     gArcadeEntities[entIndex].facing = 0;
                     tmp = (s32)(gArcadeEntities[entIndex].animTimer / 6.0f) % 3;
                     if (tmp == 0) {
-                        gArcadeEntities[entIndex].sprite = D_800473B8;
+                        gArcadeEntities[entIndex].sprite = gArcadeKongDazedEyesRightSprite;
                     } else if (tmp == 1) {
-                        gArcadeEntities[entIndex].sprite = D_80048380;
+                        gArcadeEntities[entIndex].sprite = gArcadeKongDazedEyesUpLeftSprite;
                     } else if (tmp == 2) {
-                        gArcadeEntities[entIndex].sprite = D_80049348;
+                        gArcadeEntities[entIndex].sprite = gArcadeKongDazedEyesDownSprite;
                     }
                     if (gArcadeEntities[entIndex].animTimer == 350.0f) {
                         n_alSndpPlay(gSfxBank, 0x50, 0x7FFF, 0x3F, 1.0f, 0, 0);

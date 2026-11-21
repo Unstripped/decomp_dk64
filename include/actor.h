@@ -975,9 +975,9 @@ typedef struct PlayerState {
     };
     /* 0x10C */ s8 ledgeHangOffset;
     /* 0x10D */ u8 pad10D;
-    /* 0x10E */ s16 targetPitch;
-    /* 0x110 */ s16 targetRoll;
-    /* 0x112 */ s16 targetYawAngle;
+    /* 0x10E */ s16 headScreenX;
+    /* 0x110 */ s16 headScreenY;
+    /* 0x112 */ s16 feetScreenY;
     /* 0x114 */ s16 depthCenter;
     /* 0x116 */ s16 depthFeet;
     /* 0x118 */ s16 depthLeft;

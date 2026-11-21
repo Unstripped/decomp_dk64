@@ -452,9 +452,9 @@ extern u8 gControlStickSprite;
 extern u8 gAButtonSprite;
 extern u8 gFairySprite;
 extern u8 gCrownSprite;
-extern u8 D_80721170;
+extern u8 gEffectSpriteHeadphones;
 extern u8 gEffectSpriteQuestionMark;
-extern u8 D_80721444;
+extern u8 gEffectSpriteBarrelEnd;
 
 void menuInitMainScreen(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
@@ -467,11 +467,11 @@ void menuInitMainScreen(Actor *actor, s32 unused) {
     menuSetAudioMode();
     state->selection = gMenuScreenSelection[1];
     menuSpawnUiElementEffect(state, &gControlStickSprite, 0xA0, 0xD2, 0.75f, 2, 0);
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) makes the address one ucvt CSE value, spilled at 0x30(sp) (sw a1 at 0xae4) and reloaded per call; an s32 asset parameter does this implicitly but draws cfe Warning 712 at every other call (Q0704)
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb18
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 2, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb48
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 3, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb78
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 4, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xba8
+    menuSpawnUiElementEffect(state, (void *)(s32)&gEffectSpriteBarrelEnd, 0, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) makes the address one ucvt CSE value, spilled at 0x30(sp) (sw a1 at 0xae4) and reloaded per call; an s32 asset parameter does this implicitly but draws cfe Warning 712 at every other call (Q0704)
+    menuSpawnUiElementEffect(state, (void *)(s32)&gEffectSpriteBarrelEnd, 1, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb18
+    menuSpawnUiElementEffect(state, (void *)(s32)&gEffectSpriteBarrelEnd, 2, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb48
+    menuSpawnUiElementEffect(state, (void *)(s32)&gEffectSpriteBarrelEnd, 3, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xb78
+    menuSpawnUiElementEffect(state, (void *)(s32)&gEffectSpriteBarrelEnd, 4, 0, 1.2f, 2, 0x12); // FAKE: same ucvt CSE value, reloaded by lw a1,48(sp) at 0xba8
     menuSpawnUiElementEffect(state, &gEffectSpriteGoldenBanana, 0, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &gEffectSpriteQuestionMark, 1, 0, 0.8f, 2, 6);
     if (flagGet(0, 1) == 0) {
@@ -482,7 +482,7 @@ void menuInitMainScreen(Actor *actor, s32 unused) {
         sMenuNextElementBright = 0;
     }
     menuSpawnUiElementEffect(state, &gCrownSprite, 3, 0, 0.6f, 2, 6);
-    menuSpawnUiElementEffect(state, &D_80721170, 4, 0, 0.6f, 2, 6);
+    menuSpawnUiElementEffect(state, &gEffectSpriteHeadphones, 4, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &gAButtonSprite, 0x122, 0xD2, 0.75f, 2, 0);
     gPrimaryPlayerActor->x = 700.0f;
     gPrimaryPlayerActor->y = 100.0f;

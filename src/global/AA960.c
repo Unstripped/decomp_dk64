@@ -291,8 +291,8 @@ void actorLargeDropUpdate(void) {
 extern u8 gEffectSpriteCoinRed;
 extern u8 gEffectSpriteCoinGreen;
 extern u8 gEffectSpriteCoinBlue;
-extern u8 D_8072041C;
-extern u8 D_80720440;
+extern u8 gEffectSpriteCoinYellow;
+extern u8 gEffectSpriteCoinPurple;
 
 void actorKongDropUpdate(void) {
     DropBounceState *state;
@@ -306,7 +306,7 @@ void actorKongDropUpdate(void) {
             anim = &gEffectSpriteCoinRed;
             break;
         case 2:
-            anim = &D_8072041C;
+            anim = &gEffectSpriteCoinYellow;
             break;
         case 4:
             anim = &gEffectSpriteCoinBlue;
@@ -315,7 +315,7 @@ void actorKongDropUpdate(void) {
             anim = &gEffectSpriteCoinGreen;
             break;
         case 5:
-            anim = &D_80720440;
+            anim = &gEffectSpriteCoinPurple;
             break;
         }
         effectSpawnAttachedSprite(state, anim, 1.0f);
@@ -808,7 +808,7 @@ void actorPathCollectibleUpdate1004B(void) {
 }
 
 
-extern EffectGridAsset D_80721170;
+extern EffectGridAsset gEffectSpriteHeadphones;
 
 void effectActorSparkleTick(void) {
     s32 hasInstrument;
@@ -842,7 +842,7 @@ void effectActorSparkleTick(void) {
         effectSetSpeed(0x226);
         effectSetFrameDelay(2);
         effectSetColor(0xFF, 0xFF, 0xFF, hasInstrument ? 0xFF : 0x7F);
-        effectCreateAtActorBone(&D_80721170, 0.4f, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteHeadphones, 0.4f, gCurrentActor, 1, 2);
     }
     if (gCurrentActor->floorY != 99999.0f) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);

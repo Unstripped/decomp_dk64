@@ -37,7 +37,7 @@ typedef struct {
 } BossStageEntry;
 
 s16 sBossRoundFirstCamPath[5] = { 4, 3, 6, 20, 4 };
-s16 D_800359AC[5] = { 45, 45, 45, 45, 45 };
+s16 sBossRoundRetryCamPath[5] = { 45, 45, 45, 45, 45 };
 s16 sBossRoundRepeatCamPath[5] = { 4, 3, 6, 3, 4 };
 s16 sBossRoundTimeUpCamPath[5] = { 11, 11, 11, 11, 11 };
 BossStageEntry sBossStageTable[8] = {
@@ -528,7 +528,7 @@ void bossRoundFrame(const u8 *script) {
                 flagSet(mapFlag, 1, 2);
             } else if (flagGet(0x5A, 2) != 0) {
                 if (flagGet(0x5B, 2) != 0) {
-                    camStartPath(gCurrentActor, D_800359AC[mapOffset], 1);
+                    camStartPath(gCurrentActor, sBossRoundRetryCamPath[mapOffset], 1);
                     flagSet(0x5A, 0, 2);
                 } else {
                     sfxStopChannel(0x2B, 0);

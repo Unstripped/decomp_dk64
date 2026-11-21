@@ -23,7 +23,7 @@ s16 gMainLoopWatchdog = 1000;
 s8 gWatchdogPaused = 1;
 s8 gWaitPointId = 0;
 SchedConfig D_80746838 = { 0xF, 0, 0x1C };
-s8 D_80746844 = 1;
+s8 gDlDebugDumpResetPending = 1;
 
 extern u8 gGameMode;
 extern u8 gScreenRenderFlags;
@@ -145,8 +145,8 @@ void schedMain(void *arg) {
                         flag = 0;
                         sFirstAdvanceSkipped = 1;
                     }
-                    schedDlDebugDump(D_80746844, flag);
-                    D_80746844 = 0;
+                    schedDlDebugDump(gDlDebugDumpResetPending, flag);
+                    gDlDebugDumpResetPending = 0;
                     gMainLoopWatchdog = -300;
                 }
                 osWritebackDCacheAll();

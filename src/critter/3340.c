@@ -50,7 +50,7 @@ extern u16 gWorldBananaDeliveryGoals[];
 extern s16 gWorldGoldenBananaGoals[];
 extern s8 D_807446E0[]; // per world: { discounted required count, kong id } byte pairs
 extern u16 gLevelCollectibleCounts[];
-extern f32 D_8002A1B0;
+extern f32 critterFairyPrevPlayerDist;
 extern EffectGridAsset gEffectSpriteStarBurst;
 extern EffectGridAsset gEffectSpriteGlintYellow;
 
@@ -97,7 +97,7 @@ void critterBananaFairyUpdate(void) {
             critterSetDigitFrames(requiredCount);
         }
         *timerPtr = 0;
-        D_8002A1B0 = 0.0f;
+        critterFairyPrevPlayerDist = 0.0f;
         critterFairySecretState = 0;
         critterFairyComboStep = 0;
     } else if (critterFairySecretState != 0) {
@@ -154,9 +154,9 @@ void critterBananaFairyUpdate(void) {
             break;
         case 0:
             if (gCurrentMap == 0xAA && gPlayerCharacterId[0] != 4) {
-                D_8002A1B0 = 0.0f;
+                critterFairyPrevPlayerDist = 0.0f;
             }
-            if (dist < 70.0 && D_8002A1B0 >= 70.0) {
+            if (dist < 70.0 && critterFairyPrevPlayerDist >= 70.0) {
                 s16 kindIndex;
 
                 resQueueSetValue(1);
@@ -218,7 +218,7 @@ void critterBananaFairyUpdate(void) {
             gCurrentActor->sub4->scaleZ = 0.0f;
             break;
         }
-        D_8002A1B0 = dist;
+        critterFairyPrevPlayerDist = dist;
         if (gPadPressedButtons[0] != 0) {
             if (gPadPressedButtons[0] & critterFairyComboButtons[critterFairyComboStep]) {
                 critterFairyComboStep += 1;

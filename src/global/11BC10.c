@@ -1608,7 +1608,7 @@ void timedLightPulse(EffectNode *effect, s8 *isDone) {
     }
 }
 
-extern EffectGridAsset D_8071FB54;
+extern EffectGridAsset gEffectSpriteBurstOrange;
 
 void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
     s32 pad;
@@ -1642,7 +1642,7 @@ void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
         effectSetSpeed(1);
         effectSetCallback(timedLightPulse);
         effectSetParam(7);
-        effectCreateAtPosition(&D_8071FB54, 0.667f, effect->x, groundY + 10.0f, effect->z);
+        effectCreateAtPosition(&gEffectSpriteBurstOrange, 0.667f, effect->x, groundY + 10.0f, effect->z);
     }
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, color[0], color[1], color[2]);
 }

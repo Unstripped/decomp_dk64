@@ -1770,7 +1770,7 @@ void playerInputHandleAButtonState61(void) {
 
 
 extern u8 gEffectSpriteBlast;
-extern u8 D_807200D4;
+extern u8 gEffectSpriteMuzzleFlash;
 extern f32 gKongProjectileSpeed[];
 extern s16 gKongMaxActiveProjectiles[];
 
@@ -1900,7 +1900,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         effectSetDepth(1);
                         effectSetSpeed(0x50);
                         effectSetCallback(effectLightPulseOscillate);
-                        effectCreateAtActorBone(&D_807200D4, 0.5f, gActivePlayerActor, gActivePlayerState->gunHand + 9, 2);
+                        effectCreateAtActorBone(&gEffectSpriteMuzzleFlash, 0.5f, gActivePlayerActor, gActivePlayerState->gunHand + 9, 2);
                         if (gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7) {
                             effectSetDepth(1);
                             effectSetSpeed(0x50);
@@ -2840,7 +2840,7 @@ int playerIsOnOwnInstrumentPad(Actor *mob) {
 extern s32 gMapWarpCount;
 extern u8 gMapLoadCountdown;
 extern f32 D_807536AC[];
-extern u8 D_8072014C[];
+extern u8 gEffectSpriteSmokePuff[];
 
 s32 playerInputCheckMultiplayerPlayerTarget(void) {
     s32 i;
@@ -2910,7 +2910,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                         effectSetDepth(1);
                         effectSetCallback(effectFollowPlayerUpdate);
                         effectSetStartDelay(i);
-                        effectCreateAtPosition(D_8072014C, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                        effectCreateAtPosition(gEffectSpriteSmokePuff, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     }
                     effectSpawnBurstParticleCluster(gPrimaryPlayerActor);
                     return 1;

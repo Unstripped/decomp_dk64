@@ -80,7 +80,7 @@ MenuShopOffer D_80033408[35] = {
 };
 u8 gShopInstrumentMelons[8] = { 2, 2, 2, 3, 3, 3 };
 u16 D_800334E4[4] = { 0, 0x12, 0x13, 0x14 };
-u16 D_800334EC[10] = { 0, 3, 4, 5, 6, 7, 8, 9, 0x1C };
+u16 gShopCrankyTextLines[10] = { 0, 3, 4, 5, 6, 7, 8, 9, 0x1C };
 u16 gShopCandyTextLines[10] = { 1, 2, 3, 7, 0xA, 0xB, 0xC, 0xE };
 u16 gShopFunkyTextLines[10] = { 1, 2, 3, 4, 9, 0xA, 0xB, 0xC };
 u16 D_80033528[10] = { 1, 2, 7, 8, 9, 0xA, 0xD, 0xE };
@@ -404,7 +404,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                 priceOrCount = 0xF;
             }
             textParam1 = 8;
-            textLines = D_800334EC;
+            textLines = gShopCrankyTextLines;
             if (state->submenuEntered == 0) {
                 if (flagGet(0x61, 2) != 0) {
                     flagSet(0x61, 0, 2);
@@ -431,7 +431,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                 }
             }
             gTextNumberArg = priceOrCount;
-            D_800334EC[0] = introTextId;
+            gShopCrankyTextLines[0] = introTextId;
             break;
         case 0xBE:
             textLines = gShopFunkyTextLines;

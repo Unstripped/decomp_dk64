@@ -1165,7 +1165,7 @@ void slotQueueSelectPlayerResource(u8 player) {
     gSlotQueueResourceKong = player;
 }
 
-extern EffectGridAsset D_807200A0, D_807201A0, D_80720268, D_8072029C, gEffectSpriteCoinRed, gEffectSpriteCoinGreen, gEffectSpriteCoinBlue, D_8072041C, D_80720440, D_80720488, gEffectSpriteOrange, gEffectSpriteCrystal, gEffectSpriteGoldenBanana, D_80720558, D_8072057C, D_807205A0, gEffectSpriteBananaBlue, gEffectSpriteBananaYellow, D_8072060C, D_807206A8, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, gEffectSpriteBlueprintRed, gEffectSpriteBlueprintGreen, gEffectSpriteBlueprintYellow, gEffectSpriteBlueprintPurple, D_80721200, D_8072121C, D_80721250, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
+extern EffectGridAsset gEffectSpritePeanut, gEffectSpritePineapple, gEffectSpriteOrangeGrenade, gEffectSpriteGrape, gEffectSpriteCoinRed, gEffectSpriteCoinGreen, gEffectSpriteCoinBlue, gEffectSpriteCoinYellow, gEffectSpriteCoinPurple, D_80720488, gEffectSpriteOrange, gEffectSpriteCrystal, gEffectSpriteGoldenBanana, gEffectSpriteBananaMedal, D_8072057C, D_807205A0, gEffectSpriteBananaBlue, gEffectSpriteBananaYellow, D_8072060C, gEffectSpriteCoconut, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, gEffectSpriteBlueprintRed, gEffectSpriteBlueprintGreen, gEffectSpriteBlueprintYellow, gEffectSpriteBlueprintPurple, gEffectSpriteCandyHead, gEffectSpriteCrankyHead, gEffectSpriteFunkyHead, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
 
 void *slotQueueGetSpriteAsset(s32 slot) {
     EffectGridAsset *result;
@@ -1208,22 +1208,22 @@ void *slotQueueGetSpriteAsset(s32 slot) {
     case 3:
         switch (kong) {
         case 1:
-            result = &D_807200A0;
+            result = &gEffectSpritePeanut;
             break;
         case 0:
-            result = &D_807206A8;
+            result = &gEffectSpriteCoconut;
             break;
         case 3:
             result = &D_80720854;
             break;
         case 2:
-            result = &D_8072029C;
+            result = &gEffectSpriteGrape;
             break;
         case 4:
-            result = &D_807201A0;
+            result = &gEffectSpritePineapple;
             break;
         case 5:
-            result = &D_80720268;
+            result = &gEffectSpriteOrangeGrenade;
             break;
         }
         break;
@@ -1234,10 +1234,10 @@ void *slotQueueGetSpriteAsset(s32 slot) {
             result = &gEffectSpriteCoinRed;
             break;
         case 0:
-            result = &D_8072041C;
+            result = &gEffectSpriteCoinYellow;
             break;
         case 3:
-            result = &D_80720440;
+            result = &gEffectSpriteCoinPurple;
             break;
         case 2:
             result = &gEffectSpriteCoinBlue;
@@ -1281,7 +1281,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         result = &gEffectSpriteGoldenBanana;
         break;
     case 10:
-        result = &D_80720558;
+        result = &gEffectSpriteBananaMedal;
         break;
     case 12:
         switch (kong) {
@@ -1307,13 +1307,13 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         result = &D_8072145C;
         break;
     case 17:
-        result = &D_80721250;
+        result = &gEffectSpriteFunkyHead;
         break;
     case 18:
-        result = &D_80721200;
+        result = &gEffectSpriteCandyHead;
         break;
     case 19:
-        result = &D_8072121C;
+        result = &gEffectSpriteCrankyHead;
         break;
     case 20:
         result = &D_807214A0;

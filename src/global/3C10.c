@@ -67,11 +67,11 @@ s16 gWorldGoldenBananaGoals[16] = {
     0x01FF, 0x0301, 0x0A03, 0x1402, 0x2304, 0x3200, 0x4102, 0x5004,
 };
 u8 gWorldRequiredKongs[16] = { 0, 1, 3, 2, 4, 0, 2, 0, 0, 1, 2, 3, 4, 5, 6, 8 };
-u16 D_80744700[8] = { 0x08, 0xC5, 0x9A, 0x6F, 0x53, 0xC4, 0xC7, 0xCB };
+u16 gWorldBossMaps[8] = { 0x08, 0xC5, 0x9A, 0x6F, 0x53, 0xC4, 0xC7, 0xCB };
 s16 gWorldClearedFlags[8] = { 0x1A, 0x4A, 0x8A, 0xA8, 0xEC, 0x124, 0x13D, 0x17C };
-s32 D_80744720[5] = { 0x181, 0x6, 0x46, 0x42, 0x75 };
+s32 gKongUnlockFlags[5] = { 0x181, 0x6, 0x46, 0x42, 0x75 };
 u16 gWorldLobbyMaps[10] = { 0xA9, 0xAD, 0xAF, 0xAE, 0xB2, 0xC2, 0xC1, 0xAA, 0xAA, 0x00 };
-u16 D_80744748[10] = { 0x07, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x22, 0x11, 0x00 };
+u16 gWorldMainMaps[10] = { 0x07, 0x26, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x22, 0x11, 0x00 };
 Struct8074475C gDeathRespawnOverrides[11] = {
     { 0x38, 0x38, 0 },
     { 0x21, 0x21, 0 },
@@ -401,7 +401,7 @@ u8 mapGetWorldIndex(u8 map) {
 }
 
 s32 mapGetConfigValue(s32 unused, s32 index) {
-    s32 value = D_80744720[index];
+    s32 value = gKongUnlockFlags[index];
     return value;
 }
 
@@ -473,7 +473,7 @@ void mapExecuteDeathTransition(s32 unused) {
             targetMap = gCurrentMap;
         } else {
             world = mapGetHubWorldIndex(gCurrentMap, 0);
-            targetMap = D_80744748[world];
+            targetMap = gWorldMainMaps[world];
             for (; !found && (i < limit); i++) {
                 if (gCurrentMap == gDeathRespawnOverrides[i].map) {
                     targetMap = gDeathRespawnOverrides[i].targetMap;

@@ -61,13 +61,13 @@ typedef s32 (*ActorScriptCommand)(Actor *);
 typedef void (*ScriptCommandFn)(Actor *);
 
 extern EffectGridAsset gEffectSpriteBlast;
-extern EffectGridAsset D_8071FC0C;
+extern EffectGridAsset gEffectSpriteWaterSplash;
 extern EffectGridAsset gEffectSpriteBubble;
 extern EffectGridAsset gEffectSpriteSparklePurple;
 extern EffectGridAsset gEffectSpriteSparkleYellow;
-extern EffectGridAsset D_8071FCC0;
+extern EffectGridAsset gEffectSpriteSparkleGreen;
 extern EffectGridAsset gEffectSpriteDustPuff;
-extern EffectGridAsset D_80720268;
+extern EffectGridAsset gEffectSpriteOrangeGrenade;
 extern EffectGridAsset gEffectSpriteNotePairYellow;
 extern EffectGridAsset gEffectSpriteNoteYellow;
 extern EffectGridAsset gEffectSpriteNoteGreen;
@@ -79,7 +79,7 @@ extern EffectGridAsset D_80720AD0;
 extern EffectGridAsset gEffectSpriteSmokeCloud;
 extern EffectGridAsset sEffectImpactPuffConfig;
 extern EffectGridAsset sEffectSparkConfig;
-extern EffectGridAsset D_80720B58;
+extern EffectGridAsset gEffectSpriteWaterDroplet;
 
 EffectGridAsset *sScriptEffectSprites[] = {
     &gEffectSpriteNotePairYellow,
@@ -89,16 +89,16 @@ EffectGridAsset *sScriptEffectSprites[] = {
     &gEffectSpriteNotePairRed,
     &gEffectSpriteNoteRed,
     &gEffectSpriteNotePairPaleBlue,
-    &D_8071FC0C,
+    &gEffectSpriteWaterSplash,
     &D_80720AD0,
-    &D_80720268,
+    &gEffectSpriteOrangeGrenade,
     &gEffectSpriteDustPuff,
-    &D_80720B58,
+    &gEffectSpriteWaterDroplet,
     &gEffectSpriteBubble,
     &sEffectImpactPuffConfig,
     &gEffectSpriteSparklePurple,
     &gEffectSpriteSparkleYellow,
-    &D_8071FCC0,
+    &gEffectSpriteSparkleGreen,
     &gEffectSpriteDustPuff,
     &gEffectSpriteSmokeCloud,
     &sEffectSparkConfig,
@@ -1866,7 +1866,7 @@ void scriptCmdSpawnAttachedActor(Actor *actor) {
             effectSetDuration(-1);
             effectSetCallback(effectFloorFallUpdate);
             effectSetFlags(4);
-            effectCreateAtActorBone(&D_80720B58, 0.1f, actor, imm, 0);
+            effectCreateAtActorBone(&gEffectSpriteWaterDroplet, 0.1f, actor, imm, 0);
         }
         return;
     }

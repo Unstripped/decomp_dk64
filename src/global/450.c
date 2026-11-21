@@ -131,7 +131,7 @@ f32 gHiliteFillDirZ = 1.0f;
 s32 gInitialMap = 0x28;
 s32 gInitialExit = 0;
 u8 gGameMode = 0;
-u8 D_807444F0 = 0;
+u8 gGameModeLastFrame = 0;
 u8 gPrevGameMode = 0;
 u8 gNextGameMode = 0;
 u8 gGfxBufferIndex = 0;
@@ -473,7 +473,7 @@ void mainThreadLoop(void *arg) {
         if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
             gMapLoadCountdown--;
         }
-        D_807444F0 = gGameMode;
+        gGameModeLastFrame = gGameMode;
     }
 }
 

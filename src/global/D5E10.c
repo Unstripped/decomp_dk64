@@ -2778,7 +2778,7 @@ void playerStateFreezeIdleCopy(void) {
     playerStateFreezeIdle();
 }
 
-extern s32 D_8072014C;
+extern s32 gEffectSpriteSmokePuff;
 
 void playerStateEnterFallOnCheck(void) {
     s32 decel;
@@ -2793,7 +2793,7 @@ void playerStateEnterFallOnCheck(void) {
     if (!(gCurrentActor->contactFlags & 1)) {
         effectSetDepth(1);
         effectSetDuration(1);
-        effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
+        effectCreateAtActorBone(&gEffectSpriteSmokePuff, 0.8f, gCurrentActor, 1, 0);
     }
     decel = (gCurrentActor->contactFlags & gCurrentActor->prevContactFlags & 1) ? 2 : 1;
     if (!gCurrentActor->prevContactFlags & gCurrentActor->contactFlags & 1) {
@@ -2831,7 +2831,7 @@ void playerStateDamageFallTumble(void) {
             if (!(gCurrentActor->contactFlags & 1)) {
                 effectSetDepth(1);
                 effectSetDuration(1);
-                effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
+                effectCreateAtActorBone(&gEffectSpriteSmokePuff, 0.8f, gCurrentActor, 1, 0);
             }
             decel = (gCurrentActor->contactFlags & gCurrentActor->prevContactFlags & 1) ? 2 : 1;
             if (!gCurrentActor->prevContactFlags & gCurrentActor->contactFlags & 1) {
@@ -3591,7 +3591,7 @@ void playerStateTagBarrelPadEnter(void) {
 }
 
 extern u8 gEffectSpriteSparklePurple;
-extern u8 D_8071FCC0;
+extern u8 gEffectSpriteSparkleGreen;
 
 void playerStateKnockbackTumble(void) {
     f32 lightX;
@@ -3660,7 +3660,7 @@ void playerStateKnockbackTumble(void) {
         effectSetCallback(effectPuffRiseUpdate);
         effectSetSpeed((randomNonNegative() >> 15) % 100 + 0x64);
         if (kind == 2) {
-            effectCreateAtPosition(&D_8071FCC0, 0.5f, px, py, pz);
+            effectCreateAtPosition(&gEffectSpriteSparkleGreen, 0.5f, px, py, pz);
         } else if (kind == 1) {
             effectCreateAtPosition(&gEffectSpriteSparkleYellow, 0.5f, px, py, pz);
         } else {

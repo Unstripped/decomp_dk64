@@ -33,10 +33,10 @@ extern u8 gPlayerCount;
 extern Actor *gSpawnedActor;
 extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
-RaceCurvePoint D_8002FC70[6] = {
+RaceCurvePoint raceRivalSpeedCurve[6] = {
     { -1000.0f, 0.7f }, { -100.0f, 1.1f }, { -70.0f, 1.1f }, { 90.0f, 1.1f }, { 80.0f, 1.1f }, { 150.0f, 2.0f },
 };
-RaceVec3f D_8002FCA0 = { 0.7f, 1.1f, 2.0f };
+RaceVec3f raceRivalSpeedLevels = { 0.7f, 1.1f, 2.0f };
 
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void actorInitFromSpawnPoint(void *, void *);
@@ -306,9 +306,9 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     racerState->steer += ((steerAngle * 0.0033333334f) - racerState->steer) * 0.5f;
     if (racerState->raceStatus >= 2 && racerState->raceStatus < 5) {
         if (target->curveMode != 0 && raceGetProgressPercent(route, racerState, managerData) > 0.75) {
-            raceSetPiecewiseCurveMode(target, 0, D_8002FC70, &D_8002FCA0);
+            raceSetPiecewiseCurveMode(target, 0, raceRivalSpeedCurve, &raceRivalSpeedLevels);
         }
-        targetThrottle = raceEvaluateCurveTargetSpeed(target, gapToTarget, D_8002FC70, &D_8002FCA0);
+        targetThrottle = raceEvaluateCurveTargetSpeed(target, gapToTarget, raceRivalSpeedCurve, &raceRivalSpeedLevels);
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 650.0f) ? gCurrentActor->speedXZ : 650.0f;
         racerState->throttle = targetThrottle;
     }
@@ -438,7 +438,7 @@ void raceOpponentRacerMotionUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         target->chaseEnabled = 1;
-        raceSetPiecewiseCurveMode(target, 5, D_8002FC70, &D_8002FCA0);
+        raceSetPiecewiseCurveMode(target, 5, raceRivalSpeedCurve, &raceRivalSpeedLevels);
         gCurrentActor->collisionMode = 0x3C;
         gCurrentActor->flags &= ~0x20001;
         racerState->steerGain = 1.0f;

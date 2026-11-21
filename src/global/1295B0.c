@@ -30,7 +30,7 @@ extern PlayerStruct *gPlayerSlots;
 
 extern ZoneTable D_807FDC80;
 extern SpawnNodeList D_807FDC88;
-extern EffectGridAsset sEffectSparkConfig, D_8071FF40;
+extern EffectGridAsset sEffectSparkConfig, gEffectSpriteStar;
 
 ZoneTable *gZoneTable = &D_807FDC80;
 SpawnNodeList *gSpawnNodeList = &D_807FDC88;
@@ -1347,7 +1347,7 @@ void currentActorAnimSetFrame(u8 frame, u8 subframe) {
     animSetFrameAndSubframe(gCurrentActor, frame, subframe, 0.0f);
 }
 
-extern EffectGridAsset D_8071FB34, D_8071FB54, D_8071FC0C, gEffectSpriteBubble, gEffectSpriteSparklePurple;
+extern EffectGridAsset gEffectSpriteImpactFlash, gEffectSpriteBurstOrange, gEffectSpriteWaterSplash, gEffectSpriteBubble, gEffectSpriteSparklePurple;
 extern void *gPuffSprites[];
 
 
@@ -1458,7 +1458,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
             return;
         case 6:
             for (i = 0; i < count; i++) {
-                void *configs[2] = { &sEffectSparkConfig, &D_8071FF40 };
+                void *configs[2] = { &sEffectSparkConfig, &gEffectSpriteStar };
                 u8 durations[2] = { 1, 0x12 };
                 u8 pick;
                 s16 targetX;
@@ -1479,7 +1479,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
         case 12:
             effectSetMaxDistance(0x7D0);
             effectSetFrameDelay(1);
-            effectCreateAtPosition(&D_8071FC0C, param * 0.01, (f32)x, (f32)y, (f32)z);
+            effectCreateAtPosition(&gEffectSpriteWaterSplash, param * 0.01, (f32)x, (f32)y, (f32)z);
             return;
         case 8: {
             f32 scale;
@@ -1492,7 +1492,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 offZ = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale;
                 effectSetMaxDistance(0x7D0);
                 effectSetDepth(1);
-                effectCreateAtPosition(&D_8071FB54, scale * 1.3, (f32)x + offX, (f32)y, (f32)z + offZ);
+                effectCreateAtPosition(&gEffectSpriteBurstOrange, scale * 1.3, (f32)x + offX, (f32)y, (f32)z + offZ);
                 effectSetColor(0xD2, 0xD2, 0xD2, 0xC8);
                 effectSpawnBoneDefault(NULL, 0, scale * 1.2, (f32)x + offX, (f32)y, (f32)z + offZ, -0xB4);
             }
@@ -1518,7 +1518,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 posX = (f32)(rnd % 300);
                 posY = (f32)((randomNonNegative() >> 0xF) % 200);
                 effectEnableFade();
-                effectCreateAtPosition(&D_8071FB34, count * 0.01, posX, posY, -10.0f);
+                effectCreateAtPosition(&gEffectSpriteImpactFlash, count * 0.01, posX, posY, -10.0f);
             }
             return;
         }

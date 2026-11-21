@@ -81,7 +81,7 @@ extern s16 D_807FC834;
 extern s16 D_807FC836;
 extern s16 D_807FC838;
 extern s16 gWorldClearedFlags[];
-extern s16 D_80744720[];
+extern s16 gKongUnlockFlags[];
 extern s16 D_807505B2[];
 extern s8 gPauseMenuMode;
 extern s8 sPauseKongUnlocked[5];
@@ -1368,7 +1368,7 @@ void hudPauseMenuRefreshTotals(void) {
             n++;
         }
         p++;
-    } while (p < D_80744720);
+    } while (p < gKongUnlockFlags);
     D_807FC82C = n;
     D_807FC832 = flagCountRange(0x24D, 0x14, 0);
     D_807FC82E = flagCountRange(0x225, 0x28, 0);

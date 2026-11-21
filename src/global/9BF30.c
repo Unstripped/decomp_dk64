@@ -225,7 +225,7 @@ typedef struct ProjectileSubState {
     /* 0x13 */ u8 type;
 } ProjectileSubState;
 
-extern EffectGridAsset D_8071FBA0;
+extern EffectGridAsset gEffectSpriteDustPuffBrown;
 
 void projectileActorUpdate(void) {
     ProjectileSubState *sub;
@@ -276,7 +276,7 @@ void projectileActorUpdate(void) {
                 effectSetDepth(1);
                 effectSetSpeed(particleIdx + 0xB000000);
                 effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_8071FBA0, (randomNonNegative() >> 15) % 10 * 0.05 + 0.2,
+                effectCreateAtPosition(&gEffectSpriteDustPuffBrown, (randomNonNegative() >> 15) % 10 * 0.05 + 0.2,
                     gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }

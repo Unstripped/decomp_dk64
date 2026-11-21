@@ -75,7 +75,7 @@ s8 gEepromWriteInProgress = 0;
 u8 gEepromCurrentSlot = 0;
 s8 gEepromLoaded = 0;
 void (*sEepromCommandHandlers[4])(void) = { eepromReadAllSectors, eepromSaveRecordsAll, eepromSaveRecordsOffset, eepromValidateSaveSlots };
-s8 D_807467E0 = 0;
+s8 gEepromInitDone = 0;
 s8 gSaveIconTimer = 0;
 f32 gEepromWriteProgress = 0.0f;
 s32 gEepromDefaultScores[5] = { 7650, 6100, 5950, 5050, 4300 };
@@ -905,7 +905,7 @@ void eepromInit(void) {
     osCreateMesgQueue(&gEepromCmdQueue, gEepromCmdMesgs, 8);
     osCreateThread(&gEepromThread, 9, eepromThreadMain, NULL, gEepromCmdMesgs, 0xC);
     osStartThread(&gEepromThread);
-    D_807467E0 = 1;
+    gEepromInitDone = 1;
     eepromDispatchCommand(0);
 }
 

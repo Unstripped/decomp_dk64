@@ -12,17 +12,17 @@
 u16 D_80032220[0x4] = {
 #include "arcade/D_80032220.inc.c"
 };
-u16 D_80032228[0x124] = {
-#include "arcade/D_80032228.inc.c"
+u16 gArcadeOilFireSprite[0x124] = {
+#include "arcade/gArcadeOilFireSprite.inc.c"
 };
-u16 D_80032470[0x124] = {
-#include "arcade/D_80032470.inc.c"
+u16 gArcadeOilFireFlickerSprite[0x124] = {
+#include "arcade/gArcadeOilFireFlickerSprite.inc.c"
 };
-u16 D_800326B8[0x124] = {
-#include "arcade/D_800326B8.inc.c"
+u16 gArcadeOilFireFlareSprite[0x124] = {
+#include "arcade/gArcadeOilFireFlareSprite.inc.c"
 };
-u16 D_80032900[0x124] = {
-#include "arcade/D_80032900.inc.c"
+u16 gArcadeOilFireFlareFlickerSprite[0x124] = {
+#include "arcade/gArcadeOilFireFlareFlickerSprite.inc.c"
 };
 u16 gArcadeLadderSprite[0x24] = {
 #include "arcade/gArcadeLadderSprite.inc.c"
@@ -72,65 +72,65 @@ u16 D_80034360[0x104] = {
 u16 gArcadeGirderSprite[0x54] = {
 #include "arcade/gArcadeGirderSprite.inc.c"
 };
-u16 D_80034610[0x104] = {
-#include "arcade/D_80034610.inc.c"
+u16 gArcadeBarrelRollTopLeftSprite[0x104] = {
+#include "arcade/gArcadeBarrelRollTopLeftSprite.inc.c"
 };
-u16 D_80034818[0x104] = {
-#include "arcade/D_80034818.inc.c"
+u16 gArcadeBarrelRollBottomLeftSprite[0x104] = {
+#include "arcade/gArcadeBarrelRollBottomLeftSprite.inc.c"
 };
-u16 D_80034A20[0x104] = {
-#include "arcade/D_80034A20.inc.c"
+u16 gArcadeBarrelRollBottomRightSprite[0x104] = {
+#include "arcade/gArcadeBarrelRollBottomRightSprite.inc.c"
 };
-u16 D_80034C28[0x104] = {
-#include "arcade/D_80034C28.inc.c"
+u16 gArcadeBarrelRollTopRightSprite[0x104] = {
+#include "arcade/gArcadeBarrelRollTopRightSprite.inc.c"
 };
-u16 D_80034E30[0x104] = {
-#include "arcade/D_80034E30.inc.c"
+u16 gArcadeBarrelBlueRollTopLeftSprite[0x104] = {
+#include "arcade/gArcadeBarrelBlueRollTopLeftSprite.inc.c"
 };
-u16 D_80035038[0x104] = {
-#include "arcade/D_80035038.inc.c"
+u16 gArcadeBarrelBlueRollBottomLeftSprite[0x104] = {
+#include "arcade/gArcadeBarrelBlueRollBottomLeftSprite.inc.c"
 };
-u16 D_80035240[0x104] = {
-#include "arcade/D_80035240.inc.c"
+u16 gArcadeBarrelBlueRollBottomRightSprite[0x104] = {
+#include "arcade/gArcadeBarrelBlueRollBottomRightSprite.inc.c"
 };
-u16 D_80035448[0x104] = {
-#include "arcade/D_80035448.inc.c"
+u16 gArcadeBarrelBlueRollTopRightSprite[0x104] = {
+#include "arcade/gArcadeBarrelBlueRollTopRightSprite.inc.c"
 };
-u16 D_80035650[0x124] = {
-#include "arcade/D_80035650.inc.c"
+u16 gArcadeBarrelSideDarkBandSprite[0x124] = {
+#include "arcade/gArcadeBarrelSideDarkBandSprite.inc.c"
 };
-u16 D_80035898[0x124] = {
-#include "arcade/D_80035898.inc.c"
+u16 gArcadeBarrelSideLightBandSprite[0x124] = {
+#include "arcade/gArcadeBarrelSideLightBandSprite.inc.c"
 };
-u16 D_80035AE0[0x104] = {
-#include "arcade/D_80035AE0.inc.c"
+u16 gArcadeBarrelBlueSideDarkBandSprite[0x104] = {
+#include "arcade/gArcadeBarrelBlueSideDarkBandSprite.inc.c"
 };
-u16 D_80035CE8[0x104] = {
-#include "arcade/D_80035CE8.inc.c"
+u16 gArcadeBarrelBlueSideLightBandSprite[0x104] = {
+#include "arcade/gArcadeBarrelBlueSideLightBandSprite.inc.c"
 };
-u16 D_80035EF0[0x124] = {
-#include "arcade/D_80035EF0.inc.c"
+u16 gArcadeFireballSprite[0x124] = {
+#include "arcade/gArcadeFireballSprite.inc.c"
 };
-u16 D_80036138[0x124] = {
-#include "arcade/D_80036138.inc.c"
+u16 gArcadeFireballFlickerSprite[0x124] = {
+#include "arcade/gArcadeFireballFlickerSprite.inc.c"
 };
-u16 D_80036380[0x124] = {
-#include "arcade/D_80036380.inc.c"
+u16 gArcadeFireballStage2Sprite[0x124] = {
+#include "arcade/gArcadeFireballStage2Sprite.inc.c"
 };
-u16 D_800365C8[0x124] = {
-#include "arcade/D_800365C8.inc.c"
+u16 gArcadeFireballStage2FlickerSprite[0x124] = {
+#include "arcade/gArcadeFireballStage2FlickerSprite.inc.c"
 };
-u16 D_80036810[0x124] = {
-#include "arcade/D_80036810.inc.c"
+u16 gArcadeFireballStage2BlueSprite[0x124] = {
+#include "arcade/gArcadeFireballStage2BlueSprite.inc.c"
 };
-u16 D_80036A58[0x124] = {
-#include "arcade/D_80036A58.inc.c"
+u16 gArcadeFireballStage2BlueFlickerSprite[0x124] = {
+#include "arcade/gArcadeFireballStage2BlueFlickerSprite.inc.c"
 };
-u16 D_80036CA0[0x124] = {
-#include "arcade/D_80036CA0.inc.c"
+u16 gArcadeFireballBlueSprite[0x124] = {
+#include "arcade/gArcadeFireballBlueSprite.inc.c"
 };
-u16 D_80036EE8[0x124] = {
-#include "arcade/D_80036EE8.inc.c"
+u16 gArcadeFireballBlueFlickerSprite[0x124] = {
+#include "arcade/gArcadeFireballBlueFlickerSprite.inc.c"
 };
 u16 D_80037130[0x104] = {
 #include "arcade/D_80037130.inc.c"
@@ -141,20 +141,20 @@ u16 D_80037338[0x124] = {
 u16 D_80037580[0x104] = {
 #include "arcade/D_80037580.inc.c"
 };
-u16 D_80037788[0x104] = {
-#include "arcade/D_80037788.inc.c"
+u16 gArcadeSpringExtendedSprite[0x104] = {
+#include "arcade/gArcadeSpringExtendedSprite.inc.c"
 };
-u16 D_80037990[0x104] = {
-#include "arcade/D_80037990.inc.c"
+u16 gArcadeSpringCompressedSprite[0x104] = {
+#include "arcade/gArcadeSpringCompressedSprite.inc.c"
 };
-u16 D_80037B98[0x104] = {
-#include "arcade/D_80037B98.inc.c"
+u16 gArcadeConveyorPulleyTiltRightSprite[0x104] = {
+#include "arcade/gArcadeConveyorPulleyTiltRightSprite.inc.c"
 };
-u16 D_80037DA0[0x104] = {
-#include "arcade/D_80037DA0.inc.c"
+u16 gArcadeConveyorPulleyFlatSprite[0x104] = {
+#include "arcade/gArcadeConveyorPulleyFlatSprite.inc.c"
 };
-u16 D_80037FA8[0x104] = {
-#include "arcade/D_80037FA8.inc.c"
+u16 gArcadeConveyorPulleyTiltLeftSprite[0x104] = {
+#include "arcade/gArcadeConveyorPulleyTiltLeftSprite.inc.c"
 };
 u16 D_800381B0[0x104] = {
 #include "arcade/D_800381B0.inc.c"
@@ -225,20 +225,20 @@ u16 gArcadeCoinSprite[0x194] = {
 u16 gArcadePlayerStandSprite[0x124] = {
 #include "arcade/gArcadePlayerStandSprite.inc.c"
 };
-u16 D_8003B3C8[0x124] = {
-#include "arcade/D_8003B3C8.inc.c"
+u16 gArcadePlayerWalkFrontLegUpSprite[0x124] = {
+#include "arcade/gArcadePlayerWalkFrontLegUpSprite.inc.c"
 };
-u16 D_8003B610[0x124] = {
-#include "arcade/D_8003B610.inc.c"
+u16 gArcadePlayerWalkBackLegUpSprite[0x124] = {
+#include "arcade/gArcadePlayerWalkBackLegUpSprite.inc.c"
 };
 u16 gArcadePlayerClimbSprite[0x124] = {
 #include "arcade/gArcadePlayerClimbSprite.inc.c"
 };
-u16 D_8003BAA0[0x124] = {
-#include "arcade/D_8003BAA0.inc.c"
+u16 gArcadePlayerClimbOverHunchSprite[0x124] = {
+#include "arcade/gArcadePlayerClimbOverHunchSprite.inc.c"
 };
-u16 D_8003BCE8[0x124] = {
-#include "arcade/D_8003BCE8.inc.c"
+u16 gArcadePlayerClimbOverCrawlSprite[0x124] = {
+#include "arcade/gArcadePlayerClimbOverCrawlSprite.inc.c"
 };
 u16 gArcadePlayerClimbEndSprite[0x124] = {
 #include "arcade/gArcadePlayerClimbEndSprite.inc.c"
@@ -249,17 +249,17 @@ u16 gArcadePlayerHammerUpSprite[0x124] = {
 u16 gArcadePlayerHammerDownSprite[0x124] = {
 #include "arcade/gArcadePlayerHammerDownSprite.inc.c"
 };
-u16 D_8003C608[0x124] = {
-#include "arcade/D_8003C608.inc.c"
+u16 gArcadePlayerHammerUpWalkFrontLegUpSprite[0x124] = {
+#include "arcade/gArcadePlayerHammerUpWalkFrontLegUpSprite.inc.c"
 };
-u16 D_8003C850[0x124] = {
-#include "arcade/D_8003C850.inc.c"
+u16 gArcadePlayerHammerDownWalkFrontLegUpSprite[0x124] = {
+#include "arcade/gArcadePlayerHammerDownWalkFrontLegUpSprite.inc.c"
 };
-u16 D_8003CA98[0x124] = {
-#include "arcade/D_8003CA98.inc.c"
+u16 gArcadePlayerHammerUpWalkBackLegUpSprite[0x124] = {
+#include "arcade/gArcadePlayerHammerUpWalkBackLegUpSprite.inc.c"
 };
-u16 D_8003CCE0[0x124] = {
-#include "arcade/D_8003CCE0.inc.c"
+u16 gArcadePlayerHammerDownWalkBackLegUpSprite[0x124] = {
+#include "arcade/gArcadePlayerHammerDownWalkBackLegUpSprite.inc.c"
 };
 u16 gArcadePlayerJumpSprite[0x124] = {
 #include "arcade/gArcadePlayerJumpSprite.inc.c"
@@ -282,8 +282,8 @@ u16 gArcadeLifeIconSprite[0x44] = {
 u16 gArcadePaulineUpperSprite[0x124] = {
 #include "arcade/gArcadePaulineUpperSprite.inc.c"
 };
-u16 D_8003DD60[0x36C] = {
-#include "arcade/D_8003DD60.inc.c"
+u16 gArcadePaulineUpperFrontSprite[0x36C] = {
+#include "arcade/gArcadePaulineUpperFrontSprite.inc.c"
 };
 u16 gArcadePaulineLowerSprite[0x124] = {
 #include "arcade/gArcadePaulineLowerSprite.inc.c"
@@ -312,23 +312,23 @@ u16 gArcadeKongStompSprite[0x7E4] = {
 u16 gArcadeKongHoldBarrelSprite[0x7E4] = {
 #include "arcade/gArcadeKongHoldBarrelSprite.inc.c"
 };
-u16 D_80044460[0x7E4] = {
-#include "arcade/D_80044460.inc.c"
+u16 gArcadeKongCarryClimbReachSprite[0x7E4] = {
+#include "arcade/gArcadeKongCarryClimbReachSprite.inc.c"
 };
-u16 D_80045428[0x7E4] = {
-#include "arcade/D_80045428.inc.c"
+u16 gArcadeKongCarryClimbPullSprite[0x7E4] = {
+#include "arcade/gArcadeKongCarryClimbPullSprite.inc.c"
 };
 u16 gArcadeKongClimbSprite[0x7E4] = {
 #include "arcade/gArcadeKongClimbSprite.inc.c"
 };
-u16 D_800473B8[0x7E4] = {
-#include "arcade/D_800473B8.inc.c"
+u16 gArcadeKongDazedEyesRightSprite[0x7E4] = {
+#include "arcade/gArcadeKongDazedEyesRightSprite.inc.c"
 };
-u16 D_80048380[0x7E4] = {
-#include "arcade/D_80048380.inc.c"
+u16 gArcadeKongDazedEyesUpLeftSprite[0x7E4] = {
+#include "arcade/gArcadeKongDazedEyesUpLeftSprite.inc.c"
 };
-u16 D_80049348[0x7E0] = {
-#include "arcade/D_80049348.inc.c"
+u16 gArcadeKongDazedEyesDownSprite[0x7E0] = {
+#include "arcade/gArcadeKongDazedEyesDownSprite.inc.c"
 };
 
 // Game tables, entity templates (copied into gArcadeEntities) and game state used by 0.c.
@@ -347,14 +347,14 @@ u8 gArcadeTypeOriginY[32] = {
     0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 ArcadeEntity gArcadePlayerTemplate = { 96.0f, 247.0f, 0.0f, 0.0f, 0.0f, NULL, 0x0D, 0, 3, 0, 0, 0, 16, 18 };
-ArcadeEntity gArcadeBarrelTemplate = { 64.0f, 79.0f, 1.0f, 0.0f, 0.0f, D_80034610, 0x01, 0, 0, 0, 0, 0, 16, 15 };
+ArcadeEntity gArcadeBarrelTemplate = { 64.0f, 79.0f, 1.0f, 0.0f, 0.0f, gArcadeBarrelRollTopLeftSprite, 0x01, 0, 0, 0, 0, 0, 16, 15 };
 ArcadeEntity gArcadeFireballTemplate = { 76.0f, 230.0f, 1.0f, 0.0f, 0.0f, NULL, 0x02, 2, 0, 0, 0, 0, 16, 17 };
-ArcadeEntity gArcadeOilFireTemplate = { 64.0f, 216.0f, 1.0f, 0.0f, 0.0f, D_80032228, 0x13, 2, 0, 0, 0, 0, 16, 16 };
+ArcadeEntity gArcadeOilFireTemplate = { 64.0f, 216.0f, 1.0f, 0.0f, 0.0f, gArcadeOilFireSprite, 0x13, 2, 0, 0, 0, 0, 16, 16 };
 ArcadeEntity gArcadeSpringTemplate = { -24.0f, 81.0f, 2.0f, -3.5f, 0.0f, NULL, 0x03, 0, 0, 0, 0, 0, 16, 16 };
 ArcadeEntity gArcadeBonusBoxTemplate = { 219.0f, 38.0f, 2.0f, -3.5f, 0.0f, D_80032F68, 0x0E, 0, 0, 0, 0, 0, 43, 19 };
 ArcadeEntity gArcadeOilDrumTemplate = { 64.0f, 231.0f, 0.0f, 0.0f, 0.0f, D_80037338, 0x10, 0, 0, 0, 0, 0, 16, 17 };
 ArcadeEntity gArcadeLiftMotorTemplate = { 80.0f, 88.0f, 0.0f, 0.0f, 0.0f, D_80037580, 0x11, 0, 0, 0, 0, 0, 16, 16 };
-ArcadeEntity gArcadeConveyorPulleyTemplate = { 48.0f, 84.0f, 0.0f, 0.0f, 0.0f, D_80037B98, 0x12, 0, 0, 0, 0, 0, 16, 16 };
+ArcadeEntity gArcadeConveyorPulleyTemplate = { 48.0f, 84.0f, 0.0f, 0.0f, 0.0f, gArcadeConveyorPulleyTiltRightSprite, 0x12, 0, 0, 0, 0, 0, 16, 16 };
 ArcadeEntity gArcadePaulineLowerTemplate = { 136.0f, 26.0f, 0.0f, 0.0f, 0.0f, NULL, 0x1B, 0, 0, 0, 0, 0, 16, 17 };
 ArcadeEntity gArcadePaulineUpperTemplate = { 136.0f, 42.0f, 0.0f, 0.0f, 0.0f, NULL, 0x1A, 0, 0, 0, 0, 0, 16, 17 };
 ArcadeEntity gArcadeCoinTemplate = { 136.0f, 42.0f, 0.0f, 0.0f, 0.0f, NULL, 0x1E, 0, 0, 0, 0, 0, 20, 20 };

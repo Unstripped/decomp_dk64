@@ -79,10 +79,10 @@ extern const u8 D_8002DC98[8];
 extern const u8 D_8002DCA0[8];
 extern const u8 D_8002DCA8[8];
 
-const u8 *D_8002D8B0[4] = { D_8002DC90, D_8002DC98, D_8002DCA0, D_8002DCA8 };
+const u8 *sReelSymbolStrips[4] = { D_8002DC90, D_8002DC98, D_8002DCA0, D_8002DCA8 };
 
 u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
-    return D_8002D8B0[reelIndex][obj->act[reelIndex]->reelSymbol];
+    return sReelSymbolStrips[reelIndex][obj->act[reelIndex]->reelSymbol];
 }
 
 extern void *gPuffSprites[];

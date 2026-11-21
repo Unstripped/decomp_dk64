@@ -216,7 +216,7 @@ typedef struct CsCursor {
     /* 0x0 */ s32 timer;
     /* 0x4 */ s32 idx;
 } CsCursor;
-extern u8 D_8071FB54[];
+extern u8 gEffectSpriteBurstOrange[];
 
 void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCursor *st;
@@ -246,7 +246,7 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDepth(1);
         effectSetSpeed(0);
         effectSetCallback(timedLightPulse);
-        effectCreateAtPosition(D_8071FB54, 0.667f, x, y + 10, z);
+        effectCreateAtPosition(gEffectSpriteBurstOrange, 0.667f, x, y + 10, z);
         st->timer = 0x19;
     }
     st->timer--;
@@ -472,7 +472,7 @@ typedef struct CsFlicker {
 } CsFlicker;
 
 extern u8 gGameMode;
-f32 D_807480DC = 900.0f;
+f32 gCsStormRainRange = 900.0f;
 extern u8 gAmbientAudioLevels[];
 extern u8 gAmbientIndoors;
 extern f32 gAmbientNearestPan;
@@ -526,7 +526,7 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
                 fade = 1.0 - dist / 600.0f;
             }
         }
-        if (gPlayerSlots->camChunk == 0xE || (gPlayerSlots->camChunk == 0xB && dist < D_807480DC)) {
+        if (gPlayerSlots->camChunk == 0xE || (gPlayerSlots->camChunk == 0xB && dist < gCsStormRainRange)) {
             weatherSpawnRain(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
         } else {
             gAmbientAudioLevels[0] = 0;
@@ -620,8 +620,8 @@ void csCmdSplineLights(CsState *cs, s16 csId, s16 b, s16 c) {
     csSplineLightStep(p + 1, 4, 0x18, 0.8f);
 }
 
-f32 D_807480E0 = 20.0f;
-f32 D_807480E4 = 35.0f;
+f32 gCsSpotLightInnerAngle = 20.0f;
+f32 gCsSpotLightOuterAngle = 35.0f;
 
 void csCmdNodeSpotLightFov(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x2;
@@ -633,7 +633,7 @@ void csCmdNodeSpotLightFov(CsState *cs, s16 csId, s16 b, s16 c) {
 
     modelSlotGetNodePos(csId, 1, 1, &x1, &y1, &z1);
     modelSlotGetNodePos(csId, 1, 2, &x2, &y2, &z2);
-    lightSetFovAngles(D_807480E0, D_807480E4);
+    lightSetFovAngles(gCsSpotLightInnerAngle, gCsSpotLightOuterAngle);
     lightAdd(x1, y1, z1, x2, y2, z2, 0.0f, 1, gCsSpotLightRed, gCsSpotLightGreen, gCsSpotLightBlue);
 }
 
@@ -668,9 +668,9 @@ void csCmdRandomPointEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-f32 D_807480E8 = 0.3f;
-u8 D_807480EC[4] = { 0, 0, 0, 0x96 };
-extern u8 D_80720CD8[];
+f32 gCsDripScale = 0.3f;
+u8 gCsDripColor[4] = { 0, 0, 0, 0x96 };
+extern u8 gEffectSpriteWaterDrip[];
 
 void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 idx;
@@ -684,8 +684,8 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetCallback(effectFallUpdate);
             effectSetDuration(-1);
             effectSetDepth(1);
-            effectSetColor(0xFF, 0xFF, 0xFF, D_807480EC[3]);
-            effectCreateAtPosition(D_80720CD8, D_807480E8, gMinecartTrackPoints[b][idx].x, gMinecartTrackPoints[b][idx].y,
+            effectSetColor(0xFF, 0xFF, 0xFF, gCsDripColor[3]);
+            effectCreateAtPosition(gEffectSpriteWaterDrip, gCsDripScale, gMinecartTrackPoints[b][idx].x, gMinecartTrackPoints[b][idx].y,
                           gMinecartTrackPoints[b][idx].z);
         }
     }
@@ -912,7 +912,7 @@ void csCmdExtraObjectAttach(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern EffectGridAsset D_80720B00;
+extern EffectGridAsset gEffectSpriteCloud;
 
 void csCmdPeriodicProximityEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 scale = 0.0f;
@@ -925,7 +925,7 @@ void csCmdPeriodicProximityEffects(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetCallback(effectProximityFadeUpdate);
             effectSetSpeed(0x2BC);
             effectSetMaxDistance(0x2BC);
-            effectCreateAtModelNode(&D_80720B00, scale + 1.1, csId, i, 1);
+            effectCreateAtModelNode(&gEffectSpriteCloud, scale + 1.1, csId, i, 1);
             scale += 0.05;
         }
     }
@@ -945,14 +945,14 @@ typedef struct CsPointHitState {
 
 f32 gCsTrackPointProximityRadius = 700.0f;
 s32 gCsDropWaveInterval = 0x320;
-s32 D_807480F8 = 0xA;
-s32 D_807480FC = 0x14;
-s32 D_80748100 = 0xC8;
+s32 gCsDropWaveCount = 0xA;
+s32 gCsDropWaveDelay = 0x14;
+s32 gCsDropHeight = 0xC8;
 f32 gCsDropScale = 0.5f;
-u8 D_80748108 = 0;
+u8 gCsTrackGlintDisabled = 0;
 s32 gCsDropSpread = 0x50;
-s32 D_80748110 = 0x28;
-s32 D_80748114 = 3;
+s32 gCsDropFirstWaveCount = 0x28;
+s32 gCsDropFirstWaveDelay = 3;
 f32 D_80748118 = 80.0f;
 
 void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -986,7 +986,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     p = cs->data;
     if (b == 0) {
-        if (D_80748108 != 0) {
+        if (gCsTrackGlintDisabled != 0) {
             return;
         }
         if (p->active != 0 && p->flag14 == 0) {
@@ -1033,12 +1033,12 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
             } else {
                 t = (randomNonNegative() >> 15) % gCsDropSpread - gCsDropSpread * 0.5;
                 u = (randomNonNegative() >> 15) % gCsDropSpread - gCsDropSpread * 0.5;
-                actorListSpawnNodeEntry(0x5C, gPrimaryPlayerActor->x + t, gPrimaryPlayerActor->y + D_80748100, gPrimaryPlayerActor->z + u, 0, gCsDropScale, 0, vec);
+                actorListSpawnNodeEntry(0x5C, gPrimaryPlayerActor->x + t, gPrimaryPlayerActor->y + gCsDropHeight, gPrimaryPlayerActor->z + u, 0, gCsDropScale, 0, vec);
             }
             if (p->flag14) {
-                p->delay = D_80748114;
+                p->delay = gCsDropFirstWaveDelay;
             } else {
-                p->delay = D_807480FC;
+                p->delay = gCsDropWaveDelay;
             }
             p->count--;
             if (p->count == 0) {
@@ -1110,7 +1110,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         if (p->timer == 0) {
             p->active = 1;
             p->flag1C = 0;
-            p->count = p->flag14 ? D_80748110 : D_807480F8;
+            p->count = p->flag14 ? gCsDropFirstWaveCount : gCsDropWaveCount;
             p->delay = 0;
         }
     }
@@ -1162,20 +1162,20 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-f32 D_8074811C = 40.0f;
-f32 D_80748120 = 600.0f;
-f32 D_80748124 = 150.0f;
-f32 D_80748128 = 0.5f;
-s32 D_8074812C = 0x258;
-s32 D_80748130 = 0x1F4;
+f32 gCsExplosionDebrisHeight = 40.0f;
+f32 gCsExplosionDebrisSpeedXZBase = 600.0f;
+f32 gCsExplosionDebrisSpeedYBase = 150.0f;
+f32 gCsExplosionDebrisScale = 0.5f;
+s32 gCsExplosionDebrisSpeedXZRange = 0x258;
+s32 gCsExplosionDebrisSpeedYRange = 0x1F4;
 s32 D_80748134 = 0x190;
 f32 D_80748138 = 3.0f;
 s32 D_8074813C = 0x64;
-f32 D_80748140 = 7.0f;
-f32 D_80748144 = 1.5f;
-s32 D_80748148 = 0xA;
-f32 D_8074814C = 60.0f;
-s32 D_80748150 = 0x1C2;
+f32 gCsExplosionSmokeScale = 7.0f;
+f32 gCsExplosionSparkScale = 1.5f;
+s32 gCsExplosionSmokeCount = 0xA;
+f32 gCsExplosionSparkHeight = 60.0f;
+s32 gCsExplosionLightRadius = 0x1C2;
 u8 D_80748154[20] = { 0, 0, 0, 2, 0, 0xC8, 0, 0, 0, 0xC8, 0, 0, 0, 0xFF, 0, 0, 0, 0xFF, 0, 0 };
 extern u8 gEffectSpriteSmokeCloud[];
 
@@ -1189,7 +1189,7 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     f64 d0;
     f64 d1;
 
-    for (i = 0; i < D_80748148; i++) {
+    for (i = 0; i < gCsExplosionSmokeCount; i++) {
         d0 = randomLcgNext() / 1000 % 100;
         fx = d0 - 50.0;
         d1 = randomLcgNext() / 1000 % 100;
@@ -1199,13 +1199,13 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetStartDelay(i);
         effectSetDepth(1);
         if (i == 0) {
-            effectSetSpeed(D_80748150 + 0x10000);
+            effectSetSpeed(gCsExplosionLightRadius + 0x10000);
             effectSetCallback(effectLightFlickerDecay);
             effectSetFrameDelay(D_80748154[3]);
         } else {
             effectSetCallback(effectSpinBillboardingUpdate);
         }
-        effectCreateAtPosition(gEffectSpriteSmokeCloud, D_80748140, gCsPosX + fx, gCsPosY + fy, gCsPosZ + fz);
+        effectCreateAtPosition(gEffectSpriteSmokeCloud, gCsExplosionSmokeScale, gCsPosX + fx, gCsPosY + fy, gCsPosZ + fz);
     }
     for (i = 0; i < 0xC; i++) {
         effectSetCallback(effectDecelDriftFadeUpdate);
@@ -1213,13 +1213,13 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDepth(1);
         effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
         effectSetFrameDelay(3);
-        effectCreateAtPosition(sEffectSparkConfig, D_80748144, gCsPosX, gCsPosY + D_8074814C, gCsPosZ);
+        effectCreateAtPosition(sEffectSparkConfig, gCsExplosionSparkScale, gCsPosX, gCsPosY + gCsExplosionSparkHeight, gCsPosZ);
     }
     for (i = 0; i != 0x1130; i += 0x190) {
-        vec[0] = (randomNonNegative() >> 0xF) % D_8074812C + D_80748120;
+        vec[0] = (randomNonNegative() >> 0xF) % gCsExplosionDebrisSpeedXZRange + gCsExplosionDebrisSpeedXZBase;
         vec[1] = i;
-        vec[2] = (randomNonNegative() >> 0xF) % D_80748130 + D_80748124;
-        actorListSpawnNodeEntry(0x5A, gCsPosX, gCsPosY + D_8074811C, gCsPosZ, 0, D_80748128, 0, vec);
+        vec[2] = (randomNonNegative() >> 0xF) % gCsExplosionDebrisSpeedYRange + gCsExplosionDebrisSpeedYBase;
+        actorListSpawnNodeEntry(0x5A, gCsPosX, gCsPosY + gCsExplosionDebrisHeight, gCsPosZ, 0, gCsExplosionDebrisScale, 0, vec);
     }
 }
 
@@ -1346,7 +1346,7 @@ void csCmdSpawnEffectAtRandomNode(CsState *cs, s16 csId, s16 b, s16 c) {
     effectCreateAtPosition(sEffectSparkConfig, 1.5f, x, y - 70.0f, z);
 }
 
-extern u8 D_80720DE0[];
+extern u8 gEffectSpriteBurstGreen[];
 
 void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
@@ -1375,11 +1375,11 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetFrameDelay(2);
     effectSetDepth(1);
     effectSetColor(0xFF, 0xFF, 0xFF, 0xC8);
-    effectCreateAtPosition(D_80720DE0, 1.0f, x, y + 10, z);
+    effectCreateAtPosition(gEffectSpriteBurstGreen, 1.0f, x, y + 10, z);
 }
 
-u8 D_80748168[4] = { 0, 0, 0, 0x78 };
-f32 D_8074816C = 3.0f;
+u8 gCsFallingSparkleColor[4] = { 0, 0, 0, 0x78 };
+f32 gCsFallingSparkleScale = 3.0f;
 
 void csCmdSpawnFallingSparkles(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1389,8 +1389,8 @@ void csCmdSpawnFallingSparkles(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetFrameDelay(3);
-        effectSetColor(0xFF, 0xFF, 0xFF, D_80748168[3]);
-        effectCreateAtModelNode(sEffectSparkConfig, D_8074816C, csId, i, 0);
+        effectSetColor(0xFF, 0xFF, 0xFF, gCsFallingSparkleColor[3]);
+        effectCreateAtModelNode(sEffectSparkConfig, gCsFallingSparkleScale, csId, i, 0);
     }
 }
 
@@ -1572,11 +1572,11 @@ typedef struct CsOrbitCounters {
     /* 0x4 */ CsAngleCounter scaleY;
     /* 0x8 */ CsAngleCounter bob;
 } CsOrbitCounters;
-extern u8 D_80721200[];
-extern u8 D_8072121C[];
-extern u8 D_80721238[];
-extern u8 D_80721250[];
-extern u8 D_8072126C[];
+extern u8 gEffectSpriteCandyHead[];
+extern u8 gEffectSpriteCrankyHead[];
+extern u8 gEffectSpriteSnideHead[];
+extern u8 gEffectSpriteFunkyHead[];
+extern u8 gEffectSpriteArrow[];
 
 void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *tex;
@@ -1599,16 +1599,16 @@ void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetDepth(1);
     switch (b) {
         case 0:
-            tex = D_80721200;
+            tex = gEffectSpriteCandyHead;
             break;
         case 1:
-            tex = D_8072121C;
+            tex = gEffectSpriteCrankyHead;
             break;
         case 2:
-            tex = D_80721250;
+            tex = gEffectSpriteFunkyHead;
             break;
         case 3:
-            tex = D_80721238;
+            tex = gEffectSpriteSnideHead;
             break;
     }
     sa = mathSinF(p->scaleX.half.angle) * 0.1;
@@ -1626,7 +1626,7 @@ void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetCallback(effectZRotationMatrixUpdate);
         effectSetMaxDistance(0x578);
         effectSetFlags(4);
-        effectCreateAtPosition(D_8072126C, 2.0f, gCsPosX + sx, gCsPosY + 30.0, gCsPosZ + sz);
+        effectCreateAtPosition(gEffectSpriteArrow, 2.0f, gCsPosX + sx, gCsPosY + 30.0, gCsPosZ + sz);
     }
 }
 
@@ -1923,7 +1923,7 @@ void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-extern u8 D_80721298[];
+extern u8 gEffectSpriteTwinkle[];
 
 void csCmdSpawnRandomNodeParticles(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1935,7 +1935,7 @@ void csCmdSpawnRandomNodeParticles(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetMaxDistance(0x7D0);
         effectSetCallback(effectSinePulseSpinUpdate);
         effectSetDuration(8);
-        effectCreateAtPosition(D_80721298, 1.0f, (*gMinecartTrackPoints)[idx].x, (*gMinecartTrackPoints)[idx].y, (*gMinecartTrackPoints)[idx].z);
+        effectCreateAtPosition(gEffectSpriteTwinkle, 1.0f, (*gMinecartTrackPoints)[idx].x, (*gMinecartTrackPoints)[idx].y, (*gMinecartTrackPoints)[idx].z);
     }
 }
 extern u16 gWorldBananaDeliveryGoals[];
@@ -2129,7 +2129,7 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-s16 D_807481C0[13][2] = {
+s16 gCsModelKeyValues[13][2] = {
     { 0x3F, 0x32 },
     { 0x42, 0x1E },
     { 0x44, 0xA },
@@ -2152,7 +2152,7 @@ void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
 
     key = gModelSlots[hashTableLookup(csId)].csModelId;
     found = 0;
-    p = D_807481C0;
+    p = gCsModelKeyValues;
     do {
         if (key == (*p)[0]) {
             found = 1;
@@ -2397,7 +2397,7 @@ typedef struct CsNodePair {
     /* 0x0 */ s16 a;
     /* 0x2 */ s16 b;
 } CsNodePair;
-s16 D_8074822C[6][2] = {
+s16 gCsPairStateIds[6][2] = {
     { 1, 4 },
     { 2, 7 },
     { 3, 6 },
@@ -2439,7 +2439,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
     p = cs->data;
     for (row = 0; row < 6 && !found; row++) {
         for (col = 0; col < 2 && !found; col++) {
-            if (D_8074822C[row][col] == cs->stateBytes[1]) {
+            if (gCsPairStateIds[row][col] == cs->stateBytes[1]) {
                 found = 1;
             }
         }
@@ -3354,7 +3354,7 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-s32 D_807482B4 = 0x50;
+s32 gCsBeatRampPeak = 0x50;
 s32 gCsBeatRampInterval = 1;
 s32 gCsBeatTopSpeedHold = 0x1E;
 s32 gCsBeatCoastSpeed = 0x19;
@@ -3403,7 +3403,7 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
                 p->timer = gCsBeatRampInterval;
                 frame = frame + gCsBeatRampStep;
                 modelAnimEntrySetUnkC(csId, 1, frame);
-                if (frame >= D_807482B4) {
+                if (frame >= gCsBeatRampPeak) {
                     p->phase = 1;
                     p->timer = gCsBeatTopSpeedHold;
                 }
@@ -3981,7 +3981,7 @@ void csEffectBobAndPulseUpdate(EffectNode *e, u8 *flag) {
     e->scaleY = e->scaleX;
 }
 
-extern u8 D_80721530[];
+extern u8 gEffectSpriteWrinkly[];
 
 void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetColor(0xFF, 0xFF, 0xFF, 0x80);
@@ -3989,7 +3989,7 @@ void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetDuration(-1);
     effectSetDepth(1);
     effectSetFrameDelay(2);
-    effectCreateAtPosition(D_80721530, 0.0f, gCsPosX, gCsPosY + 17.5, gCsPosZ);
+    effectCreateAtPosition(gEffectSpriteWrinkly, 0.0f, gCsPosX, gCsPosY + 17.5, gCsPosZ);
     actorSpawn(0x9C, 0x53);
     gSpawnedActor->x = gCsPosX;
     gSpawnedActor->y = gCsPosY;

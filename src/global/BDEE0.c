@@ -322,7 +322,7 @@ void behaviourArmadilloInitRollState(void) {
 
 extern PlayerStruct *gPlayerSlots;
 
-extern u8 D_8071FB34[];
+extern u8 gEffectSpriteImpactFlash[];
 
 s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
     s16 *rollState;
@@ -382,7 +382,7 @@ s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
                 gCurrentActor->flags |= 0x20000000;
                 if (gCurrentActor->movePitch == 0) {
                     gCurrentActor->movePitch = 0x28;
-                    effectCreateAtPosition(D_8071FB34, 2.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                    effectCreateAtPosition(gEffectSpriteImpactFlash, 2.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     actorScriptStart(tgt, 0x220);
                     tgt->subState = 2;

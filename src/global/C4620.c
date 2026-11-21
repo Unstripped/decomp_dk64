@@ -626,7 +626,7 @@ void actorNpcDonkeyUpdate(void) {
 }
 
 extern u8 gEffectSpriteSparklesBlue;
-extern u8 D_807200D4;
+extern u8 gEffectSpriteMuzzleFlash;
 
 void actorNpcDiddyUpdate(void) {
     ActorSub4 *sub;
@@ -674,7 +674,7 @@ void actorNpcDiddyUpdate(void) {
                         effectSetDepth(1);
                         effectSetSpeed(0x50);
                         effectSetCallback(effectLightPulseOscillate);
-                        effectCreateAtActorBone(&D_807200D4, 0.5f, gCurrentActor, nodeIndex + 9, 2);
+                        effectCreateAtActorBone(&gEffectSpriteMuzzleFlash, 0.5f, gCurrentActor, nodeIndex + 9, 2);
                     }
                     break;
             }
@@ -688,7 +688,7 @@ void actorNpcDiddyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_8071FBA0;
+extern u8 gEffectSpriteDustPuffBrown;
 
 void actorNpcLankyUpdate(void) {
     behaviourFrameBegin();
@@ -703,7 +703,7 @@ void actorNpcLankyUpdate(void) {
         if (gCurrentActor->sub4->model->animId == 0x1A4) {
             effectSetDepth(1);
             effectSetColor(0x96, 0xFF, 0xFF, 0xFF);
-            effectCreateAtActorBone(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
+            effectCreateAtActorBone(&gEffectSpriteDustPuffBrown, 0.7f, gCurrentActor, 5, 0);
         }
         actorTrackBoneTowardTarget(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
@@ -714,7 +714,7 @@ void actorNpcLankyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_8071FB34;
+extern u8 gEffectSpriteImpactFlash;
 
 void actorNpcTinyUpdate(void) {
     u8 bone;
@@ -746,7 +746,7 @@ void actorNpcTinyUpdate(void) {
                     goto done;
             }
             if (minFrame < gCurrentActor->sub4->model->frame) {
-                effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, bone, 0);
+                effectCreateAtActorBone(&gEffectSpriteImpactFlash, 0.5f, gCurrentActor, bone, 0);
                 gCurrentActor->subState = 0;
             }
         }
@@ -788,7 +788,7 @@ void actorNpcChunkyUpdate(void) {
 }
 
 extern u8 gEffectSpriteSleepZ[];
-extern u8 D_80720B58[];
+extern u8 gEffectSpriteWaterDroplet[];
 
 void func_806C1E44(void) {
     s32 i;
@@ -856,7 +856,7 @@ void func_806C1E44(void) {
                         effectSetDuration(0x28);
                         effectSetCallback(effectScatterFallUpdate);
                         effectSetSpeed(gCurrentActor->yaw);
-                        effectCreateAtActorBone(D_80720B58, 0.7f, gCurrentActor, 1, 0);
+                        effectCreateAtActorBone(gEffectSpriteWaterDroplet, 0.7f, gCurrentActor, 1, 0);
                         i++;
                     } while (i != 10);
                     gCurrentActor->subState++;
@@ -1350,7 +1350,7 @@ void actorScriptedUpdate(void) {
             break;
         case 0x52E:
             if (gCurrentActor->sub4->model->frame < 2.0f) {
-                effectCreateAtActorBone(&D_8071FB34, 1.5f, gCurrentActor, 6, 0);
+                effectCreateAtActorBone(&gEffectSpriteImpactFlash, 1.5f, gCurrentActor, 6, 0);
             }
             break;
         case 0x527:

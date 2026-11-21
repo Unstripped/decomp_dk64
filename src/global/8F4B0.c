@@ -226,7 +226,7 @@ extern s16 gVolumeTriggerFiredX;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
-extern u16 D_80744700[];
+extern u16 gWorldBossMaps[];
 extern u8 gCurrentWorldId;
 extern s32 gHubReturnExit;
 extern Actor *gActivePlayerActor;
@@ -350,7 +350,7 @@ void actorCutsceneDispatchEvents(void) {
             break;
         case 0xB:
             hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 0);
-            mapRequestTransition(D_80744700[hubWorld], gHubReturnExit);
+            mapRequestTransition(gWorldBossMaps[hubWorld], gHubReturnExit);
             playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             break;
         case 0xC:

@@ -74,7 +74,7 @@ u8 D_80035980[3] = { 0x00, 0x01, 0xFF };
 u8 sArmydilloCannonPieceList[3] = { 0x02, 0x03, 0xFF };
 u8 D_80035988[2] = { 0x04, 0xFF };
 BossSmokeBones sArmydilloSmokeBones = { { 0x09, 0x0A, 0x0E, 0x12, 0x15, 0x16 } };
-u8 D_80035994[8] = { 0x29, 0x26, 0x27, 0x28, 0x2A, 0x2B, 0x2C, 0x2D };
+u8 sArmydilloDebrisBones[8] = { 0x29, 0x26, 0x27, 0x28, 0x2A, 0x2B, 0x2C, 0x2D };
 
 extern Actor *gCurrentActor;
 extern u8 sEffectSparkConfig[];
@@ -157,7 +157,7 @@ void bossArmydilloInitArena(void) {
     }
 
     for (i = 0; i < 8; i++) {
-        offset->bone = D_80035994[i];
+        offset->bone = sArmydilloDebrisBones[i];
         offset->lastBone = 0xFF;
         offset->x = 0.0f;
         offset->y = 0.0f;
@@ -511,8 +511,8 @@ typedef struct BossArmydilloActor {
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 
-extern const u8 D_80035CB8[];
-extern const u8 D_80035CC0[];
+extern const u8 sArmydilloFlightPath[];
+extern const u8 sArmydilloArenaPath[];
 extern u8 gGameMode;
 extern u8 gWeatherThunderMuted;
 extern s16 gArmydilloTerminalSpeedY;
@@ -544,7 +544,7 @@ void bossArmydilloStep(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->animSpeedScale = 0.002f;
         camSetSecondTarget(gCamActor, 0, 0);
-        bossInitScriptData(D_80035CC0);
+        bossInitScriptData(sArmydilloArenaPath);
         gCurrentActor->accelY = gActorDefaultAccelY;
         gCurrentActor->terminalSpeedY = gArmydilloTerminalSpeedY;
         bossArmydilloHideCannons();
@@ -1049,7 +1049,7 @@ void bossArmydilloStep(void) {
     case 0x26:
         switch (gCurrentActor->subState) {
         case 0:
-            bossInitScriptData(D_80035CB8);
+            bossInitScriptData(sArmydilloFlightPath);
             gCurrentActor->subState = 1;
             /* fallthrough */
         case 1:
@@ -1192,6 +1192,6 @@ const u8 D_80035C94[34] = {
     0x2F, 0x50,
 };
 
-const u8 D_80035CB8[6] = { 0x05, 0x08, 0x0B, 0x09, 0x0A, 0x0C };
+const u8 sArmydilloFlightPath[6] = { 0x05, 0x08, 0x0B, 0x09, 0x0A, 0x0C };
 
-const u8 D_80035CC0[5] = { 0x04, 0x00, 0x01, 0x02, 0x03 };
+const u8 sArmydilloArenaPath[5] = { 0x04, 0x00, 0x01, 0x02, 0x03 };

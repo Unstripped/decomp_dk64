@@ -1242,13 +1242,13 @@ void projectileSpawnParticleEffect(void) {
 }
 
 
-extern u8 D_80720020;
-extern u8 D_807202D0;
+extern u8 gEffectSpriteMelonSpin;
+extern u8 gEffectSpriteMelonSplat;
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
-extern u8 D_807200EC;
+extern u8 gEffectSpritePeanutShard;
 extern u8 gPlayerCount;
-extern u8 D_8072029C;
+extern u8 gEffectSpriteGrape;
 extern u8 D_80720BA0;
 extern s16 gMultiplayerShotLifetime;
 extern s16 gMultiplayerShotLongLifetime;
@@ -1295,7 +1295,7 @@ void projectileDespawnOrExplode(void) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720020, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteMelonSpin, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->spawnFrame = gGameFrameCounter;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -1310,7 +1310,7 @@ void projectileDespawnOrExplode(void) {
             effectSetDuration(1);
             effectSetCallback(effectLifetimeCountdownUpdate);
             effectSetSpeed(0xC);
-            effectCreateAtPosition(&D_807202D0, 0.75f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteMelonSplat, 0.75f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x61, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
         actorDespawn(gCurrentActor);
@@ -1320,8 +1320,8 @@ void projectileDespawnOrExplode(void) {
     }
 }
 
-extern u8 D_807200A0;
-extern u8 D_8071FB34;
+extern u8 gEffectSpritePeanut;
+extern u8 gEffectSpriteImpactFlash;
 extern s16 gHomingShotLifetime;
 extern s16 gHomingShotLongLifetime;
 
@@ -1345,7 +1345,7 @@ void projectileHomingUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_807200A0, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpritePeanut, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
@@ -1360,7 +1360,7 @@ void projectileHomingUpdate(void) {
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
-        projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_807200A0, 0);
+        projectileSteerTowardTarget(collisionMask, gCurrentActor, &gEffectSpritePeanut, 0);
     }
     if (state->param & 4) {
         lifetime = gHomingShotLongLifetime;
@@ -1382,7 +1382,7 @@ void projectileHomingUpdate(void) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
         effectSetCallback(effectLightPulseOscillate);
-        effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteImpactFlash, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8D, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
         if (gMultiplayerReducedEffects == 0) {
@@ -1390,7 +1390,7 @@ void projectileHomingUpdate(void) {
                 effectSetDepth(1);
                 effectSetSpeed(0x0B000000 + i);
                 effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpritePeanutShard, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
     }
@@ -1424,7 +1424,7 @@ void projectileMultiplayerUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_8072029C, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteGrape, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
@@ -1439,7 +1439,7 @@ void projectileMultiplayerUpdate(void) {
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
-        projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_8072029C, 0);
+        projectileSteerTowardTarget(collisionMask, gCurrentActor, &gEffectSpriteGrape, 0);
     }
     if (state->param & 4) {
         lifetime = gMultiplayerShotLongLifetime;
@@ -1491,7 +1491,7 @@ void projectileSpawnExplosion(void) {
             effectSetDepth(1);
             effectSetSpeed(0x0B010000 + i);
             effectSetCallback(effectRadialSprayUpdate);
-            effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpritePeanutShard, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
     }
 
@@ -1500,7 +1500,7 @@ void projectileSpawnExplosion(void) {
 
 
 
-extern u8 D_80720268;
+extern u8 gEffectSpriteOrangeGrenade;
 extern s16 gBounceExplodeLifetime;
 extern s16 D_8075034C;
 extern s8 D_80029FA0;
@@ -1544,7 +1544,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         } else {
             gCurrentActor->speedY = 200.0f * scale;
         }
-        effectCreateAtActorBone(&D_80720268, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteOrangeGrenade, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->bounceCount = 0;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->arcSpeedCap = 0x2328;
@@ -1637,7 +1637,7 @@ void projectileBounceExplodeScaledUpdate(void) {
                     effectSetDepth(1);
                     effectSetSpeed(0x0B010000 + i);
                     effectSetCallback(effectRadialSprayUpdate);
-                    effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                    effectCreateAtPosition(&gEffectSpritePeanutShard, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                 }
             }
         }
@@ -1666,9 +1666,8 @@ void projectileBounceExplodeScaledUpdate(void) {
 extern s16 gShotLifetime;
 extern s16 gShotLongLifetime;
 
-extern u8 D_807201A0;
+extern u8 gEffectSpritePineapple;
 
-extern u8 D_80720268;
 
 void projectileBounceExplodeGreenUpdate(void) {
     ProjectileState *state;
@@ -1693,7 +1692,7 @@ void projectileBounceExplodeGreenUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetColor(0, 0xFF, 0, 0xFF);
-        effectCreateAtActorBone(&D_80720268, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteOrangeGrenade, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->spawnFrame = gGameFrameCounter;
         state->bounceCount = 0;
         gCurrentActor->flags |= 0x80000;
@@ -1787,7 +1786,7 @@ void projectileBeamUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_807201A0, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpritePineapple, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
@@ -1802,7 +1801,7 @@ void projectileBeamUpdate(void) {
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
-        projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_807201A0, 0);
+        projectileSteerTowardTarget(collisionMask, gCurrentActor, &gEffectSpritePineapple, 0);
     }
     if (state->param & 4) {
         lifetime = gShotLongLifetime;
@@ -1818,7 +1817,7 @@ void projectileBeamUpdate(void) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
         effectSetCallback(effectLightPulseOscillate);
-        effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteImpactFlash, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1E5, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
         if (gMultiplayerReducedEffects == 0) {
@@ -1826,7 +1825,7 @@ void projectileBeamUpdate(void) {
                 effectSetDepth(1);
                 effectSetSpeed(0x0B000000 + i);
                 effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpritePeanutShard, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
     }
@@ -1859,7 +1858,7 @@ void projectileImpactExplosionUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_80720268, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteOrangeGrenade, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
@@ -1874,7 +1873,7 @@ void projectileImpactExplosionUpdate(void) {
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
-        projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_80720268, 0);
+        projectileSteerTowardTarget(collisionMask, gCurrentActor, &gEffectSpriteOrangeGrenade, 0);
     }
     if (state->param & 4) {
         lifetime = gShotLongLifetime;
@@ -1903,8 +1902,8 @@ void projectileImpactExplosionUpdate(void) {
     }
 }
 
-extern u8 D_807206A8;
-extern EffectGridAsset D_807206DC;
+extern u8 gEffectSpriteCoconut;
+extern EffectGridAsset gEffectSpriteCoconutShard;
 extern s16 D_80750360;
 extern s16 D_80750374;
 extern s16 D_80750354;
@@ -1929,7 +1928,7 @@ void projectileRotatingUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_807206A8, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteCoconut, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
@@ -1944,7 +1943,7 @@ void projectileRotatingUpdate(void) {
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
-        projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_807206A8, 0);
+        projectileSteerTowardTarget(collisionMask, gCurrentActor, &gEffectSpriteCoconut, 0);
     }
     if (state->param & 4) {
         lifetime = D_80750374;
@@ -1960,7 +1959,7 @@ void projectileRotatingUpdate(void) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
         effectSetCallback(effectLightPulseOscillate);
-        effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteImpactFlash, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0xFF, 0x7F, 5);
         actorDespawn(gCurrentActor);
         if (gMultiplayerReducedEffects == 0) {
@@ -1969,7 +1968,7 @@ void projectileRotatingUpdate(void) {
                 effectSetDepth(1);
                 effectSetSpeed(0x0B000000 + i);
                 effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpriteCoconutShard, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
     }
@@ -2155,7 +2154,7 @@ void actorApplyTransformAndRender(void) {
 
 extern EffectGridAsset gEffectSpriteBlast;
 extern EffectGridAsset gEffectSpriteBubble;
-extern EffectGridAsset D_80720804;
+extern EffectGridAsset gEffectSpriteCannonball;
 
 
 
@@ -2178,7 +2177,7 @@ void projectileParticleSpawnerTick(void) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720804, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteCannonball, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         if (state->param != 0xA) {
@@ -2210,7 +2209,7 @@ void projectileParticleSpawnerTick(void) {
                 effectSetDepth(1);
                 effectSetSpeed(0x0B000000 + i);
                 effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpriteCoconutShard, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         if (state->param != 0xA) {
@@ -2248,7 +2247,7 @@ void projectileHomingParticleUpdate(void) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720804, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteCannonball, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
     }

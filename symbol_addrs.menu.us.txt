@@ -124,6 +124,7 @@ menuGridEdgeY = 0x80033220;
 menuGridRowColors = 0x80033228;
 menuGridRecolored = 0x80033258;
 gShopInstrumentMelons = 0x800334DC;
+gShopCrankyTextLines = 0x800334EC;
 gShopCandyTextLines = 0x80033500;
 gShopFunkyTextLines = 0x80033514;
 gShopWidgetTextStyles = 0x8003353C;

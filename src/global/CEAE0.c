@@ -411,7 +411,7 @@ extern s16 gMapBoundMinX;
 extern s16 gMapBoundMinZ;
 extern s16 gMapBoundMaxX;
 extern s16 gMapBoundMaxZ;
-extern s32 D_80720020;
+extern s32 gEffectSpriteMelonSpin;
 
 void func_80026D40(void *, u8);
 f32 sqrtf(f32);
@@ -550,7 +550,7 @@ void playerUpdateCommon(s32 mode) {
                     effectSetFrameDelay(0);
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x78);
                     effectEnableFade();
-                    gActivePlayerState->effectObj = effectCreateAtPosition(&D_80720020, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
+                    gActivePlayerState->effectObj = effectCreateAtPosition(&gEffectSpriteMelonSpin, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
                 }
             } else {
                 if (gActivePlayerState->effectTimer < 0x78) {
@@ -622,10 +622,10 @@ void playerUpdateCommon(s32 mode) {
     }
     actorGetNodePos(gActivePlayerActor, 6, &((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX, &gPlayerSlots[gCurrentPlayerIndex].headY, &gPlayerSlots[gCurrentPlayerIndex].headZ); // FAKE: redundant (PlayerStruct *) cast on the first gPlayerSlots address steers regalloc
     camProjectToScreen(gActivePlayerActor->x, gPlayerSlots[gCurrentPlayerIndex].headY, gActivePlayerActor->z, &screenX, &screenY, NULL, 1.0f, gCurrentPlayerIndex);
-    gActivePlayerState->targetPitch = screenX;
-    gActivePlayerState->targetRoll = screenY;
+    gActivePlayerState->headScreenX = screenX;
+    gActivePlayerState->headScreenY = screenY;
     camProjectToScreen(gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z, &screenX, &screenY, NULL, 1.0f, gCurrentPlayerIndex);
-    gActivePlayerState->targetYawAngle = screenY;
+    gActivePlayerState->feetScreenY = screenY;
     gActivePlayerState->prevStateFlags = gActivePlayerState->stateFlags;
     if (gActivePlayerState->transitionTimer != 0) {
         gActivePlayerState->transitionTimer--;
@@ -2169,7 +2169,7 @@ void playerSpawnJumpTrailEffects(void) {
     }
 }
 
-extern s32 D_8071FF40;
+extern s32 gEffectSpriteStar;
 
 void playerSpawnSpiralDriftEffects(void) {
     s32 i;
@@ -2179,7 +2179,7 @@ void playerSpawnSpiralDriftEffects(void) {
         effectSetDepth(1);
         effectSetSpeed(i);
         effectSetDuration(0x45);
-        effectCreateAtActorBone(&D_8071FF40, 0.05f, gCurrentActor, 6, 2);
+        effectCreateAtActorBone(&gEffectSpriteStar, 0.05f, gCurrentActor, 6, 2);
     }
 }
 

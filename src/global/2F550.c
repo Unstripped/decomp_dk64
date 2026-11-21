@@ -59,7 +59,7 @@ CamZoomEntry sCamZoomTable[23][4] = {
 
 extern u8 gGfxBufferIndex;
 
-extern u8 D_807444F0;
+extern u8 gGameModeLastFrame;
 extern u8 gGameMode;
 extern s8 gWidescreenEnabled;
 extern s32 gCurrentMap;
@@ -71,7 +71,7 @@ f32 cameraStepAspectScale(void) {
     s32 flag;
 
     target = 1.0f;
-    if (D_807444F0 != 1 && gGameMode == 1) {
+    if (gGameModeLastFrame != 1 && gGameMode == 1) {
         step = 999.0f;
     } else {
         step = 0.02f;

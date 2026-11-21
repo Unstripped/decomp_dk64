@@ -33,8 +33,8 @@ typedef struct MultiTierRingParams {
 
 // This TU's .data (0x8074E880-0x8074E8B0), in address order; the puff sprites are sprite sheets of
 // 124780.c, and D_8074E8A8/D_8074E8AC are unreferenced.
-extern EffectGridAsset gEffectSpriteSparklePurple, gEffectSpriteSparkleYellow, D_8071FCC0;
-void *gPuffSprites[3] = { &gEffectSpriteSparklePurple, &gEffectSpriteSparkleYellow, &D_8071FCC0 };
+extern EffectGridAsset gEffectSpriteSparklePurple, gEffectSpriteSparkleYellow, gEffectSpriteSparkleGreen;
+void *gPuffSprites[3] = { &gEffectSpriteSparklePurple, &gEffectSpriteSparkleYellow, &gEffectSpriteSparkleGreen };
 ScaleTierTable sGrowthTierScales = { { 1.0f, 1.7f, 3.0f } };
 MultiTierRingParams sMultiTierRingActorTypes = { { -1, 0xCF, 0xD0, 0xAE } };
 s32 D_8074E8A8 = 0;
@@ -43,20 +43,20 @@ f32 D_8074E8AC = 0.3f;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern u8 gMultiplayerReducedEffects;
-extern EffectGridAsset D_8071FC0C;
+extern EffectGridAsset gEffectSpriteWaterSplash;
 extern EffectGridAsset gEffectSpriteStarBurst;
-extern EffectGridAsset D_8071FED0;
+extern EffectGridAsset gEffectSpriteWaterRipple;
 extern EffectGridAsset gEffectSpriteDustPuff;
-extern EffectGridAsset D_8071FF40;
+extern EffectGridAsset gEffectSpriteStar;
 extern EffectGridAsset sEffectSparkConfig;
 extern EffectGridAsset gSparkEffectSprite;
 extern EffectGridAsset gEffectSpriteFireBurst;
-extern EffectGridAsset D_80720558;
+extern EffectGridAsset gEffectSpriteBananaMedal;
 extern EffectGridAsset gEffectSpriteShardGold;
-extern EffectGridAsset D_80720B58;
+extern EffectGridAsset gEffectSpriteWaterDroplet;
 extern EffectGridAsset gCrownSprite;
-extern EffectGridAsset D_80721158;
-extern EffectGridAsset D_8072139C;
+extern EffectGridAsset gEffectSpriteNoSign;
+extern EffectGridAsset gEffectSpriteGlowOrange;
 
 
 void effectSpawnActorBone(Actor *owner, u8 bone, f32 scale) {
@@ -153,7 +153,7 @@ void effectSpawnBurst(u8 useAltRange) {
     effectSetCallback(effectOrbitRiseUpdate);
     effectSetDepth(1);
     effectSetFlags(4);
-    effectCreateAtActorBone(&D_8072139C, (((randomNonNegative() >> 15) % 50) / 80.0) + 0.1, gCurrentActor, 8, 0);
+    effectCreateAtActorBone(&gEffectSpriteGlowOrange, (((randomNonNegative() >> 15) % 50) / 80.0) + 0.1, gCurrentActor, 8, 0);
 }
 
 void effectSpawnBoneDebris(s16 bone, s8 direction) {
@@ -319,7 +319,7 @@ void effectSpawnMultiTierRing(f32 scale, u8 tier, f32 posX, f32 posY, f32 posZ) 
                 effectSetDepth(1);
                 effectSetDuration(-1);
                 effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
-                effectCreateAtPosition(&D_8071FF40, scale * 0.5, posX, posY, posZ);
+                effectCreateAtPosition(&gEffectSpriteStar, scale * 0.5, posX, posY, posZ);
             }
         }
         if (tier >= 3) {
@@ -439,7 +439,7 @@ void effectSpawnActorScale(Actor *actor) {
     effectSetCallback(effectGroundDecalSpinUpdate);
     effectSetFlags(4);
     effectSetColor(0xC8, 0xFF, 0xFF, 0xC8);
-    effectCreateAtPosition(&D_8071FED0, scale * 0.6, actor->x, actor->waterY, actor->z)->owner = actor;
+    effectCreateAtPosition(&gEffectSpriteWaterRipple, scale * 0.6, actor->x, actor->waterY, actor->z)->owner = actor;
 }
 
 extern PlayerStruct *gPlayerSlots;
@@ -497,7 +497,7 @@ void effectSpawnBurstParticles(Actor *actor) {
     effectSetDepth(1);
     effectSetDuration(1);
     effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
-    effectCreateAtPosition(&D_8071FC0C, scale * 0.65, actor->x, actor->waterY + 15.0f, actor->z);
+    effectCreateAtPosition(&gEffectSpriteWaterSplash, scale * 0.65, actor->x, actor->waterY + 15.0f, actor->z);
     if (gMultiplayerReducedEffects == 0) {
         count = (randomLcgNext() & 3) + 4;
         debrisScale = scale * 0.1;
@@ -506,7 +506,7 @@ void effectSpawnBurstParticles(Actor *actor) {
             effectSetDuration(-1);
             effectSetCallback(effectFloorFallUpdate);
             effectSetFlags(4);
-            effectCreateAtPosition(&D_80720B58, debrisScale, actor->x, actor->waterY, actor->z);
+            effectCreateAtPosition(&gEffectSpriteWaterDroplet, debrisScale, actor->x, actor->waterY, actor->z);
         }
     }
 }
@@ -713,7 +713,7 @@ void effectScreenCenterFlash(void) {
     effectSetDuration(0xC8);
     effectEnableFade();
     effectSetCallback(effectGrowFadeUpdate);
-    effectCreateAtPosition(&D_80721158, 1.0f, 160.0f, 120.0f, -10.0f);
+    effectCreateAtPosition(&gEffectSpriteNoSign, 1.0f, 160.0f, 120.0f, -10.0f);
 }
 
 void actorSpawnAttachment(Actor *parent, f32 scaleMultiplier) {
@@ -770,7 +770,7 @@ void effectSpawnBoneSparkAttached(u8 bone) {
     effectCreateAtActorBone(&gSparkEffectSprite, 1.0f, gCurrentActor, bone, 0);
 }
 
-extern EffectGridAsset D_80720B24;
+extern EffectGridAsset gEffectSpriteLightningArc;
 
 void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     f32 posAX;
@@ -804,7 +804,7 @@ void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     effectSetDuration(1);
     effectSetSpeed(beamAngle);
     effectSetCallback(effectBeamRotateUpdate);
-    effectCreateAtPosition(&D_80720B24, screenDist * 0.008, (posAX + posBX) * 0.5, (posAY + posBY) * 0.5, (posAZ + posBZ) * 0.5);
+    effectCreateAtPosition(&gEffectSpriteLightningArc, screenDist * 0.008, (posAX + posBX) * 0.5, (posAY + posBY) * 0.5, (posAZ + posBZ) * 0.5);
     if (((randomNonNegative() >> 15) % 1000) & 1) {
         lightSetFlags(1);
         lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 150.0f, 0, 150, 100, 255);
@@ -822,7 +822,7 @@ void effectShowBananaMedalIcon(void) {
     effectSetDuration(0xC8);
     effectEnableFade();
     effectSetCallback(effectGrowFadeUpdate);
-    effectCreateAtPosition(&D_80720558, 1.0f, 160.0f, 120.0f, -10.0f);
+    effectCreateAtPosition(&gEffectSpriteBananaMedal, 1.0f, 160.0f, 120.0f, -10.0f);
 }
 
 void effectShowCrownIcon(void) {
