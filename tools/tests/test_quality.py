@@ -1148,6 +1148,56 @@ def test_carry_macro_renamed_same_definition(tmp_path, monkeypatch, capsys, lerp
     assert "would carry 3 events" in out and "skipped" not in out
 
 
+TABLE_C = ('#include "s.h"\n%s'
+           "int f(int i) {\n    if (i) {} // FAKE: steers\n    return %s;\n}\n")
+
+
+@pytest.mark.parametrize("old_decl,new_decl,old_ret,new_ret,carried", [
+    # names window 9: a function pointer table's entries renamed (E4090 gPlayerInputHandlers)
+    ("int func_80601000(int);\nint (*tab[1])(int) = { func_80601000 };\n",
+     "int handlerA(int);\nint (*tab[1])(int) = { handlerA };\n", "tab[0](i)", "tab[0](i)", True),
+    # the entry's type changed too: not a rename
+    ("int func_80601000(int);\nint (*tab[1])(int) = { func_80601000 };\n",
+     "int handlerA(short);\nint (*tab[1])(int) = { (int (*)(int))handlerA };\n", "tab[0](i)", "tab[0](i)", False),
+    # names window 7: a file-local #define alias of a renamed global (F600 CtrlAHeld)
+    ("int D_80601000[4];\n#define Held D_80601000\n", "int gPadHeld[4];\n#define Held gPadHeld\n",
+     "Held[i]", "Held[i]", True),
+    # the old global still declared at HEAD: not a rename
+    ("int D_80601000[4];\n#define Held D_80601000\n",
+     "int D_80601000[4];\nint gPadHeld[4];\n#define Held gPadHeld\n", "Held[i]", "Held[i]", False),
+])
+def test_carry_renames_reached_through_declarations(tmp_path, monkeypatch, capsys, old_decl, new_decl, old_ret,
+                                                    new_ret, carried):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "include" / "s.h").write_text("void g(int);\n")
+    src = repo / "src" / "global" / "x.c"
+    src.write_text(TABLE_C % (old_decl, old_ret))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    q.append_events([q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
+    src.write_text(TABLE_C % (new_decl, new_ret))
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    assert ("would carry 1 events" in out) == carried, out
+
+
 def test_carry_func_limits_functions(tmp_path, monkeypatch, capsys):
     hdr = CARVE_H.replace("    int a;\n", "    int mode;\n")
     _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, edit=lambda s: s.replace("p->a", "p->mode").replace(

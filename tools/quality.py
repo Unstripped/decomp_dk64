@@ -1751,6 +1751,45 @@ def tag_added(old_cursors, new_cursors, name, m):
     return sorted(set(pairs))
 
 
+def decl_renames(old_scope, old_closure, new_scope, new_closure, known):
+    """{old: new} renames of names a function reaches only through other declarations (a function
+    pointer table's initialiser, a `#define` alias body): identifiers that differ pairwise between a
+    reached declaration's REV and HEAD tokens, where the old name is gone at HEAD, the new one did
+    not exist at REV, and the two declarations are the same entity modulo the rename (functions:
+    same `decl_signature`; anything else: identical text with the name mapped). KNOWN renames apply
+    first; a name mapped two ways is left out."""
+    out = {}
+    for name in set(old_closure) & set(new_closure):
+        oc, nc = old_scope.idx.get(name, []), new_scope.idx.get(name, [])
+        if len(oc) != len(nc):
+            continue
+        for a_c, b_c in zip(oc, nc):
+            at, bt = decl_tokens(a_c), decl_tokens(b_c)
+            if len(at) != len(bt):
+                continue
+            for x, y in zip(at, bt):
+                a, b = known.get(x.spelling, x.spelling), y.spelling
+                if x.kind != y.kind or a == b:
+                    continue
+                if x.kind != TokenKind.IDENTIFIER or out.get(x.spelling, b) != b:
+                    out[x.spelling] = None
+                    continue
+                out[x.spelling] = b
+    ok = {}
+    for a, b in out.items():
+        if b is None or a in new_scope.idx or b in old_scope.idx or a not in old_scope.idx or b not in new_scope.idx:
+            continue
+        ocs, ncs = old_scope.idx[a], new_scope.idx[b]
+        if all(c.kind == CursorKind.FUNCTION_DECL for c in ocs + ncs):
+            osig = {decl_signature(c) for c in ocs}
+            if None not in osig and osig == {decl_signature(c) for c in ncs}:
+                ok[a] = b
+        elif ([" ".join(b if t.spelling == a else t.spelling for t in decl_tokens(c)) for c in ocs]
+              == [" ".join(t.spelling for t in decl_tokens(c)) for c in ncs]):
+            ok[a] = b
+    return ok
+
+
 def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, old_body, new_body=None):
     """(sorted records whose fields were renamed, {name: `respelled_decl`/`moved_decl`/alias
     description}, None) when every declaration OLD_CLOSURE reaches (in OLD_SCOPE: REV's text parsed
@@ -1784,6 +1823,7 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
     used = {(field_record(t), t.spelling) for t in old_body
             if t.kind == TokenKind.IDENTIFIER and (token_meaning(t) or ("",))[0] == "field"}
     sfwd = {k: v for k, v in fwd.items() if isinstance(k, str)}
+    sfwd.update(decl_renames(old_scope, old_closure, new_scope, new_closure, sfwd))
     clash = next((f"{k} renamed {v}, which REV reaches too" for k, v in sorted(sfwd.items())
                   if k in old_closure and v in old_closure), None)
     if clash:
