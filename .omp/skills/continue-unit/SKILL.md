@@ -52,22 +52,29 @@ Allocate by debt, re-checked at every refill (a merge changes the numbers; `debt
 own report is enough between full runs):
 - decomp: unmatched functions or asm data > 0 → up to 4 slots, before everything else (decomp-unit
   §3 rounds, stop rule included).
-- types: 1 slot while `pending.md` has an unheld item or a forwarded header request.
+- types: 1 slot while `pending.md` has an unheld item or a names worker wrote a header request
+  (mixed-meaning fields: union carve keeping the dominant old name, the dominant rename then goes
+  through a names window so the ledger carries; 2026-11-20: Actor.unk155 1485 refs).
 - the rest split hack / names / polish in proportion to stream debt, at least 1 slot each for a
   stream with debt > 0 and an unexhausted queue item; a stream whose queue is all EXHAUSTED, held or
-  blocked gets none, whatever its debt.
+  blocked gets none, whatever its debt (2026-11-20: hack and polish were all EXHAUSTED, names took
+  every slot: one worker per record or per 3-7 neighbouring files' `D_`, or per file of `func_`).
 - one src file in one slot at a time (types batches list theirs in `files.txt`); names workers check
   out nothing and never block another slot.
 Refill a slot the moment its worker reports and its merge lands. No rounds: nothing waits for the
-slowest worker.
+slowest worker. Names yield falls once every file has had a reader: the leftovers are held items
+(no evidence), macro uses (hand edits, inspected) and rulings; stop names slots there.
 
 ## 4. Merge and record
 
 Per stream, exactly as its skill says: decomp `skill://decomp-unit/merge.md` + `ledger.py record`;
 hack/polish/types `skill://cleanup-unit` §5 (`tools/merge_record.py`, `MERGE_RECORD_OK`); names
-proposals are not merged: check each against [names.md](names.md) "Check" and append it to
-`drafts/cleanup/names-queue.md`. Every commit passes the full ROM gate; a merged file's net hacks and
-cfe warnings never rise. Commit `drafts/cleanup/names-queue.md` with each batch of accepted proposals.
+proposals are not merged: check each against [names.md](names.md) "Check" and apply them with
+`tools/names_window.py` as reports land (one window per 2-4 reports; 2026-11-20 windows of 184-570
+renames carried every review). A types batch whose sites move to new members stales those
+functions' reviews (carry: `not a pure rename`): one ledger-only re-review worker records them
+before the next window. Every commit passes the full ROM gate; a merged file's net hacks and cfe
+warnings never rise.
 
 ## 5. Close (user asks to stop, or every stream's queue is empty/exhausted/held)
 

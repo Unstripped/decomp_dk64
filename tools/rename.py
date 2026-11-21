@@ -455,12 +455,25 @@ def cmd_fields(a):
         res = [scan_members_multi(j) for j in jobs]
     set_root(ROOT)
     edits = []
+    given = {}
+    for spec in a.macro_arg:
+        f, l, c = spec.rsplit(":", 2)
+        given.setdefault((rel(f), int(l)), []).append(int(c))
     for k, (row, _, old, new, s) in targets.items():
         macro = sorted({m for _, ms in res for m in ms.get(k, ())})
-        if macro:
-            refused.append((row, "reference inside a macro: " + " ".join(f"{f}:{l}:{c} {n}" for f, l, c, n in macro)))
+        extra, missing = [], []
+        for f, l, c, n in macro:
+            cols = [col for col in given.get((f, l), ()) if IDENT.match(lines_of(f)[l - 1], col - 1)
+                    and IDENT.match(lines_of(f)[l - 1], col - 1).group(0) == old]
+            if cols:
+                extra += [(f, l, col, old, new) for col in cols]
+            else:
+                missing.append((f, l, c, n))
+        if missing:
+            refused.append((row, "reference inside a macro: " + " ".join(f"{f}:{l}:{c} {n}" for f, l, c, n in missing)
+                            + " (an argument spelled at the call site: inspect it, then pass --macro-arg FILE:LINE:COL)"))
             continue
-        edits += [(*s, old, new)] + [(f, l, c, old, new) for hs, _ in res for f, l, c in hs.get(k, ())]
+        edits += [(*s, old, new)] + [(f, l, c, old, new) for hs, _ in res for f, l, c in hs.get(k, ())] + extra
     apply(edits, a.dry_run)
     for row, why in refused:
         print(f"REFUSE {' '.join(row)}: {why}")
@@ -649,6 +662,8 @@ def main(argv=None):
     s.add_argument("new")
     s.add_argument("-j", type=int, default=os.cpu_count() or 1)
     s = sub.add_parser("fields", help="batch of field renames, one pass over the TUs")
+    s.add_argument("--macro-arg", action="append", default=[], metavar="FILE:LINE:COL",
+                   help="an inspected position where the field is spelled as a macro argument at the call site")
     s.add_argument("batch", help="lines: <path> <Struct> <field> <new>")
     s.add_argument("-j", type=int, default=os.cpu_count() or 1)
     s = sub.add_parser("local")

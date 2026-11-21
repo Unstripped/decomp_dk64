@@ -136,7 +136,23 @@ def main(argv=None):
     gate = m.group(1)
     if not a.no_carry:
         funcs = [s for s in src if re.search(r"^[A-Za-z_][^;=]*\)\s*\{?\s*$", open(os.path.join(ROOT, s)).read(), re.M)]
-        r = run(["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", a.unit, *funcs])
+        # carry compiles REV's text, whose #includes still name the old assets/inc files: alias each renamed
+        # data_inc row's generated file under its old name for the duration of the carry
+        diff = run(["git", "diff", f"{gate}^", gate, "--", "data_inc.us.txt"]).stdout.splitlines()
+        old = [l[1:].split() for l in diff if l.startswith("-") and not l.startswith("---")]
+        new = [l[1:].split() for l in diff if l.startswith("+") and not l.startswith("+++")]
+        aliases = []
+        for o, n in zip(old, new):
+            src_inc = os.path.join(ROOT, "assets", "inc", n[0], f"{n[1]}.inc.c")
+            dst_inc = os.path.join(ROOT, "assets", "inc", o[0], f"{o[1]}.inc.c")
+            if o[2] == n[2] and os.path.exists(src_inc) and not os.path.exists(dst_inc):
+                open(dst_inc, "w").write(open(src_inc).read())
+                aliases.append(dst_inc)
+        try:
+            r = run(["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", a.unit, *funcs])
+        finally:
+            for p_ in aliases:
+                os.unlink(p_)
         if r.returncode:
             fail("carry", r.stdout + r.stderr)
         print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "carry: nothing")
