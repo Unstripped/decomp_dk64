@@ -786,7 +786,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                 return;
             }
         case 0x23:
-            if ((ret ^ 0) != gBehaviourWorkState->chaseState && (hasTarget == 0 || (s32)ret >= 7)) { // FAKE: the uxor makes ret an op, so the unk36 load is the first beq operand (beq t5,v0 at 0x3170)
+            if ((ret ^ 0) != gBehaviourWorkState->chaseState && (hasTarget == 0 || (s32)ret >= 7)) { // FAKE: the uxor makes ret an op, so the chaseState load is the first beq operand (beq t5,v0 at 0x3170); u32 ret + (s32) keeps the call result in v0 for the signed slti at 0x317c (Q1524)
                 behaviourSetChaseState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                 return;
             }
@@ -841,7 +841,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                 actorSetBehaviourState(type, gBehaviourExtraState->chaseSpeed, chaseScriptId);
                 return;
             }
-            near = (gBehaviourWorkState->searchTimer-- == 0); // FAKE: reuses near (t4) for the 0x35 countdown flag; its own local leaves near uncoloured, reloaded from 64(sp) at each test (185-221)
+            near = (gBehaviourWorkState->searchTimer-- == 0); // FAKE: reuses near (t4) for the 0x35 countdown flag: the extra def/use lifts near's adjsave to 0.615 (= type's), so it is coloured before type, t4 whole; its own local leaves near uncoloured, reloaded from 64(sp) at each test (185-221)
             if (near) {
                 actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
             }
