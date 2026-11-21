@@ -115,7 +115,7 @@ extern PlayerState *gActivePlayerState;
 extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
-extern s32 D_8071FE08;
+extern EffectGridAsset D_8071FE08;
 extern u8 D_80720120;
 extern u8 D_80720340;
 extern u8 D_8072038C;
