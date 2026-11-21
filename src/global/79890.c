@@ -7,16 +7,6 @@
 #include "proto/global/79890.h"
 #include "proto/global/7CA80.h"
 
-typedef struct CollisionHitRecord {
-    f32 dist;
-    f32 localX;
-    f32 localY;
-    f32 localZ;
-    s32 sourceNodeIndex;
-    s32 nodeIndex;
-    s32 sourceId;
-} CollisionHitRecord;
-
 typedef struct CollisionHitRecordNode {
     f32 dist;
     f32 localX;

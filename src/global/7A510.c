@@ -6,11 +6,6 @@
 #include "proto/global/7CA80.h"
 
 
-typedef struct CollisionCallbackPayload {
-    u8 pad0[0x18];
-    s32 instanceId;
-} CollisionCallbackPayload;
-
 typedef struct InteractionEntry {
     s16 patternA;
     s16 patternB;
@@ -720,7 +715,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
     attacker = node->source;
     i = 0;
     done = 0;
-    if (actorTableContains(attacker) && attacker->instanceId == ((CollisionCallbackPayload *)node->payload)->instanceId) {
+    if (actorTableContains(attacker) && attacker->instanceId == ((CollisionHitRecord *)node->payload)->sourceId) {
         table = gActorTypeCollisionTables[targetActor->actorType].table;
         if (table == NULL) {
             if (attacker->flags & 0x20000) {

@@ -1403,18 +1403,19 @@ extern ActorGlobalState gActorGlobalState;
 extern u8 gCsCondFlag;
 
 
-// Collision/hit list passed to the 7AF60 interaction predicates (count @0xC, entries @0x10).
-typedef struct ActorCollisionEntry {
-    u8 pad0[0x14];
-    s32 id;
-    u8 pad18[4];
-} ActorCollisionEntry; // size = 0x1C
-
-typedef struct ActorCollisionList {
-    u8 pad0[0xC];
-    s32 count;
-    ActorCollisionEntry *entries;
-} ActorCollisionList;
+// One overlap of the source actor's collision node sourceNodeIndex with the receiving actor's node nodeIndex
+// (both 1-based); sourceId is the source's instanceId. collisionHitRecordsFlush (79890.c) hands the array to
+// the receiving actor as the payload of a 0x8000 callback node (payloadCount records), which
+// actorCollisionProcessHit (7A510.c) and the 7AF60 interaction predicates read.
+typedef struct CollisionHitRecord {
+    f32 dist;
+    f32 localX;
+    f32 localY;
+    f32 localZ;
+    s32 sourceNodeIndex;
+    s32 nodeIndex;
+    s32 sourceId;
+} CollisionHitRecord;
 
 // Per-actor-type collision tables (gActorTypeCollisionTables, defined in 7BBD0.c, read by 7A510.c): a slot's table
 // is a list of attacker patterns ending with pattern 0, each naming a list of interactions whose

@@ -4,87 +4,87 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_actorCheckPlayerSmallerThanAttacker
-void actorCheckPlayerSmallerThanAttacker(Actor *, Actor *, ActorCollisionList *);
+void actorCheckPlayerSmallerThanAttacker(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorTargetIsVulnerable
-u8 actorTargetIsVulnerable(Actor *, Actor *, ActorCollisionList *);
+u8 actorTargetIsVulnerable(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorListHasId2TargetVulnerable
-u8 actorListHasId2TargetVulnerable(Actor *, Actor *, ActorCollisionList *);
+u8 actorListHasId2TargetVulnerable(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorIsDamageFatal
 s32 actorIsDamageFatal(Actor *, Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_actorsFacingEachOther
-u8 actorsFacingEachOther(Actor *, Actor *, ActorCollisionList *);
+u8 actorsFacingEachOther(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorIsFacingTarget
-u8 actorIsFacingTarget(Actor *, Actor *, ActorCollisionList *);
+u8 actorIsFacingTarget(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorIsTargetAbovePitchThreshold
-u8 actorIsTargetAbovePitchThreshold(Actor *, Actor *, ActorCollisionList *);
+u8 actorIsTargetAbovePitchThreshold(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorIsTargetFallingFromAbove
-u8 actorIsTargetFallingFromAbove(Actor *, Actor *, ActorCollisionList *);
+u8 actorIsTargetFallingFromAbove(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorIsBelowTargetStationary
 u8 actorIsBelowTargetStationary(Actor *, Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_actorIsTargetBelowNode
-u8 actorIsTargetBelowNode(Actor *, Actor *, ActorCollisionList *);
+u8 actorIsTargetBelowNode(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorListHasId1FacingTarget
-u8 actorListHasId1FacingTarget(Actor *, Actor *, ActorCollisionList *);
+u8 actorListHasId1FacingTarget(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorListHasId2FacingTarget
-u8 actorListHasId2FacingTarget(Actor *, Actor *, ActorCollisionList *);
+u8 actorListHasId2FacingTarget(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_func_80676730
-s32 func_80676730(Actor *, Actor *, ActorCollisionList *);
+s32 func_80676730(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_func_8067675C
-s32 func_8067675C(Actor *, Actor *, ActorCollisionList *);
+s32 func_8067675C(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_func_80676788
-s32 func_80676788(Actor *, Actor *, ActorCollisionList *);
+s32 func_80676788(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_func_806767B4
-s32 func_806767B4(Actor *, Actor *, ActorCollisionList *);
+s32 func_806767B4(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_func_806767E0
-s32 func_806767E0(Actor *, Actor *, ActorCollisionList *);
+s32 func_806767E0(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorCheckPlayerProximityVertical
-s32 actorCheckPlayerProximityVertical(Actor *, Actor *, ActorCollisionList *);
+s32 actorCheckPlayerProximityVertical(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorTargetIsGiantKong
-u8 actorTargetIsGiantKong(Actor *, Actor *, ActorCollisionList *);
+u8 actorTargetIsGiantKong(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorTargetIsMiniKong
-u8 actorTargetIsMiniKong(Actor *, Actor *, ActorCollisionList *);
+u8 actorTargetIsMiniKong(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorGiantKongInReach
-u8 actorGiantKongInReach(Actor *, Actor *, ActorCollisionList *);
+u8 actorGiantKongInReach(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_playerIsGiantAgainstEnemy
-u8 playerIsGiantAgainstEnemy(Actor *, Actor *, ActorCollisionList *);
+u8 playerIsGiantAgainstEnemy(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_playerIsGiantGroundedAgainstEnemy
-u8 playerIsGiantGroundedAgainstEnemy(Actor *, Actor *, ActorCollisionList *);
+u8 playerIsGiantGroundedAgainstEnemy(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_playerIsGiantLandingOnEnemy
-u8 playerIsGiantLandingOnEnemy(Actor *, Actor *, ActorCollisionList *);
+u8 playerIsGiantLandingOnEnemy(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorTargetIsLargeMode
-u8 actorTargetIsLargeMode(Actor *, Actor *, ActorCollisionList *);
+u8 actorTargetIsLargeMode(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetOnSurfaceOrSmaller
-u8 actorCheckTargetOnSurfaceOrSmaller(Actor *, Actor *, ActorCollisionList *);
+u8 actorCheckTargetOnSurfaceOrSmaller(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_func_80676C64
-s32 func_80676C64(Actor *, Actor *, ActorCollisionList *);
+s32 func_80676C64(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorListContainsId
-s32 actorListContainsId(ActorCollisionList *, u8);
+s32 actorListContainsId(ActorCallbackNode *, u8);
 #endif
 #endif

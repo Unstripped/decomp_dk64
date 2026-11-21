@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_79890_H
 #include "common.h"
 #include "actor.h"
-struct CollisionHitRecord;
 #ifndef PROTO_SKIP_actorCollisionGetNodeHitPoint
 u8 actorCollisionGetNodeHitPoint(Actor *, Actor *, f32 *, f32 *);
 #endif
@@ -23,7 +22,7 @@ void collisionHitRecordAppend(s32, f32, f32, f32, f32, s32, s32);
 void collisionHitRecordsFlush(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_collisionNodeLocalToWorldXZ
-void collisionNodeLocalToWorldXZ(Actor *, struct CollisionHitRecord *, f32 *, f32 *);
+void collisionNodeLocalToWorldXZ(Actor *, CollisionHitRecord *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_collisionComputeArcYawBounds
 void collisionComputeArcYawBounds(s32, s32, s32, s32, s16 *, s16 *);
