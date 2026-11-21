@@ -184,10 +184,10 @@ f32 gAmbientNearestPan;
 f32 gAmbientNearestFx;
 f32 gAmbientNearestDist;
 u8 D_80770DD8[4];
-f32 D_80770DDC;
+f32 gSfxPan;
 f32 gSfxFrontFactor;
 f32 gSfxDistance;
-f32 D_80770DE8;
+f32 gSfxRightLevel;
 f32 gSfxLeftLevel;
 f32 gSfxFrontLevel;
 f32 gSfxRearLevel;
@@ -460,24 +460,24 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
 
         l_dz = z - gPlayerSlots->camZ;
         l_dx = x - gPlayerSlots->camX;
-        D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->camY, 0.0f, y, sqrtf((l_dz * l_dz) + (l_dx * l_dx))) - viewPitch;
+        gSfxPan = mathAngleBetweenPointsRad(gPlayerSlots->camY, 0.0f, y, sqrtf((l_dz * l_dz) + (l_dx * l_dx))) - viewPitch;
 
-        if (D_80770DDC < 0.0f) {
-            D_80770DDC += 6.2831855f;
+        if (gSfxPan < 0.0f) {
+            gSfxPan += 6.2831855f;
         }
 
-        if (D_80770DDC > 0.3926991f && (f64)D_80770DDC < 5.890486389398575) {
-            gSfxDistance = (1.0f - (sinApprox((f32)(((f64)D_80770DDC * 4.0 / 7.0) + 2.942101601958275)) * 4.0f)) * gSfxDistance;
+        if (gSfxPan > 0.3926991f && (f64)gSfxPan < 5.890486389398575) {
+            gSfxDistance = (1.0f - (sinApprox((f32)(((f64)gSfxPan * 4.0 / 7.0) + 2.942101601958275)) * 4.0f)) * gSfxDistance;
         }
     }
 
-    D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->camYaw;
-    if (D_80770DDC < 0.0f) {
-        D_80770DDC += 6.2831855f;
+    gSfxPan = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->camYaw;
+    if (gSfxPan < 0.0f) {
+        gSfxPan += 6.2831855f;
     }
 
-    if (D_80770DDC > 0.7853982f && (f64)D_80770DDC < 5.497787296772003 && (f64)viewPitch < 4.0) {
-        gSfxDistance = (1.0f - (sinApprox((f32)(((2.0 * (f64)D_80770DDC) / 3.0) + 2.617993950843811)) * directionality)) * gSfxDistance;
+    if (gSfxPan > 0.7853982f && (f64)gSfxPan < 5.497787296772003 && (f64)viewPitch < 4.0) {
+        gSfxDistance = (1.0f - (sinApprox((f32)(((2.0 * (f64)gSfxPan) / 3.0) + 2.617993950843811)) * directionality)) * gSfxDistance;
     }
 
     if (gSfxDistance < 1.0f) {
@@ -495,8 +495,8 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
         return 0.0f;
     }
 
-    gSfxFrontFactor = cosApprox(D_80770DDC);
-    D_80770DDC = (f32)((f64)(1.0f - sinApprox(D_80770DDC)) * 63.5);
+    gSfxFrontFactor = cosApprox(gSfxPan);
+    gSfxPan = (f32)((f64)(1.0f - sinApprox(gSfxPan)) * 63.5);
 
     if (level < 10.0f) {
         return 0.0f;
@@ -519,8 +519,8 @@ f32 sfxUpdateDistanceVolumeAndPan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 
         return 0.0f;
     }
 
-    panRatio = (f32)((f64)D_80770DDC * 0.00787401574803149595);
-    D_80770DE8 += level * panRatio;
+    panRatio = (f32)((f64)gSfxPan * 0.00787401574803149595);
+    gSfxRightLevel += level * panRatio;
     gSfxLeftLevel += level * (1.0f - panRatio);
 
     if (gSfxFrontFactor > 0.0f) {
@@ -814,14 +814,14 @@ void sfxUpdateLevelAmbient(void) {
                     angle = (mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - emitters[k].facing;
                 }
             }
-            D_80770DE8 = 32767.0f - (gSfxDistance - 50.0f) * 120.0f;
-            if (D_80770DE8 > 32767.0f) {
-                D_80770DE8 = 32767.0f;
+            gSfxRightLevel = 32767.0f - (gSfxDistance - 50.0f) * 120.0f;
+            if (gSfxRightLevel > 32767.0f) {
+                gSfxRightLevel = 32767.0f;
             }
-            if (D_80770DE8 < 0.0f) {
-                D_80770DE8 = 0.0f;
+            if (gSfxRightLevel < 0.0f) {
+                gSfxRightLevel = 0.0f;
             }
-            volume += D_80770DE8;
+            volume += gSfxRightLevel;
         }
         gSfxDistance = gAmbientNearestDist;
         entry = emitters;
@@ -931,7 +931,7 @@ void sfxUpdateLevelAmbient(void) {
 
     count = mapGetSoundEmitters(&soundEmitters);
     for (group = 0; group < 15; group++) {
-        D_80770DE8 = 0.0f;
+        gSfxRightLevel = 0.0f;
         gSfxLeftLevel = 0.0f;
         gSfxFrontLevel = 0.0f;
         gSfxRearLevel = 0.0f;
@@ -953,7 +953,7 @@ void sfxUpdateLevelAmbient(void) {
                             sAmbientGroupParams[group].range, sAmbientGroupParams[group].directionality);
                     }
                 }
-                volume = D_80770DE8 + gSfxLeftLevel;
+                volume = gSfxRightLevel + gSfxLeftLevel;
                 if (volume > 32767.0f) {
                     volume = 32767.0f;
                 }
@@ -1000,20 +1000,20 @@ void sfxUpdateLevelAmbient(void) {
             gAmbientGroupSentVolume[group] = volume;
         }
         if (gLoopSfxHandles[group] != 0) {
-            if (D_80770DE8 > 32767.0f) {
-                D_80770DE8 = 32767.0f;
+            if (gSfxRightLevel > 32767.0f) {
+                gSfxRightLevel = 32767.0f;
             }
             if (gSfxLeftLevel > 32767.0f) {
                 gSfxLeftLevel = 32767.0f;
             }
-            if (gSfxLeftLevel < D_80770DE8) {
-                if (D_80770DE8 > 0.0f) {
-                    angle = 127.0 - ((gSfxLeftLevel * 63.5) / D_80770DE8);  // FAKE: angle reused for the per-group pan value (to the n_alSndpPostEvent(.., 4, angle) below); the target keeps it in angle f20 (cvt.s.d $f20 at 0x20cc/0x2100): a separate local here is 561-598 (block scope or any declaration slot), sharing pan with the seq-player block 366 (pre-existing part of 7d249b)
+            if (gSfxLeftLevel < gSfxRightLevel) {
+                if (gSfxRightLevel > 0.0f) {
+                    angle = 127.0 - ((gSfxLeftLevel * 63.5) / gSfxRightLevel);  // FAKE: angle reused for the per-group pan value (to the n_alSndpPostEvent(.., 4, angle) below); the target keeps it in angle f20 (cvt.s.d $f20 at 0x20cc/0x2100): a separate local here is 561-598 (block scope or any declaration slot), sharing pan with the seq-player block 366 (pre-existing part of 7d249b)
                 } else {
                     angle = 0.0f;
                 }
             } else if (gSfxLeftLevel > 0.0f) {
-                angle = (D_80770DE8 * 63.5) / gSfxLeftLevel;
+                angle = (gSfxRightLevel * 63.5) / gSfxLeftLevel;
             } else {
                 angle = 0.0f;
             }
@@ -1400,7 +1400,7 @@ void sfxUpdateSourceGroups(void) {
     if (gActivePlayerState != NULL) {}  // FAKE: dead test keeps &gActivePlayerState out of a register so the store/reload after the loop stays split
     for (i = 0; i < 22; i++) {
         if (gSfxVoiceSoundId[i] == 0x88) {
-            D_80770DE8 = 0.0f;
+            gSfxRightLevel = 0.0f;
             gSfxLeftLevel = 0.0f;
             gSfxFrontLevel = 0.0f;
             gSfxRearLevel = 0.0f;
@@ -1412,23 +1412,23 @@ void sfxUpdateSourceGroups(void) {
                 sfxSlotFreeSource(gSfxVoiceSources[i][j]);
                 gModelSlots[slot].csState->sfxSources[1] = -1;
             }
-            if (D_80770DE8 > 32767.0f) {
-                D_80770DE8 = 32767.0f;
+            if (gSfxRightLevel > 32767.0f) {
+                gSfxRightLevel = 32767.0f;
             }
             if (gSfxLeftLevel > 32767.0f) {
                 gSfxLeftLevel = 32767.0f;
             }
-            volume = D_80770DE8 + gSfxLeftLevel;
-            if (gSfxLeftLevel < D_80770DE8) {
-                if (D_80770DE8 > 0.0f) {
-                    D_80770DDC = 127.0 - ((gSfxLeftLevel * 63.5) / D_80770DE8);
+            volume = gSfxRightLevel + gSfxLeftLevel;
+            if (gSfxLeftLevel < gSfxRightLevel) {
+                if (gSfxRightLevel > 0.0f) {
+                    gSfxPan = 127.0 - ((gSfxLeftLevel * 63.5) / gSfxRightLevel);
                 } else {
-                    D_80770DDC = 0.0f;
+                    gSfxPan = 0.0f;
                 }
             } else if (gSfxLeftLevel > 0.0f) {
-                D_80770DDC = (D_80770DE8 * 63.5) / gSfxLeftLevel;
+                gSfxPan = (gSfxRightLevel * 63.5) / gSfxLeftLevel;
             } else {
-                D_80770DDC = 0.0f;
+                gSfxPan = 0.0f;
             }
             if (volume > 32767.0f) {
                 volume = 32767.0f;
@@ -1439,7 +1439,7 @@ void sfxUpdateSourceGroups(void) {
             if (gSfxFrontLevel < gSfxRearLevel) {
                 fxFlags = 0x80;
             }
-            sfxPlayOnFreeSlot(0x88, volume, D_80770DDC, 1.0f, 5, fxFlags);
+            sfxPlayOnFreeSlot(0x88, volume, gSfxPan, 1.0f, 5, fxFlags);
         } else {
             if (sSoundSlotHandles[i] != 0) {
                 if (gSfxVoiceSoundId[i] == 0) {
@@ -1468,7 +1468,7 @@ void sfxUpdateSourceGroups(void) {
             }
             if (sSoundSlotHandles[i] != 0) {
                 if (gSfxVoiceSources[i][0] != -1 && (gSfxSourceActor[gSfxVoiceSources[i][0]] != NULL || gSfxSourceModelSlot[gSfxVoiceSources[i][0]] != -1)) {
-                    D_80770DE8 = 0.0f;
+                    gSfxRightLevel = 0.0f;
                     gSfxLeftLevel = 0.0f;
                     if (gSfxVoiceSoundId[i] >= 0xFD && gSfxVoiceSoundId[i] < 0x142) {
                         factor = sSfxVoiceDefaults[gSfxVoiceSoundId[i] - 0xFD][1];
@@ -1488,7 +1488,7 @@ void sfxUpdateSourceGroups(void) {
                                     modelSlotGetNodePos(gSfxSourceModelSlot[gSfxVoiceSources[i][j]], 1, gSfxVoiceNode[i], &posX, &posY, &posZ);
                                     sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
                                 } else if (gSfxVoiceNode[i] < 0) {
-                                    D_80770DE8 = 32767.0f;
+                                    gSfxRightLevel = 32767.0f;
                                     gSfxLeftLevel = 32767.0f;
                                     gSfxFrontLevel = 32767.0f;
                                     gSfxRearLevel = 32767.0f;
@@ -1502,7 +1502,7 @@ void sfxUpdateSourceGroups(void) {
                                     actorGetNodePos(actor, gSfxVoiceNode[i], &posX, &posY, &posZ);
                                     sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
                                 } else if (gSfxVoiceNode[i] < 0) {
-                                    D_80770DE8 = 32767.0f;
+                                    gSfxRightLevel = 32767.0f;
                                     gSfxLeftLevel = 32767.0f;
                                     gSfxFrontLevel = 32767.0f;
                                     gSfxRearLevel = 32767.0f;
@@ -1524,23 +1524,23 @@ void sfxUpdateSourceGroups(void) {
                             dist[j++] = gSfxDistance;
                         } while (j < gSfxVoiceSourceCount[i]);
                     }
-                    if (D_80770DE8 > 32767.0f) {
-                        D_80770DE8 = 32767.0f;
+                    if (gSfxRightLevel > 32767.0f) {
+                        gSfxRightLevel = 32767.0f;
                     }
                     if (gSfxLeftLevel > 32767.0f) {
                         gSfxLeftLevel = 32767.0f;
                     }
-                    volume = D_80770DE8 + gSfxLeftLevel;
-                    if (gSfxLeftLevel < D_80770DE8) {
-                        if (D_80770DE8 > 0.0f) {
-                            D_80770DDC = 127.0 - ((gSfxLeftLevel * 63.5) / D_80770DE8);
+                    volume = gSfxRightLevel + gSfxLeftLevel;
+                    if (gSfxLeftLevel < gSfxRightLevel) {
+                        if (gSfxRightLevel > 0.0f) {
+                            gSfxPan = 127.0 - ((gSfxLeftLevel * 63.5) / gSfxRightLevel);
                         } else {
-                            D_80770DDC = 0.0f;
+                            gSfxPan = 0.0f;
                         }
                     } else if (gSfxLeftLevel > 0.0f) {
-                        D_80770DDC = (D_80770DE8 * 63.5) / gSfxLeftLevel;
+                        gSfxPan = (gSfxRightLevel * 63.5) / gSfxLeftLevel;
                     } else {
-                        D_80770DDC = 0.0f;
+                        gSfxPan = 0.0f;
                     }
                     if (volume > 32767.0f) {
                         volume = 32767.0f;
@@ -1587,7 +1587,7 @@ void sfxUpdateSourceGroups(void) {
                                 gSfxVoiceCurPitch[i] = (sinApprox((gSfxVoiceModCounter[i] * 0.261799) - 1.570795) * 0.1) + (0.2 * factor) + 0.6;
                                 gSfxVoiceModCounter[i] += 1.0f;
                                 if (gSfxSourceRange[gSfxVoiceSources[i][0]] == 0) {
-                                    D_80770DDC = 63.0f;
+                                    gSfxPan = 63.0f;
                                     gSfxRearLevel = 100.0f;
                                     gSfxFrontLevel = 0.0f;
                                 }
@@ -1696,12 +1696,12 @@ void sfxUpdateSourceGroups(void) {
                                 if (fxLevel < 0) {
                                     fxLevel = 0;
                                 }
-                                D_80770DDC = ((D_80770DDC - 63.5) * (1.0 + (fxLevel / 15.0))) + 63.5;
-                                if (D_80770DDC > 127.0f) {
-                                    D_80770DDC = 127.0f;
+                                gSfxPan = ((gSfxPan - 63.5) * (1.0 + (fxLevel / 15.0))) + 63.5;
+                                if (gSfxPan > 127.0f) {
+                                    gSfxPan = 127.0f;
                                 }
-                                if (D_80770DDC < 0.0f) {
-                                    D_80770DDC = 0.0f;
+                                if (gSfxPan < 0.0f) {
+                                    gSfxPan = 0.0f;
                                 }
                             }
                             if (fxLevel != gSfxVoiceFxLevel[i]) {
@@ -1721,7 +1721,7 @@ void sfxUpdateSourceGroups(void) {
                                     if (gSfxFrontLevel < gSfxRearLevel) {
                                         fxFlags |= 0x80;
                                     }
-                                    sfxPlayOnFreeSlot((randomLcgNext() & 3) + 0x90, volume, D_80770DDC, 1.0f, 0x1E, fxFlags);
+                                    sfxPlayOnFreeSlot((randomLcgNext() & 3) + 0x90, volume, gSfxPan, 1.0f, 0x1E, fxFlags);
                                     gSfxVoiceModCounter[i] = 0.0f;
                                 }
                             }
@@ -1745,14 +1745,14 @@ void sfxUpdateSourceGroups(void) {
                             if (gSfxVoiceModCounter[i] > 0.0f) {
                                 gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / gSfxVoiceModCounter[i]--;
                             }
-                            D_80770DE8 = (gSfxVoiceCurPitch[i] - 0.2) * 2.0;
-                            if (D_80770DE8 > 1.0) {
-                                D_80770DE8 = 1.0f;
+                            gSfxRightLevel = (gSfxVoiceCurPitch[i] - 0.2) * 2.0;
+                            if (gSfxRightLevel > 1.0) {
+                                gSfxRightLevel = 1.0f;
                             }
-                            if (D_80770DE8 < 0.0f) {
-                                D_80770DE8 = 0.0f;
+                            if (gSfxRightLevel < 0.0f) {
+                                gSfxRightLevel = 0.0f;
                             }
-                            volume *= D_80770DE8;
+                            volume *= gSfxRightLevel;
                             break;
                         case 0x107:
                         case 0x12E:
@@ -1765,27 +1765,27 @@ void sfxUpdateSourceGroups(void) {
                             if (gSfxVoiceModCounter[i] > 0.0f) {
                                 gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / gSfxVoiceModCounter[i]--;
                             }
-                            D_80770DE8 = 1.0 - ((gSfxVoiceCurPitch[i] - 1.0) * 0.9);
-                            if (D_80770DE8 > 1.0) {
-                                D_80770DE8 = 1.0f;
+                            gSfxRightLevel = 1.0 - ((gSfxVoiceCurPitch[i] - 1.0) * 0.9);
+                            if (gSfxRightLevel > 1.0) {
+                                gSfxRightLevel = 1.0f;
                             }
-                            if (D_80770DE8 < 0.0f) {
-                                D_80770DE8 = 0.0f;
+                            if (gSfxRightLevel < 0.0f) {
+                                gSfxRightLevel = 0.0f;
                             }
-                            volume *= D_80770DE8;
+                            volume *= gSfxRightLevel;
                             break;
                         case 0x12D:
                             if (gSfxVoiceModCounter[i] > 0.0f) {
                                 gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / gSfxVoiceModCounter[i]--;
                             }
-                            D_80770DE8 = 1.0 - ((gSfxVoiceCurPitch[i] - 1.0f) * 0.9);
-                            if (D_80770DE8 > 1.0) {
-                                D_80770DE8 = 1.0f;
+                            gSfxRightLevel = 1.0 - ((gSfxVoiceCurPitch[i] - 1.0f) * 0.9);
+                            if (gSfxRightLevel > 1.0) {
+                                gSfxRightLevel = 1.0f;
                             }
-                            if (D_80770DE8 < 0.0f) {
-                                D_80770DE8 = 0.0f;
+                            if (gSfxRightLevel < 0.0f) {
+                                gSfxRightLevel = 0.0f;
                             }
-                            volume *= D_80770DE8;
+                            volume *= gSfxRightLevel;
                             break;
                         case 0x12C:
                             volume *= gSfxVoicePitch[i];
@@ -1806,7 +1806,7 @@ void sfxUpdateSourceGroups(void) {
                     case 0x119:
                         sFramePitch = 1.0f;
                         volume = gSfxVoiceCurPitch[i] * 32767.0f;
-                        D_80770DDC = 63.0f;
+                        gSfxPan = 63.0f;
                         break;
                     case 0xFD:
                     case 0x108:
@@ -1944,7 +1944,7 @@ void sfxUpdateSourceGroups(void) {
                         gSfxVoiceSentVolume[i] = volume;
                         n_alSndpPostEvent(sSoundSlotHandles[i], 8, volume);
                     }
-                    pan = D_80770DDC;
+                    pan = gSfxPan;
                     if (pan != gSfxVoiceSentPan[i]) {
                         if (gSfxVoiceSentPan[i] != -1) {
                             if (gSfxVoiceSentPan[i] < pan) {
