@@ -25,7 +25,7 @@ u8 D_807ECD5E[2];
 OSContPad gContPadPrev;
 u16 gButtonsPressed;
 s16 D_807ECD68[4][16];
-OSContPad *D_807ECDE8;
+OSContPad *gInputContPads;
 OSContPad *gCurrentContPad;
 u16 gContPressedButtons;
 OSContPad *D_807ECDF4;
@@ -45,7 +45,7 @@ u8 controllerInit(void) {
         gControllerConnectedMask = 0;
     }
     gContReadPending = 0;
-    D_807ECDE8 = gControllerPads;
+    gInputContPads = gControllerPads;
     D_807ECDF4 = D_807ECD28;
     controllerSetActiveMask(0xFF);
     rumbleInit();
@@ -160,28 +160,28 @@ void controllerUpdate(void) {
         }
         switch (gDemoPlaybackState) {
         case 0:
-            controllerFilterInput(D_807ECDE8);
-            controllerLatchPad(D_807ECDE8);
+            controllerFilterInput(gInputContPads);
+            controllerLatchPad(gInputContPads);
             break;
         case 2:
             controllerFilterInput(D_807ECDF4);
             controllerLatchPad(D_807ECDF4);
-            demoPlaybackReadPad(D_807ECDE8);
+            demoPlaybackReadPad(gInputContPads);
             for (i = 0; i < 4; i++) {
                 if (gControllerConnectedMask & (1 << i)) {
-                    D_807ECDE8[i].button |= D_807ECDF4[i].button & 0x1000;
+                    gInputContPads[i].button |= D_807ECDF4[i].button & 0x1000;
                 }
             }
             break;
         case 3:
             controllerFilterInput(D_807ECDF4);
             controllerLatchPad(D_807ECDF4);
-            playerStateWaypointAimUpdate(D_807ECDE8, D_807ECDF4);
+            playerStateWaypointAimUpdate(gInputContPads, D_807ECDF4);
             break;
         }
     }
     if (compact != 0) {
-        controllerCompactPads(D_807ECDE8);
+        controllerCompactPads(gInputContPads);
     }
     sum = 0;
     gButtonsPressed = BUTTONS_PRESSED(gContPadCur.button, gContPadPrev.button);

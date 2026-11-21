@@ -125,7 +125,7 @@ void raceCompetitorMotionUpdate(void) {
     onGround = gCurrentActor->contactFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {
         actorInitAnimations(gCurrentActor, gPlayerSlots[participant->playerIdx].actor);
-        gCurrentActor->unk144 |= 0x10;
+        gCurrentActor->collisionMode |= 0x10;
         gCurrentActor->flags &= ~0x20000;
         participant->unk44 = 5;
         actorOrNodeFlags(gCurrentActor, 2, 0xC);

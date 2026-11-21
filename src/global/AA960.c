@@ -399,7 +399,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
     case 0:
         break;
     case 1:
-        gCurrentActor->unk144 = 0x1C;
+        gCurrentActor->collisionMode = 0x1C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -544,7 +544,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     }
     if (gCurrentActor->state == 1 || gCurrentActor->state == 2 || gCurrentActor->state == 4
         || gCurrentActor->state == 5 || gCurrentActor->state == 6) {
-        gCurrentActor->unk144 = 0x1C;
+        gCurrentActor->collisionMode = 0x1C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -752,9 +752,9 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
                 effectSetFlags(4);
                 effectSetFrameDelay(3);
                 effectCreateAtActorBone(spriteAsset, 0.8f, gCurrentActor, 1, 2);
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
             } else {
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
             }
         }
         if (gActorGlobalState.bossFightPhase == 4) {

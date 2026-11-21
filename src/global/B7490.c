@@ -813,10 +813,10 @@ void behaviourEnemyFlyIdle(void) {
         inWaterFlag = gActivePlayerState->stateFlags & 0x40;
         if ((inWaterFlag != 0) && (gCurrentActor->alpha == 0)) {
             gBehaviourWorkState->timer = 0xA;
-            gCurrentActor->unk144 = 0x24;
+            gCurrentActor->collisionMode = 0x24;
         } else if ((inWaterFlag == 0) && (gCurrentActor->alpha == 0xFF)) {
             gBehaviourWorkState->timer = -0xA;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
         }
         alphaDelta = gBehaviourWorkState->timer;
         if (alphaDelta != 0) {
@@ -964,7 +964,7 @@ void behaviourEnemyFlyReturn(void) {
                 gCurrentActor->alpha = 0;
                 gCurrentActor->state = 0x40;
                 gCurrentActor->unk155 = 0;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 if (gCurrentMap == 0xA7) {
                     gEnemyDefeatCount++;
                     if ((gEnemyDefeatCount == 5) && (flagGet(0x15F, 0) == 0)) {

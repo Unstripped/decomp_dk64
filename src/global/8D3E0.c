@@ -1042,7 +1042,7 @@ s32 actorListDespawnIfForced(ActorListNode *node) {
 void actorHideAndDisable(Actor *actor) {
     actor->alpha = 0;
     actor->flags &= ~0x8000;
-    actor->unk144 = 1;
+    actor->collisionMode = 1;
     actor->callbackMask = 0;
     actor->state = 0x63;
     actorSetTriangleEnableById(actor, 0, 0);

@@ -180,7 +180,7 @@ void launchBarrelUpdate(void) {
         if (((LaunchBarrelConfig *)gCurrentActor->spawnData)->hidden == 1) {
             if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
             }
@@ -197,7 +197,7 @@ void launchBarrelUpdate(void) {
         gCurrentActor->state = 1;
         if (0) {} // FAKE: empty branch steers uopt web colouring (gActorGlobalState address takes v1 not v0)
         sub->timer = 0xA;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         sub->rider->yaw = gCurrentActor->yaw;
         camStartPath(NULL, sub->camPath, 1);
     }
@@ -237,7 +237,7 @@ void launchBarrelUpdate(void) {
         case 20:
             for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
                 if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
-                    gCurrentActor->unk144 = 2;
+                    gCurrentActor->collisionMode = 2;
                     gCurrentActor->state = 0x15;
                 }
             }
@@ -546,7 +546,7 @@ void tagBarrelRotateUpdate(void) {
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->y = gCurrentActor->floorY;
         if (state->pushed == 0) {
-            gCurrentActor->unk144 = 0x3C;
+            gCurrentActor->collisionMode = 0x3C;
         }
     } else {
         if (state->soundPlaying != 0 && gCurrentActor->speedXZ == 0.0) {
@@ -574,9 +574,9 @@ void tagBarrelRotateUpdate(void) {
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         if (state->pushed == 0) {
             if (gCurrentActor->speedXZ == 0.0 || !(gCurrentActor->flags & 0x10)) {
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
             } else {
-                gCurrentActor->unk144 = 0x3C;
+                gCurrentActor->collisionMode = 0x3C;
             }
         }
         gCurrentActor->y = gCurrentActor->floorY;
@@ -668,7 +668,7 @@ void throwableBarrelUpdate(void) {
             gCurrentActor->state = 2;
             gCurrentActor->flags2 |= 1;
             state->settleTimer = 0x1E;
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
             state->pitch = 360.0f;
             state->spin = 0.0f;
         }
@@ -682,7 +682,7 @@ void throwableBarrelUpdate(void) {
             state->pitch = 360.0f;
             actorCallbackMaskDisable(gCurrentActor, 0x8000);
             actorCollisionEventsCancel(state->holder, 1);
-            gCurrentActor->unk144 = 0x2C;
+            gCurrentActor->collisionMode = 0x2C;
             pathFollowFree(gCurrentActor);
         } else {
             actorReleaseFromPlayerHold(gCurrentActor);
@@ -692,7 +692,7 @@ void throwableBarrelUpdate(void) {
     if (gActorGlobalState.unk25 != 0) {
         gCurrentActor->state = 2;
         state->settleTimer = 0x1E;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
     }
 
@@ -702,12 +702,12 @@ void throwableBarrelUpdate(void) {
     }
 
     if (state->released != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9)) {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
     }
 
     if (gActorGlobalState.unk2C != 0) {
         gCurrentActor->state = 3;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
         gCurrentActor->yaw = gActorGlobalState.unk36;
         gCurrentActor->moveYaw = gActorGlobalState.unk36;
@@ -722,7 +722,7 @@ void throwableBarrelUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
     case 0:
-        gCurrentActor->unk144 = 2;
+        gCurrentActor->collisionMode = 2;
         state->pitch = 360.0f;
         state->spin = 0.0f;
         actorSetTriangleEnableById(gCurrentActor, 0, 1);
@@ -1132,14 +1132,14 @@ void tagBarrelResetMovement(void) {
     state->spinSpeed = 0;
     state->scale = state->baseScale;
     gCurrentActor->state = 0;
-    gCurrentActor->unk144 = 2;
+    gCurrentActor->collisionMode = 2;
     gCurrentActor->flags &= ~0x200000;
 }
 
 void tagBarrelTriggerRecoil(void) {
     tagBarrelResetMovement();
     gCurrentActor->state = 0x14;
-    gCurrentActor->unk144 = 1;
+    gCurrentActor->collisionMode = 1;
     gCurrentActor->flags &= ~0x8000;
     gCurrentActor->alpha = 0;
     slotQueueCancel(5, 0);
@@ -1251,7 +1251,7 @@ void transformBarrelUpdate(void) {
         if (*(s32 *)gCurrentActor->spawnData == 1) {
             if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
             }
@@ -1314,7 +1314,7 @@ void transformBarrelUpdate(void) {
             }
         }
         gCurrentActor->state = 1;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         state->player = gActorGlobalState.targetActor;
         gCurrentActor->flags |= 0x200000;
         if (!(gGlobalOverlayFlags & 0x2000)) {
@@ -1328,7 +1328,7 @@ void transformBarrelUpdate(void) {
                 }
             }
         }
-        state->player->unk144 = 1;
+        state->player->collisionMode = 1;
     }
 
     if (gCurrentActor->state < 0x14) {
@@ -1614,7 +1614,7 @@ void transformBarrelUpdate(void) {
     case 20:
         for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
             if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] != 0xFF) {
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
                 gCurrentActor->state = 0x15;
             }
         }
@@ -1704,7 +1704,7 @@ void movingLaunchBarrelUpdate(void) {
         }
         if (((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->hidden == 1) {
             gCurrentActor->state = 0x14;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha = 0;
         }
@@ -1712,7 +1712,7 @@ void movingLaunchBarrelUpdate(void) {
     if (gActorGlobalState.bossFightPhase == 4) {
         sub->rider = gActorGlobalState.targetActor;
         gCurrentActor->state = 1;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gCurrentActor->flags |= 0x400;
         sub->animDelay = 2;
         if (sub->mode == 3) {
@@ -1827,7 +1827,7 @@ void movingLaunchBarrelUpdate(void) {
     case 20:
         for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
             if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 0) {
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
                 gCurrentActor->state = 0x15;
             }
         }
@@ -1985,7 +1985,7 @@ void tagBarrelActorUpdate(void) {
             }
         } else if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->hidden == 1) {
             gCurrentActor->state = 0x14;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha = 0;
         } else {
@@ -2020,11 +2020,11 @@ void tagBarrelActorUpdate(void) {
     if (gCurrentMap == 0xAA) {
         if (gCurrentActor->state != 0xA && gCurrentActor->state != 0xB && gCurrentActor->state != 0xC && gCurrentActor->state != 0x1E) {
             if (gActivePlayerState->stateFlags & 0x40) {
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
                 gCurrentActor->flags |= 0x8000;
             } else {
                 hidden = 1;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
             }
@@ -2056,7 +2056,7 @@ void tagBarrelActorUpdate(void) {
     case 0:
         if (gActorGlobalState.bossFightPhase == 4) {
             gCurrentActor->state = 1;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             sub->spinSpeed = 0;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x261, 0xFF, 0x64, 1);
             camStartPath(NULL, 0x1F, 5);
@@ -2069,7 +2069,7 @@ void tagBarrelActorUpdate(void) {
             for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
                 if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 1) {
                     gCurrentActor->state = 0x14;
-                    gCurrentActor->unk144 = 1;
+                    gCurrentActor->collisionMode = 1;
                     gCurrentActor->flags &= ~0x8000;
                     gCurrentActor->alpha = 0;
                 }
@@ -2103,7 +2103,7 @@ void tagBarrelActorUpdate(void) {
             sub->timer -= 1;
         }
         if (sub->timer == 5) {
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x262, 0xFF, 0x64, 1);
         }
         if (sub->timer == 0) {
@@ -2187,7 +2187,7 @@ void tagBarrelActorUpdate(void) {
     case 20:
         for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
             if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 0) {
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
                 gCurrentActor->state = 0x15;
                 sfxAllocateChannel(0x28, 1.0f);
             }
@@ -2203,7 +2203,7 @@ void tagBarrelActorUpdate(void) {
     case 30:
         sub->timer--;
         if (sub->timer == 0) {
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
             gCurrentActor->state = 0;
         }
         break;
@@ -2245,7 +2245,7 @@ void tagBarrelUpdateStateCheck(void) {
     tagBarrelActorUpdate();
     if (flagGet(0x17F, 0) == 0) {
         gCurrentActor->state = 0x14;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0;
     } else {
@@ -2281,12 +2281,12 @@ void tagBarrelUpdateStateCheck(void) {
             sub->flagIndex = 0;
             if (gCurrentActor->state == 0) {
                 gCurrentActor->state = 0x14;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
             }
         } else if (gCurrentActor->state == 0x14) {
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
             gCurrentActor->state = 0x15;
         }
     }
@@ -2316,7 +2316,7 @@ void rocketbarrelUpdate(void) {
         if (*(s32 *)gCurrentActor->spawnData == 1) {
             if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
             }
@@ -2325,7 +2325,7 @@ void rocketbarrelUpdate(void) {
     if ((gCurrentActor->state == 0) && (gActorGlobalState.bossFightPhase == 4)) {
         state->timer = 0xA;
         gCurrentActor->state = 1;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         state->rider = gActorGlobalState.targetActor;
         gCurrentActor->flags |= 0x200000;
         switch (gCurrentMap) {
@@ -2376,7 +2376,7 @@ void rocketbarrelUpdate(void) {
     case 3:
         if (gActorGlobalState.notifyReceived != 0) {
             gCurrentActor->flags |= 0x8000;
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
             gCurrentActor->flags &= ~0x200000;
             gCurrentActor->state = 0;
         }
@@ -2402,7 +2402,7 @@ void rocketbarrelUpdate(void) {
         s16 i;
         for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
             if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
                 gCurrentActor->state = 0x15;
             }
         }
@@ -2506,7 +2506,7 @@ void cannonUpdate(void) {
             gCurrentActor->state = 3;
         } else {
             gCurrentActor->state = 0;
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
         }
         child = gCurrentActor->parentActor;
         if (child != NULL) {
@@ -2540,7 +2540,7 @@ void cannonUpdate(void) {
                 gCurrentActor->flags |= 0x200000;
             }
             gCurrentActor->flags &= ~4;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
         }
         break;
     case 2:
@@ -2567,7 +2567,7 @@ void cannonUpdate(void) {
             playerResumeLocomotion(sub->rider);
             gCurrentActor->flags |= 4;
             gCurrentActor->state = 0;
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
         }
         break;
     }
@@ -2792,7 +2792,7 @@ s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
             if (setFlag != 0 && info.isSet == 0) {
                 flagSet(info.value, 1, 0);
                 camStartPath(gPrimaryPlayerActor, 0x19, 4);
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->unk155 = 0xB;
             }
         }
@@ -2816,7 +2816,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
     switch (gCurrentActor->unk155) {
     case 0xB:
         if (camIsCutsceneActive() == 0) {
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
             gCurrentActor->unk155 = 0;
         }
         break;
@@ -2824,7 +2824,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
     case 0xA:
         if (gActorGlobalState.bossFightPhase == 4) {
             data->player = gActorGlobalState.targetActor;
-            data->player->unk144 = 1;
+            data->player->collisionMode = 1;
             ((PlayerState *)data->player->customState)->stateFlags |= 0x20000000;
             gCurrentActor->unk155 = 1;
             data->timer = 2;
@@ -2846,7 +2846,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
             lightGetColor(&data->lightR, &data->lightG, &data->lightB, light);
             lightSetColor(1.0f, 1.0f, 1.0f, light);
             gCurrentActor->yaw = data->baseYaw;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             kong = (s16)player->actorType;
             gGlobalPauseFlags &= ~0x30030;
             data->selected = 0;
@@ -3130,7 +3130,7 @@ void tagBarrelUpdate(void) {
         if (sub->timer != 0) {
             sub->timer--;
             if (sub->timer == 0) {
-                gCurrentActor->unk144 = 2;
+                gCurrentActor->collisionMode = 2;
             }
         } else {
             tagBarrelStartSelection(sub);

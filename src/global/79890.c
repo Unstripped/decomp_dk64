@@ -139,7 +139,7 @@ void actorCollisionCheckNodeSpheres(Actor *self) {
             }
             if ((actor->flags & 0x2000) == 0 &&
                 selfCollision != otherCollision &&
-                actor->unk144 != 1 &&
+                actor->collisionMode != 1 &&
                 (actor->flags & 0x10) &&
                 isRider == 0 &&
                 collisionSpheresOverlap(selfX, selfY, selfZ, selfRadius,

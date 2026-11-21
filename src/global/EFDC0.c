@@ -507,7 +507,7 @@ void playerStateEnterSlideSlope(void) {
     gActivePlayerState->unk4C = -1;
     gActivePlayerActor->flags &= ~1;
     if (gCurrentMap == 0x27) {
-        gActivePlayerActor->unk144 = 1;
+        gActivePlayerActor->collisionMode = 1;
     }
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
     if (gActivePlayerActor->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } controllerAnimSetStateIfChanged(gActivePlayerActor, (s16)animation, 0.0f, 0.0f); // LAYOUT: one source line steers the scheduler (li at,2 after mfc1)
@@ -525,7 +525,7 @@ void playerStateEnterFrozen(void) {
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
     actor = gActivePlayerState->actor;
     actorCopyPoseAndScale(gActivePlayerActor, actor, actor->sub4->scaleX);
-    gActivePlayerActor->unk144 = 1;
+    gActivePlayerActor->collisionMode = 1;
     controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
 }
 
@@ -1344,7 +1344,7 @@ void playerStateTakeDamageAndDrop(void) {
 void playerStateDamageCheck2(void) {
     if (playerCanTakeHit(gCurrentActor) != 0) {
         gActivePlayerState->damageSource = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gCurrentActor->state = 0x34;
         gCurrentActor->unk155 = 0;
         actorScriptStart(gCurrentActor, 0);
@@ -1622,7 +1622,7 @@ void playerStateEnterDamageReaction2(void) {
             if (camIsCutsceneActive() == 0) {
                 playerClearCarriedItemState();
                 playerDropHeldActor(gActivePlayerActor);
-                gActivePlayerActor->unk144 = 1;
+                gActivePlayerActor->collisionMode = 1;
                 actorScriptStartByIndex(gActivePlayerActor, 0x2A);
                 gActivePlayerActor->state = 0x3B;
                 gActivePlayerActor->unk155 = 0;
@@ -1727,7 +1727,7 @@ void playerStateDropHeldActorSetKong(void) {
     playerSetKongByActorType(gActivePlayerState->savedActorType);
     playerDropHeldActor(gActivePlayerActor);
     playerClearCarriedItemState();
-    gActivePlayerActor->unk144 = 1;
+    gActivePlayerActor->collisionMode = 1;
     if (gActivePlayerActor->state != 0x7D) {
         if (gActivePlayerActor->contactFlags & 4) {
             actorScriptStartByIndex(gActivePlayerActor, 0x34);
@@ -1750,7 +1750,7 @@ void playerStateDropHeldActorSetKong2(void) {
     playerSetKongByActorType(gActivePlayerState->savedActorType);
     playerDropHeldActor(gActivePlayerActor);
     playerClearCarriedItemState();
-    gActivePlayerActor->unk144 = 1;
+    gActivePlayerActor->collisionMode = 1;
     if (gActivePlayerActor->state != 0x7D) {
         if (gActivePlayerActor->contactFlags & 4) {
             actorScriptStartByIndex(gActivePlayerActor, 0x34);

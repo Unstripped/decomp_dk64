@@ -1269,7 +1269,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
 }
 
 extern Actor *gPrimaryPlayerActor;
-extern u8 D_80745838;
+extern u8 gAudioUnderwater;
 
 
 void playerStateHandleSoundEffects(s16 modelType, u8 playerIndex) {
@@ -1278,10 +1278,10 @@ void playerStateHandleSoundEffects(s16 modelType, u8 playerIndex) {
 
     switch (modelType) {
     case 0x8E:
-        sfxAllocateChannel(0x23, 1.0 - D_80745838 * 0.3);
+        sfxAllocateChannel(0x23, 1.0 - gAudioUnderwater * 0.3);
         break;
     case 0x57:
-        sfxAllocateChannel(0x21, 1.0 - D_80745838 * 0.3);
+        sfxAllocateChannel(0x21, 1.0 - gAudioUnderwater * 0.3);
         break;
     case 0x56:
         sfxPlayOnFreeSlot(0x147, 0x7FFF, 63.0f, 1.0f, 5, 0);
@@ -1330,16 +1330,16 @@ void playerStateHandleSoundEffects(s16 modelType, u8 playerIndex) {
     case 0x23:
     case 0x24:
     case 0x27:
-        sfxAllocateChannel(0x17, 1.0 - D_80745838 * 0.3);
+        sfxAllocateChannel(0x17, 1.0 - gAudioUnderwater * 0.3);
         break;
     case 0x2B:
         break;
     case 0xB7:
-        sfxAllocateChannel(0x91, 1.0 - D_80745838 * 0.3);
+        sfxAllocateChannel(0x91, 1.0 - gAudioUnderwater * 0.3);
         break;
     case 0xEC:
     case 0x1D2:
-        sfxAllocateChannel(0x20, 1.0 - D_80745838 * 0.3);
+        sfxAllocateChannel(0x20, 1.0 - gAudioUnderwater * 0.3);
         break;
     case 0x13C:
         sfxAllocateChannel(0x12, 1.0f);

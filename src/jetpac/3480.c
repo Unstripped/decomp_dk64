@@ -475,7 +475,7 @@ void jetpacPlaceRocketOnPad(void) {
     }
 }
 
-extern struct GfSndState *D_80770DF8[];
+extern struct GfSndState *gLoopSfxHandles[];
 
 void jetpacUpdateRocketFlight(void) {
     s32 i;
@@ -489,7 +489,7 @@ void jetpacUpdateRocketFlight(void) {
 
     y = item->unkC; t = (y - -8.0f) / 144.0f; t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t); // LAYOUT: one line so as1 issues lwc1 $f12 (y) after the -8.0f mtc1
     if (jetpacGame.gameState == 1) {
-        if (D_80770DF8[1] == NULL) {
+        if (gLoopSfxHandles[1] == NULL) {
             jetpacPlaySound(1);
         }
         t = t * 0.059466f;
@@ -507,7 +507,7 @@ void jetpacUpdateRocketFlight(void) {
         }
         speed = 0.4f;
     } else if (jetpacGame.gameState == 4) {
-        if (D_80770DF8[0] == NULL) {
+        if (gLoopSfxHandles[0] == NULL) {
             jetpacPlaySound(0);
         }
         t = 1.0f - t;

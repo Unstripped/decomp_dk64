@@ -41,7 +41,7 @@ typedef struct {
     u8 pad9;
 } AmbientSfxEntry;
 
-s16 D_807454F0[176] = {
+s16 sSeqBaseVolume[176] = {
     0x0, 0x4650, 0x6590, 0x59D8, 0x7530, 0x6D60, 0x7FFF, 0x7FFF,
     0x6590, 0x688F, 0x58EF, 0x688F, 0x7FFF, 0x688F, 0x4650, 0x7FFF,
     0x3E80, 0x4650, 0x55F0, 0x7FFF, 0x7FFF, 0x4650, 0x4650, 0x2710,
@@ -91,16 +91,16 @@ u16 sSfxFlagTable[176] = {
     0x101, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100,
     0x100, 0x188, 0x1D8, 0x18A, 0x645, 0x18, 0x108, 0x0,
 };
-f32 D_807457B8[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-struct GfSndState *D_807457C8 = NULL;
+f32 sSeqVolumeScale[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+struct GfSndState *gSfxPositionalHandle = NULL;
 s32 D_807457CC = 0;
-struct GfSndState *D_807457D0[2] = { NULL, NULL };
-u8 D_807457D8 = 0;
-struct GfSndState *D_807457DC = NULL;
+struct GfSndState *sSfxRandomPanHandles[2] = { NULL, NULL };
+u8 sSfxRandomPanIndex = 0;
+struct GfSndState *sRainSfxHandle = NULL;
 s32 D_807457E0 = 0;
 struct GfSndState *gSfxFreeSlotHandles[20] = { NULL };
 u8 sSfxFreeSlotCursor = 0;
-u8 D_80745838 = 0;
+u8 gAudioUnderwater = 0;
 s8 gSfxVolume = 0x28;
 s8 gMusicVolume = 0x28;
 s8 gAudioOutputMode = 0;
@@ -146,56 +146,56 @@ AmbientSfxEntry sAmbientSfxTable[29] = {
     { 0x1A, 23, 0x33, 0x33, 1, 0 },
 };
 
-u8 D_80770560[4];
-f32 D_80770568[4];
-f32 D_80770578[4];
+u8 gSeqCurrentId[4];
+f32 gSeqVolume[4];
+f32 gSeqTargetVolume[4];
 f32 D_80770588;
 u8 gAmbientAudioLevels[3];
-f32 D_80770590;
-f32 D_80770594;
-u8 D_80770598[4];
+f32 gSfxSpeedVolume;
+f32 gSfxPrevSpeed;
+u8 gSeqVolumeFading[4];
 Actor *gSfxSourceActor[22];
 s16 gSfxSourceModelSlot[24];
 s16 gSfxSourceVoice[24];
 s16 gSfxSourceListIndex[24];
-f32 D_80770688[22];
-u8 D_807706E0[24];
-u8 D_807706F8[24];
+f32 gSfxVoicePrevDist[22];
+u8 gSfxVoiceStopTimer[24];
+u8 gSfxVoiceExclusive[24];
 s16 gSfxVoiceSoundId[24];
 s16 gSfxVoiceSourceCount[24];
-u8 D_80770770[24];
-u8 D_80770788[24];
+u8 gSfxVoiceFxLevel[24];
+u8 gSfxSourceRange[24];
 s16 gSfxVoiceSources[22][22];
 f32 gSfxVoicePitch[22];
 f32 D_80770BC0[22];
-f32 D_80770C18[22];
-f32 D_80770C70[22];
-u8 D_80770CC8[24];
-u8 D_80770CE0[24];
-s8 D_80770CF8[24];
-s16 D_80770D10[24];
-s16 D_80770D40[24];
-f32 D_80770D70[22];
-u8 D_80770DC8;
+f32 gSfxVoiceCurPitch[22];
+f32 gSfxVoiceBasePitch[22];
+u8 gSfxVoicePlayedOnce[24];
+u8 gSfxVoiceVolume[24];
+s8 gSfxVoiceNode[24];
+s16 gSfxVoiceSentVolume[24];
+s16 gSfxVoiceSentPan[24];
+f32 gSfxVoiceSentPitch[22];
+u8 gAmbientIndoorReverb;
 u8 gAmbientIndoors;
 u8 D_80770DCA;
-u8 D_80770DCB;
-f32 D_80770DCC;
-f32 D_80770DD0;
-f32 D_80770DD4;
+u8 gAmbientWasOutside;
+f32 gAmbientNearestPan;
+f32 gAmbientNearestFx;
+f32 gAmbientNearestDist;
 u8 D_80770DD8[4];
 f32 D_80770DDC;
-f32 D_80770DE0;
-f32 D_80770DE4;
+f32 gSfxFrontFactor;
+f32 gSfxDistance;
 f32 D_80770DE8;
-f32 D_80770DEC;
-f32 D_80770DF0;
-f32 D_80770DF4;
-struct GfSndState *D_80770DF8[16];
-u32 D_80770E38[16];
-f32 D_80770E78[16];
-f32 D_80770EB8[16];
-f32 D_80770EF8[16];
+f32 gSfxLeftLevel;
+f32 gSfxFrontLevel;
+f32 gSfxRearLevel;
+struct GfSndState *gLoopSfxHandles[16];
+u32 gAmbientGroupRetriggerTick[16];
+f32 gAmbientGroupSentPitch[16];
+f32 gAmbientGroupSentVolume[16];
+f32 gAmbientGroupSentPan[16];
 
 u8 sfxGetBankIndex(s16 sfxId) {
     return (sSfxFlagTable[sfxId] & 6) >> 1;
@@ -270,7 +270,7 @@ void sfxUpdateChannels(void) {
             if (sfxId != 0) {
                 channel = sfxGetChannelIndex(sfxId);
                 bank = sfxGetBankIndex(sfxId);
-                if (sfxId == D_80770560[bank] && seqState[bank] == 1) {
+                if (sfxId == gSeqCurrentId[bank] && seqState[bank] == 1) {
                     if (sSfxChannelStates[i] == 1) {
                         sSfxChannelStates[i] = 2;
                     }
@@ -290,7 +290,7 @@ void sfxUpdateChannels(void) {
                     }
                 }
                 if (!(sSfxFlagTable[sfxId] & 0x100) && sSfxChannelStates[i] == 2) {
-                    if (seqState[sfxGetBankIndex(sfxId)] == 0 || sfxId != D_80770560[bank]) {
+                    if (seqState[sfxGetBankIndex(sfxId)] == 0 || sfxId != gSeqCurrentId[bank]) {
                         sfxStopChannel(sfxId, 0);
                     }
                 }
@@ -315,20 +315,20 @@ void sfxUpdateChannels(void) {
                 if (seqState[i] == 1) {
                     if (idx == -1) {
                         seqSetTargetVolume(i, 0.0f);
-                        if (D_80770568[i] < 0.1 || D_80770560[i] == 0x4B) {
+                        if (gSeqVolume[i] < 0.1 || gSeqCurrentId[i] == 0x4B) {
                             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
                         }
                     } else {
-                        if (D_80770560[i] != sSfxChannelSounds[idx] || (sSfxChannelStates[idx] == 0 && (sSfxFlagTable[sSfxChannelSounds[idx]] & 0x200))) {
+                        if (gSeqCurrentId[i] != sSfxChannelSounds[idx] || (sSfxChannelStates[idx] == 0 && (sSfxFlagTable[sSfxChannelSounds[idx]] & 0x200))) {
                             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
-                        } else if (D_80770568[i] == 0.0f) {
+                        } else if (gSeqVolume[i] == 0.0f) {
                             seqSetTargetVolume(i, sSfxChannelVolumes[idx]);
                         }
                     }
                 }
             } else {
                 if (idx != -1) {
-                    if (D_80770560[i] == sSfxChannelSounds[idx] && sSfxChannelStates[idx] == 2) {
+                    if (gSeqCurrentId[i] == sSfxChannelSounds[idx] && sSfxChannelStates[idx] == 2) {
                         seqSetTargetVolume(i, sSfxChannelVolumes[idx]);
                         alCSPPlay(&gSeqPlayers[i]->al);
                     } else {
@@ -371,7 +371,7 @@ u8 stopSeq;
         sSfxChannelSounds[channel] = 0;
         sSfxChannelStates[channel] = 0;
         if (stopSeq != 0) {
-            if (sfxId == D_80770560[bank]) {
+            if (sfxId == gSeqCurrentId[bank]) {
                 alSeqpStop((ALSeqPlayer *)gSeqPlayers[bank]);
             }
         }
@@ -391,7 +391,7 @@ void sfxStopAllChannels(void) {
 
 void seqRouteChannelVolume(s32 sfxId, f32 volume) {
     u8 bank = sfxGetBankIndex((s16)sfxId);
-    if ((sfxId == sSfxChannelSounds[sfxGetChannelIndex((s16)sfxId)]) && (sfxId == D_80770560[bank])) {
+    if ((sfxId == sSfxChannelSounds[sfxGetChannelIndex((s16)sfxId)]) && (sfxId == gSeqCurrentId[bank])) {
         seqSetTargetVolume(bank, volume);
     }
 }
@@ -413,9 +413,9 @@ f32 sfxGetChannelVolume(sfxId)
 s32 sfxId;
 {
     u8 bank = sfxGetBankIndex((s16)sfxId);
-    if (sfxId == D_80770560[bank]) {
+    if (sfxId == gSeqCurrentId[bank]) {
         if (alCSPGetState(&gSeqPlayers[bank]->al) == 1) {
-            return D_80770568[bank];
+            return gSeqVolume[bank];
         }
     }
     return 0.0f;
@@ -423,7 +423,7 @@ s32 sfxId;
 
 void sfxSetChannelTempo(s32 sfxId, f32 scale) {
     u8 bank = sfxGetBankIndex((s16)sfxId);
-    if ((sfxId == sSfxChannelSounds[sfxGetChannelIndex((s16)sfxId)]) && (sfxId == D_80770560[bank])) {
+    if ((sfxId == sSfxChannelSounds[sfxGetChannelIndex((s16)sfxId)]) && (sfxId == gSeqCurrentId[bank])) {
         alCSPSetTempo(&gSeqPlayers[bank]->al, (s32)(alCSPGetTempo(&gSeqPlayers[bank]->al) * scale));
     }
 }
@@ -451,7 +451,7 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
         dy *= 20.0f;
     }
 
-    D_80770DE4 = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+    gSfxDistance = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
 
     if ((f64)directionality >= 0.8) {
         f32 l_dz = gPlayerSlots->focusZ - gPlayerSlots->camZ;
@@ -467,7 +467,7 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
         }
 
         if (D_80770DDC > 0.3926991f && (f64)D_80770DDC < 5.890486389398575) {
-            D_80770DE4 = (1.0f - (sinApprox((f32)(((f64)D_80770DDC * 4.0 / 7.0) + 2.942101601958275)) * 4.0f)) * D_80770DE4;
+            gSfxDistance = (1.0f - (sinApprox((f32)(((f64)D_80770DDC * 4.0 / 7.0) + 2.942101601958275)) * 4.0f)) * gSfxDistance;
         }
     }
 
@@ -477,16 +477,16 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
     }
 
     if (D_80770DDC > 0.7853982f && (f64)D_80770DDC < 5.497787296772003 && (f64)viewPitch < 4.0) {
-        D_80770DE4 = (1.0f - (sinApprox((f32)(((2.0 * (f64)D_80770DDC) / 3.0) + 2.617993950843811)) * directionality)) * D_80770DE4;
+        gSfxDistance = (1.0f - (sinApprox((f32)(((2.0 * (f64)D_80770DDC) / 3.0) + 2.617993950843811)) * directionality)) * gSfxDistance;
     }
 
-    if (D_80770DE4 < 1.0f) {
-        D_80770DE4 = 1.0f;
+    if (gSfxDistance < 1.0f) {
+        gSfxDistance = 1.0f;
     }
 
     {
         f32 dist = (f32)(range * 0xFA0);
-        f64 temp = ((f64)(dist / sqrtf(D_80770DE4))) - (((f64)dist * 0.12909946) - 32767.0);
+        f64 temp = ((f64)(dist / sqrtf(gSfxDistance))) - (((f64)dist * 0.12909946) - 32767.0);
         f64 volumeScale = (f64)volume;
         level = (f32)(temp * volumeScale * 0.00392156862745098);
     }
@@ -495,7 +495,7 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
         return 0.0f;
     }
 
-    D_80770DE0 = cosApprox(D_80770DDC);
+    gSfxFrontFactor = cosApprox(D_80770DDC);
     D_80770DDC = (f32)((f64)(1.0f - sinApprox(D_80770DDC)) * 63.5);
 
     if (level < 10.0f) {
@@ -521,13 +521,13 @@ f32 sfxUpdateDistanceVolumeAndPan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 
 
     panRatio = (f32)((f64)D_80770DDC * 0.00787401574803149595);
     D_80770DE8 += level * panRatio;
-    D_80770DEC += level * (1.0f - panRatio);
+    gSfxLeftLevel += level * (1.0f - panRatio);
 
-    if (D_80770DE0 > 0.0f) {
-        D_80770DF0 += level * D_80770DE0;
+    if (gSfxFrontFactor > 0.0f) {
+        gSfxFrontLevel += level * gSfxFrontFactor;
     }
-    if (D_80770DE0 < 0.0f) {
-        D_80770DF4 -= level * D_80770DE0;
+    if (gSfxFrontFactor < 0.0f) {
+        gSfxRearLevel -= level * gSfxFrontFactor;
     }
 
     return level;
@@ -554,7 +554,7 @@ typedef struct {
 } AmbientAudioParam;
 
 
-AmbientAudioParam D_80745B28[15] = {
+AmbientAudioParam sAmbientGroupParams[15] = {
     { 0x106, 0xFF, 0x5A, 0.7f, 1.0f },
     { 0x11D, 0xFF, 0xC8, 0.3f, 1.0f },
     { 0x11B, 0x1E, 0x64, 4.0f, 1.0f },
@@ -692,7 +692,7 @@ AmbientEmitter D_8074627C[3] = {
     { 2027, 212, 1182, 1024, 100, 0x7F, 0x0, 0x0, 0x0 },
     { 1323, 38, 1701, 0, 100, 0x7F, 0x0, 0x0, 0x0 },
 };
-u8 D_807462A8[69][2] = {
+u8 sSfxVoiceDefaults[69][2] = {
     { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x4 }, { 0x5A, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 },
     { 0x0, 0x0 }, { 0x5A, 0x0 }, { 0x50, 0x0 }, { 0x64, 0x0 }, { 0x3C, 0x0 }, { 0x5A, 0x0 }, { 0x32, 0x0 }, { 0x50, 0x0 },
     { 0x50, 0x0 }, { 0x64, 0x0 }, { 0x1E, 0x0 }, { 0x46, 0x0 }, { 0x5A, 0x0 }, { 0x55, 0x0 }, { 0x5A, 0x0 }, { 0x5A, 0x0 },
@@ -706,7 +706,7 @@ u8 D_807462A8[69][2] = {
 
 extern SchedStruct gScheduler;
 extern ALBank *gSfxBank;
-extern ALBank *D_8076D1FC;
+extern ALBank *gSfxBankHigh;
 extern u8 D_80770DD9;
 extern PlayerState *gActivePlayerState;
 
@@ -794,28 +794,28 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if (emitterCount && sSfxAreaAmbientActive != 0 && sSfxMode == 0) {
-        D_80770DD4 = 1000000.0f;
+        gAmbientNearestDist = 1000000.0f;
         volume = 0.0f;
         for (k = 0; k < emitterCount; k++) {
             f32 dx = gPlayerSlots->camX - emitters[k].x;
             f32 dz = gPlayerSlots->camZ - emitters[k].z;
             if (emitters[k].facing == -1) {
-                D_80770DE4 = sqrtf(dx * dx + dz * dz);
-                if (D_80770DE4 < emitters[k].radius - 20) {
+                gSfxDistance = sqrtf(dx * dx + dz * dz);
+                if (gSfxDistance < emitters[k].radius - 20) {
                     sfxAllocateChannel(emitters[k].sfxId, 1.0f);
-                } else if (D_80770DE4 > emitters[k].radius) {
+                } else if (gSfxDistance > emitters[k].radius) {
                     sfxStopChannel(emitters[k].sfxId, 0);
                 }
             } else {
                 f32 dy = gPlayerSlots->camY - emitters[k].y;
-                D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
-                if (k == 0 || D_80770DE4 < D_80770DD4) {
+                gSfxDistance = sqrtf(dx * dx + dy * dy + dz * dz);
+                if (k == 0 || gSfxDistance < gAmbientNearestDist) {
                     nearest = k;
-                    D_80770DD4 = D_80770DE4;
+                    gAmbientNearestDist = gSfxDistance;
                     angle = (mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - emitters[k].facing;
                 }
             }
-            D_80770DE8 = 32767.0f - (D_80770DE4 - 50.0f) * 120.0f;
+            D_80770DE8 = 32767.0f - (gSfxDistance - 50.0f) * 120.0f;
             if (D_80770DE8 > 32767.0f) {
                 D_80770DE8 = 32767.0f;
             }
@@ -824,8 +824,8 @@ void sfxUpdateLevelAmbient(void) {
             }
             volume += D_80770DE8;
         }
-        D_80770DE4 = D_80770DD4;
-        if (nearest >= 0 && D_80770DE4 < emitters[nearest].radius) {
+        gSfxDistance = gAmbientNearestDist;
+        if (nearest >= 0 && gSfxDistance < emitters[nearest].radius) {
             if (emitters[nearest].facing >= 0x1001) {
                 gAmbientIndoors = emitters[nearest].facing & 1;
             } else {
@@ -836,25 +836,25 @@ void sfxUpdateLevelAmbient(void) {
                     angle += 4096.0f;
                 }
                 if (angle < 1024.0f && angle > -1024.0f) {
-                    if (D_80770DCB != 0) {
+                    if (gAmbientWasOutside != 0) {
                         gAmbientIndoors = 1;
                     }
                 } else {
-                    D_80770DCB = 1;
+                    gAmbientWasOutside = 1;
                     gAmbientIndoors = 0;
                     sfxAllocateChannel(emitters[nearest].enterSfx, 1.0f);
                 }
             }
             if (gAmbientIndoors != 0) {
-                D_80770DC8 = emitters[nearest].reverb;
+                gAmbientIndoorReverb = emitters[nearest].reverb;
             } else {
-                D_80770DC8 = 0;
+                gAmbientIndoorReverb = 0;
             }
             D_80770DD9 = emitters[nearest].sfxId;  // FAKE: the D_80770DD9 linker alias (byte 1 of D_80770DD8) keeps this store on its own lui at/sb t3 at 0x15d0/0x15d8; D_80770DD8[1] joins the &D_80770DD8 web hoisted into s1 (text 7)
         } else {
-            D_80770DCB = 0;
+            gAmbientWasOutside = 0;
         }
-        if (D_80745838 != 0) {
+        if (gAudioUnderwater != 0) {
             volume = 0.0f;
         } else if (gAmbientIndoors != 0) {
             volume = 32767.0f;
@@ -868,14 +868,14 @@ void sfxUpdateLevelAmbient(void) {
         }
         if (D_80770DD8[1] == 0xFF) {
             D_80770DD8[1] = emitters[nearest].sfxId;
-            D_80770DC8 = emitters[nearest].reverb;
+            gAmbientIndoorReverb = emitters[nearest].reverb;
             if (gAmbientIndoors == 0) {
                 sfxAllocateChannel(emitters[nearest].enterSfx, 1.0f);
             }
         }
         if (gAmbientIndoors != 0 && D_80770DD8[1] != 0) {
             sfxAllocateChannel(D_80770DD8[1], 1.0f);
-        } else if (D_80745838 != 0) {
+        } else if (gAudioUnderwater != 0) {
             seqSetTargetVolume(0, 1.0f);
         } else {
             sfxStopChannel(D_80770DD8[1], 0);
@@ -886,20 +886,20 @@ void sfxUpdateLevelAmbient(void) {
                 sfxAllocateChannel(extraSfx, 1.0f);
             }
         }
-        if (D_80770560[2] == 0x26) {
+        if (gSeqCurrentId[2] == 0x26) {
             seqSetVolumeInstant(2, volume / 32767.0);
         }
         volume = ((volume - 28384.0f) * 100.0f) / 4383.0f;
         if (volume < 0.0f) {
             volume = 0.0f;
         }
-        volume = gMapAudioTable[gCurrentMap].volume + (((255.0 - gMapAudioTable[gCurrentMap].volume) * (D_80770DC8 / 127.0) * volume) / 255.0);
+        volume = gMapAudioTable[gCurrentMap].volume + (((255.0 - gMapAudioTable[gCurrentMap].volume) * (gAmbientIndoorReverb / 127.0) * volume) / 255.0);
         gAmbientAudioLevels[2] = volume;
     } else {
         gAmbientAudioLevels[2] = gMapAudioTable[gCurrentMap].volume;
     }
 
-    if (D_80745838 != 0) {
+    if (gAudioUnderwater != 0) {
         gAmbientAudioLevels[2] = 0xFF;
     }
 
@@ -915,7 +915,7 @@ void sfxUpdateLevelAmbient(void) {
             alCSPSetChlPanVolume(&gSeqPlayers[0]->al, pan, volume);
         }
         for (seq = 0; seq < 4; seq++) {
-            if (sSfxFlagTable[D_80770560[seq]] & 1) {
+            if (sSfxFlagTable[gSeqCurrentId[seq]] & 1) {
                 alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, pan, volume);
             } else {
                 alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, 0.0f, 1.0f);
@@ -927,9 +927,9 @@ void sfxUpdateLevelAmbient(void) {
     count = mapGetSoundEmitters(&soundEmitters);
     for (group = 0; group < 15; group++) {
         D_80770DE8 = 0.0f;
-        D_80770DEC = 0.0f;
-        D_80770DF0 = 0.0f;
-        D_80770DF4 = 0.0f;
+        gSfxLeftLevel = 0.0f;
+        gSfxFrontLevel = 0.0f;
+        gSfxRearLevel = 0.0f;
         if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
             volume = 0.0f;
         } else {
@@ -944,11 +944,11 @@ void sfxUpdateLevelAmbient(void) {
                 for (k = count - 1; k >= 0; k--) {
                     if (group + 1 == soundEmitters[k].group) {
                         sfxUpdateDistanceVolumeAndPan(soundEmitters[k].x, soundEmitters[k].y, soundEmitters[k].z,
-                            (soundEmitters[k].volume * D_80745B28[group].volume) / 255.0,
-                            D_80745B28[group].range, D_80745B28[group].directionality);
+                            (soundEmitters[k].volume * sAmbientGroupParams[group].volume) / 255.0,
+                            sAmbientGroupParams[group].range, sAmbientGroupParams[group].directionality);
                     }
                 }
-                volume = D_80770DE8 + D_80770DEC;
+                volume = D_80770DE8 + gSfxLeftLevel;
                 if (volume > 32767.0f) {
                     volume = 32767.0f;
                 }
@@ -957,133 +957,133 @@ void sfxUpdateLevelAmbient(void) {
                 }
             }
         }
-        if (D_80745B28[group].sfxId == 0x1E) {
+        if (sAmbientGroupParams[group].sfxId == 0x1E) {
             volume *= 0.6;
-            if ((gScheduler.unk280 / 12U) != D_80770E38[group]) {
-                D_80770E38[group] = (gScheduler.unk280 / 12U);
+            if ((gScheduler.unk280 / 12U) != gAmbientGroupRetriggerTick[group]) {
+                gAmbientGroupRetriggerTick[group] = (gScheduler.unk280 / 12U);
                 if (volume > 10.0f) {
-                    n_alSndpPlay(gSfxBank, D_80745B28[group].sfxId, volume, 0x3F, 0.4f, 0, &D_80770DF8[group]);
-                    D_80770EB8[group] = volume + 1.0f;
-                    D_80770EF8[group] = 300.0f;
+                    n_alSndpPlay(gSfxBank, sAmbientGroupParams[group].sfxId, volume, 0x3F, 0.4f, 0, &gLoopSfxHandles[group]);
+                    gAmbientGroupSentVolume[group] = volume + 1.0f;
+                    gAmbientGroupSentPan[group] = 300.0f;
                 }
             }
         }
-        if (volume != D_80770EB8[group] || D_80770DF8[group] == 0) {
+        if (volume != gAmbientGroupSentVolume[group] || gLoopSfxHandles[group] == 0) {
             if (volume > 10.0f) {
-                if (D_80770DF8[group] == 0) {
-                    sfxId = D_80745B28[group].sfxId;
+                if (gLoopSfxHandles[group] == 0) {
+                    sfxId = sAmbientGroupParams[group].sfxId;
                     if (sfxId < 0x800) {
-                        n_alSndpPlay(gSfxBank, sfxId, volume, 0x3F, D_80745B28[group].pitch, 0, &D_80770DF8[group]);
+                        n_alSndpPlay(gSfxBank, sfxId, volume, 0x3F, sAmbientGroupParams[group].pitch, 0, &gLoopSfxHandles[group]);
                     } else {
-                        n_alSndpPlay(D_8076D1FC, sfxId - 0x7FF, volume, 0x3F, D_80745B28[group].pitch, 0, &D_80770DF8[group]);
+                        n_alSndpPlay(gSfxBankHigh, sfxId - 0x7FF, volume, 0x3F, sAmbientGroupParams[group].pitch, 0, &gLoopSfxHandles[group]);
                     }
-                    D_80770E78[group] = 0.0f;
-                    D_80770EF8[group] = 255.0f;
+                    gAmbientGroupSentPitch[group] = 0.0f;
+                    gAmbientGroupSentPan[group] = 255.0f;
                 }
-                if (D_80770DF8[group] != 0) {
-                    n_alSndpPostEvent(D_80770DF8[group], 8, volume);
+                if (gLoopSfxHandles[group] != 0) {
+                    n_alSndpPostEvent(gLoopSfxHandles[group], 8, volume);
                 }
-                if (D_80770DF0 < D_80770DF4) {
+                if (gSfxFrontLevel < gSfxRearLevel) {
                     fxFlags = 0x80;
                 }
-                if (D_80770DF8[group] != 0) {
-                    n_alSndpPostEvent(D_80770DF8[group], 0x100, fxFlags);
+                if (gLoopSfxHandles[group] != 0) {
+                    n_alSndpPostEvent(gLoopSfxHandles[group], 0x100, fxFlags);
                 }
-            } else if (D_80770DF8[group] != 0) {
-                n_alSndpStop(D_80770DF8[group]);
+            } else if (gLoopSfxHandles[group] != 0) {
+                n_alSndpStop(gLoopSfxHandles[group]);
             }
-            D_80770EB8[group] = volume;
+            gAmbientGroupSentVolume[group] = volume;
         }
-        if (D_80770DF8[group] != 0) {
+        if (gLoopSfxHandles[group] != 0) {
             if (D_80770DE8 > 32767.0f) {
                 D_80770DE8 = 32767.0f;
             }
-            if (D_80770DEC > 32767.0f) {
-                D_80770DEC = 32767.0f;
+            if (gSfxLeftLevel > 32767.0f) {
+                gSfxLeftLevel = 32767.0f;
             }
-            if (D_80770DEC < D_80770DE8) {
+            if (gSfxLeftLevel < D_80770DE8) {
                 if (D_80770DE8 > 0.0f) {
-                    angle = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);  // FAKE: angle reused for the per-group pan value (to the n_alSndpPostEvent(.., 4, angle) below); the target keeps it in angle f20 (cvt.s.d $f20 at 0x20cc/0x2100): a separate local here is 561-598 (block scope or any declaration slot), sharing pan with the seq-player block 366 (pre-existing part of 7d249b)
+                    angle = 127.0 - ((gSfxLeftLevel * 63.5) / D_80770DE8);  // FAKE: angle reused for the per-group pan value (to the n_alSndpPostEvent(.., 4, angle) below); the target keeps it in angle f20 (cvt.s.d $f20 at 0x20cc/0x2100): a separate local here is 561-598 (block scope or any declaration slot), sharing pan with the seq-player block 366 (pre-existing part of 7d249b)
                 } else {
                     angle = 0.0f;
                 }
-            } else if (D_80770DEC > 0.0f) {
-                angle = (D_80770DE8 * 63.5) / D_80770DEC;
+            } else if (gSfxLeftLevel > 0.0f) {
+                angle = (D_80770DE8 * 63.5) / gSfxLeftLevel;
             } else {
                 angle = 0.0f;
             }
-            if (D_80745838 != 0) {
-                pitch = D_80745B28[group].pitch * 0.5;
-            } else if (gAmbientIndoors != 0 && D_80745B28[group].sfxId == 0x106) {
-                pitch = 1.0 / ((D_80770DD4 / 800.0) + 1.0);
+            if (gAudioUnderwater != 0) {
+                pitch = sAmbientGroupParams[group].pitch * 0.5;
+            } else if (gAmbientIndoors != 0 && sAmbientGroupParams[group].sfxId == 0x106) {
+                pitch = 1.0 / ((gAmbientNearestDist / 800.0) + 1.0);
             } else {
-                pitch = D_80745B28[group].pitch;
+                pitch = sAmbientGroupParams[group].pitch;
             }
-            if (angle != D_80770EF8[group]) {
-                if (D_80770EF8[group] != 255.0f) {
-                    if (D_80770EF8[group] < angle) {
-                        if (D_80770EF8[group] + 8.0f < angle) {
-                            angle = D_80770EF8[group] + 8.0f;
+            if (angle != gAmbientGroupSentPan[group]) {
+                if (gAmbientGroupSentPan[group] != 255.0f) {
+                    if (gAmbientGroupSentPan[group] < angle) {
+                        if (gAmbientGroupSentPan[group] + 8.0f < angle) {
+                            angle = gAmbientGroupSentPan[group] + 8.0f;
                         }
                     } else {
-                        if (angle < D_80770EF8[group] - 8.0f) {
-                            angle = D_80770EF8[group] - 8.0f;
+                        if (angle < gAmbientGroupSentPan[group] - 8.0f) {
+                            angle = gAmbientGroupSentPan[group] - 8.0f;
                         }
                     }
                 }
-                n_alSndpPostEvent(D_80770DF8[group], 4, angle);
-                D_80770EF8[group] = angle;
+                n_alSndpPostEvent(gLoopSfxHandles[group], 4, angle);
+                gAmbientGroupSentPan[group] = angle;
             }
-            if (pitch != D_80770E78[group]) {
-                n_alSndpPostEvent(D_80770DF8[group], 0x10, *(s32 *)&pitch);  // ORIG: the target passes the raw bits of pitch from its home slot (swc1 $f2,0xcc(sp) at 0x218c, lw a2,0xcc(sp) at 0x2244); an f32 parameter would pass them by mfc1 with no home store (Q0026)
-                D_80770E78[group] = pitch;
+            if (pitch != gAmbientGroupSentPitch[group]) {
+                n_alSndpPostEvent(gLoopSfxHandles[group], 0x10, *(s32 *)&pitch);  // ORIG: the target passes the raw bits of pitch from its home slot (swc1 $f2,0xcc(sp) at 0x218c, lw a2,0xcc(sp) at 0x2244); an f32 parameter would pass them by mfc1 with no home store (Q0026)
+                gAmbientGroupSentPitch[group] = pitch;
             }
         }
     }
 
     if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
-        if (D_80770DC8) {}  // FAKE: dead read stops &D_80770DC8 being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static retires it (Q0981, text 0) but IDO orders .bss by symbol number mod 256 (Q1470): the static is numbered 96 after D_80770D70 and lands at .bss+0x9d8; 0x80770DC8 needs 160 more file-scope definitions
+        if (gAmbientIndoorReverb) {}  // FAKE: dead read stops &gAmbientIndoorReverb being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static retires it (Q0981, text 0) but IDO orders .bss by symbol number mod 256 (Q1470): the static is numbered 96 after gSfxVoiceSentPitch and lands at .bss+0x9d8; 0x80770DC8 needs 160 more file-scope definitions
         gAmbientAudioLevels[0] = 0;
     }
     if (gAmbientAudioLevels[0] != 0) {
-        if (D_807457DC == 0) {
-            n_alSndpPlay(gSfxBank, 0x125, 0, 0x3F, 1.0f, 0, &D_807457DC);
+        if (sRainSfxHandle == 0) {
+            n_alSndpPlay(gSfxBank, 0x125, 0, 0x3F, 1.0f, 0, &sRainSfxHandle);
         }
-        if (D_807457DC != 0) {
-            n_alSndpPostEvent(D_807457DC, 8, (gAmbientAudioLevels[0] * 10767.0) / 255.0);
+        if (sRainSfxHandle != 0) {
+            n_alSndpPostEvent(sRainSfxHandle, 8, (gAmbientAudioLevels[0] * 10767.0) / 255.0);
             pitch = 1.0 - ((gAmbientAudioLevels[2] * 0.5) / 255);
-            if (gAmbientIndoors & (D_80770DD4 < 1000.0f)) {
+            if (gAmbientIndoors & (gAmbientNearestDist < 1000.0f)) {
                 angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->camYaw;
                 if (angle < 0.0f) {
                     angle += 6.2831855f;
                 }
                 if (angle > 1.5707964f && angle < 4.71238911151886) {
-                    D_80770DD0 = 128.0f;
+                    gAmbientNearestFx = 128.0f;
                 } else {
-                    D_80770DD0 = 0.0f;
+                    gAmbientNearestFx = 0.0f;
                 }
-                D_80770DCC = (1.0f - sinApprox(angle)) * 63.5;
+                gAmbientNearestPan = (1.0f - sinApprox(angle)) * 63.5;
             } else {
-                D_80770DCC = 64.0f;
+                gAmbientNearestPan = 64.0f;
             }
-            n_alSndpPostEvent(D_807457DC, 0x10, *(s32 *)&pitch);  // ORIG: the target passes the raw bits of pitch from its home slot (swc1 $f2,0xcc(sp) at 0x23d0, lw a2,0xcc(sp) at 0x24fc)
-            n_alSndpPostEvent(D_807457DC, 0x100, D_80770DD0);
-            n_alSndpPostEvent(D_807457DC, 4, D_80770DCC);
+            n_alSndpPostEvent(sRainSfxHandle, 0x10, *(s32 *)&pitch);  // ORIG: the target passes the raw bits of pitch from its home slot (swc1 $f2,0xcc(sp) at 0x23d0, lw a2,0xcc(sp) at 0x24fc)
+            n_alSndpPostEvent(sRainSfxHandle, 0x100, gAmbientNearestFx);
+            n_alSndpPostEvent(sRainSfxHandle, 4, gAmbientNearestPan);
         }
-    } else if (D_807457DC != 0) {
-        n_alSndpStop(D_807457DC);
+    } else if (sRainSfxHandle != 0) {
+        n_alSndpStop(sRainSfxHandle);
     }
 }
 
 void seqUpdateUnderwaterAudio(s32 seqIndex) {
-    if (D_80745838 != 0) {
-        if (seqIndex == 0 && (sSfxFlagTable[D_80770560[seqIndex]] & 1)) {
+    if (gAudioUnderwater != 0) {
+        if (seqIndex == 0 && (sSfxFlagTable[gSeqCurrentId[seqIndex]] & 1)) {
             alCSPSetChlPanVolume(&gSeqPlayers[0]->al, 0.3f, 1.35f);
         }
-        if (D_80770560[seqIndex] == 0x38) {
+        if (gSeqCurrentId[seqIndex] == 0x38) {
             sfxSetChannelParam(0x38, 0x3C00, 1);
         }
-        if (D_80770560[seqIndex] == 0x60) {
+        if (gSeqCurrentId[seqIndex] == 0x60) {
             if (gCurrentMap == 0xB8) {
                 sfxSetChannelParam(0x60, 0xE, 1);
             } else {
@@ -1094,13 +1094,13 @@ void seqUpdateUnderwaterAudio(s32 seqIndex) {
             sfxSetChannelParam(0x60, 0x10, 0);
         }
     } else {
-        if (seqIndex == 0 && (sSfxFlagTable[D_80770560[seqIndex]] & 1)) {
+        if (seqIndex == 0 && (sSfxFlagTable[gSeqCurrentId[seqIndex]] & 1)) {
             alCSPSetChlPanVolume(&gSeqPlayers[0]->al, 0.0f, 1.0f);
         }
-        if (D_80770560[seqIndex] == 0x38) {
+        if (gSeqCurrentId[seqIndex] == 0x38) {
             sfxSetChannelParam(0x38, 0x3C00, 0);
         }
-        if (D_80770560[seqIndex] == 0x60) {
+        if (gSeqCurrentId[seqIndex] == 0x60) {
             if (gCurrentMap == 0xB8) {
                 sfxSetChannelParam(0x60, 0x1E, 1);
                 return;
@@ -1117,8 +1117,8 @@ void sfxSetVolumeAndPan(u8 source, f32 pitch, f32 rate) {
 
     if (source != -1) {
         if (rate == 0.0f) {
-            D_80770C18[gSfxSourceVoice[source]] = pitch;
-            D_80770C70[gSfxSourceVoice[source]] = pitch;
+            gSfxVoiceCurPitch[gSfxSourceVoice[source]] = pitch;
+            gSfxVoiceBasePitch[gSfxSourceVoice[source]] = pitch;
         } else {
             gSfxVoicePitch[gSfxSourceVoice[source]] = pitch;
         }
@@ -1128,7 +1128,7 @@ void sfxSetVolumeAndPan(u8 source, f32 pitch, f32 rate) {
 
 void sfxSetChannelPriority(u8 source, u8 volume) {
     if (source != -1) {
-        D_80770CE0[gSfxSourceVoice[source]] = volume;
+        gSfxVoiceVolume[gSfxSourceVoice[source]] = volume;
     }
 }
 
@@ -1161,7 +1161,7 @@ u8 sfxSlotAllocateActor(Actor *actor, s16 sfxId, u8 range, u8 exclusive, u8 volu
         voice = 22;
     } else {
         for (voice = 0; voice < 22; voice++) {
-            if (D_807706F8[voice] == 0 && gSfxVoiceSoundId[voice] == sfxId) {
+            if (gSfxVoiceExclusive[voice] == 0 && gSfxVoiceSoundId[voice] == sfxId) {
                 break;
             }
         }
@@ -1177,25 +1177,25 @@ u8 sfxSlotAllocateActor(Actor *actor, s16 sfxId, u8 range, u8 exclusive, u8 volu
             return 0xFF;
         }
         gSfxVoiceSoundId[voice] = sfxId;
-        D_807706F8[voice] = exclusive;
-        D_80770C18[voice] = pitch;
-        D_80770C70[voice] = pitch;
+        gSfxVoiceExclusive[voice] = exclusive;
+        gSfxVoiceCurPitch[voice] = pitch;
+        gSfxVoiceBasePitch[voice] = pitch;
         gSfxVoicePitch[voice] = 1.0f;
         D_80770BC0[voice] = 0.0f;
-        D_80770CC8[voice] = 0;
+        gSfxVoicePlayedOnce[voice] = 0;
     }
 
     if (range != 0) {
-        D_80770788[source] = range;
+        gSfxSourceRange[source] = range;
     } else {
-        D_80770788[source] = D_807462A8[gSfxVoiceSoundId[voice] - 0xFD][0];
+        gSfxSourceRange[source] = sSfxVoiceDefaults[gSfxVoiceSoundId[voice] - 0xFD][0];
     }
-    D_80770CE0[voice] = volume;
-    D_80770D10[voice] = -1;
-    D_80770D70[voice] = pitch;
-    D_80770D40[voice] = -1;
-    D_80770CF8[voice] = node;
-    D_807706E0[voice] = 0;
+    gSfxVoiceVolume[voice] = volume;
+    gSfxVoiceSentVolume[voice] = -1;
+    gSfxVoiceSentPitch[voice] = pitch;
+    gSfxVoiceSentPan[voice] = -1;
+    gSfxVoiceNode[voice] = node;
+    gSfxVoiceStopTimer[voice] = 0;
     count = gSfxVoiceSourceCount[voice];
     gSfxSourceVoice[source] = voice;
     gSfxSourceListIndex[source] = count;
@@ -1223,7 +1223,7 @@ u8 sfxSlotAllocateSource(s16 modelSlot, s16 sfxId, u8 range, u8 exclusive, u8 vo
         voice = 22;
     } else {
         for (voice = 0; voice < 22; voice++) {
-            if (D_807706F8[voice] == 0 && gSfxVoiceSoundId[voice] == sfxId) {
+            if (gSfxVoiceExclusive[voice] == 0 && gSfxVoiceSoundId[voice] == sfxId) {
                 break;
             }
         }
@@ -1239,25 +1239,25 @@ u8 sfxSlotAllocateSource(s16 modelSlot, s16 sfxId, u8 range, u8 exclusive, u8 vo
             return 0xFF;
         }
         gSfxVoiceSoundId[voice] = sfxId;
-        D_807706F8[voice] = exclusive;
-        D_80770C18[voice] = pitch;
-        D_80770C70[voice] = pitch;
+        gSfxVoiceExclusive[voice] = exclusive;
+        gSfxVoiceCurPitch[voice] = pitch;
+        gSfxVoiceBasePitch[voice] = pitch;
         gSfxVoicePitch[voice] = 1.0f;
         D_80770BC0[voice] = 0.0f;
-        D_80770CC8[voice] = 0;
+        gSfxVoicePlayedOnce[voice] = 0;
     }
 
     if (range != 0) {
-        D_80770788[source] = range;
+        gSfxSourceRange[source] = range;
     } else {
-        D_80770788[source] = D_807462A8[gSfxVoiceSoundId[voice] - 0xFD][0];
+        gSfxSourceRange[source] = sSfxVoiceDefaults[gSfxVoiceSoundId[voice] - 0xFD][0];
     }
-    D_80770CE0[voice] = volume;
-    D_80770D10[voice] = -1;
-    D_80770D70[voice] = pitch;
-    D_80770D40[voice] = -1;
-    D_80770CF8[voice] = node;
-    D_807706E0[voice] = 0;
+    gSfxVoiceVolume[voice] = volume;
+    gSfxVoiceSentVolume[voice] = -1;
+    gSfxVoiceSentPitch[voice] = pitch;
+    gSfxVoiceSentPan[voice] = -1;
+    gSfxVoiceNode[voice] = node;
+    gSfxVoiceStopTimer[voice] = 0;
     count = gSfxVoiceSourceCount[voice];
     gSfxSourceVoice[source] = voice;
     gSfxSourceListIndex[source] = count;
@@ -1285,7 +1285,7 @@ void sfxSlotFreeSource(s16 source) {
         gSfxVoiceSources[gSfxSourceVoice[source]][gSfxSourceListIndex[source]] = gSfxVoiceSources[gSfxSourceVoice[source]][gSfxVoiceSourceCount[gSfxSourceVoice[source]]];
     } else {
         gSfxVoiceSoundId[gSfxSourceVoice[source]] = 0;
-        D_807706F8[gSfxSourceVoice[source]] = 0;
+        gSfxVoiceExclusive[gSfxSourceVoice[source]] = 0;
     }
 
     if (gSfxVoiceSourceCount[gSfxSourceVoice[source]] < 0 || gSfxVoiceSourceCount[gSfxSourceVoice[source]] >= 23) {
@@ -1300,7 +1300,7 @@ void sfxSlotFreeSource(s16 source) {
 }
 
 
-extern u8 D_80750190;
+extern u8 gWeatherThunderMuted;
 
 void audioResetAll(void) {
     u8 i;
@@ -1310,15 +1310,15 @@ void audioResetAll(void) {
     if (transitionGetState() == 0) {
         n_alSndpStopAll();
     }
-    D_80750190 = 0;
+    gWeatherThunderMuted = 0;
     if (transitionGetState() != 0) {
         i = 1;
     }
     for (; i < 4; i++) {
         alCSPSetChlPanVolume(&gSeqPlayers[i]->al, 0.0f, 1.0f);
-        if (alCSPGetState(&gSeqPlayers[i]->al) == 1 && D_80770560[i] != 0x12) {
+        if (alCSPGetState(&gSeqPlayers[i]->al) == 1 && gSeqCurrentId[i] != 0x12) {
             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
-            D_80770560[i] = 0;
+            gSeqCurrentId[i] = 0;
         }
     }
     gAmbientAudioLevels[0] = 0;
@@ -1341,18 +1341,18 @@ void audioResetAll(void) {
     }
     sSfxAreaAmbientActive = 0;
     gAmbientIndoors = 0;
-    D_80745838 = 0;
+    gAudioUnderwater = 0;
     D_80770DD8[1] = 0xFF;
     for (i = 0; i < 22; i++) {
         gSfxSourceActor[i] = NULL;
         gSfxSourceModelSlot[i] = -1;
         gSfxSourceVoice[i] = -1;
         gSfxSourceListIndex[i] = -1;
-        D_80770770[i] = 0;
+        gSfxVoiceFxLevel[i] = 0;
         gSfxVoiceSoundId[i] = 0;
-        D_807706F8[i] = 0;
+        gSfxVoiceExclusive[i] = 0;
         gSfxVoiceSourceCount[i] = 0;
-        D_807706E0[i] = 0;
+        gSfxVoiceStopTimer[i] = 0;
         for (j = 0; j < 22;) {
             gSfxVoiceSources[i][j++] = -1;
         }
@@ -1367,7 +1367,7 @@ extern u8 gPlayerCount;
 #define RAND_UNIT() ((u32)randomLcgNext() / 4294967295.0)
 
 void sfxUpdateSourceGroups(void) {
-    static f32 D_80770F38;
+    static f32 sFramePitch;
     u8 slotIdx;
     f32 posX;
     f32 posY;
@@ -1395,32 +1395,32 @@ void sfxUpdateSourceGroups(void) {
     for (i = 0; i < 22; i++) {
         if (gSfxVoiceSoundId[i] == 0x88) {
             D_80770DE8 = 0.0f;
-            D_80770DEC = 0.0f;
-            D_80770DF0 = 0.0f;
-            D_80770DF4 = 0.0f;
+            gSfxLeftLevel = 0.0f;
+            gSfxFrontLevel = 0.0f;
+            gSfxRearLevel = 0.0f;
             fxFlags = 0;
             for (j = gSfxVoiceSourceCount[i] - 1; j >= 0; j--) {
                 slot = hashTableLookup(gSfxSourceModelSlot[gSfxVoiceSources[i][j]]);
                 sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, 0xFF, 0x50, 0.5f);
-                dist[j] = D_80770DE4;
+                dist[j] = gSfxDistance;
                 sfxSlotFreeSource(gSfxVoiceSources[i][j]);
                 gModelSlots[slot].unk7C->unk10[1] = -1;
             }
             if (D_80770DE8 > 32767.0f) {
                 D_80770DE8 = 32767.0f;
             }
-            if (D_80770DEC > 32767.0f) {
-                D_80770DEC = 32767.0f;
+            if (gSfxLeftLevel > 32767.0f) {
+                gSfxLeftLevel = 32767.0f;
             }
-            volume = D_80770DE8 + D_80770DEC;
-            if (D_80770DEC < D_80770DE8) {
+            volume = D_80770DE8 + gSfxLeftLevel;
+            if (gSfxLeftLevel < D_80770DE8) {
                 if (D_80770DE8 > 0.0f) {
-                    D_80770DDC = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);
+                    D_80770DDC = 127.0 - ((gSfxLeftLevel * 63.5) / D_80770DE8);
                 } else {
                     D_80770DDC = 0.0f;
                 }
-            } else if (D_80770DEC > 0.0f) {
-                D_80770DDC = (D_80770DE8 * 63.5) / D_80770DEC;
+            } else if (gSfxLeftLevel > 0.0f) {
+                D_80770DDC = (D_80770DE8 * 63.5) / gSfxLeftLevel;
             } else {
                 D_80770DDC = 0.0f;
             }
@@ -1430,42 +1430,42 @@ void sfxUpdateSourceGroups(void) {
             if (volume < 0.0f) {
                 volume = 0.0f;
             }
-            if (D_80770DF0 < D_80770DF4) {
+            if (gSfxFrontLevel < gSfxRearLevel) {
                 fxFlags = 0x80;
             }
             sfxPlayOnFreeSlot(0x88, volume, D_80770DDC, 1.0f, 5, fxFlags);
         } else {
             if (sSoundSlotHandles[i] != 0) {
                 if (gSfxVoiceSoundId[i] == 0) {
-                    if (D_807706E0[i] != 0) {
-                        D_807706E0[i]--;
+                    if (gSfxVoiceStopTimer[i] != 0) {
+                        gSfxVoiceStopTimer[i]--;
                     } else {
                         n_alSndpStop(sSoundSlotHandles[i]);
-                        D_80770770[i] = 0;
-                        D_807706E0[i] = 10;
+                        gSfxVoiceFxLevel[i] = 0;
+                        gSfxVoiceStopTimer[i] = 10;
                     }
                 }
             } else if (gSfxVoiceSoundId[i] != 0) {
                 if (gSfxVoiceSoundId[i] == 0x128 || gSfxVoiceSoundId[i] == 0x306) {
-                    if (D_80770CC8[i] == 0) {
-                        n_alSndpPlay(gSfxBank, gSfxVoiceSoundId[i], 0, 0x3F, D_80770C18[i], 0, &sSoundSlotHandles[i]);
-                        D_80770CC8[i] = 1;
+                    if (gSfxVoicePlayedOnce[i] == 0) {
+                        n_alSndpPlay(gSfxBank, gSfxVoiceSoundId[i], 0, 0x3F, gSfxVoiceCurPitch[i], 0, &sSoundSlotHandles[i]);
+                        gSfxVoicePlayedOnce[i] = 1;
                     } else {
                         slotIdx = gSfxVoiceSources[i][0];
                         sfxStopSlotSound(gSfxSourceActor[slotIdx], 0);
                     }
                 } else if (gSfxVoiceSoundId[i] < 0x800) {
-                    n_alSndpPlay(gSfxBank, gSfxVoiceSoundId[i], 0, 0x3F, D_80770C18[i], 0, &sSoundSlotHandles[i]);
+                    n_alSndpPlay(gSfxBank, gSfxVoiceSoundId[i], 0, 0x3F, gSfxVoiceCurPitch[i], 0, &sSoundSlotHandles[i]);
                 } else {
-                    n_alSndpPlay(D_8076D1FC, gSfxVoiceSoundId[i] - 0x7FF, 0, 0x3F, D_80770C18[i], 0, &sSoundSlotHandles[i]);
+                    n_alSndpPlay(gSfxBankHigh, gSfxVoiceSoundId[i] - 0x7FF, 0, 0x3F, gSfxVoiceCurPitch[i], 0, &sSoundSlotHandles[i]);
                 }
             }
             if (sSoundSlotHandles[i] != 0) {
                 if (gSfxVoiceSources[i][0] != -1 && (gSfxSourceActor[gSfxVoiceSources[i][0]] != NULL || gSfxSourceModelSlot[gSfxVoiceSources[i][0]] != -1)) {
                     D_80770DE8 = 0.0f;
-                    D_80770DEC = 0.0f;
+                    gSfxLeftLevel = 0.0f;
                     if (gSfxVoiceSoundId[i] >= 0xFD && gSfxVoiceSoundId[i] < 0x142) {
-                        factor = D_807462A8[gSfxVoiceSoundId[i] - 0xFD][1];
+                        factor = sSfxVoiceDefaults[gSfxVoiceSoundId[i] - 0xFD][1];
                     } else {
                         factor = 0.3f;
                     }
@@ -1477,62 +1477,62 @@ void sfxUpdateSourceGroups(void) {
                                 actor = NULL;
                                 if (gSfxVoiceSoundId[i] == 0x12B) {
                                     slot = hashTableLookup(gSfxSourceModelSlot[gSfxVoiceSources[i][j]]);
-                                    sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y + 320.0f, gModelSlots[slot].z, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
-                                } else if (D_80770CF8[i] > 0) {
-                                    modelSlotGetNodePos(gSfxSourceModelSlot[gSfxVoiceSources[i][j]], 1, D_80770CF8[i], &posX, &posY, &posZ);
-                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
-                                } else if (D_80770CF8[i] < 0) {
+                                    sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y + 320.0f, gModelSlots[slot].z, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
+                                } else if (gSfxVoiceNode[i] > 0) {
+                                    modelSlotGetNodePos(gSfxSourceModelSlot[gSfxVoiceSources[i][j]], 1, gSfxVoiceNode[i], &posX, &posY, &posZ);
+                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
+                                } else if (gSfxVoiceNode[i] < 0) {
                                     D_80770DE8 = 32767.0f;
-                                    D_80770DEC = 32767.0f;
-                                    D_80770DF0 = 32767.0f;
-                                    D_80770DF4 = 32767.0f;
+                                    gSfxLeftLevel = 32767.0f;
+                                    gSfxFrontLevel = 32767.0f;
+                                    gSfxRearLevel = 32767.0f;
                                 } else {
                                     slot = hashTableLookup(gSfxSourceModelSlot[gSfxVoiceSources[i][j]]);
-                                    sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
+                                    sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
                                 }
                             } else {
                                 actor = gSfxSourceActor[gSfxVoiceSources[i][j]];
-                                if (D_80770CF8[i] > 0) {
-                                    actorGetNodePos(actor, D_80770CF8[i], &posX, &posY, &posZ);
-                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
-                                } else if (D_80770CF8[i] < 0) {
+                                if (gSfxVoiceNode[i] > 0) {
+                                    actorGetNodePos(actor, gSfxVoiceNode[i], &posX, &posY, &posZ);
+                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
+                                } else if (gSfxVoiceNode[i] < 0) {
                                     D_80770DE8 = 32767.0f;
-                                    D_80770DEC = 32767.0f;
-                                    D_80770DF0 = 32767.0f;
-                                    D_80770DF4 = 32767.0f;
-                                } else if (gSfxVoiceSoundId[i] == 0x139 && D_807706F8[i] != 0) {
+                                    gSfxLeftLevel = 32767.0f;
+                                    gSfxFrontLevel = 32767.0f;
+                                    gSfxRearLevel = 32767.0f;
+                                } else if (gSfxVoiceSoundId[i] == 0x139 && gSfxVoiceExclusive[i] != 0) {
                                     posY = actor->y;
                                     posX = actor->x;
                                     posZ = actor->z;
-                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
+                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
                                     posX = (mathCosF(actor->yaw) * 300.0) + actor->x;
                                     posZ = actor->z - (mathSinF(actor->yaw) * 300.0);
-                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
+                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
                                     posX = actor->x - (mathCosF(actor->yaw) * 300.0);
                                     posZ = (mathSinF(actor->yaw) * 300.0) + actor->z;
-                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
+                                    sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
                                 } else {
-                                    sfxUpdateDistanceVolumeAndPan(actor->x, actor->y, actor->z, 0xFF, D_80770788[gSfxVoiceSources[i][j]], factor);
+                                    sfxUpdateDistanceVolumeAndPan(actor->x, actor->y, actor->z, 0xFF, gSfxSourceRange[gSfxVoiceSources[i][j]], factor);
                                 }
                             }
-                            dist[j++] = D_80770DE4;
+                            dist[j++] = gSfxDistance;
                         } while (j < gSfxVoiceSourceCount[i]);
                     }
                     if (D_80770DE8 > 32767.0f) {
                         D_80770DE8 = 32767.0f;
                     }
-                    if (D_80770DEC > 32767.0f) {
-                        D_80770DEC = 32767.0f;
+                    if (gSfxLeftLevel > 32767.0f) {
+                        gSfxLeftLevel = 32767.0f;
                     }
-                    volume = D_80770DE8 + D_80770DEC;
-                    if (D_80770DEC < D_80770DE8) {
+                    volume = D_80770DE8 + gSfxLeftLevel;
+                    if (gSfxLeftLevel < D_80770DE8) {
                         if (D_80770DE8 > 0.0f) {
-                            D_80770DDC = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);
+                            D_80770DDC = 127.0 - ((gSfxLeftLevel * 63.5) / D_80770DE8);
                         } else {
                             D_80770DDC = 0.0f;
                         }
-                    } else if (D_80770DEC > 0.0f) {
-                        D_80770DDC = (D_80770DE8 * 63.5) / D_80770DEC;
+                    } else if (gSfxLeftLevel > 0.0f) {
+                        D_80770DDC = (D_80770DE8 * 63.5) / gSfxLeftLevel;
                     } else {
                         D_80770DDC = 0.0f;
                     }
@@ -1542,7 +1542,7 @@ void sfxUpdateSourceGroups(void) {
                     if (volume < 0.0f) {
                         volume = 0.0f;
                     }
-                    volume *= D_80770CE0[i] / 255.0;
+                    volume *= gSfxVoiceVolume[i] / 255.0;
                     if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
                         volume = 0.0f;
                     } else {
@@ -1556,19 +1556,19 @@ void sfxUpdateSourceGroups(void) {
                             factor = sinApprox((animFrame / 27.0) * 3.1415927410125732);
                             volume *= factor;
                             gSfxVoicePitch[i] = factor;
-                            D_80770C18[i] = (factor * 0.4) + 0.8;
+                            gSfxVoiceCurPitch[i] = (factor * 0.4) + 0.8;
                             break;
                         case 0x113:
                             if (gSfxVoicePitch[i] == 0.0f) {
                                 volume = 0.0f;
                             } else {
-                                D_80770C18[i] = gSfxVoicePitch[i];
+                                gSfxVoiceCurPitch[i] = gSfxVoicePitch[i];
                             }
                             break;
                         case 0x111:
                             D_80770BC0[i] += 1.0f;
                             if (D_80770BC0[i] > 30.0f) {
-                                D_80770C18[i] = 1.0 - ((D_80770BC0[i] - 30.0) / 30.0);
+                                gSfxVoiceCurPitch[i] = 1.0 - ((D_80770BC0[i] - 30.0) / 30.0);
                             }
                             if (D_80770BC0[i] == 40.0f) {
                                 sfxSlotFreeSource(gSfxVoiceSources[i][0]);
@@ -1576,18 +1576,18 @@ void sfxUpdateSourceGroups(void) {
                             }
                             break;
                         case 0x11F:
-                            if (D_807706F8[i] != 0) {
+                            if (gSfxVoiceExclusive[i] != 0) {
                                 factor = sinApprox(D_80770BC0[i] * 0.027925);
-                                D_80770C18[i] = (sinApprox((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.2 * factor) + 0.6;
+                                gSfxVoiceCurPitch[i] = (sinApprox((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.2 * factor) + 0.6;
                                 D_80770BC0[i] += 1.0f;
-                                if (D_80770788[gSfxVoiceSources[i][0]] == 0) {
+                                if (gSfxSourceRange[gSfxVoiceSources[i][0]] == 0) {
                                     D_80770DDC = 63.0f;
-                                    D_80770DF4 = 100.0f;
-                                    D_80770DF0 = 0.0f;
+                                    gSfxRearLevel = 100.0f;
+                                    gSfxFrontLevel = 0.0f;
                                 }
                             } else {
                                 factor = sinApprox(D_80770BC0[i] * 0.027925);
-                                D_80770C18[i] = (sinApprox((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.5 * factor) + 0.6;
+                                gSfxVoiceCurPitch[i] = (sinApprox((D_80770BC0[i] * 0.261799) - 1.570795) * 0.1) + (0.5 * factor) + 0.6;
                                 gSfxVoicePitch[i] = 1.0 - ((D_80770BC0[i] - 90.0) / 20.0);
                                 gSfxVoicePitch[i] = (gSfxVoicePitch[i] > 1.0f) ? 1.0f : gSfxVoicePitch[i];
                                 gSfxVoicePitch[i] = (gSfxVoicePitch[i] < 0.0f) ? 0.0f : gSfxVoicePitch[i];
@@ -1596,7 +1596,7 @@ void sfxUpdateSourceGroups(void) {
                                 gSfxVoicePitch[i] = (gSfxVoicePitch[i] < 1.0f) ? gSfxVoicePitch[i] : 1.0f;
                                 volume *= gSfxVoicePitch[i];
                                 D_80770BC0[i] += 1.0f;
-                                D_80770C18[i] = (D_80770C18[i] > 0.2) ? D_80770C18[i] : 0.2;
+                                gSfxVoiceCurPitch[i] = (gSfxVoiceCurPitch[i] > 0.2) ? gSfxVoiceCurPitch[i] : 0.2;
                                 if (D_80770BC0[i] == 110.0f) {
                                     if (gSfxSourceModelSlot[gSfxVoiceSources[i][0]] != -1) {
                                         sfxSlotFreeSource(gSfxVoiceSources[i][0]);
@@ -1610,21 +1610,21 @@ void sfxUpdateSourceGroups(void) {
                             break;
                         case 0x131:
                             if (actor->actorType == 0xB9) {
-                                D_80770770[i] = 8;
-                                D_80770C18[i] = (actor->unk72 / 80.0) + 1.0;
-                                volume *= 1.0f / D_80770C18[i];
+                                gSfxVoiceFxLevel[i] = 8;
+                                gSfxVoiceCurPitch[i] = (actor->unk72 / 80.0) + 1.0;
+                                volume *= 1.0f / gSfxVoiceCurPitch[i];
                             } else {
                                 gSfxVoicePitch[i] = 0.0f;
-                                D_80770C18[i] = 200.0f;
+                                gSfxVoiceCurPitch[i] = 200.0f;
                                 for (j = 0; j < gSfxVoiceSourceCount[i]; j++) {
-                                    if (gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 < D_80770C18[i]) {
-                                        D_80770C18[i] = gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72;
+                                    if (gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 < gSfxVoiceCurPitch[i]) {
+                                        gSfxVoiceCurPitch[i] = gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72;
                                         gSfxVoicePitch[i] = j;
                                     }
                                 }
                                 j = gSfxVoicePitch[i];
-                                D_80770C18[i] = 2.0 - (((gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120) > 0 ? (gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120) : -(gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120)) / 120.0);
-                                D_80770C18[i] = (D_80770C18[i] > 0.2) ? D_80770C18[i] : 0.2;
+                                gSfxVoiceCurPitch[i] = 2.0 - (((gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120) > 0 ? (gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120) : -(gSfxSourceActor[gSfxVoiceSources[i][j]]->unk72 - 120)) / 120.0);
+                                gSfxVoiceCurPitch[i] = (gSfxVoiceCurPitch[i] > 0.2) ? gSfxVoiceCurPitch[i] : 0.2;
                                 gSfxVoicePitch[i] = gSfxSourceActor[gSfxVoiceSources[i][j]]->unk74 / 20.0;
                                 gSfxVoicePitch[i] = (gSfxVoicePitch[i] < 1.0f) ? gSfxVoicePitch[i] : 1.0f;
                                 gSfxVoicePitch[i] = (gSfxVoicePitch[i] > 0.0f) ? gSfxVoicePitch[i] : 0.0f;
@@ -1635,7 +1635,7 @@ void sfxUpdateSourceGroups(void) {
                             if (actor->actorType == 0x139) {
                                 if (D_80770BC0[i]-- <= 0.0f) {
                                     D_80770BC0[i] = (RAND_UNIT() * 2) + 2.0;
-                                    gSfxVoicePitch[i] = ((0.925 + (0.15 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                    gSfxVoicePitch[i] = ((0.925 + (0.15 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                                 }
                                 volume *= 0.5;
                                 break;
@@ -1643,7 +1643,7 @@ void sfxUpdateSourceGroups(void) {
                             if (actor->actorType == 2) {
                                 if (D_80770BC0[i]-- <= 0.0f) {
                                     D_80770BC0[i] = (RAND_UNIT() * 2) + 2.0;
-                                    gSfxVoicePitch[i] = ((1.2 + (0.15 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                    gSfxVoicePitch[i] = ((1.2 + (0.15 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                                 }
                                 fxLevel = 0xE;
                                 volume *= 0.9;
@@ -1657,24 +1657,24 @@ void sfxUpdateSourceGroups(void) {
                                     switch (actor->health) {
                                         case 3:
                                             D_80770BC0[i] = (RAND_UNIT() * 2) + 3.0f;
-                                            gSfxVoicePitch[i] = ((0.95 + (0.1 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                            gSfxVoicePitch[i] = ((0.95 + (0.1 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                                             break;
                                         case 2:
                                             D_80770BC0[i] = (RAND_UNIT() * 2.0f) + 2.0f;
-                                            gSfxVoicePitch[i] = ((0.85 + (0.5 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                            gSfxVoicePitch[i] = ((0.85 + (0.5 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                                             break;
                                         case 0:
                                         case 1:
                                             D_80770BC0[i] = (RAND_UNIT() * 1.0f) + 2.0;
-                                            gSfxVoicePitch[i] = ((0.9 + (0.5 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                            gSfxVoicePitch[i] = ((0.9 + (0.5 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                                             break;
                                     }
                                 } else {
                                     D_80770BC0[i] = (RAND_UNIT() * 2.0f) + 2.0f;
-                                    gSfxVoicePitch[i] = (((D_80770C70[i] - 0.075) + (0.15 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                    gSfxVoicePitch[i] = (((gSfxVoiceBasePitch[i] - 0.075) + (0.15 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                                 }
                             }
-                            D_80770C18[i] += gSfxVoicePitch[i];
+                            gSfxVoiceCurPitch[i] += gSfxVoicePitch[i];
                             if (gSfxVoiceSourceCount[i] >= 2) {
                                 nearest[0] = 10000.0f;
                                 nearest[1] = 10000.0f;
@@ -1698,48 +1698,48 @@ void sfxUpdateSourceGroups(void) {
                                     D_80770DDC = 0.0f;
                                 }
                             }
-                            if (fxLevel != D_80770770[i]) {
-                                D_80770770[i] = fxLevel;
+                            if (fxLevel != gSfxVoiceFxLevel[i]) {
+                                gSfxVoiceFxLevel[i] = fxLevel;
                             }
                             break;
                         case 0x104:
                             if (D_80770BC0[i] < 30.0f) {
                                 D_80770BC0[i] += 1.0f;
-                                D_80770C18[i] *= 1.02;
+                                gSfxVoiceCurPitch[i] *= 1.02;
                             }
                             break;
                         case 0x118:
                             if (actor->actorType != 0x139) {
                                 if (D_80770BC0[i]++ >= 2.0f) {
                                     D_80770BC0[i] = randomLcgNext();
-                                    if (D_80770DF0 < D_80770DF4) {
+                                    if (gSfxFrontLevel < gSfxRearLevel) {
                                         fxFlags |= 0x80;
                                     }
                                     sfxPlayOnFreeSlot((randomLcgNext() & 3) + 0x90, volume, D_80770DDC, 1.0f, 0x1E, fxFlags);
                                     D_80770BC0[i] = 0.0f;
                                 }
                             }
-                            D_80770C18[i] *= 0.99;
+                            gSfxVoiceCurPitch[i] *= 0.99;
                             break;
                         case 0x219:
                             if (D_80770BC0[i]-- <= 0.0f) {
                                 D_80770BC0[i] = (RAND_UNIT() * 6.0f) + 2.0;
-                                gSfxVoicePitch[i] = ((0.84089 + (0.21857 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                gSfxVoicePitch[i] = ((0.84089 + (0.21857 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                             }
-                            D_80770C18[i] += gSfxVoicePitch[i];
+                            gSfxVoiceCurPitch[i] += gSfxVoicePitch[i];
                             break;
                         case 0x132:
                             if (D_80770BC0[i]-- <= 0.0f) {
                                 D_80770BC0[i] = (RAND_UNIT() * 6.0f) + 2.0;
-                                gSfxVoicePitch[i] = ((0.8 + (0.2 * RAND_UNIT())) - D_80770C18[i]) / D_80770BC0[i];
+                                gSfxVoicePitch[i] = ((0.8 + (0.2 * RAND_UNIT())) - gSfxVoiceCurPitch[i]) / D_80770BC0[i];
                             }
-                            D_80770C18[i] += gSfxVoicePitch[i];
+                            gSfxVoiceCurPitch[i] += gSfxVoicePitch[i];
                             break;
                         case 0x116:
                             if (D_80770BC0[i] > 0.0f) {
-                                D_80770C18[i] += (gSfxVoicePitch[i] - D_80770C18[i]) / D_80770BC0[i]--;
+                                gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / D_80770BC0[i]--;
                             }
-                            D_80770DE8 = (D_80770C18[i] - 0.2) * 2.0;
+                            D_80770DE8 = (gSfxVoiceCurPitch[i] - 0.2) * 2.0;
                             if (D_80770DE8 > 1.0) {
                                 D_80770DE8 = 1.0f;
                             }
@@ -1751,15 +1751,15 @@ void sfxUpdateSourceGroups(void) {
                         case 0x107:
                         case 0x12E:
                             if (D_80770BC0[i] > 0.0f) {
-                                D_80770C18[i] += (gSfxVoicePitch[i] - D_80770C18[i]) / D_80770BC0[i]--;
+                                gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / D_80770BC0[i]--;
                             }
                             volume *= actor->unk74;
                             break;
                         case 0x115:
                             if (D_80770BC0[i] > 0.0f) {
-                                D_80770C18[i] += (gSfxVoicePitch[i] - D_80770C18[i]) / D_80770BC0[i]--;
+                                gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / D_80770BC0[i]--;
                             }
-                            D_80770DE8 = 1.0 - ((D_80770C18[i] - 1.0) * 0.9);
+                            D_80770DE8 = 1.0 - ((gSfxVoiceCurPitch[i] - 1.0) * 0.9);
                             if (D_80770DE8 > 1.0) {
                                 D_80770DE8 = 1.0f;
                             }
@@ -1770,9 +1770,9 @@ void sfxUpdateSourceGroups(void) {
                             break;
                         case 0x12D:
                             if (D_80770BC0[i] > 0.0f) {
-                                D_80770C18[i] += (gSfxVoicePitch[i] - D_80770C18[i]) / D_80770BC0[i]--;
+                                gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / D_80770BC0[i]--;
                             }
-                            D_80770DE8 = 1.0 - ((D_80770C18[i] - 1.0f) * 0.9);
+                            D_80770DE8 = 1.0 - ((gSfxVoiceCurPitch[i] - 1.0f) * 0.9);
                             if (D_80770DE8 > 1.0) {
                                 D_80770DE8 = 1.0f;
                             }
@@ -1785,115 +1785,115 @@ void sfxUpdateSourceGroups(void) {
                             volume *= gSfxVoicePitch[i];
                             break;
                         case 0x122:
-                            D_80770590 = actor->speedXZ / 600.0;
-                            D_80770590 = (D_80770590 > 0.8) ? 0.8 : D_80770590;
-                            volume *= D_80770590;
+                            gSfxSpeedVolume = actor->speedXZ / 600.0;
+                            gSfxSpeedVolume = (gSfxSpeedVolume > 0.8) ? 0.8 : gSfxSpeedVolume;
+                            volume *= gSfxSpeedVolume;
                             break;
                         default:
                             if (D_80770BC0[i] > 0.0f) {
-                                D_80770C18[i] += (gSfxVoicePitch[i] - D_80770C18[i]) / D_80770BC0[i]--;
+                                gSfxVoiceCurPitch[i] += (gSfxVoicePitch[i] - gSfxVoiceCurPitch[i]) / D_80770BC0[i]--;
                             }
                             break;
                         }
                     }
                     switch (gSfxVoiceSoundId[i]) {
                     case 0x119:
-                        D_80770F38 = 1.0f;
-                        volume = D_80770C18[i] * 32767.0f;
+                        sFramePitch = 1.0f;
+                        volume = gSfxVoiceCurPitch[i] * 32767.0f;
                         D_80770DDC = 63.0f;
                         break;
                     case 0xFD:
                     case 0x108:
                     case 0x10E:
                         if (actor->actorType == 0x139) {
-                            if (D_80770DE4 < D_80770688[i]) {
-                                factor = D_80770688[i] - D_80770DE4;
+                            if (gSfxDistance < gSfxVoicePrevDist[i]) {
+                                factor = gSfxVoicePrevDist[i] - gSfxDistance;
                             } else {
-                                factor = -(D_80770688[i] - D_80770DE4);
+                                factor = -(gSfxVoicePrevDist[i] - gSfxDistance);
                             }
                             if (factor < 20.0f) {
-                                D_80770F38 = ((D_80770688[i] - D_80770DE4) / 30.0) + 1.0;
-                                if (D_80770F38 > 1.18) {
-                                    D_80770F38 = 1.18f;
+                                sFramePitch = ((gSfxVoicePrevDist[i] - gSfxDistance) / 30.0) + 1.0;
+                                if (sFramePitch > 1.18) {
+                                    sFramePitch = 1.18f;
                                 }
-                                if (D_80770F38 < 0.85) {
-                                    D_80770F38 = 0.85f;
+                                if (sFramePitch < 0.85) {
+                                    sFramePitch = 0.85f;
                                 }
-                                D_80770F38 = D_80770C18[i] * (D_80770F38 * D_80770F38);
+                                sFramePitch = gSfxVoiceCurPitch[i] * (sFramePitch * sFramePitch);
                             } else {
-                                D_80770F38 = D_80770C18[i];
+                                sFramePitch = gSfxVoiceCurPitch[i];
                             }
-                            D_80770688[i] = D_80770DE4;
+                            gSfxVoicePrevDist[i] = gSfxDistance;
                             break;
                         }
                         /* fallthrough */
                     case 0x13F:
                     case 0x140:
                     case 0x141:
-                        D_80770F38 = ((D_80770688[i] - D_80770DE4) / 900.0) + 1.0;
-                        if (D_80770F38 > 1.18) {
-                            D_80770F38 = 1.0f;
+                        sFramePitch = ((gSfxVoicePrevDist[i] - gSfxDistance) / 900.0) + 1.0;
+                        if (sFramePitch > 1.18) {
+                            sFramePitch = 1.0f;
                         }
-                        if (D_80770F38 < 0.85) {
-                            D_80770F38 = 1.0f;
+                        if (sFramePitch < 0.85) {
+                            sFramePitch = 1.0f;
                         }
-                        D_80770688[i] = D_80770DE4;
-                        D_80770F38 = D_80770C18[i] * (D_80770F38 * D_80770F38);
+                        gSfxVoicePrevDist[i] = gSfxDistance;
+                        sFramePitch = gSfxVoiceCurPitch[i] * (sFramePitch * sFramePitch);
                         break;
                     case 0x107:
                     case 0x10F:
                     case 0x114:
                     case 0x12E:
                     case 0x130:
-                        if (D_80770DE4 < D_80770688[i]) {
-                            factor = D_80770688[i] - D_80770DE4;
+                        if (gSfxDistance < gSfxVoicePrevDist[i]) {
+                            factor = gSfxVoicePrevDist[i] - gSfxDistance;
                         } else {
-                            factor = -(D_80770688[i] - D_80770DE4);
+                            factor = -(gSfxVoicePrevDist[i] - gSfxDistance);
                         }
                         if (factor < 20.0f) {
-                            D_80770F38 = ((D_80770688[i] - D_80770DE4) / 100.0) + 1.0;
-                            if (D_80770F38 > 1.18) {
-                                D_80770F38 = 1.18f;
+                            sFramePitch = ((gSfxVoicePrevDist[i] - gSfxDistance) / 100.0) + 1.0;
+                            if (sFramePitch > 1.18) {
+                                sFramePitch = 1.18f;
                             }
-                            if (D_80770F38 < 0.85) {
-                                D_80770F38 = 0.85f;
+                            if (sFramePitch < 0.85) {
+                                sFramePitch = 0.85f;
                             }
-                            D_80770688[i] = D_80770DE4;
-                            D_80770F38 = D_80770C18[i] * (D_80770F38 * D_80770F38);
+                            gSfxVoicePrevDist[i] = gSfxDistance;
+                            sFramePitch = gSfxVoiceCurPitch[i] * (sFramePitch * sFramePitch);
                             break;
                         }
-                        D_80770688[i] = D_80770DE4;
+                        gSfxVoicePrevDist[i] = gSfxDistance;
                         /* fallthrough */
                     default:
-                        D_80770F38 = D_80770C18[i];
+                        sFramePitch = gSfxVoiceCurPitch[i];
                         break;
                     }
                     if (gSfxVoiceSoundId[i] == 0x10D) {
                         if (gCurrentMap == 0xE || gCurrentMap == 0x52) {
-                            D_80770590 = actor->speedXZ / 600.0;
-                            D_80770590 = (D_80770590 > 0.8) ? 0.8 : D_80770590;
-                            volume *= D_80770590;
+                            gSfxSpeedVolume = actor->speedXZ / 600.0;
+                            gSfxSpeedVolume = (gSfxSpeedVolume > 0.8) ? 0.8 : gSfxSpeedVolume;
+                            volume *= gSfxSpeedVolume;
                             if ((actor->y - actor->floorY) > 5.0f) {
                                 volume = 0.0f;
                             }
-                            D_80770594 = actor->speedXZ;
-                            D_80770F38 = (actor->speedXZ / 550.0f) + 0.5;
+                            gSfxPrevSpeed = actor->speedXZ;
+                            sFramePitch = (actor->speedXZ / 550.0f) + 0.5;
                         } else {
-                            if (D_80770594 != actor->speedXZ) {
-                                D_80770F38 = (D_80770594 * 32767.0f) / 200.0f;
-                                D_80770590 = D_80770590 + ((D_80770F38 - D_80770590) * 0.3);
-                            } else if (D_80770590 > 5000.0f) {
-                                D_80770590 = ((D_80770590 - 350.0f) < 5000.0f) ? 5000.0f : (D_80770590 - 350.0f);
-                            } else if (D_80770590 < 5000.0f) {
-                                D_80770590 = ((D_80770590 + 350.0f) > 5000.0f) ? 5000.0f : (D_80770590 + 350.0f);
+                            if (gSfxPrevSpeed != actor->speedXZ) {
+                                sFramePitch = (gSfxPrevSpeed * 32767.0f) / 200.0f;
+                                gSfxSpeedVolume = gSfxSpeedVolume + ((sFramePitch - gSfxSpeedVolume) * 0.3);
+                            } else if (gSfxSpeedVolume > 5000.0f) {
+                                gSfxSpeedVolume = ((gSfxSpeedVolume - 350.0f) < 5000.0f) ? 5000.0f : (gSfxSpeedVolume - 350.0f);
+                            } else if (gSfxSpeedVolume < 5000.0f) {
+                                gSfxSpeedVolume = ((gSfxSpeedVolume + 350.0f) > 5000.0f) ? 5000.0f : (gSfxSpeedVolume + 350.0f);
                             }
-                            volume *= D_80770590 / 32767.0;
+                            volume *= gSfxSpeedVolume / 32767.0;
                             if ((actor->y - actor->floorY) > 5.0f) {
                                 volume = 0.0f;
                             }
-                            D_80770594 = actor->speedXZ;
-                            D_80770F38 = (actor->speedXZ / 150.0f) + 0.5;
-                            D_80770F38 *= D_80770C18[i];
+                            gSfxPrevSpeed = actor->speedXZ;
+                            sFramePitch = (actor->speedXZ / 150.0f) + 0.5;
+                            sFramePitch *= gSfxVoiceCurPitch[i];
                         }
                     }
                     if (actor != NULL) {
@@ -1904,11 +1904,11 @@ void sfxUpdateSourceGroups(void) {
                     if (volume > 32767.0f) {
                         volume = 32767.0f;
                     }
-                    if (D_80745838 != 0) {
+                    if (gAudioUnderwater != 0) {
                         switch (gSfxVoiceSoundId[i]) {
                             case 0x101:
                             case 0x126:
-                                D_80770F38 *= 0.9;
+                                sFramePitch *= 0.9;
                                 volume = ((volume * 2) > 32767.0f) ? 32767.0f : (volume * 2);
                                 break;
                         }
@@ -1918,43 +1918,43 @@ void sfxUpdateSourceGroups(void) {
                     } else {
                         fxFlags = 0;
                     }
-                    if (D_80770DF0 < D_80770DF4) {
+                    if (gSfxFrontLevel < gSfxRearLevel) {
                         fxFlags |= 0x80;
                     }
-                    if (D_80770F38 < 0.17) {
-                        D_80770F38 = 0.17f;
+                    if (sFramePitch < 0.17) {
+                        sFramePitch = 0.17f;
                     }
                     n_alSndpPostEvent(sSoundSlotHandles[i], 0x100, fxFlags);
-                    if (volume != D_80770D10[i]) {
-                        if (D_80770D10[i] != -1) {
-                            if (D_80770D10[i] < volume) {
-                                if ((D_80770D10[i] + 8000) < volume) {
-                                    volume = D_80770D10[i] + 8000;
+                    if (volume != gSfxVoiceSentVolume[i]) {
+                        if (gSfxVoiceSentVolume[i] != -1) {
+                            if (gSfxVoiceSentVolume[i] < volume) {
+                                if ((gSfxVoiceSentVolume[i] + 8000) < volume) {
+                                    volume = gSfxVoiceSentVolume[i] + 8000;
                                 }
-                            } else if (volume < (D_80770D10[i] - 8000)) {
-                                volume = D_80770D10[i] - 8000;
+                            } else if (volume < (gSfxVoiceSentVolume[i] - 8000)) {
+                                volume = gSfxVoiceSentVolume[i] - 8000;
                             }
                         }
-                        D_80770D10[i] = volume;
+                        gSfxVoiceSentVolume[i] = volume;
                         n_alSndpPostEvent(sSoundSlotHandles[i], 8, volume);
                     }
                     pan = D_80770DDC;
-                    if (pan != D_80770D40[i]) {
-                        if (D_80770D40[i] != -1) {
-                            if (D_80770D40[i] < pan) {
-                                if ((D_80770D40[i] + 8) < pan) {
-                                    pan = D_80770D40[i] + 8;
+                    if (pan != gSfxVoiceSentPan[i]) {
+                        if (gSfxVoiceSentPan[i] != -1) {
+                            if (gSfxVoiceSentPan[i] < pan) {
+                                if ((gSfxVoiceSentPan[i] + 8) < pan) {
+                                    pan = gSfxVoiceSentPan[i] + 8;
                                 }
-                            } else if (pan < (D_80770D40[i] - 8)) {
-                                pan = D_80770D40[i] - 8;
+                            } else if (pan < (gSfxVoiceSentPan[i] - 8)) {
+                                pan = gSfxVoiceSentPan[i] - 8;
                             }
                         }
-                        D_80770D40[i] = pan;
+                        gSfxVoiceSentPan[i] = pan;
                         n_alSndpPostEvent(sSoundSlotHandles[i], 4, pan);
                     }
-                    if (D_80770F38 != D_80770D70[i]) {
-                        D_80770D70[i] = D_80770F38;
-                        n_alSndpPostEvent(sSoundSlotHandles[i], 0x10, *(s32 *)&D_80770F38);  // ORIG: the target passes the static's raw bits by an integer reload (lw a2,0x148(a2) at 0x5f98) although the value is already in $f4 (lwc1 at 0x5f74, swc1 $f4 at 0x5f90); an s32 value argument would emit cvt.w.s, an f32 one mfc1 (Q0026)
+                    if (sFramePitch != gSfxVoiceSentPitch[i]) {
+                        gSfxVoiceSentPitch[i] = sFramePitch;
+                        n_alSndpPostEvent(sSoundSlotHandles[i], 0x10, *(s32 *)&sFramePitch);  // ORIG: the target passes the static's raw bits by an integer reload (lw a2,0x148(a2) at 0x5f98) although the value is already in $f4 (lwc1 at 0x5f74, swc1 $f4 at 0x5f90); an s32 value argument would emit cvt.w.s, an f32 one mfc1 (Q0026)
                     }
                 }
             }
@@ -1964,13 +1964,13 @@ void sfxUpdateSourceGroups(void) {
     gActivePlayerState = gPlayerSlots->actor->customState;
     camActor = gActivePlayerState->camActor;
     camState = camActor->customState;
-    if (camState->unkFA != 0 && gPlayerSlots->camY < (camState->unk90 + 3.0f) && D_80745838 == 0 && gPlayerCount < 2) {
-        D_80745838 = 1;
+    if (camState->unkFA != 0 && gPlayerSlots->camY < (camState->unk90 + 3.0f) && gAudioUnderwater == 0 && gPlayerCount < 2) {
+        gAudioUnderwater = 1;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
     }
-    if ((camState->unkFA == 0 || (camState->unk90 + 3.0f) < gPlayerSlots->camY) && D_80745838 == 1) {
-        D_80745838 = 0;
+    if ((camState->unkFA == 0 || (camState->unk90 + 3.0f) < gPlayerSlots->camY) && gAudioUnderwater == 1) {
+        gAudioUnderwater = 0;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
     }
@@ -2013,7 +2013,7 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
     s32 pad2;
     s16 pos[4];
 
-    D_80770DE4 = -1.0f;
+    gSfxDistance = -1.0f;
     closest = 0;
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].active != 0) {
@@ -2021,14 +2021,14 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
             s32 dy = gPlayerSlots[i].camY - y;
             s32 dz = gPlayerSlots[i].camZ - z;
             dist = dx * dx + dy * dy + dz * dz;
-            if (D_80770DE4 == -1.0f || (f32)dist < D_80770DE4) {
+            if (gSfxDistance == -1.0f || (f32)dist < gSfxDistance) {
                 closest = i;
-                D_80770DE4 = dist;
+                gSfxDistance = dist;
             }
         }
     }
 
-    if (D_80770DE4 == -1.0f) {
+    if (gSfxDistance == -1.0f) {
         return -1;
     }
 
@@ -2038,7 +2038,7 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
     pos[3] = (gPlayerSlots[closest].camYaw * 4096.0) / 6.2831854820251465;
     camGetPathStartPose(&pos[0], &pos[1], &pos[2], &pos[3]);
 
-    if (D_80770DE4 < 500.0f) {
+    if (gSfxDistance < 500.0f) {
         angle = 0.0f;
     } else {
         angle = (f64)mathAngleBetweenPointsRad(pos[0], pos[2], x, z) - ((f64)(pos[3] * 6.2831855f) * 0.000244140625);
@@ -2053,7 +2053,7 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
     if (range == 0) {
         level = ((f64)(u32)volume * 32767.0) / 255.0;
     } else {
-        D_80770DE4 = sqrtf(D_80770DE4);
+        gSfxDistance = sqrtf(gSfxDistance);
         if (gPlayerCount == 1 && (f64)directionality >= 0.8) {
             srcPitch = mathAngleBetweenPointsRad(pos[1], 0.0f, y, sqrtf(((x - pos[0]) * (x - pos[0])) + ((z - pos[2]) * (z - pos[2]))));
             lookPitch = mathAngleBetweenPointsRad(pos[1], 0.0f, gPlayerSlots->focusY, sqrtf(((gPlayerSlots->focusX - pos[0]) * (gPlayerSlots->focusX - pos[0])) + ((gPlayerSlots->focusZ - pos[2]) * (gPlayerSlots->focusZ - pos[2]))));
@@ -2065,18 +2065,18 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
                 diff = 6.2831855f - diff;
             }
             if ((f64)diff > 0.39269909262657166) {
-                D_80770DE4 *= 1.0 + ((f64)(diff - 0.3926991f) * 20.0);
+                gSfxDistance *= 1.0 + ((f64)(diff - 0.3926991f) * 20.0);
             }
         }
 
         if ((f64)angle > 0.7853981852531433 && (f64)angle < 5.497787296772003) {
-            D_80770DE4 = (1.0f - (sinApprox(((2.0 * (f64)angle) / 3.0) + 2.617993950843811) * directionality)) * D_80770DE4;
+            gSfxDistance = (1.0f - (sinApprox(((2.0 * (f64)angle) / 3.0) + 2.617993950843811) * directionality)) * gSfxDistance;
         }
-        if (D_80770DE4 < 1.0f) {
-            D_80770DE4 = 1.0f;
+        if (gSfxDistance < 1.0f) {
+            gSfxDistance = 1.0f;
         }
 
-        level = (((f32)(range * 4000) / sqrtf(D_80770DE4)) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
+        level = (((f32)(range * 4000) / sqrtf(gSfxDistance)) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
         if (level >= 0x8000) {
             level = 0x7FFF;
         }
@@ -2115,12 +2115,12 @@ void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behi
         reverb |= 0x80;
     }
 
-    if (D_807457D0[D_807457D8] != 0) {
-        n_alSndpStop(D_807457D0[D_807457D8]);
+    if (sSfxRandomPanHandles[sSfxRandomPanIndex] != 0) {
+        n_alSndpStop(sSfxRandomPanHandles[sSfxRandomPanIndex]);
     }
-    n_alSndpPlay(gSfxBank, sfxId, (u16)vol, (u8)pan, pitch, reverb, &D_807457D0[D_807457D8]);
-    n_alSndpSetPriority(D_807457D0[D_807457D8], 0);
-    D_807457D8 ^= 1;
+    n_alSndpPlay(gSfxBank, sfxId, (u16)vol, (u8)pan, pitch, reverb, &sSfxRandomPanHandles[sSfxRandomPanIndex]);
+    n_alSndpSetPriority(sSfxRandomPanHandles[sSfxRandomPanIndex], 0);
+    sSfxRandomPanIndex ^= 1;
 }
 
 s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 fx) {
@@ -2150,7 +2150,7 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
         if (sfxId < 0x800) {
             n_alSndpPlay(gSfxBank, sfxId, (u16)volume, (u8)pan, pitch, fx, &gSfxFreeSlotHandles[sSfxFreeSlotCursor]);
         } else {
-            n_alSndpPlay(D_8076D1FC, sfxId - 0x7FF, (u16)volume, (u8)pan, pitch, fx, &gSfxFreeSlotHandles[sSfxFreeSlotCursor]);
+            n_alSndpPlay(gSfxBankHigh, sfxId - 0x7FF, (u16)volume, (u8)pan, pitch, fx, &gSfxFreeSlotHandles[sSfxFreeSlotCursor]);
         }
 
         if (sfxId == 0x137) {
@@ -2180,11 +2180,11 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
     dx = gPlayerSlots->camX - x;
     dy = gPlayerSlots->camY - y;
     dz = gPlayerSlots->camZ - z;
-    D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
-    if (D_80770DE4 < 1.0f) {
-        D_80770DE4 = 1.0f;
+    gSfxDistance = sqrtf(dx * dx + dy * dy + dz * dz);
+    if (gSfxDistance < 1.0f) {
+        gSfxDistance = 1.0f;
     }
-    vol = (s32)((((range * 4000) / sqrtf(D_80770DE4))) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
+    vol = (s32)((((range * 4000) / sqrtf(gSfxDistance))) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
     if (vol >= 0x8000) {
         vol = 0x7FFF;
     }
@@ -2208,19 +2208,19 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
         vol = (s32)(((sinApprox(((2.0 * pan) / 3.0) + 2.617993950843811) * 0.3) + 1.0) * vol);
     }
     pan = (1.0f - sinApprox(pan)) * 63.5;
-    if (D_80745838 != 0) {
+    if (gAudioUnderwater != 0) {
         reverb = 30;
     } else if (gAmbientAudioLevels[2] >= 21) {
         reverb = (gAmbientAudioLevels[2] * 100) / 255;
     }
-    if (D_807457C8 != 0) {
-        n_alSndpStop(D_807457C8);
+    if (gSfxPositionalHandle != 0) {
+        n_alSndpStop(gSfxPositionalHandle);
     }
     osSetThreadPri(NULL, 26);
     if (sfxId < 0x800) {
-        n_alSndpPlay(gSfxBank, sfxId, (u16)vol, (u8)pan, pitch, reverb, &D_807457C8);
+        n_alSndpPlay(gSfxBank, sfxId, (u16)vol, (u8)pan, pitch, reverb, &gSfxPositionalHandle);
     } else {
-        n_alSndpPlay(D_8076D1FC, sfxId - 0x7FF, (u16)vol, (u8)pan, pitch, reverb, &D_807457C8);
+        n_alSndpPlay(gSfxBankHigh, sfxId - 0x7FF, (u16)vol, (u8)pan, pitch, reverb, &gSfxPositionalHandle);
     }
     osSetThreadPri(NULL, 10);
 }
@@ -2256,29 +2256,29 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
 
     if (range == 0) {
         vol = ((u32)volume * 32767.0) / 255.0;
-        if (D_80770DE4 < 23.0f) {
+        if (gSfxDistance < 23.0f) {
             angle = 0.0f;
         }
     } else {
         dx = gPlayerSlots[gCurrentPlayerIndex].camX - x;
         dy = gPlayerSlots[gCurrentPlayerIndex].camY - y;
         dz = gPlayerSlots[gCurrentPlayerIndex].camZ - z;
-        D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
+        gSfxDistance = sqrtf(dx * dx + dy * dy + dz * dz);
 
-        if (D_80770DE4 < 23.0f) {
+        if (gSfxDistance < 23.0f) {
             angle = 0.0f;
             behind = 0;
         }
 
         if (angle > 0.7853982f && angle < 5.497787296772003) {
-            D_80770DE4 = (1.0f - (sinApprox(((2.0 * angle) / 3.0) + 2.617993950843811) * directionality)) * D_80770DE4;
+            gSfxDistance = (1.0f - (sinApprox(((2.0 * angle) / 3.0) + 2.617993950843811) * directionality)) * gSfxDistance;
         }
 
-        if (D_80770DE4 < 1.0f) {
-            D_80770DE4 = 1.0f;
+        if (gSfxDistance < 1.0f) {
+            gSfxDistance = 1.0f;
         }
 
-        vol = (((range * 4000) / sqrtf(D_80770DE4)) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
+        vol = (((range * 4000) / sqrtf(gSfxDistance)) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
         if (vol >= 0x8000) {
             vol = 0x7FFF;
         }
@@ -2312,7 +2312,7 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
 extern s32 D_8000DDCC;
 extern s32 sSeqRomOffsets[];
 extern void *gSeqBuffers[];
-extern ALCSeq D_8076BF48[];
+extern ALCSeq gSeqCSeqs[];
 
 
 void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
@@ -2339,9 +2339,9 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
             } while (tries < 0x3D0900);
         }
     }
-    D_80770598[seqIndex] = 0;
-    D_80770568[seqIndex] = volume;
-    D_80770560[seqIndex] = seqId;
+    gSeqVolumeFading[seqIndex] = 0;
+    gSeqVolume[seqIndex] = volume;
+    gSeqCurrentId[seqIndex] = seqId;
     buf = heapAlloc(0x8000);
     {
         s32 addr = sSeqRomOffsets[seqId] + D_8000DDCC;
@@ -2352,8 +2352,8 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
         dmaReadAssetDecompress(addr, gSeqBuffers[seqIndex], &len, 0x80, 0, 1, buf);
     }
     heapFree(buf);
-    n_alCSeqNew(&D_8076BF48[seqIndex], gSeqBuffers[seqIndex]);
-    alSeqpSetSeq((ALSeqPlayer *)gSeqPlayers[seqIndex], (ALSeq *)&D_8076BF48[seqIndex]);
+    n_alCSeqNew(&gSeqCSeqs[seqIndex], gSeqBuffers[seqIndex]);
+    alSeqpSetSeq((ALSeqPlayer *)gSeqPlayers[seqIndex], (ALSeq *)&gSeqCSeqs[seqIndex]);
     resetCSPChannelStates(gSeqPlayers[seqIndex]);
     seqUpdateVolume(seqIndex);
     alCSPPlay(&gSeqPlayers[seqIndex]->al);
@@ -2361,7 +2361,7 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
 
 void seqUpdateVolume(s32 seqIndex) {
     f32 volume = gMusicVolume;
-    s32 mode = sSfxFlagTable[D_80770560[seqIndex]] & 0xC00;
+    s32 mode = sSfxFlagTable[gSeqCurrentId[seqIndex]] & 0xC00;
     switch (mode) {
     case 0x400:
         volume = gSfxVolume;
@@ -2372,28 +2372,28 @@ void seqUpdateVolume(s32 seqIndex) {
         }
         break;
     }
-    alSeqpSetVol((ALSeqPlayer *)gSeqPlayers[seqIndex], (s16)((f64)((((f32)D_807454F0[D_80770560[seqIndex]]) * D_80770568[seqIndex]) * D_807457B8[seqIndex]) * ((f64)volume / 40.0) * 25000.0 / 32767.0));
+    alSeqpSetVol((ALSeqPlayer *)gSeqPlayers[seqIndex], (s16)((f64)((((f32)sSeqBaseVolume[gSeqCurrentId[seqIndex]]) * gSeqVolume[seqIndex]) * sSeqVolumeScale[seqIndex]) * ((f64)volume / 40.0) * 25000.0 / 32767.0));
 }
 
 void seqSetChannelVolumeScale(s32 seqIndex, f32 scale) {
-    D_807457B8[seqIndex] = scale;
+    sSeqVolumeScale[seqIndex] = scale;
     seqUpdateVolume(seqIndex);
 }
 
 void seqUpdateVolumeFades(void) {
     s8 i;
     for (i = 0; i < 4; i++) {
-        if (D_80770598[i]) {
+        if (gSeqVolumeFading[i]) {
             f32 diff;
-            D_80770568[i] += (D_80770578[i] - D_80770568[i]) * 0.075;
-            if (D_80770568[i] < D_80770578[i]) {
-                diff = D_80770578[i] - D_80770568[i];
+            gSeqVolume[i] += (gSeqTargetVolume[i] - gSeqVolume[i]) * 0.075;
+            if (gSeqVolume[i] < gSeqTargetVolume[i]) {
+                diff = gSeqTargetVolume[i] - gSeqVolume[i];
             } else {
-                diff = -(D_80770578[i] - D_80770568[i]);
+                diff = -(gSeqTargetVolume[i] - gSeqVolume[i]);
             }
             if (diff < 0.05) {
-                D_80770568[i] = D_80770578[i];
-                D_80770598[i] = 0;
+                gSeqVolume[i] = gSeqTargetVolume[i];
+                gSeqVolumeFading[i] = 0;
             }
             seqUpdateVolume(i);
         }
@@ -2402,14 +2402,14 @@ void seqUpdateVolumeFades(void) {
 
 
 void seqSetTargetVolume(s32 seqIndex, f32 targetVolume) {
-    D_80770578[seqIndex] = targetVolume;
-    D_80770598[seqIndex] = 1;
+    gSeqTargetVolume[seqIndex] = targetVolume;
+    gSeqVolumeFading[seqIndex] = 1;
 }
 
 
 void seqSetVolumeInstant(s32 seqIndex, f32 volume) {
-    D_80770578[seqIndex] = volume;
-    D_80770568[seqIndex] = volume;
+    gSeqTargetVolume[seqIndex] = volume;
+    gSeqVolume[seqIndex] = volume;
     seqUpdateVolume(seqIndex);
 }
 
@@ -2424,7 +2424,7 @@ void seqLoadAndPlayWithReverb(s32 seqIndex, u8 seqId, f32 volume) {
     pan = ((f64)(u32)gAmbientAudioLevels[2] * 0.3) / 255.0;
     vol = (((f64)(u32)gAmbientAudioLevels[2] * 0.35) / 255.0) + 1.0;
     if (seqIndex != 0) {
-        if (sSfxFlagTable[D_80770560[seqIndex]] & 1) {
+        if (sSfxFlagTable[gSeqCurrentId[seqIndex]] & 1) {
             alCSPSetChlPanVolume(&gSeqPlayers[seqIndex]->al, pan, vol);
         } else {
             alCSPSetChlPanVolume(&gSeqPlayers[seqIndex]->al, 0.0f, 1.0f);

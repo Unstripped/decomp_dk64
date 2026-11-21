@@ -480,7 +480,7 @@ typedef struct Actor {
     /* 0x138 */ s32 callbackMask;
     /* 0x13C */ ActorCallbackNode *callbacks;
     /* 0x140 */ ActorSub140 *collision;
-    /* 0x144 */ u8 unk144;
+    /* 0x144 */ u8 collisionMode;
     /* 0x145 */ u8 unk145;
     /* 0x146 */ s16 segmentFlags;
     /* 0x148 */ void *unk148[2]; // per gfx buffer (renderActorEntryBuildDisplayList indexes gGfxBufferIndex)

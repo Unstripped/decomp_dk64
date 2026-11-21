@@ -44,7 +44,7 @@ void behaviourFrameBegin(void) {
     if (gCurrentActor->collisionFlags & 2) {
         if ((gGameMode == 1 && (gBehaviourAnimState->flags & 8)) || (gBehaviourTargetActor != NULL && gBehaviourTargetActor->state == 0x42)) {
             if (gCurrentActor->state >= 0x23 && gCurrentActor->state < 0x36) {
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->state = 0x3A;
                 gCurrentActor->unk155 = 0;
             }
@@ -57,7 +57,7 @@ void behaviourFrameBegin(void) {
                     actorGlobalStateClearEvents();
                     gCurrentActor->callbackMask = 0;
                     gCurrentActor->flags &= 0xFFFD7FFF;
-                    gCurrentActor->unk144 = 1;
+                    gCurrentActor->collisionMode = 1;
                     gCurrentActor->state = 0x39;
                     gCurrentActor->unk155 = 0;
                     actorScriptStart(gCurrentActor, gBehaviourAnimState->animId2);
@@ -580,7 +580,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                 gCurrentActor->unk155++;
             } else if ((gGameMode == 0) && (gBehaviourTargetActor->state != 0x42)) {
                 gCurrentActor->interactionType = 1;
-                gCurrentActor->unk144 = 0x24;
+                gCurrentActor->collisionMode = 0x24;
                 gCurrentActor->state = gBehaviourExtraState->actorState;
                 gCurrentActor->unk155 = 0;
                 actorScriptStart(gCurrentActor, gBehaviourAnimState->animId1);
@@ -1056,7 +1056,7 @@ void behaviourCalculateDamageForce(Actor *attacker, s32 scriptId) {
 }
 
 void behaviourSetFloorAndState40(void) {
-    gCurrentActor->unk144 = 1;
+    gCurrentActor->collisionMode = 1;
     gCurrentActor->state = 0x40;
     gEnemyDefeatCount++;
 }

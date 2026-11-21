@@ -379,8 +379,8 @@ void fbCopySetAlpha(void *dstBuf, void *srcBuf) {
 
 extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern Gfx *gGfxTaskBuffers[];
-extern s32 D_8076A088;
-extern s32 D_8076A08C;
+extern s32 gGfxListCommandCount;
+extern s32 gGfxSubListCommandCount;
 extern u8 gGfxSubListEnabled;
 extern u8 D_8076A0B2;
 extern FrameMatrices gFrameMatrices[];
@@ -393,7 +393,7 @@ void transitionRunFrame(s32 map, s32 exit) {
     Gfx *dl;
     Gfx *subDl;
 
-    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 1234, 1);
+    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], gGfxListCommandCount, 3, 1, 1234, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
     gGfxCurrentFrameBuffer = &gFrameMatrices[gGfxBufferIndex];
@@ -445,11 +445,11 @@ void transitionRunFrame(s32 map, s32 exit) {
         }
     }
     if ((gGfxSubListEnabled != 0) && (gGameMode != 6)) {
-        gfxEndDisplayList(dl, gGfxBufferIndex, &D_8076A088, 0);
-        gfxEndSubDisplayList(subDl, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(dl, gGfxBufferIndex, &gGfxListCommandCount, 0);
+        gfxEndSubDisplayList(subDl, gGfxCurrentFrameBuffer, &gGfxSubListCommandCount, 1);
         return;
     }
-    gfxEndDisplayList(dl, gGfxBufferIndex, &D_8076A088, 1);
+    gfxEndDisplayList(dl, gGfxBufferIndex, &gGfxListCommandCount, 1);
 }
 
 extern void *gSegment1Data;

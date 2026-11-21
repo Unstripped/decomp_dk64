@@ -51,7 +51,7 @@ void actorSeekTargetUpdate(void) {
         gCurrentActor->cullMarginX = 0x46;
         gCurrentActor->cullMarginY = 0x32;
         gCurrentActor->contactFlags &= ~1;
-        gCurrentActor->unk144 = 2;
+        gCurrentActor->collisionMode = 2;
         gCurrentActor->flags |= 0x80000000;
         gCurrentActor->renderFlags |= 0x28;
         animSetStartFrame(gCurrentActor, 0, 1);
@@ -153,7 +153,7 @@ void actorSparkCutsceneUpdate(void) {
         } else {
             controllerAnimSetStateIfChanged(gCurrentActor, 0x598, 0.0f, 0.0f);
             scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             gCurrentActor->flags &= ~4;
         }
     }
@@ -176,7 +176,7 @@ void actorSparkCutsceneUpdate(void) {
         if (gActorGlobalState.volumeTriggerQueueCount != 0 && gActorGlobalState.volumeTriggerQueueOp[0] == 1) {
             actorScriptStart(gCurrentActor, 0x328);
             gCurrentActor->state = 2;
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
             gCurrentActor->flags |= 4;
         }
         break;
@@ -351,7 +351,7 @@ void actorOrbitPlayerMidpointUpdate(void) {
         sub->centerX = gCurrentActor->x + (gPrimaryPlayerActor->x - gCurrentActor->x) * 0.5;
         sub->centerY = gCurrentActor->y + (gPrimaryPlayerActor->y - gCurrentActor->y) * 0.5;
         sub->centerZ = gCurrentActor->z + (gPrimaryPlayerActor->z - gCurrentActor->z) * 0.5;
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         gCurrentActor->unkFA = 0x2328;
         gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->spawnData)->orbitFrames;
         {

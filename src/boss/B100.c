@@ -97,8 +97,8 @@ void bossDogadonStep(void) {
     switch (gCurrentActor->state) {
     case 0x28:
         if (gActorGlobalState.bossFightPhase == 5 && gPlayerSlots->unk2C0 != 1) {
-            gCurrentActor->unk144 = 1;
-            gPrimaryPlayerActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
+            gPrimaryPlayerActor->collisionMode = 1;
             camStartPath(0, 2, 1);
             gCurrentActor->state = 0x29;
             hudCountdownTimerSaveElapsed(gCurrentActor->parentActor);
@@ -330,7 +330,7 @@ void bossKRoolTinySpawnMinion(Actor **minions, u8 slotIndex, s32 modelId) {
     actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
     gSpawnedActor->flags |= 0x1400;
     gSpawnedActor->parentActor = gCurrentActor;
-    gSpawnedActor->unk144 = gCurrentActor->unk144;
+    gSpawnedActor->collisionMode = gCurrentActor->collisionMode;
     gSpawnedActor->flags = gCurrentActor->flags;
     minions[slotIndex] = gSpawnedActor;
 }

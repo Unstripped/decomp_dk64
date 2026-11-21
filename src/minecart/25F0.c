@@ -320,7 +320,7 @@ void minecartUpdateFollower(void) {
         animSetSpeed(gCurrentActor, 0, 1.0f);
         animSetLoopMode(gCurrentActor, 0, 0);
         animSetLoopLimit(gCurrentActor, 0, -1);
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         if (gCurrentActor->parentActor->unk15F == 1) {
             gCurrentActor->unk15F = *playerCart->routeCursor & ~0xC0;
         } else {
@@ -606,7 +606,7 @@ void minecartUpdateObstacleType3(void) {
     behaviourFrameBegin();
     playerState = gBehaviourTargetActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         gBehaviourWorkState->acceleration = 2;
         effectSetDepth(1);
         effectSetDuration(-1);

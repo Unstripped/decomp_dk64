@@ -243,7 +243,7 @@ void func_806B640C(void) {
     if (gGameMode == 1) {
         for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
             if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
-                gCurrentActor->unk144 = 0x24;
+                gCurrentActor->collisionMode = 0x24;
                 actorScriptStart(gCurrentActor, 0x24F);
             }
         }

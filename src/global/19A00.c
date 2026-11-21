@@ -1350,7 +1350,7 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
     return 1;
 }
 
-extern struct GfSndState *D_807457C8;
+extern struct GfSndState *gSfxPositionalHandle;
 
 
 s32 scriptOpPlayMapActionSound(Actor *actor) {
@@ -1365,9 +1365,9 @@ s32 scriptOpPlayMapActionSound(Actor *actor) {
     scriptReadU8(&imm2);
     scriptReadU8(&imm3);
     scriptReadU8(&imm4);
-    if (D_807457C8 != NULL) {
-        n_alSndpStop(D_807457C8);
-        D_807457C8 = NULL;
+    if (gSfxPositionalHandle != NULL) {
+        n_alSndpStop(gSfxPositionalHandle);
+        gSfxPositionalHandle = NULL;
     }
     sound = mapActionLookupEntry(imm, actor, actor->unk78[0]);
     if (sound == 8) {

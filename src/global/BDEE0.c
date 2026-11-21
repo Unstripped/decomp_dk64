@@ -403,7 +403,7 @@ s32 behaviourAttachToZoneOccupant(u8 yOffset, s16 animId) {
             if (gCurrentActor->speedY > 0.0f) {
                 return 0;
             }
-            gCurrentActor->unk144 = 0x24;
+            gCurrentActor->collisionMode = 0x24;
             if (animId != 0) {
                 controllerAnimSetStateIfChanged(gCurrentActor, animId, 0.0f, 4.0f);
             }
@@ -629,7 +629,7 @@ void behaviourFairyUpdate(void) {
         gBehaviourWorkState->unk2E--;
         gCurrentActor->hasArcBounds = 0;
         if (gBehaviourWorkState->unk2E == 0 && gBehaviourTargetActor == gPrimaryPlayerActor) {
-            gCurrentActor->unk144 = 0x24;
+            gCurrentActor->collisionMode = 0x24;
         }
     }
 }
@@ -712,7 +712,7 @@ s32 actorSpawnJitteredChild(u8 nodeId, s16 speed, s16 speedY, Actor *target) {
             childState->node->flags &= ~8;
             childState->targetActor = target;
         }
-        gSpawnedActor->unk144 = 1;
+        gSpawnedActor->collisionMode = 1;
         gSpawnedActor->drawDistance = 0x3E8;
         return 1;
     }
@@ -833,7 +833,7 @@ void behaviourFairyWanderUpdate(void) {
                 actorSpawnJitteredChild(order.nodeOffset[gCurrentActor->unk155--] + 0x22, step * 8 + 0x64, step * 20 + 0xFA, gBehaviourZone->occupant);
             } else {
                 gCurrentActor->flags &= ~0x8000;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gCurrentActor->state++;
                 camSetTarget(gCamActor, gCurrentActor, 4, 0x1129, 0x264, 0, 0, 0xAF, 0, 0, 1.0f);
                 camSetTargetFocusActor(gCamActor, gPrimaryPlayerActor);
@@ -862,7 +862,7 @@ void behaviourFairyWanderUpdate(void) {
             csModelStateSetFirstByte(0x7C, 0xA);
             gPrimaryPlayerActor->drawDistance = 0x1F4;
             gPrimaryPlayerActor->flags &= ~0x400;
-            gCurrentActor->unk144 = 0x24;
+            gCurrentActor->collisionMode = 0x24;
             camStartPath(gCurrentActor, 0x1F, 5);
         }
         break;

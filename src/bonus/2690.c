@@ -641,7 +641,7 @@ void bonusTargetUpdate(void) {
     s32 step;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
     }
     currentActorAnimTryIdleVariant(0, &target->lastFrame);
     switch (gCurrentActor->state) {
@@ -717,7 +717,7 @@ void bonusTurtleTroubleSnakeUpdate(void) {
     f32 zOffset;
     s32 i;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         snake->spinSpeed = 275.0f;
         snake->spinTarget = 275.0f;
         snake->slowDelay = snake->slowDelayStart;
@@ -1219,7 +1219,7 @@ void bonusLightFlashTargetUpdate(void) {
             actorClearAllNodeFlags(gCurrentActor);
             actorAppendModelNode(gCurrentActor, 0.0f, 50.0f, 0.0f, 80.0f, -1);
         }
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
     }
     p = *gMinecartTrackPoints + (game->slotOrder[subExt->slot] & 0x7F) + 1;
     gCurrentActor->x = p->x;
@@ -1227,9 +1227,9 @@ void bonusLightFlashTargetUpdate(void) {
     gCurrentActor->z = p->z;
     lightGetColor(&lightR, &lightG, &lightB, 0);
     if (lightR < 0.1f) {
-        gCurrentActor->unk144 = 0;
+        gCurrentActor->collisionMode = 0;
     } else {
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
     }
     isHit = 0;
     if (gActorGlobalState.unk15 == 1 && game->flashTimer >= -9) {
@@ -1467,7 +1467,7 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
     animSub = modelData->model;
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x239);
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         modelData = gCurrentActor->sub4; // ORIG: the target reloads sub4 only on this path (lw t2,0(s4) / lw v0,4(t2) at 0x4484-0x4488); without it the lhu animId reuses the first v0 and the block shrinks by 16 bytes
     }
     animScript = modelData->animId;
@@ -1921,7 +1921,7 @@ void bonusSearchlightSeekGameUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
         gPrimaryPlayerActor->unk155 = 0;
-        gPrimaryPlayerActor->unk144 = 1;
+        gPrimaryPlayerActor->collisionMode = 1;
         subExt->lightLevel = 1.0f;
         subExt->centerX = gCurrentActor->x;
         subExt->centerZ = gCurrentActor->z;
@@ -2086,7 +2086,7 @@ void bonusSearchlightSeekTargetUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x232);
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         gCurrentActor->sub4->scaleX = 0.25f;
         gCurrentActor->sub4->scaleY = 0.25f;
         gCurrentActor->sub4->scaleZ = 0.25f;

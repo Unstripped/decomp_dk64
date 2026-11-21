@@ -2055,7 +2055,7 @@ void csStartCamPath(CsState *cs, s16 camIdx, s16 mode, s16 c) {
 
     if (cs->unk94 == NULL && func_80678014(0x14) != 0) {
         cs->unk94 = gSpawnedActor;
-        gSpawnedActor->unk144 = 1;
+        gSpawnedActor->collisionMode = 1;
         gSpawnedActor->x = gCsPosX;
         gSpawnedActor->y = gCsPosY;
         gSpawnedActor->z = gCsPosZ;

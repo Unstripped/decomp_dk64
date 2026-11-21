@@ -51,7 +51,7 @@ void timedSmokeTargetHostUpdate(void) {
     if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->parentActor->state = 0;
         camStartPath(gCurrentActor, 6, 5);
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155 = 0;
     } else if (gActorGlobalState.bossFightPhase == 4) {
@@ -143,7 +143,7 @@ void smokeTargetChaserUpdate(void) {
         gBehaviourTargetActor = gBehaviourWorkState->targetActor;
     }
     if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gCurrentActor->state = 0x40;
         tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->sub4->scaleY / 0.15, 0, 1);
     }

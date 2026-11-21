@@ -156,7 +156,7 @@ void projectileSpriteRingUpdate(void) {
         gCurrentActor->moveYaw = gCurrentActor->unk15F;
         sub->matrices = heapAlloc(0x1000);
         if (gCurrentActor->unk15F != 0) {
-            gCurrentActor->unk144 = 0x24;
+            gCurrentActor->collisionMode = 0x24;
         }
         if (sub->ringType == 1) {
             sfxPlayActorSound(gCurrentActor, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
@@ -240,7 +240,7 @@ void projectileActorUpdate(void) {
         gCurrentActor->moveYaw = ((ProjectileConfig *)gCurrentActor->spawnData)->yawRadians / 6.2831855f * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileConfig *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileConfig *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 40.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);

@@ -652,7 +652,7 @@ u16 type;
         }
         actor->callbacks = NULL;
         actor->callbackMask = -1;
-        actor->unk144 = 2;
+        actor->collisionMode = 2;
         actor->attachMode = 0;
         actor->unkF8 = 0x50;
         actor->flags = 0x58144;
@@ -947,7 +947,7 @@ void actorPreTick(Actor *actor) {
     if (actor == gActivePlayerActor) {
         playerStateDispatchQueuedCallback();
     }
-    if (actor->unk144 & 4) {
+    if (actor->collisionMode & 4) {
         actorUpdateMovementFlags(actor);
     } else if (actor->collision != NULL) {
         actor->collision->unk6C = 0;
@@ -1010,7 +1010,7 @@ extern u8 gCurrentPlayerIndex;
 void actorUpdateArcBounds(Actor *actor) {
     u8 arcFlags;
 
-    if ((actor->unk144 & 4) && (D_807FBE08 == 0)) {
+    if ((actor->collisionMode & 4) && (D_807FBE08 == 0)) {
         if (actor->flags & 0x10000) {
             actor->hasArcBounds = 0;
             actor->collisionHit = 0;
@@ -1335,7 +1335,7 @@ void actorDispatchCallbacks(Actor *actor) {
                 playerHandleDamageReaction(actor, node->source, 1);
                 break;
             case 0x800:
-                actor->unk144 = node->unk4;
+                actor->collisionMode = node->unk4;
                 gActorGlobalState.unk90 = 1;
                 break;
             case 0x400:
@@ -2045,7 +2045,7 @@ void func_8067B2B8(s32 unused) {
 }
 
 s32 actorInitFloorAttachment(s32 unused) {
-    gSpawnedActor->unk144 = 1;
+    gSpawnedActor->collisionMode = 1;
     return 1;
 }
 

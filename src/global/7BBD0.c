@@ -1158,7 +1158,7 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
     i = 0; if (gActiveActorCount > 0) { entry = gActiveActors; do { // LAYOUT: same-line preheader steers ugen tie-break order
         other = entry->actor;
         otherSub140 = other->collision;
-        if (!(other->flags & 0x2000) && sub140 != otherSub140 && other->unk144 != 1 && (other->flags & 0x10)) {
+        if (!(other->flags & 0x2000) && sub140 != otherSub140 && other->collisionMode != 1 && (other->flags & 0x10)) {
             if (collisionSpheresOverlap(posX, posY, posZ, radius, otherSub140->scaledX, otherSub140->scaledY, otherSub140->scaledZ, otherSub140->scaledRadius)) {
                 node = sub140->nodes;
                 D_807FB5FF = 0;

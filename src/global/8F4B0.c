@@ -55,9 +55,9 @@ typedef struct {
     /* 0x0C */ s16 targetZ;
 } LightPosEntry;
 
-// This TU's .data (0x80750190-0x807501DB + 5-byte TU pad), in address order; D_80750190 is also read
+// This TU's .data (0x80750190-0x807501DB + 5-byte TU pad), in address order; gWeatherThunderMuted is also read
 // by 7130 and boss 0.c.
-u8 D_80750190 = 0;
+u8 gWeatherThunderMuted = 0;
 LightPosEntry gCutsceneSpotLights[3] = {
     { 9, 11, 108, 69, 108, 109, 0, 154 },
     { 19, 21, 109, 108, 156, 108, 0, 156 },
@@ -446,7 +446,7 @@ void actorCutsceneDispatchEvents(void) {
         if (csState->flashTimer != 0) {
             if ((csState->flashTimer == 0x28) || (((randomNonNegative() >> 15) % 10) == 5)) {
                 lightSetColor(1.0f, 1.0f, 1.0f, csState->mapChunk);
-                if ((D_80750190 == 0) && (csState->sfxCooldown == 0)) {
+                if ((gWeatherThunderMuted == 0) && (csState->sfxCooldown == 0)) {
                     sfxVolume = 0x46;
                     if (gCurrentMap == 0x57) {
                         sfxVolume = 0x2D;

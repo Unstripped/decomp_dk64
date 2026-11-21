@@ -192,7 +192,7 @@ extern s8 gMenuNextExit;
 extern u8 D_8076AEE0;
 extern s16 gPreviousMap;
 extern ALBank *gSfxBank;
-extern ALBank *D_8076D1FC;
+extern ALBank *gSfxBankHigh;
 
 extern struct GfSndState *D_807F5D70[];
 extern s16 D_807F5D7C;
@@ -475,7 +475,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             } else if (b < 0x800) {
                 n_alSndpPlay(gSfxBank, b, c != 0 ? c / 255.0 * 32767.0 : 16383.5, 0x3F, d != 0 ? d / 127.0 : 1.0, 0, &D_807F5D70[-1 - a]);
             } else {
-                n_alSndpPlay(D_8076D1FC, b - 0x7FF, c != 0 ? c / 255.0 * 32767.0 : 16383.5, 0x3F, d != 0 ? d / 127.0 : 1.0, 0, &D_807F5D70[-1 - a]);
+                n_alSndpPlay(gSfxBankHigh, b - 0x7FF, c != 0 ? c / 255.0 * 32767.0 : 16383.5, 0x3F, d != 0 ? d / 127.0 : 1.0, 0, &D_807F5D70[-1 - a]);
             }
             return;
         case 0x19:

@@ -131,10 +131,10 @@ void bossSpawnerUpdate(void) {
         gPrimaryPlayerActor->y = gCurrentActor->y;
         gPrimaryPlayerActor->z = gCurrentActor->z;
         if (D_80035B38 == -1) {
-            D_80035B38 = gPrimaryPlayerActor->unk144;
+            D_80035B38 = gPrimaryPlayerActor->collisionMode;
         }
         gPrimaryPlayerActor->flags &= ~4;
-        gPrimaryPlayerActor->unk144 = 1;
+        gPrimaryPlayerActor->collisionMode = 1;
         if (gActorGlobalState.volumeTriggerQueueCount != 0) {
             kong = gBossKongOrder[gBossKongsFreed];
             gCurrentActor->segmentFlags = 0;
@@ -149,7 +149,7 @@ void bossSpawnerUpdate(void) {
             gPrimaryPlayerActor->unk155 = 0;
             actorAppendPlayerLaunch(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
             gCurrentActor->state = 1;
-            gPrimaryPlayerActor->unk144 = D_80035B38;
+            gPrimaryPlayerActor->collisionMode = D_80035B38;
         }
         break;
     case 1:
@@ -488,7 +488,7 @@ void bossFollowerActorUpdate(void) {
         }
     }
     if (link->mirrored == 0) {
-        gCurrentActor->unk144 = 0xC;
+        gCurrentActor->collisionMode = 0xC;
         if (link->slot == 0) {
             if (parentState->fireFlag == 1) {
                 if (link->parent->state == 0) {
@@ -510,7 +510,7 @@ void bossFollowerActorUpdate(void) {
         gCurrentActor->z = gBossSideOffsetZ[parentState->side] + link->parent->z;
         gCurrentActor->yaw = gBossSideYaw[parentState->side];
     } else {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         id = parentState->side + 2;
         if (id >= 4) {
             id -= 4;

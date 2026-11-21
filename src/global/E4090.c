@@ -2754,7 +2754,7 @@ void playerInputCheckInstrumentPlayback(void) {
             if (slotQueueGetValue(7, gCurrentPlayerIndex) || onOwnPad) {
                 playerStateQueueCallback(0x53, 0, gActivePlayerState->playerIndex);
                 if (!(gGlobalCutsceneFlags & 2)) {
-                    gCurrentActor->unk144 = 1;
+                    gCurrentActor->collisionMode = 1;
                 }
                 if (!onOwnPad) {
                     slotQueueAddValue(7, gCurrentPlayerIndex, -1);
@@ -2901,7 +2901,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x18, 0xFF, 0x7F, 0x19);
                     gCurrentActor->state = 0x18;
                     gCurrentActor->unk155 = 0;
-                    gCurrentActor->unk144 = 1;
+                    gCurrentActor->collisionMode = 1;
                     gActivePlayerState->jumpVelocityY = gKongJumpVelocityY[gCurrentCharacterIndex] * 2.5;
                     gActivePlayerState->unk50 = 0x28;
                     actorScriptStartByIndex(gCurrentActor, 0x22);
@@ -2932,7 +2932,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 actorScriptStart(gCurrentActor, 0x169);
                 return 1;
             case 7:
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
                 gActivePlayerState->unk242 = gActorGlobalState.unk10;
                 gCurrentActor->state = 0x76;
                 gCurrentActor->unk155 = 0;

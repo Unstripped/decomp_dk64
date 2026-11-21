@@ -193,7 +193,7 @@ void raceOpponentBehaviourUpdate(void) {
     }
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk144 = 0x1C;
+        gCurrentActor->collisionMode = 0x1C;
         gCurrentActor->flags |= 0x10400;
         gCurrentActor->flags &= ~0x20000;
         gCurrentActor->state = 0;

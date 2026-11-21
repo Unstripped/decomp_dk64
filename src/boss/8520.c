@@ -173,7 +173,7 @@ void bossKutOutStep(void) {
             controllerAnimSetStateIfChanged(gCurrentActor, 0x589, 0.0f, 0.0f);
             gBehaviourWorkState->timer = 0;
             gCurrentActor->unk155 = 1;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2FC, 0xFF, 0x7F, 0, 0, 0.0f, 0);
         case 1:
             gBehaviourWorkState->timer += 8;
@@ -202,7 +202,7 @@ void bossKutOutStep(void) {
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->state = 0x23;
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
-                gCurrentActor->unk144 = 0x24;
+                gCurrentActor->collisionMode = 0x24;
                 actorScriptStart(gCurrentActor, 0x2F4);
             }
             break;

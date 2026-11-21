@@ -475,9 +475,9 @@ extern u8 gGameMode;
 f32 D_807480DC = 900.0f;
 extern u8 gAmbientAudioLevels[];
 extern u8 gAmbientIndoors;
-extern f32 D_80770DCC;
-extern f32 D_80770DD0;
-extern f32 D_80770DD4;
+extern f32 gAmbientNearestPan;
+extern f32 gAmbientNearestFx;
+extern f32 gAmbientNearestDist;
 
 
 void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -539,8 +539,8 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
             if ((randomNonNegative() >> 15) % 10 == 5) {
                 if (dist < 2200.0f) {
                     if (gAmbientIndoors != 0) {
-                        if (D_80770DD4 < 600.0f) {
-                            sfxPlayOnFreeSlot(0x9C, ((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - D_80770DD4)) / 1000.0, D_80770DCC, 0.8f, 0x1E, D_80770DD0);
+                        if (gAmbientNearestDist < 600.0f) {
+                            sfxPlayOnFreeSlot(0x9C, ((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - gAmbientNearestDist)) / 1000.0, gAmbientNearestPan, 0.8f, 0x1E, gAmbientNearestFx);
                         }
                     } else {
                         sfxPlayWithRandomPan(0x9C, fade * 60.0f, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);

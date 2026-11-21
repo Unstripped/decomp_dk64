@@ -1369,10 +1369,10 @@ u8 actorCheckTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *actorHit) {
     D_807FB547 = 0;
     D_807FB605 = 0;
     D_807FB606 = 0;
-    if (actor->unk144 & 0x20) {
+    if (actor->collisionMode & 0x20) {
         actorCollisionCheckNodeSpheres(actor);
     }
-    if (actor->unk144 & 8) {
+    if (actor->collisionMode & 8) {
         boundsHit = actorCheckTargetAngleBounds(actor, arcMin, arcMax);
         slotHit = actorCollideModelSlots(actor, arcMin, arcMax);
         *actorHit = actorCheckCollisionsAgainstActiveActors(actor, arcMin, arcMax);
@@ -1452,7 +1452,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                         }
                         flag = gModelSlots[i].unk7C->unk70;
                     }
-                    if ((D_807FB5FD == 0 || (actor->unk144 & 0x10)) && flag != 0) {
+                    if ((D_807FB5FD == 0 || (actor->collisionMode & 0x10)) && flag != 0) {
                         D_807FB5FF = 0;
                         ret = 0;
                         while (node != NULL && D_807FB5FF == 0) {
@@ -2677,7 +2677,7 @@ void actorTouchSub140Timestamp(Actor *actor) {
 void actorUpdateMovementFlags(Actor *actor) {
     ActorSub140 *sub;
 
-    if (actor->unk144 & 8) {
+    if (actor->collisionMode & 8) {
         sub = actor->collision;
         if (sub->unk6C != 0) {
             actor->hasArcBounds |= actorResolveModelSlotCollision(actor);

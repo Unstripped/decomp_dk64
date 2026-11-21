@@ -578,7 +578,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     st->lastValidX = act->x;
     st->lastValidY = act->y;
     st->lastValidZ = act->z;
-    act->unk144 = 0x24;
+    act->collisionMode = 0x24;
     act->flags &= ~0x10000;
     act->flags |= 0x20000;
     act->flags |= gSpawnEntryTable[idx].actorFlags;
@@ -641,7 +641,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
             act->cullMarginY = 0x3C;
             act->state = 0;
             act->unk155 = 0;
-            act->unk144 = 1;
+            act->collisionMode = 1;
             act->flags |= 0x10000000;
         case 0x6:
         case 0xE:

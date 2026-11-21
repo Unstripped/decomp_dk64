@@ -213,7 +213,7 @@ void func_806C6BC8(void) {
                 camRequestPathLength();
                 gBehaviourWorkState->timer = camStartPath(gCurrentActor, 0x18, 1) - 0x1E;
                 gBehaviourWorkState->unk2E = gBehaviourWorkState->timer;
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
             } else {
                 switch (gCurrentActor->unk155) {
                     case 5:

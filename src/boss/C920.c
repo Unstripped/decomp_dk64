@@ -35,7 +35,7 @@ extern PlayerStruct *gPlayerSlots;
 void bossKRoolChunkySetupFight(BossScriptState *unused) {
     gActivePlayerState->unk1FE = 1;
     bossSetCannonsVisible(1);
-    gCurrentActor->unk144 = 0x24;
+    gCurrentActor->collisionMode = 0x24;
     playerStateQueueCallback(0x19, gCurrentActor, 0);
     zoneEntryGetPosition(1, 8, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
     gBehaviourWorkState->targetX = gCurrentActor->x;
@@ -140,7 +140,7 @@ void bossKRoolChunkyStep(void) {
         }
     }
     if (gPlayerSlots->unk2C0 != 1 && (gCurrentActor->state == 0x42 || gCurrentActor->state == 0x27)) {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->state = 0x29;
         gCurrentActor->unk155 = 0;

@@ -384,7 +384,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         count = gMinecartTrackPoints[cursor->lane + 1] - gMinecartTrackPoints[cursor->lane];
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         gCurrentActor->flags &= ~1;
         cursor->lane = cursor->targetLane = 2;
         raceTarget->distSq = 0.0f;
@@ -634,7 +634,7 @@ void raceObstacleCarBehaviorUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         raceFindNearestWaypoint(cursor);
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         state->throttle = 0.5f;
         actorClearNodeFlag(gCurrentActor, 1);
         cursor->targetActor = spawnNodeActivate(1, 0);

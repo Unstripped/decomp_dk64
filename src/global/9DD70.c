@@ -638,7 +638,7 @@ void actorNumberedTargetUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->unk144 = 2;
+        gCurrentActor->collisionMode = 2;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 60.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -694,7 +694,7 @@ void func_8069B3FC(void) {
     void *sel;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gCurrentActor->flags |= 0x400;
         actorScriptStart(gCurrentActor, 0x298);
         *spinSpeed = 0;
@@ -838,7 +838,7 @@ void carryObjectUpdate(void) {
         gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
-            gCurrentActor->unk144 = 2;
+            gCurrentActor->collisionMode = 2;
             gCurrentActor->flags2 |= 1;
             gCurrentActor->state = 2;
             gCurrentActor->unk155 = 1;
@@ -887,13 +887,13 @@ void carryObjectUpdate(void) {
         gCurrentActor->state = 1;
         actorCallbackMaskDisable(gCurrentActor, 0x8000);
         actorCollisionEventsCancel(state->holder, 1);
-        gCurrentActor->unk144 = 0x2C;
+        gCurrentActor->collisionMode = 0x2C;
     }
     if (gActorGlobalState.unk25 != 0) {
         gCurrentActor->state = 2;
         gCurrentActor->unk155 = 0;
         state->settleTimer = 0x1E;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
         if (gCurrentMap == 7 && actorListFindIdByActor(gCurrentActor) == 0x17) {
             actorListSetPosByActor(gCurrentActor, gCurrentActor->x, gCurrentActor->floorY, gCurrentActor->z);
@@ -912,7 +912,7 @@ void carryObjectUpdate(void) {
     }
     if (gActorGlobalState.unk2C != 0) {
         gCurrentActor->state = 3;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
         gCurrentActor->yaw = gActorGlobalState.unk36;
         gCurrentActor->moveYaw = gActorGlobalState.unk36;
@@ -947,7 +947,7 @@ void carryObjectUpdate(void) {
     }
     switch (gCurrentActor->state) {
     case 0:
-        gCurrentActor->unk144 = 2;
+        gCurrentActor->collisionMode = 2;
         gCurrentActor->renderFlags |= 8;
         gCurrentActor->flags |= 0x80000000;
         gCurrentActor->flags2 |= 1;
@@ -1069,7 +1069,7 @@ void carryObjectUpdate(void) {
         if (state->respawns != 0) {
             gCurrentActor->state = 0xA;
             gCurrentActor->callbackMask = 0;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             gCurrentActor->flags &= ~4;
         }
         break;
@@ -1528,7 +1528,7 @@ void textUpdateThreeDigitCounter(void) {
         if (count >= D_807446C0[world]) {
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha = 0;
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             csModelStateSetFirstByte(8, 2);
             csModelStateSetFirstByte(9, 10);
             csModelStateSetFirstByte(10, 10);

@@ -405,7 +405,7 @@ extern s32 D_8076A090;
 extern s32 D_8076A094;
 extern s32 D_8076A098;
 extern s32 gCurrentMap;
-extern u8 D_80770560[4];
+extern u8 gSeqCurrentId[4];
 extern u8 gDemoPlaybackState;
 extern s16 gMapBoundMinX;
 extern s16 gMapBoundMinZ;
@@ -490,7 +490,7 @@ void playerUpdateCommon(s32 mode) {
     playerUpdateScaleAndPhysics();
     playerCheckAndClearCarriedItem();
     playerUpdateSlopeSlidePhysics();
-    if (D_80770560[1] == 0x6B && gCurrentActor->state != 0x6E) {
+    if (gSeqCurrentId[1] == 0x6B && gCurrentActor->state != 0x6E) {
         sfxStopChannel(0x6B, 0);
     }
     if (gActivePlayerState->unkCA != 0) {
@@ -2321,7 +2321,7 @@ void playerResumeLocomotion(Actor *actor) {
     actor->contactFlags &= ~0x20;
     p->unk4C = -1;
     p->unk10C = 0;
-    if (actor->unk144 == 1) {
+    if (actor->collisionMode == 1) {
         actorSetInteractionTimer(actor);
     }
     if (gGlobalOverlayFlags & 0x80000) {

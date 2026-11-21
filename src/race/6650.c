@@ -107,7 +107,7 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     onGround = gCurrentActor->contactFlags & 1;
     thrustYaw = gCurrentActor->yaw;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         gCurrentActor->flags |= 0x10400;
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
@@ -213,7 +213,7 @@ void raceParticipantMotionUpdate(void) {
     colorMode = 0xB4;
     if (!(gCurrentActor->flags & 0x10)) {
         playerStateQueueCallback(0x4D, gCurrentActor, playerIdx);
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         gCurrentActor->flags &= ~0x20000;
         for (i = 0; i < 3; i++) {
             gCurrentActor->sub4->scale[i] *= 0.3;
@@ -439,7 +439,7 @@ void raceOpponentRacerMotionUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         target->unk10 = 1;
         raceSetPiecewiseCurveMode(target, 5, D_8002FC70, &D_8002FCA0);
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         gCurrentActor->flags &= ~0x20001;
         racerState->steerGain = 1.0f;
         for (i = 0; i < 3; i++) {

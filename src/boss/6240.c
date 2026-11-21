@@ -222,7 +222,7 @@ void bossPufftossStep(void) {
     } else {
         gCurrentActor->interactionType = 1;
     }
-    gCurrentActor->unk144 = 0x24;
+    gCurrentActor->collisionMode = 0x24;
     if (gActorGlobalState.bossFightPhase == 4) {
         if (state->phase == 3) {
             actorGetOrSetNodeScale(gCurrentActor, 1, 200.0f);
@@ -622,7 +622,7 @@ void bossPufftossStep(void) {
         }
         break;
     case 0x42:
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         if (gCurrentActor->sub4->animId != 0x2C6) {
             actorScriptStart(gCurrentActor, 0x2C6);
         }
@@ -649,7 +649,7 @@ void bossPufftossStep(void) {
         behaviourUpdateShadowAlpha();
     }
     if (camIsCutsceneActive() != 0) {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

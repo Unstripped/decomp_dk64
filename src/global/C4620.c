@@ -1105,7 +1105,7 @@ void actorScriptedUpdate(void) {
         gCurrentActor->drawDistance = 0xFA0;
         gBehaviourAnimState->flags |= 0x20;
         gCurrentActor->flags &= ~0x01000000;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         switch (state->animAssetId) {
             case 0x21:
                 if (gCurrentMap == 0x98 || gCurrentMap == 0x1C) {

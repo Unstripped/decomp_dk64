@@ -761,7 +761,7 @@ u16 camStartPath(Actor *actor, s16 pathIndex, u8 flags) {
     }
     if (actorSpawn(0xAD, 0) != 0) {
         gCamPathActor = gSpawnedActor;
-        gSpawnedActor->unk144 = 1;
+        gSpawnedActor->collisionMode = 1;
     } else {
         return 0;
     }

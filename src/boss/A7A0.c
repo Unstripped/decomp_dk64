@@ -50,7 +50,7 @@ void bossPhaseTick(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         bossResetMinions(gCurrentActor);
         gCurrentActor->yawSpeed = 0x258;
-        gCurrentActor->unk144 = 2;
+        gCurrentActor->collisionMode = 2;
     }
     if (gPrimaryPlayerActor->state != 0x67) {
         if (gCurrentActor->yawSpeed != 0) {
@@ -72,7 +72,7 @@ void bossPhaseTick(void) {
         other->state = 0x31;
     }
     if (gCurrentActor->state == 1) {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gCurrentActor->alpha -= 10;
         if (gCurrentActor->alpha < 0) {
             actorDespawn(gCurrentActor);

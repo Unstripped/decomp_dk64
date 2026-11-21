@@ -237,7 +237,7 @@ void critterBananaFairyUpdate(void) {
         gCurrentActor->flags |= 4;
     } else {
         gCurrentActor->flags &= ~4;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
     }
 }
 

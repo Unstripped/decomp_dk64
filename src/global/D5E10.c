@@ -85,7 +85,7 @@ void playerStateCarried(void) {
         playerResumeLocomotion(gCurrentActor);
         actorSetInteractionTimer(gCurrentActor);
     } else {
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -768,7 +768,7 @@ void playerStateVineSwing(void) {
         if (965.0f + v < gCurrentActor->z) {
             gCurrentActor->z = 965.0f + v;
         }
-        gCurrentActor->unk144 &= 0xFFF7;
+        gCurrentActor->collisionMode &= 0xFFF7;
     }
     playerInputUpdate(0x1B);
     r = mapGetVoidHeightForCharacter(gPrimaryPlayerActor->chunkIndex);
@@ -807,7 +807,7 @@ void playerStateVineSwing(void) {
     }
     if ((gCurrentActor->contactFlags & 1) || (gActivePlayerState->unk240 == 1)) {
         if (gGlobalCutsceneFlags & 2) {
-            gCurrentActor->unk144 |= 8;
+            gCurrentActor->collisionMode |= 8;
         }
         playerResumeLocomotion(gCurrentActor);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 1, 0xFF, 0x7F, 0x1E);
@@ -2131,7 +2131,7 @@ void playerStateSwimIdle(void) {
 void playerStateSwimDrown(void) {
     playerStateQueueCallback(0x5C, 0, gCurrentPlayerIndex);
     playerInputUpdate(3);
-    gCurrentActor->unk144 = 1;
+    gCurrentActor->collisionMode = 1;
     gActivePlayerState->maxSpeed = 0.0f;
     gCurrentActor->speedXZ = 0.0f;
     playerApplyFullPhysics();
@@ -2948,7 +2948,7 @@ void playerStateCutsceneIdle(void) {
     switch (gCurrentActor->unk155) {
         case 0:
             if (!(gGlobalCutsceneFlags & 2)) {
-                gCurrentActor->unk144 = 1;
+                gCurrentActor->collisionMode = 1;
             }
             break;
         case 1:
@@ -3439,7 +3439,7 @@ void playerStateTagBarrelFade(void) {
     gCurrentActor->speedXZ = 0.0f;
     switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             gCurrentActor->flags &= 0xFFFF7FFF;
             gCurrentActor->alpha = 0xFF;
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
@@ -3493,7 +3493,7 @@ void playerStateTagBarrelPadEnter(void) {
     gCurrentActor->speedXZ = 0.0f;
     switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->unk144 = 1;
+            gCurrentActor->collisionMode = 1;
             if (actorSpawn(0x3C, 0x98)) {
                 actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
             }
@@ -3684,7 +3684,7 @@ void playerStateStationaryInteraction(void) {
     gCurrentActor->speedXZ = 0.0f;
     switch (gCurrentActor->unk155) {
     case 0:
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         gActivePlayerState->unk23C = 0xA;
         gCurrentActor->unk155++;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2EB, 0xFF, 0x7F, 2);

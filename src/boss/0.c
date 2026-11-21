@@ -514,7 +514,7 @@ extern Actor *gPrimaryPlayerActor;
 extern const u8 D_80035CB8[];
 extern const u8 D_80035CC0[];
 extern u8 gGameMode;
-extern u8 D_80750190;
+extern u8 gWeatherThunderMuted;
 extern s16 D_807502D8;
 extern f32 gActorDefaultAccelY;
 extern s16 gSfxSourceVoice[];
@@ -576,7 +576,7 @@ void bossArmydilloStep(void) {
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->callbackMask = 0;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         currentActorClearFlag();
         actorScriptStart(gCurrentActor, 0x262);
         camStartPath(gCurrentActor, 9, 1);
@@ -587,7 +587,7 @@ void bossArmydilloStep(void) {
         gCurrentActor->state = 0x4D;
         gCurrentActor->unk155 = 0;
         gCurrentActor->callbackMask = 0;
-        D_80750190 = 1;
+        gWeatherThunderMuted = 1;
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         actorScriptStart(gCurrentActor, 0x262);
         state->scriptPos = 0;
@@ -1041,7 +1041,7 @@ void bossArmydilloStep(void) {
                 gCurrentActor->callbackMask = -1;
                 gCurrentActor->state = scriptData[state->scriptPos++];
                 gCurrentActor->unk155 = 0;
-                D_80750190 = 0;
+                gWeatherThunderMuted = 0;
             }
             break;
         }

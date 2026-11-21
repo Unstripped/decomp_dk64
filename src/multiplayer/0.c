@@ -959,7 +959,7 @@ void mpDropCrownOnHit(u8 playerIndex, s8 delta) {
 void mpApplyDeathPenalty(s32 playerIndex) {
     Actor *playerActor;
     playerActor = gPlayerSlots[playerIndex].actor;
-    playerActor->unk144 = 12;
+    playerActor->collisionMode = 12;
     switch (gMpSettings.gameMode) {
     case 2:
         slotQueueAddValue(1, playerIndex, -3);
@@ -1022,7 +1022,7 @@ void mpRespawnPlayer(Actor *playerActor, s32 playerIndex) {
         gPlayerInventoryTable[playerIndex].health = 0;
         playerActor->unk155++;
         playerStateQueueCallback(0x5B, 0, playerIndex);
-        playerActor->unk144 = 1;
+        playerActor->collisionMode = 1;
         return;
     }
     playerSyncInventoryOnSpawn(mpFindFurthestSpawn(playerIndex));

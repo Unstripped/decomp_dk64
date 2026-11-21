@@ -154,7 +154,7 @@ int actorIsTargetInRange(Actor *target, f32 height, f32 rangeSq) {
                       (target->x - gCurrentActor->x) +
                   (target->z - gCurrentActor->z) *
                       (target->z - gCurrentActor->z) &&
-           target->unk144 != 1;
+           target->collisionMode != 1;
 }
 
 s32 actorTypeToNodeIndex(s32 actorType) {
@@ -648,7 +648,7 @@ void actorUpdateSpinAndVelocity(void) {
         gCurrentActor->speedXZ = ((LaunchParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->moveYaw = ((LaunchParams *)gCurrentActor->spawnData)->moveYaw;
         gCurrentActor->speedY = ((LaunchParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         spin->pitchSpeed = (randomNonNegative() >> 15) % 0x46;
         spin->rollSpeed = (randomNonNegative() >> 15) % 0xC8;
     }
@@ -688,7 +688,7 @@ void actorFallAndBurstUpdate(void) {
     s32 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk144 = 0x1C;
+        gCurrentActor->collisionMode = 0x1C;
         gCurrentActor->speedY = 0.0f;
         gCurrentActor->drawDistance = 0x7D0;
         gCurrentActor->floorY = 99999.0f;

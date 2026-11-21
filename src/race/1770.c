@@ -427,7 +427,7 @@ void raceVehicleBehaviorUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         len = gMinecartTrackPoints[pathState->lane + 1] - gMinecartTrackPoints[pathState->lane];
         participant->projectileAmmo = 3;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         pathState->waypoint = raceGetPrevWaypointIndex(len, 0);
         racePathFollowStep(pathState, participant, 1);
         if (menuIsTransitionType3Or4() != 0 || flagGet(0x12, 2) != 0) {
@@ -540,7 +540,7 @@ void raceProjectileBehaviorUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         aux->lifetime = 0x78;
         gCurrentActor->flags |= 0x10;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         participant->throttle = 5.0f;
     }
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 5)) {

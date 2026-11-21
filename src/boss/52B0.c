@@ -75,7 +75,7 @@ void bossMadJackStep(void) {
         gCurrentActor->unk15F = 0;
         gBehaviourAnimState->flags |= 0x20;
         gCurrentActor->renderFlags |= 4;
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         lightSetColor(0.0f, 0.0f, 0.0f, -1);
         scriptState->phase = 0;
         scriptState->scriptPos = 0;

@@ -495,7 +495,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 yawDeltaOverride, u8 maxTiltLim
     trackIndex = (*cart->routeCursor + cart->laneOffset) & ~0xC0;
     actorUpdatePrevContactFlags(gCurrentActor);
     if (cart->routeCursor != NULL && prevPrevPt == NULL) {
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         targetPt = &gMinecartTrackPoints[trackIndex][cart->pointIndex++];
         gCurrentActor->x = targetPt->x;
         gCurrentActor->y = targetPt->y;

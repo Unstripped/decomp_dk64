@@ -539,7 +539,7 @@ void playerSpawnMapHelpers(void) {
 }
 
 void actorSetInteractionTimer(Actor *actor) {
-    actor->unk144 = 0x3C;
+    actor->collisionMode = 0x3C;
 }
 
 

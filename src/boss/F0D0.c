@@ -284,7 +284,7 @@ void bossMainStep(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->floorNodeId = 1;
-        gCurrentActor->unk144 = 0x24;
+        gCurrentActor->collisionMode = 0x24;
         if (flagGet(0x6A, 2) != 0) {
             actorScriptStart(gCurrentActor, 0x226);
             camStartPath(gCurrentActor, 0x14, 1);

@@ -187,8 +187,8 @@ s32 D_8076A070[3];
 s32 D_8076A07C;
 void *gSegment1Data;
 u32 D_8076A084;
-s32 D_8076A088;
-s32 D_8076A08C;
+s32 gGfxListCommandCount;
+s32 gGfxSubListCommandCount;
 s32 D_8076A090;
 s32 D_8076A094;
 s32 D_8076A098;
@@ -482,9 +482,9 @@ void gfxSubmitFrame(void) {
     Gfx *gfxEnd;
 
     controllerStartRead();
-    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, (gGfxSubListEnabled != 0) ? 0 : 1, 0x4D2, 1);
+    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], gGfxListCommandCount, 3, (gGfxSubListEnabled != 0) ? 0 : 1, 0x4D2, 1);
     if (gGfxSubListEnabled != 0) {
-        schedSubmitGfxTask(gFrameMatrices[gGfxBufferIndex].subDisplayList, D_8076A08C, 0, 1, 0x929, 1);
+        schedSubmitGfxTask(gFrameMatrices[gGfxBufferIndex].subDisplayList, gGfxSubListCommandCount, 0, 1, 0x929, 1);
     }
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
@@ -540,10 +540,10 @@ void gfxSubmitFrame(void) {
         glist = screenFadeUpdate(glist, D_8076AEE0);
     }
     if (gGfxSubListEnabled != 0 && gGameMode != 6) {
-        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
-        gfxEndSubDisplayList(gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &gGfxListCommandCount, 0);
+        gfxEndSubDisplayList(gfxEnd, gGfxCurrentFrameBuffer, &gGfxSubListCommandCount, 1);
     } else {
-        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &gGfxListCommandCount, 1);
     }
 }
 
@@ -881,8 +881,8 @@ void gfxAllocateBuffers(u8 numScreens) {
     }
     gGfxTaskBuffers[0] = heapAlloc(gGfxTaskBufferCap * sizeof(Gfx));
     gGfxTaskBuffers[1] = heapAlloc(gGfxTaskBufferCap * sizeof(Gfx));
-    gfxEndDisplayList(gfxClearFramebuffer(gGfxTaskBuffers[0], 0), 0, &D_8076A088, 1);
-    gfxEndDisplayList(gfxClearFramebuffer(gGfxTaskBuffers[1], 1), 1, &D_8076A088, 1);
+    gfxEndDisplayList(gfxClearFramebuffer(gGfxTaskBuffers[0], 0), 0, &gGfxListCommandCount, 1);
+    gfxEndDisplayList(gfxClearFramebuffer(gGfxTaskBuffers[1], 1), 1, &gGfxListCommandCount, 1);
 }
 
 

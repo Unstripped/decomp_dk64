@@ -20,7 +20,7 @@
 #include "proto/jetpac/6E00.h"
 
 extern JetpacState jetpacPlayer;
-extern struct GfSndState *D_80770DF8[];
+extern struct GfSndState *gLoopSfxHandles[];
 extern ALBank *gSfxBank;
 typedef struct {
     s16 pad0;
@@ -63,8 +63,8 @@ u8 jetpacInitPending = 1;
 extern u8 gGfxBufferIndex;
 extern u8 gGameMode;
 extern Gfx *gGfxTaskBuffers[];
-extern s32 D_8076A088;
-extern s32 D_8076A08C;
+extern s32 gGfxListCommandCount;
+extern s32 gGfxSubListCommandCount;
 extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern FrameMatrices gFrameMatrices[];
 extern u8 gScreenRenderFlags;
@@ -79,7 +79,7 @@ void jetpacRunFrame(void) {
     Gfx *gfxEnd;
 
     controllerStartRead();
-    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
+    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], gGfxListCommandCount, 3, 1, 0x4D2, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
     gGfxCurrentFrameBuffer = &gFrameMatrices[gGfxBufferIndex];
@@ -92,10 +92,10 @@ void jetpacRunFrame(void) {
     glist = screenFadeUpdate(glist, 0);
     if (gGameMode != 4) {
         gfxEnd = gGfxCurrentFrameBuffer->subDisplayList;
-        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
-        gfxEndSubDisplayList(gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &gGfxListCommandCount, 0);
+        gfxEndSubDisplayList(gfxEnd, gGfxCurrentFrameBuffer, &gGfxSubListCommandCount, 1);
     } else {
-        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &gGfxListCommandCount, 1);
     }
 }
 
@@ -356,22 +356,22 @@ void jetpacPlaySound(s32 soundId) {
     s32 i;
 
     for (i = soundId; i < 7; i++) {
-        if (D_80770DF8[i] != 0) {
-            n_alSndpStop(D_80770DF8[i]);
+        if (gLoopSfxHandles[i] != 0) {
+            n_alSndpStop(gLoopSfxHandles[i]);
         }
     }
-    n_alSndpPlay(gSfxBank, jetpacSoundTable[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
+    n_alSndpPlay(gSfxBank, jetpacSoundTable[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &gLoopSfxHandles[soundId]);
 }
 
 void jetpacSetSoundPitch(s32 soundId, f32 pitch) {
-    if (D_80770DF8[soundId] != 0) {
-        n_alSndpPostEvent(D_80770DF8[soundId], 0x10, *(s32 *)&pitch); // ORIG: target spills pitch to its home (sw a1,0x1c(sp) at 0xf40) and passes its bits (lw a2,0x1c(sp) at 0xf50)
+    if (gLoopSfxHandles[soundId] != 0) {
+        n_alSndpPostEvent(gLoopSfxHandles[soundId], 0x10, *(s32 *)&pitch); // ORIG: target spills pitch to its home (sw a1,0x1c(sp) at 0xf40) and passes its bits (lw a2,0x1c(sp) at 0xf50)
     }
 }
 
 void jetpacStopSound(s32 soundId) {
-    if (D_80770DF8[soundId] != 0) {
-        n_alSndpStop(D_80770DF8[soundId]);
+    if (gLoopSfxHandles[soundId] != 0) {
+        n_alSndpStop(gLoopSfxHandles[soundId]);
     }
 }
 
@@ -428,7 +428,7 @@ void jetpacStartStage(void) {
     }
 }
 
-extern OSContPad *D_807ECDE8;
+extern OSContPad *gInputContPads;
 
 void jetpacUpdateStateAndInput(Gfx **glist) {
     u8 *initPending = &jetpacInitPending;
@@ -452,17 +452,17 @@ void jetpacUpdateStateAndInput(Gfx **glist) {
     jetpacBlinkPhase %= 60;
     jetpacBlinkPhase /= 30;
     jetpacGame.prevButtons = jetpacGame.buttons;
-    jetpacGame.buttons = D_807ECDE8->button;
-    if (D_807ECDE8->stick_x >= 0x1F) {
+    jetpacGame.buttons = gInputContPads->button;
+    if (gInputContPads->stick_x >= 0x1F) {
         jetpacGame.buttons |= 0x100;
     }
-    if (D_807ECDE8->stick_x < -0x1E) {
+    if (gInputContPads->stick_x < -0x1E) {
         jetpacGame.buttons |= 0x200;
     }
-    if (D_807ECDE8->stick_y >= 0x1F) {
+    if (gInputContPads->stick_y >= 0x1F) {
         jetpacGame.buttons |= 0x800;
     }
-    if (D_807ECDE8->stick_y < -0x1E) {
+    if (gInputContPads->stick_y < -0x1E) {
         jetpacGame.buttons |= 0x400;
     }
     jetpacGame.pressedButtons = (jetpacGame.buttons ^ jetpacGame.prevButtons) & jetpacGame.buttons;

@@ -347,10 +347,10 @@ u8 tilt;
         vehicle->raceStatus = 0;
         vehicle->unk35 = 0;
         if (vehicle->isCpu == 0) {
-            gCurrentActor->unk144 = 0x3C;
+            gCurrentActor->collisionMode = 0x3C;
             gCurrentActor->accelY = -20.0f;
         } else {
-            gCurrentActor->unk144 |= 0x18;
+            gCurrentActor->collisionMode |= 0x18;
             gCurrentActor->accelY = -30.0f;
         }
         gCurrentActor->terminalSpeedY = -900.0f;
@@ -612,7 +612,7 @@ void actorUpdatePlayerInteraction(void) {
     actorInterpolateAngles(resetting, vehicle, motion);
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->accelY = D_80750300;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         playerStateQueueCallback(0x4C, gCurrentActor, playerState->playerIndex);
     }
     if (camIsCutsceneActive() == 0 || (camIsCutsceneActive() != 0 && (gPrimaryPlayerActor->contactFlags & 0x100))) {
@@ -1069,9 +1069,9 @@ void projectileBounceParticleUpdate(void *effectCfg) {
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         if (gCurrentActor->parentActor != NULL && gCurrentActor->parentActor->actorType == 0xD2) {
-            gCurrentActor->unk144 = 0x24;
+            gCurrentActor->collisionMode = 0x24;
         } else {
-            gCurrentActor->unk144 = 0x3C;
+            gCurrentActor->collisionMode = 0x3C;
         }
         state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         if (state->param != 0) {
@@ -1102,7 +1102,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
-    if (gCurrentActor->unk144 & 8) {
+    if (gCurrentActor->collisionMode & 8) {
         actorUpdateFloorContactAndTilt(gCurrentActor, state->param != 0 ? scale * 6.0 * 4.0 : 0.0);
     }
     if (state->param >= 0xA) {
@@ -1128,7 +1128,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
         }
     } else {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x78, 0x78, 0, 1.0f);
-        if ((gCurrentActor->contactFlags & 1) && state->cooldown == 0 && (gCurrentActor->unk144 & 8)) {
+        if ((gCurrentActor->contactFlags & 1) && state->cooldown == 0 && (gCurrentActor->collisionMode & 8)) {
             state->cooldown = 0xA;
         }
         if (state->cooldown != 0) {
@@ -1194,7 +1194,7 @@ void projectileSparkleUpdate(u8 silver) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 40.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1289,7 +1289,7 @@ void projectileDespawnOrExplode(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1338,7 +1338,7 @@ void projectileHomingUpdate(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1417,7 +1417,7 @@ void projectileMultiplayerUpdate(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1526,7 +1526,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ / 4 * 2.6;
         gCurrentActor->speedXZ *= scale;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, scale * 60.0);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, scale * 50.0, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1686,7 +1686,7 @@ void projectileBounceExplodeGreenUpdate(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ / 4 * 2.6;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1780,7 +1780,7 @@ void projectileBeamUpdate(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1852,7 +1852,7 @@ void projectileImpactExplosionUpdate(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -1922,7 +1922,7 @@ void projectileRotatingUpdate(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -2003,7 +2003,7 @@ void projectileMatrixRotationUpdate(void) {
         gCurrentActor->yaw = gCurrentActor->moveYaw;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unk16E[0] = 0x3C;
@@ -2047,7 +2047,7 @@ void projectileMatrixRotationUpdate(void) {
         break;
     case 1:
         gCurrentActor->callbackMask = 0;
-        gCurrentActor->unk144 = 1;
+        gCurrentActor->collisionMode = 1;
         state->spawnFrame = gGameFrameCounter;
         if (!--state->counter) {
             scriptSetActorRampTarget(gCurrentActor, 0.5f, 0.0f);
@@ -2103,7 +2103,7 @@ void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
         gCurrentActor->sub4->scaleY = 2.0 * gCurrentActor->sub4->scaleY;
         gCurrentActor->sub4->scaleZ = 2.0 * gCurrentActor->sub4->scaleZ;
         state->pitchDeg = -(mathAtan2(gCurrentActor->speedY, gCurrentActor->speedXZ) * 57.295776f);
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         state->spawnFrame = gGameFrameCounter;
         state->cooldown = 0;
         gCurrentActor->flags |= 0x80000;
@@ -2172,7 +2172,7 @@ void projectileParticleSpawnerTick(void) {
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         state->param = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
-        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->collisionMode = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 110.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 100.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -2242,7 +2242,7 @@ void projectileHomingParticleUpdate(void) {
         gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
-        gCurrentActor->unk144 = 0x1C;
+        gCurrentActor->collisionMode = 0x1C;
         actorSetCollisionRadius(gCurrentActor, 110.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 100.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
@@ -2311,9 +2311,9 @@ void projectileFallBounceUpdate(void) {
         gCurrentActor->peakY = value;
         gCurrentActor->prevPeakY = value;
         if (gGlobalOverlayFlags & 0x80000) {
-            gCurrentActor->unk144 = 0x3C;
+            gCurrentActor->collisionMode = 0x3C;
         } else {
-            gCurrentActor->unk144 = 0x1C;
+            gCurrentActor->collisionMode = 0x1C;
         }
         *spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
