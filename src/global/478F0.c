@@ -2896,8 +2896,6 @@ u8 csCondIsMpGameMode5(CsState *cs, s16 csId, s16 b, s16 c) {
     return gMpSettings.gameMode == 5;
 }
 
-#define LERP(a, b, t) ((a) + ((b) - (a)) * (t))
-
 s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 q;
     s32 idx = csFindPlayerSlotByModel(csId, b);

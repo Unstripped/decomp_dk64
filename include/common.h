@@ -14,6 +14,9 @@ f32 cosApprox(f32);
 // Square of an expression (squared distances); the argument is evaluated twice.
 #define SQ(x) ((x) * (x))
 
+// Linear interpolation from a (t = 0) to b (t = 1); a is evaluated twice.
+#define LERP(a, b, t) ((a) + ((b) - (a)) * (t))
+
 // A function of whichever overlay is loaded at addr (every overlay links at VRAM 0x80024000), stored in
 // non-overlay data: the N64 calls the raw address. A port may predefine it (e.g. as a per-overlay thunk).
 #ifndef OVL_FN

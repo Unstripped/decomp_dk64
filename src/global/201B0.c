@@ -283,8 +283,6 @@ CamCueStep gCamCueTable[9] = {
 
 f32 sqrtf(f32);
 
-#define CAM_LERP(a, b, t) ((a) + ((b) - (a)) * (t))
-
 u8 camCueTimerIsRunning(void) {
     return gCamCueStartTime != 0;
 }
@@ -1268,9 +1266,9 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                                     st->eyeGoalX = *eyeX;
                                     st->eyeGoalY = *eyeY;
                                     st->eyeGoalZ = *eyeZ;
-                                    *focusX = CAM_LERP(*eyeX, *focusX, 0.1);
-                                    *focusY = CAM_LERP(*eyeY, *focusY, 0.1);
-                                    *focusZ = CAM_LERP(*eyeZ, *focusZ, 0.1);
+                                    *focusX = LERP(*eyeX, *focusX, 0.1);
+                                    *focusY = LERP(*eyeY, *focusY, 0.1);
+                                    *focusZ = LERP(*eyeZ, *focusZ, 0.1);
                                     st->focusX = *focusX;
                                     st->focusY = *focusY;
                                     st->focusZ = *focusZ;
@@ -2629,7 +2627,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     savedZ = *eyeZ;
     if (gGameMode == 1 && (p->type == 4 || p->type == 5)) {
         count = (p->u.spline.keyCount - 1 < 0) ? 0 : p->u.spline.keyCount - 1;
-        target->splineT = CAM_LERP(count, 0, gCamPathStepProgress);
+        target->splineT = LERP(count, 0, gCamPathStepProgress);
         target->yawSpeed = target->splineT;
         target->splineT -= target->yawSpeed;
     } else {
@@ -2761,13 +2759,13 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                 case 15:
                 case 16:
                     orbit = &p->u.orbit;
-                    dist = CAM_LERP(orbit->distStart, orbit->distEnd, t);
-                    height = CAM_LERP(orbit->heightStart, orbit->heightEnd, t);
+                    dist = LERP(orbit->distStart, orbit->distEnd, t);
+                    height = LERP(orbit->heightStart, orbit->heightEnd, t);
                     angle = mathAngleLerp(orbit->angleStart, orbit->angleEnd, t);
                     posX = mathSinF(target->yaw - angle) * dist + target->x;
                     posZ = mathCosF(target->yaw - angle) * dist + target->z;
                     posY = target->y + height;
-                    gPlayerSlots[cam->playerIndex].fov = CAM_LERP(orbit->fovStart, orbit->fovEnd, t);
+                    gPlayerSlots[cam->playerIndex].fov = LERP(orbit->fovStart, orbit->fovEnd, t);
                     if (p->type != 16) {
                         break;
                     }
@@ -2858,19 +2856,19 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                 pitchT = mathCalculatePitchAngle(posX, posY, posZ, lookX, lookY, lookZ, 0);
                 yaw = mathAngleLerp(angleT, angleD, blend);
                 pitch = camAngleLerpRad(pitchT, pitchD, blend);
-                dist2D = CAM_LERP(sqrtf((lookX - posX) * (lookX - posX) + (lookZ - posZ) * (lookZ - posZ)),
-                                  sqrtf((sStepLookX - sStepEyeX) * (sStepLookX - sStepEyeX) +
-                                        (sStepLookZ - sStepEyeZ) * (sStepLookZ - sStepEyeZ)),
-                                  blend);
-                dist3D = CAM_LERP(sqrtf((lookX - posX) * (lookX - posX) + (lookY - posY) * (lookY - posY) +
-                                        (lookZ - posZ) * (lookZ - posZ)),
-                                  sqrtf((sStepLookX - sStepEyeX) * (sStepLookX - sStepEyeX) +
-                                        (sStepLookY - sStepEyeY) * (sStepLookY - sStepEyeY) +
-                                        (sStepLookZ - sStepEyeZ) * (sStepLookZ - sStepEyeZ)),
-                                  blend);
-                *eyeX = CAM_LERP(posX, sStepEyeX, blend);
-                *eyeY = CAM_LERP(posY, sStepEyeY, blend);
-                *eyeZ = CAM_LERP(posZ, sStepEyeZ, blend);
+                dist2D = LERP(sqrtf((lookX - posX) * (lookX - posX) + (lookZ - posZ) * (lookZ - posZ)),
+                              sqrtf((sStepLookX - sStepEyeX) * (sStepLookX - sStepEyeX) +
+                                    (sStepLookZ - sStepEyeZ) * (sStepLookZ - sStepEyeZ)),
+                              blend);
+                dist3D = LERP(sqrtf((lookX - posX) * (lookX - posX) + (lookY - posY) * (lookY - posY) +
+                                    (lookZ - posZ) * (lookZ - posZ)),
+                              sqrtf((sStepLookX - sStepEyeX) * (sStepLookX - sStepEyeX) +
+                                    (sStepLookY - sStepEyeY) * (sStepLookY - sStepEyeY) +
+                                    (sStepLookZ - sStepEyeZ) * (sStepLookZ - sStepEyeZ)),
+                              blend);
+                *eyeX = LERP(posX, sStepEyeX, blend);
+                *eyeY = LERP(posY, sStepEyeY, blend);
+                *eyeZ = LERP(posZ, sStepEyeZ, blend);
                 *focusX = *eyeX + mathSinF(yaw) * dist2D;
                 *focusZ = *eyeZ + mathCosF(yaw) * dist2D;
                 *focusY = *eyeY + sinApprox(pitch) * dist3D;
@@ -3272,9 +3270,9 @@ void camUpdateEyePos(Actor *camActor, f32 blendY, f32 *eyeX, f32 *eyeY, f32 *eye
                 camResolveWallCollision(camActor, prevGoalX, prevGoalZ, &st->eyeGoalX, st->eyeGoalY, &st->eyeGoalZ,
                                         gCamEyeBlendRate * camActor->speedXZ);
             }
-            *eyeX = CAM_LERP(*eyeX, st->eyeGoalX, 0.3);
-            *eyeY = CAM_LERP(*eyeY, st->eyeGoalY, 0.3);
-            *eyeZ = CAM_LERP(*eyeZ, st->eyeGoalZ, 0.3);
+            *eyeX = LERP(*eyeX, st->eyeGoalX, 0.3);
+            *eyeY = LERP(*eyeY, st->eyeGoalY, 0.3);
+            *eyeZ = LERP(*eyeZ, st->eyeGoalZ, 0.3);
             if (st->mode != 12) {
                 clampY = CAM_MAX(*eyeY, st->followActor->y);
                 if (camFloorSnap(camActor, st, *eyeX, &clampY, *eyeZ, 1) != 0 || clampY < *eyeY) {
@@ -3283,9 +3281,9 @@ void camUpdateEyePos(Actor *camActor, f32 blendY, f32 *eyeX, f32 *eyeY, f32 *eye
             }
             break;
         default:
-            st->eyeGoalX = *eyeX = CAM_LERP(*eyeX, camActor->x, gCamEyeBlendRate);
-            st->eyeGoalY = *eyeY = CAM_LERP(*eyeY, camActor->y, gCamEyeBlendRate);
-            st->eyeGoalZ = *eyeZ = CAM_LERP(*eyeZ, camActor->z, gCamEyeBlendRate);
+            st->eyeGoalX = *eyeX = LERP(*eyeX, camActor->x, gCamEyeBlendRate);
+            st->eyeGoalY = *eyeY = LERP(*eyeY, camActor->y, gCamEyeBlendRate);
+            st->eyeGoalZ = *eyeZ = LERP(*eyeZ, camActor->z, gCamEyeBlendRate);
             break;
     }
 }
