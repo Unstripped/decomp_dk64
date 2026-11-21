@@ -2282,27 +2282,29 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
         if (!(obj->flags & 0x10) || force != 0) {
             slot->flags |= 0x20;
             obj->textureRefCount++;
-            if (obj->modelKind == 1) {
-                tail = seg->segmentData - seg->displayListB;
-                cmds = seg->displayListA;
-                head = seg->displayListB - cmds;
-                head >>= 3;
-                tail >>= 3;
-                node = ((ModelType1ObjAddrs *)slot->renderObj)->texAnims; // ORIG: the target reloads slot (lw t6,72(sp) at 0x90) and slot->unk20 (lw t7,32(t6) at 0xA0) for texAnims instead of reading seg (s0)
-                res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + head, node, force);
-                cmds = seg->displayListB;
-                res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + tail, node, force);
-                if (node != NULL) {
-                    cmds = seg->displayListACopy;
-                    res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + head, node, force);
-                    cmds = seg->displayListBCopy;
+            switch (obj->modelKind) {
+                case 1:
+                    tail = seg->segmentData - seg->displayListB;
+                    cmds = seg->displayListA;
+                    head = seg->displayListB - cmds;
+                    head >>= 3;
+                    tail >>= 3;
+                    node = ((ModelType1ObjAddrs *)slot->renderObj)->texAnims; // ORIG: the target reloads slot (lw t6,72(sp) at 0x90) and slot->unk20 (lw t7,32(t6) at 0xA0) for texAnims instead of reading seg (s0)
+                    res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + head, node, force);
+                    cmds = seg->displayListB;
                     res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + tail, node, force);
-                    if (seg->displayListA == 0) {} // FAKE: dead test only adds an empty block after the fourth call (if (1) {} matches too); without it obj takes s2, seg s1 and textures shares s0 with node (frame 0x50)
-                }
-                if (res != 0) {
-                    obj->flags &= ~0x10;
-                }
-            } else if (textures->texAnims != NULL || forceLoad != 0) {
+                    if (node != NULL) {
+                        cmds = seg->displayListACopy;
+                        res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + head, node, force);
+                        cmds = seg->displayListBCopy;
+                        res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)cmds + tail, node, force);
+                    }
+                    if (res != 0) {
+                        obj->flags &= ~0x10;
+                    }
+                    return;
+            }
+            if (textures->texAnims != NULL || forceLoad != 0) {
                 modelSlotLoadAssetTextures(obj, textures);
             } else {
                 modelSlotClearAssetTextures(obj, textures);
