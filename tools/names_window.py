@@ -163,6 +163,13 @@ def main(argv=None):
         if r.returncode:
             fail("carry", r.stdout + r.stderr)
         print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "carry: nothing")
+        if any(s.startswith("include/") for s in stage):
+            # functions whose body did not change but which reach a renamed header field: their automatic
+            # rungs carry only with --header-carve (field renames keep every layout)
+            r = run(["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", a.unit, "--header-carve"])
+            if r.returncode:
+                fail("carry --header-carve", r.stdout + r.stderr)
+            print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "carry --header-carve: nothing")
     print(f"NAMES_WINDOW_OK gate={gate} renamed={n_fields + len(ok_syms)} refused={len(refused)}")
     return 0
 
