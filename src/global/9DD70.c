@@ -628,9 +628,9 @@ void actorSpotLightUpdateEntry(void) {
 }
 
 extern Actor *gPrimaryPlayerActor;
-extern s16 D_80750378;
+extern s16 gNumberedTargetLifetime;
 extern EffectGridAsset gEffectSpriteStarBurst;
-extern u8 D_80720E14[];
+extern u8 gEffectSpriteTargetRing[];
 
 void actorNumberedTargetUpdate(void) {
     s32 *spawnFrame = gCurrentActor->customState;
@@ -645,7 +645,7 @@ void actorNumberedTargetUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetCallback(effectScaleSpinUpdate);
-        effectCreateAtActorBone(D_80720E14, 0.9f, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(gEffectSpriteTargetRing, 0.9f, gCurrentActor, 1, 2);
         *spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->floorY);
@@ -670,7 +670,7 @@ void actorNumberedTargetUpdate(void) {
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->targetNumber, 0, 0);
             actorDespawn(gCurrentActor);
         }
-        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && *spawnFrame + D_80750378 < gGameFrameCounter) {
+        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && *spawnFrame + gNumberedTargetLifetime < gGameFrameCounter) {
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, 0xFF, 0, 0);
             actorDespawn(gCurrentActor);
         }

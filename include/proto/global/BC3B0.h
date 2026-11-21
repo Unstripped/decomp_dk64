@@ -25,11 +25,11 @@ void actorUpdatePeriodicParticleEmitter(void);
 #ifndef PROTO_SKIP_actorUpdateAimedProjectileEmitter
 void actorUpdateAimedProjectileEmitter(void);
 #endif
-#ifndef PROTO_SKIP_func_806B8878
-void func_806B8878(void);
+#ifndef PROTO_SKIP_actorUpdateCannonballBurstEmitter
+void actorUpdateCannonballBurstEmitter(void);
 #endif
-#ifndef PROTO_SKIP_func_806B8898
-void func_806B8898(void);
+#ifndef PROTO_SKIP_actorUpdateFlameBurstEmitter
+void actorUpdateFlameBurstEmitter(void);
 #endif
 #ifndef PROTO_SKIP_actorUpdateBurstProjectileEmitter
 void actorUpdateBurstProjectileEmitter(void);

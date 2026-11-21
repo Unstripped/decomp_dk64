@@ -2082,7 +2082,7 @@ void csStartCamPath(CsState *cs, s16 camIdx, s16 mode, s16 c) {
     }
 }
 
-void func_80641F68(void) {
+void csCamPathActorUpdate(void) {
 }
 
 extern u8 gViewportCount;

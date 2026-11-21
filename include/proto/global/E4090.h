@@ -365,8 +365,8 @@ void playerInputSetCharacterDecelRate(void);
 #ifndef PROTO_SKIP_playerInputResetDecelRate
 void playerInputResetDecelRate(void);
 #endif
-#ifndef PROTO_SKIP_func_806E78F8
-void func_806E78F8(void);
+#ifndef PROTO_SKIP_playerInputSurfaceSwimBButtonNoop
+void playerInputSurfaceSwimBButtonNoop(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleLadderClimb
 void playerInputHandleLadderClimb(void);
@@ -437,11 +437,11 @@ void playerInputHandleZButtonReleaseLaneRaceThrottle(void);
 #ifndef PROTO_SKIP_playerInputHandleAButtonLaneRaceFire
 void playerInputHandleAButtonLaneRaceFire(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8E78
-void func_806E8E78(void);
+#ifndef PROTO_SKIP_playerInputHandleZButtonRideCrouch
+void playerInputHandleZButtonRideCrouch(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8F04
-void func_806E8F04(void);
+#ifndef PROTO_SKIP_playerInputHandleZButtonReleaseRideCrouch
+void playerInputHandleZButtonReleaseRideCrouch(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleAButtonJumpOff
 void playerInputHandleAButtonJumpOff(void);

@@ -10,13 +10,13 @@ extern volatile u8 gEepromWriteInProgress;
 extern s8 gWaitPointId;
 
 // .bss 0x807ECCD0-0x807ECE00
-OSContStatus D_807ECCD0[4];
-OSMesg D_807ECCE0[4];
+OSContStatus gControllerStatuses[4];
+OSMesg gSiMesgBuffer[4];
 OSMesgQueue gSiMesgQueue;
 u8 gContReadPending;
 u8 gControllerConnectedMask;
 OSContPad gControllerPads[4];
-OSContPad D_807ECD28[4];
+OSContPad gPhysicalContPadBuffer[4];
 u16 gPadHeldButtons[4];
 u16 gPadPressedButtons[4];
 u16 gPadRepeatButtons[4];
@@ -37,16 +37,16 @@ u8 gControllerActivePorts[4];
 
 
 u8 controllerInit(void) {
-    osCreateMesgQueue(&gSiMesgQueue, D_807ECCE0, 4);
+    osCreateMesgQueue(&gSiMesgQueue, gSiMesgBuffer, 4);
     osSetEventMesg(OS_EVENT_SI, &gSiMesgQueue, NULL);
-    osContInit(&gSiMesgQueue, &gControllerConnectedMask, D_807ECCD0);
+    osContInit(&gSiMesgQueue, &gControllerConnectedMask, gControllerStatuses);
     osContSetCh(4);
     if (!(gControllerConnectedMask & 1)) {
         gControllerConnectedMask = 0;
     }
     gContReadPending = 0;
     gInputContPads = gControllerPads;
-    gPhysicalContPads = D_807ECD28;
+    gPhysicalContPads = gPhysicalContPadBuffer;
     controllerSetActiveMask(0xFF);
     rumbleInit();
     return gControllerConnectedMask;

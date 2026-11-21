@@ -6,8 +6,8 @@
 #ifndef PROTO_SKIP_bananaDeliveryNpcBeginFrame
 u8 bananaDeliveryNpcBeginFrame(void);
 #endif
-#ifndef PROTO_SKIP_func_806BDEC8
-void func_806BDEC8(void);
+#ifndef PROTO_SKIP_bananaDeliveryPartnerUpdate
+void bananaDeliveryPartnerUpdate(void);
 #endif
 #ifndef PROTO_SKIP_bananaDeliveryNpcUpdate
 void bananaDeliveryNpcUpdate(void);
@@ -21,7 +21,7 @@ Gfx *targetCourseDrawCountdown(Gfx *, Actor *);
 #ifndef PROTO_SKIP_actorTargetCourseHostUpdate
 void actorTargetCourseHostUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806BF218
-void func_806BF218(void);
+#ifndef PROTO_SKIP_appleWormUpdate
+void appleWormUpdate(void);
 #endif
 #endif

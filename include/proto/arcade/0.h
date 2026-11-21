@@ -210,8 +210,8 @@ void arcadeUpdateEntitySprite(s32);
 #ifndef PROTO_SKIP_arcadeUpdateBarrelEntity
 void arcadeUpdateBarrelEntity(s32);
 #endif
-#ifndef PROTO_SKIP_arcadeUpdateBouncingBarrel
-void arcadeUpdateBouncingBarrel(s32);
+#ifndef PROTO_SKIP_arcadeUpdateFireballEntity
+void arcadeUpdateFireballEntity(s32);
 #endif
 #ifndef PROTO_SKIP_arcadeUpdateSpringEntity
 void arcadeUpdateSpringEntity(s32);

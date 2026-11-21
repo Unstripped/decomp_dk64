@@ -154,6 +154,7 @@ jetpacTextHighlightR = 0x8002E9C0;
 jetpacTextHighlightG = 0x8002E9C4;
 jetpacTextHighlightB = 0x8002E9C8;
 jetpacTextHighlightA = 0x8002E9CC;
+jetpacTiledSpriteTiles = 0x80042BD0;
 jetpacTextColorR = 0x80045BE0;
 jetpacTextColorG = 0x80045BE1;
 jetpacTextColorB = 0x80045BE2;

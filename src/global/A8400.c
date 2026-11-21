@@ -21,7 +21,7 @@ void textBoxRowStartHook(Actor *key, void *data) {
 }
 
 extern u8 gGfxBufferIndex;
-extern const u16 D_8075A740[];
+extern const u16 sTextBoxGlyphStrInit[];
 
 
 void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGlyph *glyph) {
@@ -36,7 +36,7 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGly
     f32 scale;
 
     dl = *gdl;
-    str.h = D_8075A740[0];
+    str.h = sTextBoxGlyphStrInit[0];
     text = &glyph->text;
     guMtxIdentF(mtx);
     if ((text->attr != 0) && (glyph->fade != 0)) {
@@ -634,4 +634,4 @@ void textBoxUpdate(void) {
     }
 }
 
-const u16 D_8075A740[4] = { 0 };
+const u16 sTextBoxGlyphStrInit[4] = { 0 };

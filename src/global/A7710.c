@@ -264,5 +264,5 @@ void hudCountdownTimerUpdate(void) {
     renderCallbacksRegister(renderActorSpriteCallback, gCurrentActor, 7);
 }
 
-void func_806A36F4(void) {
+void hudCountdownTimerHostUpdate(void) {
 }

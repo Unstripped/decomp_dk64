@@ -7,11 +7,11 @@
 #ifndef PROTO_SKIP_n_alSynSetPitch
 void n_alSynSetPitch(ALVoice *, f32);
 #endif
-#ifndef PROTO_SKIP_n_alSynSetPan
-void n_alSynSetPan(ALVoice *, f32);
+#ifndef PROTO_SKIP_n_alSynSetLowpassCutoff
+void n_alSynSetLowpassCutoff(ALVoice *, f32);
 #endif
-#ifndef PROTO_SKIP_n_alSynSetFXMix
-void n_alSynSetFXMix(ALVoice *, u8);
+#ifndef PROTO_SKIP_n_alSynSetLowpassGain
+void n_alSynSetLowpassGain(ALVoice *, u8);
 #endif
 #ifndef PROTO_SKIP_computeBiquadCoefficients
 void computeBiquadCoefficients(f32, f32, f32, f32 *, f32 *);

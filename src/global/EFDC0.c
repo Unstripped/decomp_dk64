@@ -72,7 +72,7 @@ void (*gPlayerStateCallbacks[])(void) = {
     playerStateEnterDamageTake,
     playerStateEnterKnockbackRecovery,
     playerStateEnterDamageKnockback,
-    playerStateEnterAirDamageReaction,
+    playerStateEnterHoldPickup,
     playerStateEnterGroundImpact,
     playerStateEnterKnockbackState2,
     playerStateEnterKnockbackState4,
@@ -545,22 +545,22 @@ void playerStateEnterState3C(void) {
 
 extern f32 gKongMaxTierEnterSpeeds[];
 extern f32 gKongTurnDecelRates[];
-extern f32 D_807534E4[];
-extern f32 D_80753500[];
-extern s16 D_8075351C[];
-extern f32 D_80753908[];
-extern f32 D_80753924[];
-extern f32 D_80753940[];
+extern f32 gKongArcContactTargetSpeed[];
+extern f32 gKongArcContactAirAccel[];
+extern s16 gKongArcContactTurnRate[];
+extern f32 gKongWaterJumpVelocityY[];
+extern f32 gKongWaterJumpAirAccel[];
+extern f32 gKongWaterJumpDecelRates[];
 extern f32 gKongNormalLedgeHangOffsets[];
 extern f32 gKongLedgeHangOffsets[];
 extern SchedStruct gScheduler;
 extern f32 gKongDecelRate[];
 extern s16 gKongNormalSwimSurfaceDepths[];
-extern s16 D_807538D8[];
+extern s16 gKongWaterEntryMaxFallHeights[];
 extern s16 gKongWaterEntryMinSinkDepths[];
-extern s16 D_807538F8[];
+extern s16 gKongWaterEntryMaxSinkDepths[];
 extern f32 gKongSwimTopSpeeds[];
-extern s16 D_807539FC[];
+extern s16 gKongWaterEntryTurnRates[];
 extern f32 gKongSwimBuoyancy[];
 
 void playerStateCheckLandingAir(void) {
@@ -583,12 +583,12 @@ void playerStateCheckLandingAir(void) {
         decelMin = -decelMinSigned;
     }
     waterY = gActivePlayerActor->waterY;
-    maxDepth = D_807538D8[gCurrentCharacterIndex];
+    maxDepth = gKongWaterEntryMaxFallHeights[gCurrentCharacterIndex];
     depth = gActivePlayerActor->prevPeakY - waterY;
     if (maxDepth < depth) {
         depth = maxDepth;
     }
-    rise = gKongWaterEntryMinSinkDepths[gCurrentCharacterIndex] + ((D_807538F8[gCurrentCharacterIndex] - gKongWaterEntryMinSinkDepths[gCurrentCharacterIndex]) * (depth / maxDepth));
+    rise = gKongWaterEntryMinSinkDepths[gCurrentCharacterIndex] + ((gKongWaterEntryMaxSinkDepths[gCurrentCharacterIndex] - gKongWaterEntryMinSinkDepths[gCurrentCharacterIndex]) * (depth / maxDepth));
     rise -= (waterY - gKongNormalSwimSurfaceDepths[gCurrentCharacterIndex]) - gActivePlayerActor->y;
     rise *= 40.0f;
     depth *= 40.0f;
@@ -618,17 +618,17 @@ void playerStateCheckLandingAir(void) {
     gActivePlayerActor->state = 0x4E;
     gActivePlayerActor->subState = 0;
     actorScriptStartByIndex(gCurrentActor, 0x35);
-    gActivePlayerState->turnRate = D_807539FC[gCurrentCharacterIndex];
+    gActivePlayerState->turnRate = gKongWaterEntryTurnRates[gCurrentCharacterIndex];
 }
 
 void playerStateEnterKnockbackRecovery(void) {
     gActivePlayerActor->state = 0x51;
     gActivePlayerActor->subState = 0;
-    gActivePlayerState->jumpVelocityY = D_80753908[gCurrentCharacterIndex];
+    gActivePlayerState->jumpVelocityY = gKongWaterJumpVelocityY[gCurrentCharacterIndex];
     gActivePlayerState->gravityDelay = 0;
     gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
-    gActivePlayerState->airAccel = D_80753924[gCurrentCharacterIndex];
-    gActivePlayerState->decelRate = D_80753940[gCurrentCharacterIndex];
+    gActivePlayerState->airAccel = gKongWaterJumpAirAccel[gCurrentCharacterIndex];
+    gActivePlayerState->decelRate = gKongWaterJumpDecelRates[gCurrentCharacterIndex];
     actorScriptStartByIndex(gActivePlayerActor, 0x3E);
     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
     gActivePlayerState->jumpTimer = gScheduler.tickCount - 0x1E;
@@ -653,7 +653,7 @@ void playerStateEnterDamageKnockback(void) {
     actorScriptStartByIndex(gActivePlayerActor, 0x3C);
 }
 
-void playerStateEnterAirDamageReaction(void) {
+void playerStateEnterHoldPickup(void) {
     gActivePlayerState->queuedHeldActor = gActorGlobalState.grabCandidate;
     gActivePlayerState->queuedHeldActorId = gActivePlayerState->queuedHeldActor->instanceId;
     switch (gActivePlayerState->queuedHeldActor->actorType) {
@@ -680,9 +680,9 @@ void playerStateEnterGroundImpact(void) {
     controllerAnimSetStateRemap(gActivePlayerActor, 0x2E, 0.0f, 6.0f);
     gActivePlayerActor->state = 0x46;
     gActivePlayerActor->subState = 0;
-    gActivePlayerState->targetSpeed = D_807534E4[gCurrentCharacterIndex];
-    gActivePlayerState->airAccel = D_80753500[gCurrentCharacterIndex];
-    gActivePlayerState->turnRate = D_8075351C[gCurrentCharacterIndex];
+    gActivePlayerState->targetSpeed = gKongArcContactTargetSpeed[gCurrentCharacterIndex];
+    gActivePlayerState->airAccel = gKongArcContactAirAccel[gCurrentCharacterIndex];
+    gActivePlayerState->turnRate = gKongArcContactTurnRate[gCurrentCharacterIndex];
     gActivePlayerState->moveTier = -1;
 }
 
@@ -793,13 +793,13 @@ void playerStateEnterState11(void) {
     playerDropHeldActor(gActivePlayerActor);
 }
 
-extern s16 D_807537FC[];
-extern s16 D_8075383C[];
+extern s16 gKongSlideLaunchGravityDelays[];
+extern s16 gKongSlideLaunchSpeedSteps[];
 extern s16 gKongSlideLaunchSpeedMax[];
 
 void playerStateEnterState12(void) {
-    gActivePlayerState->gravityDelay = D_807537FC[gCurrentCharacterIndex];
-    gActivePlayerState->slideLaunchSpeed += D_8075383C[gCurrentCharacterIndex];
+    gActivePlayerState->gravityDelay = gKongSlideLaunchGravityDelays[gCurrentCharacterIndex];
+    gActivePlayerState->slideLaunchSpeed += gKongSlideLaunchSpeedSteps[gCurrentCharacterIndex];
     if (gKongSlideLaunchSpeedMax[gCurrentCharacterIndex] < gActivePlayerState->slideLaunchSpeed) {
         gActivePlayerState->slideLaunchSpeed = gKongSlideLaunchSpeedMax[gCurrentCharacterIndex];
     }
@@ -1364,8 +1364,8 @@ void playerStateDamageCheck3(void) {
     }
 }
 
-extern f32 gKongSwimStrokeSpeeds[], D_80753040[], gKongSwimTurnSpeeds[], gKongDeathLaunchSpeedY[];
-extern s16 gKongDamageInvulnFrames[], D_807530D0[], D_807530E0[], D_80753160[], gKongNormalSwimEnterDepths[];
+extern f32 gKongSwimStrokeSpeeds[], gKongQueuedDamageLaunchSpeedY[], gKongSwimTurnSpeeds[], gKongDeathLaunchSpeedY[];
+extern s16 gKongDamageInvulnFrames[], D_807530D0[], gKongMinecartHitInvulnFrames[], gKongTakeHitInvulnFrames[], gKongNormalSwimEnterDepths[];
 extern f32 gKongSwimPaddleSpeeds[], gKongDamageAccelY[], gKongDamageLaunchSpeedY[], gKongSwimSpeeds[], gKongTurnDecelRates[], gKongSwimEnterDepths[];
 
 void playerTakeDamage(s16 damage) {
@@ -1398,7 +1398,7 @@ void playerTakeDamage(s16 damage) {
             if ((gActivePlayerState->actor != NULL) &&
                 ((gActivePlayerState->actor->actorType == 0x1D) || (gActivePlayerState->actor->actorType == 0x57) ||
                  (gActivePlayerState->actor->actorType == 0x50) || (gActivePlayerState->actor->actorType == 0x3E))) {
-                gActivePlayerState->surfaceTimer = D_807530E0[gCurrentCharacterIndex];
+                gActivePlayerState->surfaceTimer = gKongMinecartHitInvulnFrames[gCurrentCharacterIndex];
                 actorScriptStart(gActivePlayerState->actor, 0x292);
                 sfxPlayScriptActorSoundForPlayer(gActivePlayerActor, 0x11, 0);
                 if (gActivePlayerState->actor->actorType != 0x57) {
@@ -1534,7 +1534,7 @@ void playerTakeDamage(s16 damage) {
                             playerSetRecentAttacker(actorResolveKillCreditOwner(gPlayerSlots[gCurrentPlayerIndex].queuedActor),
                                           gActivePlayerState);
                         }
-                        gActivePlayerActor->speedY = D_80753040[gCurrentCharacterIndex];
+                        gActivePlayerActor->speedY = gKongQueuedDamageLaunchSpeedY[gCurrentCharacterIndex];
                         gActivePlayerActor->speedXZ = gKongSwimTurnSpeeds[gCurrentCharacterIndex];
                         gActivePlayerState->surfaceTimer = gKongDamageInvulnFrames[gCurrentCharacterIndex];
                         gActivePlayerActor->accelY = gKongSwimStrokeSpeeds[gCurrentCharacterIndex];
@@ -1564,7 +1564,7 @@ void playerTakeDamage(s16 damage) {
                         gActivePlayerActor->speedY = gKongDamageLaunchSpeedY[gCurrentCharacterIndex];
                         gActivePlayerActor->speedXZ = gKongSwimSpeeds[gCurrentCharacterIndex];
                         if (damage != 0) {
-                            gActivePlayerState->surfaceTimer = D_80753160[gCurrentCharacterIndex];
+                            gActivePlayerState->surfaceTimer = gKongTakeHitInvulnFrames[gCurrentCharacterIndex];
                         }
                         gActivePlayerActor->accelY = gKongDamageAccelY[gCurrentCharacterIndex];
                     }
@@ -1645,14 +1645,14 @@ typedef struct EfKongScriptIds {
     u16 values[5];
 } EfKongScriptIds;
 
-extern const EfKongScriptIds D_8075D380;
+extern const EfKongScriptIds gKongNewMoveScriptIds;
 
 void playerStateSpawnParticles(void) {
     EfKongScriptIds spawnParams;
     s32 pad;
     f32 height;
 
-    spawnParams = D_8075D380;
+    spawnParams = gKongNewMoveScriptIds;
     height = gActivePlayerActor->sub4->scaleX;
     actorSpawn(0x140, 0xB9);
     if (gActivePlayerActor->actorType == 2) {
@@ -1948,4 +1948,4 @@ void playerStateEnterSlideReverse(void) {
     actorScriptExecute(gActivePlayerActor);
 }
 
-const EfKongScriptIds D_8075D380 = { { 10, 11, 12, 13, 14 } };
+const EfKongScriptIds gKongNewMoveScriptIds = { { 10, 11, 12, 13, 14 } };

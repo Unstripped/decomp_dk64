@@ -634,7 +634,7 @@ typedef struct ActorModel {
     /* 0x020 */ u8 boneCount;
 } ActorModel;
 
-extern f32 D_80750394;
+extern f32 gSpinningActorGravity;
 
 
 void actorUpdateSpinAndVelocity(void) {
@@ -653,7 +653,7 @@ void actorUpdateSpinAndVelocity(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    gCurrentActor->speedY += D_80750394;
+    gCurrentActor->speedY += gSpinningActorGravity;
     gCurrentActor->roll += spin->rollSpeed;
     gCurrentActor->pitch += spin->pitchSpeed;
     if (gCurrentActor->hasArcBounds != 0 || ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1))) {
@@ -678,7 +678,7 @@ typedef struct {
 } NodePosition;
 
 
-extern f32 D_80750398;
+extern f32 gFallAndBurstGravity;
 extern u8 gEffectSpriteSmokeCloud;
 
 void actorFallAndBurstUpdate(void) {
@@ -700,7 +700,7 @@ void actorFallAndBurstUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    gCurrentActor->speedY += D_80750398;
+    gCurrentActor->speedY += gFallAndBurstGravity;
     if (gCurrentActor->floorY != 99999.0f) {
         billboardSetFlags(1);
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x18, 0x18, 1, 0x96, 0xB4, 0, 1.0f);

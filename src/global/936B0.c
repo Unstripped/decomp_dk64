@@ -1249,7 +1249,7 @@ extern f32 gCarryGravity;
 extern u8 gEffectSpritePeanutShard;
 extern u8 gPlayerCount;
 extern u8 gEffectSpriteGrape;
-extern u8 D_80720BA0;
+extern u8 gEffectSpriteGrapeShard;
 extern s16 gMultiplayerShotLifetime;
 extern s16 gMultiplayerShotLongLifetime;
 
@@ -1458,7 +1458,7 @@ void projectileMultiplayerUpdate(void) {
                 effectSetSpeed(0x05000000 + i);
                 effectSetFrameDelay(1);
                 effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_80720BA0, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpriteGrapeShard, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x91, 0xFF, 0x7F, 0x1E);
@@ -1502,7 +1502,7 @@ void projectileSpawnExplosion(void) {
 
 extern u8 gEffectSpriteOrangeGrenade;
 extern s16 gBounceExplodeLifetime;
-extern s16 D_8075034C;
+extern s16 gBounceExplodeShortLifetime;
 extern s8 D_80029FA0;
 
 void projectileBounceExplodeScaledUpdate(void) {
@@ -1540,7 +1540,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         }
         if (state->param >= 0xCB) {
             gCurrentActor->speedY = 250.0f * scale;
-            state->spawnFrame -= gBounceExplodeLifetime - D_8075034C;
+            state->spawnFrame -= gBounceExplodeLifetime - gBounceExplodeShortLifetime;
         } else {
             gCurrentActor->speedY = 200.0f * scale;
         }
@@ -1904,10 +1904,10 @@ void projectileImpactExplosionUpdate(void) {
 
 extern u8 gEffectSpriteCoconut;
 extern EffectGridAsset gEffectSpriteCoconutShard;
-extern s16 D_80750360;
-extern s16 D_80750374;
-extern s16 D_80750354;
-extern s16 D_80750368;
+extern s16 gCoconutShotLifetime;
+extern s16 gCoconutShotLongLifetime;
+extern s16 gFeatherShotLifetime;
+extern s16 gFeatherShotLongLifetime;
 
 
 void projectileRotatingUpdate(void) {
@@ -1937,7 +1937,7 @@ void projectileRotatingUpdate(void) {
         state->param = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         state->target = NULL;
     }
-    lifetime = D_80750360;
+    lifetime = gCoconutShotLifetime;
     if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
@@ -1946,7 +1946,7 @@ void projectileRotatingUpdate(void) {
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &gEffectSpriteCoconut, 0);
     }
     if (state->param & 4) {
-        lifetime = D_80750374;
+        lifetime = gCoconutShotLongLifetime;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
@@ -2014,7 +2014,7 @@ void projectileMatrixRotationUpdate(void) {
         state->param = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         state->target = NULL;
     }
-    lifetime = D_80750354;
+    lifetime = gFeatherShotLifetime;
     if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
@@ -2023,7 +2023,7 @@ void projectileMatrixRotationUpdate(void) {
         projectileSteerTowardTarget(collisionMask, gCurrentActor, NULL, 0);
     }
     if (state->param & 4) {
-        lifetime = D_80750368;
+        lifetime = gFeatherShotLongLifetime;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);

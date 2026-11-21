@@ -122,6 +122,7 @@ raceOpponentSpeedLevels = 0x8002FC50;
 raceOpponentFinishCamIds = 0x8002FC5C;
 raceRivalSpeedCurve = 0x8002FC70;
 raceRivalSpeedLevels = 0x8002FCA0;
+raceRivalResultTextIds = 0x8002FCAC;
 sRacePlaceTextIds = 0x8002FCC0;
 sRaceResultTextIds = 0x8002FCD4;
 sRaceRouteTable = 0x8002FCF0;

@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorTrackBoneTowardTarget // FAKE: callee prototype steer (owner 1295B0 takes one u8 and never reads a1; the extra `sel` argument keeps sel in a1 across the call, see func_806B13B4)
+#define PROTO_SKIP_actorTrackBoneTowardTarget // FAKE: callee prototype steer (owner 1295B0 takes one u8 and never reads a1; the extra `sel` argument keeps sel in a1 across the call, see kongItemEnemyStateUpdate)
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
@@ -20,7 +20,7 @@
 extern Actor *gCurrentActor;
 extern s32 sEffectSparkConfig;
 
-s32 D_80750600[5] = { 3, 4, 1, 2, 0 };
+s32 sKongItemEnemyKongByMode[5] = { 3, 4, 1, 2, 0 };
 
 void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     f32 x;
@@ -52,7 +52,7 @@ extern s32 gCurrentMap;
 
 void actorTrackBoneTowardTarget();
 
-void func_806B13B4(u8 spawnSfxNodes) {
+void kongItemEnemyStateUpdate(u8 spawnSfxNodes) {
     s32 sel;
 
     behaviourFrameBegin();
@@ -274,12 +274,12 @@ void kongItemEnemyUpdate(u8 mode) {
         worldIndex = mapGetWorldIndex(gCurrentWorldId);
         if (worldIndex != 9 && worldIndex != 0xA) {
             worldIndex = mapGetHubWorldIndex(gCurrentWorldId, 1);
-            flag = flagGridSumRows(0x1D5, worldIndex, worldIndex, D_80750600[mode]) == 0;
+            flag = flagGridSumRows(0x1D5, worldIndex, worldIndex, sKongItemEnemyKongByMode[mode]) == 0;
         }
         actorSetAnimStartFrame(flag != 0 ? mode : 5);
         gCurrentActor->carriesKongItem = flag;
     }
-    func_806B13B4(gCurrentActor->carriesKongItem);
+    kongItemEnemyStateUpdate(gCurrentActor->carriesKongItem);
 }
 
 void b5ec0SetMode4(void) {

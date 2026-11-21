@@ -105,7 +105,7 @@ s16 sMenuMainCameraScript[64] = {
     210, -9, 165, -13, 450, -1, 6, 80, -13, 95, -11, 420, -1, -4, 180, -12,
     604, -5, 150, -1, -2, 30, -8, 300, -3, 150, -1, -1, -1, -1, -1, 0,
 };
-s16 D_80033724[8] = { 0x34B, 0x34C, 0x34D, 0x34E, 0x34F, 0x350, 0x351, 0x352 };
+s16 sMenuMainPlayerScriptIds[8] = { 0x34B, 0x34C, 0x34D, 0x34E, 0x34F, 0x350, 0x351, 0x352 };
 s8 sMenuTitleAutoAdvanceFrames = 0;
 s8 sMenuKioskPodPhase = 0;
 f32 gSelectorSplineX[20] = {
@@ -126,17 +126,17 @@ MenuUiRgba sMenuKongColors[5] = { { 0xFF, 0x00, 0x00, 0xFF }, { 0xFF, 0x00, 0x00
 s8 sMenuMainSelectable = 0;
 s8 sMenuMainInputLockFrames = 0;
 s8 D_800337F8 = 0;
-BonusMenu_Pair D_800337FC = { 0x3FFFF, 0xC80000 };
+BonusMenu_Pair sMenuWeatherTriggerPayload = { 0x3FFFF, 0xC80000 };
 s8 sMenuKongUnlocked[5] = { 1, 0, 0, 0, 0 };
 s32 sMenuFileGoldenBananas = 0;
 s32 sMenuFilePlayHours = 0;
 s32 sMenuFilePlayMinutes = 0;
 u8 sMenuCheatCodePos = 0;
 u16 sMenuCheatCodeButtons[7] = { 0x800, 0x200, 0x800, 0x400, 0x100, 0x400, 0x2000 };
-s32 D_8003382C[2] = { 1, 0 };
+s32 sMenuMpMatchTypes[2] = { 1, 0 };
 s32 sMenuMpGameModes[6] = { 4, 2, 1, 0, 3, 5 };
-u8 D_8003384C[4] = { 2, 1, 4 };
-s8 D_80033850[8] = { 0, 1, 3, 1, 1, 2 };
+u8 sMenuMpSplitScreenViewMasks[4] = { 2, 1, 4 };
+s8 sMenuMpLimitLabelKinds[8] = { 0, 1, 3, 1, 1, 2 };
 s32 sMenuPrevButtons = 0;
 s32 sMenuPrevStickBits[4] = { 0 };
 s16 gMenuKongModelIds[6] = { 4, 1, 6, 9, 0xC, 0xDB };
@@ -163,10 +163,10 @@ s8 D_80033990[5] = { 2, 6, 10, 15, 20 };
 s16 sMenuCheatOptionMasks[5] = { 0 };
 s16 sMenuCheatRowMask = -1;
 s8 gMenuHighScoreGame = 0;
-const u8 *D_800339AC[3] = { D_80033BE0, D_80033BE4, D_80033BE8 };
+const u8 *sMenuHighScoreEditCursors[3] = { D_80033BE0, D_80033BE4, D_80033BE8 };
 MenuMapCharacter gMenuHighScoreGames[2] = { { 0xBF, 6 }, { 0xB8, 7 } };
 s8 sMenuHighScoreHoldFrames = 0;
-u8 D_800339C4[4] = "???";
+u8 sMenuLockedItemStr[4] = "???";
 
 
 extern s8 gAudioOutputMode;
@@ -256,7 +256,7 @@ void menuUpdateMainScreen(Actor *actor, s32 buttons) {
     s16 randIdx;
 
     state = actor->customState;
-    pair = D_800337FC;
+    pair = sMenuWeatherTriggerPayload;
     camAction = 0;
     if (sMenuMainInputLockFrames > 0) {
         sMenuMainInputLockFrames -= 1;
@@ -344,7 +344,7 @@ void menuUpdateMainScreen(Actor *actor, s32 buttons) {
             if (sMenuMainCameraScript[sMenuCameraScriptPos] < -5) {
                 sel = -6 - sMenuMainCameraScript[sMenuCameraScriptPos];
                 if (sMenuMainInputLockFrames == 0) {
-                    actorScriptStart(gPrimaryPlayerActor, D_80033724[sel]);
+                    actorScriptStart(gPrimaryPlayerActor, sMenuMainPlayerScriptIds[sel]);
                 }
                 sMenuCameraScriptTimer = sMenuMainCameraScript[sMenuCameraScriptPos + 1];
                 sMenuCameraScriptPos += 2;
@@ -1167,11 +1167,11 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     }
                 }
                 controllerSetActiveMask(mask);
-                gMpSettings.matchType = D_8003382C[gMenuMpMatchTypeSel];
+                gMpSettings.matchType = sMenuMpMatchTypes[gMenuMpMatchTypeSel];
                 gMpSettings.gameMode = sMenuMpGameModes[gMenuMpModeSel];
                 gMpSettings.limit = gMenuMpLimit;
                 gMpSettings.mapIndex = gMenuMpMapSel;
-                gSplitScreenViewMask = D_8003384C[gMenuMpSplitScreenSel];
+                gSplitScreenViewMask = sMenuMpSplitScreenViewMasks[gMenuMpSplitScreenSel];
                 sMenuMatchStarting = 1;
                 gMenuReturnContext = 2;
                 mpStartMatch();
@@ -1381,7 +1381,7 @@ Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
         menuComputeElementPosition(state, 160.0 - offset, 160.0f, &posX, &posY, 2, 0, 1.5f);
         posY += 240.0f;
         textY = (s16)(posY * 4.0f);
-        switch (D_80033850[idx]) {
+        switch (sMenuMpLimitLabelKinds[idx]) {
         case 0:
             if (gMenuMpLimit >= 2) {
                 _sprintf(strBuf, "%d %s", gMenuMpLimit, sMenuTextTable[23]);
@@ -1437,7 +1437,7 @@ extern s8 sMenuCharacterAvailMask;
 extern s16 gCheatFlags;
 extern u8 gCDownButtonSprite;
 extern u8 gCUpButtonSprite;
-extern u8 D_807211AC;
+extern u8 gStartButtonSprite;
 
 void menuInitCharacterSelect(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
@@ -1478,7 +1478,7 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &gBButtonSprite, 0x23, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &gControlStickSprite, 0xA0, 0x7D, 0.75f, 2, 4);
     menuSpawnUiElementEffect(state, &gCUpButtonSprite, 0xA0, 0x10, 0.5f, 2, 0);
-    menuSpawnUiElementEffect(state, &D_807211AC, 0xA0, 0xDC, 0.75f, 2, 0);
+    menuSpawnUiElementEffect(state, &gStartButtonSprite, 0xA0, 0xDC, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &gEffectSpriteQuestionMark, 1, 1, 0.8f, 2, 0xF);
     menuSpawnUiElementEffect(state, &gEffectSpriteQuestionMark, 2, 2, 0.8f, 2, 0xF);
     menuSpawnUiElementEffect(state, &gEffectSpriteQuestionMark, 3, 3, 0.8f, 2, 0xF);
@@ -2424,7 +2424,7 @@ Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
         _sprintf(strBuf, "%d", scoreTable[i].score);
         dl = textDrawStringVtx(dl, 0x81, 0x3E8 - xBase, yPos, strBuf, 1);
         if (i == sMenuHighScoreEditRow && (gFrameCounter & 0x1F) < 0x14) {
-            dl = textDrawStringVtx(dl, 0x81, xBase + 0x118, yPos + 0x34, D_800339AC[sMenuHighScoreEditChar], 1);
+            dl = textDrawStringVtx(dl, 0x81, xBase + 0x118, yPos + 0x34, sMenuHighScoreEditCursors[sMenuHighScoreEditChar], 1);
         }
         yPos += 0x6C;
     }
@@ -2521,7 +2521,7 @@ Gfx *menuDrawScrollSelector(Gfx *dl, MenuScreenState *state, u8 **strTable, s32 
     if (enabledMask & (1 << idx)) {
         dl = textDrawStringVtx(dl, textFlag, posX * 4.0f, y, strTable[idx], 0x81);
     } else {
-        dl = textDrawStringVtx(dl, textFlag, posX * 4.0f, y, D_800339C4, 0x81);
+        dl = textDrawStringVtx(dl, textFlag, posX * 4.0f, y, sMenuLockedItemStr, 0x81);
     }
     *outOffset = offset;
     *outIdx = idx;

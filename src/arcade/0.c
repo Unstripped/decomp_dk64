@@ -2687,7 +2687,7 @@ extern u16 gArcadeFireballStage2BlueSprite[];
 extern u16 gArcadeFireballStage2BlueFlickerSprite[];
 extern u16 gArcadeFireballBlueSprite[];
 extern u16 gArcadeFireballBlueFlickerSprite[];
-void arcadeUpdateBouncingBarrel(s32 entIndex) {
+void arcadeUpdateFireballEntity(s32 entIndex) {
     s32 floorY;
     s32 bias;
 
@@ -3684,7 +3684,7 @@ void arcadeDispatchEntities(void) {
             arcadeUpdateBarrelEntity(i);
             break;
         case 2:
-            arcadeUpdateBouncingBarrel(i);
+            arcadeUpdateFireballEntity(i);
             break;
         case 3:
             arcadeUpdateSpringEntity(i);

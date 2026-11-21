@@ -36,7 +36,7 @@ u8 sFloorSnapped = 0;
 
 void actorStepPhysics(Actor *actor, s16 targetYaw, s16 facingYaw) {
     actorUpdatePrevContactFlags(actor);
-    func_80665ACC(actor);
+    actorEnableShadowTiltAndPushOut(actor);
     if (actor->hasArcBounds != 0) {
         mathAngleClampToArc(actor->moveYaw, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->arcMoveYaw);
         actor->arcSpeedCap = mathAngleArcProximityScale(actor->arcYawMin, actor->arcYawMax, facingYaw, actor->arcSpeedCapMax);
@@ -241,7 +241,7 @@ u8 actorFloorIsReflective(Actor *actor) {
     return sActorTiltTable[actor->floorSurfaceType].reflective;
 }
 
-void func_80665ACC(Actor *actor) {
+void actorEnableShadowTiltAndPushOut(Actor *actor) {
     actor->flags |= 2;
     actor->flags |= 0x20;
 }

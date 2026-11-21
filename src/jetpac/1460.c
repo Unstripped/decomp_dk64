@@ -65,7 +65,7 @@ void jetpacInitRdp(Gfx **glistp) {
     *glistp = g;
 }
 
-extern TextureDescriptor D_80042BD0[][256];
+extern TextureDescriptor jetpacTiledSpriteTiles[][256];
 extern u8 gGfxBufferIndex;
 
 void jetpacGridAddTiledSprite(TextureDescriptor *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
@@ -101,7 +101,7 @@ void jetpacGridAddTiledSprite(TextureDescriptor *sprite, s32 x, s32 y, u8 *color
                         if (jetpacTiledSpriteCount >= 0x100) {
                             return;
                         }
-                        dst = &D_80042BD0[gGfxBufferIndex][jetpacTiledSpriteCount];
+                        dst = &jetpacTiledSpriteTiles[gGfxBufferIndex][jetpacTiledSpriteCount];
                         *(s32 *)(u32)&jetpacTiledSpriteCount = jetpacTiledSpriteCount + 1; // FAKE: indirect store (a direct str gets a .noalias re-emit that lets as1 hoist the sp reload above the sw)
                         *dst = *sprite;
                         xEnd += 8;

@@ -68,7 +68,7 @@ void actorSpawnParticlesAlongNodeRanges(void);
 #ifndef PROTO_SKIP_actorScriptedUpdate
 void actorScriptedUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806C3A8C
-void func_806C3A8C(void);
+#ifndef PROTO_SKIP_actorNpcFlagCountQuestUpdate
+void actorNpcFlagCountQuestUpdate(void);
 #endif
 #endif

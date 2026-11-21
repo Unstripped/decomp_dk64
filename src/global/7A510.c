@@ -768,7 +768,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                                             }
                                         }
                                     }
-                                    if ((targetActor->collisionFlags & 2) && func_80676220(targetActor->actorType)) {
+                                    if ((targetActor->collisionFlags & 2) && actorTypeStopsPlayerOnContact(targetActor->actorType)) {
                                         attacker->renderFlags |= 0x1000;
                                     }
                                 }
@@ -1034,11 +1034,11 @@ void actorInitDamage(Actor *actor) {
     actor->damage = gActorTypeStats[actor->actorType].damage;
 }
 
-u8 func_80676208(Actor *actor) {
+u8 actorGetInvulnBlocksDamage(Actor *actor) {
     return gActorTypeCollisionTables[actor->actorType].invulnBlocksDamage;
 }
 
-s32 func_80676220(s16 actorType) {
+s32 actorTypeStopsPlayerOnContact(s16 actorType) {
     if ((actorType == 0xBB) || (actorType == 0xEB) || (actorType == 0x123)) {
         return 0;
     }

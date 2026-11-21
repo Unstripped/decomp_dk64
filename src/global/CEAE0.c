@@ -958,8 +958,8 @@ s16 mathAngleLerp(s16 angle, s16 target, f32 t) {
 }
 
 
-extern s16 D_80753A3C[];
-extern s16 D_80753A4C[];
+extern s16 gKongNormalUnderwaterFloorRadii[];
+extern s16 gKongUnderwaterFloorRadii[];
 
 #define ABSF(x) ((x) > 0.0f ? (x) : -(x))
 
@@ -968,9 +968,9 @@ void playerClampToWaterSurface(u8 clampFall) {
     f32 radius;
 
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        radius = D_80753A3C[gCurrentCharacterIndex];
+        radius = gKongNormalUnderwaterFloorRadii[gCurrentCharacterIndex];
     } else {
-        radius = D_80753A4C[gCurrentCharacterIndex];
+        radius = gKongUnderwaterFloorRadii[gCurrentCharacterIndex];
     }
     sum = ABSF(mathSinF(gCurrentActor->roll) * radius) + 1.5;
     sum += ABSF(mathCosF(gCurrentActor->floorTiltPitch) * radius);
@@ -989,15 +989,15 @@ void playerClampToWaterSurface(u8 clampFall) {
     }
 }
 
-extern f32 D_807539C0[];
+extern f32 gKongUnderwaterEntryDecelRates[];
 
 void playerDecelerateAndApplyMotion(void) {
-    gCurrentActor->speedXZ = mathApproachF32(gCurrentActor->speedXZ, 0.0f, D_807539C0[gCurrentCharacterIndex]);
+    gCurrentActor->speedXZ = mathApproachF32(gCurrentActor->speedXZ, 0.0f, gKongUnderwaterEntryDecelRates[gCurrentCharacterIndex]);
     playerApplyMotion();
     playerClampToWaterSurface(1);
 }
 
-extern s16 D_80753A2C[];
+extern s16 gKongUnderwaterBuoyancyDepths[];
 extern f32 gKongSwimBuoyancy[];
 
 void playerApplyDecelVelocityVector(f32 unused) {
@@ -1031,7 +1031,7 @@ void playerApplyDecelVelocityVector(f32 unused) {
         rate = gActivePlayerState->decelRate;
     }
     if (0.0f <= vz) {
-        if (gCurrentActor->waterY - gCurrentActor->y < D_80753A2C[gCurrentCharacterIndex]) {
+        if (gCurrentActor->waterY - gCurrentActor->y < gKongUnderwaterBuoyancyDepths[gCurrentCharacterIndex]) {
             adj = ABSF(gKongSwimBuoyancy[gCurrentCharacterIndex]);
         }
     }
@@ -2064,8 +2064,8 @@ void playerGetHoldNodeIndices(s32 *nodeA, s32 *nodeB) {
     }
 }
 
-extern f32 D_80753428[];
-extern f32 D_8075340C[];
+extern f32 gKongThrowLaunchSpeedY[];
+extern f32 gKongThrowLaunchSpeedXZ[];
 
 void playerThrowHeldActor(Actor *thrower) {
     PlayerState *p;
@@ -2073,7 +2073,7 @@ void playerThrowHeldActor(Actor *thrower) {
     if (thrower->collisionFlags & 1) {
         p = thrower->customState;
         if (p->heldActor != NULL) {
-            actorAppendLaunch(gCurrentActor, p->heldActor, gActivePlayerActor->yaw, D_80753428[gCurrentCharacterIndex], (s32)D_8075340C[gCurrentCharacterIndex]);
+            actorAppendLaunch(gCurrentActor, p->heldActor, gActivePlayerActor->yaw, gKongThrowLaunchSpeedY[gCurrentCharacterIndex], (s32)gKongThrowLaunchSpeedXZ[gCurrentCharacterIndex]);
             p->heldActor = NULL;
             p->queuedHeldActor = NULL;
         }
@@ -2184,7 +2184,7 @@ void playerSpawnSpiralDriftEffects(void) {
 }
 
 
-extern f32 D_80753E10[];
+extern f32 gKongLedgeGrabMaxSpeeds[];
 extern s16 gKongLedgeGrabOffsetY[];
 
 void playerCheckLedgeGrab(void) {
@@ -2200,7 +2200,7 @@ void playerCheckLedgeGrab(void) {
     if (!(gGlobalOverlayFlags & 0x20000) && gCurrentActor->hasArcBounds != 0 && gActivePlayerState->gunDrawn == 0 && !(gCurrentActor->contactFlags & 1) && gActivePlayerState->stateStep != 0) {
         flag = (gCurrentMap == 0x53 || gCurrentMap == 0xC5) ? 1 : 0;
         notWall = actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0;
-        if (notWall || !(D_80753E10[gCurrentCharacterIndex] < gCurrentActor->speedXZ) || flag != 0) {
+        if (notWall || !(gKongLedgeGrabMaxSpeeds[gCurrentCharacterIndex] < gCurrentActor->speedXZ) || flag != 0) {
             foundLedge = playerProbeLedgeAhead(gCurrentActor, &ledgeY, notWall, flag ? 30.0 : 15.0);
             collisionGetCoords(&coordX, &coordY);
             hit = 0;
@@ -2251,27 +2251,27 @@ void playerSetBaseGravityIfFalling(void) {
     }
 }
 
-extern f32 D_80753700[];
+extern f32 gKongHoverFallAccelY[];
 
 void playerSetTerminalVelocity700(void) {
     if (gCurrentActor->speedY < 0.0f) {
-        gCurrentActor->accelY = D_80753700[gCurrentCharacterIndex];
+        gCurrentActor->accelY = gKongHoverFallAccelY[gCurrentCharacterIndex];
     }
 }
 
-extern f32 D_80753658[];
+extern f32 gKongFlapGlideFallAccelY[];
 
 void playerSetTerminalVelocity658(void) {
     if (gCurrentActor->speedY < 0.0f) {
-        gCurrentActor->accelY = D_80753658[gCurrentCharacterIndex];
+        gCurrentActor->accelY = gKongFlapGlideFallAccelY[gCurrentCharacterIndex];
     }
 }
 
-extern f32 D_80753754[];
+extern f32 gKongCrouchJumpFallAccelY[];
 
 void playerSetTerminalVelocity754(void) {
     if (gCurrentActor->speedY < 0.0f) {
-        gActivePlayerActor->accelY = D_80753754[gCurrentCharacterIndex];
+        gActivePlayerActor->accelY = gKongCrouchJumpFallAccelY[gCurrentCharacterIndex];
     }
 }
 
@@ -2281,16 +2281,16 @@ void playerSetBaseGravity(void) {
     gActivePlayerActor->accelY = gKongAccelY[gCurrentCharacterIndex];
 }
 
-extern f32 D_80753594[];
+extern f32 gKongJumpReleaseAccelY[];
 
 void playerSetTerminalVelocity594(void) {
-    gActivePlayerActor->accelY = D_80753594[gCurrentCharacterIndex];
+    gActivePlayerActor->accelY = gKongJumpReleaseAccelY[gCurrentCharacterIndex];
 }
 
-extern f32 D_807535B0[];
+extern f32 gKongJumpAccelY[];
 
 void playerSetTerminalVelocity5B0(void) {
-    gActivePlayerActor->accelY = D_807535B0[gCurrentCharacterIndex];
+    gActivePlayerActor->accelY = gKongJumpAccelY[gCurrentCharacterIndex];
 }
 
 extern f32 gKongLightGravity[];
@@ -2369,20 +2369,20 @@ void playerEnterBarrelTransition(Actor *actor) {
     actor->subState = 0;
 }
 
-extern s16 D_80753328[];
-extern f32 D_807532F0[];
-extern f32 D_8075330C[];
-extern f32 D_807532D4[];
+extern s16 gKongCarryTurnRate[];
+extern f32 gKongCarryAirAccel[];
+extern f32 gKongCarryDecelRate[];
+extern f32 gKongCarryTargetSpeed[];
 
 void playerSetCarryMoveParams(void) {
-    gActivePlayerState->turnRate = D_80753328[gCurrentCharacterIndex];
-    gActivePlayerState->airAccel = D_807532F0[gCurrentCharacterIndex];
-    gActivePlayerState->decelRate = D_8075330C[gCurrentCharacterIndex];
+    gActivePlayerState->turnRate = gKongCarryTurnRate[gCurrentCharacterIndex];
+    gActivePlayerState->airAccel = gKongCarryAirAccel[gCurrentCharacterIndex];
+    gActivePlayerState->decelRate = gKongCarryDecelRate[gCurrentCharacterIndex];
     gActivePlayerState->stopSpeed = gKongCarryStopSpeeds[gCurrentCharacterIndex];
-    gActivePlayerState->targetSpeed = D_807532D4[gCurrentCharacterIndex];
+    gActivePlayerState->targetSpeed = gKongCarryTargetSpeed[gCurrentCharacterIndex];
 }
 
-extern f32 D_80753338[];
+extern f32 gKongGunDrawnTargetSpeed[];
 
 void playerSetNormalMoveParams(void) {
     gActivePlayerState->turnRate = gKongTurnRate[gCurrentCharacterIndex];
@@ -2390,7 +2390,7 @@ void playerSetNormalMoveParams(void) {
     gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     gActivePlayerState->stopSpeed = gKongStopSpeeds[gCurrentCharacterIndex];
     if (gActivePlayerState->gunDrawn != 0) {
-        gActivePlayerState->targetSpeed = D_80753338[gCurrentCharacterIndex];
+        gActivePlayerState->targetSpeed = gKongGunDrawnTargetSpeed[gCurrentCharacterIndex];
         return;
     }
     if ((gActivePlayerState->stateFlags & 0x20) || gDemoPlaybackState == 3) {

@@ -24,8 +24,8 @@ void actorUpdateFloorContactAndTilt(Actor *, f32);
 #ifndef PROTO_SKIP_actorFloorIsReflective
 u8 actorFloorIsReflective(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80665ACC
-void func_80665ACC(Actor *);
+#ifndef PROTO_SKIP_actorEnableShadowTiltAndPushOut
+void actorEnableShadowTiltAndPushOut(Actor *);
 #endif
 #ifndef PROTO_SKIP_mathAngleBetweenPointsDeg
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);

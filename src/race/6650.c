@@ -353,10 +353,10 @@ void racePlayIntroCameraCutscene(RaceParticipant *racerState, RaceTarget *target
     racePlayTireScreechSfx();
 }
 
-s32 D_8002FCAC[5] = { 3, 0, 1, 2, 0 };
+s32 raceRivalResultTextIds[5] = { 3, 0, 1, 2, 0 };
 
 s32 raceGetFinishCameraId(RaceParticipant *racerState, RaceParticipant *chased) {
-    return D_8002FCAC[raceCheckLapCompletionThreshold(racerState, chased, 10)];
+    return raceRivalResultTextIds[raceCheckLapCompletionThreshold(racerState, chased, 10)];
 }
 
 

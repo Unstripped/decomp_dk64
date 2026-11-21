@@ -1165,7 +1165,7 @@ void slotQueueSelectPlayerResource(u8 player) {
     gSlotQueueResourceKong = player;
 }
 
-extern EffectGridAsset gEffectSpritePeanut, gEffectSpritePineapple, gEffectSpriteOrangeGrenade, gEffectSpriteGrape, gEffectSpriteCoinRed, gEffectSpriteCoinGreen, gEffectSpriteCoinBlue, gEffectSpriteCoinYellow, gEffectSpriteCoinPurple, D_80720488, gEffectSpriteOrange, gEffectSpriteCrystal, gEffectSpriteGoldenBanana, gEffectSpriteBananaMedal, D_8072057C, D_807205A0, gEffectSpriteBananaBlue, gEffectSpriteBananaYellow, D_8072060C, gEffectSpriteCoconut, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, gEffectSpriteBlueprintRed, gEffectSpriteBlueprintGreen, gEffectSpriteBlueprintYellow, gEffectSpriteBlueprintPurple, gEffectSpriteCandyHead, gEffectSpriteCrankyHead, gEffectSpriteFunkyHead, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
+extern EffectGridAsset gEffectSpritePeanut, gEffectSpritePineapple, gEffectSpriteOrangeGrenade, gEffectSpriteGrape, gEffectSpriteCoinRed, gEffectSpriteCoinGreen, gEffectSpriteCoinBlue, gEffectSpriteCoinYellow, gEffectSpriteCoinPurple, gEffectSpriteFilm, gEffectSpriteOrange, gEffectSpriteCrystal, gEffectSpriteGoldenBanana, gEffectSpriteBananaMedal, gEffectSpriteBananaRed, gEffectSpriteBananaGreen, gEffectSpriteBananaBlue, gEffectSpriteBananaYellow, gEffectSpriteBananaPurple, gEffectSpriteCoconut, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue, gEffectSpriteFeather, gEffectSpriteGuitar, gEffectSpriteBongos, gEffectSpriteSaxophone, gEffectSpriteTriangle, gEffectSpriteTrombone, gEffectSpriteBlueprintRed, gEffectSpriteBlueprintGreen, gEffectSpriteBlueprintYellow, gEffectSpriteBlueprintPurple, gEffectSpriteCandyHead, gEffectSpriteCrankyHead, gEffectSpriteFunkyHead, D_8072145C, gEffectSpriteDkHead, gEffectSpriteDiddyHead, gEffectSpriteLankyHead, gEffectSpriteTinyHead, gEffectSpriteChunkyHead;
 
 void *slotQueueGetSpriteAsset(s32 slot) {
     EffectGridAsset *result;
@@ -1181,25 +1181,25 @@ void *slotQueueGetSpriteAsset(s32 slot) {
     case 13:
         switch (kong) {
         case 1:
-            result = &D_8072057C;
+            result = &gEffectSpriteBananaRed;
             break;
         case 0:
             result = &gEffectSpriteBananaYellow;
             break;
         case 3:
-            result = &D_8072060C;
+            result = &gEffectSpriteBananaPurple;
             break;
         case 2:
             result = &gEffectSpriteBananaBlue;
             break;
         case 4:
         case 5:
-            result = &D_807205A0;
+            result = &gEffectSpriteBananaGreen;
             break;
         }
         break;
     case 6:
-        result = &D_80720488;
+        result = &gEffectSpriteFilm;
         break;
     case 4:
         result = &gEffectSpriteOrange;
@@ -1214,7 +1214,7 @@ void *slotQueueGetSpriteAsset(s32 slot) {
             result = &gEffectSpriteCoconut;
             break;
         case 3:
-            result = &D_80720854;
+            result = &gEffectSpriteFeather;
             break;
         case 2:
             result = &gEffectSpriteGrape;
@@ -1254,20 +1254,20 @@ void *slotQueueGetSpriteAsset(s32 slot) {
     case 7:
         switch (kong) {
         case 1:
-            result = &D_80720878;
+            result = &gEffectSpriteGuitar;
             break;
         case 0:
-            result = &D_80720890;
+            result = &gEffectSpriteBongos;
             break;
         case 3:
-            result = &D_807208A8;
+            result = &gEffectSpriteSaxophone;
             break;
         case 2:
-            result = &D_807208D8;
+            result = &gEffectSpriteTrombone;
             break;
         case 4:
         case 5:
-            result = &D_807208C0;
+            result = &gEffectSpriteTriangle;
             break;
         }
         break;
@@ -1316,19 +1316,19 @@ void *slotQueueGetSpriteAsset(s32 slot) {
         result = &gEffectSpriteCrankyHead;
         break;
     case 20:
-        result = &D_807214A0;
+        result = &gEffectSpriteDkHead;
         break;
     case 21:
-        result = &D_807214B8;
+        result = &gEffectSpriteDiddyHead;
         break;
     case 22:
-        result = &D_807214D0;
+        result = &gEffectSpriteLankyHead;
         break;
     case 23:
-        result = &D_807214E8;
+        result = &gEffectSpriteTinyHead;
         break;
     case 24:
-        result = &D_80721500;
+        result = &gEffectSpriteChunkyHead;
         break;
     }
     return result;

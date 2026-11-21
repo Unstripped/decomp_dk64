@@ -97,10 +97,10 @@ MinecartElem *sMinecartJunctionTable[4] = { D_80028BE0, D_80028BF0, D_80028C00, 
 void *sMinecartWheelEffect = NULL;
 // Track routes: point indices ending in 0xFF.
 u8 D_80028C34[8] = { 0x00, 0x01, 0x03, 0x04, 0x06, 0x07, 0x09, 0xFF };
-u8 D_80028C3C[4] = { 0x00, 0xFF };
+u8 sMinecartDefaultRoute[4] = { 0x00, 0xFF };
 u8 D_80028C40[8] = { 0x00, 0x01, 0x03, 0x04, 0x07, 0xFF };
 u8 D_80028C48[8] = { 0x00, 0x81, 0x43, 0x87, 0xFF };
-u8 D_80028C50[8] = { 0x87, 0x43, 0x81, 0x00, 0xFF };
+u8 sMinecartReversedRoute[8] = { 0x87, 0x43, 0x81, 0x00, 0xFF };
 
 void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
     sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -258,7 +258,7 @@ void minecartUpdateHeadlightAndSpeed(void) {
         cart->tiltAccel = 0.1f;
         cart->tiltRateMax = 5.0f;
     }
-    minecartPlayerCartUpdate(1, (gCurrentMap == 6) ? D_80028C34 : D_80028C3C, 0x7FFF, 0x23);
+    minecartPlayerCartUpdate(1, (gCurrentMap == 6) ? D_80028C34 : sMinecartDefaultRoute, 0x7FFF, 0x23);
     minecartUpdateHeadlight();
 }
 
@@ -348,7 +348,7 @@ void minecartReverseTrackBehaviour(void) {
                 gMinecartTrackPoints[i][pointCount - j - 1] = tmp;
             }
         }
-        cart->routeCursor = D_80028C50;
+        cart->routeCursor = sMinecartReversedRoute;
         cart->pointIndex = 2;
         gCurrentActor->state = 5;
         cart->prevPoint = NULL;

@@ -68,7 +68,7 @@ extern Actor *gPrimaryPlayerActor;
 extern u8 **sPauseMenuStrings;
 extern u8 **sPauseLevelNames;
 extern s8 sPauseIconList;
-extern u8 D_807FC810;
+extern u8 sPauseCounterTextWidth;
 extern f32 sPauseLevelLabelHalfWidth;
 extern s8 sPauseBumpStep;
 extern s8 sPauseLastLevelSlot;
@@ -95,13 +95,13 @@ f32 sqrtf(f32);
 
 extern const char sLevelNameJungle[], sLevelNameTemple[], sLevelNameToy[], sLevelNameWreck[], sLevelNameForest[], sLevelNameCrystal[], sLevelNameSpooky[];
 extern const char sLevelNameWorld[], sLevelNameHideout[], sLevelNameBonus[], sLevelNameMulti[], sLevelNameStory[], sLevelNameTest[], sLevelNameShared[];
-extern s32 D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
+extern s32 gEffectSpriteDkHead, gEffectSpriteDiddyHead, gEffectSpriteLankyHead, gEffectSpriteTinyHead, gEffectSpriteChunkyHead;
 
 const char *sLevelNames[14] = {
     sLevelNameJungle, sLevelNameTemple, sLevelNameToy, sLevelNameWreck, sLevelNameForest, sLevelNameCrystal, sLevelNameSpooky,
     sLevelNameWorld, sLevelNameHideout, sLevelNameBonus, sLevelNameMulti, sLevelNameStory, sLevelNameTest, sLevelNameShared,
 };
-void *gKongIconSprites[5] = { &D_807214A0, &D_807214B8, &D_807214D0, &D_807214E8, &D_80721500 };
+void *gKongIconSprites[5] = { &gEffectSpriteDkHead, &gEffectSpriteDiddyHead, &gEffectSpriteLankyHead, &gEffectSpriteTinyHead, &gEffectSpriteChunkyHead };
 s8 sPauseBumpStep = 0;
 s8 sPauseKongUnlocked[5] = { 1, 1, 0, 0, 0 };
 // counts 0..13 while the kong carousel page renders (never read in C; its period is the length of sPausePulseTable)
@@ -116,7 +116,7 @@ u8 sPauseKongColors[5][4] = {
 s8 sPauseLevelOrder[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
 // totals page: the maximum shown beside each gPauseCollectibleCounts[] entry
 s16 sPauseCollectibleTotals[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
-s8 D_80750580 = 0;
+s8 sPauseMenuOpened = 0;
 f32 sPauseBumpFade[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
 // Two per-kong tables in one object (a separate s16[5] would start 4-aligned at 0xD0, not 0xCE); 478F0, FCCD0
 // and menu/3E10 read unlockFlag through it, hudPauseMenuRefreshTotals through the interior label D_807505B2.
@@ -143,7 +143,7 @@ extern u8 gSaveIconTimer;
 extern s32 gMapPauseCount;
 extern u8 gCurrentWorldId;
 extern f32 sPauseBaseCamY;
-extern s8 D_80750580;
+extern s8 sPauseMenuOpened;
 extern f32 sPauseBumpFade[];
 extern s8 sPauseCarouselKong;
 extern s16 sPauseCarouselTurnDelta;
@@ -203,7 +203,7 @@ void hudPauseMenuUpdate(void) {
         sPauseBaseCamY = gPlayerSlots->camY;
         sPauseSaveCooldown = 0;
         sPauseExitRequested = 0;
-        D_80750580 = 1;
+        sPauseMenuOpened = 1;
         sPauseLastLevelSlot = 7;
         while (sPauseLastLevelSlot >= 0 && flagGet(sPauseLastLevelSlot + 0x1C5, 0) == 0) {
             sPauseLastLevelSlot--;
@@ -848,21 +848,21 @@ extern EffectGridAsset gControlStickSprite;
 extern EffectGridAsset gZButtonSprite;
 extern EffectGridAsset gCDownButtonSprite;
 extern EffectGridAsset gCUpButtonSprite;
-extern EffectGridAsset D_8072104C;
+extern EffectGridAsset gRButtonSprite;
 extern EffectGridAsset gFairySprite;
-extern EffectGridAsset D_807210B8;
+extern EffectGridAsset gEffectSpriteKey;
 extern EffectGridAsset gCrownSprite;
-extern EffectGridAsset D_80721110;
-extern EffectGridAsset D_80721134;
+extern EffectGridAsset gEffectSpriteRareCoin;
+extern EffectGridAsset gEffectSpriteNintendoCoin;
 extern EffectGridAsset gEffectSpriteQuestionMark;
-extern EffectGridAsset D_80721474;
+extern EffectGridAsset gEffectSpriteBananaBunchRainbow;
 extern EffectGridAsset gCheckMarkSprite;
 
 
 
 void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
     // per collectible: a slotQueue sprite index (small ints) or a sprite sheet of 124780.c
-    static void *sTotalsPageIcons[8] = { (void *)9, &gCrownSprite, &D_807210B8, (void *)0xA, &D_80721110, &gFairySprite, &D_80721134, (void *)0xC };
+    static void *sTotalsPageIcons[8] = { (void *)9, &gCrownSprite, &gEffectSpriteKey, (void *)0xA, &gEffectSpriteRareCoin, &gFairySprite, &gEffectSpriteNintendoCoin, (void *)0xC };
     s32 saved;
     KongInventory *playerKong;
     KongInventory *pageKong;
@@ -1022,7 +1022,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
             j = idx;
             if (idx != 8) {
                 hudPauseMenuAddCounter(hud, 0x24, 0x2A, 0xC, -0xA, sum, 1, 0);
-                hudPauseMenuSpawnIcon(hud, (s32)&D_80721474, 0x24, 0x2A, 0.75f, 2, 1);
+                hudPauseMenuSpawnIcon(hud, (s32)&gEffectSpriteBananaBunchRainbow, 0x24, 0x2A, 0.75f, 2, 1);
             } else {
                 j = 7;
             }
@@ -1105,7 +1105,7 @@ void hudPauseMenuBuildPage(HudEntry *hud, s32 refresh) {
     }
     if (refresh == 0 && gPauseCollectibleCounts[0] > 0) {
         hudPauseMenuSpawnIcon(hud, (s32)&gZButtonSprite, 0x2D, 0xC8, 1.0f, 2, 1);
-        hudPauseMenuSpawnIcon(hud, (s32)&D_8072104C, 0x113, 0xC8, 1.0f, 2, 1);
+        hudPauseMenuSpawnIcon(hud, (s32)&gRButtonSprite, 0x113, 0xC8, 1.0f, 2, 1);
     }
     gPlayerCharacterId[0] = saved;
 }
@@ -1226,7 +1226,7 @@ void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 val
     if (rightAlign != 0) {
         dx -= textGetStringWidth(1, buf);
     }
-    D_807FC810 = textGetStringWidth(1, buf);
+    sPauseCounterTextWidth = textGetStringWidth(1, buf);
     idx = sPauseTextCounts[hud->buffer];
     list = sPauseTextLists[hud->buffer]->entries;
     fx = 640.0f - (f32)(x * 4);

@@ -44,8 +44,8 @@ typedef struct FairySpawnOrder {
     u8 nodeOffset[11];
 } FairySpawnOrder;
 
-u8 D_80750620[8] = { 0x08, 0x05, 0x04, 0x07, 0x06, 0x01, 0x00, 0x00 }; // unreferenced; ends at D_80750628
-u8 D_80750628[16] = {
+u8 D_80750620[8] = { 0x08, 0x05, 0x04, 0x07, 0x06, 0x01, 0x00, 0x00 }; // unreferenced; ends at sAttachAlignTargetNodes
+u8 sAttachAlignTargetNodes[16] = {
     0x00, 0x08, 0x01, 0x01, 0x08, 0x04, 0x08, 0x06, 0x01, 0x02, 0x03, 0x05, 0x07, 0x00, 0x00, 0x00,
 };
 FairySpawnOrder gFairySpawnOrder = { { 0x00, 0x07, 0x05, 0x08, 0x06, 0x04, 0x01, 0x03, 0x02, 0x0A, 0x09 } };
@@ -281,7 +281,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
     f32 nodeZ;
     u8 node;
 
-    node = D_80750628[nodeLookupIdx];
+    node = sAttachAlignTargetNodes[nodeLookupIdx];
     if (node) {
         f32 ang;
 

@@ -1378,7 +1378,7 @@ void actorScriptedUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806C3A8C(void) {
+void actorNpcFlagCountQuestUpdate(void) {
     s32 dist;
     f32 pad0;
     f32 pad1;

@@ -11,8 +11,8 @@ void kongItemEnemyTryGroundSlam(void);
 #ifndef PROTO_SKIP_kongItemEnemyTryAttack
 void kongItemEnemyTryAttack(void);
 #endif
-#ifndef PROTO_SKIP_func_806B13B4
-void func_806B13B4(u8);
+#ifndef PROTO_SKIP_kongItemEnemyStateUpdate
+void kongItemEnemyStateUpdate(u8);
 #endif
 #ifndef PROTO_SKIP_actorSetAnimStartFrame
 void actorSetAnimStartFrame(u8);

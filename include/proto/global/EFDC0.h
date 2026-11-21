@@ -111,8 +111,8 @@ void playerStateEnterKnockbackRecovery(void);
 #ifndef PROTO_SKIP_playerStateEnterDamageKnockback
 void playerStateEnterDamageKnockback(void);
 #endif
-#ifndef PROTO_SKIP_playerStateEnterAirDamageReaction
-void playerStateEnterAirDamageReaction(void);
+#ifndef PROTO_SKIP_playerStateEnterHoldPickup
+void playerStateEnterHoldPickup(void);
 #endif
 #ifndef PROTO_SKIP_playerStateEnterGroundImpact
 void playerStateEnterGroundImpact(void);

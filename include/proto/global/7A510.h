@@ -36,10 +36,10 @@ void actorInitHealth(Actor *);
 #ifndef PROTO_SKIP_actorInitDamage
 void actorInitDamage(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80676208
-u8 func_80676208(Actor *);
+#ifndef PROTO_SKIP_actorGetInvulnBlocksDamage
+u8 actorGetInvulnBlocksDamage(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80676220
-s32 func_80676220(s16);
+#ifndef PROTO_SKIP_actorTypeStopsPlayerOnContact
+s32 actorTypeStopsPlayerOnContact(s16);
 #endif
 #endif

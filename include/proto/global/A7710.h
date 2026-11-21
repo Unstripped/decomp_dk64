@@ -24,7 +24,7 @@ Gfx *renderActorSpriteCallback(Gfx *, Actor *);
 #ifndef PROTO_SKIP_hudCountdownTimerUpdate
 void hudCountdownTimerUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806A36F4
-void func_806A36F4(void);
+#ifndef PROTO_SKIP_hudCountdownTimerHostUpdate
+void hudCountdownTimerHostUpdate(void);
 #endif
 #endif

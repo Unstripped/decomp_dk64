@@ -131,7 +131,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 vs->vibrato = oscValue;
                 n_alSynSetPitch(&vs->voice, seqp->chanState[chan].pitchBend * (vs->pitch * vs->vibrato));
                 if (seqp->chanState[chan].lowpassGain != 0) {
-                    n_alSynSetPan(&vs->voice, 440.0f * n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * seqp->chanState[chan].pitchBend * vs->vibrato);
+                    n_alSynSetLowpassCutoff(&vs->voice, 440.0f * n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * seqp->chanState[chan].pitchBend * vs->vibrato);
                 }
                 evt.type = AL_VIB_OSC_EVT;
                 evt.msg.osc.vs = (ALVoiceState *)vs;
@@ -294,9 +294,9 @@ void __n_CSPUpdateChanFxPan(N_CSPlayer *seqp, u8 chan) {
     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
         if (vs->channel == chan) {
             fxmix = seqp->chanState[chan].lowpassGain;
-            n_alSynSetFXMix(&vs->voice, fxmix);
+            n_alSynSetLowpassGain(&vs->voice, fxmix);
             if (fxmix != 0) {
-                n_alSynSetPan(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase + pan) * 440.0f * pitchBend);
+                n_alSynSetLowpassCutoff(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase + pan) * 440.0f * pitchBend);
             }
         }
     }
@@ -684,7 +684,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                 if (vs->channel == chan) {
                     n_alSynSetPitch(&vs->voice, vs->pitch * bendRatio * vs->vibrato);
                     if (seqp->chanState[chan].lowpassGain != 0) {
-                        n_alSynSetPan(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * 440.0f * bendRatio * vs->vibrato);
+                        n_alSynSetLowpassCutoff(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * 440.0f * bendRatio * vs->vibrato);
                     }
                 }
             }

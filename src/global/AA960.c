@@ -326,11 +326,11 @@ void actorKongDropUpdate(void) {
     }
 }
 
-extern u8 D_80720EBC;
-extern u8 D_80720EE8;
-extern u8 D_80720F14;
-extern u8 D_80720F40;
-extern u8 D_80720F6C;
+extern u8 gEffectSpriteBananaBunchGreen;
+extern u8 gEffectSpriteBananaBunchRed;
+extern u8 gEffectSpriteBananaBunchBlue;
+extern u8 gEffectSpriteBananaBunchYellow;
+extern u8 gEffectSpriteBananaBunchPurple;
 
 void actorKongDropPersistentUpdate(void) {
     DropBounceState *state;
@@ -341,19 +341,19 @@ void actorKongDropPersistentUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         switch (gPrimaryPlayerActor->actorType) {
         case 3:
-            anim = &D_80720EE8;
+            anim = &gEffectSpriteBananaBunchRed;
             break;
         case 2:
-            anim = &D_80720F40;
+            anim = &gEffectSpriteBananaBunchYellow;
             break;
         case 4:
-            anim = &D_80720F14;
+            anim = &gEffectSpriteBananaBunchBlue;
             break;
         case 6:
-            anim = &D_80720EBC;
+            anim = &gEffectSpriteBananaBunchGreen;
             break;
         case 5:
-            anim = &D_80720F6C;
+            anim = &gEffectSpriteBananaBunchPurple;
             break;
         }
         effectSpawnAttachedSprite(state, anim, 1.0f);
@@ -774,21 +774,21 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
     }
 }
 
-extern u8 D_80720FBC;
+extern u8 gEffectSpriteBananaBalloonRed;
 void actorPathCollectibleUpdateFBC(void) {
-    actorPathCollectibleUpdate(&D_80720FBC);
+    actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonRed);
 }
 
-extern u8 D_80720F98;
+extern u8 gEffectSpriteBananaBalloonGreen;
 
 void actorPathCollectibleUpdateF98(void) {
-    actorPathCollectibleUpdate(&D_80720F98);
+    actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonGreen);
 }
 
-extern u8 D_80721028;
+extern u8 gEffectSpriteBananaBalloonPurple;
 
 void actorPathCollectibleUpdate1028(void) {
-    actorPathCollectibleUpdate(&D_80721028);
+    actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonPurple);
 }
 
 extern u8 gEffectSpriteBananaBalloonBlue;
@@ -797,10 +797,10 @@ void actorPathCollectibleUpdate1004A(void) {
     actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonBlue);
 }
 
-extern u8 D_80720FE0;
+extern u8 gEffectSpriteBananaBalloonYellow;
 
 void actorPathCollectibleUpdateFE0(void) {
-    actorPathCollectibleUpdate(&D_80720FE0);
+    actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonYellow);
 }
 
 void actorPathCollectibleUpdate1004B(void) {

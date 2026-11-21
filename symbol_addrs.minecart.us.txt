@@ -27,3 +27,5 @@ minecartUpdateObstacleType3 = 0x800286EC; // type:func
 gMinecartJunctionTable = 0x80028BD0;
 sMinecartJunctionTable = 0x80028C20;
 sMinecartWheelEffect = 0x80028C30;
+sMinecartDefaultRoute = 0x80028C3C;
+sMinecartReversedRoute = 0x80028C50;

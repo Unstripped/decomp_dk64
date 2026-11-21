@@ -268,7 +268,7 @@ EFFECT_GRID_ASSET(8) D_80720464 = {
     62, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 44, 44, 8,
     { 955, 956, 957, 958, 959, 960, 961, 962 },
 };
-EFFECT_GRID_ASSET(16) D_80720488 = {
+EFFECT_GRID_ASSET(16) gEffectSpriteFilm = {
     63, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 48, 42, 16,
     { 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446 },
 };
@@ -291,11 +291,11 @@ EFFECT_GRID_ASSET(8) gEffectSpriteBananaMedal = {
     68, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 44, 44, 8,
     { 5480, 5481, 5482, 5483, 5484, 5485, 5486, 5487 },
 };
-EFFECT_GRID_ASSET(8) D_8072057C = {
+EFFECT_GRID_ASSET(8) gEffectSpriteBananaRed = {
     69, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 8,
     { 152, 153, 154, 155, 156, 157, 158, 159 },
 };
-EFFECT_GRID_ASSET(8) D_807205A0 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteBananaGreen = {
     70, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 8,
     { 240, 241, 242, 243, 244, 245, 246, 247 },
 };
@@ -307,7 +307,7 @@ EFFECT_GRID_ASSET(8) gEffectSpriteBananaYellow = {
     72, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 8,
     { 168, 169, 170, 171, 172, 173, 174, 175 },
 };
-EFFECT_GRID_ASSET(8) D_8072060C = {
+EFFECT_GRID_ASSET(8) gEffectSpriteBananaPurple = {
     73, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 8,
     { 208, 209, 210, 211, 212, 213, 214, 215 },
 };
@@ -376,27 +376,27 @@ EFFECT_GRID_ASSET(8) D_80720830 = {
     89, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 40, 51, 8,
     { 375, 376, 377, 378, 379, 380, 381, 382 },
 };
-EFFECT_GRID_ASSET(8) D_80720854 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteFeather = {
     90, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 8,
     { 5539, 5540, 5541, 5542, 5543, 5544, 5545, 5546 },
 };
-EFFECT_GRID_ASSET(1) D_80720878 = {
+EFFECT_GRID_ASSET(1) gEffectSpriteGuitar = {
     91, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 40, 40, 1,
     { 5547 },
 };
-EFFECT_GRID_ASSET(1) D_80720890 = {
+EFFECT_GRID_ASSET(1) gEffectSpriteBongos = {
     92, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 40, 40, 1,
     { 5548 },
 };
-EFFECT_GRID_ASSET(1) D_807208A8 = {
+EFFECT_GRID_ASSET(1) gEffectSpriteSaxophone = {
     93, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 40, 40, 1,
     { 5549 },
 };
-EFFECT_GRID_ASSET(1) D_807208C0 = {
+EFFECT_GRID_ASSET(1) gEffectSpriteTriangle = {
     94, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 40, 40, 1,
     { 5550 },
 };
-EFFECT_GRID_ASSET(1) D_807208D8 = {
+EFFECT_GRID_ASSET(1) gEffectSpriteTrombone = {
     95, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 40, 40, 1,
     { 5551 },
 };
@@ -484,7 +484,7 @@ EFFECT_GRID_ASSET(1) D_80720B88 = {
     116, 1, 1, G_IM_FMT_IA, G_IM_SIZ_8b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 64, 64, 1,
     { 969 },
 };
-EFFECT_GRID_ASSET(8) D_80720BA0 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteGrapeShard = {
     117, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 16, 16, 8,
     { 5673, 5674, 5675, 5676, 5677, 5678, 5679, 5680 },
 };
@@ -547,7 +547,7 @@ EFFECT_GRID_ASSET(16) gEffectSpriteBurstGreen = {
     131, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 1, 48, 42, 16,
     { 5795, 5796, 5797, 5798, 5799, 5800, 5801, 5802, 5803, 5804, 5805, 5806, 5807, 5808, 5809, 5810 },
 };
-EFFECT_GRID_ASSET(2) D_80720E14 = {
+EFFECT_GRID_ASSET(2) gEffectSpriteTargetRing = {
     132, 2, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 1, 32, 64, 1,
     { 5811, 5812 },
 };
@@ -575,35 +575,35 @@ EFFECT_GRID_ASSET(1) D_80720EA4 = {
     138, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 8, 1,
     { 5818 },
 };
-EFFECT_GRID_ASSET(12) D_80720EBC = {
+EFFECT_GRID_ASSET(12) gEffectSpriteBananaBunchGreen = {
     139, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 12,
     { 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841 },
 };
-EFFECT_GRID_ASSET(12) D_80720EE8 = {
+EFFECT_GRID_ASSET(12) gEffectSpriteBananaBunchRed = {
     140, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 12,
     { 854, 855, 856, 857, 858, 859, 860, 861, 862, 863, 864, 865 },
 };
-EFFECT_GRID_ASSET(12) D_80720F14 = {
+EFFECT_GRID_ASSET(12) gEffectSpriteBananaBunchBlue = {
     141, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 12,
     { 818, 819, 820, 821, 822, 823, 824, 825, 826, 827, 828, 829 },
 };
-EFFECT_GRID_ASSET(12) D_80720F40 = {
+EFFECT_GRID_ASSET(12) gEffectSpriteBananaBunchYellow = {
     142, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 12,
     { 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285 },
 };
-EFFECT_GRID_ASSET(12) D_80720F6C = {
+EFFECT_GRID_ASSET(12) gEffectSpriteBananaBunchPurple = {
     143, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 12,
     { 842, 843, 844, 845, 846, 847, 848, 849, 850, 851, 852, 853 },
 };
-EFFECT_GRID_ASSET(8) D_80720F98 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteBananaBalloonGreen = {
     144, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 8,
     { 5819, 5820, 5821, 5822, 5823, 5824, 5825, 5826 },
 };
-EFFECT_GRID_ASSET(8) D_80720FBC = {
+EFFECT_GRID_ASSET(8) gEffectSpriteBananaBalloonRed = {
     145, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 8,
     { 5827, 5828, 5829, 5830, 5831, 5832, 5833, 5834 },
 };
-EFFECT_GRID_ASSET(8) D_80720FE0 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteBananaBalloonYellow = {
     146, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 8,
     { 5835, 5836, 5837, 5838, 5839, 5840, 5841, 5842 },
 };
@@ -611,11 +611,11 @@ EFFECT_GRID_ASSET(8) gEffectSpriteBananaBalloonBlue = {
     147, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 8,
     { 5843, 5844, 5845, 5846, 5847, 5848, 5849, 5850 },
 };
-EFFECT_GRID_ASSET(8) D_80721028 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteBananaBalloonPurple = {
     148, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 8,
     { 5851, 5852, 5853, 5854, 5855, 5856, 5857, 5858 },
 };
-EFFECT_GRID_ASSET(8) D_8072104C = {
+EFFECT_GRID_ASSET(8) gRButtonSprite = {
     149, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 8,
     { 5859, 5860, 5861, 5862, 5863, 5862, 5861, 5860 },
 };
@@ -627,7 +627,7 @@ EFFECT_GRID_ASSET(8) gFairySprite = {
     151, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 8,
     { 5869, 5870, 5871, 5872, 5873, 5874, 5875, 5876 },
 };
-EFFECT_GRID_ASSET(16) D_807210B8 = {
+EFFECT_GRID_ASSET(16) gEffectSpriteKey = {
     152, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 44, 44, 16,
     { 5877, 5878, 5879, 5880, 5881, 5882, 5883, 5884, 5885, 5886, 5887, 5888, 5889, 5890, 5891, 5892 },
 };
@@ -635,11 +635,11 @@ EFFECT_GRID_ASSET(8) gCrownSprite = {
     153, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 44, 44, 8,
     { 5893, 5894, 5895, 5896, 5897, 5898, 5899, 5900 },
 };
-EFFECT_GRID_ASSET(8) D_80721110 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteRareCoin = {
     154, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 44, 44, 8,
     { 5901, 5902, 5903, 5904, 3400, 5905, 5906, 5907 },
 };
-EFFECT_GRID_ASSET(8) D_80721134 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteNintendoCoin = {
     155, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 44, 44, 8,
     { 5908, 5909, 5910, 5911, 3401, 5912, 5913, 5914 },
 };
@@ -655,7 +655,7 @@ EFFECT_GRID_ASSET(1) D_80721194 = {
     158, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 32, 32, 1,
     { 987 },
 };
-EFFECT_GRID_ASSET(8) D_807211AC = {
+EFFECT_GRID_ASSET(8) gStartButtonSprite = {
     128, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 8,
     { 5917, 5918, 5919, 5920, 5921, 5920, 5919, 5918 },
 };
@@ -747,27 +747,27 @@ EFFECT_GRID_ASSET(1) D_8072145C = {
     186, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 48, 42, 1,
     { 3229 },
 };
-EFFECT_GRID_ASSET(12) D_80721474 = {
+EFFECT_GRID_ASSET(12) gEffectSpriteBananaBunchRainbow = {
     187, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 44, 44, 12,
     { 5991, 5992, 5993, 5994, 5995, 5996, 5997, 5998, 5999, 6000, 3206, 6001 },
 };
-EFFECT_GRID_ASSET(2) D_807214A0 = {
+EFFECT_GRID_ASSET(2) gEffectSpriteDkHead = {
     189, 2, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 1,
     { 636, 635 },
 };
-EFFECT_GRID_ASSET(2) D_807214B8 = {
+EFFECT_GRID_ASSET(2) gEffectSpriteDiddyHead = {
     190, 2, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 1,
     { 633, 634 },
 };
-EFFECT_GRID_ASSET(2) D_807214D0 = {
+EFFECT_GRID_ASSET(2) gEffectSpriteLankyHead = {
     191, 2, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 1,
     { 631, 632 },
 };
-EFFECT_GRID_ASSET(2) D_807214E8 = {
+EFFECT_GRID_ASSET(2) gEffectSpriteTinyHead = {
     192, 2, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 1,
     { 630, 629 },
 };
-EFFECT_GRID_ASSET(2) D_80721500 = {
+EFFECT_GRID_ASSET(2) gEffectSpriteChunkyHead = {
     193, 2, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 64, 1,
     { 627, 628 },
 };

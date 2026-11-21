@@ -56,14 +56,14 @@ typedef struct ActorTypeTriple {
 
 ActorTypeTriple sSquishDeathExitTypes = { { 0x1C, 0x86, 0x6B } };
 s32 D_80750FB8[2] = { 0, 30 }; // unreferenced
-f32 D_80750FC0 = 0.2f;
-s32 D_80750FC4 = -100;
+f32 gSlopeSlideParticleScale = 0.2f;
+s32 gSlopeSlideParticleSinkSpeed = -100;
 s32 gSlopeSlideParticleSpreadX = 5;
 s32 gSlopeSlideParticleSpreadY = 5;
 s32 gSlopeSlideParticleSpreadZ = 5;
-u8 D_80750FD4 = 2;
-f32 D_80750FD8 = 80.0f;
-s32 D_80750FDC = 50;
+u8 gSlopeSlideParticleCount = 2;
+f32 gSlopeSlideParticleMinSpeed = 80.0f;
+s32 gCutscenePauseDecelRate = 50;
 s32 gConsumableRefillSlots[4] = { 2, 4, 6, 5 };
 
 // The player's actor is larger than the shared Actor: its component data continues at 0x178.
@@ -1080,7 +1080,7 @@ void playerStateSlideReverse(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_8075327C[];
+extern f32 gKongSkidTurnDecelRates[];
 extern s16 gKongSkidTurnRates[];
 
 void playerStateSkidTurn(void) {
@@ -1088,7 +1088,7 @@ void playerStateSkidTurn(void) {
         case 0:
             playerInputUpdate(0x41);
             actorScriptStartByIndex(gCurrentActor, 5);
-            gActivePlayerState->decelRate = D_8075327C[gCurrentCharacterIndex];
+            gActivePlayerState->decelRate = gKongSkidTurnDecelRates[gCurrentCharacterIndex];
             playerApplyDeceleration();
             playerApplyGravityAndMotion();
             gCurrentActor->subState++;
@@ -1393,8 +1393,8 @@ void playerStateBackflip(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_80753620[];
-extern f32 D_8075363C[];
+extern f32 gKongFlapGlideTargetSpeed[];
+extern f32 gKongFlapGlideAccelY[];
 
 void playerStateFlapGlide(void) {
     switch (gCurrentActor->subState) {
@@ -1405,11 +1405,11 @@ void playerStateFlapGlide(void) {
         break;
     case 1:
         gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
-        gCurrentActor->accelY = D_8075363C[gCurrentCharacterIndex];
+        gCurrentActor->accelY = gKongFlapGlideAccelY[gCurrentCharacterIndex];
         gCurrentActor->subState++;
         playerUpdateTargetYawFromStick();
         playerInputUpdate(0x2B);
-        gActivePlayerState->targetSpeed = D_80753620[gCurrentCharacterIndex];
+        gActivePlayerState->targetSpeed = gKongFlapGlideTargetSpeed[gCurrentCharacterIndex];
         playerApplyFullPhysics();
         break;
     case 2:
@@ -1433,8 +1433,8 @@ void playerStateFlapGlide(void) {
 }
 
 extern f32 D_80753674[];
-extern f32 D_80753690[];
-extern f32 D_807536C8[];
+extern f32 gKongHoverStartAccelY[];
+extern f32 gKongHoverTargetSpeeds[];
 
 void playerStateHover(void) {
     playerSpawnJumpTrailEffects();
@@ -1446,7 +1446,7 @@ void playerStateHover(void) {
         break;
     case 1:
         gCurrentActor->speedY = D_80753674[gCurrentCharacterIndex];
-        gCurrentActor->accelY = D_80753690[gCurrentCharacterIndex];
+        gCurrentActor->accelY = gKongHoverStartAccelY[gCurrentCharacterIndex];
         playerUpdateTargetYawFromStick();
         gCurrentActor->subState++;
         playerInputUpdate(0x2B);
@@ -1470,7 +1470,7 @@ void playerStateHover(void) {
         gCurrentActor->accelY = gKongLightGravity[gCurrentCharacterIndex];
         gCurrentActor->subState++;
         playerInputUpdate(0x2B);
-        gActivePlayerState->targetSpeed = D_807536C8[gCurrentCharacterIndex];
+        gActivePlayerState->targetSpeed = gKongHoverTargetSpeeds[gCurrentCharacterIndex];
         playerApplyFullPhysics();
         break;
     case 6:
@@ -1565,17 +1565,17 @@ void playerStateSlopeSlide(void) {
     f32 z;
     s32 i;
 
-    if (gCurrentActor->subState < 2 || D_80750FD8 < gCurrentActor->speedXZ) {
+    if (gCurrentActor->subState < 2 || gSlopeSlideParticleMinSpeed < gCurrentActor->speedXZ) {
         scale = gCurrentActor->sub4->scaleY / 0.15;
         actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
-        for (i = 0; i < D_80750FD4; i++) {
+        for (i = 0; i < gSlopeSlideParticleCount; i++) {
             x = (randomNonNegative() >> 15) % 10000 % gSlopeSlideParticleSpreadX - gSlopeSlideParticleSpreadX / 2;
             y = (randomNonNegative() >> 15) % 10000 % gSlopeSlideParticleSpreadY - gSlopeSlideParticleSpreadY / 2;
             z = (randomNonNegative() >> 15) % 10000 % gSlopeSlideParticleSpreadZ - gSlopeSlideParticleSpreadZ / 2;
-            effectSetSpeed(D_80750FC4);
+            effectSetSpeed(gSlopeSlideParticleSinkSpeed);
             effectSetCallback(effectSinkBySpeedUpdate);
             effectSetDepth(1);
-            effectCreateAtPosition(gPuffSprites[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + nodeX, y * scale + nodeY, z * scale + nodeZ);
+            effectCreateAtPosition(gPuffSprites[randomNonNegative() % 10000 % 3], gSlopeSlideParticleScale * scale, x * scale + nodeX, y * scale + nodeY, z * scale + nodeZ);
         }
     }
     switch (gCurrentActor->subState) {
@@ -1815,7 +1815,7 @@ void playerStateSlopeSlideByCharacter(void) {
 }
 
 extern s16 gKongRunAttackStopDecelRates[];
-extern s16 D_80753568[];
+extern s16 gKongSteepSlideLaunchSpeeds[];
 
 void playerStateSteepSlide(void) {
     mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->moveYaw, gActivePlayerState->turnRate);
@@ -1825,7 +1825,7 @@ void playerStateSteepSlide(void) {
             gActivePlayerState->decelRate = 0.2f;
             gActivePlayerState->airAccel = 10.0f;
             gActivePlayerState->turnRate = 0x32;
-            gActivePlayerState->slideLaunchSpeed = D_80753568[gCurrentCharacterIndex];
+            gActivePlayerState->slideLaunchSpeed = gKongSteepSlideLaunchSpeeds[gCurrentCharacterIndex];
             playerInputUpdate(0x18);
             if (gCurrentActor->floorSlopeFactor != 0.0f) {
                 gActivePlayerState->decelRate = 20.0f;
@@ -2428,7 +2428,7 @@ extern f32 D_80753454[];
 extern f32 D_80753470[];
 extern f32 D_8075348C[];
 extern s16 D_807534A8[];
-extern f32 D_80753738[];
+extern f32 gKongCrouchHighJumpAccelY[];
 
 void playerStateUnderwaterRamp(void) {
     switch (gCurrentActor->subState) {
@@ -2444,7 +2444,7 @@ void playerStateUnderwaterRamp(void) {
             break;
         case 1:
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
-            gCurrentActor->accelY = D_80753738[gCurrentCharacterIndex];
+            gCurrentActor->accelY = gKongCrouchHighJumpAccelY[gCurrentCharacterIndex];
             gCurrentActor->speedXZ = 0.0f;
             gCurrentActor->subState++;
             playerInputUpdate(0x47);
@@ -2472,8 +2472,8 @@ void playerStateUnderwaterRamp(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_80753770[];
-extern f32 D_807537A8[];
+extern f32 gKongCrouchLeapSpeeds[];
+extern f32 gKongCrouchLeapAccelY[];
 extern f32 gKongDiveLandDecelRates[];
 
 void playerStateDive(void) {
@@ -2486,8 +2486,8 @@ void playerStateDive(void) {
             break;
         case 1:
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
-            gCurrentActor->accelY = D_807537A8[gCurrentCharacterIndex];
-            gCurrentActor->speedXZ = D_80753770[gCurrentCharacterIndex];
+            gCurrentActor->accelY = gKongCrouchLeapAccelY[gCurrentCharacterIndex];
+            gCurrentActor->speedXZ = gKongCrouchLeapSpeeds[gCurrentCharacterIndex];
             gCurrentActor->targetYaw = gCurrentActor->moveYaw;
             gCurrentActor->subState++;
             playerInputUpdate(0x48);
@@ -2562,7 +2562,7 @@ s32 playerCanPerformActionCheck(void) {
 }
 
 extern f32 gKongSwimTopSpeeds[];
-extern f32 D_807539A4[];
+extern f32 gKongSurfaceSwimRiseRates[];
 
 void playerStateSurfaceSwim(void) {
     f32 curSpeedY;
@@ -2571,7 +2571,7 @@ void playerStateSurfaceSwim(void) {
     f32 target;
 
     curSpeedY = gCurrentActor->speedY;
-    step = D_807539A4[gCurrentCharacterIndex];
+    step = gKongSurfaceSwimRiseRates[gCurrentCharacterIndex];
     target = gKongSwimTopSpeeds[gCurrentCharacterIndex];
     if (curSpeedY < 0.0f) {
         t = -curSpeedY / 3.0f;
@@ -2634,8 +2634,8 @@ void playerStateSurfaceSwimStroke(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s16 D_80753A88[];
-extern f32 D_80753AE0[];
+extern s16 gKongUnderwaterStrokeFrames[];
+extern f32 gKongUnderwaterStrokeSpeeds[];
 
 void playerStateSurfaceTreadWater(void) {
     f32 target;
@@ -2697,8 +2697,8 @@ void playerStateSurfaceTreadWater(void) {
             playerInputUpdate(0x51);
             gActivePlayerState->subTimer = gCurrentActor->roll;
             gActivePlayerState->pitchAngle = gCurrentActor->yaw;
-            gActivePlayerState->targetSpeed = D_80753AE0[gCurrentCharacterIndex];
-            gActivePlayerState->actionTimer = D_80753A88[gCurrentCharacterIndex];
+            gActivePlayerState->targetSpeed = gKongUnderwaterStrokeSpeeds[gCurrentCharacterIndex];
+            gActivePlayerState->actionTimer = gKongUnderwaterStrokeFrames[gCurrentCharacterIndex];
             playerApplyDecelVelocityVector(0.0f);
             gCurrentActor->subState++;
             break;
@@ -4202,8 +4202,8 @@ void playerStateKnockbackBounce(void) {
 
 extern f32 gKongNormalLedgeHangOffsets[];
 extern f32 gKongLedgeHangOffsets[];
-extern s16 D_80753DA8[];
-extern s16 D_80753DB8[];
+extern s16 gKongNormalLedgeHangMinFloorHeights[];
+extern s16 gKongLedgeHangMinFloorHeights[];
 
 void playerStateBounceRecover(void) {
     f32 ledgeY;
@@ -4308,9 +4308,9 @@ void playerStateBounceRecover(void) {
     flag = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000);
     a = flag;
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        a |= gCurrentActor->y - gCurrentActor->floorY < D_80753DA8[gCurrentCharacterIndex];
+        a |= gCurrentActor->y - gCurrentActor->floorY < gKongNormalLedgeHangMinFloorHeights[gCurrentCharacterIndex];
     } else {
-        a |= gCurrentActor->y - gCurrentActor->floorY < D_80753DB8[gCurrentCharacterIndex];
+        a |= gCurrentActor->y - gCurrentActor->floorY < gKongLedgeHangMinFloorHeights[gCurrentCharacterIndex];
     }
     if (gActivePlayerState->hangInputDelay == 0) {
         v = gCurrentActor->hasArcBounds == 0 || onLedge == 0;
@@ -4503,7 +4503,7 @@ void playerStateCutscenePause(void) {
         gCurrentActor->subState++;
     }
     playerApplyImpactRumble(1);
-    gActivePlayerState->decelRate = D_80750FDC;
+    gActivePlayerState->decelRate = gCutscenePauseDecelRate;
 }
 
 void playerStateBarrelBlast(void) {

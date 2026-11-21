@@ -93,8 +93,8 @@ void csSetActorScaleFadeByType(s16, s16, s16);
 #ifndef PROTO_SKIP_csStartCamPath
 void csStartCamPath(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80641F68
-void func_80641F68(void);
+#ifndef PROTO_SKIP_csCamPathActorUpdate
+void csCamPathActorUpdate(void);
 #endif
 #ifndef PROTO_SKIP_csPosOnScreenOfNearPlayer
 u8 csPosOnScreenOfNearPlayer(s16);

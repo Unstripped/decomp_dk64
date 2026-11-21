@@ -57,21 +57,21 @@ typedef struct {
 } MenuTextIdPair;
 
 // Shop offers (slot, level, price), 7 per kong; menuSelectNextShopOffer's tables for shop actor types 0xBD, 0xBF, 0xBE.
-MenuShopOffer D_80033260[35] = {
+MenuShopOffer gShopCrankyOffers[35] = {
     { 0, 1, 3 }, { 0, 2, 5 }, { 0, 3, 7 }, { -1, 0, 0 }, { 1, 2, 5 }, { -1, 0, 0 }, { 1, 3, 7 },
     { 0, 1, 3 }, { 0, 2, 5 }, { 0, 3, 7 }, { -1, 0, 0 }, { 1, 2, 5 }, { -1, 0, 0 }, { 1, 3, 7 },
     { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
     { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
     { 0, 1, 3 }, { -1, 0, 0 }, { 0, 2, 5 }, { -1, 0, 0 }, { 1, 2, 5 }, { 0, 3, 7 }, { 1, 3, 7 },
 };
-MenuShopOffer D_80033334[35] = {
+MenuShopOffer gShopCandyOffers[35] = {
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
     { -1, 0, 0 }, { 4, 1, 3 }, { -1, 0, 0 }, { 4, 2, 5 }, { -1, 0, 0 }, { 4, 3, 7 }, { 4, 4, 9 },
 };
-MenuShopOffer D_80033408[35] = {
+MenuShopOffer gShopFunkyOffers[35] = {
     { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
     { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
     { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
@@ -79,25 +79,25 @@ MenuShopOffer D_80033408[35] = {
     { 2, 1, 3 }, { -1, 0, 0 }, { 3, 1, 3 }, { -1, 0, 0 }, { 2, 2, 5 }, { 3, 2, 5 }, { 2, 3, 7 },
 };
 u8 gShopInstrumentMelons[8] = { 2, 2, 2, 3, 3, 3 };
-u16 D_800334E4[4] = { 0, 0x12, 0x13, 0x14 };
+u16 gShopFunkyWeaponTextIds[4] = { 0, 0x12, 0x13, 0x14 };
 u16 gShopCrankyTextLines[10] = { 0, 3, 4, 5, 6, 7, 8, 9, 0x1C };
 u16 gShopCandyTextLines[10] = { 1, 2, 3, 7, 0xA, 0xB, 0xC, 0xE };
 u16 gShopFunkyTextLines[10] = { 1, 2, 3, 4, 9, 0xA, 0xB, 0xC };
-u16 D_80033528[10] = { 1, 2, 7, 8, 9, 0xA, 0xD, 0xE };
+u16 gShopFunkyAmmoBeltTextLines[10] = { 1, 2, 7, 8, 9, 0xA, 0xD, 0xE };
 MenuWidgetTextStyle gShopWidgetTextStyles[2] = { { 0, 1 }, { 0, 6 } };
-s32 D_80033544[5][4][2] = {
+s32 gShopWidgetMoveTextIds[5][4][2] = {
     { { 0, 0 }, { 6, 7 }, { 8, 9 }, { 0xA, 0xB } },
     { { 0, 0 }, { 0xC, 0xD }, { 0xE, 0xF }, { 0x10, 0x11 } },
     { { 0, 0 }, { 0x12, 0x13 }, { 0x14, 0x15 }, { 0x16, 0x17 } },
     { { 0, 0 }, { 0x18, 0x19 }, { 0x1A, 0x1B }, { 0x1C, 0x1D } },
     { { 0, 0 }, { 0x1E, 0x1F }, { 0x20, 0x21 }, { 0x22, 0x23 } },
 };
-s32 D_800335E4[4][2] = { { 0, 0 }, { 0, 1 }, { 2, 3 }, { 4, 5 } };
-s32 D_80033604[5] = { 0x24, 0x25, 0x26, 0x27, 0x28 };
-s32 D_80033618[4] = { 0, 0, 0x2E, 0x2F };
-s32 D_80033628[3] = { 0, 0x30, 0x31 };
-s32 D_80033634[5] = { 0x29, 0x2A, 0x2B, 0x2C, 0x2D };
-s32 D_80033648[5] = { 0, 0, 0x33, 0, 0x34 };
+s32 gShopWidgetSlamTextIds[4][2] = { { 0, 0 }, { 0, 1 }, { 2, 3 }, { 4, 5 } };
+s32 gShopWidgetKongWeaponTextIds[5] = { 0x24, 0x25, 0x26, 0x27, 0x28 };
+s32 gShopWidgetWeaponUpgradeTextIds[4] = { 0, 0, 0x2E, 0x2F };
+s32 gShopWidgetAmmoBeltTextIds[3] = { 0, 0x30, 0x31 };
+s32 gShopWidgetKongInstrumentTextIds[5] = { 0x29, 0x2A, 0x2B, 0x2C, 0x2D };
+s32 gShopWidgetInstrumentUpgradeTextIds[5] = { 0, 0, 0x33, 0, 0x34 };
 MenuTextIdPair gShopWidgetNoText = { { -1, -1 } };
 
 
@@ -114,11 +114,11 @@ s32 menuOtherKongHasUpgrade(MenuShopState *state, s32 bitOffset) {
     return found;
 }
 
-const u16 D_80033A50[5][4] = {
+const u16 gShopCrankyMoveTextIds[5][4] = {
     { 0, 11, 15, 20 }, { 0, 12, 16, 21 }, { 0, 14, 19, 22 }, { 0, 13, 17, 23 }, { 0, 13, 18, 24 },
 };
 
-const u16 D_80033A78[4] = { 0, 25, 26, 27 };
+const u16 gShopCrankySlamTextIds[4] = { 0, 25, 26, 27 };
 
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
@@ -259,13 +259,13 @@ void menuSelectNextShopOffer(MenuShopState *state, u8 *inventory, s32 firstVisit
     state->hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 0);
     switch (gCurrentActor->actorType) {
     case 0xBD:
-        tbl = D_80033260;
+        tbl = gShopCrankyOffers;
         break;
     case 0xBF:
-        tbl = D_80033334;
+        tbl = gShopCandyOffers;
         break;
     case 0xBE:
-        tbl = D_80033408;
+        tbl = gShopFunkyOffers;
         break;
     }
     tbl += gPlayerCharacterId[0] * 7;
@@ -436,7 +436,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
         case 0xBE:
             textLines = gShopFunkyTextLines;
             if (state->itemSlot == 3) {
-                textLines = D_80033528;
+                textLines = gShopFunkyAmmoBeltTextLines;
             } else {
                 entry2 = 3;
                 funkyEntry3 = 4;
@@ -612,10 +612,10 @@ void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagI
             currentActorClearFlag();
             switch (state->itemSlot) {
             case 0:
-                textParam2 = D_80033A50[gPlayerCharacterId[0]][((u8 *)inventory)[state->itemSlot]];
+                textParam2 = gShopCrankyMoveTextIds[gPlayerCharacterId[0]][((u8 *)inventory)[state->itemSlot]];
             case 1:
                 if (textParam2 == -1) {
-                    textParam2 = D_80033A78[((u8 *)inventory)[state->itemSlot]];
+                    textParam2 = gShopCrankySlamTextIds[((u8 *)inventory)[state->itemSlot]];
                 }
                 textParam1 = 8;
                 break;
@@ -633,7 +633,7 @@ void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagI
                 textParam1 = 9;
                 break;
             case 2:
-                textParam2 = D_800334E4[state->itemLevel];
+                textParam2 = gShopFunkyWeaponTextIds[state->itemLevel];
             case 3:
                 if (textParam2 == -1) {
                     gTextNumberArg = slotQueueGetMaxValue(2, 0);
@@ -1009,28 +1009,28 @@ void menuUpdateTransformedWidgets(void) {
             guMtxF2L(mA, &widget->mtx[1]);
             if (st->itemSlot == 0) {
                 for (i = 0; i < 2; i++) {
-                    textIds.id[i] = D_80033544[gPlayerCharacterId[0]][st->itemLevel][i];
+                    textIds.id[i] = gShopWidgetMoveTextIds[gPlayerCharacterId[0]][st->itemLevel][i];
                 }
             } else if (st->itemSlot == 1) {
                 for (i = 0; i < 2; i++) {
-                    textIds.id[i] = D_800335E4[st->itemLevel][i];
+                    textIds.id[i] = gShopWidgetSlamTextIds[st->itemLevel][i];
                 }
             } else if (st->itemSlot == 2) {
                 widget->timer = 0x82;
                 if (st->itemLevel >= 2) {
-                    textIds.id[0] = D_80033618[st->itemLevel];
+                    textIds.id[0] = gShopWidgetWeaponUpgradeTextIds[st->itemLevel];
                 } else {
-                    textIds.id[0] = D_80033604[gPlayerCharacterId[0]];
+                    textIds.id[0] = gShopWidgetKongWeaponTextIds[gPlayerCharacterId[0]];
                 }
             } else if (st->itemSlot == 3) {
                 widget->timer = 0x82;
-                textIds.id[0] = D_80033628[st->itemLevel];
+                textIds.id[0] = gShopWidgetAmmoBeltTextIds[st->itemLevel];
             } else if (st->itemSlot == 4) {
                 widget->timer = 0x82;
                 if (st->itemLevel == 1) {
-                    textIds.id[0] = D_80033634[gPlayerCharacterId[0]];
+                    textIds.id[0] = gShopWidgetKongInstrumentTextIds[gPlayerCharacterId[0]];
                 } else if (st->requirementUnmet == 0) {
-                    textIds.id[0] = D_80033648[st->itemLevel];
+                    textIds.id[0] = gShopWidgetInstrumentUpgradeTextIds[st->itemLevel];
                 } else {
                     textIds.id[0] = 0x32;
                 }

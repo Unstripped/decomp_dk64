@@ -65,7 +65,7 @@ u8 bananaDeliveryNpcBeginFrame(void) {
 
 
 
-void func_806BDEC8(void) {
+void bananaDeliveryPartnerUpdate(void) {
     PlayerState *playerState = gPrimaryPlayerActor->customState;
 
     if (bananaDeliveryNpcBeginFrame() == 1) {
@@ -488,7 +488,7 @@ typedef struct RespawnPos {
 
 void *memcpy(void *, const void *, u32);
 
-void func_806BF218(void) {
+void appleWormUpdate(void) {
     RespawnPos *node;
     Actor *other;
     s32 kind;

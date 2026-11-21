@@ -267,11 +267,11 @@ void actorUpdateAimedProjectileEmitter(void) {
     }
 }
 
-void func_806B8878(void) {
+void actorUpdateCannonballBurstEmitter(void) {
     actorUpdateBurstProjectileEmitter();
 }
 
-void func_806B8898(void) {
+void actorUpdateFlameBurstEmitter(void) {
     actorUpdateBurstProjectileEmitter();
 }
 

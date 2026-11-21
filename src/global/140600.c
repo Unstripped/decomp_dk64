@@ -33,7 +33,7 @@ void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
     }
 }
 
-void n_alSynSetPan(ALVoice *voice, f32 pan) {
+void n_alSynSetLowpassCutoff(ALVoice *voice, f32 pan) {
     SynCoreParam *param;
 
     if (voice->pvoice != NULL) {
@@ -49,7 +49,7 @@ void n_alSynSetPan(ALVoice *voice, f32 pan) {
     }
 }
 
-void n_alSynSetFXMix(ALVoice *voice, u8 fxmix) {
+void n_alSynSetLowpassGain(ALVoice *voice, u8 fxmix) {
     SynCoreParam *param;
 
     if (voice->pvoice != NULL) {

@@ -13,8 +13,8 @@
 
 // This TU's .data (0x807502D0-0x8075039C + 4-byte TU pad): one 4-byte slot per object, the movement
 // tuning scalars of the actor and player code (80150, 936B0, 9DD70, A2F10, AA960, B7490, BB300, C4620,
-// E4090, 11BC10, 1295B0 and the boss/minecart overlays keep their externs); 9CE20 reads D_8075037C and
-// D_80750380, the only text TU between 9BF30 and 9DD70. D_807502D4 and D_80750304..D_80750334 are
+// E4090, 11BC10, 1295B0 and the boss/minecart overlays keep their externs); 9CE20 reads gSwingLeapMaxSpeedXZ and
+// gSwingLeapMaxSpeedY, the only text TU between 9BF30 and 9DD70. D_807502D4 and D_80750304..D_80750334 are
 // unreferenced.
 s16 gCarryMinFallSpeed = -220;
 s16 D_807502D4 = -100;
@@ -47,26 +47,26 @@ s16 gVehicleWaterJumpSpeed = 250;
 s16 gFlyPatrolShotInterval = 60;
 s16 gProjectileLifetime = 200;
 s16 gBounceExplodeLifetime = 200;
-s16 D_8075034C = 30;
+s16 gBounceExplodeShortLifetime = 30;
 s16 gHomingShotLifetime = 50;
-s16 D_80750354 = 50;
+s16 gFeatherShotLifetime = 50;
 s16 gShotLifetime = 50;
 s16 gMultiplayerShotLifetime = 50;
-s16 D_80750360 = 50;
+s16 gCoconutShotLifetime = 50;
 s16 gHomingShotLongLifetime = 100;
-s16 D_80750368 = 100;
+s16 gFeatherShotLongLifetime = 100;
 s16 gShotLongLifetime = 100;
 s16 gMultiplayerShotLongLifetime = 100;
-s16 D_80750374 = 100;
-s16 D_80750378 = 300;
-s16 D_8075037C = 200;
-s16 D_80750380 = 150;
+s16 gCoconutShotLongLifetime = 100;
+s16 gNumberedTargetLifetime = 300;
+s16 gSwingLeapMaxSpeedXZ = 200;
+s16 gSwingLeapMaxSpeedY = 150;
 s16 sBounceFadeLaunchSpeedXZ = 200;
 f32 sBounceFadeGravity = -160.0f;
 s16 sBounceMinSpeedY = -1760;
 s16 gBarrelMountLaunchSpeedY = 300;
-f32 D_80750394 = -30.0f;
-f32 D_80750398 = -15.0f;
+f32 gSpinningActorGravity = -30.0f;
+f32 gFallAndBurstGravity = -15.0f;
 
 typedef struct BoneChainData {
     /* 0x00 */ f32 swingAmplitude;
@@ -239,8 +239,8 @@ u8 nodeCount;
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
         if (player->pathDist < 1.5 && ((data->phase > 4.0 && (f64)data->phase < 4.712389f) ||
                                      ((f64)data->phase < 1.5707964f && data->phase > 0.9))) {
-            player->leapSpeedXZ = D_8075037C * (data->swingAmplitude / maxAmplitude);
-            player->leapSpeedY = D_80750380 * (data->swingAmplitude / maxAmplitude);
+            player->leapSpeedXZ = gSwingLeapMaxSpeedXZ * (data->swingAmplitude / maxAmplitude);
+            player->leapSpeedY = gSwingLeapMaxSpeedY * (data->swingAmplitude / maxAmplitude);
         } else {
             player->leapSpeedXZ = 200.0f;
             player->leapSpeedY = 200.0f;
