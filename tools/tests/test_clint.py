@@ -131,3 +131,29 @@ def test_metrics_punned_scalar_only(tmp_path):
     m = clint.metrics(str(c))["f"]
     assert m["punned"] == 1
     assert [(line, kind) for line, kind, _ in m["untagged"]] == [(7, "punned-cast")]
+
+
+def test_uninit_shadow_header_is_parsed_and_trees_are_private():
+    """--shadow puts a private copy's header ahead of include/, in a fresh tree per call (concurrent runs with
+    the same copy must not delete each other's headers)."""
+    import tempfile
+    (REPO_ROOT / ".scratch").mkdir(exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=REPO_ROOT / ".scratch") as d:
+        d = Path(d)
+        (d / "sh").mkdir()
+        # shadow a real include/ header (water.h) with a version that adds a type: a materialised tree
+        (d / "sh" / "water.h").write_text((REPO_ROOT / "include" / "water.h").read_text()
+                                          + "typedef struct { int only_in_shadow; } ShadowProbe;\n")
+        copy = d / "x.c"
+        copy.write_text('#include "common.h"\n#include "water.h"\n'
+                        "int f(void) { ShadowProbe p; int y; p.only_in_shadow = 1; return p.only_in_shadow + y; }\n")
+        plain = subprocess.run([sys.executable, str(REPO_ROOT / "tools" / "clint.py"), "uninit", str(copy)],
+                               capture_output=True, text=True)
+        assert plain.returncode == 3 and "UNKNOWN" in plain.stdout  # the header is not in include/
+        shadowed = subprocess.run([sys.executable, str(REPO_ROOT / "tools" / "clint.py"), "uninit", str(copy),
+                                   "--shadow", str(d / "sh")], capture_output=True, text=True)
+        assert "UNINIT" in shadowed.stdout and " f y" in shadowed.stdout, shadowed.stdout + shadowed.stderr
+        a = clint.shadow_flags(str(copy), [str(d / "sh")])
+        b = clint.shadow_flags(str(copy), [str(d / "sh")])
+        assert a and b and a != b
+        assert all(Path(f[2:]).is_dir() for f in a + b if ".scratch/clint-shadow" in f)
