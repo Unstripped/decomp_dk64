@@ -132,6 +132,10 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
   member per role, single-function roles included (UnionActorU2, e9dfa60d: 17 members; the fairy and text-actor zero writes
   keep unk15F / unkEC). Continue unit 2 windows 7/8 (33b2cc20, c2c718a0) landed 62 fields and 318 globals, including the
   previously held D_807F7140 (gCsModelUpdateCount) and D_807FF0F2 (gAudioNarrowPanEnabled, behaviour-named).
+- Rulings (user, 2026-11-23): index-distinguished predicates take the game's own index in the name when the index is game data
+  (`actorHitTargetNode1`..`5`: the target's collision node number); a parameter whose RSP command is a no-op is named for what
+  the code does with it plus a comment on the dead effect (`rspFxLevel`); externals-only identifications (Rare's `n_aspMain`)
+  are not used: repo-derived names instead (`gAudioUcodeText`/`gAudioUcodeData`). All applied in names window 13 (5e1dd1e6).
 
 ## Tooling fixes (open)
 - None open from 2026-11-20: 73393b44 (noop-arith literal), bd5da4f3 (alias respelling), 49c6d3c4 (tag added in place), d84d0487
