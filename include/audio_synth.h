@@ -149,7 +149,10 @@ typedef struct PVoice_s {
     /* 0x80 */ SynCoreParam *em_ctrlTail;
     /* 0x84 */ s32 em_motion;
     /* 0x88 */ s32 delta; // samples until the envelope's release ends; 0 = free to steal
-    /* 0x8C */ u8 rspFxLevel; // start fxDelay / param 0x11; n_alResamplePull pitch-shifts when 1..0x3F
+    /* 0x8C */ u8 rspFxLevel; // param 0x11 (MIDI CC 0x23 via N_ChanState.rspFxLevel): 1..0x3F emits a per-voice RSP opcode-0
+                              // command (n_alResamplePull), >= 0x40 groups the voice first in its fx bus mix with a bus
+                              // opcode-0 command (1445A0.c); opcode 0 is a no-op in this ROM's audio ucode, so only that
+                              // mix order has an effect
     /* 0x8D */ u8 unk8D[3];
     /* 0x90 */ SynLowPass lowpass; // fc: start fxVolume / param 0x13; fgain: start fxPitch / param 0x12
     /* 0xBC */ void *lowpassState;

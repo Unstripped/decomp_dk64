@@ -24,7 +24,7 @@ typedef struct N_ChanState {
     /* 0x10 */ u8 noteNotify;
     /* 0x11 */ u8 lowpassGain;
     /* 0x12 */ u8 lowpassKeyOffset;
-    /* 0x13 */ u8 rspFxLevel;
+    /* 0x13 */ u8 rspFxLevel; // MIDI controller 0x23 value, passed to new voices as PVoice_s.rspFxLevel (see audio_synth.h)
     /* 0x14 */ f32 pitchBend;
     /* 0x18 */ s32 attackTime;
     /* 0x1C */ s32 decayTime;
