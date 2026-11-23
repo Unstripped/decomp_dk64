@@ -184,7 +184,7 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Continue unit 3 (2026-11-21/23, debt 5,419 → 5,304)** — names held for lack of evidence resolved with the emulator (EmuFieldsU3: map-node opaque/translucent display lists by probe, triangle count, camera reset fields, `PathPoint.floorY`; EmuNamesU3: coin-goal carriers, seal NPC, banana-delivery door, pulse enemies, ambient emitter and kong move tables) and with user rulings (`actorHitTargetNode1`..`5`, `rspFxLevel` with its dead-effect comment, repo-derived `gAudioUcodeText`/`Data`); types: `EfCallbackParams` halfword view, `HudIconState` per-kind union, the collision view types retired onto `ActorCallbackNode` + `CollisionHitRecord`; `clint uninit/layout --shadow`; carry's declaration-reached renames require the same symbol address. `unk` refs 147 → 101, `D_` 117 → 97, `func_` 30 → 14 (the rest unreachable no-op stubs), m2c 1 → 0; hack sites unchanged (EXHAUSTED). Knowledge Q1604.
 - [x] **Continue unit 4 (2026-11-23, debt 5,304 → 5,295)** — emulator setups for held fields: the collision-event flags `takeHitReceived`/`chargeHitReceived`/`heavyHitReceived` seen firing on the matching contacts (EmuFieldsU4, 522e11c9); the 0x100 attack flag written through a `PlayerState` view is the attacker's `BehaviourWorkState.flags` (784357eb, `PlayerState.unk1A` → padding); permuter batch (900 s) on the 8 hack sites with no long run and an automatic edit: 30 zero outputs, every one a steer in another spelling (redundant branch reload, constant-holding local, empty test kept), so the sites stay; `clint --shadow` gets a private tree per call. Remaining debt is EXHAUSTED hacks and evidence-less names.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 2 close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 4 close, run 18):
 
 | metric | total | start |
 |---|--:|--:|
@@ -200,10 +200,10 @@ Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc -
 | reviewed / exhausted functions | 4,270 / 4,270 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 4 | 1,890 |
 | uninit warnings (clint checks every function) | 249 | 122 |
-| `func_` definitions | 30 | 457 |
-| m2c names | 1 | 5,040 |
-| `unk` field references | 147 | - |
-| `D_` references | 117 | - |
+| `func_` definitions | 14 | 457 |
+| m2c names | 0 | 5,040 |
+| `unk` field references | 92 (46 fields) | - |
+| `D_` references | 97 (63 symbols) | - |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
