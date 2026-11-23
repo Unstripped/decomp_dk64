@@ -35,7 +35,6 @@ import re
 import subprocess
 import sys
 import tempfile
-import hashlib
 
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
@@ -354,13 +353,21 @@ def new_uninit_reads(cur, base):
     return new, renamed
 
 
+_SHADOW_TREES = []  # TemporaryDirectory objects kept alive for the process (parses read them)
+
+
 def shadow_flags(copy, dirs):
     """`-I` flags that put COPY's shadow headers (`tools/shadow.py`: headers beside the copy at an
-    include/ path and in DIRS, plus their unchanged quote-includers) ahead of include/; [] when none."""
+    include/ path and in DIRS, plus their unchanged quote-includers) ahead of include/; [] when none.
+    Each call materialises a fresh tree under .scratch/clint-shadow/ (removed at exit), so concurrent
+    runs never delete each other's headers mid-parse."""
     import shadow  # noqa: E402 (stdlib-only sibling)
-    out = os.path.join(".scratch", "clint-shadow", hashlib.sha1(f"{copy}\0{dirs}".encode()).hexdigest()[:12])
+    base = os.path.join(ROOT, ".scratch", "clint-shadow")
+    os.makedirs(base, exist_ok=True)
+    tree = tempfile.TemporaryDirectory(dir=base)
+    _SHADOW_TREES.append(tree)
     rel = lambda x: os.path.relpath(os.path.abspath(x), ROOT)  # noqa: E731
-    flags = shadow.materialise(rel(copy), [rel(d) for d in dirs], out)[0]
+    flags = shadow.materialise(rel(copy), [rel(d) for d in dirs], rel(os.path.join(tree.name, "h")))[0]
     return [f"-I{os.path.join(ROOT, f)}" for f in flags[1::2]]
 
 
