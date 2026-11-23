@@ -457,7 +457,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                     } else {
                         delta = sound->envelope->attackTime;
                     }
-                    n_alSynStartVoiceParams(voice, sound->wavetable, pitch, vol, pan, fxmix, unityPitch, voiceTune, chanSt->unk13, delta);
+                    n_alSynStartVoiceParams(voice, sound->wavetable, pitch, vol, pan, fxmix, unityPitch, voiceTune, chanSt->rspFxLevel, delta);
                     evt.type = 6;
                     evt.msg.vol.voice = voice;
                     if (chanSt->useInstCopy != 0) {
@@ -597,7 +597,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                     __n_CSPUpdateChanFxPan(seqp, chan);
                     break;
                 case 0x23:
-                    seqp->chanState[chan].unk13 = byte2;
+                    seqp->chanState[chan].rspFxLevel = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
                             n_alSynAllocVoicePriorityB(&vs->voice, byte2);

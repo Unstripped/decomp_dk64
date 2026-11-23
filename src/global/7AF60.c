@@ -20,7 +20,7 @@ u8 actorTargetIsVulnerable(Actor *actor, Actor *target, ActorCallbackNode *node)
 }
 
 u8 actorListHasId2TargetVulnerable(Actor *actor, Actor *target, ActorCallbackNode *node) {
-    return func_806767E0(actor, target, node) && actorTargetIsVulnerable(actor, target, node);
+    return actorHitTargetNode2(actor, target, node) && actorTargetIsVulnerable(actor, target, node);
 }
 
 s32 actorIsDamageFatal(Actor *target, Actor *attacker, u8 damageScale) {
@@ -82,23 +82,23 @@ u8 actorListHasId2FacingTarget(Actor *actor, Actor *target, ActorCallbackNode *n
     return actorListContainsId(node, 2) && actorIsFacingTarget(actor, target, node);
 }
 
-s32 func_80676730(Actor *actor, Actor *target, ActorCallbackNode *node) {
+s32 actorHitTargetNode1(Actor *actor, Actor *target, ActorCallbackNode *node) {
     return actorListContainsId(node, 1);
 }
 
-s32 func_8067675C(Actor *actor, Actor *target, ActorCallbackNode *node) {
+s32 actorHitTargetNode3(Actor *actor, Actor *target, ActorCallbackNode *node) {
     return actorListContainsId(node, 3);
 }
 
-s32 func_80676788(Actor *actor, Actor *target, ActorCallbackNode *node) {
+s32 actorHitTargetNode5(Actor *actor, Actor *target, ActorCallbackNode *node) {
     return actorListContainsId(node, 5);
 }
 
-s32 func_806767B4(Actor *actor, Actor *target, ActorCallbackNode *node) {
+s32 actorHitTargetNode4(Actor *actor, Actor *target, ActorCallbackNode *node) {
     return actorListContainsId(node, 4);
 }
 
-s32 func_806767E0(Actor *actor, Actor *target, ActorCallbackNode *node) {
+s32 actorHitTargetNode2(Actor *actor, Actor *target, ActorCallbackNode *node) {
     return actorListContainsId(node, 2);
 }
 

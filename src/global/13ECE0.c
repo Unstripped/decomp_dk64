@@ -280,7 +280,7 @@ void __n_resetPerfChanState(N_CSPlayer *seqp, s32 chan) {
     seqp->chanState[chan].fadeTarget = 0xFF;
     seqp->chanState[chan].fadeRate = 0;
     seqp->chanState[chan].fxBus = 0;
-    seqp->chanState[chan].unk13 = 0;
+    seqp->chanState[chan].rspFxLevel = 0;
     seqp->chanState[chan].lowpassKeyOffset = 0;
     seqp->chanState[chan].lowpassGain = 0;
     seqp->chanState[chan].bankSelect = 0;

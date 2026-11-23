@@ -98,7 +98,7 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
             f->lowpass.fgain = paramNode->fxPitch;
             f->lowpass.fc = paramNode->fxVolume;
             f->lowpass.first = 1;
-            f->unk8C = paramNode->fxDelay;
+            f->rspFxLevel = paramNode->fxDelay;
             break;
         case 11:
         case 12:

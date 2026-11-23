@@ -272,7 +272,7 @@ void alN_PVoiceNew(N_PVoice *pvoice, ALDMANew dmaNew, ALHeap *heap) {
     pvoice->em_pan = 0;
     pvoice->em_ctrlList = 0;
     pvoice->em_ctrlTail = 0;
-    pvoice->unk8C = 0;
+    pvoice->rspFxLevel = 0;
     pvoice->lowpass.fgain = 0;
     pvoice->lowpass.fc = 0;
     pvoice->lowpassState = alHeapDBAlloc(NULL, 0, heap, 1, 8);

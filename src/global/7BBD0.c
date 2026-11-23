@@ -61,7 +61,7 @@ CollisionInteractionEntry D_8074AC58[6] = {
     { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 6, 3, 2 },
     { -1, 132, (CollisionFilterFn)actorIsBelowTargetStationary, 1, 3, 2 },
     { -1, 2912, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
-    { -1, -1, (CollisionFilterFn)func_80676788, 1, 5, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode5, 1, 5, 2 },
     { -1, -1, NULL, 1, 2, 0 },
 };
 CollisionInteractionEntry D_8074ACA0[1] = { { -1, -1, NULL, 9, 5, 0 } };
@@ -85,20 +85,20 @@ CollisionInteractionEntry D_8074AD88[1] = { { -1, -1, NULL, 4, 0, 0 } };
 CollisionTableEntry D_8074AD94[2] = { { -3, D_8074AD88 }, { 0, NULL } };
 CollisionTableEntry D_8074ADA4[2] = { { -1, D_8074AC34 }, { 0, NULL } };
 CollisionInteractionEntry D_8074ADB4[4] = {
-    { 1, -1, (CollisionFilterFn)func_80676730, 4, 0, 2 },
-    { 2, -1, (CollisionFilterFn)func_806767E0, 4, 0, 2 },
-    { 4, -1, (CollisionFilterFn)func_8067675C, 4, 0, 2 },
+    { 1, -1, (CollisionFilterFn)actorHitTargetNode1, 4, 0, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode2, 4, 0, 2 },
+    { 4, -1, (CollisionFilterFn)actorHitTargetNode3, 4, 0, 2 },
     { -1, -1, NULL, 1, 0, 0 },
 };
 CollisionTableEntry D_8074ADE4[3] = { { -1, D_8074ADB4 }, { 252, D_8074AC1C }, { 0, NULL } };
 CollisionInteractionEntry D_8074ADFC[2] = {
-    { -1, -1, (CollisionFilterFn)func_80676730, 9, 15, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode1, 9, 15, 2 },
     { -1, -1, NULL, 1, 0, 0 },
 };
 CollisionTableEntry D_8074AE14[2] = { { -1, D_8074ADFC }, { 0, NULL } };
-CollisionInteractionEntry D_8074AE24[1] = { { -1, -1, (CollisionFilterFn)func_80676730, 1, 0, 0 } };
+CollisionInteractionEntry D_8074AE24[1] = { { -1, -1, (CollisionFilterFn)actorHitTargetNode1, 1, 0, 0 } };
 CollisionInteractionEntry D_8074AE30[2] = {
-    { -1, -1, (CollisionFilterFn)func_80676730, 9, 5, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode1, 9, 5, 2 },
     { -1, -1, NULL, 1, 0, 0 },
 };
 CollisionTableEntry D_8074AE48[3] = { { 319, D_8074AE24 }, { -1, D_8074AE30 }, { 0, NULL } };
@@ -115,19 +115,19 @@ CollisionTableEntry D_8074AEAC[6] = {
     { 331, D_8074AE94 }, { 0, NULL },
 };
 CollisionInteractionEntry D_8074AEDC[2] = {
-    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 1 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 1, 1 },
     { -1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
 };
-CollisionInteractionEntry D_8074AEF4[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 0 } };
+CollisionInteractionEntry D_8074AEF4[1] = { { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 2, 0 } };
 CollisionInteractionEntry D_8074AF00[2] = {
-    { -1, 2, (CollisionFilterFn)func_806767E0, 9, 0, 2 },
-    { -1, -1, (CollisionFilterFn)func_806767E0, 9, 5, 0 },
+    { -1, 2, (CollisionFilterFn)actorHitTargetNode2, 9, 0, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 9, 5, 0 },
 };
 CollisionInteractionEntry D_8074AF18[2] = {
-    { -1, -1, (CollisionFilterFn)func_8067675C, 9, 0, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode3, 9, 0, 2 },
     { -1, -1, NULL, 9, 5, 0 },
 };
-CollisionInteractionEntry D_8074AF30[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 0 } };
+CollisionInteractionEntry D_8074AF30[1] = { { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 1, 0 } };
 CollisionTableEntry D_8074AF3C[5] = {
     { -1, D_8074AEDC }, { 19, D_8074AEF4 }, { 26, D_8074AEF4 }, { 21, D_8074AEF4 },
     { 0, NULL },
@@ -142,33 +142,33 @@ CollisionTableEntry D_8074AF94[9] = {
     { 0, NULL },
 };
 CollisionInteractionEntry D_8074AFDC[3] = {
-    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 1 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 2, 1 },
     { 2, -1, (CollisionFilterFn)actorGiantKongInReach, 1, 9, 2 },
     { 1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
 };
-CollisionInteractionEntry D_8074B000[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 0 } };
+CollisionInteractionEntry D_8074B000[1] = { { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 2, 0 } };
 CollisionTableEntry D_8074B00C[4] = {
     { 6, D_8074AFDC }, { -1, D_8074B000 }, { -3, D_8074AC28 }, { 0, NULL },
 };
 CollisionInteractionEntry D_8074B02C[2] = {
-    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 1 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 1, 1 },
     { -1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
 };
-CollisionInteractionEntry D_8074B044[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 0 } };
+CollisionInteractionEntry D_8074B044[1] = { { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 1, 0 } };
 CollisionTableEntry D_8074B050[3] = { { 6, D_8074B02C }, { -1, D_8074B044 }, { 0, NULL } };
 CollisionInteractionEntry D_8074B068[2] = {
-    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 1 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 2, 1 },
     { -1, -1, (CollisionFilterFn)actorCheckPlayerProximityVertical, 1, 9, 0 },
 };
-CollisionInteractionEntry D_8074B080[1] = { { -1, -1, (CollisionFilterFn)func_806767E0, 1, 2, 0 } };
+CollisionInteractionEntry D_8074B080[1] = { { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 2, 0 } };
 CollisionTableEntry D_8074B08C[3] = { { 6, D_8074B068 }, { -1, D_8074B080 }, { 0, NULL } };
 CollisionInteractionEntry D_8074B0A4[2] = {
     { 1, -1, NULL, 1, 2, 2 },
     { 2, -1, (CollisionFilterFn)actorListHasId2TargetVulnerable, 4, 6, 0 },
 };
 CollisionInteractionEntry D_8074B0BC[2] = {
-    { 1, -1, (CollisionFilterFn)func_806767E0, 5, 5, 1 },
-    { 1, -1, (CollisionFilterFn)func_806767E0, 1, 14, 0 },
+    { 1, -1, (CollisionFilterFn)actorHitTargetNode2, 5, 5, 1 },
+    { 1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 14, 0 },
 };
 CollisionTableEntry D_8074B0D4[3] = { { -1, D_8074B0A4 }, { 67, D_8074B0BC }, { 0, NULL } };
 CollisionInteractionEntry D_8074B0EC[2] = {
@@ -230,7 +230,7 @@ CollisionInteractionEntry D_8074B2A0[8] = {
 };
 CollisionInteractionEntry D_8074B300[4] = {
     { 4, -1, NULL, 1, 5, 2 },
-    { 8, -1, (CollisionFilterFn)func_8067675C, 6, 5, 2 },
+    { 8, -1, (CollisionFilterFn)actorHitTargetNode3, 6, 5, 2 },
     { 8, -1, NULL, 1, 5, 2 },
     { -1, -1, NULL, 6, 5, 0 },
 };
@@ -291,7 +291,7 @@ CollisionInteractionEntry D_8074B568[8] = {
     { -1, 2560, (CollisionFilterFn)actorIsFacingTarget, 4, 2, 2 },
     { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 4, 2, 2 },
     { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 5, 2, 2 },
-    { 2, -1, (CollisionFilterFn)func_80676730, 1, 12, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode1, 1, 12, 2 },
     { -1, -1, NULL, 2, 2, 0 },
 };
 CollisionTableEntry D_8074B5C8[7] = {
@@ -332,7 +332,7 @@ CollisionTableEntry D_8074B6FC[6] = {
     { -3, D_8074B49C }, { 0, NULL },
 };
 CollisionInteractionEntry D_8074B72C[2] = {
-    { 2, -1, (CollisionFilterFn)func_806767E0, 4, 1, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode2, 4, 1, 2 },
     { -1, -1, NULL, 1, 1, 0 },
 };
 CollisionTableEntry D_8074B744[3] = { { -1, D_8074B72C }, { -3, D_8074B49C }, { 0, NULL } };
@@ -343,8 +343,8 @@ CollisionInteractionEntry D_8074B75C[9] = {
     { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 6, 2, 2 },
     { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 7, 2, 2 },
     { -1, 16, NULL, 6, 10, 2 },
-    { 2, -1, (CollisionFilterFn)func_80676788, 1, 5, 2 },
-    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 5, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode5, 1, 5, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode3, 1, 5, 2 },
     { -1, -1, NULL, 2, 2, 0 },
 };
 CollisionInteractionEntry D_8074B7C8[1] = { { -1, -1, NULL, 6, 5, 0 } };
@@ -359,8 +359,8 @@ CollisionInteractionEntry D_8074B7FC[9] = {
     { -1, 512, (CollisionFilterFn)actorIsFacingTarget, 4, 2, 2 },
     { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 4, 2, 2 },
     { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 5, 2, 2 },
-    { 2, -1, (CollisionFilterFn)func_80676788, 1, 5, 2 },
-    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 5, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode5, 1, 5, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode3, 1, 5, 2 },
     { -1, -1, NULL, 2, 2, 0 },
 };
 CollisionTableEntry D_8074B868[6] = {
@@ -369,22 +369,22 @@ CollisionTableEntry D_8074B868[6] = {
 };
 CollisionInteractionEntry D_8074B898[11] = {
     { -1, 4, (CollisionFilterFn)actorIsTargetFallingFromAbove, 5, 3, 2 },
-    { -1, 32, (CollisionFilterFn)func_80676730, 4, 2, 2 },
+    { -1, 32, (CollisionFilterFn)actorHitTargetNode1, 4, 2, 2 },
     { -1, 1024, NULL, 9, 2, 2 },
     { -1, 2560, (CollisionFilterFn)actorListHasId1FacingTarget, 4, 2, 2 },
     { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 4, 2, 2 },
     { -1, 328, (CollisionFilterFn)actorListHasId1FacingTarget, 5, 2, 2 },
-    { 4, -1, (CollisionFilterFn)func_806767E0, 1, 13, 2 },
-    { 4, -1, (CollisionFilterFn)func_8067675C, 1, 13, 2 },
-    { 2, -1, (CollisionFilterFn)func_806767E0, 1, 12, 2 },
-    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 12, 2 },
+    { 4, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 13, 2 },
+    { 4, -1, (CollisionFilterFn)actorHitTargetNode3, 1, 13, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 12, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode3, 1, 12, 2 },
     { -1, -1, NULL, 1, 2, 0 },
 };
 CollisionInteractionEntry D_8074B91C[4] = {
-    { -1, -1, (CollisionFilterFn)func_806767E0, 1, 1, 2 },
-    { -1, -1, (CollisionFilterFn)func_8067675C, 1, 1, 2 },
-    { 8, -1, (CollisionFilterFn)func_80676730, 9, 5, 2 },
-    { -1, -1, (CollisionFilterFn)func_80676730, 1, 5, 0 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 1, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode3, 1, 1, 2 },
+    { 8, -1, (CollisionFilterFn)actorHitTargetNode1, 9, 5, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode1, 1, 5, 0 },
 };
 CollisionTableEntry D_8074B94C[6] = {
     { -1, D_8074B898 }, { 41, D_8074B91C }, { 171, D_8074B91C }, { 26, D_8074AC10 },
@@ -396,10 +396,10 @@ CollisionInteractionEntry D_8074B97C[10] = {
     { -1, 2560, (CollisionFilterFn)actorIsFacingTarget, 6, 2, 2 },
     { -1, 128, (CollisionFilterFn)actorIsTargetAbovePitchThreshold, 6, 2, 2 },
     { -1, 328, (CollisionFilterFn)actorIsFacingTarget, 7, 2, 2 },
-    { 2, -1, (CollisionFilterFn)func_806767E0, 1, 11, 2 },
-    { 2, -1, (CollisionFilterFn)func_8067675C, 1, 11, 2 },
-    { 4, -1, (CollisionFilterFn)func_806767E0, 1, 12, 2 },
-    { 4, -1, (CollisionFilterFn)func_8067675C, 1, 12, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 11, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode3, 1, 11, 2 },
+    { 4, -1, (CollisionFilterFn)actorHitTargetNode2, 1, 12, 2 },
+    { 4, -1, (CollisionFilterFn)actorHitTargetNode3, 1, 12, 2 },
     { -1, -1, NULL, 2, 2, 0 },
 };
 CollisionTableEntry D_8074B9F4[6] = {
@@ -461,9 +461,9 @@ CollisionInteractionEntry D_8074BC58[3] = {
 };
 CollisionTableEntry D_8074BC7C[2] = { { -1, D_8074BC58 }, { 0, NULL } };
 CollisionInteractionEntry D_8074BC8C[4] = {
-    { -1, -1, (CollisionFilterFn)func_8067675C, 6, 5, 2 },
-    { -1, -1, (CollisionFilterFn)func_806767B4, 6, 5, 2 },
-    { -1, -1, (CollisionFilterFn)func_80676788, 6, 5, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode3, 6, 5, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode4, 6, 5, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode5, 6, 5, 2 },
     { -1, -1, NULL, 1, 5, 0 },
 };
 CollisionInteractionEntry D_8074BCBC[2] = {
@@ -476,11 +476,11 @@ CollisionTableEntry D_8074BCD4[6] = {
 };
 CollisionInteractionEntry D_8074BD04[3] = {
     { 4, -1, (CollisionFilterFn)func_80676C64, 4, 3, 2 },
-    { 4, -1, (CollisionFilterFn)func_80676730, 1, 2, 2 },
+    { 4, -1, (CollisionFilterFn)actorHitTargetNode1, 1, 2, 2 },
     { -1, -1, NULL, 1, 5, 0 },
 };
 CollisionInteractionEntry D_8074BD28[2] = {
-    { 2, -1, (CollisionFilterFn)func_80676730, 6, 5, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode1, 6, 5, 2 },
     { -1, -1, NULL, 1, 5, 0 },
 };
 CollisionTableEntry D_8074BD40[3] = { { -1, D_8074BD04 }, { -3, D_8074BD28 }, { 0, NULL } };
@@ -505,7 +505,7 @@ CollisionTableEntry D_8074BDD8[4] = {
     { -1, D_8074BDA8 }, { 26, D_8074BD70 }, { -3, D_8074AC28 }, { 0, NULL },
 };
 CollisionInteractionEntry D_8074BDF8[2] = {
-    { -1, -1, (CollisionFilterFn)func_8067675C, 5, 2, 2 },
+    { -1, -1, (CollisionFilterFn)actorHitTargetNode3, 5, 2, 2 },
     { -1, -1, NULL, 1, 2, 0 },
 };
 CollisionInteractionEntry D_8074BE10[1] = { { -1, -1, NULL, 4, 5, 0 } };
@@ -544,7 +544,7 @@ CollisionTableEntry D_8074BF98[2] = { { -1, D_8074BF80 }, { 0, NULL } };
 CollisionTableEntry D_8074BFA8[2] = { { -2, D_8074AC28 }, { 0, NULL } };
 CollisionInteractionEntry D_8074BFB8[6] = {
     { 4, -1, NULL, 5, 0, 2 },
-    { 8, -1, (CollisionFilterFn)func_80676788, 5, 2, 2 },
+    { 8, -1, (CollisionFilterFn)actorHitTargetNode5, 5, 2, 2 },
     { 2, -1, NULL, 4, 4, 2 },
     { -1, -1, (CollisionFilterFn)actorTargetIsLargeMode, 1, 2, 2 },
     { -1, -1, NULL, 1, 2, 1 },
@@ -557,7 +557,7 @@ CollisionInteractionEntry D_8074C020[1] = { { -1, -1, NULL, 9, 13, 0 } };
 CollisionTableEntry D_8074C02C[2] = { { -8, D_8074C020 }, { 0, NULL } };
 CollisionInteractionEntry D_8074C03C[1] = { { -1, -1, NULL, 1, 5, 0 } };
 CollisionInteractionEntry D_8074C048[2] = {
-    { 2, -1, (CollisionFilterFn)func_80676730, 6, 5, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode1, 6, 5, 2 },
     { -1, -1, NULL, 5, 5, 0 },
 };
 CollisionTableEntry D_8074C060[3] = { { -1, D_8074C03C }, { -3, D_8074C048 }, { 0, NULL } };

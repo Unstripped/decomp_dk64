@@ -27,12 +27,12 @@ Acmd *n_alAuxBusPull(s32 time, Acmd *cmdList, s32 busIndex, s32 *outCount) {
     }
     *outCount = 0;
     for (i = 0; i < bus->sourceCount; i++) {
-        if ((pvoices[i]->vvoice != NULL) && (pvoices[i]->vvoice->fxBus == busIndex) && (pvoices[i]->vvoice->pvoice != NULL) && (pvoices[i]->vvoice->pvoice->unk8C >= 0x40)) {
+        if ((pvoices[i]->vvoice != NULL) && (pvoices[i]->vvoice->fxBus == busIndex) && (pvoices[i]->vvoice->pvoice != NULL) && (pvoices[i]->vvoice->pvoice->rspFxLevel >= 0x40)) {
             ptr = n_alEnvmixerPull(pvoices[i], time, ptr);
             (*outCount)++;
             count++;
-            if (pvoices[i]->vvoice->pvoice->unk8C > max) {
-                max = pvoices[i]->vvoice->pvoice->unk8C;
+            if (pvoices[i]->vvoice->pvoice->rspFxLevel > max) {
+                max = pvoices[i]->vvoice->pvoice->rspFxLevel;
             }
         }
     }
@@ -60,7 +60,7 @@ Acmd *n_alAuxBusPull(s32 time, Acmd *cmdList, s32 busIndex, s32 *outCount) {
     }
     for (i = 0; i < bus->sourceCount; i++) {
         if (((pvoices[i]->vvoice != NULL) && (pvoices[i]->vvoice->fxBus == busIndex) &&
-             ((pvoices[i]->vvoice->pvoice == NULL) || (pvoices[i]->vvoice->pvoice->unk8C < 0x40))) ||
+             ((pvoices[i]->vvoice->pvoice == NULL) || (pvoices[i]->vvoice->pvoice->rspFxLevel < 0x40))) ||
             ((pvoices[i]->vvoice == NULL) && (busIndex == 0))) {
             Acmd *oldPtr;
 

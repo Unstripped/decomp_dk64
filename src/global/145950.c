@@ -10,20 +10,20 @@ Acmd *n_alResamplePull(N_PVoice *filter, s16 *outp, s32 outCount, Acmd *p) {
     f32 ratio;
 
     result = n_alSavePull(filter, outp, p);
-    if ((filter->unk8C != 0) && (filter->unk8C < 0x40)) {
+    if ((filter->rspFxLevel != 0) && (filter->rspFxLevel < 0x40)) {
         Acmd *cmd;
 
-        if (filter->unk8C >= 6) {
-            ratio = 26755.0f / sqrtf((f32)filter->unk8C + 1.0f);
+        if (filter->rspFxLevel >= 6) {
+            ratio = 26755.0f / sqrtf((f32)filter->rspFxLevel + 1.0f);
         } else {
-            ratio = 65536.0f / ((f32)filter->unk8C + 1.0f);
+            ratio = 65536.0f / ((f32)filter->rspFxLevel + 1.0f);
         }
         if (ratio < 7723.0f) {
             ratio = 7723.0f;
         }
         cmd = result++;
         cmd->words.w0 = *outp & 0xFFFF;
-        cmd->words.w1 = (((u32)ratio & 0xFFFF) << 16) | (u16)(filter->unk8C + 1);
+        cmd->words.w1 = (((u32)ratio & 0xFFFF) << 16) | (u16)(filter->rspFxLevel + 1);
     }
     if (filter->lowpass.fgain > 0) {
         if (filter->lowpass.first != 0) {
@@ -68,7 +68,7 @@ s32 alResampleParam(N_PVoice *filter, s32 paramID, void *param) {
             filter->lowpass.first |= 2;
             break;
         case 0x11:
-            filter->unk8C = (s32)param;
+            filter->rspFxLevel = (s32)param;
             break;
         default:
             _decodeChunk(filter, paramID, param);

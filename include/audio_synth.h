@@ -149,7 +149,7 @@ typedef struct PVoice_s {
     /* 0x80 */ SynCoreParam *em_ctrlTail;
     /* 0x84 */ s32 em_motion;
     /* 0x88 */ s32 delta; // samples until the envelope's release ends; 0 = free to steal
-    /* 0x8C */ u8 unk8C; // start fxDelay / param 0x11; n_alResamplePull pitch-shifts when 1..0x3F
+    /* 0x8C */ u8 rspFxLevel; // start fxDelay / param 0x11; n_alResamplePull pitch-shifts when 1..0x3F
     /* 0x8D */ u8 unk8D[3];
     /* 0x90 */ SynLowPass lowpass; // fc: start fxVolume / param 0x13; fgain: start fxPitch / param 0x12
     /* 0xBC */ void *lowpassState;

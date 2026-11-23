@@ -208,8 +208,8 @@ void audioThreadMain(void *arg) {
     n_alClose(&sAudioAlGlobals.globals);
 }
 
-extern u64 func_80741310[];
-extern u64 D_80760590[];
+extern u64 gAudioUcodeText[];
+extern u64 gAudioUcodeData[];
 
 
 s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
@@ -256,8 +256,8 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
     task->task.t.ucode_boot = (u64 *)rspbootTextStart;
     task->task.t.ucode_boot_size = (u8 *)rspbootTextEnd - (u8 *)rspbootTextStart;
     task->task.t.flags = 0;
-    task->task.t.ucode = func_80741310;
-    task->task.t.ucode_data = D_80760590;
+    task->task.t.ucode = gAudioUcodeText;
+    task->task.t.ucode_data = gAudioUcodeData;
     task->task.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     task->task.t.yield_data_ptr = NULL;
     task->task.t.yield_data_size = OS_YIELD_AUDIO_SIZE;

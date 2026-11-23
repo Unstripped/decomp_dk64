@@ -39,20 +39,20 @@ u8 actorListHasId1FacingTarget(Actor *, Actor *, ActorCallbackNode *);
 #ifndef PROTO_SKIP_actorListHasId2FacingTarget
 u8 actorListHasId2FacingTarget(Actor *, Actor *, ActorCallbackNode *);
 #endif
-#ifndef PROTO_SKIP_func_80676730
-s32 func_80676730(Actor *, Actor *, ActorCallbackNode *);
+#ifndef PROTO_SKIP_actorHitTargetNode1
+s32 actorHitTargetNode1(Actor *, Actor *, ActorCallbackNode *);
 #endif
-#ifndef PROTO_SKIP_func_8067675C
-s32 func_8067675C(Actor *, Actor *, ActorCallbackNode *);
+#ifndef PROTO_SKIP_actorHitTargetNode3
+s32 actorHitTargetNode3(Actor *, Actor *, ActorCallbackNode *);
 #endif
-#ifndef PROTO_SKIP_func_80676788
-s32 func_80676788(Actor *, Actor *, ActorCallbackNode *);
+#ifndef PROTO_SKIP_actorHitTargetNode5
+s32 actorHitTargetNode5(Actor *, Actor *, ActorCallbackNode *);
 #endif
-#ifndef PROTO_SKIP_func_806767B4
-s32 func_806767B4(Actor *, Actor *, ActorCallbackNode *);
+#ifndef PROTO_SKIP_actorHitTargetNode4
+s32 actorHitTargetNode4(Actor *, Actor *, ActorCallbackNode *);
 #endif
-#ifndef PROTO_SKIP_func_806767E0
-s32 func_806767E0(Actor *, Actor *, ActorCallbackNode *);
+#ifndef PROTO_SKIP_actorHitTargetNode2
+s32 actorHitTargetNode2(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorCheckPlayerProximityVertical
 s32 actorCheckPlayerProximityVertical(Actor *, Actor *, ActorCallbackNode *);
