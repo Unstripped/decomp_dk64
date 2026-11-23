@@ -1255,7 +1255,7 @@ void actorDispatchCallbacks(Actor *actor) {
     ActorSurfacePayload *surfacePayload;
     f32 *pointPair;
     ActorEventPayload *eventPayload;
-    PlayerState *playerState;
+    BehaviourWorkState *attackerWork;
     ActorMovePayload2D *move2D;
     ActorMovePayload3D *move3D;
     f32 *vecPayload;
@@ -1321,8 +1321,8 @@ void actorDispatchCallbacks(Actor *actor) {
                         }
                         player = node->source;
                         if ((player != NULL) && (player->collisionFlags & 2)) {
-                            playerState = player->customState;
-                            playerState->unk1A |= 0x100;
+                            attackerWork = player->customState;
+                            attackerWork->flags |= 0x100;
                         }
                     }
                     break;
