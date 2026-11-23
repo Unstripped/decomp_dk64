@@ -230,7 +230,7 @@ void seqPlayerSetChannelLowpassKeyOffset(u8 playerIndex, u8 channel, u8 val) {
     alCSPSendMidi(&gSeqPlayers[playerIndex]->al, 0, (u8)(channel | AL_MIDI_ControlChange), 0x22, val);
 }
 
-void func_80601728(u8 playerIndex, u8 channel, u8 val) {
+void seqPlayerSetChannelRspFxLevel(u8 playerIndex, u8 channel, u8 val) {
     alCSPSendMidi(&gSeqPlayers[playerIndex]->al, 0, (u8)(channel | AL_MIDI_ControlChange), 0x23, val);
 }
 void seqPlayerSetTempo(u8 playerIndex, s32 tempo) {

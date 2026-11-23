@@ -56,8 +56,8 @@ void seqPlayerSetChannelLowpassGain(u8, u8, u8);
 #ifndef PROTO_SKIP_seqPlayerSetChannelLowpassKeyOffset
 void seqPlayerSetChannelLowpassKeyOffset(u8, u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_80601728
-void func_80601728(u8, u8, u8);
+#ifndef PROTO_SKIP_seqPlayerSetChannelRspFxLevel
+void seqPlayerSetChannelRspFxLevel(u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_seqPlayerSetTempo
 void seqPlayerSetTempo(u8, s32);

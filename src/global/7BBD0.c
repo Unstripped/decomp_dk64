@@ -205,7 +205,7 @@ CollisionTableEntry D_8074B204[2] = { { -1, D_8074B1E0 }, { 0, NULL } };
 CollisionTableEntry D_8074B214[1] = { { 0, NULL } };
 CollisionInteractionEntry D_8074B21C[3] = {
     { 1, 72, NULL, 4, 0, 2 },
-    { 2, -1, (CollisionFilterFn)func_80676C64, 9, 3, 2 },
+    { 2, -1, (CollisionFilterFn)actorHitTargetNode1GroundPound, 9, 3, 2 },
     { -1, -1, NULL, 1, 5, 0 },
 };
 CollisionTableEntry D_8074B240[5] = {
@@ -475,7 +475,7 @@ CollisionTableEntry D_8074BCD4[6] = {
     { -3, D_8074AC28 }, { 0, NULL },
 };
 CollisionInteractionEntry D_8074BD04[3] = {
-    { 4, -1, (CollisionFilterFn)func_80676C64, 4, 3, 2 },
+    { 4, -1, (CollisionFilterFn)actorHitTargetNode1GroundPound, 4, 3, 2 },
     { 4, -1, (CollisionFilterFn)actorHitTargetNode1, 1, 2, 2 },
     { -1, -1, NULL, 1, 5, 0 },
 };

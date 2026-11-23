@@ -81,8 +81,8 @@ u8 actorTargetIsLargeMode(Actor *, Actor *, ActorCallbackNode *);
 #ifndef PROTO_SKIP_actorCheckTargetOnSurfaceOrSmaller
 u8 actorCheckTargetOnSurfaceOrSmaller(Actor *, Actor *, ActorCallbackNode *);
 #endif
-#ifndef PROTO_SKIP_func_80676C64
-s32 func_80676C64(Actor *, Actor *, ActorCallbackNode *);
+#ifndef PROTO_SKIP_actorHitTargetNode1GroundPound
+s32 actorHitTargetNode1GroundPound(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorListContainsId
 s32 actorListContainsId(ActorCallbackNode *, u8);

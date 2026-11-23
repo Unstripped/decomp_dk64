@@ -226,7 +226,7 @@ u8 actorCheckTargetOnSurfaceOrSmaller(Actor *actor, Actor *target, ActorCallback
     return onSurface || actorTargetIsGiantKong(actor, target, node);
 }
 
-s32 func_80676C64(Actor *actor, Actor *target, ActorCallbackNode *node) {
+s32 actorHitTargetNode1GroundPound(Actor *actor, Actor *target, ActorCallbackNode *node) {
     if (actorListContainsId(node, 1)) {
         if (target->state == 0x1C) {
             return 1;
