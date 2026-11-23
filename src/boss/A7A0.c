@@ -133,7 +133,7 @@ void bossKRoolLankyStep(void) {
                 gCurrentActor->subState++;
                 break;
             case 3:
-                if (gActorGlobalState.unk1B != 0) {
+                if (gActorGlobalState.heavyHitReceived != 0) {
                     gCurrentActor->state = 0x31;
                     gCurrentActor->subState = 0;
                 } else if (gActorGlobalState.bossFightPhase == 2) {

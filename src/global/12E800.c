@@ -49,7 +49,7 @@ void behaviourFrameBegin(void) {
                 gCurrentActor->subState = 0;
             }
         }
-        if (gActorGlobalState.unk1B) {
+        if (gActorGlobalState.heavyHitReceived) {
             if (gCurrentActor->state != 0x39) {
                 if (gBehaviourAnimState->flags & 0x800) {
                     gActorGlobalState.damaged = 1;

@@ -292,11 +292,11 @@ typedef struct ActorGlobalState {
     /* 0x014 */ u8 eventSubtype;
     /* 0x015 */ u8 damaged;
     /* 0x016 */ u8 stompBounceReceived;
-    /* 0x017 */ u8 unk17;
+    /* 0x017 */ u8 takeHitReceived;
     /* 0x018 */ u8 unk18;
-    /* 0x019 */ u8 unk19;
+    /* 0x019 */ u8 chargeHitReceived;
     /* 0x01A */ u8 playerLaunchReceived;
-    /* 0x01B */ u8 unk1B;
+    /* 0x01B */ u8 heavyHitReceived;
     /* 0x01C */ u8 grabCandidateReceived;
     /* 0x01D */ u8 unk1D[3];
     /* 0x020 */ struct Actor *grabCandidate;

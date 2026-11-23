@@ -1288,7 +1288,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 1:
-                    gActorGlobalState.unk17 = 1;
+                    gActorGlobalState.takeHitReceived = 1;
                     if (actor == gActivePlayerActor) {
                         playerStateQueueCallback(0xE, node->source, gCurrentPlayerIndex);
                     }
@@ -1300,13 +1300,13 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 3:
-                    gActorGlobalState.unk19 = 1;
+                    gActorGlobalState.chargeHitReceived = 1;
                     if (actor == gActivePlayerActor) {
                         playerStateQueueCallback(0x13, NULL, gCurrentPlayerIndex);
                     }
                     break;
                 case 6:
-                    gActorGlobalState.unk1B = 1;
+                    gActorGlobalState.heavyHitReceived = 1;
                     if (actor == gActivePlayerActor) {
                         playerStateQueueCallback(0x36, node->source, gCurrentPlayerIndex);
                     }
@@ -1832,10 +1832,10 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.forcedContactReceived = 0;
     gActorGlobalState.damaged = 0;
     gActorGlobalState.stompBounceReceived = 0;
-    gActorGlobalState.unk17 = 0;
+    gActorGlobalState.takeHitReceived = 0;
     gActorGlobalState.unk18 = 0;
-    gActorGlobalState.unk19 = 0;
-    gActorGlobalState.unk1B = 0;
+    gActorGlobalState.chargeHitReceived = 0;
+    gActorGlobalState.heavyHitReceived = 0;
     gActorGlobalState.playerLaunchReceived = 0;
     gActorGlobalState.grabCandidateReceived = 0;
     gActorGlobalState.pickupReceived = 0;
