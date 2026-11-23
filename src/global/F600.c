@@ -91,8 +91,8 @@ void controllerSetActiveMask(u8 mask) {
     }
 }
 
-u8 controllerGetPort(s32 arg0) {
-    return gControllerActivePorts[arg0];
+u8 controllerGetPort(s32 playerIndex) {
+    return gControllerActivePorts[playerIndex];
 }
 
 void controllerCompactPads(OSContPad *pads) {
