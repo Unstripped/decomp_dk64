@@ -50,10 +50,6 @@ void menuLightSpotlightActorUpdate(void) {
 u8 menuOptionDescFade = 0;
 
 void menuUpdateLightFadeActor(void) {
-    s32 d;
-    s32 cur;
-    s32 maxLevel = 0xFF; // FAKE: constant-valued limit local; a 0xFF literal in its compares flips the beq operand order (target beq a0,v0 at 0x1f8)
-
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->fadeValue = 0;
         currentActorClearFlag();
@@ -72,10 +68,8 @@ void menuUpdateLightFadeActor(void) {
         break;
     case 1:
         lightSetFovAngles(20.0f, 40.0f);
-        cur = gCurrentActor->fadeValue;
-        if (maxLevel != cur) {
-            d = (maxLevel - cur < 3) ? maxLevel - cur : 3;
-            gCurrentActor->fadeValue = cur + d;
+        if (gCurrentActor->fadeValue != 0xFF) {
+            gCurrentActor->fadeValue += MIN(0xFF - gCurrentActor->fadeValue, 3);
         }
         lightAdd(gCurrentActor->x, gCurrentActor->y + 20.0f, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 1, gCurrentActor->fadeValue, gCurrentActor->fadeValue, gCurrentActor->fadeValue);
         if (currentActorTestClearFlag() != 0) {
@@ -97,7 +91,7 @@ void menuUpdateLightFadeActor(void) {
         }
         break;
     case 3:
-        if (menuOptionDescFade < maxLevel) {
+        if (menuOptionDescFade < 0xFF) {
             menuOptionDescFade++;
         }
         if (currentActorTestClearFlag() != 0) {
