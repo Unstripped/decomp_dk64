@@ -2,8 +2,8 @@
 #include "actor.h"
 #include "boss.h"
 #define PROTO_SKIP_csModelStateSetFirstByte // ORIG: hides the shared (s16, s16) prototype; the target passes the u8 stateByte unextended (lbu a1,39(sp) at 0x81c), see the declaration below
-#include "proto/boss/3840.h"
-#include "proto/boss/F0D0.h"
+#include "proto/boss/3840_script.h"
+#include "proto/boss/F0D0_common.h"
 #include "proto/global/119370_effect_grid.h"
 #include "proto/global/11BC10_effect_update.h"
 #include "proto/global/1295B0_spawn_nodes.h"

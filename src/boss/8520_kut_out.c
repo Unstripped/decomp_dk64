@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#include "proto/boss/8520.h"
+#include "proto/boss/8520_kut_out.h"
 #include "proto/global/135D30_flags.h"
 #include "proto/global/166A0_random.h"
 #include "proto/global/17B90_anim_controller.h"

@@ -3,7 +3,7 @@
 #include "boss.h"
 #include "sched.h"
 #include "proto/boot/3D20_sprintf.h"
-#include "proto/boss/3840.h"
+#include "proto/boss/3840_script.h"
 #include "proto/global/100180_text_font.h"
 #include "proto/global/103AB0_view_effects.h"
 #include "proto/global/10D2D0_health_hud.h"

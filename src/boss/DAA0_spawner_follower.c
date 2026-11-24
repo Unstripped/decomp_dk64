@@ -1,6 +1,6 @@
 #include "common.h"
-#include "proto/boss/3840.h"
-#include "proto/boss/DAA0.h"
+#include "proto/boss/3840_script.h"
+#include "proto/boss/DAA0_spawner_follower.h"
 #include "proto/global/1295B0_spawn_nodes.h"
 #include "proto/global/166A0_random.h"
 #include "proto/global/17B90_anim_controller.h"
