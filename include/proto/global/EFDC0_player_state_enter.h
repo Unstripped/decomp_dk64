@@ -4,7 +4,7 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_playerStateQueueCallback
-s32 playerStateQueueCallback(s16, void *, u8);
+s32 playerStateQueueCallback(s16, Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_playerStateSetCallbackParameters
 void playerStateSetCallbackParameters(s32, s32, s32, s32);

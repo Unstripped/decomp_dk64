@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
+#include "race.h"
 #include "proto/global/117190_menu_transition.h"
 #include "proto/global/12E800_behaviour.h"
 #include "proto/global/135D30_flags.h"
@@ -33,10 +34,10 @@ extern s32 gCurrentMap;
 
 extern PlayerStruct *gPlayerSlots;
 
-/* Actors with a word past the base Actor (gActivePlayerState->actor in playerStateAdjustUpwardVelocity). */
+/* Racer actor ridden by the player: the race overlay's path cursor follows the base Actor (RaceRacerActor). */
 typedef struct EfExtActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ s32 path;
+    /* 0x178 */ RacePathState *path;
 } EfExtActor;
 
 /* Arguments for the next queued player-state callback (playerStateSetCallbackParameters). */
@@ -49,7 +50,7 @@ typedef struct EfCallbackParams {
 
 extern EfCallbackParams gPlayerStateCallbackParams;
 
-s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
+s32 playerStateQueueCallback(s16 priority, Actor *actor, u8 player) {
     if (gPlayerSlots[player].queuedState < priority) {
         gPlayerSlots[player].queuedState = priority;
         gPlayerSlots[player].queuedActor = actor;
@@ -57,7 +58,7 @@ s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
         gPlayerSlots[player].queuedParam1 = gPlayerStateCallbackParams.param1;
         gPlayerSlots[player].queuedParam2 = gPlayerStateCallbackParams.param2;
         if (actor != NULL) {
-            gPlayerSlots[player].queuedActorId = ((Actor *)actor)->instanceId;
+            gPlayerSlots[player].queuedActorId = actor->instanceId;
         }
         return 1;
     }
@@ -291,15 +292,15 @@ void playerStateInitTumble(void) {
 
 void playerStateTakeDamagePrep(void) {
     CamState *camState;
-    s16 speed;
-    u8 type;
+    s16 heightGoal;
+    u8 zoomLevel;
 
     camState = gActivePlayerState->camActor->customState;
-    type = camState->zoomLevel;
-    speed = camState->followHeightGoal;
-    if (type != 0) {
-        camState->savedZoomLevel = type;
-        speed = 0x80;
+    zoomLevel = camState->zoomLevel;
+    heightGoal = camState->followHeightGoal;
+    if (zoomLevel != 0) {
+        camState->savedZoomLevel = zoomLevel;
+        heightGoal = 0x80;
     }
     camSaveYaw(gActivePlayerState->camActor);
     camSetZoomLevel(gActivePlayerState->camActor, 0);
@@ -312,8 +313,8 @@ void playerStateTakeDamagePrep(void) {
         }
     }
     camState->aimHeightBase = 0x80;
-    gActivePlayerState->camActor->distToFloor = speed;
-    camState->followHeightGoal = speed;
+    gActivePlayerState->camActor->distToFloor = heightGoal;
+    camState->followHeightGoal = heightGoal;
     camState->orbitYaw = gActivePlayerActor->yaw + 0x800;
     gActivePlayerActor->speedXZ = 0.0f;
     gActivePlayerActor->contactFlags |= 0x2000;
@@ -374,12 +375,11 @@ void playerStateEnterState4F(void) {
 }
 
 void playerStateEnterStunState1(void) {
-
     gGlobalPauseFlags |= 0x4000;
     gActivePlayerActor->state = 1;
     gActivePlayerActor->subState = 0;
     actorScriptStart(gActivePlayerActor, 0);
-    scriptSetRampValue(gActivePlayerActor, 0, 0);
+    scriptSetRampValue(gActivePlayerActor, 0.0f, 0.0f);
     gActivePlayerState->gravityDelay = 0;
     gActivePlayerState->moveTier = -1;
 }
@@ -388,7 +388,7 @@ void playerStateEnterKnockbackState6(void) {
     gActivePlayerActor->state = 6;
     gActivePlayerActor->subState = 0;
     actorScriptStart(gActivePlayerActor, 0);
-    scriptSetRampValue(gActivePlayerActor, 0, 0);
+    scriptSetRampValue(gActivePlayerActor, 0.0f, 0.0f);
     gActivePlayerState->gravityDelay = 0;
     gActivePlayerState->moveTier = -1;
     gActivePlayerActor->flags &= ~4;
@@ -398,13 +398,11 @@ void playerStateEnterElectrocute(void) {
     gActivePlayerActor->state = 0x6B;
     gActivePlayerActor->subState = 0;
     actorScriptStart(gActivePlayerActor, 0);
-    scriptSetRampValue(gActivePlayerActor, 0, 0);
+    scriptSetRampValue(gActivePlayerActor, 0.0f, 0.0f);
     gActivePlayerState->gravityDelay = 0;
     gActivePlayerState->moveTier = -1;
     gActivePlayerActor->flags &= ~4;
 }
-
-void func_80026004(s32, s32, f32);
 
 void playerStateEnterSquish(void) {
     gActivePlayerActor->state = 7;
@@ -413,7 +411,7 @@ void playerStateEnterSquish(void) {
     gActivePlayerState->gravityDelay = 0;
     gActivePlayerState->moveTier = -1;
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
-    gActivePlayerActor->flags &= 0xFFFBFFFF;
+    gActivePlayerActor->flags &= ~0x40000;
     gActivePlayerActor->speedXZ = 0.0f;
 }
 
@@ -428,18 +426,21 @@ void playerStateInitKongAction69(void) {
     scriptSetRampValue(gActivePlayerActor, 0.0f, 0.0f);
     gActivePlayerState->gravityDelay = 0;
     gActivePlayerState->moveTier = -1;
-    gActivePlayerActor->flags &= 0xFEFFFFFF;
+    gActivePlayerActor->flags &= ~0x1000000;
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
 }
 
+/* The race overlay's racePlayCheckpointSfx: starts a boost of the path cursor's racer. */
+void func_80026004(RacePathState *, u8, f32);
+
 void playerStateAdjustUpwardVelocity(void) {
     Actor *actor;
-    s32 handle;
+    RacePathState *path;
 
     actor = gActivePlayerState->actor;
-    handle = ((EfExtActor *)actor)->path;
+    path = ((EfExtActor *)actor)->path;
     if (actor->state < 3) {
-        func_80026004(handle, 0x1E, 1.0f);
+        func_80026004(path, 0x1E, 1.0f);
     }
 }
 
@@ -512,7 +513,7 @@ void playerStateEnterSlideSlope(void) {
         gActivePlayerActor->collisionMode = 1;
     }
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
-    if (gActivePlayerActor->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } controllerAnimSetStateIfChanged(gActivePlayerActor, (s16)animation, 0.0f, 0.0f); // LAYOUT: one source line steers the scheduler (li at,2 after mfc1)
+    if (gActivePlayerActor->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } controllerAnimSetStateIfChanged(gActivePlayerActor, animation, 0.0f, 0.0f); // LAYOUT: one source line steers the scheduler (li at,2 after mfc1)
 }
 
 void playerStateEnterFrozen(void) {
@@ -848,28 +849,30 @@ void playerStateEnterState15ThrowHeldActor(void) {
 
 extern s16 gKongDamageInvulnFrames[];
 
+#define ABSF(x) ((x) > 0.0f ? (x) : -(x))
+
 void playerStateDamageTargetCheck(void) {
-    Actor *camTarget;
+    Actor *hitter;
     Actor *target;
-    f32 v;
+    f32 speed;
 
     target = gActivePlayerState->actor;
     if (target->speedXZ >= 0.0f) {
         behaviourAddSlotQueueValueB(3);
     }
-    camTarget = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
+    hitter = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
     target = gActivePlayerState->actor;
-    if (camTarget != NULL) {
-        if (camTarget->speedXZ != 0.0f) {
-            v = camTarget->speedXZ > 0.0f ? camTarget->speedXZ : -camTarget->speedXZ;
-            target->speedXZ = 2.0 * v;
+    if (hitter != NULL) {
+        if (hitter->speedXZ != 0.0f) {
+            speed = ABSF(hitter->speedXZ);
+            target->speedXZ = 2.0 * speed;
         } else {
-            v = target->speedXZ > 0.0f ? target->speedXZ : -target->speedXZ;
-            target->speedXZ = v < 50.0f ? -50.0f : -(target->speedXZ > 0.0f ? target->speedXZ : -target->speedXZ);
+            speed = ABSF(target->speedXZ);
+            target->speedXZ = speed < 50.0f ? -50.0f : -ABSF(target->speedXZ);
         }
     } else {
-        v = target->speedXZ > 0.0f ? target->speedXZ : -target->speedXZ;
-        target->speedXZ = v < 50.0f ? -50.0f : -(target->speedXZ > 0.0f ? target->speedXZ : -target->speedXZ);
+        speed = ABSF(target->speedXZ);
+        target->speedXZ = speed < 50.0f ? -50.0f : -ABSF(target->speedXZ);
     }
     actorScriptStart(gActivePlayerState->actor, 0x292);
     if (gActivePlayerActor->state != 9) {
@@ -878,18 +881,16 @@ void playerStateDamageTargetCheck(void) {
 }
 
 void playerStateDamageCheck4(void) {
-    u8 character;
-
     if (gActivePlayerState->surfaceTimer == 0) {
         playerClearCarriedItemState();
         behaviourAddSlotQueueValueB(3);
-        character = gPlayerCharacterId[gCurrentPlayerIndex];
-        if (character != 2) {
-            if (character == 3) {
-                sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0xB9, 0xFF, 0x7F, 0x14);
-            }
-        } else {
+        switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
+        case 3:
+            sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0xB9, 0xFF, 0x7F, 0x14);
+            break;
+        case 2:
             sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0xD2, 0xFF, 0x7F, 0x14);
+            break;
         }
         gActivePlayerState->surfaceTimer = gKongDamageInvulnFrames[gCurrentCharacterIndex];
         gActivePlayerActor->speedXZ = gActivePlayerActor->speedXZ / 2;
@@ -897,32 +898,32 @@ void playerStateDamageCheck4(void) {
 }
 
 void playerStatePlayAnimationByDamageType(u16 damageType) {
-    u16 ev;
-    s16 anim;
+    u16 flag;
+    s16 camPath;
 
     switch (damageType) {
     case 0x12:
-        ev = 0x16D;
-        anim = 0x23;
+        flag = 0x16D;
+        camPath = 0x23;
         break;
     case 0x81:
-        ev = 0x16E;
-        anim = 0x24;
+        flag = 0x16E;
+        camPath = 0x24;
         break;
     }
-    if (flagGet(ev, 0) == 0) {
+    if (flagGet(flag, 0) == 0) {
         if (damageType == 0x81) {
             gActivePlayerActor->speedXZ = 0.0f;
         }
-        camStartPath(NULL, anim, 5);
-        flagSet(ev, 1, 0);
+        camStartPath(NULL, camPath, 5);
+        flagSet(flag, 1, 0);
     }
 }
 
 void playerStateApplyAttackerDamage(Actor *attacker) {
     s16 id;
     u16 type;
-    s32 ev;
+    s32 flag;
 
     type = attacker->actorType;
     id = actorListFindIdByActor(attacker);
@@ -940,23 +941,23 @@ void playerStateApplyAttackerDamage(Actor *attacker) {
     }
     switch (type) {
     case 0x19:
-        ev = 0x169;
+        flag = 0x169;
         break;
     case 0x28:
-        ev = 0x168;
+        flag = 0x168;
         break;
     case 0x39:
-        ev = 0x16B;
+        flag = 0x16B;
         break;
     case 0x38:
-        ev = 0x16A;
+        flag = 0x16A;
         break;
     default:
         return;
     }
-    if (flagGet(ev, 0) == 0) {
+    if (flagGet(flag, 0) == 0) {
         camStartPath(NULL, 0x16, 5);
-        flagSet(ev, 1, 0);
+        flagSet(flag, 1, 0);
     }
 }
 
@@ -1141,7 +1142,6 @@ void playerStateThrowHeldActorWithScript(void) {
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
 }
 
-
 void playerStateEnterDamageTake(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         playerClearCarriedItemState();
@@ -1157,7 +1157,6 @@ void playerStateEnterDamageTake(void) {
         gActivePlayerState->surfaceTimer = gKongDamageInvulnFrames[gCurrentCharacterIndex];
     }
 }
-
 
 void playerStateAttachHeldActorToPlayer(void) {
     Actor *held = gActivePlayerState->heldActor;
@@ -1183,17 +1182,17 @@ void playerStateEnterSlideRecover(void) {
 
 void playerStateDamageSelector(void) {
     s32 shake = 1;
-    s8 selector;
+    s8 healthDelta;
     Actor *target;
 
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
-        selector = -1;
+        healthDelta = -1;
         playerClearCarriedItemState();
         target = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
         if ((target != NULL) && (target->actorType == 0x123)) {
-            selector = -2;
+            healthDelta = -2;
         }
-        if (playerAddHealthDelta(gCurrentPlayerIndex, selector) != 0) {
+        if (playerAddHealthDelta(gCurrentPlayerIndex, healthDelta) != 0) {
             shake = 0;
             if (gActivePlayerActor->contactFlags & 4) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x29);
@@ -1223,7 +1222,7 @@ void playerTakeFallDamage(void) {
     playerClearCarriedItemState();
     if ((playerCanTakeHit(gActivePlayerActor) != 0) && (playerAddHealthDelta(gCurrentPlayerIndex, -1) != 0)) {
         shake = 0;
-        if ((gActivePlayerActor->contactFlags & 4) != 0) {
+        if (gActivePlayerActor->contactFlags & 4) {
             actorScriptStartByIndex(gActivePlayerActor, 0x29);
         } else {
             actorScriptStartByIndex(gActivePlayerActor, 0x27);
@@ -1279,22 +1278,16 @@ void playerResumeLocomotionAndThrow(void) {
     gActivePlayerActor->subState = 0;
 }
 
-/* customState of gActivePlayerState->actor on maps 0x0E and 0x52. */
-typedef struct EfRideState {
-    /* 0x00 */ u8 pad0[0x45];
-    /* 0x45 */ u8 eliminated;
-} EfRideState;
-
 void playerStateDamageCheck(void) {
-    EfRideState *ride;
+    RaceParticipant *participant;
 
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         if ((gCurrentMap != 0x52) && (gCurrentMap != 0xE)) {
             playerTakeDamage(0x40);
             return;
         }
-        ride = gActivePlayerState->actor->customState;
-        ride->eliminated = 1;
+        participant = gActivePlayerState->actor->customState;
+        participant->eliminated = 1;
     }
 }
 
@@ -1306,12 +1299,12 @@ void playerTakeQueuedDamage(void) {
 }
 
 void playerStateCutsceneDamageCheck(void) {
-    if ((gGlobalCutsceneFlags & 2) != 0) {
+    if (gGlobalCutsceneFlags & 2) {
         playerKongClearFlagsByActorType(gActivePlayerActor);
         sfxStopChannel(0xC, 0);
     }
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
-        if (((gGlobalCutsceneFlags & 2) != 0) && (camIsCutsceneActive() != 0)) {
+        if ((gGlobalCutsceneFlags & 2) && (camIsCutsceneActive() != 0)) {
             return;
         }
         playerTakeDamage(1);
@@ -1365,8 +1358,8 @@ void playerStateDamageCheck3(void) {
 }
 
 extern f32 gKongSwimStrokeSpeeds[], gKongQueuedDamageLaunchSpeedY[], gKongSwimTurnSpeeds[], gKongDeathLaunchSpeedY[];
-extern s16 gKongDamageInvulnFrames[], D_807530D0[], gKongMinecartHitInvulnFrames[], gKongTakeHitInvulnFrames[], gKongNormalSwimEnterDepths[];
-extern f32 gKongSwimPaddleSpeeds[], gKongDamageAccelY[], gKongDamageLaunchSpeedY[], gKongSwimSpeeds[], gKongTurnDecelRates[], gKongSwimEnterDepths[];
+extern s16 D_807530D0[], gKongMinecartHitInvulnFrames[], gKongTakeHitInvulnFrames[], gKongNormalSwimEnterDepths[];
+extern f32 gKongSwimPaddleSpeeds[], gKongDamageAccelY[], gKongDamageLaunchSpeedY[], gKongSwimSpeeds[], gKongSwimEnterDepths[];
 
 void playerTakeDamage(s16 damage) {
     s16 yaw;
@@ -1390,7 +1383,7 @@ void playerTakeDamage(s16 damage) {
         sfxStopChannel(0x6B, 0);
         gActivePlayerActor->flags |= 4;
         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
-        gActivePlayerActor->contactFlags &= 0xFFBF;
+        gActivePlayerActor->contactFlags &= ~0x40;
         slotQueueCancel(6, 1);
         if (gActivePlayerState->surfaceTimer == 0) {
             playerClearCarriedItemState();
@@ -1592,7 +1585,7 @@ void playerTakeDamage(s16 damage) {
 }
 
 void playerStateEnterDamageReaction(void) {
-    EfRideState *ride;
+    RaceParticipant *participant;
 
     if ((gActivePlayerActor->state == 0x36) || (gActivePlayerActor->state == 0x39) ||
         (gActivePlayerActor->state == 0x3A) || (gActivePlayerActor->state == 0x71) ||
@@ -1600,7 +1593,7 @@ void playerStateEnterDamageReaction(void) {
         return;
     }
     playerClearCarriedItemState();
-    gActivePlayerActor->flags &= 0xFFFF7FFF;
+    gActivePlayerActor->flags &= ~0x8000;
     actorScriptStartByIndex(gActivePlayerActor, 0x27);
     gActivePlayerActor->state = 0x39;
     gActivePlayerActor->subState = 0;
@@ -1609,8 +1602,8 @@ void playerStateEnterDamageReaction(void) {
     if ((gCurrentMap != 0x52) && (gCurrentMap != 0xE)) {
         playerAddHealthDelta(gCurrentPlayerIndex, -0x40);
     } else {
-        ride = gActivePlayerState->actor->customState;
-        ride->eliminated = 1;
+        participant = gActivePlayerState->actor->customState;
+        participant->eliminated = 1;
     }
 }
 
@@ -1648,18 +1641,18 @@ typedef struct EfKongScriptIds {
 extern const EfKongScriptIds gKongNewMoveScriptIds;
 
 void playerStateSpawnParticles(void) {
-    EfKongScriptIds spawnParams;
+    EfKongScriptIds scriptIds;
     s32 pad;
-    f32 height;
+    f32 scale;
 
-    spawnParams = gKongNewMoveScriptIds;
-    height = gActivePlayerActor->sub4->scaleX;
+    scriptIds = gKongNewMoveScriptIds;
+    scale = gActivePlayerActor->sub4->scaleX;
     actorSpawn(0x140, 0xB9);
     if (gActivePlayerActor->actorType == 2) {
-        height *= 1.25;
+        scale *= 1.25;
     }
-    actorCopyPoseAndScale(gSpawnedActor, gActivePlayerActor, height);
-    actorScriptStart(gSpawnedActor, spawnParams.values[gPlayerCharacterId[gActivePlayerState->playerIndex]]);
+    actorCopyPoseAndScale(gSpawnedActor, gActivePlayerActor, scale);
+    actorScriptStart(gSpawnedActor, scriptIds.values[gPlayerCharacterId[gActivePlayerState->playerIndex]]);
     gSpawnedActor->flags |= 0x40000000;
     actorScriptStartByIndex(gActivePlayerActor, 0x88);
     gCurrentActor->state = 0x79;
@@ -1839,29 +1832,29 @@ void playerStateEnterPulseForm(void) {
 }
 
 void playerStateSetFlagsByActorType(void) {
-    s32 ev;
+    s32 camPath;
 
-    /* The original leaves ev unset on the default path (other actor types); camStartPath reads it. */
+    /* The original leaves camPath unset on the default path (other actor types); camStartPath reads it. */
     switch (gActivePlayerActor->actorType) {
     case 2:
-        ev = 7;
+        camPath = 7;
         break;
     case 3:
-        ev = 0;
+        camPath = 0;
         break;
     case 4:
         gActivePlayerState->stateFlags |= 0x100;
-        ev = 4;
+        camPath = 4;
         break;
     case 5:
         if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-            ev = 8;
+            camPath = 8;
         } else {
-            ev = 0x1F;
+            camPath = 0x1F;
         }
         break;
     case 6:
-        ev = 9;
+        camPath = 9;
         break;
     default: // ORIG: own default block at +0x16c..+0x190 (gPlayerSlots[gCurrentPlayerIndex] address, 10 insns) before the join +0x194, reached by the bound check beqz at +0x1c; each case keeps its own copy (playerStateSetFlagsByActorType 0x5304)
         break;
@@ -1873,7 +1866,7 @@ void playerStateSetFlagsByActorType(void) {
         actorScriptStart(gActivePlayerActor, 0x165);
     } else {
         if (gActivePlayerActor->state != 0x56) {
-            camStartPath(gActivePlayerActor, ev, 5);
+            camStartPath(gActivePlayerActor, camPath, 5);
         }
         actorScriptStartByIndex(gActivePlayerActor, 0x5A);
     }
