@@ -209,7 +209,7 @@ typedef struct RingModelIds {
 } RingModelIds;
 
 RingModelIds sRingCutsceneModelIds = { { 0x0E, 0x0F, 0x10, 0x11, 0x0A, 0x0B, 0x0C, 0x0D } };
-extern u8 gEffectSpriteGlintYellow;
+extern EffectGridAsset gEffectSpriteGlintYellow;
 
 void actorRingUpdate(void) {
     RingState *st = gCurrentActor->customState;

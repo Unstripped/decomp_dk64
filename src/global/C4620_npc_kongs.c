@@ -688,7 +688,7 @@ void actorNpcDiddyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 gEffectSpriteDustPuffBrown;
+extern EffectGridAsset gEffectSpriteDustPuffBrown;
 
 void actorNpcLankyUpdate(void) {
     behaviourFrameBegin();
@@ -787,8 +787,8 @@ void actorNpcChunkyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 gEffectSpriteSleepZ[];
-extern u8 gEffectSpriteWaterDroplet[];
+extern EffectGridAsset gEffectSpriteSleepZ;
+extern EffectGridAsset gEffectSpriteWaterDroplet;
 
 void func_806C1E44(void) {
     s32 i;
@@ -837,7 +837,7 @@ void func_806C1E44(void) {
                             effectSetDepth(1);
                             effectSetDuration(0x28);
                             effectSetCallback(effectWobbleScaleUpdate);
-                            effectCreateAtActorBone(gEffectSpriteSleepZ, 0.05f, gCurrentActor, 1, 0);
+                            effectCreateAtActorBone(&gEffectSpriteSleepZ, 0.05f, gCurrentActor, 1, 0);
                         }
                     }
             }
@@ -856,7 +856,7 @@ void func_806C1E44(void) {
                         effectSetDuration(0x28);
                         effectSetCallback(effectScatterFallUpdate);
                         effectSetSpeed(gCurrentActor->yaw);
-                        effectCreateAtActorBone(gEffectSpriteWaterDroplet, 0.7f, gCurrentActor, 1, 0);
+                        effectCreateAtActorBone(&gEffectSpriteWaterDroplet, 0.7f, gCurrentActor, 1, 0);
                         i++;
                     } while (i != 10);
                     gCurrentActor->subState++;
@@ -892,7 +892,7 @@ void func_806C1E44(void) {
 
 extern f32 gActorDefaultAccelY;
 extern s16 gCsModelIds[];
-extern u8 gEffectSpriteBubble;
+extern EffectGridAsset gEffectSpriteBubble;
 
 void actorNpcSealUpdate(void) {
     s16 i;
@@ -1074,13 +1074,13 @@ void actorSpawnParticlesAlongNodeLoop(u8 startNode, u8 endNode, u8 colorIndex, v
     }
 }
 
-extern u8 sEffectSparkConfig[];
+extern EffectGridAsset sEffectSparkConfig;
 
 void actorSpawnParticlesAlongNodeRanges(void) {
-    actorSpawnParticlesAlongNodeLoop(1, 0xB, 6, sEffectSparkConfig);
-    actorSpawnParticlesAlongNodeLoop(0x20, 0x30, 6, sEffectSparkConfig);
-    actorSpawnParticlesAlongNodeLoop(0xC, 0x16, 2, sEffectSparkConfig);
-    actorSpawnParticlesAlongNodeLoop(0x17, 0x1F, 2, sEffectSparkConfig);
+    actorSpawnParticlesAlongNodeLoop(1, 0xB, 6, &sEffectSparkConfig);
+    actorSpawnParticlesAlongNodeLoop(0x20, 0x30, 6, &sEffectSparkConfig);
+    actorSpawnParticlesAlongNodeLoop(0xC, 0x16, 2, &sEffectSparkConfig);
+    actorSpawnParticlesAlongNodeLoop(0x17, 0x1F, 2, &sEffectSparkConfig);
 }
 
 

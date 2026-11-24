@@ -674,7 +674,7 @@ typedef struct CutsceneRestoreState {
 
 
 extern s16 gCurrentLevelIndex;
-extern s32 gEffectSpriteSparklesBlue;
+extern EffectGridAsset gEffectSpriteSparklesBlue;
 extern s16 gPhotoSubjectDepthDist;
 extern s16 gPhotoSubjectScreenX;
 extern s16 gPhotoSubjectScreenY;

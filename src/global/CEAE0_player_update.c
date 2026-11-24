@@ -678,8 +678,8 @@ extern s16 gKongTurnRate[];
 extern f32 gKongSprintSpeeds[];
 extern s32 gCurrentMap;
 extern u8 gDemoPlaybackState;
-extern s32 gEffectSpriteSparklesBlue;
-extern s32 sEffectSparkConfig;
+extern EffectGridAsset gEffectSpriteSparklesBlue;
+extern EffectGridAsset sEffectSparkConfig;
 
 void playerUpdateScaleAndPhysics(void) {
     s32 padHintTimer;
@@ -2114,7 +2114,7 @@ void actorReleaseFromPlayerHold(Actor *actor) {
 }
 
 extern u8 gMultiplayerReducedEffects;
-extern u8 gEffectSpriteBubble;
+extern EffectGridAsset gEffectSpriteBubble;
 
 void playerUpdateIdleVariantsAndBubbles(void) {
     if (!(gCurrentActor->flags & 0x10)) {
@@ -2169,7 +2169,7 @@ void playerSpawnJumpTrailEffects(void) {
     }
 }
 
-extern s32 gEffectSpriteStar;
+extern EffectGridAsset gEffectSpriteStar;
 
 void playerSpawnSpiralDriftEffects(void) {
     s32 i;

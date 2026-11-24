@@ -18,7 +18,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
 extern void *gPuffSprites[];
-extern u8 sEffectSparkConfig[];
+extern EffectGridAsset sEffectSparkConfig;
 
 
 void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
@@ -35,7 +35,7 @@ void effectSpawnSinkingSpark(s16 x, s16 y, s16 z) {
     effectSetSpeed(-0x28);
     effectSetDepth(1);
     effectSetColor(0xFF, 0xFF, 0xFF, 0xC8);
-    effectCreateAtPosition(sEffectSparkConfig, 2.0f, x, y, z);
+    effectCreateAtPosition(&sEffectSparkConfig, 2.0f, x, y, z);
 }
 
 extern s16 gCsModelIds[];

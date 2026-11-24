@@ -1130,7 +1130,7 @@ s32 listContainsS16(s16 value) {
 }
 
 
-extern u8 gEffectSpriteSparklePurple;
+extern EffectGridAsset gEffectSpriteSparklePurple;
 
 void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 count) {
     f32 dx;

@@ -1769,8 +1769,8 @@ void playerInputHandleAButtonState61(void) {
 
 
 
-extern u8 gEffectSpriteBlast;
-extern u8 gEffectSpriteMuzzleFlash;
+extern EffectGridAsset gEffectSpriteBlast;
+extern EffectGridAsset gEffectSpriteMuzzleFlash;
 extern f32 gKongProjectileSpeed[];
 extern s16 gKongMaxActiveProjectiles[];
 
@@ -2840,7 +2840,7 @@ int playerIsOnOwnInstrumentPad(Actor *mob) {
 extern s32 gMapWarpCount;
 extern u8 gMapLoadCountdown;
 extern f32 gKongHoverLaunchVelocityY[];
-extern u8 gEffectSpriteSmokePuff[];
+extern EffectGridAsset gEffectSpriteSmokePuff;
 
 s32 playerInputCheckMultiplayerPlayerTarget(void) {
     s32 i;
@@ -2910,7 +2910,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                         effectSetDepth(1);
                         effectSetCallback(effectFollowPlayerUpdate);
                         effectSetStartDelay(i);
-                        effectCreateAtPosition(gEffectSpriteSmokePuff, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                        effectCreateAtPosition(&gEffectSpriteSmokePuff, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     }
                     effectSpawnBurstParticleCluster(gPrimaryPlayerActor);
                     return 1;
