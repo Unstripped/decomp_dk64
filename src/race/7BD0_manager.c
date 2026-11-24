@@ -178,7 +178,7 @@ Gfx *raceRenderCountdownText(Gfx *dl, Actor *actor) {
 }
 
 Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceParticipant *tracker) {
-    G00Entry *hudPos;
+    ViewportLayout *hudPos;
     s32 screenX;
     s32 screenY;
     s32 i;
@@ -220,7 +220,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     f32 doublePosX;
     f32 posY;
     f32 halfFontHeight;
-    G00Entry *hudPos;
+    ViewportLayout *hudPos;
     f32 xOffsetF;
     s16 scaledSpriteY;
     s32 xOffset;
@@ -283,7 +283,7 @@ s32 sRacePlaceTextIds[5] = { 4, 5, 6, 7, 8 };
 
 Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     RaceParticipant *managerData;
-    G00Entry *hudPos;
+    ViewportLayout *hudPos;
     s32 pad;
     u8 *textBuf;
     u8 lap;

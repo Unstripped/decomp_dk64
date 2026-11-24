@@ -56,7 +56,7 @@ FillRectEntry gSplitScreenDividerRects[22] = {
     { 3, 0, 2, 0, 159, 119, 161, 226 }, { 4, 0, 7, 0, 12, 119, 306, 119 }, { 4, 0, 7, 0, 159, 12, 161, 226 },
     { -1, 0, 0, 0, 0, 0, 0, 0 },
 };
-G00Entry gViewportLayouts[30] = {
+ViewportLayout gViewportLayouts[30] = {
     { 1, 0, 7, 0, 10, 10, 309, 229 }, { 1, 1, 7, 0, 10, 10, 309, 229 }, { 2, 0, 2, 0, 12, 12, 307, 119 },
     { 2, 0, 2, 1, 12, 121, 307, 227 }, { 2, 0, 1, 0, 12, 12, 159, 227 }, { 2, 0, 1, 1, 161, 12, 307, 227 },
     { 2, 0, 4, 0, 12, 12, 159, 119 }, { 2, 0, 4, 1, 161, 121, 307, 227 }, { 2, 1, 7, 0, 12, 12, 307, 227 },
@@ -150,7 +150,7 @@ void playerSetupViewports(void) {
     }
 }
 
-G00Entry *cameraFindViewportEntry(u8 playerIndex) {
+ViewportLayout *cameraFindViewportEntry(u8 playerIndex) {
     u8 i;
     s32 found;
 
@@ -176,7 +176,7 @@ extern u16 gSavedHeldActorType;
 void playerAllocSlots(s32 spawnIndex) {
     PlayerStruct *slot;
     s32 i;
-    G00Entry *layout;
+    ViewportLayout *layout;
 
     gPlayerSlots = heapAlloc(gPlayerCount * sizeof(PlayerStruct));
     heapClearBlock(gPlayerSlots);
@@ -609,7 +609,7 @@ extern u8 gAmbientIndoors;
 
 void playerWarpToSpawnPoint(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
-    G01Pos *spawn = mapGetSpawnPoint(spawnIndex);
+    SpawnPoint *spawn = mapGetSpawnPoint(spawnIndex);
 
     gSavedSlotSpawnFlags = 0;
     gGlobalPauseFlags &= ~0x400;
@@ -712,14 +712,14 @@ void playerSyncInventoryOnSpawn(s32 spawnIndex) {
     gActivePlayerActor->pitch = 0;
 }
 
-extern G01Pos *gMapSpawnPoints;
+extern SpawnPoint *gMapSpawnPoints;
 extern u8 gMapSpawnPointCount;
-extern G01Pos gMapDefaultSpawnPoint;
-extern G01Pos gMapHeaderSpawnPos;
+extern SpawnPoint gMapDefaultSpawnPoint;
+extern SpawnPoint gMapHeaderSpawnPos;
 
 void playerLoadSpawnerAsset(s32 mapId) {
     gMapSpawnPoints = assetLoad(0x17, mapId, 1, 1);
-    gMapSpawnPointCount = assetGetCachedSizeOrResolve(0x17, mapId) / sizeof(G01Pos);
+    gMapSpawnPointCount = assetGetCachedSizeOrResolve(0x17, mapId) / sizeof(SpawnPoint);
     playerCheckSpawnerFlagFixup(mapId);
     gMapDefaultSpawnPoint.yaw = 0;
     gMapDefaultSpawnPoint.x = gMapHeaderSpawnPos.x;
@@ -744,9 +744,9 @@ extern f32 gSavedSlotSpawnX;
 extern f32 gSavedSlotSpawnY;
 extern f32 gSavedSlotSpawnZ;
 extern s16 gSavedSlotSpawnYaw;
-extern G01Pos gSavedSlotSpawnPoint;
+extern SpawnPoint gSavedSlotSpawnPoint;
 
-G01Pos *mapGetSpawnPoint(s32 spawnIndex) {
+SpawnPoint *mapGetSpawnPoint(s32 spawnIndex) {
     if (gSavedSlotSpawnFlags & 1) {
         gSavedSlotSpawnPoint.x = gSavedSlotSpawnX;
         gSavedSlotSpawnPoint.y = gSavedSlotSpawnY;

@@ -523,7 +523,7 @@ extern PlayerStruct *gPlayerSlots;
 Gfx *playerViewsRender(Gfx *gfx, void *frame) {
     s32 i;
     u8 alpha;
-    G00Entry *vp;
+    ViewportLayout *vp;
 
     mapFrameBegin(frame);
     gDPPipeSync(gfx++);

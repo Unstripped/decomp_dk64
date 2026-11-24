@@ -542,7 +542,7 @@ VehicleMotion *motion;
 
 
 void actorInitFromSpawnPoint(Actor *actor, RaceParticipant *vehicle) {
-    G01Pos *spawn;
+    SpawnPoint *spawn;
     s16 yaw;
 
     spawn = mapGetSpawnPoint(vehicle->place);

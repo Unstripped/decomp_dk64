@@ -1350,7 +1350,7 @@ typedef struct MirrorActorState {
 } MirrorActorState; // size = 0x10
 
 // Viewport layout entry (gViewportLayouts[], cameraFindViewportEntry).
-typedef struct G00Entry {
+typedef struct ViewportLayout {
     /* 0x0 */ u8 playerCount;
     /* 0x1 */ u8 splitScreenMode;
     /* 0x2 */ u8 viewMask;
@@ -1359,7 +1359,7 @@ typedef struct G00Entry {
     /* 0x6 */ s16 top;
     /* 0x8 */ s16 right;
     /* 0xA */ s16 bottom;
-} G00Entry;
+} ViewportLayout;
 
 // Split-screen divider rectangle (gSplitScreenDividerRects, defined in CC800, read by gfxDrawSplitScreenDividers;
 // terminated by players == -1); coordinates in low-res pixels.
@@ -1375,7 +1375,7 @@ typedef struct {
 } FillRectEntry;
 
 // Spawn position (mapGetSpawnPoint).
-typedef struct G01Pos {
+typedef struct SpawnPoint {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;
     /* 0x4 */ s16 z;
@@ -1383,7 +1383,7 @@ typedef struct G01Pos {
     /* 0x7 */ u8 camMode;
     /* 0x8 */ u8 spawnKind;
     /* 0x9 */ u8 flags;
-} G01Pos;
+} SpawnPoint;
 
 // Spawn request read by actorSpawnFromInfo (7CA80.c); spawnArg onward is passed to the type's init function.
 typedef struct ActorSpawnInfo {

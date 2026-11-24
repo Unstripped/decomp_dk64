@@ -846,7 +846,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     SlotQueueLabel *label;
     u8 text[8];
     u8 alpha;
-    G00Entry *viewport;
+    ViewportLayout *viewport;
     f32 scale;
     s32 width;
 

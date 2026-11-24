@@ -11,7 +11,7 @@ typedef struct {
     s32 palViMode;
     s32 ntscViMode;
     s32 mpalViMode;
-} Struct80744464;
+} ViModeByTvType;
 
 extern u8 boot_VRAM[];
 extern u8 boot_VRAM_END[];
@@ -70,7 +70,7 @@ extern u8 menu_VRAM_END[];
 
 // .data 0x80744460-0x80744470
 s8 gMainThreadHalted = 0;
-Struct80744464 gLowResViModeByTvType = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 }; // low-res VI mode per osTvType (OS_TV_PAL, OS_TV_NTSC, OS_TV_MPAL)
+ViModeByTvType gLowResViModeByTvType = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 }; // low-res VI mode per osTvType (OS_TV_PAL, OS_TV_NTSC, OS_TV_MPAL)
 
 // .bss 0x80761050-0x807655F0
 OSMesgQueue gPiMgrCmdQueue;
@@ -110,7 +110,7 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
 void mainThreadHalt(OSMesgQueue *queue, s32 haltReason) {
     static OSTime sHaltStartTime;
     s32 pad[2];
-    Struct80744464 unused = gLowResViModeByTvType; // ORIG: the target copies gLowResViModeByTvType into sp+0x34 (lw/sw at 0x2d4-0x2f0) and never reads it
+    ViModeByTvType unused = gLowResViModeByTvType; // ORIG: the target copies gLowResViModeByTvType into sp+0x34 (lw/sw at 0x2d4-0x2f0) and never reads it
     s32 pad2[4];
     OSMesg msg;
     s32 pad3[2];

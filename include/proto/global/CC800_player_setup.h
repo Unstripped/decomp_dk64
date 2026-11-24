@@ -19,7 +19,7 @@ void playerMountBarrel(Actor *, Actor *);
 void playerSetupViewports(void);
 #endif
 #ifndef PROTO_SKIP_cameraFindViewportEntry
-struct G00Entry *cameraFindViewportEntry(u8);
+ViewportLayout *cameraFindViewportEntry(u8);
 #endif
 #ifndef PROTO_SKIP_playerAllocSlots
 void playerAllocSlots(s32);
@@ -79,7 +79,7 @@ void playerLoadSpawnerAsset(s32);
 void playerCheckSpawnerFlagFixup(s32);
 #endif
 #ifndef PROTO_SKIP_mapGetSpawnPoint
-G01Pos *mapGetSpawnPoint(s32);
+SpawnPoint *mapGetSpawnPoint(s32);
 #endif
 #ifndef PROTO_SKIP_playerResolveHitDamage
 s8 playerResolveHitDamage(s8, Actor *);

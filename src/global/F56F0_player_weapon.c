@@ -1392,7 +1392,7 @@ void playerWaypointPathStartPacked(Actor *actor, void *callbackParam, s16 packed
 
 
 
-void playerWaypointPathStartLineFromPoint(Actor *actor, G01Pos *spawn, u8 length) {
+void playerWaypointPathStartLineFromPoint(Actor *actor, SpawnPoint *spawn, u8 length) {
     WaypointNode *p;
     WaypointNode *q;
     WaypointPath *entry;

@@ -103,7 +103,7 @@ typedef struct RaceParticipant {
     /* 0x45 */ u8 eliminated;
     /* 0x46 */ u8 resultTextId;
     /* 0x47 */ u8 pad47;
-    /* 0x48 */ struct G00Entry *viewport; // camera viewport entry (cameraFindViewportEntry)
+    /* 0x48 */ struct ViewportLayout *viewport; // camera viewport entry (cameraFindViewportEntry)
     /* 0x4C */ u8 pad4C[4];
     /* 0x50 */ Mtx_t hudScale[2]; // per gfx buffer: the HUD text scale matrix (raceInitHudDisplayList guScale)
     /* 0xD0 */ s16 unkD0;

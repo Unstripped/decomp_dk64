@@ -165,9 +165,9 @@ void raceInitSplineAndOpponent(void) {
 }
 
 
-void raceStartPathBoost(RacePathState *pathState, u8 timer, f32 volume) {
+void raceStartPathBoost(RacePathState *pathState, u8 timer, f32 amount) {
     pathState->boostTimer = timer;
-    pathState->boostAmount = volume;
+    pathState->boostAmount = amount;
     sfxPlayOnFreeSlot(0x1EB, 0x7FFF, 64.0f, 1.0f, 0, 0);
 }
 

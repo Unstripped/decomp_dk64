@@ -796,7 +796,7 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
     }
 
     if ((gViewportInsetLeft != 0) || (gViewportInsetRight != 0) || (gViewportInsetTop != 0) || (gViewportInsetBottom != 0) || (gViewportInsetActive != 0)) {
-        G00Entry *vpEntry;
+        ViewportLayout *vpEntry;
         s16 width, height;
         vpEntry = cameraFindViewportEntry(0);
         gPlayerSlots->rect[0] = vpEntry->left + gViewportInsetLeft;

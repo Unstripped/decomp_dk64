@@ -37,7 +37,7 @@ typedef struct MpControllerState {
     Actor *spawnerActor;
     s16 spawnerDelay;
     char pad1E[2];
-    G00Entry *viewports[4];
+    ViewportLayout *viewports[4];
     Mtx *hudScaleMtx;
     u32 sfxLastTick;
     u8 sfxStep;
@@ -248,7 +248,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
     s32 rem;
     s16 y;
     s32 alpha;
-    G00Entry *viewport;
+    ViewportLayout *viewport;
     PlayerInventory *inventory;
 
     gDPPipeSync(glistp++);
@@ -304,7 +304,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     f32 posXStep;
     s32 i;
     MpControllerState *state;
-    G00Entry *viewport;
+    ViewportLayout *viewport;
 
     state = controller->customState;
     viewport = state->viewports[0];
@@ -343,7 +343,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     s32 alpha;
     f32 fontHeight2;
     s32 bonusValue;
-    G00Entry *rect;
+    ViewportLayout *rect;
 
     state = controller->customState;
     fontHeight = textGetFontHeight(1);
@@ -732,7 +732,7 @@ void mpUpdate(void) {
     s32 j;
     s32 k;
     s32 spawnCrown;
-    G00Entry *vp;
+    ViewportLayout *vp;
     f32 x;
     f32 y;
     s32 sfxId;
@@ -983,7 +983,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
     s32 bestSpawn;
     f32 bestDist;
     f32 nearestDist;
-    G01Pos *spawn;
+    SpawnPoint *spawn;
     Actor *playerActor;
     f32 dx;
     f32 dy;
