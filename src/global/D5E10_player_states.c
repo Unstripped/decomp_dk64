@@ -999,12 +999,6 @@ void playerStateSlide(void) {
     playerApplyImpactRumble(0x3D);
 }
 
-// customState of gActivePlayerState->actor on maps 0x0E and 0x52 (EfRideState in EFDC0.c).
-typedef struct RideState {
-    /* 0x00 */ u8 pad0[0x45];
-    /* 0x45 */ u8 eliminated;
-} RideState;
-
 void playerStateSlideSteep(void) {
     playerApplyImpactRumble(0x3D);
 }
@@ -1022,8 +1016,8 @@ void playerStateSlideRecover(void) {
     playerApplyFullPhysics();
     gCurrentActor->subState++;
     if (gCurrentActor->subState == 0x32) {
-        RideState *ride = gActivePlayerState->actor->customState;
-        ride->eliminated = 1;
+        RaceParticipant *participant = gActivePlayerState->actor->customState;
+        participant->eliminated = 1;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
