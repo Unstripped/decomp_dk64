@@ -39,7 +39,9 @@
                                                        data_inc.us.txt file column and src/<seg>/<old>.c /
                                                        proto/<seg>/<old>.h paths in the docs (DOC_GLOBS:
                                                        AGENTS/README/ROADMAP/METHODOLOGY, skills, cleanup
-                                                       queues, yaml comments), then git mv and
+                                                       queues, yaml comments), then git mv of the file and
+                                                       of include/proto/<seg>/<old>.h (banner path and guard
+                                                       rewritten: regenerating it is not a fixpoint) and
                                                        tools/protos.py gen. Refuses files with GLOBAL_ASM
                                                        pragmas (their asm paths need a re-split).
   uv run tools/rename.py files <batch.txt> [--no-gen]
@@ -733,13 +735,25 @@ def file_rows(rows):
 
 
 def cmd_files(a, rows):
+    import protos
     file_rows(rows)
-    edits = []
+    edits, moves = [], []
     texts = {f: read(f) for f in include_files()}
     docs = {f: read(f) for f in doc_files()}
     data_inc = read("data_inc.us.txt").split("\n") if os.path.exists(os.path.join(ROOT, "data_inc.us.txt")) else []
     make = read("Makefile").split("\n") if os.path.exists(os.path.join(ROOT, "Makefile")) else []
     for seg, old, new in rows:
+        moves.append((f"src/{seg}/{old}.c", f"src/{seg}/{new}.c"))
+        # the generated header moves with its file (banner path and guard only): regenerating it from
+        # scratch is not a fixpoint, since a definition's parameter spelling follows its header's prototype
+        hdr, hdr_new = f"include/proto/{seg}/{old}.h", f"include/proto/{seg}/{new}.h"
+        if os.path.exists(os.path.join(ROOT, hdr)):
+            if os.path.exists(os.path.join(ROOT, hdr_new)):
+                raise Refuse(f"exists: {hdr_new}")
+            moves.append((hdr, hdr_new))
+            for o, n in ((f"src/{seg}/{old}.c", f"src/{seg}/{new}.c"), (protos.guard(seg, old), protos.guard(seg, new))):
+                for i, line in enumerate(read(hdr).split("\n"), 1):
+                    edits += [(hdr, i, m.start() + 1, o, n) for m in re.finditer(rf"(?<!\w){re.escape(o)}(?!\w)", line)]
         edits += yaml_edits(seg, old, new)
         inc_old, inc_new = f'"proto/{seg}/{old}.h"', f'"proto/{seg}/{new}.h"'
         for f, text in texts.items():
@@ -766,8 +780,7 @@ def cmd_files(a, rows):
                 for i, line in enumerate(text.split("\n"), 1):
                     edits += [(f, i, m.start() + 1, m.group(0), n) for m in p.finditer(line)]
     apply(edits, a.dry_run)
-    for seg, old, new in rows:
-        src, dst = f"src/{seg}/{old}.c", f"src/{seg}/{new}.c"
+    for src, dst in moves:
         print(f"MV {src} {dst}")
         if not a.dry_run and subprocess.run(["git", "mv", src, dst], cwd=ROOT, capture_output=True).returncode:
             os.replace(os.path.join(ROOT, src), os.path.join(ROOT, dst))
