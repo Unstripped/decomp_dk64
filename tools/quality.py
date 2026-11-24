@@ -469,7 +469,8 @@ def rev_headers(rev):
     """{path: text at REV, or None when absent there} of every include/ file (and src/ *.h) that differs
     between REV and the working tree: `analyze`'s HDRS for REV's text."""
     hdrs = {}
-    for p in ledger.git("diff", "--name-only", rev, "--", "include", ":(glob)src/**/*.h").split():
+    # --no-renames: a header renamed since REV must list its old path too (absent here, REV's text there)
+    for p in ledger.git("diff", "--name-only", "--no-renames", rev, "--", "include", ":(glob)src/**/*.h").split():
         r = subprocess.run(["git", "show", f"{rev}:{p}"], cwd=ROOT, capture_output=True, text=True)
         hdrs[p] = r.stdout if r.returncode == 0 else None
     return hdrs
