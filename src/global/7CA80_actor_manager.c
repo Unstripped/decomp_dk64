@@ -530,9 +530,9 @@ extern s32 gActorTable[];
 extern s16 gActorTableCount;
 
 extern u16 gModelCacheCount;
-extern void *gActorScriptIndexTable;
+extern u16 *gActorScriptIndexTable;
 extern u16 *gActorScriptAnimTable;
-extern void *gActorScriptSoundTable;
+extern s16 *gActorScriptSoundTable;
 extern s32 gActorNextInstanceId;
 
 void actorInit(void) {
@@ -553,9 +553,9 @@ void actorInit(void) {
     gAnimClipCacheCount = 0;
 
     gActorScriptAsset = assetLoad(0xD, 0, 1, 1);
-    gActorScriptIndexTable = (void *)(gActorScriptAsset->indexTableOffset + (s32)gActorScriptAsset);
+    gActorScriptIndexTable = (u16 *)(gActorScriptAsset->indexTableOffset + (s32)gActorScriptAsset);
     gActorScriptAnimTable = (u16 *)(gActorScriptAsset->animTableOffset + (s32)gActorScriptAsset);
-    gActorScriptSoundTable = (void *)(gActorScriptAsset->soundTableOffset + (s32)gActorScriptAsset);
+    gActorScriptSoundTable = (s16 *)(gActorScriptAsset->soundTableOffset + (s32)gActorScriptAsset);
 
     for (i = 0; i < 64; i++) {
         gActiveActors[i].actor = NULL;
