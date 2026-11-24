@@ -765,7 +765,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
     ActorCallbackNode *node = gCurrentActor->callbacks;
 
     while (node != NULL) {
-        if ((u32)node->callback == 0x8000) {
+        if (node->eventType == 0x8000) {
             Actor *source;
             PlayerState *player;
             if (actorTableContains(node->source) != 0) {

@@ -1211,7 +1211,7 @@ void actorDelayedCallbacksTick(void) {
 ActorCallbackNode *actorAllocCallbackNode(Actor *source, s32 type, u8 subtype, s32 ownsPayload, void *payload) {
     ActorCallbackNode *node = heapAlloc(sizeof(ActorCallbackNode));
 
-    node->callback = (void *)type;
+    node->eventType = type;
     node->subtype = subtype;
     node->source = source;
     node->payloadCount = ownsPayload;
@@ -1271,8 +1271,8 @@ void actorDispatchCallbacks(Actor *actor) {
     actor->callbacks = node;
     mask = actor->callbackMask;
     while (node != NULL) {
-        if ((s32)node->callback & mask) {
-            switch ((s32)node->callback) {
+        if (node->eventType & mask) {
+            switch (node->eventType) {
             case 0x8000:
                 actorCollisionProcessHit(actor, node);
                 if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.bossFightPhase == 0xA)) && (actor->collisionFlags & 1)) {
@@ -1355,7 +1355,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     bestPriority = priority2D;
                     targetX = move2D->x;
                     targetZ = move2D->z;
-                    bestType = (s32)node->callback;
+                    bestType = node->eventType;
                     skipArcCheck = move2D->skipArcCheck;
                 }
                 break;
@@ -1367,7 +1367,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     targetX = move3D->x;
                     targetY = move3D->y;
                     targetZ = move3D->z;
-                    bestType = (s32)node->callback;
+                    bestType = node->eventType;
                     skipArcCheck = move3D->skipArcCheck;
                 }
                 break;
@@ -1593,7 +1593,7 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
                 inserted = 0;
                 if (scan != NULL) {
                     do {
-                        if ((s32)curr->callback >= (s32)scan->callback) {
+                        if (curr->eventType >= scan->eventType) {
                             inserted = 1;
                             curr->prev->next = curr->next;
                             if (curr->next != NULL) {

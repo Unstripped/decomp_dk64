@@ -235,7 +235,10 @@ typedef struct HeldActorAlignArg {
 } HeldActorAlignArg;
 
 typedef struct ActorCallbackNode {
-    /* 0x00 */ void *callback;
+    union {
+        /* 0x00 */ void *callback; // global/held nodes: the step function (actorRegisterGlobalCallback, CEAE0.c, D5E10.c)
+        /* 0x00 */ s32 eventType;  // event node (actor->callbacks): the event bit, e.g. 0x8000 collision hit (actorAllocCallbackNode, 7CA80.c)
+    };
     union {
         /* 0x04 */ u8 subtype;         // event node (actor->callbacks): the event's subtype argument (actorAllocCallbackNode, 7CA80.c)
         /* 0x04 */ u8 dispatchPass; // global callback node (actorRegisterGlobalCallback): 0 = after the current actor's

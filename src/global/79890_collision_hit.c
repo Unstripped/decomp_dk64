@@ -57,7 +57,7 @@ u8 actorCollisionGetNodeHitPoint(Actor *self, Actor *other, f32 *outX, f32 *outZ
     otherZ = other->z;
 
     while (cb != NULL && !foundCb) {
-        if ((s32)cb->callback == 0x8000 && cb->source == other) { // callback holds the s32 type for actor-attached nodes (actorAllocCallbackNode)
+        if (cb->eventType == 0x8000 && cb->source == other) {
             hit = cb->payload;
             for (j = 0; j < cb->payloadCount; j++, hit++) {
                 hitDist = hit->dist;
