@@ -28,8 +28,8 @@ Gfx *textBoxRender(Gfx *, Actor *);
 #ifndef PROTO_SKIP_textBoxRowUpdateIcon
 void textBoxRowUpdateIcon(ResGlyph *, ResRow *, ResQueueActorState *);
 #endif
-#ifndef PROTO_SKIP_textBoxRowUpdateNodes
-void textBoxRowUpdateNodes(f32, Actor *, ResQueueActorState *, ResRow *, u8, u8 *);
+#ifndef PROTO_SKIP_textBoxRowUpdateGlyphs
+void textBoxRowUpdateGlyphs(f32, Actor *, ResQueueActorState *, ResRow *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_textBoxUpdateRows
 void textBoxUpdateRows(Actor *);

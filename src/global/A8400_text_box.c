@@ -262,7 +262,7 @@ void textBoxRowUpdateIcon(ResGlyph *glyph, ResRow *row, ResQueueActorState *stat
     cell->effect->maxY = state->box[3];
 }
 
-void textBoxRowUpdateNodes(f32 y, Actor *actor, ResQueueActorState *state, ResRow *row, u8 isLast, u8 *stop) {
+void textBoxRowUpdateGlyphs(f32 y, Actor *actor, ResQueueActorState *state, ResRow *row, u8 isLast, u8 *stop) {
     f32 x;
     s32 step;
     s32 i;
@@ -376,7 +376,7 @@ void textBoxUpdateRows(Actor *actor) {
             row = row->next;
             resNodeFree(cur);
         } else {
-            textBoxRowUpdateNodes(rowY, actor, state, row, isLast, &stop);
+            textBoxRowUpdateGlyphs(rowY, actor, state, row, isLast, &stop);
             if (stop == 0) {
                 row = row->next;
                 rowY += rowHeight;
