@@ -82,8 +82,8 @@ typedef struct MpHudIconTableEntry {
     s32 param;
 } MpHudIconTableEntry;
 
-extern u8 gEffectSpriteOrange[];
-extern u8 gEffectSpriteCrate[];
+extern EffectGridAsset gEffectSpriteOrange;
+extern EffectGridAsset gEffectSpriteCrate;
 
 u8 mpSfxFlags = 0;
 MpSpawnPoint D_80026F74[1] = { { 0x249, 0xEB, 0x244, 0x50, 0 } };
@@ -97,8 +97,8 @@ MpMapEntry mpMapSpawnTable[4] = {
     { 0xC0, 1, D_80026F98, { 0x26, 0x28, 0x27, 0x25, -1 } },
 };
 MpHudIconTableEntry mpHudIconTable[2] = {
-    { gEffectSpriteCrate, 0.3f, 12 },
-    { gEffectSpriteOrange, 0.5f, 0 },
+    { &gEffectSpriteCrate, 0.3f, 12 },
+    { &gEffectSpriteOrange, 0.5f, 0 },
 };
 
 extern s32 gCurrentMap;
@@ -437,7 +437,7 @@ s32 mpRandomSpawnDelay(void) {
     return (((randomNonNegative() >> 15) % 0x7FFF) % 211) + 0x5A;
 }
 
-extern u8 gEffectSpriteDkCoin;
+extern EffectGridAsset gEffectSpriteDkCoin;
 
 s32 mpUpdateScoreEffects(void) {
     s32 i;

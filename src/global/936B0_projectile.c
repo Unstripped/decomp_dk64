@@ -112,7 +112,7 @@ s32 mathPickCloserTargetPoint3D(f32 x, f32 y, f32 z, TargetVec3f *segAStart, Tar
 
 extern PlayerStruct *gPlayerSlots;
 extern Actor *gCurrentActor;
-extern u8 gEffectSpriteGlowRed;
+extern EffectGridAsset gEffectSpriteGlowRed;
 
 void actorSpawnNodeEffectFacingCamera(s32 node, u8 alphaMax) {
     f32 tgt;
@@ -988,7 +988,7 @@ s32 projectileFindHomingTarget(u16 collisionMask, Actor **outTarget, Actor *proj
     return ret;
 }
 
-extern s32 sEffectSparkConfig;
+extern EffectGridAsset sEffectSparkConfig;
 void actorSpawnSparkleBurst(void) {
     s32 count;
     s32 i;
@@ -1047,8 +1047,8 @@ void projectileSpawnSpriteRing(u8 mode, u8 value, f32 rate, f32 limit, u8 alpha,
 
 
 
-extern u8 gEffectSpriteExplosion;
-extern u8 gEffectSpriteEmber;
+extern EffectGridAsset gEffectSpriteExplosion;
+extern EffectGridAsset gEffectSpriteEmber;
 extern s16 gProjectileLifetime;
 
 void projectileBounceParticleUpdate(void *effectCfg) {
@@ -1227,7 +1227,7 @@ void projectileSparkleUpdate(u8 silver) {
     }
 }
 
-extern u8 gEffectSpriteFlame;
+extern EffectGridAsset gEffectSpriteFlame;
 
 void projectileSparkleUpdateGold(void) {
     projectileSparkleUpdate(0);
@@ -1242,14 +1242,14 @@ void projectileSpawnParticleEffect(void) {
 }
 
 
-extern u8 gEffectSpriteMelonSpin;
-extern u8 gEffectSpriteMelonSplat;
+extern EffectGridAsset gEffectSpriteMelonSpin;
+extern EffectGridAsset gEffectSpriteMelonSplat;
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
-extern u8 gEffectSpritePeanutShard;
+extern EffectGridAsset gEffectSpritePeanutShard;
 extern u8 gPlayerCount;
-extern u8 gEffectSpriteGrape;
-extern u8 gEffectSpriteGrapeShard;
+extern EffectGridAsset gEffectSpriteGrape;
+extern EffectGridAsset gEffectSpriteGrapeShard;
 extern s16 gMultiplayerShotLifetime;
 extern s16 gMultiplayerShotLongLifetime;
 
@@ -1320,8 +1320,8 @@ void projectileDespawnOrExplode(void) {
     }
 }
 
-extern u8 gEffectSpritePeanut;
-extern u8 gEffectSpriteImpactFlash;
+extern EffectGridAsset gEffectSpritePeanut;
+extern EffectGridAsset gEffectSpriteImpactFlash;
 extern s16 gHomingShotLifetime;
 extern s16 gHomingShotLongLifetime;
 
@@ -1500,7 +1500,7 @@ void projectileSpawnExplosion(void) {
 
 
 
-extern u8 gEffectSpriteOrangeGrenade;
+extern EffectGridAsset gEffectSpriteOrangeGrenade;
 extern s16 gBounceExplodeLifetime;
 extern s16 gBounceExplodeShortLifetime;
 extern s8 critterArenaTargetsLeft; // lives in the critter overlay: only valid while it is loaded
@@ -1666,7 +1666,7 @@ void projectileBounceExplodeScaledUpdate(void) {
 extern s16 gShotLifetime;
 extern s16 gShotLongLifetime;
 
-extern u8 gEffectSpritePineapple;
+extern EffectGridAsset gEffectSpritePineapple;
 
 
 void projectileBounceExplodeGreenUpdate(void) {
@@ -1902,7 +1902,7 @@ void projectileImpactExplosionUpdate(void) {
     }
 }
 
-extern u8 gEffectSpriteCoconut;
+extern EffectGridAsset gEffectSpriteCoconut;
 extern EffectGridAsset gEffectSpriteCoconutShard;
 extern s16 gCoconutShotLifetime;
 extern s16 gCoconutShotLongLifetime;
@@ -2076,7 +2076,7 @@ void projectileMatrixRotationUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
-extern u8 gSparkEffectSprite;
+extern EffectGridAsset gSparkEffectSprite;
 
 void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
     ProjectileState *state;
