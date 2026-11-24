@@ -24,7 +24,7 @@
 #include "proto/global/F56F0_player_weapon.h"
 #include "proto/global/F9450_grid_nodes.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/menu/0.h"
+#include "proto/menu/0_main_state.h"
 
 // The menu actor's 0x180 component: the medal menu's state machine and its falling effect.
 typedef struct MenuState {

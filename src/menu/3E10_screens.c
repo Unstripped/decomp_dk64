@@ -28,7 +28,7 @@
 #include "proto/global/C4620_npc_kongs.h"
 #include "proto/global/F56F0_player_weapon.h"
 #include "proto/global/F600_controller_input.h"
-#include "proto/menu/3E10.h"
+#include "proto/menu/3E10_screens.h"
 
 
 typedef struct MenuScreenState {

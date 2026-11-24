@@ -11,7 +11,7 @@
 #include "proto/global/8F4B0.h"
 #include "proto/global/90D80_render_callbacks.h"
 #include "proto/global/ACDC0_pause_menu.h"
-#include "proto/menu/E550.h"
+#include "proto/menu/E550_option_lights.h"
 
 
 extern Actor *gCurrentActor;

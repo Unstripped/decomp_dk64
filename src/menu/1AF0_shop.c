@@ -22,7 +22,7 @@
 #include "proto/global/F600_controller_input.h"
 #include "proto/global/F9450_grid_nodes.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/menu/1AF0.h"
+#include "proto/menu/1AF0_shop.h"
 #include "sched.h"
 
 typedef struct MenuShopState {
