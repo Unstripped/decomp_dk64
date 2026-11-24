@@ -828,7 +828,7 @@ void menuInitFileSelect(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &gControlStickSprite, 0xA0, 0xD2, 0.75f, 2, 0);
 }
 
-extern u8 gEffectSpriteBlast;
+extern EffectGridAsset gEffectSpriteBlast;
 extern EffectGridAsset gEffectSpriteStarBurst;
 extern s8 sMenuEraseSliderAtEdge;
 
@@ -3363,7 +3363,7 @@ void menuActorStateDispatch(void) {
 
 
 extern s16 gBgScrollShakeY;
-extern u8 gEffectSpriteBarrelDebrisDark;
+extern EffectGridAsset gEffectSpriteBarrelDebrisDark;
 
 void menuUpdateKioskActor(void) {
     MenuKioskState *kioskState;

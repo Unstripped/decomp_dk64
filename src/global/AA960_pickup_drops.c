@@ -80,20 +80,20 @@ extern Actor *gPrimaryPlayerActor;
 extern u32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
 
-extern u8 gEffectSpriteOrange[];
-extern u8 gEffectSpriteCrystal[];
-extern u8 gEffectSpriteBananaBlue[];
-extern u8 gEffectSpriteBananaYellow[];
-extern u8 gEffectSpriteMelonSlice[];
-extern u8 gEffectSpriteCrate[];
-extern u8 gEffectSpriteDkCoin[];
-extern u8 gEffectSpriteBlueprintBlue[];
-extern u8 gEffectSpriteBlueprintRed[];
-extern u8 gEffectSpriteBlueprintGreen[];
-extern u8 gEffectSpriteBlueprintYellow[];
-extern u8 gEffectSpriteBlueprintPurple[];
-extern u8 gEffectSpriteQuestionMark[];
-extern u8 gEffectSpriteRainbowCoin[];
+extern EffectGridAsset gEffectSpriteOrange;
+extern EffectGridAsset gEffectSpriteCrystal;
+extern EffectGridAsset gEffectSpriteBananaBlue;
+extern EffectGridAsset gEffectSpriteBananaYellow;
+extern EffectGridAsset gEffectSpriteMelonSlice;
+extern EffectGridAsset gEffectSpriteCrate;
+extern EffectGridAsset gEffectSpriteDkCoin;
+extern EffectGridAsset gEffectSpriteBlueprintBlue;
+extern EffectGridAsset gEffectSpriteBlueprintRed;
+extern EffectGridAsset gEffectSpriteBlueprintGreen;
+extern EffectGridAsset gEffectSpriteBlueprintYellow;
+extern EffectGridAsset gEffectSpriteBlueprintPurple;
+extern EffectGridAsset gEffectSpriteQuestionMark;
+extern EffectGridAsset gEffectSpriteRainbowCoin;
 
 
 void sfxSpawnTableNodes(Actor *actor) {
@@ -171,7 +171,7 @@ void actorHealthDropUpdate(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, gEffectSpriteMelonSlice, 1.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteMelonSlice, 1.0f);
     }
 }
 
@@ -180,7 +180,7 @@ void actorAbilityEnergyDropUpdate(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, gEffectSpriteCrystal, 1.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteCrystal, 1.0f);
     }
 }
 
@@ -197,23 +197,23 @@ void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
 }
 
 void effectSpawnAttachedSpriteColoredType3(void) {
-    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintRed, 3);
+    effectSpawnAttachedSpriteColored(&gEffectSpriteBlueprintRed, 3);
 }
 
 void effectSpawnAttachedSpriteColoredType6(void) {
-    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintGreen, 6);
+    effectSpawnAttachedSpriteColored(&gEffectSpriteBlueprintGreen, 6);
 }
 
 void effectSpawnAttachedSpriteColoredType4(void) {
-    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintBlue, 4);
+    effectSpawnAttachedSpriteColored(&gEffectSpriteBlueprintBlue, 4);
 }
 
 void effectSpawnAttachedSpriteColoredType2(void) {
-    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintYellow, 2);
+    effectSpawnAttachedSpriteColored(&gEffectSpriteBlueprintYellow, 2);
 }
 
 void effectSpawnAttachedSpriteColoredType5(void) {
-    effectSpawnAttachedSpriteColored(gEffectSpriteBlueprintPurple, 5);
+    effectSpawnAttachedSpriteColored(&gEffectSpriteBlueprintPurple, 5);
 }
 
 void actorAmmoCrateDropUpdate(void) {
@@ -222,7 +222,7 @@ void actorAmmoCrateDropUpdate(void) {
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         effectSetScale(-0.35f, 0.35f);
-        effectSpawnAttachedSprite(state, gEffectSpriteCrate, 1.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteCrate, 1.0f);
     }
 }
 
@@ -231,7 +231,7 @@ void actorThrowAmmoDropUpdate(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, gEffectSpriteOrange, 1.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteOrange, 1.0f);
     }
 }
 
@@ -243,7 +243,7 @@ void actorMinigameCoinDropUpdate(void) {
         if ((gGlobalOverlayFlags & 0x80000) || (gGlobalOverlayFlags & 0x2000)) {
             gCurrentActor->dropMode = 1;
         }
-        effectSpawnAttachedSprite(state, gEffectSpriteDkCoin, 1.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteDkCoin, 1.0f);
     }
 }
 
@@ -257,7 +257,7 @@ void actorRandomEffectDropUpdate(void) {
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         effectSetColor(0xFF, 0xFF, 0, 0xFF);
-        effectSpawnAttachedSprite(state, gEffectSpriteQuestionMark, 1.5f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteQuestionMark, 1.5f);
     }
 }
 
@@ -266,7 +266,7 @@ void actorOpponentKnockbackDropUpdate(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, gEffectSpriteBananaBlue, 1.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteBananaBlue, 1.0f);
     }
 }
 
@@ -275,7 +275,7 @@ void actorSpeedBoostDropUpdate(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, gEffectSpriteBananaYellow, 1.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteBananaYellow, 1.0f);
     }
 }
 
@@ -284,15 +284,15 @@ void actorLargeDropUpdate(void) {
 
     actorDropBounceExpireUpdate(12.0f);
     if (!(gCurrentActor->flags & 0x10)) {
-        effectSpawnAttachedSprite(state, gEffectSpriteRainbowCoin, 2.0f);
+        effectSpawnAttachedSprite(state, &gEffectSpriteRainbowCoin, 2.0f);
     }
 }
 
-extern u8 gEffectSpriteCoinRed;
-extern u8 gEffectSpriteCoinGreen;
-extern u8 gEffectSpriteCoinBlue;
-extern u8 gEffectSpriteCoinYellow;
-extern u8 gEffectSpriteCoinPurple;
+extern EffectGridAsset gEffectSpriteCoinRed;
+extern EffectGridAsset gEffectSpriteCoinGreen;
+extern EffectGridAsset gEffectSpriteCoinBlue;
+extern EffectGridAsset gEffectSpriteCoinYellow;
+extern EffectGridAsset gEffectSpriteCoinPurple;
 
 void actorKongDropUpdate(void) {
     DropBounceState *state;
@@ -326,11 +326,11 @@ void actorKongDropUpdate(void) {
     }
 }
 
-extern u8 gEffectSpriteBananaBunchGreen;
-extern u8 gEffectSpriteBananaBunchRed;
-extern u8 gEffectSpriteBananaBunchBlue;
-extern u8 gEffectSpriteBananaBunchYellow;
-extern u8 gEffectSpriteBananaBunchPurple;
+extern EffectGridAsset gEffectSpriteBananaBunchGreen;
+extern EffectGridAsset gEffectSpriteBananaBunchRed;
+extern EffectGridAsset gEffectSpriteBananaBunchBlue;
+extern EffectGridAsset gEffectSpriteBananaBunchYellow;
+extern EffectGridAsset gEffectSpriteBananaBunchPurple;
 
 void actorKongDropPersistentUpdate(void) {
     DropBounceState *state;
@@ -774,30 +774,30 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
     }
 }
 
-extern u8 gEffectSpriteBananaBalloonRed;
+extern EffectGridAsset gEffectSpriteBananaBalloonRed;
 void actorPathCollectibleUpdateFBC(void) {
     actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonRed);
 }
 
-extern u8 gEffectSpriteBananaBalloonGreen;
+extern EffectGridAsset gEffectSpriteBananaBalloonGreen;
 
 void actorPathCollectibleUpdateF98(void) {
     actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonGreen);
 }
 
-extern u8 gEffectSpriteBananaBalloonPurple;
+extern EffectGridAsset gEffectSpriteBananaBalloonPurple;
 
 void actorPathCollectibleUpdate1028(void) {
     actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonPurple);
 }
 
-extern u8 gEffectSpriteBananaBalloonBlue;
+extern EffectGridAsset gEffectSpriteBananaBalloonBlue;
 
 void actorPathCollectibleUpdate1004A(void) {
     actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonBlue);
 }
 
-extern u8 gEffectSpriteBananaBalloonYellow;
+extern EffectGridAsset gEffectSpriteBananaBalloonYellow;
 
 void actorPathCollectibleUpdateFE0(void) {
     actorPathCollectibleUpdate(&gEffectSpriteBananaBalloonYellow);
