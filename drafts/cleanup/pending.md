@@ -106,12 +106,14 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- 2026-11-24b close leftovers (OPEN, not EXHAUSTED, staled by the close knowledge commit 0a899c80 which names them): global
-  faultDrawRegs (5fb2de, Q1631), csModelIdTableReset (cc0f6b, Q1629), hudPauseMenuUpdate (c127b7, db430c, 6151e7, 32c920, Q1630),
-  enemyGridStateStep (706cd2, 92ac80, cc75db, 047f57, 148492, Q1629): reviews + diagnose rungs to re-measure against the new entries
-  (one ledger-only worker per file, minutes each). Every other `rank` function is EXHAUSTED (stop rule: a named lever first);
-  playerStateSurfaceTreadWater and kongChainInit were re-measured in 2026-11-24b (Q1626-Q1628), modelPendingQueueInsert cd1810 became
-  `// LAYOUT:` (R2), batch_18 H's 21 reopened rungs were re-measured (ReMeasureB18H, Q1632-Q1634).
+- 2026-11-24b: every `rank` function is EXHAUSTED again (stop rule: a named lever first). The close knowledge commit 0a899c80
+  reopened faultDrawRegs, csModelIdTableReset, hudPauseMenuUpdate and enemyGridStateStep; the post-close re-measure
+  (ReMeasureKnow24b, db9779c7 + ledgers 633e5116 / dfac70e2) fixed hudPauseMenuUpdate c127b7 + db430c (selector switches on
+  gCurrentMap / hud->page, `credits = hubWorld == 8 && menuGetTimerFlag() != 0;`), retagged cc0f6b / 706cd2 ORIG (R4) and kept the
+  rest. Its IDO findings are NOT filed yet (next unit, then re-measure the functions they name): `.scratch/ReMeasureKnow24b/report.md`
+  §5 items 1-3 (extends Q1630: the `&&` form evaluates into the switches' shared expression temp; correction to Q1582: the page
+  reaches a1 without a selector local once the credits flag is the `&&` form; extends Q1629: ordered address-compare loop exits are
+  ORIG material).
 - Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
   `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
   function's real outputs). Not dispatched: a param rename is a body change.

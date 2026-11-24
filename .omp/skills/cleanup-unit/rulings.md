@@ -81,6 +81,10 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
   pair (the second reads the first) splitting the line changes only the relative order of the two statements' own instructions
   (36880 modelPendingQueueInsert cd1810 `slots = gModelSlots; obj = slots[idx].csState;`: the split swaps only `sw t8,0x34(sp)` and
   `addu t9,t8,t7` at 0x99a0/0x99a4; R2 2026-11-24b).
+- an address-compare loop exit (`&a[i] < &a[N]`) is `// ORIG:` when the target performs an ordered `sltu` (+ `bnez`/`bnezl`) against
+  a hoisted end address that no index spelling emits (a literal bound unrolls or is LFTR'd to `bne`/`bnel`; Q1629): the opcode is
+  the evidence, not register numbering (42630 csModelIdTableReset cc0f6b `sltu` 0x18; C0EE0 enemyGridStateStep 706cd2 `sltu` 0x4dc,
+  `bnezl` 0x508; R4 2026-11-24b).
 - an empty `default:` whose own block the target keeps (bound-check + gap entries branch to a distinct address) is `// ORIG:` citing
   that block (director 2026-11-18b: vsprintf 0x139c `lbu/li/move` before the loop test 0x13a8, bound check 0x4c4; EFDC0
   playerStateSetFlagsByActorType +0x16c..+0x190 before the join +0x194, no gap entries; C0EE0 enemyGridStateStep: the one reload
