@@ -556,7 +556,7 @@ void cutsceneStartFlag16CPath(void) {
     }
 }
 
-extern s8 D_80029FA0;
+extern s8 critterArenaTargetsLeft; // lives in the critter overlay: only valid while it is loaded
 extern u8 gCurrentWorldId;
 
 void gridCollectItem(u8 playerIndex, s32 modelType, u8 collisionOverride) {
@@ -567,7 +567,7 @@ void gridCollectItem(u8 playerIndex, s32 modelType, u8 collisionOverride) {
 
     shouldComplete = 0;
     if ((gGlobalOverlayFlags & 0x10000000) && (modelType != 0x56)) {
-        D_80029FA0--;
+        critterArenaTargetsLeft--;
         return;
     }
     if (gCurrentMap != 0xF) {

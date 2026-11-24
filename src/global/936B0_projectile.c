@@ -1503,7 +1503,7 @@ void projectileSpawnExplosion(void) {
 extern u8 gEffectSpriteOrangeGrenade;
 extern s16 gBounceExplodeLifetime;
 extern s16 gBounceExplodeShortLifetime;
-extern s8 D_80029FA0;
+extern s8 critterArenaTargetsLeft; // lives in the critter overlay: only valid while it is loaded
 
 void projectileBounceExplodeScaledUpdate(void) {
     ProjectileState *state;
@@ -1653,12 +1653,12 @@ void projectileBounceExplodeScaledUpdate(void) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
             }
             actorDespawn(gCurrentActor);
-            D_80029FA0--;
+            critterArenaTargetsLeft--;
         }
     }
     if (state->spawnFrame + gBounceExplodeLifetime < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
-        D_80029FA0--;
+        critterArenaTargetsLeft--;
     }
 }
 

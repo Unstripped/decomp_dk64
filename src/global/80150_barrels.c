@@ -627,7 +627,7 @@ typedef struct ThrowableBarrelState {
 
 
 extern s16 gCurrentCharacterIndex;
-extern s8 D_80029FA0;
+extern s8 critterArenaTargetsLeft; // lives in the critter overlay: only valid while it is loaded
 extern EffectGridAsset gEffectSpriteBubble;
 extern EffectGridAsset gEffectSpriteFuseSpark;
 extern s16 gCarryMinFallSpeed;
@@ -889,7 +889,7 @@ void throwableBarrelUpdate(void) {
                 gSpawnedActor->y = gCurrentActor->floorY;
                 goto block_despawn;
             case 0x85:
-                D_80029FA0--;
+                critterArenaTargetsLeft--;
             default:
             block_despawn:
                 tagBarrelDespawnEffects();

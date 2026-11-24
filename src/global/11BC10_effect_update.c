@@ -1096,7 +1096,7 @@ void effectParticleArcUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 extern PlayerState *gActivePlayerState;
-extern void *D_80028C30;
+extern void *sMinecartWheelEffect; // lives in the minecart overlay: only valid while it is loaded
 
 void effectTimedLightIntensityFade(EffectNode *effect, s8 *isDone) {
     f32 ratio;
@@ -1105,7 +1105,7 @@ void effectTimedLightIntensityFade(EffectNode *effect, s8 *isDone) {
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
-    if ((gActivePlayerState->actor == effect->target) && ((void *)effect == D_80028C30)) {
+    if ((gActivePlayerState->actor == effect->target) && ((void *)effect == sMinecartWheelEffect)) {
         lightSetFlags(1);
         lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
                  ratio * 50.0, 0, 0xFF,
@@ -1114,7 +1114,7 @@ void effectTimedLightIntensityFade(EffectNode *effect, s8 *isDone) {
     }
 }
 
-extern void *D_8002FBB0[];
+extern void *gRaceSparkEffects[]; // lives in the race overlay: only valid while it is loaded
 extern void *gLightSlotNext;
 void timedLightOrbitUpdate(EffectNode *effect, s8 *isDone) {
     f32 ratio;
@@ -1124,7 +1124,7 @@ void timedLightOrbitUpdate(EffectNode *effect, s8 *isDone) {
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
-    slot = D_8002FBB0;
+    slot = gRaceSparkEffects;
     do {
         if (effect == *slot) {
             lightSetFlags(1);
