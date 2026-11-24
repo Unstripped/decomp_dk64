@@ -9,8 +9,8 @@ method ladder that exhausts them, and the per-function `review` coverage.
   uv run tools/quality.py record --unit U --agent A [--base REV] [--model SEL] [--skip-missing] --batch FILE|-
   uv run tools/quality.py status [--file src/..c] [--func NAME]
   uv run tools/quality.py rank [--seg S] [--limit N] [--polish]
-                                         hack queue: functions with hack sites, weakest earlier
-                                         attempts first (best model strength, then most hacks);
+                                         hack queue: functions with hack sites; missing rungs
+                                         first, then least recently attempted (next=retry);
                                          --polish: per file, functions without hack sites left open
   uv run tools/quality.py history FUNC [--file src/..c] [--all]
                                          the function's agent events (sweep/carry with --all)
@@ -110,6 +110,7 @@ the event it copies).
 Review checklist tokens: fake goto casts views protos temps names uninit warn.
 A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept non-warning sites) a
 fresh function-level `reconstruct`; without a fresh review it is OPEN next=review.
+A function with a FAKE-kind site is never EXHAUSTED: once its rungs are fresh it shows OPEN next=retry.
 
 sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; all together,
   singles, pairs if >2, triples if 3..6), plain (one rewrite per site line), cond (condition flips
@@ -165,6 +166,7 @@ SCRATCH = os.path.join(ROOT, ".scratch", "quality")
 
 KINDS = ("dead-if", "volatile", "do-while0", "dead-store", "noop-arith", "comma", "punned-cast",
          "proto-steer", "implicit-steer", "proto-type", "goto", "other", "warning")
+FAKE_KINDS = frozenset(k for k in KINDS if k not in ("goto", "proto-type", "warning"))
 LADDER = {"dead-if": ("remove", "cond", "classify", "recipe", "diagnose"),
           **dict.fromkeys(("volatile", "do-while0", "dead-store"), ("remove", "cond", "recipe", "diagnose")),
           **dict.fromkeys(("noop-arith", "comma", "punned-cast", "other"), ("plain", "recipe", "diagnose")),
@@ -787,7 +789,8 @@ def exhausted(site, events, now_fp):
 
 
 def function_state(fn, by_site, by_func):
-    """dict(done, next, review, reconstruct, sites=[(site, ladder)], open=[(site, ladder)], waived)."""
+    """dict(done, next, review, reconstruct, sites=[(site, ladder)], open=[(site, ladder)], waived, fake):
+    FAKE = its FAKE-kind sites; such a function is never done (next=retry once nothing else is missing)."""
     fp, name = (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2")), fn["name"]
     fevs = by_func.get((fn["seg"], f"{fn['vram']:08X}"), [])
     review = mark(fevs, "review", fp, name)[0]
@@ -799,7 +802,11 @@ def function_state(fn, by_site, by_func):
            if sum(not r["kept"] for s, r in sites if s["kind"] != "warning") >= 3 else None)
     nxt = ("review" if review != "✓" else open_[0][1]["next"] if open_
            else "reconstruct" if rec not in (None, "✓") else None)
-    return dict(done=nxt is None, next=nxt, review=review, reconstruct=rec, sites=sites, open=open_, waived=waived)
+    fake = sum(s["kind"] in FAKE_KINDS for s in fn["sites"])
+    if nxt is None and fake:
+        nxt = "retry"  # the FAKE queue never ends: rank rotates the function back in
+    return dict(done=nxt is None, next=nxt, review=review, reconstruct=rec, sites=sites, open=open_, waived=waived,
+                fake=fake)
 
 
 # ---------------------------------------------------------------- sweep
@@ -863,7 +870,7 @@ class ScanError(Exception):
     """A variants.py scan that did not complete (dkd error, crash, no JSON): not a negative search."""
 
 
-def recipe_check(text, path, src, func):
+def recipe_check(text, path, src, func, recipes=None, max_n=120):
     """Text of the first tools/variants.py recipe variant of FUNC in TEXT (a copy of PATH) that passes
     check(), or None when the scan completed without one. Raises ScanError when the scan itself
     failed (non-zero exit, missing or unreadable JSON), with the command's last output lines."""
@@ -872,7 +879,8 @@ def recipe_check(text, path, src, func):
     open(os.path.join(ROOT, copy), "w").write(text)
     js = os.path.join(d, "v.json")
     try:
-        r = subprocess.run(["tools/dk", "python3", "tools/variants.py", "scan", copy, src, func, "--max", "120",
+        rs = ["--recipes", ",".join(recipes)] if recipes else []
+        r = subprocess.run(["tools/dk", "python3", "tools/variants.py", "scan", copy, src, func, *rs, "--max", str(max_n),
                             "-j", "2", "--out", rel(os.path.join(d, "zeros")), "--json", rel(js)],
                            cwd=ROOT, capture_output=True, text=True)
         tail = " | ".join(((r.stdout or "") + (r.stderr or "")).strip().splitlines()[-3:])
@@ -1388,16 +1396,18 @@ def strength(sel):
 
 
 def attempts(fn, by_site, by_func, models):
-    """dict(best, units, strong) over the HARD-method agent events on FN's hack sites plus its
+    """dict(best, units, strong, last) over the HARD-method agent events on FN's hack sites plus its
     reconstruct events: per attempting unit (a carried event counts for the unit and agent of the
     event it copies) the strongest model, `best` the strongest unit (-1: none), `units` their
-    count, `strong` the units at strength 3. MODELS: load_models()."""
+    count, `strong` the units at strength 3, `last` the newest counted event's time ("": none; a
+    carried event keeps its original time). MODELS: load_models()."""
     evs = [e for s in fn["sites"] if s["kind"] in HACK_KINDS for e in by_site.get(s["key"], [])]
     evs += [e for e in by_func.get((fn["seg"], f"{fn['vram']:08X}"), []) if e["method"] == "reconstruct"]
-    per_unit = {}
+    per_unit, last = {}, ""
     for e in evs:
         if e["method"] not in HARD or e.get("agent") == "sweep":
             continue
+        last = max(last, e["t"])
         src = e
         if e.get("agent") == "carry":
             src = next((x for x in evs if x.get("agent") != "carry" and x["method"] == e["method"]
@@ -1406,7 +1416,7 @@ def attempts(fn, by_site, by_func, models):
         sel = e.get("model") or src.get("model") or models.get((src["unit"], src["agent"]))
         per_unit[unit] = max(per_unit.get(unit, 0), strength(sel))
     return dict(best=max(per_unit.values(), default=-1), units=len(per_unit),
-                strong=sum(v >= 3 for v in per_unit.values()))
+                strong=sum(v >= 3 for v in per_unit.values()), last=last)
 
 
 def cmd_rank(a):
@@ -1436,14 +1446,19 @@ def cmd_rank(a):
                 continue
             st, at = function_state(fn, by_site, by_func), attempts(fn, by_site, by_func, models)
             kinds = " ".join(f"{k}={v}" for k, v in sorted(collections.Counter(s["kind"] for s in hacks).items()))
-            rows.append((at["best"], len(hacks), at["units"], at["strong"], an["path"], fn["name"],
-                         "EXHAUSTED" if st["done"] else f"next={st['next']}", kinds))
-    rows.sort(key=lambda r: (r[0], -r[1], r[2], r[4], r[5]))
-    print(f"{'str':>3} {'att':>3} {'strong':>6} {'hacks':>5}  state  file  function  kinds")
-    for best, hacks, units, strong, path, name, state, kinds in rows[:a.limit]:
-        print(f"{'-' if best < 0 else best:>3} {units:>3} {strong:>6} {hacks:>5}  {state}  {path}  {name}  {kinds}")
-    print(f"{len(rows)} functions with hacks ({sum(r[1] for r in rows)} sites), "
-          f"{sum(r[3] >= 3 for r in rows)} with 3+ strong attempts")
+            order = 2 if st["done"] else 1 if st["next"] == "retry" else 0  # missing rung/review/apply first
+            rows.append(dict(order=order, at=at, hacks=len(hacks), path=an["path"], name=fn["name"],
+                             state="EXHAUSTED" if st["done"] else f"next={st['next']}", kinds=kinds))
+    # never-attempted ("") first within a state, then least recently attempted
+    rows.sort(key=lambda r: (r["order"], r["at"]["last"], -r["hacks"], r["path"], r["name"]))
+    print(f"{'str':>3} {'att':>3} {'strong':>6} {'hacks':>5} {'last':>10}  state  file  function  kinds")
+    for r in rows[:a.limit]:
+        at = r["at"]
+        print(f"{'-' if at['best'] < 0 else at['best']:>3} {at['units']:>3} {at['strong']:>6} {r['hacks']:>5} "
+              f"{at['last'][:10] or '-':>10}  {r['state']}  {r['path']}  {r['name']}  {r['kinds']}")
+    print(f"{len(rows)} functions with hacks ({sum(r['hacks'] for r in rows)} sites), "
+          f"{sum(r['at']['strong'] >= 3 for r in rows)} with 3+ strong attempts, "
+          f"{sum(r['order'] == 1 for r in rows)} at next=retry")
 
 
 def cmd_history(a):
@@ -2868,7 +2883,7 @@ def cmd_carry(a):
     print(f"carried {len(out)} events from {a.rev} to {rel(LEDGER)}")
 
 
-TEXT_ROWS = ["FAKE", *(f"FAKE {k}" for k in KINDS if k not in ("goto", "proto-type", "warning")), "LAYOUT", "ORIG",
+TEXT_ROWS = ["FAKE", *(f"FAKE {k}" for k in KINDS if k in FAKE_KINDS), "LAYOUT", "ORIG",
              "goto", "proto-type"]
 ROWS = TEXT_ROWS + ["protos mismatch", "sites open", "sites exhausted", "functions", "reviewed",
                     "exhausted functions", "uninit warnings", "cfe warnings", "func_ defs", "m2c names", "unk fields",

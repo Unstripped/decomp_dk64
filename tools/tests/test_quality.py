@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import re
@@ -1876,5 +1877,35 @@ def test_attempts_take_strongest_model_per_unit():
                              ev(SITE, "diagnose", "nohit", unit="u2", agent="B"),
                              ev(SITE, "remove", "nohit", unit="u3", agent="sweep")]}
     at = q.attempts(fn, by_site, {}, {("u2", "B"): "anthropic/x:xhigh"})
-    assert at == dict(best=3, units=2, strong=1)
-    assert q.attempts(fn, {}, {}, {}) == dict(best=-1, units=0, strong=0)
+    assert at == dict(best=3, units=2, strong=1, last="2026-01-01T00:00:00Z")
+    assert q.attempts(fn, {}, {}, {}) == dict(best=-1, units=0, strong=0, last="")
+
+
+def test_fake_function_is_never_done():
+    review = {("global", "80600000"): [ev(None, "review", "nohit", note=REVIEW)]}
+    st = q.function_state(dict(FN, sites=[SITE]), {SITE["key"]: class1_events()}, review)
+    assert (st["done"], st["next"], st["fake"]) == (False, "retry", 1)
+    goto = dict(SITE, key="global:80600000:goto:abc123", kind="goto", code="goto end;")
+    st = q.function_state(dict(FN, sites=[goto]), {goto["key"]: [ev(goto, "goto-hand", "kept")]}, review)
+    assert (st["done"], st["next"]) == (True, None)
+
+
+def test_rank_rotates_least_recent_first(monkeypatch, capsys):
+    fns, events = [], []
+    for name, vram, t in (("f", 0x80600000, "2026-01-02T00:00:00Z"), ("g", 0x80600010, "2026-01-01T00:00:00Z")):
+        v = f"{vram:08X}"
+        site = dict(SITE, key=f"global:{v}:dead-if:abc123", name=name)
+        fns.append(dict(FN, name=name, vram=vram, sites=[site]))
+        kw = dict(vram=v, name=name)
+        events += [ev(site, "remove", "nohit", **kw), ev(site, "cond", "nohit", **kw),
+                   ev(site, "classify", "kept", note="class 1", **kw), ev(None, "review", "nohit", note=REVIEW, **kw),
+                   ev(site, "diagnose", "nohit", quirks=["Q0001"], t=t, **kw)]
+    monkeypatch.setattr(q, "analyze_many", lambda paths, uninit=False: [dict(path="src/global/x.c", functions=fns)])
+    monkeypatch.setattr(q.clint, "src_files", lambda *a, **k: ["src/global/x.c"])
+    monkeypatch.setattr(q, "require_resolved", lambda ans: None)
+    monkeypatch.setattr(q, "load_models", lambda: {})
+    monkeypatch.setattr(q, "load_events", lambda: events)
+    q.cmd_rank(argparse.Namespace(seg=None, limit=None, polish=False))
+    rows = [l for l in capsys.readouterr().out.splitlines() if "src/global/x.c" in l]
+    assert [re.search(r"src/global/x\.c  (\w+)  ", l).group(1) for l in rows] == ["g", "f"]
+    assert all("next=retry" in l for l in rows)

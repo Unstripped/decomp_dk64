@@ -4,7 +4,7 @@ trying candidate bodies instead of per-agent trial scripts. Run in the container
 tools/dk on the host):
 
   tools/dk python3 tools/variants.py scan <copy.c> <src/seg/file.c> FUNC
-        [--recipes truth,switch,branch,swap,arith,elem,float,width,declswap]
+        [--recipes truth,switch,branch,swap,arith,elem,float,width,declswap,splitlocal,unalias]
         [--max 120] [-j 2] [--out DIR] [--json FILE]
   tools/dk python3 tools/variants.py try <copy.c> <src/seg/file.c> FUNC BODY.c... [-j 2]
 
@@ -32,6 +32,16 @@ tools/dk on the host):
            width     a single-declarator local of s8/u8/s16/u16/s32/u32/int/unsigned int as each of the others
                      (`int` and `long` (s32) differ in IDO's cfe: Q0128 menu/E550 maxLevel)
            declswap  two adjacent lines of the leading declaration block swapped
+           splitlocal  (lines tagged `// FAKE` only) one local serving two roles split in two: from a tagged
+                     plain assignment `X = ...;` (or, for a tagged declaration of X, from each plain assignment
+                     after X's first) to the line before X's next plain assignment, X becomes a new local
+                     X_<n> (smallest unused n >= 2) declared at every slot of the declaration block; only
+                     when an untagged line in that range reads X (else it would just rename a steer)
+           unalias   (lines tagged `// FAKE` only) a redundant alias `A = B;` / `T *A = B;` of a local A
+                     deleted, A respelled B up to the next plain assignment of A or B; A's separate
+                     declaration line deleted too once unused, and kept (a frame slot) in a second variant
+         splitlocal/unalias drop the acted-on line's `// FAKE` comment and prove nothing: a rename across a
+         loop back-edge is caught by the gates (fdiff --reloc-ok, clint uninit --base).
          Prints the baseline, then `full text reloc recipe desc` per variant (deadsweep score's measures;
          `err` on a cfe error), best first. A variant with full == 0 is written into a whole-file copy
          DIR/zero_<n>.c (default DIR .scratch/variants/<seg>_<FUNC>_<uuid8>) and printed as
@@ -43,7 +53,7 @@ tools/dk on the host):
 Edits touch only the code part of a line (before `//`); preprocessor lines and lines with string or
 character literals are left alone.
 """
-import argparse, json, os, re, struct, subprocess, sys, uuid
+import argparse, itertools, json, os, re, struct, subprocess, sys, uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -53,7 +63,7 @@ if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):
 sys.path.insert(0, str(ROOT / "tools"))
 import deadsweep  # noqa: E402
 
-RECIPES = ("truth", "switch", "branch", "swap", "arith", "elem", "float", "width", "declswap")
+RECIPES = ("truth", "switch", "branch", "swap", "arith", "elem", "float", "width", "declswap", "splitlocal", "unalias")
 OPND = r"(?:[A-Za-z_]\w*(?:(?:->|\.)\w+|\[[^\]\[]*\])*|0x[0-9A-Fa-f]+[uUlL]*|-?\d+(?:\.\d+)?[fFuUlL]*)"
 OPND_END = re.compile(OPND + r"(?=\s*$)")
 OPND_START = re.compile(r"\s*(" + OPND + r")")
@@ -157,23 +167,157 @@ def gen_width(text):
     return out
 
 
-def gen_declswap(text):
-    lines, paren = text.split("\n"), 0
+def decl_block(lines):
+    """(o, j): LINES[o] is the function's opening `{` line (the first ending in `{` at paren depth 0),
+    LINES[o + 1:j] its leading declaration block; None without an opening line."""
+    paren = 0
     for o, line in enumerate(lines):
         c = deadsweep.code_of(line)
         paren += c.count("(") - c.count(")")
         if paren == 0 and c.endswith("{"):
             break
     else:
-        return []
+        return None
     j = o + 1
     while j < len(lines) and deadsweep.DECL.fullmatch(deadsweep.code_of(lines[j])):
         j += 1
+    return o, j
+
+
+def gen_declswap(text):
+    lines = text.split("\n")
+    if not (b := decl_block(lines)):
+        return []
+    o, j = b
     out = []
     for i in range(o + 1, j - 1):
         new = lines[:i] + [lines[i + 1], lines[i]] + lines[i + 2:]
         out.append(("declswap", f"lines {i + 1}-{i + 2}: `{lines[i].strip()}` <-> `{lines[i + 1].strip()}`",
                     "\n".join(new)))
+    return out
+
+
+# a single-declarator local: indent, type text (pointer stars kept), name, array suffix, initialiser
+TYPE = r"(?:[A-Za-z_]\w*\s+)*[A-Za-z_]\w*[\s*]+?"
+LOCAL = re.compile(r"^(\s*)(" + TYPE + r"\**)([A-Za-z_]\w*)(\[[^\]]*\])?\s*(=[^;]*)?;\s*$")
+ALIAS = re.compile(r"^\s*(?!(?:return|goto|else|case|do)\b)(" + TYPE + r"\**)?([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)\s*;\s*$")
+
+
+def _name(x):
+    """X as a whole identifier, not a member (`p->x`, `s.x`)."""
+    return re.compile(r"(?<![\w.])(?<!->)" + re.escape(x) + r"(?!\w)")
+
+
+def _assigns(x):
+    """A plain assignment to X starting a line's code (never `==` or a compound `+=`)."""
+    return re.compile(r"^\s*" + re.escape(x) + r"\s*=(?!=)")
+
+
+def _unfake(code, cm):
+    """CODE with comment CM minus its `// FAKE...` part (other comment text before it kept)."""
+    rest = re.sub(r"\s*(?://\s*)?FAKE\b.*$", "", cm).rstrip()
+    return code.rstrip() + (" " + rest if rest.strip("/ \t") else "")
+
+
+def _top_comma(s):
+    depth = 0
+    for ch in s:
+        depth += ch in "([{"
+        depth -= ch in ")]}"
+        if ch == "," and depth == 0:
+            return True
+    return False
+
+
+def _rename(lines, lo, hi, rx, new):
+    """LINES with RX replaced by NEW in the code part of lines LO..HI (literal lines left unchanged)."""
+    out = list(lines)
+    for i in range(lo, hi + 1):
+        sc = split_code(out[i])
+        if sc:
+            out[i] = rx.sub(new, sc[0]) + sc[1]
+    return out
+
+
+def _code(line):
+    return line.split("//")[0]
+
+
+def gen_splitlocal(text):
+    """One local serving two roles split in two: from a FAKE-tagged plain assignment `X = ...;` (or, for a
+    FAKE-tagged declaration of X, from each later plain assignment after the first) to the line before the
+    next plain assignment of X, X becomes a new local X_n declared at each slot of the declaration block."""
+    lines = text.split("\n")
+    if not (b := decl_block(lines)):
+        return []
+    o, j = b
+    decls = {}  # name -> (line index, indent, type text)
+    for i in range(o + 1, j):
+        sc = split_code(lines[i])
+        m = sc and LOCAL.match(sc[0])
+        if not m or m.group(4) or (m.group(5) and (_top_comma(m.group(5)) or _name(m.group(3)).search(m.group(5)))):
+            continue
+        decls[m.group(3)] = (i, m.group(1), m.group(2))
+    out = []
+    for n, line in enumerate(lines):
+        sc = split_code(line)
+        if not sc or "FAKE" not in sc[1]:
+            continue
+        m = re.match(r"^\s*([A-Za-z_]\w*)\s*=(?!=)", sc[0])
+        if m and m.group(1) in decls and n >= j:
+            x, starts = m.group(1), [n]
+        else:
+            x = next((k for k, d in decls.items() if d[0] == n), None)
+            if x is None:
+                continue
+            asg = [i for i in range(j, len(lines)) if _assigns(x).match(_code(lines[i]))]
+            starts = [i for i in asg[1:] if split_code(lines[i])]
+        d, ind, typ = decls[x]
+        k = next(k for k in itertools.count(2) if not re.search(rf"\b{re.escape(x)}_{k}\b", text))
+        xn = f"{x}_{k}"
+        for s in starts:
+            e = next((i - 1 for i in range(s + 1, len(lines)) if _assigns(x).match(_code(lines[i]))), len(lines) - 1)
+            if not any((c := split_code(lines[i])) and "FAKE" not in c[1] and _name(x).search(c[0])
+                       for i in range(s + 1, e + 1)):
+                continue  # the new local would be read only by tagged lines: a renamed steer, not a split
+            new = _rename(lines, s, e, _name(x), xn)
+            new[n] = _unfake(*split_code(new[n]))
+            for p in range(j - o):
+                out.append(("splitlocal", f"line {n + 1}: {x} -> new local {xn} from line {s + 1} (decl slot {p})",
+                            "\n".join(new[:o + 1 + p] + [f"{ind}{typ}{xn};"] + new[o + 1 + p:])))
+    return out
+
+
+def gen_unalias(text):
+    """A FAKE-tagged alias `A = B;` (or `T *A = B;`) of a local A removed, A respelled B up to the next
+    plain assignment of A or B; A's separate declaration line deleted once unused (a variant keeping it,
+    for its frame slot, when that differs)."""
+    lines = text.split("\n")
+    b = decl_block(lines)
+    decls = {}
+    for i in range(b[0] + 1, b[1]) if b else ():
+        sc = split_code(lines[i])
+        if sc and (m := LOCAL.match(sc[0])) and not m.group(4):
+            decls.setdefault(m.group(3), i)
+    out = []
+    for n, line in enumerate(lines):
+        sc = split_code(line)
+        if not sc or "FAKE" not in sc[1] or not (m := ALIAS.match(sc[0])):
+            continue
+        typ, a, bb = m.groups()
+        if a == bb or (not typ and a not in decls):
+            continue
+        stop = re.compile(r"^\s*(?:" + re.escape(a) + "|" + re.escape(bb) + r")\s*=(?!=)")
+        e = next((i - 1 for i in range(n + 1, len(lines)) if stop.match(_code(lines[i]))), len(lines) - 1)
+        new = _rename(lines, n + 1, e, _name(a), bb)
+        keep = [l for i, l in enumerate(new) if i != n]
+        d = None if typ else decls.get(a)
+        texts = []
+        if d is not None and not any(_name(a).search(_code(l)) for i, l in enumerate(new) if i not in (n, d)):
+            texts.append("\n".join(l for i, l in enumerate(new) if i not in (n, d)))
+        texts.append("\n".join(keep))
+        for t in dict.fromkeys(texts):
+            out.append(("unalias", f"line {n + 1}: alias {a} = {bb} removed, {a} -> {bb} to line {e + 1}", t))
     return out
 
 
@@ -366,7 +510,8 @@ def gen_elem(text):
 
 
 GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswap": gen_declswap, "truth": gen_truth,
-              "switch": gen_switch, "branch": gen_branch, "arith": gen_arith, "elem": gen_elem}
+              "switch": gen_switch, "branch": gen_branch, "arith": gen_arith, "elem": gen_elem,
+              "splitlocal": gen_splitlocal, "unalias": gen_unalias}
 
 
 def variants(text, recipes=RECIPES, max_n=None):

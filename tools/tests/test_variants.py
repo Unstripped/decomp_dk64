@@ -128,3 +128,28 @@ def test_elem_rotates_element_spellings():
     assert texts(v.gen_elem, "    x = (gTab + i)->f; y = (&gTab[j])->g;") == [
         "    x = gTab[i].f; y = (&gTab[j])->g;", "    x = (gTab + i)->f; y = gTab[j].g;"]
     assert texts(v.gen_elem, "    x = p->arr[i].f; y = s.arr[j].g;") == []  # member arrays keep their path
+
+
+def test_splitlocal_splits_reused_local():
+    text = "void f(void) {\n    s32 x;\n    s32 y;\n    x = a();\n    b(x);\n    x = c(); // FAKE: reuse\n    d(x);\n}"
+    out = texts(v.gen_splitlocal, text)
+    assert len(out) == 3  # decl slots 0, 1, 2
+    assert out[2] == ("void f(void) {\n    s32 x;\n    s32 y;\n    s32 x_2;\n    x = a();\n    b(x);\n"
+                      "    x_2 = c();\n    d(x_2);\n}")
+
+
+def test_splitlocal_skips_compound_and_untagged():
+    assert texts(v.gen_splitlocal, "void f(void) {\n    s32 x;\n    x = a();\n    x += c(); // FAKE: r\n}") == []
+    assert texts(v.gen_splitlocal, "void f(void) {\n    s32 x;\n    x = a();\n    x = c();\n    d(x);\n}") == []
+
+
+def test_unalias_removes_alias():
+    text = "void f(T *p) {\n    T *q = p; // FAKE: alias\n    g(q);\n    h(q->a);\n}"
+    assert texts(v.gen_unalias, text) == ["void f(T *p) {\n    g(p);\n    h(p->a);\n}"]
+
+
+def test_splitlocal_skips_steer_only_local():
+    # the split local would be read only by tagged lines: renaming a steer drops a tag, not a hack
+    text = ("void f(void) {\n    s32 g;\n    g = a();\n    b(g);\n    g = m; // FAKE: holds a0\n"
+            "    if (g) {} // FAKE: dead test\n}")
+    assert texts(v.gen_splitlocal, text) == []
