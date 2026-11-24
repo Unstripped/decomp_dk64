@@ -47,6 +47,12 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - 7130 D_80770DD9 (undefined_syms.us.txt:341) stays while 7130.c:853 stores through it (FAKE linker alias of D_80770DD8[1]).
 - Declaration consistency: D_80720340 `u8`/`u8[]`/`s32` (478F0, 80150, 936B0, 9DD70, B6C50, race/1770; held name gSmokePuffSprite:
   unify the type first).
+- EffectGridAsset sprite externs, one per global (2026-11-24 M5/M15): 124780 defines them `EFFECT_GRID_ASSET(n)`; 478F0 (M5) and
+  119370 declare `EffectGridAsset`, ~118 externs in 31 other files are `u8`/`u8[]`/`s32`/`void`/`Gfx` (3E10, 80150, B2CE0, E4090,
+  C4620, CEAE0, 699B0, 936B0, B6C50, race/1770, BC3B0, C1E70, boss/F0D0, A2F10, 9DD70, ...). After unifying, 119370
+  effectCreateAtModelNode/ActorBone/Position take `EffectGridAsset *asset` (`views blocked` there). One gate per header-free batch.
+- effectSetCallback (119370) keeps `void *callback` + `(EffectCallback)` cast (`views blocked`, 2026-11-24 M15): 80 callbacks in
+  47 files: 55 `(EffectNode *, s8 *)`, 9 `(EffectNode *, void *)`, 5 `(EffectNode *, s32)`, 3 K&R: a callee-prototype batch first.
 
 ## Closed or held by ruling (reopen only with the new evidence named)
 - Return widths: keep `u8 mapGetHubWorldIndex(u8, u8)` (OwnerHubWorldIndexWidthPlan: C2A90 func_806BE09C uses v0 unmasked) and
@@ -109,6 +115,9 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - Polish proposals (2026-11-20 reports, hack-function bodies, ordinary-C only with fresh rungs re-run): redundant casts in 3E10
   menuDrawHighScoreTable `(s16)(posY * 4.0)`, menuUpdateElementTargetAndColor five `(f32)`, 1295B0 zoneCheckActorInside two
   `(f64)` + seven `(f32)` (each fdiff 0 in a probe copy, Polishglobal42630d); 70FD0 420f8c FAKE comments still say unk140.
+- Polish proposal (2026-11-24 M17, untested): one function-like macro for 6AD90's six plane-parameter computations
+  `0.0 - (((x * nx) + (ny * -1000.0) + (nzTerm * z) + d) / (ny * 2000.0))` (collisionTestStaticMeshFloor 876/880,
+  collisionTestDynamicActorFloor 1315/1324/1328, collisionTestActorBoxFloor 1699); needs fdiff (a macro is one source line).
 
 ## Held names
 Continue unit 1 (2026-11-20/21, names windows 4b47df82..741670df, union carves e14a06d4) landed ~1,360 names, including every
@@ -141,4 +150,10 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
 - None open from 2026-11-20: 73393b44 (noop-arith literal), bd5da4f3 (alias respelling), 49c6d3c4 (tag added in place), d84d0487
   (macro renamed to an identical macro), 25fcab9a (knowledge staleness by author date), 4c63a269 (carry skips duplicates),
   994b805b (AGENTS.md) landed; the six 2026-11-18c items closed with 928f8144, 827859da, ed51d26d, 12452351, f29f1c5d, 827913fc.
+- tools/fdiff.sh and cwarn.py `--as`: `--shadow DIR` is silently ignored when the copy path IS the src path (TypesOwner15
+  batch_16: a deliberately broken shadow actor.h still printed OK); helpers must copy each includer to a distinct path first
+  (batch_16 fdall.sh/cwall.sh). Fix: apply the shadow (or refuse) when copy == src. Landed gates are safe (full ROM build).
+- tools/objdiff.py `pair_addends` pairs a HI16 with the next same-symbol LO16 on the same base register across switch-case
+  paths (6AD90 collisionFindFloorAtPoint: case-2 `lui` 0x768 paired with case-1 `%lo` 0x7e0 instead of `%lo(+2)` 0x868), so
+  `--reloc-ok` fails a copy retiring split label D_807F949A as `sSourceTiltPitch[1]` although the final bytes match (2026-11-24 M7).
 

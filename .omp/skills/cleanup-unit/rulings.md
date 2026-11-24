@@ -22,8 +22,9 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - a per-role local in a dropped local's or pads' slot
 - one local holding two values of the SAME role, each a real value the target uses (2F550 `denom`, divisor of `dot` in both
   `dist = dot / denom` and `t = dot / denom`: `div.d` 0x43f4/0x44f4; E550 `yo`, Q0896; R9 2026-11-18c); unrelated roles are a steer (R5)
-- a loop counter reused by a CONSECUTIVE loop that reinitialises it, no other role folded in, the then-unused local deleted (pad only if
-  the frame needs it) (1630 noExpPakThread vsync `x = 0` = `move s0,zero` 0x204; Q1224; R7 2026-11-18c)
+- a loop counter reused by a later loop that reinitialises it, consecutive or not, no other role folded in, the then-unused local
+  deleted (pad only if the frame needs it) (1630 noExpPakThread vsync `x = 0` = `move s0,zero` 0x204; Q1224; R7 2026-11-18c;
+  non-consecutive loops: 55B20 mapChunksInitFromMapData `i`, director 2026-11-24)
 - a one-case selector switch (case value + default) on a mode/selector byte the codebase switches on elsewhere, adding no compare
   beyond the target's single test (CEAE0 playerUpdateCommon `switch (gDemoPlaybackState)`: `lbu` 0x84c, `bnezl` 0x850; R3 2026-11-18c)
 - declaration order chosen for the frame (9BF30)
@@ -36,6 +37,11 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
   `li`/`mtc1`/`cvt.s.w`, every literal folds to `lui`)
 - `/ 2.0` where the file family halves that way and `* 0.5` fails (126260).
 - a pointer-sum operand order the target's offset-first `addu` proves (Q0813; 136820 faultDrawGlyph `xoff + (u16 *)fb + yoff`, R1 2026-11-18b).
+- a cast whose conversion the target executes, never `// ORIG:` either (D5E10 playerStateStationaryInteraction `(f32)rampLevel * 0.015`:
+  `cvt.s.w` +0x1c8, `cvt.d.s` +0x1e0; 42630 csCmdExec `(u32)pitch / 127.0` unsigned fixup, `(f32)cmd->a` into an s16 field; R1 2026-11-24)
+- a value recomputed into the same local where the file spells it that way elsewhere (6AD90 collisionTestStaticMeshFloor
+  `val = 0.0 - (...); h2 = ((2000.0 * val) - 1000.0) + offset;` as collisionTestDynamicActorFloor x3; uopt CSEs it; R4 2026-11-24);
+  a textbook expression with a single-use call inline (478F0 csCmdBobbingLights lerp `a + (b - a) * (mathSinF(..) * 0.5 + 0.5)`, 2026-11-24)
 
 ## Steers (keep `// FAKE`)
 
@@ -44,7 +50,8 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - an empty `default:`
 - a dead clamp keeper
 - any other constant-valued local
-- a redundant alias (a second copy of a value already in a local: a swap needing one is rejected)
+- a redundant alias (a second copy of a value already in a local: a swap needing one is rejected), also a cursor copy of a parameter
+  that is never read again (CC800 kongChainInit `KongChain *chain = chains;`, director 2026-11-24)
 - a value cast chosen for codegen, also as the result cast of a one-recomputation macro: ordinary only when dropping it changes
   the computed value for some reachable input (7CA80 actorAllocate `ALIGN8_U16` `(u16)`: headerSize <= 0x188 over all 344 component
   lists, so the cast only steers registers; director 2026-11-20)
@@ -57,18 +64,24 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - a width respelling plus a no-op value cast (F56F0 `u16 timer; index = (u8)timer - K`, declined 2026-11-18c)
 - a buffer/array size changed to free a frame word: ordinary C only with a proof from the code (not game data) that every write fits;
   otherwise rejected as a behaviour change (FCCD0 slotQueueDrawLabel `text[8]`->`text[4]`: coins via F9450.c:621 and the slot-9
-  golden-banana sum are uncapped; R11 2026-11-18c)
+  golden-banana sum are uncapped; R11 2026-11-18c). Accepted: 9DD70 actorSagWaveUpdate `posOffsets[32]`->`[28]` (only callers pass
+  8 and 0x1C, every write indexed below numNodes; R3 2026-11-24)
 
 ## ORIG and LAYOUT
 
 - `// ORIG:` replacing `// FAKE` needs the cited target-asm offset (check it; K&R declarations, -g puns, a
   per-file extern type the target proves qualify).
+- a target-proven per-file callee declaration keeps `// ORIG:` and the file does NOT include the shared proto header that would need a
+  new `#define PROTO_SKIP_<f>` for it (boss/0 actorMoveWithinZone; R2 2026-11-24): new skips are only `// FAKE: callee prototype steer`
+  or `// PROTO:` (AGENTS.md). Existing `PROTO_SKIP_<f> // ORIG:` lines paired with such a declaration stay (42630 hudSpawnCountdownTimer,
+  modelAnimEntrySetUnkC, effectSetDepth).
 - FAKE → `// LAYOUT:` with line-order evidence is a drop.
 - an empty `default:` whose own block the target keeps (bound-check + gap entries branch to a distinct address) is `// ORIG:` citing
   that block (director 2026-11-18b: vsprintf 0x139c `lbu/li/move` before the loop test 0x13a8, bound check 0x4c4; EFDC0
   playerStateSetFlagsByActorType +0x16c..+0x190 before the join +0x194, no gap entries; C0EE0 enemyGridStateStep: the one reload
   `lw a3,0(t2)` at 0xa58 before the join 0xa5c, cases branch to 0xa60 because the join's first op fills their delay slot; removal
-  sends bound check and gap entry to the join, 2026-11-20 f4051566); a default at the join address stays a steer.
+  sends bound check and gap entry to the join, 2026-11-20 f4051566; 478F0 csCmdPeriodicSfxAlloc: `beqz at,1708` 0x14f8 -> own block
+  0x1708 `lw a2,4(v1)` before the join 0x170c, 2026-11-24 M5); a default at the join address stays a steer.
 
 The offset must show the tagged line's OWN executed operations (a wider
 call-site declaration's caller-side `andi`, an extra argument register), never register numbering alone (136820 5fb2de), nor a computation
