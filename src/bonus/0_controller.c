@@ -357,7 +357,7 @@ render:
     }
     switch (gCurrentActor->state) {
     case 0:
-        if ((challengeType == 1 || challengeType == 0 || challengeType == 2 || challengeType == 0x10) && gPrimaryPlayerActor->y < 0.0f) {
+        if ((challengeType == 1 || challengeType == 0 || challengeType == 2 || challengeType == 16) && gPrimaryPlayerActor->y < 0.0f) {
             bonusEndLose(1, 1);
             return;
         }
