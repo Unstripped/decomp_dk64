@@ -528,8 +528,8 @@ void raceSetAllParticipantsStatus(u8 newStatus) {
 f32 raceGetHandicapSpeedBonus(RaceParticipant *participant) {
     f32 temp;
 
-    if (participant->route >= 11 && participant->route < 15 && (gPlayerPadState[participant->playerIdx].heldButtons & 0x2000)) {
-        temp = participant->route - 10;
+    if (participant->boostCharge >= 11 && participant->boostCharge < 15 && (gPlayerPadState[participant->playerIdx].heldButtons & 0x2000)) {
+        temp = participant->boostCharge - 10;
         return temp * 0.2f;
     }
     return 0.0f;

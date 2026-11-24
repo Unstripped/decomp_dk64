@@ -450,16 +450,16 @@ void raceVehicleBehaviorUpdate(void) {
         if (managerData->phaseTimer == 8 || managerData->phaseTimer == 0x13) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
-        raceUpdateEngineSoundPitch(participant->route * 1.5);
+        raceUpdateEngineSoundPitch(participant->boostCharge * 1.5);
     } else if (participant->raceStatus < 5) {
         shakeAngle = 0;
-        if (participant->route != 0) {
+        if (participant->boostCharge != 0) {
             bonus = raceGetHandicapSpeedBonus(participant);
             if (bonus != 0) {
                 bonus = 1.5f * bonus + 1.5f;
                 raceStartPathBoost(pathState, 0x1E, bonus);
             }
-            participant->route = 0;
+            participant->boostCharge = 0;
         }
         if (pathState->stunTimer != 0) {
             if (pathState->stunTimer > 10.0f) {

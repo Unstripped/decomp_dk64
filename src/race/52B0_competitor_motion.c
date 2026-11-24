@@ -138,15 +138,15 @@ void raceCompetitorMotionUpdate(void) {
             }
         }
         if (participant->raceStatus == 2) {
-            if (participant->route != 0) {
+            if (participant->boostCharge != 0) {
                 participant->throttle = raceGetHandicapSpeedBonus(participant) * 2;
                 if (participant->throttle > 1.0) {
-                    participant->hasCpuRival = 0x14;
+                    participant->boostTimer = 0x14;
                 }
-                participant->route = 0;
+                participant->boostCharge = 0;
             }
-            if (participant->hasCpuRival != 0) {
-                participant->hasCpuRival--;
+            if (participant->boostTimer != 0) {
+                participant->boostTimer--;
             }
         }
         vehicleUpdateMotion(participant, motion, 1, 1);
