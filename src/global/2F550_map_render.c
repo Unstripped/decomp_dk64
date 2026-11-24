@@ -26,12 +26,6 @@
 #include "proto/global/70FD0_collision_geometry.h"
 #include "proto/global/CC800_player_setup.h"
 
-typedef struct CamZoomEntry {
-    /* 0x0 */ u16 height;
-    /* 0x2 */ u16 distance;
-} CamZoomEntry;
-
-// read only by 201B0 (camSetZoomLevel and its neighbours)
 CamZoomEntry sCamZoomTable[23][4] = {
     { { 0, 0 }, { 80, 200 }, { 300, 300 }, { 300, 300 } },
     { { 0, 0 }, { 25, 70 }, { 35, 90 }, { 60, 140 } },

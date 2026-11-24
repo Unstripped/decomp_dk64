@@ -2360,13 +2360,6 @@ void camComputeFocusPosOffset(CamState *st, f32 *outX, f32 *outY, f32 *outZ, f32
     *outZ += offset * mathCosF(st->lookAheadYaw);
 }
 
-typedef struct CamZoomEntry {
-    /* 0x0 */ u16 height;
-    /* 0x2 */ u16 distance;
-} CamZoomEntry;
-
-extern CamZoomEntry sCamZoomTable[][4];
-
 u8 camSetZoomLevel(Actor *cam, s16 level) {
     CamState *st = cam->customState;
     u8 old;

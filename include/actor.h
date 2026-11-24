@@ -1211,6 +1211,15 @@ typedef struct CamTargetBlock {
     /* 0x18 */ f32 stepRatio;
 } CamTargetBlock;
 
+// Camera follow height/distance per zoom set and zoom level: sCamZoomTable[23][4] is data of
+// src/global/2F550_map_render.c, read only by 201B0 (camSetZoomLevel, camSetZoomForDistance).
+typedef struct CamZoomEntry {
+    /* 0x0 */ u16 height;
+    /* 0x2 */ u16 distance;
+} CamZoomEntry;
+
+extern CamZoomEntry sCamZoomTable[][4];
+
 // customState of the camera actor (type 0xBC, component 4: 0x100 bytes, gActorComponentSizes[4]);
 // reached as gCamActor->customState or PlayerState.camActor->customState.
 typedef struct CamState {
