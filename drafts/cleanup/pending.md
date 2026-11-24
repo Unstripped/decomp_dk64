@@ -106,14 +106,14 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- 2026-11-24b: every `rank` function is EXHAUSTED again (stop rule: a named lever first). The close knowledge commit 0a899c80
-  reopened faultDrawRegs, csModelIdTableReset, hudPauseMenuUpdate and enemyGridStateStep; the post-close re-measure
-  (ReMeasureKnow24b, db9779c7 + ledgers 633e5116 / dfac70e2) fixed hudPauseMenuUpdate c127b7 + db430c (selector switches on
-  gCurrentMap / hud->page, `credits = hubWorld == 8 && menuGetTimerFlag() != 0;`), retagged cc0f6b / 706cd2 ORIG (R4) and kept the
-  rest. Its IDO findings are NOT filed yet (next unit, then re-measure the functions they name): `.scratch/ReMeasureKnow24b/report.md`
-  §5 items 1-3 (extends Q1630: the `&&` form evaluates into the switches' shared expression temp; correction to Q1582: the page
-  reaches a1 without a selector local once the credits flag is the `&&` form; extends Q1629: ordered address-compare loop exits are
-  ORIG material).
+- 2026-11-24b: the close knowledge commit 0a899c80 reopened faultDrawRegs, csModelIdTableReset, hudPauseMenuUpdate and
+  enemyGridStateStep; the post-close re-measure (ReMeasureKnow24b, db9779c7 + ledgers 633e5116 / dfac70e2) fixed hudPauseMenuUpdate
+  c127b7 + db430c (switches on gCurrentMap / hud->page, `credits = hubWorld == 8 && menuGetTimerFlag() != 0;`), retagged cc0f6b /
+  706cd2 ORIG (R4) and kept the rest. Its findings were filed in 1dadd028 (Q1635, Q1636, Q1582 correction).
+- Next-unit re-measure items (OPEN after 1dadd028, `quality.py status | grep OPEN`): ACDC0 hudPauseMenuUpdate `review` + diagnose
+  6151e7 (`flag = sPauseCarouselSpacing / 10`) and 32c920 (`flag = sPauseCarouselSpacing >> 1`), staled by the Q1582 correction
+  paragraph: re-check both flag-reuse steers against Q1635/Q1582 (does the shared switch temp change which local the step/half-span
+  values need?). One ledger-only worker, minutes. Every other `rank` function is EXHAUSTED (stop rule: a named lever first).
 - Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
   `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
   function's real outputs). Not dispatched: a param rename is a body change.
