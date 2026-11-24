@@ -32,9 +32,11 @@ Never edits src/ and never writes the quality ledger: it writes hits for workers
           moves to pass N+1, until --hours H elapse (0: no limit) or no FAKE site remains (`NO FAKE
           SITES`). A run filtered by --seg/--file/--func works the current pass for its sites and exits
           (the counter advances only in an unfiltered run); without the permute stage any run exits
-          after one round. Ctrl-C saves the state and exits 130 (`INTERRUPTED pass=<N>`); in-flight
-          permuter rows re-run next time. --dry-run prints the planned jobs (`RECIPES <func>`,
-          `AS1 <key>`, `PERMUTE <key> seconds=<S>`) and writes nothing.
+          after one round. Ctrl-C (SIGINT) stops every child job (SIGINT, which tools/dk forwards to its
+          container job, then SIGTERM/SIGKILL after 30 s each), waits for them, saves the state and exits
+          130 (`INTERRUPTED pass=<N>`); interrupted jobs record nothing and re-run next time. --dry-run
+          prints the planned jobs (`RECIPES <func>`, `AS1 <key>`, `PERMUTE <key> seconds=<S>`) and writes
+          nothing.
   status  one line per site: `<key> <func> recipes=<best|->(<n> hits) as1=<rc|-> permute=<pass:best,...>`,
           then `pass=<N> sites=<n> hits=<n> zeros=<n>`.
   hits    open hits (site still at HEAD, its file unchanged since the hit): `HIT <key> <func> <file> <path>`;
@@ -46,6 +48,7 @@ starts again from empty stages; sites gone from HEAD are dropped at pass start. 
 the run works on it is re-analysed before the next job of that file and before writing its hits.
 """
 import argparse
+import collections
 import hashlib
 import json
 import os
@@ -55,6 +58,7 @@ import subprocess
 import sys
 import threading
 import time
+import signal
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -184,7 +188,7 @@ class Hunter:
             return next((fn for fn in self.ans[path]["functions"] if fn["name"] == name and fake_sites(fn)), None)
 
     def expired(self):
-        return self.deadline is not None and time.monotonic() >= self.deadline
+        return self.stopping or (self.deadline is not None and time.monotonic() >= self.deadline)
 
     def seconds(self, n):
         return self.a.seconds or min(900 * 2 ** (n - 1), 14400)
@@ -401,6 +405,43 @@ class Hunter:
         return len(rec) + len(as1) + len(per)
 
 
+def descendants():
+    """PIDs of this process's live job descendants (zombies and multiprocessing's resource tracker, which
+    ignores SIGINT/SIGTERM and exits with this process, excluded), from one `ps` snapshot."""
+    ps = subprocess.Popen(["ps", "-Ao", "pid=,ppid=,stat=,command="], stdout=subprocess.PIPE, text=True)
+    out = ps.communicate()[0]
+    kids = collections.defaultdict(list)
+    for line in out.splitlines():
+        f = line.split(None, 3)
+        if (len(f) >= 3 and int(f[0]) != ps.pid and not f[2].startswith("Z")
+                and "multiprocessing.resource_tracker" not in (f[3] if len(f) > 3 else "")):
+            kids[int(f[1])].append(int(f[0]))
+    found, todo = [], [os.getpid()]
+    while todo:
+        for c in kids.get(todo.pop(), ()):
+            found.append(c)
+            todo.append(c)
+    return found
+
+
+def stop_children(grace=30):
+    """SIGINT every descendant (a tools/dk client forwards it to its container job, so the permuter or
+    scorer stops there too), then SIGTERM and SIGKILL what is still alive after GRACE seconds each;
+    returns once none is left, so a resumed run never shares a run directory with a live job."""
+    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGKILL):
+        pids = descendants()
+        if not pids:
+            return
+        for p in pids:
+            try:
+                os.kill(p, sig)
+            except ProcessLookupError:
+                pass
+        end = time.monotonic() + grace
+        while time.monotonic() < end and descendants():
+            time.sleep(0.5)
+
+
 def cmd_run(a):
     h = Hunter(a)
     if a.hours:
@@ -434,13 +475,19 @@ def cmd_run(a):
                 print(f"DONE pass={n} ({started} jobs; the pass counter advances in an unfiltered run)")
                 return 0
     except KeyboardInterrupt:
-        h.stopping = True
-        if h.ex:
-            h.ex.shutdown(wait=False, cancel_futures=True)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)  # a second Ctrl-C must not cut the cleanup short
+        h.stopping = True  # running jobs commit nothing more and start no further job
+        print("INTERRUPTED: stopping child jobs ...", flush=True)
+        workers = threading.Thread(target=lambda: h.ex and h.ex.shutdown(wait=True, cancel_futures=True))
+        workers.start()
+        while workers.is_alive():  # a job may start its next subprocess (scan after keep, run after setup)
+            stop_children()
+            workers.join(0.5)
+        stop_children()
         with h.lock:
             h.save()
         print(f"INTERRUPTED pass={h.st['pass']}", flush=True)
-        os._exit(130)
+        return 130
 
 
 def site_line(k, e):
