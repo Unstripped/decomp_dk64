@@ -77,10 +77,7 @@ f32 cameraStepAspectScale(void) {
     } else {
         step = 0.02f;
     }
-    flag = gGameMode == 1;
-    if (flag) {
-        flag = gCurrentMap != 0x50;
-    }
+    flag = gGameMode == 1 && gCurrentMap != 0x50;
     if (gWidescreenEnabled != 0 && !flag) {
         target = target * 1.2;
     }
@@ -119,22 +116,22 @@ void frustumCalculateCornerRays(f32 fovY, f32 aspect, f32 depth) {
     halfPitch = fovY * 0.5;
     halfYaw = halfPitch * aspect;
     guRotateF(pitchMtx, halfPitch, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-depth), &dirX, &dirY, &dirZ);
+    guMtxXFMF(pitchMtx, 0.0f, 0.0f, -depth, &dirX, &dirY, &dirZ);
     guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[0], &sFrustumCornerRays[1], &sFrustumCornerRays[2]);
     guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[3], &sFrustumCornerRays[4], &sFrustumCornerRays[5]);
     guRotateF(pitchMtx, -halfPitch, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-depth), &dirX, &dirY, &dirZ);
+    guMtxXFMF(pitchMtx, 0.0f, 0.0f, -depth, &dirX, &dirY, &dirZ);
     guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[6], &sFrustumCornerRays[7], &sFrustumCornerRays[8]);
     guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[9], &sFrustumCornerRays[10], &sFrustumCornerRays[11]);
     for (i = 0; i < 4; i++) {
-        scale = (-depth) / sFrustumCornerRays[i * 3 + 2];
+        scale = -depth / sFrustumCornerRays[i * 3 + 2];
         sFrustumCornerRays[i * 3] *= scale;
         sFrustumCornerRays[i * 3 + 1] *= scale;
-        sFrustumCornerRays[i * 3 + 2] = (-depth);
+        sFrustumCornerRays[i * 3 + 2] = -depth;
     }
 }
 
@@ -158,13 +155,13 @@ void frustumOrientPolyNormals(f32 eyeX, f32 eyeY, f32 eyeZ, PlanePoly *planes, f
     f32 zs[5];
     f64 d;
     PlanePoly *poly;
+
     poly = planes;
-    for (i = 0; i < 4; i++) {
-        poly++;
-        poly[-1].v[0][0] = eyeX;
-        poly[-1].v[0][1] = eyeY;
-        poly[-1].v[0][2] = eyeZ;
-        poly[-1].type = 3;
+    for (i = 0; i < 4; i++, poly++) {
+        poly->v[0][0] = eyeX;
+        poly->v[0][1] = eyeY;
+        poly->v[0][2] = eyeZ;
+        poly->type = 3;
     }
     planes[0].v[1][0] = corners[0];
     planes[0].v[1][1] = corners[1];
@@ -268,7 +265,7 @@ void planePolyCalcEquation(PlanePoly *poly) {
 
     poly->c = (poly->v[0][0] * (f64)(poly->v[1][1] - poly->v[2][1]) + poly->v[1][0] * (f64)(poly->v[2][1] - poly->v[0][1]))
             + poly->v[2][0] * (f64)(poly->v[0][1] - poly->v[1][1]);
-    poly->d = -((poly->v[0][0] * ((f64)poly->v[1][1] * poly->v[2][2] - (f64)poly->v[2][1] * poly->v[1][2]) + poly->v[1][0] * ((f64)poly->v[2][1] * poly->v[0][2] - (f64)poly->v[0][1] * poly->v[2][2])) + poly->v[2][0] * ((f64)poly->v[0][1] * poly->v[1][2] - poly->v[1][1] * (f64)poly->v[0][2]));
+    poly->d = -((poly->v[0][0] * ((f64)poly->v[1][1] * poly->v[2][2] - (f64)poly->v[2][1] * poly->v[1][2]) + poly->v[1][0] * ((f64)poly->v[2][1] * poly->v[0][2] - (f64)poly->v[0][1] * poly->v[2][2])) + poly->v[2][0] * ((f64)poly->v[0][1] * poly->v[1][2] - (f64)poly->v[1][1] * poly->v[0][2]));
 }
 
 
@@ -277,20 +274,18 @@ void mapNodeTreeInitSurfaceEffects(MapBspNode *node, s32 *slotCount) {
     s32 i;
     s32 count;
 
-    for (;;) {
-        if (node == NULL) {
-            break;
-        }
-        for (i = 0; i < node->surfaceCount; i++) {
-            mapSurfaceEffectInit(node->surfaceEffects[i]);
-            count = node->surfaceOffsetSlots[i] + 1;
-            if (*slotCount < count) {
-                *slotCount = count;
-            }
-        }
-        mapNodeTreeInitSurfaceEffects(node->child0, slotCount);
-        node = node->child1;
+    if (node == NULL) {
+        return;
     }
+    for (i = 0; i < node->surfaceCount; i++) {
+        mapSurfaceEffectInit(node->surfaceEffects[i]);
+        count = node->surfaceOffsetSlots[i] + 1;
+        if (*slotCount < count) {
+            *slotCount = count;
+        }
+    }
+    mapNodeTreeInitSurfaceEffects(node->child0, slotCount);
+    mapNodeTreeInitSurfaceEffects(node->child1, slotCount);
 }
 
 typedef struct MapOffsetSlot {
@@ -314,7 +309,7 @@ void mapOffsetSlotsInit(s32 count) {
         sMapOffsetSlotCount = 0;
         return;
     }
-    sMapOffsetSlots = heapAlloc(count * 0x90);
+    sMapOffsetSlots = heapAlloc(count * sizeof(MapOffsetSlot));
     sMapOffsetSlotCount = count;
     for (i = 0; i < count; i++) {
         sMapOffsetSlots[i].value = 0.0f;
@@ -742,8 +737,6 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
                         gfx = mapTreeRender(gfx, node->child1, vis->child1, camX, camY, camZ, renderMask);
                         return mapTreeRender(gfx, node->child0, vis->child0, camX, camY, camZ, renderMask);
                     }
-                default:
-                    break;
             }
     }
     return gfx;
@@ -752,21 +745,21 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
 
 
 
-Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *view, u8 pass) {
+Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *node, u8 pass) {
     s32 i;
-    u8 idx;
+    u8 slot;
 
-    for (i = 0; i < view->surfaceCount; i++) {
-        if (pass == view->surfacePasses[i] && (view->surfaceChunks[i] == -1 || mapChunkIsActive(view->surfaceChunks[i]) != 0)) {
-            gfx = mapSurfaceEffectDraw(gfx, view->surfaceEffects[i]);
+    for (i = 0; i < node->surfaceCount; i++) {
+        if (pass == node->surfacePasses[i] && (node->surfaceChunks[i] == -1 || mapChunkIsActive(node->surfaceChunks[i]) != 0)) {
+            gfx = mapSurfaceEffectDraw(gfx, node->surfaceEffects[i]);
             gSPClearGeometryMode(gfx++, G_CULL_BACK);
-            idx = view->surfaceOffsetSlots[i];
-            if (sMapOffsetSlots[idx].value != 0.0 && sMapOffsetSlots[idx].enabled != 0) {
-                gSPMatrix(gfx++, osVirtualToPhysical(&sMapOffsetSlots[idx].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-                gSPDisplayList(gfx++, osVirtualToPhysical(view->surfaceDls[i]));
+            slot = node->surfaceOffsetSlots[i];
+            if (sMapOffsetSlots[slot].value != 0.0 && sMapOffsetSlots[slot].enabled != 0) {
+                gSPMatrix(gfx++, osVirtualToPhysical(&sMapOffsetSlots[slot].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+                gSPDisplayList(gfx++, osVirtualToPhysical(node->surfaceDls[i]));
                 gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
             } else {
-                gSPDisplayList(gfx++, osVirtualToPhysical(view->surfaceDls[i]));
+                gSPDisplayList(gfx++, osVirtualToPhysical(node->surfaceDls[i]));
             }
             gDPPipeSync(gfx++);
         }
@@ -812,25 +805,20 @@ void mapResolveNodeAssets(void) {
 
 
 void mapTreeResolveNodeAssets(MapBspNode *node, MapVisNode *vis) {
-    for (;;) {
-        if (node == NULL) {
-            return;
-        }
-        switch (node->kind) {
-            case 2:
-                mapChunkResolveNodeAssets();
-                return;
-            case 1:
-                modelNodeListSyncFlags(vis->entries);
-                return;
-            case 0:
-                mapTreeResolveNodeAssets(node->child0, vis->child0);
-                node = node->child1;
-                vis = vis->child1;
-                break;
-            default:
-                return;
-        }
+    if (node == NULL) {
+        return;
+    }
+    switch (node->kind) {
+        case 2:
+            mapChunkResolveNodeAssets();
+            break;
+        case 1:
+            modelNodeListSyncFlags(vis->entries);
+            break;
+        case 0:
+            mapTreeResolveNodeAssets(node->child0, vis->child0);
+            mapTreeResolveNodeAssets(node->child1, vis->child1);
+            break;
     }
 }
 
@@ -925,7 +913,7 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
     RenderEntry *listB;
     s32 kind;
     RenderEntry *closest;
-    u8 pad2;
+    u8 pad;
     u8 side;
 
     listA = NULL;
@@ -1012,7 +1000,7 @@ void planeFromTwoPoints(f32 fromX, f32 fromY, f32 fromZ, f32 toX, f32 toY, f32 t
     sViewPlane[0] = toX - fromX;
     sViewPlane[1] = toY - fromY;
     sViewPlane[2] = toZ - fromZ;
-    sViewPlane[3] = -(((sViewPlane[0] * fromX) + (sViewPlane[1] * fromY)) + (sViewPlane[2] * fromZ));
+    sViewPlane[3] = -(sViewPlane[0] * fromX + sViewPlane[1] * fromY + sViewPlane[2] * fromZ);
 }
 
 
@@ -1070,40 +1058,40 @@ f32 boxMinCornerDistance(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 m
     f32 dy1Sq;
     f32 dist;
     f32 best;
-    f32 pad;
+    f32 x0;
     f32 dz0Sq;
     f32 dy0Sq;
     f32 dx0Sq;
     f32 dz1Sq;
 
-    best = (f32)minX;
-    dx0Sq = (best - x) * (best - x);
-    dy0Sq = (((f32)minY - y) * ((f32)minY - y));
-    dz0Sq = (((f32)minZ - z) * ((f32)minZ - z));
-    dy1Sq = (((f32)maxY - y) * ((f32)maxY - y));
-    dz1Sq = (((f32)maxZ - z) * ((f32)maxZ - z));
-    best = (dx0Sq + dy0Sq) + dz0Sq;
-    dist = (dx0Sq + dy0Sq) + dz1Sq;
+    x0 = minX;
+    dx0Sq = (x0 - x) * (x0 - x);
+    dy0Sq = (minY - y) * (minY - y);
+    dz0Sq = (minZ - z) * (minZ - z);
+    dy1Sq = (maxY - y) * (maxY - y);
+    dz1Sq = (maxZ - z) * (maxZ - z);
+    best = dx0Sq + dy0Sq + dz0Sq;
+    dist = dx0Sq + dy0Sq + dz1Sq;
     if (dist < best) {
         best = dist;
     }
-    if ((dx0Sq + dy1Sq) + dz0Sq < best) {
-        best = (dx0Sq + dy1Sq) + dz0Sq;
+    if (dx0Sq + dy1Sq + dz0Sq < best) {
+        best = dx0Sq + dy1Sq + dz0Sq;
     }
-    if ((dx0Sq + dy1Sq) + dz1Sq < best) {
-        best = (dx0Sq + dy1Sq) + dz1Sq;
+    if (dx0Sq + dy1Sq + dz1Sq < best) {
+        best = dx0Sq + dy1Sq + dz1Sq;
     }
-    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz0Sq < best) {
-        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz0Sq;
+    if ((maxX - x) * (maxX - x) + dy0Sq + dz0Sq < best) {
+        best = (maxX - x) * (maxX - x) + dy0Sq + dz0Sq;
     }
-    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz1Sq < best) {
-        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz1Sq;
+    if ((maxX - x) * (maxX - x) + dy0Sq + dz1Sq < best) {
+        best = (maxX - x) * (maxX - x) + dy0Sq + dz1Sq;
     }
-    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz0Sq < best) {
-        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz0Sq;
+    if ((maxX - x) * (maxX - x) + dy1Sq + dz0Sq < best) {
+        best = (maxX - x) * (maxX - x) + dy1Sq + dz0Sq;
     }
-    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz1Sq < best) {
-        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz1Sq;
+    if ((maxX - x) * (maxX - x) + dy1Sq + dz1Sq < best) {
+        best = (maxX - x) * (maxX - x) + dy1Sq + dz1Sq;
     }
     return sqrtf(best);
 }
@@ -1149,31 +1137,24 @@ void clipPolyAgainstAxis(s16 (*src)[3], s16 (*dst)[3], s32 srcCount, s32 *dstCou
     s16 (*prev)[3];
     s16 hit[3];
     s16 (*cur)[3];
-    s16 (*last)[3];
 
     *dstCount = 0;
     prev = &src[srcCount - 1];
-    i = 0;
-    if (srcCount > 0) {
-        cur = src;
-        do {
-            last = cur;
-            if (clipVertexTestAxis(*cur, axis, bound, isMax) != 0) {
-                if (clipVertexTestAxis(*prev, axis, bound, isMax) != 0) {
-                    clipVertexAppend(cur, dstCount, dst);
-                } else {
-                    clipEdgeIntersectAxis(*prev, *cur, axis, bound, hit);
-                    clipVertexAppend(hit, dstCount, dst);
-                    clipVertexAppend(cur, dstCount, dst);
-                }
-            } else if (clipVertexTestAxis(*prev, axis, bound, isMax) != 0) {
+    for (i = 0; i < srcCount; i++) {
+        cur = &src[i];
+        if (clipVertexTestAxis(*cur, axis, bound, isMax) != 0) {
+            if (clipVertexTestAxis(*prev, axis, bound, isMax) != 0) {
+                clipVertexAppend(cur, dstCount, dst);
+            } else {
                 clipEdgeIntersectAxis(*prev, *cur, axis, bound, hit);
                 clipVertexAppend(hit, dstCount, dst);
+                clipVertexAppend(cur, dstCount, dst);
             }
-            i++;
-            cur++;
-            prev = last;
-        } while (i != srcCount);
+        } else if (clipVertexTestAxis(*prev, axis, bound, isMax) != 0) {
+            clipEdgeIntersectAxis(*prev, *cur, axis, bound, hit);
+            clipVertexAppend(hit, dstCount, dst);
+        }
+        prev = cur;
     }
 }
 
@@ -1249,7 +1230,7 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     f32 n[3];
     f32 len;
     f32 p[3];
-    f64 s1;
+    f64 dist;
     f32 nx;
     f32 ny;
     f32 nz;
@@ -1276,13 +1257,13 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     p[0] = node->planeVertX[0] + n[0];
     p[1] = node->planeVertY[0] + n[1];
     p[2] = node->planeVertZ[0] + n[2];
-    s1 = nx * x + ny * y + nz * z + d;
-    if (s1 > 0.0) {
+    dist = nx * x + ny * y + nz * z + d;
+    if (dist > 0.0) {
         if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
             return 0;
         }
     }
-    if (s1 < 0.0) {
+    if (dist < 0.0) {
         if (nx * p[0] + ny * p[1] + nz * p[2] + d < 0.0) {
             return 0;
         }
@@ -1338,8 +1319,7 @@ typedef struct MapChunkAnim {
     /* 0x05 */ u8 frame;
     /* 0x06 */ u8 pad6[2];
     /* 0x08 */ void *texture;
-    /* 0x0C */ s32 textureIds[1];
-    /* 0x10 */ u8 pad10[0x6C];
+    /* 0x0C */ s32 textureIds[28];
 } MapChunkAnim; /* 0x7C */
 
 extern u8 sMapChunkAnimCount;
@@ -1572,7 +1552,6 @@ void matrix3SwapRows(f32 (*mtx)[3], s32 pivot0, s32 pivot1, s32 pivot2) {
     s32 i;
 
     if (pivot0 != 0) {
-        i = 0;
         if (pivot1 == 0) {
             for (i = 0; i < 3; i++) {
                 t = mtx[pivot1][i];
@@ -1744,23 +1723,23 @@ s32 matrix3Invert(f32 (*mtx)[3], f32 (*out)[3]) {
 
 
 s32 matrix4NormalizeProjective(f32 (*mtx)[4], f32 *outOffset, f32 *outScale, s32 *outSwapRow) {
-    f32 max;
-    f32 abs;
+    f32 colMax;
+    f32 absW;
     s32 i;
     s32 j;
     f32 tmp;
 
     *outSwapRow = -1;
-    abs = mtx[3][3] > 0.0f ? mtx[3][3] : -mtx[3][3];
-    if (abs < 1e-8) {
-        max = 0.0f;
+    absW = mtx[3][3] > 0.0f ? mtx[3][3] : -mtx[3][3];
+    if (absW < 1e-8) {
+        colMax = 0.0f;
         for (i = 0; i < 4; i++) {
-            if (max < mtx[i][3]) {
+            if (colMax < mtx[i][3]) {
                 *outSwapRow = i;
-                max = mtx[i][3];
-            } else if (mtx[i][3] < -max) {
+                colMax = mtx[i][3];
+            } else if (mtx[i][3] < -colMax) {
                 *outSwapRow = i;
-                max = -mtx[i][3];
+                colMax = -mtx[i][3];
             }
         }
         if (*outSwapRow < 0) {
@@ -1794,12 +1773,13 @@ s32 matrix4NormalizeProjective(f32 (*mtx)[4], f32 *outOffset, f32 *outScale, s32
 
 s32 matrix4Invert(f32 (*out)[4], f32 (*mtx)[4]) {
     f32 m[4][4];
-    f32 n[4][3];
+    f32 pad[3];
+    f32 n[3][3];
     f32 inv[3][3];
     f32 scale;
     s32 i;
     s32 k;
-    f32 w[3];
+    f32 offset[3];
     f32 tmp;
     f32 v[3];
     s32 idx;
@@ -1824,7 +1804,7 @@ s32 matrix4Invert(f32 (*out)[4], f32 (*mtx)[4]) {
         }
     }
     if (!flag) {
-        if (!matrix4NormalizeProjective(m, w, &scale, &idx)) {
+        if (!matrix4NormalizeProjective(m, offset, &scale, &idx)) {
             return 0;
         }
     }
@@ -1851,7 +1831,7 @@ s32 matrix4Invert(f32 (*out)[4], f32 (*mtx)[4]) {
     }
     if (!flag) {
         for (i = 0; i < 4; i++) {
-            out[i][3] += w[0] * out[i][0] + w[1] * out[i][1] + w[2] * out[i][2];
+            out[i][3] += offset[0] * out[i][0] + offset[1] * out[i][1] + offset[2] * out[i][2];
             out[i][3] *= scale;
         }
         if (idx >= 0) {
