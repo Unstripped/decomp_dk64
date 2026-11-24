@@ -219,3 +219,55 @@ def test_fold_refuses_checked_out_file(tmp_path, monkeypatch):
     before = _snapshot(tmp_path)
     assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y") == 1
     assert _snapshot(tmp_path) == before
+
+
+def _filetree(tmp_path):
+    _tree(tmp_path, {
+        "dk64.global.us.yaml": "segments:\n"
+                               "      - [0x100, c, A1]\n"
+                               "      - [0x200, asm, A1]\n"
+                               "      - [0x300, c, B2]\n"
+                               "      - [0x900, .data, A1] # see src/global/A1.c\n"
+                               "      - [0x980, .data, B2]\n"
+                               "      - { start: 0x9F0, type: .bss, vram: 0x80700000, name: A1 }\n",
+        "Makefile": "CC := cc\nGLOBAL_G_FILES := A1 B2\n",
+        "data_inc.us.txt": "# seg name vram size width file\nglobal sTable 0x80700100 0x10 1 src/global/A1.c\n",
+        "src/global/A1.c": '#include "proto/global/A1.h"\nint f(int x) { return x; }\n',
+        "src/global/B2.c": '#include "proto/global/A1.h"\n#include "proto/global/B2.h"\nint g(void) { return f(1); }\n',
+        "AGENTS.md": "A1 lives in src/global/A1.c; its prototypes in include/proto/global/A1.h.\n",
+    })
+
+
+def test_files_renames_tu_everywhere(tmp_path, capsys):
+    _filetree(tmp_path)
+    (tmp_path / "batch.txt").write_text("# global\nglobal A1 A1_alpha\n\n")
+    assert _run(tmp_path, "files", str(tmp_path / "batch.txt"), "--no-gen") == 0
+    assert (tmp_path / "src/global/A1_alpha.c").exists() and not (tmp_path / "src/global/A1.c").exists()
+    assert (tmp_path / "src/global/A1_alpha.c").read_text().startswith('#include "proto/global/A1_alpha.h"\n')
+    assert (tmp_path / "src/global/B2.c").read_text().startswith(
+        '#include "proto/global/A1_alpha.h"\n#include "proto/global/B2.h"\n')
+    assert (tmp_path / "dk64.global.us.yaml").read_text() == (
+        "segments:\n"
+        "      - [0x100, c, A1_alpha]\n"
+        "      - [0x200, asm, A1]\n"
+        "      - [0x300, c, B2]\n"
+        "      - [0x900, .data, A1_alpha] # see src/global/A1_alpha.c\n"
+        "      - [0x980, .data, B2]\n"
+        "      - { start: 0x9F0, type: .bss, vram: 0x80700000, name: A1_alpha }\n")
+    assert (tmp_path / "Makefile").read_text() == "CC := cc\nGLOBAL_G_FILES := A1_alpha B2\n"
+    assert (tmp_path / "data_inc.us.txt").read_text().endswith("1 src/global/A1_alpha.c\n")
+    assert (tmp_path / "AGENTS.md").read_text() == (
+        "A1 lives in src/global/A1_alpha.c; its prototypes in include/proto/global/A1_alpha.h.\n")
+    out = capsys.readouterr().out
+    assert "MV src/global/A1.c src/global/A1_alpha.c" in out and out.rstrip().endswith("files: 1 renamed")
+
+
+def test_files_refusals_write_nothing(tmp_path):
+    _filetree(tmp_path)
+    (tmp_path / "src/global/C3.c").write_text('#pragma GLOBAL_ASM("asm/global/nonmatchings/C3/h.s")\n')
+    before = _snapshot(tmp_path)
+    for row in ("global A1 alpha", "global A1 B2_x", "global C3 C3_asm", "global A1 A1_Alpha"):
+        (tmp_path / "batch.txt").write_text(f"global B2 B2_beta\n{row}\n")
+        before[tmp_path / "batch.txt"] = (tmp_path / "batch.txt").read_bytes()
+        assert _run(tmp_path, "files", str(tmp_path / "batch.txt"), "--no-gen") == 1, row
+        assert _snapshot(tmp_path) == before, row

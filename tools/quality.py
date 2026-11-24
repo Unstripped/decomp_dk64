@@ -21,7 +21,7 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          copies + list.tsv for `tools/permute.py batch`, plus
                                          DIR/headers/ (include/ + assets/inc/ the rows build against)
   uv run tools/quality.py report [--baseline REV] [--markdown]
-  uv run tools/quality.py carry --rev REV --unit U [--header-carve] [--dry-run] [--func NAME]... [src.c...]
+  uv run tools/quality.py carry --rev REV --unit U [--header-carve | --file-renames] [--dry-run] [--func NAME]... [src.c...]
                                          re-stamp results of functions that
                                          changed since REV only by renames of declared names (same type,
                                          field offset or symbol address; clang-checked) or only by
@@ -53,7 +53,16 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          declarations changed only by record carves keeping size, offsets,
                                          alignment and field types (clint layout_diff; REV parsed with REV's
                                          headers); any other reached change (prototype, macro, typedef,
-                                         enum, layout) is listed as skipped. --dry-run writes nothing.
+                                         enum, layout) is listed as skipped.
+                                         --file-renames (no --func/files): instead carry every result
+                                         (automatic ones too) of the src files REV..HEAD renamed with
+                                         `rename.py files` (src/<seg>/<old>.c -> <offset>_<name>.c, paired
+                                         by hex prefix, proto header renamed with it: banner path and
+                                         guard only) and of files whose only change is those renamed
+                                         "proto/..." include paths, under HEAD's path; any other src/ or
+                                         include/ change since REV exits (REV must sit right before the
+                                         rename commits), functions whose identity or sites differ are
+                                         listed as skipped. --dry-run writes nothing.
                                          --func NAME (repeatable; REV's or HEAD's name): only those functions.
                                          A result already recorded or carried at HEAD's fingerprints (same
                                          method, time and outcome) is not carried again: reruns add nothing.
@@ -2421,35 +2430,144 @@ def carry_renames(a, by_site, by_func):
                         body_names(nnames, fn), fn["fp_hdr"], skip=moved)
                 if body_renamed:
                     how = f"renames; {how}"
-            vram, n0 = f"{fn['vram']:08X}", len(out)
-            keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in pairs]
             nfp = (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2"))
-            for okey, nsite in keys:
-                evs = by_func[(seg, vram)] if okey is None else by_site.get(okey, [])
-                here = by_func[(seg, vram)] if nsite is None else by_site.get(nsite["key"], [])
-                # results already recorded or carried at HEAD's fingerprints (a carried event keeps its
-                # time): a rerun of the same carry adds nothing
-                done = {(x["method"], x["t"], x["outcome"]) for x in here if x["fp_local"] == fn["fp_local"]
-                        and (x["method"] not in AUTO or hdr_fresh(x, nfp))}
-                newest = {}
-                ofp = (fo["fp_local"], fo["fp_hdr"], fo.get("fp_hdr2"))
-                for e in evs:  # newest by time, as `mark` reads them (carried events keep their `t`)
-                    if e["fp_local"] == fo["fp_local"] and (e["method"] not in AUTO or hdr_fresh(e, ofp)):
-                        if e["method"] not in newest or e["t"] >= newest[e["method"]]["t"]:
-                            newest[e["method"]] = e
-                for e in newest.values():
-                    if (e["method"], e["t"], e["outcome"]) in done:
-                        continue
-                    if e["method"] in AUTO and not hdr_fresh(e, nfp) \
-                            and not (hdr_moved and e.get("fp_hdr2") is not None):
-                        continue  # reached headers changed since REV, not compared: automatic results stay stale
-                    c = dict(e, unit=a.unit, agent="carry", name=fn["name"], file=path, fp_local=fn["fp_local"],
-                             fp_hdr=fn["fp_hdr"], fp_hdr2=fn.get("fp_hdr2"), site=nsite["key"] if nsite else None,
-                             note=f"carried from {a.rev} ({how})"
-                             + (f": {e['note']}" if e["note"] else ""))
-                    out.append(c)
-            if len(out) > n0:
-                lines.append(f"{path}: {fn['name']}: {', '.join(sorted({e['method'] for e in out[n0:]}))} ({how})")
+            restamp(a, seg, path, fo, fn, pairs, how,
+                    lambda e: hdr_fresh(e, nfp) or (hdr_moved and e.get("fp_hdr2") is not None),
+                    by_site, by_func, out, lines)
+    return out, skipped, lines
+
+
+def restamp(a, seg, path, fo, fn, pairs, how, auto_ok, by_site, by_func, out, lines):
+    """Append to OUT copies of the newest fresh-at-REV events of function FO (function-level, and per
+    site of PAIRS [(REV site, HEAD site)]) re-stamped with HEAD's FN: fingerprints, site keys, unit
+    A.unit, agent `carry` and a note `carried from REV (HOW)`. An automatic method carries only when
+    AUTO_OK(event). Results already recorded or carried at HEAD's fingerprints are not carried again.
+    Appends FN's carried line to LINES."""
+    vram, n0 = f"{fn['vram']:08X}", len(out)
+    keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in pairs]
+    nfp = (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2"))
+    ofp = (fo["fp_local"], fo["fp_hdr"], fo.get("fp_hdr2"))
+    for okey, nsite in keys:
+        evs = by_func[(seg, vram)] if okey is None else by_site.get(okey, [])
+        here = by_func[(seg, vram)] if nsite is None else by_site.get(nsite["key"], [])
+        # results already recorded or carried at HEAD's fingerprints (a carried event keeps its
+        # time): a rerun of the same carry adds nothing
+        done = {(x["method"], x["t"], x["outcome"]) for x in here if x["fp_local"] == fn["fp_local"]
+                and (x["method"] not in AUTO or hdr_fresh(x, nfp))}
+        newest = {}
+        for e in evs:  # newest by time, as `mark` reads them (carried events keep their `t`)
+            if e["fp_local"] == fo["fp_local"] and (e["method"] not in AUTO or hdr_fresh(e, ofp)):
+                if e["method"] not in newest or e["t"] >= newest[e["method"]]["t"]:
+                    newest[e["method"]] = e
+        for e in newest.values():
+            if (e["method"], e["t"], e["outcome"]) in done:
+                continue
+            if e["method"] in AUTO and not auto_ok(e):
+                continue  # reached headers changed since REV, not compared: automatic results stay stale
+            c = dict(e, unit=a.unit, agent="carry", name=fn["name"], file=path, fp_local=fn["fp_local"],
+                     fp_hdr=fn["fp_hdr"], fp_hdr2=fn.get("fp_hdr2"), site=nsite["key"] if nsite else None,
+                     note=f"carried from {a.rev} ({how})" + (f": {e['note']}" if e["note"] else ""))
+            out.append(c)
+    if len(out) > n0:
+        lines.append(f"{path}: {fn['name']}: {', '.join(sorted({e['method'] for e in out[n0:]}))} ({how})")
+
+
+def carry_file_renames(a, by_site, by_func):
+    """(events, skipped, carried lines) re-stamping the newest fresh-at-REV events of every function of
+    a src file that REV..HEAD renamed (`rename.py files`: src/<seg>/<old>.c -> <new>.c, sharing the hex
+    offset prefix, its generated proto header renamed with it) or changed only by such renamed
+    `"proto/..."` include paths, with HEAD's path, fingerprints and site keys. Every change under
+    src/ and include/ since REV must be part of such renames, else it exits: REV sits right before
+    rename-only commits. Automatic results carry too (the reached headers are equal modulo the
+    renames). REV's text is analysed under HEAD's path (HEAD's make flags) with REV's headers."""
+    import protos
+
+    def die(msg):
+        sys.exit(f"quality: carry --file-renames: {msg}")
+
+    def show(p):
+        r = subprocess.run(["git", "show", f"{a.rev}:{p}"], cwd=ROOT, capture_output=True)
+        if r.returncode:
+            die(f"git show {a.rev}:{p} failed")
+        return r.stdout
+
+    def head(p):
+        with open(os.path.join(ROOT, p), "rb") as f:
+            return f.read()
+
+    dels, adds, mods = {}, {}, []
+    for row in ledger.git("diff", "--name-status", "--no-renames", a.rev, "HEAD", "--", "src", "include").splitlines():
+        st, p = row.split("\t", 1)
+        parts = p.split("/")
+        src = p.startswith("src/") and p.endswith(".c") and len(parts) == 3
+        proto = p.startswith("include/proto/") and p.endswith(".h") and len(parts) == 4
+        if "/libultra/" in p or not (src or proto):
+            die(f"{p} changed since {a.rev}: carry --file-renames needs a REV right before rename-only commits")
+        if st == "M" and src:
+            mods.append(p)
+            continue
+        if st not in ("A", "D"):
+            die(f"{p} changed since {a.rev}: carry --file-renames needs a REV right before rename-only commits")
+        stem = os.path.splitext(parts[-1])[0]
+        prefix = re.match(r"[0-9A-F]+(?=_|$)", stem)
+        side = dels if st == "D" else adds
+        k = ("src" if src else "proto", parts[-2], prefix.group(0) if prefix else stem)
+        if not prefix or k in side:
+            die(f"unpaired {st} {p}")
+        side[k] = (stem, p)
+    for k in sorted(dels.keys() ^ adds.keys()):
+        die(f"unpaired D {dels[k][1]}" if k in dels else f"unpaired A {adds[k][1]}")
+    stems = {(k[1], dels[k][0]): adds[k][0] for k in dels if k[0] == "src"}
+    for k in sorted(dels):
+        if k[0] != "proto":
+            continue
+        seg, old, new = k[1], dels[k][0], adds[k][0]
+        if stems.get((seg, old)) != new:
+            die(f"unpaired D {dels[k][1]}")
+        want = show(dels[k][1]).replace(f"src/{seg}/{old}.c".encode(), f"src/{seg}/{new}.c".encode()).replace(
+            protos.guard(seg, old).encode(), protos.guard(seg, new).encode())
+        if head(adds[k][1]) != want:
+            die(f"{adds[k][1]} differs beyond the rename")
+    reps = [(f'"proto/{s}/{o}.h"'.encode(), f'"proto/{s}/{n}.h"'.encode()) for (s, o), n in sorted(stems.items())]
+    jobs = [(adds[k][1], dels[k][1], f"file renamed from {dels[k][1]}") for k in sorted(dels) if k[0] == "src"]
+    jobs += [(p, p, "proto include paths renamed") for p in mods]
+    texts = {}
+    for path, old_path, _ in jobs:
+        raw = show(old_path)
+        conv = raw
+        for o, n in reps:
+            conv = conv.replace(o, n)
+        if conv != head(path):
+            die(f"{path} changed beyond include renames")
+        texts[path] = raw.decode("utf-8", errors="replace")
+    out, skipped, lines = [], [], []
+    hdrs = rev_headers(a.rev)
+    # libclang resolves an include only through a file on disk: REV's proto headers, gone at HEAD,
+    # are put back while the files are analysed (HDRS supplies their REV text either way)
+    absent = [p for p, t in sorted(hdrs.items()) if t is not None and not os.path.exists(os.path.join(ROOT, p))]
+    try:
+        for p in absent:
+            with open(os.path.join(ROOT, p), "w", encoding="utf-8") as f:
+                f.write(hdrs[p])
+        for path, old_path, how in sorted(jobs):
+            seg = seg_of(path)
+            old, new = analyze(path, seg, text=texts[path], hdrs=hdrs, rev=a.rev), analyze(path, seg)
+            if len(old["functions"]) != len(new["functions"]):
+                skipped.append(f"{path}: function count changed")
+                continue
+            for fo, fn in zip(old["functions"], new["functions"]):
+                if fo["name"] != fn["name"] or fn["vram"] is None or fo["vram"] != fn["vram"] or [
+                        (s["key"], s["kind"]) for s in fo["sites"]] != [(s["key"], s["kind"]) for s in fn["sites"]]:
+                    skipped.append(f"{path}: {fn['name']}: identity or sites changed")
+                    continue
+                if (fo["fp_local"], fo["fp_hdr"], fo.get("fp_hdr2")) == (
+                        fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2")):
+                    continue
+                restamp(a, seg, path, fo, fn, list(zip(fo["sites"], fn["sites"])), how, lambda e: True,
+                        by_site, by_func, out, lines)
+    finally:
+        for p in absent:
+            os.remove(os.path.join(ROOT, p))
     return out, skipped, lines
 
 
@@ -2611,11 +2729,15 @@ def carry_carves(a, by_site, by_func):
 
 
 def cmd_carry(a):
-    """Re-stamp results across renames and file-scope edits (`carry_renames`) or, with
-    --header-carve, across layout-keeping header carves (`carry_carves`). Events keep their time,
-    so knowledge filed after them still makes them stale."""
+    """Re-stamp results across renames and file-scope edits (`carry_renames`), with --header-carve
+    across layout-keeping header carves (`carry_carves`), or with --file-renames across src file
+    renames (`carry_file_renames`). Events keep their time, so knowledge filed after them still
+    makes them stale."""
+    if a.file_renames and (a.header_carve or a.func or a.files):
+        sys.exit("quality: carry --file-renames: not with --header-carve, --func or files")
     by_site, by_func = index_events(load_events())
-    out, skipped, lines = (carry_carves if a.header_carve else carry_renames)(a, by_site, by_func)
+    out, skipped, lines = (carry_file_renames if a.file_renames else carry_carves if a.header_carve
+                           else carry_renames)(a, by_site, by_func)
     for s in skipped:
         print(f"carry: skipped {s}")
     if a.dry_run:
@@ -2745,6 +2867,8 @@ def main(argv=None):
     c.add_argument("--unit", required=True)
     c.add_argument("--header-carve", action="store_true",
                    help="carry automatic results across layout-keeping record carves in include/")
+    c.add_argument("--file-renames", action="store_true",
+                   help="carry every result across src file renames (`rename.py files`); REV right before them")
     c.add_argument("--dry-run", action="store_true", help="list what would be carried; write nothing")
     c.add_argument("--func", action="append", default=[], metavar="NAME",
                    help="only this function (REV's or HEAD's name; repeatable)")

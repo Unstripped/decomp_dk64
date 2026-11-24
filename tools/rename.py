@@ -29,6 +29,24 @@
                                                        (--held, default the last `# Round` of
                                                        .scratch/cleanup-brief.md) or inside a macro.
                                                        Exit 2 when some references stay.
+  uv run tools/rename.py file <seg> <old> <new> [--no-gen]
+                                                     a C file (TU) src/<seg>/<old>.c becomes <new>.c, <new> =
+                                                       <old's hex offset>_<snake_case>: its splat subsegment
+                                                       names (`c` and `.data`/`.rodata`/`.bss` entries only;
+                                                       `asm`/`data`/... pieces keep theirs), every
+                                                       `"proto/<seg>/<old>.h"` include (src and include/),
+                                                       the GLOBAL_G_FILES token in Makefile, the
+                                                       data_inc.us.txt file column and src/<seg>/<old>.c /
+                                                       proto/<seg>/<old>.h paths in the docs (DOC_GLOBS:
+                                                       AGENTS/README/ROADMAP/METHODOLOGY, skills, cleanup
+                                                       queues, yaml comments), then git mv and
+                                                       tools/protos.py gen. Refuses files with GLOBAL_ASM
+                                                       pragmas (their asm paths need a re-split).
+  uv run tools/rename.py files <batch.txt> [--no-gen]
+                                                     many `file` renames at once (lines `<seg> <old> <new>`,
+                                                       # comments); every line is validated before anything
+                                                       is written. Afterwards: `tools/dk make split`, and
+                                                       `quality.py carry --file-renames` for the ledger.
 
 func/global edit src/<seg>/ for an overlay, every non-libultra src/ file plus the top-level game headers
 (include/*.h) for global and boot. AST renames also parse files with #ifdef NON_MATCHING a second time
@@ -643,6 +661,137 @@ def cmd_fold(a):
           + (" (dry run)" if a.dry_run else ""))
     return 0 if not kept else 2
 
+# ---- file / files: a C file (TU) renamed to <offset>_<name>.c ----
+
+FILE_STEM = re.compile(r"([0-9A-F]+)_[a-z][a-z0-9]*(?:_[a-z0-9]+)*")
+OFFSET = re.compile(r"[0-9A-F]+(?=_|$)")
+YAML_LIST = r"\s*- \[0x[0-9A-Fa-f]+,\s*(?:c|\.data|\.rodata|\.bss),\s*"
+DOC_GLOBS = ("AGENTS.md", "README.md", "ROADMAP.md", "METHODOLOGY.md", ".omp/skills/**/*.md",
+             "drafts/cleanup/pending.md", "drafts/cleanup/names-queue.md", "dk64*.us.yaml")
+
+
+def yamlfile(seg):
+    return {"boot": "dk64.us.yaml", "global": "dk64.global.us.yaml"}.get(seg, f"dk64.{seg}.us.yaml")
+
+
+def doc_files():
+    return sorted({p for g in DOC_GLOBS for p in glob.glob(g, root_dir=ROOT, recursive=True)})
+
+
+def include_files():
+    """Files that may quote-include a proto header: non-libultra src .c/.h, include/ outside proto/."""
+    src = [p for p in glob.glob("src/**/*.[ch]", root_dir=ROOT, recursive=True) if "/libultra/" not in p]
+    inc = [p for p in glob.glob("include/**/*.h", root_dir=ROOT, recursive=True)
+           if not p.startswith("include/proto/")]
+    return sorted(src + inc)
+
+
+def yaml_edits(seg, old, new):
+    """OLD's subsegment names in the segment's splat config: `c` and dotted data entries, list or dict form."""
+    yf = yamlfile(seg)
+    if not os.path.exists(os.path.join(ROOT, yf)):
+        raise Refuse(f"no splat config: {yf}")
+    lst = re.compile(YAML_LIST + "(" + re.escape(old) + r")\s*\]")
+    name = re.compile(r"\bname:\s*(" + re.escape(old) + r")(?=\s*[,}])")
+    edits = []
+    for i, line in enumerate(read(yf).split("\n"), 1):
+        code = line.split(" #", 1)[0]
+        m = lst.match(code)
+        if not m and re.match(r"\s*- \{", code) and re.search(r"type:\s*\.(?:data|rodata|bss)\b", code):
+            m = name.search(code)
+        if m:
+            edits.append((yf, i, m.start(1) + 1, old, new))
+    if not edits:
+        raise Refuse(f"no subsegment named {old} in {yf}")
+    return edits
+
+
+def file_rows(rows):
+    """Validate [(seg, old, new)] as a whole; Refuse on the first problem."""
+    srcs, dsts = set(), set()
+    for seg, old, new in rows:
+        if seg == "libultra" or not os.path.isdir(os.path.join(ROOT, "src", seg)):
+            raise Refuse(f"unknown segment: {seg}")
+        path = f"src/{seg}/{old}.c"
+        if not os.path.isfile(os.path.join(ROOT, path)):
+            raise Refuse(f"no such file: {path}")
+        prefix = OFFSET.match(old)
+        if not prefix:
+            raise Refuse(f"no offset prefix: {old}")
+        m = FILE_STEM.fullmatch(new)
+        if not m or m.group(1) != prefix.group(0):
+            raise Refuse(f"new name must be {prefix.group(0)}_<snake_case>: {new}")
+        dst = f"src/{seg}/{new}.c"
+        if os.path.exists(os.path.join(ROOT, dst)):
+            raise Refuse(f"exists: {dst}")
+        if path in srcs or dst in dsts:
+            raise Refuse(f"listed twice: {path if path in srcs else dst}")
+        srcs.add(path)
+        dsts.add(dst)
+        if "GLOBAL_ASM" in read(path):
+            raise Refuse(f"GLOBAL_ASM pragmas in {path}: asm paths need a re-split; not supported")
+
+
+def cmd_files(a, rows):
+    file_rows(rows)
+    edits = []
+    texts = {f: read(f) for f in include_files()}
+    docs = {f: read(f) for f in doc_files()}
+    data_inc = read("data_inc.us.txt").split("\n") if os.path.exists(os.path.join(ROOT, "data_inc.us.txt")) else []
+    make = read("Makefile").split("\n") if os.path.exists(os.path.join(ROOT, "Makefile")) else []
+    for seg, old, new in rows:
+        edits += yaml_edits(seg, old, new)
+        inc_old, inc_new = f'"proto/{seg}/{old}.h"', f'"proto/{seg}/{new}.h"'
+        for f, text in texts.items():
+            if inc_old not in text:
+                continue
+            for i, line in enumerate(text.split("\n"), 1):
+                edits += [(f, i, m.start() + 1, inc_old, inc_new) for m in re.finditer(re.escape(inc_old), line)]
+        if seg == "global":
+            for i, line in enumerate(make, 1):
+                if re.match(r"GLOBAL_G_FILES\s*:=", line):
+                    edits += [("Makefile", i, m.start() + 1, old, new)
+                              for m in re.finditer(rf"(?<!\S){re.escape(old)}(?!\S)", line)]
+        path = f"src/{seg}/{old}.c"
+        for i, line in enumerate(data_inc, 1):
+            fields = list(re.finditer(r"\S+", line))
+            if len(fields) >= 6 and not line.lstrip().startswith("#") and fields[5].group(0) == path:
+                edits.append(("data_inc.us.txt", i, fields[5].start() + 1, path, f"src/{seg}/{new}.c"))
+        pats = [(re.compile(rf"(?<!\w)src/{seg}/{re.escape(old)}\.c(?!\w)"), f"src/{seg}/{new}.c"),
+                (re.compile(rf"(?<!\w)proto/{seg}/{re.escape(old)}\.h(?!\w)"), f"proto/{seg}/{new}.h")]
+        for f, text in docs.items():
+            for p, n in pats:
+                if not p.search(text):
+                    continue
+                for i, line in enumerate(text.split("\n"), 1):
+                    edits += [(f, i, m.start() + 1, m.group(0), n) for m in p.finditer(line)]
+    apply(edits, a.dry_run)
+    for seg, old, new in rows:
+        src, dst = f"src/{seg}/{old}.c", f"src/{seg}/{new}.c"
+        print(f"MV {src} {dst}")
+        if not a.dry_run and subprocess.run(["git", "mv", src, dst], cwd=ROOT, capture_output=True).returncode:
+            os.replace(os.path.join(ROOT, src), os.path.join(ROOT, dst))
+    if not a.dry_run and not a.no_gen and os.path.exists(os.path.join(ROOT, "tools", "protos.py")):
+        r = subprocess.run(["uv", "run", "tools/protos.py", "gen"], cwd=ROOT)
+        if r.returncode:
+            print(f"rename: tools/protos.py gen failed (exit {r.returncode})", file=sys.stderr)
+            return 1
+    print(f"files: {len(rows)} renamed" + (" (dry run)" if a.dry_run else ""))
+    return 0
+
+
+def batch_rows(path):
+    """[(seg, old, new)] of a `files` batch (blank lines and # comments skipped)."""
+    rows = []
+    with open(path, encoding="utf-8") as f:
+        for n, line in enumerate(f.read().split("\n"), 1):
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            parts = line.split()
+            if len(parts) != 3:
+                raise Refuse(f"{path}:{n}: expected `<seg> <old> <new>`")
+            rows.append(tuple(parts))
+    return rows
 
 
 def main(argv=None):
@@ -680,6 +829,15 @@ def main(argv=None):
     s.add_argument("expr")
     s.add_argument("--per-ref", action="store_true", help="fold only the references whose file still matches")
     s.add_argument("--held", nargs="*", default=None, help="checked-out src files (default: the brief's last round)")
+    s = sub.add_parser("file", help="rename one C file (TU) to <offset>_<name>.c")
+    s.add_argument("seg")
+    s.add_argument("old")
+    s.add_argument("new")
+    s = sub.add_parser("files", help="batch of file renames")
+    s.add_argument("batch", help="lines: <seg> <old> <new>")
+    for name in ("file", "files"):
+        sub.choices[name].add_argument("--no-gen", action="store_true",
+                                       help="skip `tools/protos.py gen` (the caller runs it once afterwards)")
     for s in sub.choices.values():
         s.add_argument("--dry-run", action="store_true")
     a = p.parse_args(argv)
@@ -687,6 +845,10 @@ def main(argv=None):
     try:
         if a.cmd in ("func", "global"):
             return cmd_symbol(a, a.cmd == "func")
+        if a.cmd == "file":
+            return cmd_files(a, [(a.seg, a.old, a.new)])
+        if a.cmd == "files":
+            return cmd_files(a, batch_rows(a.batch))
         if a.cmd == "fold":
             return cmd_fold(a)
         if a.cmd == "fields":
