@@ -770,7 +770,10 @@ typedef struct SpawnNode {
     /* 0x11 */ u8 pathCount;
     /* 0x12 */ u8 initialState;
     /* 0x13 */ u8 id;
-    /* 0x14 */ u8 respawnDelay;
+    union {
+        /* 0x14 */ u8 respawnDelay;
+        /* 0x14 */ u8 challengeType; // bonus controller: challenge kind 0..16, selects the setup, trigger and win/lose rules (bonusControllerUpdate, bonus/0_controller.c)
+    };
     /* 0x15 */ u8 pad15[3];
     /* 0x18 */ Actor *actor;
     /* 0x1C */ Zone *zone;

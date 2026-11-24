@@ -118,7 +118,7 @@ void bonusControllerUpdate(void) {
 
     counter = ((BonusCounterActor *)gCurrentActor)->counter;
     behaviourFrameBegin();
-    challengeType = gBehaviourExtraState->respawnDelay;
+    challengeType = gBehaviourExtraState->challengeType;
     targetCount = gBehaviourExtraState->targetCount;
     commandQueuePush(gPrimaryPlayerActor, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + 30.0f, gPrimaryPlayerActor->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     if (!(gCurrentActor->flags & 0x10)) {
