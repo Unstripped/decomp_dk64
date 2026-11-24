@@ -1,11 +1,12 @@
-# func_806B13B4 (global, src/global/B5EC0.c)
+# kongItemEnemyStateUpdate (global, src/global/B5EC0_kong_item_enemy.c)
 
 ## Sites
 global:806B13B4:proto-steer:72fa9a proto-steer: `#define PROTO_SKIP_actorTrackBoneTowardTarget` + K&R `void actorTrackBoneTowardTarget();`
 so the case 2/3/7/0x35 call can pass a spare 2nd argument `sel` (owner 1295B0 reads only a0: `andi a1,a0,0xff`
-writes a1 before any read). The spare use keeps `sel` (uopt cand bit 14, -4vreg, colour 4 = $a1) itself live into
-the case block (uopt bb122), so the `sel == 0x35` test reads $a1 (`bne a1,at` at +0x7d4). The K&R form also
-needs the two `(u8)` casts at the calls of lines 205/212 (`andi a0,v1,0xff` at +0x7e8).
+at 0x5a0 writes a1 before any read). The spare use keeps `sel` (uopt cand bit 14, -4vreg, colour 4 = $a1) itself live into
+the case block (uopt bb122), so the `sel == 0x35` test reads $a1 (`bne a1,at` at 0x9c8). The K&R form also
+needs the two `(u8)` casts at the calls of lines 207/214 (`andi a0,v1,0xff` at 0x980/0x9dc), conversions the
+target executes (untagged, R1). Ruling RQ3 (2026-11-20): TERMINAL, the FAKE is kept.
 
 ## Attempts
 2026-11-14 Hackfunc_806B13B4 anthropic/claude-opus-5-5:high
@@ -91,6 +92,21 @@ needs the two `(u8)` casts at the calls of lines 205/212 (`andi a0,v1,0xff` at +
   live bb29 -> bb122, colour 1 = $v0, in sel interference list; sel cand bit 14 colour 4 = $a1 (forbidden 1 2 3 14)
   reaches bb122 only in the base (adjsave 2.23 base, 2.45 t1). `variants.py scan` of t1: 45 variants, best full=4 =
   baseline. Owner 1295B0 +0x8 (0x5a0) `andi a1,a0,0xff` unchanged. PROTO_SKIP + K&R decl kept.
+- 2026-11-24 CleankongItemEnemyStateUpdate (unit "2026-11-24: cleanup CleankongItemEnemyStateUpdate", base b9a69764,
+  file text unchanged since the rename) diagnose nohit, re-measure after the 50304ca5 knowledge corrections
+  (Q0639/Q1167 corrected, Q1607 added: B2CE0 one-argument calls match; B5EC0 named as a real spare argument).
+  Plain form t/plain.c (skip + K&R decl + spare sel dropped, shared u8 header): fdiff 1, full=4 text=3, the same
+  3 lines (beqz 0x438 + `move v0,a1` 0x43c vs target beqz 0x434; `bne v0,at` 0x9cc vs `bne a1,at` 0x9c8); uopt -l6:
+  bit 54 `uadd{1376|0}{0}` assigned colour 1 = v0 (unassigned in the base). Owner (u8, s32) stand-in (skip + local
+  `void actorTrackBoneTowardTarget(u8, s32);`, sel passed at 0x62c/0x97c/0x9d8, t/owner1.c): full=10, frame
+  0x28 -> 0x30, a1 spilled to sp+0x2c across kongItemEnemyTryGroundSlam/TryAttack; `gCurrentActor->state` as the
+  0x97c spare (t/owner2.c): full=21 (`lbu a1,0x154(t3)` at 0x968 for `lbu t4`). B2CE0 behaviourMeleePatrolEnemyUpdate
+  (func_806AE588) one-argument form transplanted whole: `switch (gCurrentActor->state)` + `(gCurrentActor->state
+  == 0x35) ? 2 : 3` full=53 (t/b1.c, `(u8)` cast t/b2.c the same: sel moves a1 -> v1 at the pre-switch
+  `move a1,a0` 0x28c/0x2a4/0x2c4 plus a v0 copy); the field test alone under `switch (sel)` full=21 (t/b4.c:
+  `move v0,a0` beside those three, gActorGlobalState base v1 -> a3). `variants.py scan` of t/plain.c: 54 variants,
+  best full=4 = baseline. `quality.py sweep` of the copy: 1 site, 0 hits. PROTO_SKIP + K&R decl kept (RQ3).
+- review nohit: fake=1/0 goto=0 casts=2 kept (andi-executing `(u8)` conversions) protos=1 steer uninit=0 warn=0.
 
 ## Untried ideas
 - none natural left (re-confirmed 2026-11-17 Cleanfunc_806B13B4: the copy is avoided only by a later read of sel
@@ -111,3 +127,8 @@ needs the two `(u8)` casts at the calls of lines 205/212 (`andi a0,v1,0xff` at +
 - no caller of actorTrackBoneTowardTarget loads a1 for the call (37 jal sites, 10 objects).
 - base 827913fc (after 2fcc4355): func at .text 0x1f4; dispatch `lbu a0,340(s0)` 0x420, `move a1,a0` 0x424, other
   path `lbu a0,340(s0)` 0x9b8 / `b` / `move a1,a0` 0x9c0; case block 0x9c4..0x9dc, `jal actorTrackBoneTowardTarget` 0x9d8.
+- B2CE0 behaviourMeleePatrolEnemyUpdate (func_806AE588) 0xbf8..0xc10: `lbu a0,340(s0)` / `b` / `move a1,a0`, then
+  `li at,53; bne a1,at` at 0xc04/0xc08: its C reads `gCurrentActor->state` in both the switch and the test, with no
+  sel local in a pre-switch if-chain. Transplanted into B5EC0, whose if-chain (0x27c..0x2c4) keeps sel in a1 via
+  `move a1,a0`, that spelling moves sel to v1 there (full=53, t/b1.c): measured, the sibling form does not transfer.
+- base b9a69764: same offsets as 827913fc; owner 1295B0 `actorTrackBoneTowardTarget` at .text 0x598, `andi a1,a0,0xff` 0x5a0.
