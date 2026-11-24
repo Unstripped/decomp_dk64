@@ -18,9 +18,9 @@
 #include "proto/global/E4090_player_input.h"
 #include "proto/global/EFDC0_player_state_enter.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/race/0.h"
-#include "proto/race/7BD0.h"
-#include "proto/race/A960.h"
+#include "proto/race/0_opponent_ai.h"
+#include "proto/race/7BD0_manager.h"
+#include "proto/race/A960_route_gates.h"
 
 
 typedef struct RaceRouteEvent { // per-route event row: applied when the racer reaches its waypoint (zone entry)

@@ -24,9 +24,9 @@
 #include "proto/global/CEAE0_player_update.h"
 #include "proto/global/EFDC0_player_state_enter.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/race/52B0.h"
-#include "proto/race/7BD0.h"
-#include "proto/race/A960.h"
+#include "proto/race/52B0_competitor_motion.h"
+#include "proto/race/7BD0_manager.h"
+#include "proto/race/A960_route_gates.h"
 
 RaceCurvePoint raceOpponentSpeedCurve[6] = {
     { -1000.0f, 0.8f }, { -150.0f, 1.0f }, { -70.0f, 1.0f }, { 90.0f, 1.0f }, { 100.0f, 1.0f }, { 200.0f, 2.5f },

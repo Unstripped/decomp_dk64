@@ -23,11 +23,11 @@
 #include "proto/global/EFDC0_player_state_enter.h"
 #include "proto/global/F9450_grid_nodes.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/race/1770.h"
-#include "proto/race/36B0.h"
-#include "proto/race/6650.h"
-#include "proto/race/7BD0.h"
-#include "proto/race/A960.h"
+#include "proto/race/1770_path_follow.h"
+#include "proto/race/36B0_racer_ai.h"
+#include "proto/race/6650_participant_motion.h"
+#include "proto/race/7BD0_manager.h"
+#include "proto/race/A960_route_gates.h"
 
 extern u8 gPlayerCount;
 extern Actor *gSpawnedActor;

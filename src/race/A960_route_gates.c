@@ -10,10 +10,10 @@
 #include "proto/global/7130_sfx.h"
 #include "proto/global/7CA80_actor_manager.h"
 #include "proto/global/CEAE0_player_update.h"
-#include "proto/race/1770.h"
-#include "proto/race/52B0.h"
-#include "proto/race/7BD0.h"
-#include "proto/race/A960.h"
+#include "proto/race/1770_path_follow.h"
+#include "proto/race/52B0_competitor_motion.h"
+#include "proto/race/7BD0_manager.h"
+#include "proto/race/A960_route_gates.h"
 
 typedef struct RaceRouteTable {
     /* 0x00 */ u8 routeCount;

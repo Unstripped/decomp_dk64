@@ -23,9 +23,9 @@
 #include "proto/global/ACDC0_pause_menu.h"
 #include "proto/global/EFDC0_player_state_enter.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/race/1770.h"
-#include "proto/race/36B0.h"
-#include "proto/race/7BD0.h"
+#include "proto/race/1770_path_follow.h"
+#include "proto/race/36B0_racer_ai.h"
+#include "proto/race/7BD0_manager.h"
 
 
 // Race car actors (raceOpponentCarBehaviorUpdate, raceObstacleCarBehaviorUpdate): Actor plus their

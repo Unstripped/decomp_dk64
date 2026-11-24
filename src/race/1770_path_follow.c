@@ -21,8 +21,8 @@
 #include "proto/global/F56F0_player_weapon.h"
 #include "proto/global/F9450_grid_nodes.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/race/1770.h"
-#include "proto/race/7BD0.h"
+#include "proto/race/1770_path_follow.h"
+#include "proto/race/7BD0_manager.h"
 
 s32 raceGetNextWaypointIndex(s32 pathLength, s32 curWaypoint) {
     s32 next = curWaypoint + 1;

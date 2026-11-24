@@ -43,27 +43,27 @@ segments:
     vram: 0x80024000
     bss_size: 0x10
     subsegments:
-      - [0x0, c, 0]
-      - [0x1770, c, 1770]
-      - [0x36B0, c, 36B0]
-      - [0x52B0, c, 52B0]
-      - [0x6650, c, 6650]
-      - [0x7BD0, c, 7BD0]
-      - [0xA960, c, A960]
-      - [0xBB10, .data, 0] # route events, raceResultCamPathIds (0x8002FB10-0x8002FBB0)
-      - [0xBBB0, .data, 1770] # D_8002FBB0 light effects, gLightSlotNext (0x8002FBB0-0x8002FBD0)
-      - [0xBBD0, .data, 36B0] # speed curve, raceCarResultCamPathIds (0x8002FBD0-0x8002FC20)
-      - [0xBC20, .data, 52B0] # speed curve, D_8002FC50, D_8002FC5C (0x8002FC20-0x8002FC70)
-      - [0xBC70, .data, 6650] # speed curve, D_8002FCA0, D_8002FCAC (0x8002FC70-0x8002FCC0)
-      - [0xBCC0, .data, 7BD0] # sRacePlaceTextIds, D_8002FCD4 (0x8002FCC0-0x8002FCF0)
-      - [0xBCF0, .data, A960] # sRaceRouteTable (0x8002FCF0-0x8002FD00)
-      - [0xBD00, .rodata, 0]
-      - [0xBDD0, .rodata, 1770]
-      - [0xBE70, .rodata, 36B0]
-      - [0xBFB0, .rodata, 52B0]
-      - [0xC020, .rodata, 6650]
-      - [0xC0C0, .rodata, 7BD0]
-      - [0xC150, .rodata, A960]
+      - [0x0, c, 0_opponent_ai]
+      - [0x1770, c, 1770_path_follow]
+      - [0x36B0, c, 36B0_racer_ai]
+      - [0x52B0, c, 52B0_competitor_motion]
+      - [0x6650, c, 6650_participant_motion]
+      - [0x7BD0, c, 7BD0_manager]
+      - [0xA960, c, A960_route_gates]
+      - [0xBB10, .data, 0_opponent_ai] # route events, raceResultCamPathIds (0x8002FB10-0x8002FBB0)
+      - [0xBBB0, .data, 1770_path_follow] # D_8002FBB0 light effects, gLightSlotNext (0x8002FBB0-0x8002FBD0)
+      - [0xBBD0, .data, 36B0_racer_ai] # speed curve, raceCarResultCamPathIds (0x8002FBD0-0x8002FC20)
+      - [0xBC20, .data, 52B0_competitor_motion] # speed curve, D_8002FC50, D_8002FC5C (0x8002FC20-0x8002FC70)
+      - [0xBC70, .data, 6650_participant_motion] # speed curve, D_8002FCA0, D_8002FCAC (0x8002FC70-0x8002FCC0)
+      - [0xBCC0, .data, 7BD0_manager] # sRacePlaceTextIds, D_8002FCD4 (0x8002FCC0-0x8002FCF0)
+      - [0xBCF0, .data, A960_route_gates] # sRaceRouteTable (0x8002FCF0-0x8002FD00)
+      - [0xBD00, .rodata, 0_opponent_ai]
+      - [0xBDD0, .rodata, 1770_path_follow]
+      - [0xBE70, .rodata, 36B0_racer_ai]
+      - [0xBFB0, .rodata, 52B0_competitor_motion]
+      - [0xC020, .rodata, 6650_participant_motion]
+      - [0xC0C0, .rodata, 7BD0_manager]
+      - [0xC150, .rodata, A960_route_gates]
       - { start: 0xC160, type: bss, vram: 0x80030160 }
 
   - [0xC160]
