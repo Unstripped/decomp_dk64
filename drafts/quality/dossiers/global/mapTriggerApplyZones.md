@@ -1,4 +1,4 @@
-# mapTriggerApplyZones (global, src/global/55B20.c)
+# mapTriggerApplyZones (global, src/global/55B20_map_chunk.c)
 ## Sites
 - global:80654A2C:dead-if:85ff81 `if (!zone->enterCount) {}` in the else arm.
   - The target has no re-read in that arm.
@@ -41,6 +41,10 @@
   - permuter 900 s from the removal body, hack-free weights: base 5, 8 outputs at 0, all re-insert the dead test: in the else arm, or as
     `if (zone->enterCount) {}` just before the `!= 0` test inside `!done` (then cand 25 is live from that block into the test block)
   - readability: while loop -> `for (i = 0; ...)`, `!= 0` -> `!= NULL` on gMapZones[idx] (fdiff 0, removal still 1)
+- 2026-11-24 (session 2026-11-24) CleanmapChunksInitFromMapDatac anthropic/claude-opus-5-5 (re-measure after the 0b183a6c file-scope edits; body unchanged, fdiff 0):
+  - removal 1 (the same `addiu s1,v1,0x36` at 0x3cb0); `if (zone->exitCount) {}` 6; `zone->enterCount && zone->enterCount` 5.
+  - new: `u8 count = zone->enterCount;` for the `!= 0` test, assigned before or inside the test (loop bounds still through zone): 5.
+  - new: `mapCellSetFlag(*val++, 1/0)` in both loops: 7.
 ## Untried ideas
 none with evidence: the target needs an invisible uopt write of $v1 (a second-block use of the raw u8 enterCount while it is still available, i.e.
 before the first store/call of either arm), and every live C use of it there adds code.

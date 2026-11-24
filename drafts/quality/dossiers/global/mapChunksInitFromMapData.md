@@ -1,4 +1,4 @@
-# mapChunksInitFromMapData (global, src/global/55B20.c)
+# mapChunksInitFromMapData (global, src/global/55B20_map_chunk.c)
 ## Sites
 - 12a29f dead-if (kept, class 1): `if (data) {}` splits the uopt block, so the cells/boxes/vecs offsets (v1/a0/a1 at 0x140-0x184) sit in a block without the heapAlloc(gMapPortalSlotCount) call; without it they take a1/a2/a3 (p+cellsOff and p+portalsOff, adjsave 3.0, colour first into v0/v1 and the call forbids a0). The split behaves like a varreflimit cut (Q0556): any 6..11 counted variable references added anywhere in node 3 also match (see Evidence).
 - fc3dbd dead-if (kept): `if (gMapChunks) {}` after the plane loop stretches the lda gMapChunks web over the plane-loop blocks (adjsave 48 -> 40.08). That puts it below the chunk-record pointer p (40.11), which colours first: p takes s2 and lda gMapChunks takes s3.
@@ -38,6 +38,12 @@
   - Base-first `MapChunkCollEntry *coll = base; coll += n;` replacing entryOff: 89 (fc3dbd removed 84); `(MapChunkCollEntry *)(file + collOff + 4)` base 326.
   - Per-block `MapPortal *portal = gMapPortals; portal += i;` in the portal loop: 324; fc3dbd removed 343; 12a29f removed 334; no frame pay 334.
   - Follow-up at 48370a9c (Q1593 switch respellings, fc3dbd removed unless noted): `switch (gMapChunkCount) { default: ...; case 0: gMapChunks = NULL; }` lays the NULL store first in either case order (bnez t6 + b at 0xfc; target beqz t6 -> else at 0x8a8): 96, 23 with the read kept; the four `kind == 2` tests as one-case switches 76 (= removal); `switch (count)` for the cell copy 131, with the outer switch 155. Enable-loop counter split from k: new `j` 85, reuse `i` 76.
+- 2026-11-24 (session 2026-11-24) CleanmapChunksInitFromMapDatac anthropic/claude-opus-5-5 (re-measure after the 0b183a6c file-scope edits; body unchanged, fdiff 0):
+  - Removal: 12a29f 330 (text 360), fc3dbd 76, both 329: the same numbers as on the 2026-11-18 file-split body; no Q0602 coupling (fc3dbd's removal adds nothing once 12a29f is gone).
+  - 12a29f: `file = (u8 *)data` after gMapFogDist 0 with the test, 330 without; two `data->cellsOff` reads 351.
+  - 12a29f new: `dlBase = data->dlBase;` moved before collOff/chunksOff (the target's load order, 0x188 before 0x18c/0x190): 8 with the test, 336 without, 335 with both removed.
+  - fc3dbd: real `if (gMapChunks != NULL)` around the enable loop 7; enable-loop counter `j` 85.
+  - fc3dbd new: plane loop counted with `n` (k only in the enable loop) 88, with `i` 444.
 ## Untried ideas
 - Natural code adding 6 or more counted variable references in node 3 (lines from `cellsOff =` to `dlBase =`) whose first cut lands after `vecsOff =` and before `portalsOff =` (12a29f). Every existing statement there already holds its minimum references (14 in total).
 - A natural gMapChunks reference outside the chunk loop that emits no code (fc3dbd); the target has none. Narrowed by Q1595: p is nested in the lda gMapChunks range (lda = p's units plus the else-store block), so a no-code CFG node alone cannot reorder them; the switch forms of the existing branches change the branch layout (above).
@@ -49,3 +55,5 @@
 - Level-5 traces (file-split body): data cand 8 adjsave 5.92 (old body, no dead test) -> 7.46 (collision base through file: uses in loop blocks 35/36); -1 cand (1618|0) 69/11 = 6.27 (40 units); lda gMapChunks (1594|0) 480/bucket(34) = 48.0 without the fc3dbd read, 481/bucket(42) = 40.08 with it; p (1328|0) 361/bucket(33) = 40.11. lda's live units are p's plus the else-store block only.
 - varreflimit counts in node 3 (dead `n = (s32)data + ...` with k terms after each statement): cumulative counted references after cellsOff= 1, gMapCellCount= 3, gMapCells= 5, boxesOff= 6, gMapCellBoxes= 8, vecsOff= 9, gMapGridTriangleVerts= 11, collOff= 12, chunksOff= 13, dlBase= 14. Matches need the first cut (count >= 20 at a statement end) after vecsOff= and before portalsOff=: k 6..11 at the block start, k 6..19 between vecsOff= and gMapGridTriangleVerts=.
 - Not the Q1586 element pointer: the chunk loop reloads gMapChunks through lda s3 before every field access (42 `lw tN,0(s3)`, 0x2c8-0x764), so the original indexed the global per statement; the s0 element addresses (0x33c, 0x488, 0x504, 0x578, 0x5e8, 0x610, 0x620, 0x630, 0x658) are per-statement CSE/PRE of `gMapChunks + n*0x1C8`, not a variable.
+- Head load order: dlBase `lw t3,52(s7)` at 0x188 precedes collOff (0x18c -> s4) and chunksOff (0x190 -> s1); its home store `sw t3,3788(sp)` is at 0x194. The C order collOff/chunksOff/dlBase gives that order (as1 schedule); dlBase first does not.
+- Tail: the else block 0x8a8-0x8b0 materialises lda gMapChunks into s3 (`lui/addiu s3`, `sw zero,0(s3)`); the plane loop reuses s2 for lda gMapGridTrianglePlanes (0x7ec) after p dies.
