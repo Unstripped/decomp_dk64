@@ -60,8 +60,9 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          by hex prefix, proto header renamed with it: banner path and
                                          guard only) and of files whose only change is those renamed
                                          "proto/..." include paths, under HEAD's path; any other src/ or
-                                         include/ change since REV exits (REV must sit right before the
-                                         rename commits), functions whose identity or sites differ are
+                                         include/ change since REV, or uncommitted under src/ or include/,
+                                         exits (REV must sit right before the rename commits), functions
+                                         whose identity or sites differ are
                                          listed as skipped. --dry-run writes nothing.
                                          --func NAME (repeatable; REV's or HEAD's name): only those functions.
                                          A result already recorded or carried at HEAD's fingerprints (same
@@ -2496,6 +2497,11 @@ def carry_file_renames(a, by_site, by_func):
         with open(os.path.join(ROOT, p), "rb") as f:
             return f.read()
 
+    # the checks compare REV with HEAD, but HEAD's side is analysed from the working tree: an
+    # uncommitted src/ or include/ change (a shared header edit) would be carried unchecked
+    dirty = ledger.git("status", "--porcelain", "--untracked-files=all", "--", "src", "include").splitlines()
+    if dirty:
+        die(f"uncommitted changes under src/ or include/ ({dirty[0].strip()}): commit or stash them first")
     dels, adds, mods = {}, {}, []
     for row in ledger.git("diff", "--name-status", "--no-renames", a.rev, "HEAD", "--", "src", "include").splitlines():
         st, p = row.split("\t", 1)

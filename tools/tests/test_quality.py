@@ -1379,8 +1379,9 @@ def test_carry_file_renames(tmp_path, monkeypatch, capsys):
     _git(repo, "config", "user.name", "t")
     src = repo / "src" / "global"
     (repo / "include/proto/global/A1.h").write_text(PROTO_H % ("A1", "PROTO_GLOBAL_A1_H", "PROTO_GLOBAL_A1_H"))
+    (repo / "include/types.h").write_text("typedef int s32;\n")
     for stem, body in RENAME_FNS.items():
-        (src / f"{stem}.c").write_text('#include "proto/global/A1.h"\n' + body)
+        (src / f"{stem}.c").write_text('#include "types.h"\n#include "proto/global/A1.h"\n' + body)
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "a")
     rev_a = _git(repo, "rev-parse", "HEAD")
@@ -1421,6 +1422,14 @@ def test_carry_file_renames(tmp_path, monkeypatch, capsys):
     for fn in new.values():
         state = q.function_state(fn, by_site, by_func)
         assert state["review"] == "✓" and state["sites"][0][1]["marks"]["remove"] == "✓"
+    # an uncommitted shared-header edit (not in REV..HEAD) is refused before anything is analysed
+    (repo / "include/types.h").write_text("typedef short s32;\n")
+    before = q.load_events()
+    with pytest.raises(SystemExit) as ex:
+        q.main(["carry", "--rev", rev_a, "--unit", "u3", "--file-renames"])
+    assert "uncommitted changes under src/ or include/" in str(ex.value)
+    assert q.load_events() == before and not (repo / "include/proto/global/A1.h").exists()
+    _git(repo, "checkout", "--", "include/types.h")
     # a body change on top of the renames: refused, nothing written
     (src / "A1_alpha.c").write_text((src / "A1_alpha.c").read_text().replace("i + 1", "i + 2"))
     _git(repo, "commit", "-qam", "c")
