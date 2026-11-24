@@ -3164,15 +3164,15 @@ void playerStateHoldPickup(void) {
         gCurrentActor->speedXZ = 0.0f;
         gActivePlayerState->maxSpeed = 0.0f;
         playerStartPickupApproach(gActivePlayerState->queuedHeldActor);
-        gCurrentActor->x += gActivePlayerState->unk78;
-        gCurrentActor->z += gActivePlayerState->unk7C;
-        gCurrentActor->yaw = gActivePlayerState->unk80;
+        gCurrentActor->x += gActivePlayerState->pickupStepX;
+        gCurrentActor->z += gActivePlayerState->pickupStepZ;
+        gCurrentActor->yaw = gActivePlayerState->pickupYaw;
         gCurrentActor->subState++;
         break;
     case 1:
-        gCurrentActor->x += gActivePlayerState->unk78;
-        gCurrentActor->z += gActivePlayerState->unk7C;
-        gCurrentActor->yaw = gActivePlayerState->unk80;
+        gCurrentActor->x += gActivePlayerState->pickupStepX;
+        gCurrentActor->z += gActivePlayerState->pickupStepZ;
+        gCurrentActor->yaw = gActivePlayerState->pickupYaw;
         break;
     case 2:
         gActivePlayerState->heldActor = gActivePlayerState->queuedHeldActor;

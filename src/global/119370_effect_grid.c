@@ -402,12 +402,12 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
     effect->depth = sEffectPendingDepth;
     effect->mode = sEffectPendingScreenSpace;
     effect->startDelay = sEffectPendingStartDelay;
-    effect->frameCount = node->width * node->height;
+    effect->cellCount = node->width * node->height;
     effect->anchorType = anchorType;
     effect->owner = owner;
-    effect->boneIndex = modelSlot;
-    effect->subIndex = nodeIndex;
-    effect->param = sEffectPendingStartFrame;
+    effect->modelSlot = modelSlot;
+    effect->nodeIndex = nodeIndex;
+    effect->frame = sEffectPendingStartFrame;
     effect->frameDelay = sEffectPendingFrameDelay;
     effect->frameTimer = 0;
     effect->duration = sEffectPendingDuration;
@@ -530,11 +530,11 @@ void effectUpdateAll(u8 paused) {
             effect->flags &= ~0x10;
             switch (effect->anchorType) {
             case 1:
-                modelSlotGetNodePos(effect->boneIndex, 1, effect->subIndex, &effect->x, &effect->y, &effect->z);
+                modelSlotGetNodePos(effect->modelSlot, 1, effect->nodeIndex, &effect->x, &effect->y, &effect->z);
                 break;
             case 2:
                 if ((effect->owner->flags & 0x200) != 0 || effect->owner->sub4 == NULL) {
-                    actorGetNodePos(effect->owner, effect->subIndex, &effect->x, &effect->y, &effect->z);
+                    actorGetNodePos(effect->owner, effect->nodeIndex, &effect->x, &effect->y, &effect->z);
                 } else {
                     effect->flags |= 0x10;
                 }
@@ -553,8 +553,8 @@ void effectUpdateAll(u8 paused) {
                 }
                 effect->state = 3;
             }
-            if (effect->param == effect->grid->frameCount) {
-                effect->param = 0;
+            if (effect->frame == effect->grid->frameCount) {
+                effect->frame = 0;
                 effect->durationTimer++;
                 if (effect->durationTimer == effect->duration && effect->duration != -1) {
                     effect->freePending = 1;
@@ -597,11 +597,11 @@ void effectUpdateAll(u8 paused) {
                     renderEntryAddOrUpdate(0, 5, effect, effect->x, effect->y, effect->z, 0, 0, 1, -1, 3);
                 }
                 effectLoadFrameAssets(effect->grid->data, effect->grid->altCategory, effect->grid->slots,
-                                      effect->frameCount, effect->param, effect->frames);
+                                      effect->cellCount, effect->frame, effect->frames);
                 if (!paused || (effect->flags & 1)) {
                     effect->frameTimer++;
                     if (effect->frameTimer == effect->frameDelay) {
-                        effect->param++;
+                        effect->frame++;
                         effect->frameTimer = 0;
                     }
                 }
@@ -850,7 +850,7 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     }
     gSPMatrix(glist++, osVirtualToPhysical(&effect->matrices[gCurrentPlayerIndex][gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
-    for (i = 0; i < effect->frameCount; i++) {
+    for (i = 0; i < effect->cellCount; i++) {
         if (gRenderSetupKind != 5 || gRenderLoadedTexture != effect->frames[i]) {
             gDPPipeSync(glist++);
             switch (effect->grid->size) {

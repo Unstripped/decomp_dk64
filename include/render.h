@@ -171,14 +171,14 @@ typedef struct EffectNode {
     /* 0x334 */ u8 anchorType;
     /* 0x335 */ u8 pad335[3];
     /* 0x338 */ struct Actor *owner;
-    /* 0x33C */ s16 boneIndex;
-    /* 0x33E */ u8 subIndex;
+    /* 0x33C */ s16 modelSlot;
+    /* 0x33E */ u8 nodeIndex;
     /* 0x33F */ u8 pad33F;
     /* 0x340 */ f32 x;
     /* 0x344 */ f32 y;
     /* 0x348 */ f32 z;
     /* 0x34C */ s16 maxDistance;
-    /* 0x34E */ s16 param;
+    /* 0x34E */ s16 frame;
     /* 0x350 */ u8 frameDelay;
     /* 0x351 */ u8 frameTimer;
     /* 0x352 */ u8 pad352[2];
@@ -200,7 +200,7 @@ typedef struct EffectNode {
     /* 0x36E */ u8 depth;
     /* 0x36F */ u8 mode;
     /* 0x370 */ void *frames[4];
-    /* 0x380 */ s32 frameCount;
+    /* 0x380 */ s32 cellCount;
     union {
         /* 0x384 */ void *allocation; // per-kind state a callback heapAllocs on its first frame
         /* 0x384 */ struct RadialSprayMotion *sprayMotion; // effectRadialSprayUpdate (11BC10.c)

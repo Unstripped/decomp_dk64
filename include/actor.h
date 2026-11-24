@@ -926,9 +926,9 @@ typedef struct PlayerState {
     /* 0x070 */ s16 launchYaw;
     /* 0x072 */ u8 pad72[2];
     /* 0x074 */ f32 launchSpeedY;
-    /* 0x078 */ f32 unk78;
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ s16 unk80;
+    /* 0x078 */ f32 pickupStepX;
+    /* 0x07C */ f32 pickupStepZ;
+    /* 0x080 */ s16 pickupYaw;
     /* 0x082 */ u8 pad82[2];
     /* 0x084 */ u32 idleAnimFrame;
     /* 0x088 */ Actor *actor;

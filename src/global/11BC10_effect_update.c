@@ -1017,7 +1017,7 @@ void effectSpriteMatrixUpdate(EffectNode *effect, s8 *isDone) {
     u8 *counter;
     f32 bob;
 
-    phase = effect->param * 2 + effect->frameTimer;
+    phase = effect->frame * 2 + effect->frameTimer;
     counter = effect->data;
     if (phase < 28.0f) {
         offset = phase;
@@ -1101,7 +1101,7 @@ extern void *D_80028C30;
 void effectTimedLightIntensityFade(EffectNode *effect, s8 *isDone) {
     f32 ratio;
 
-    ratio = (f32)(effect->grid->frameCount - effect->param) / (f32)effect->grid->frameCount;
+    ratio = (f32)(effect->grid->frameCount - effect->frame) / (f32)effect->grid->frameCount;
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
@@ -1120,7 +1120,7 @@ void timedLightOrbitUpdate(EffectNode *effect, s8 *isDone) {
     f32 ratio;
     void **slot;
 
-    ratio = (f32)(effect->grid->frameCount - effect->param) / (f32)effect->grid->frameCount;
+    ratio = (f32)(effect->grid->frameCount - effect->frame) / (f32)effect->grid->frameCount;
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
@@ -1146,7 +1146,7 @@ void effectLightPulseOscillate(EffectNode *effect, s8 *isDone) {
     s32 params;
 
     duration = effect->grid->frameCount;
-    ratio = (f32)(duration - effect->param) / (f32)duration;
+    ratio = (f32)(duration - effect->frame) / (f32)duration;
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
@@ -1167,7 +1167,7 @@ void effectLightFlickerDecay(EffectNode *effect, s8 *isDone) {
     s32 params;
 
     duration = effect->grid->frameCount;
-    ratio = (f32)(duration - effect->param) / (f32)duration;
+    ratio = (f32)(duration - effect->frame) / (f32)duration;
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
@@ -1230,12 +1230,12 @@ void effectRadialSprayUpdate(EffectNode *effect, s8 *isDone) {
             effect->sprayMotion->groundY = 0.0f;
         }
     }
-    if (effect->param >= 9) {
+    if (effect->frame >= 9) {
         effect->sprayMotion->velocityY += -0.63;
         effect->sprayMotion->velocityX *= 0.9;
         effect->sprayMotion->velocityZ *= 0.9;
     }
-    if (effect->param >= ((effect->speed >> 24) & 0xFF)) {
+    if (effect->frame >= ((effect->speed >> 24) & 0xFF)) {
         if (effect->alpha >= 0x3C) {
             effect->alpha -= 0x3C;
         } else {
@@ -1378,12 +1378,12 @@ void effectGroundBounceUpdate(EffectNode *effect, s8 *isDone) {
     groundY = effect->y;
     if ((collisionCheckGroundAtPoint(effect->x, effect->z, &groundY) == 0) ||
         (((effect->y < groundY) ? (groundY - effect->y) : -(groundY - effect->y)) > 10.0)) {
-        progress = (f32) effect->param + ((f32) (u32) effect->frameTimer / (f32) (u32) effect->frameDelay);
-        if (effect->param >= 7) {
+        progress = (f32) effect->frame + ((f32) (u32) effect->frameTimer / (f32) (u32) effect->frameDelay);
+        if (effect->frame >= 7) {
             effect->y = (f32) ((f64) effect->y - (0.3 * ((f64) (14 - (s32) (20.0f - progress)) / 14.0)));
         }
     }
-    if (effect->param == 0x10) {
+    if (effect->frame == 0x10) {
         effect->frameDelay = 0xA;
     }
     guScaleF(mtx0, effect->scaleX, effect->scaleY, 0.0f);
@@ -1392,7 +1392,7 @@ void effectGroundBounceUpdate(EffectNode *effect, s8 *isDone) {
     guTranslateF(mtx1, effect->x, effect->y, effect->z);
     guMtxCatF(mtx0, mtx1, mtx0);
     guMtxF2L(mtx0, &effect->matrices[0][gGfxBufferIndex]);
-    if (effect->param >= 0x13) {
+    if (effect->frame >= 0x13) {
         effect->alpha -= 0x14;
     }
     effect->state = 3;
@@ -1402,7 +1402,7 @@ void effectFadeRatioStepUpdate(EffectNode *effect, s8 *isDone) {
     f32 ratio;
     u8 intensity;
 
-    ratio = (f32)(effect->grid->frameCount - effect->param) / (f32)effect->grid->frameCount;
+    ratio = (f32)(effect->grid->frameCount - effect->frame) / (f32)effect->grid->frameCount;
     if ((f64)ratio > 0.7) {
         ratio = 1.0f;
     }
@@ -1414,7 +1414,7 @@ void effectPuffExpandFadeUpdate(EffectNode *effect, s8 *isDone) {
     f32 scale;
     s16 timer;
 
-    timer = effect->param;
+    timer = effect->frame;
     if (timer > 4) {
         timer = 4;
     }
@@ -1436,7 +1436,7 @@ void effectSparkSpawnUpdate(EffectNode *effect, s8 *isDone) {
             effect->alpha = 0xFF;
         }
     }
-    if (effect->param == 3 || effect->param == 0x11 || effect->param == 0x15) {
+    if (effect->frame == 3 || effect->frame == 0x11 || effect->frame == 0x15) {
         sfxPlayAtPositionPooled(effect->x, effect->y, effect->z, 0x14F, 0xFF, 0x7F, 0x1E, 0x4B, 0.3f, 0);
     }
     if (effect->duration - effect->durationTimer < 3) {
@@ -1584,7 +1584,7 @@ void timedLightPulse(EffectNode *effect, s8 *isDone) {
     phase = effect->speed;
     switch (phase) {
         case 0:
-            timer = effect->param;
+            timer = effect->frame;
             if (timer == 0xA && effect->frameTimer == 0) {
                 sfxPlayAtPositionPooled(effect->x, effect->y, effect->z, 0xE4, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
                 effectSetDuration(-1);
@@ -1601,7 +1601,7 @@ void timedLightPulse(EffectNode *effect, s8 *isDone) {
             return;
         case 1:
             total = effect->grid->frameCount * 2;
-            elapsed = effect->param * 2 + effect->frameTimer;
+            elapsed = effect->frame * 2 + effect->frameTimer;
             frac = (total - elapsed) / total;
             lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 200.0f * frac, 0, 0xFF, color[1], color[2]);
             return;
@@ -1655,7 +1655,7 @@ void effectLightPulseTealUpdate(EffectNode *effect, s8 *isDone) {
     u32 params;
 
     duration = effect->grid->frameCount;
-    ratio = (f32)(duration - effect->param) / (f32)duration;
+    ratio = (f32)(duration - effect->frame) / (f32)duration;
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
@@ -2471,7 +2471,7 @@ void effectGrowFadeUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 void effectFollowPlayerUpdate(EffectNode *effect, s32 unused) {
-    if (effect->param == 0) {
+    if (effect->frame == 0) {
         effect->x = gPrimaryPlayerActor->x;
         effect->y = gPrimaryPlayerActor->y;
         effect->z = gPrimaryPlayerActor->z;
@@ -2590,7 +2590,7 @@ void effectSwayRiseUpdate(EffectNode *effect, s8 *isDone) {
     }
     effect->x += mathSinF((s16)state->swayPhase) * (f32)(state->swayAmplitude * 0.5);
     if (effect->frameDelay == 0) {
-        effect->param = mathSinF((s16)state->swayPhase) * 2.5 + 2.5;
+        effect->frame = mathSinF((s16)state->swayPhase) * 2.5 + 2.5;
     }
     state->risePhase = state->risePhase + 100.0f;
     state->swayPhase = state->swayPhase + 50.0f;

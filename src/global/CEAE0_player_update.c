@@ -1913,11 +1913,11 @@ void playerStartPickupApproach(Actor *target) {
         ang = mathAngleBetweenPointsDeg((s16)target->x, (s16)target->z, (s16)gCurrentActor->x, (s16)gCurrentActor->z);
         ang = 360.0 - ang;
     }
-    gActivePlayerState->unk80 = ang * 4095.0 / 360.0;
+    gActivePlayerState->pickupYaw = ang * 4095.0 / 360.0;
     guRotateF(mtx, ang, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(mtx, 0.0f, 0.0f, radius, &offsetX, &offsetY, &offsetZ);
-    gActivePlayerState->unk78 = ((target->x - offsetX) - gCurrentActor->x) / (f32)frames;
-    gActivePlayerState->unk7C = ((target->z - offsetZ) - gCurrentActor->z) / (f32)frames;
+    gActivePlayerState->pickupStepX = ((target->x - offsetX) - gCurrentActor->x) / (f32)frames;
+    gActivePlayerState->pickupStepZ = ((target->z - offsetZ) - gCurrentActor->z) / (f32)frames;
 }
 
 
