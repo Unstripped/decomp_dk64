@@ -1161,7 +1161,7 @@ void hudSpawnCountdownTimer(s32, s32, u8, void *); // ORIG: a3 = &gCsCountdown l
 void modelAnimEntrySetUnkC(); // ORIG: case 0x4C passes h in a2 as computed (sll/sra at 0x29cc/0x29d0) into jal 0x29e0; the shared (s16, s16, s16) prototype re-narrows a2 before the call; owner 54150 narrows a0 itself (sll/sra at 0x15c0) and an s32 owner does not fdiff
 
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
-    void *dm = &csId; // FAKE: address-taken csId keeps sel at sp+0xB3 (Q0174)
+    void *dm = &csId; // FAKE: unused escape of csId: its word keeps sel at sp+0xB3 and the address-of keeps csId memory-resident (sw a2,208(sp), lh 210(sp) per 0x2D/0x76 loop iteration); a pad gives only the word (Q0174, Q0914, Q1252)
     u8 bit; // one u8 flag: the case 0x1C found flag and the case 0xE/0x7D exclusive bit
     s32 i;
     s32 slot;
@@ -1336,7 +1336,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x68:
         if (gCsCountdown.active != 0) {
             actorDespawn(gCsCountdown.timerActor);
-            bit = (s32)gCsCountdown.hostActor; if (bit) {} // FAKE: live range of bit (a3) splits the &gCsCountdown piece (v0)
+            bit = (s32)gCsCountdown.hostActor; if (bit) {} // FAKE: the dead read keeps bit (a3) live between the despawns, splitting the &gCsCountdown lda range: v0 at 0x2670-0x2688, folded lui/lw %lo(gCsCountdown+4) at 0x268c/0x2694 (Q1157, Q1253)
             actorDespawn(gCsCountdown.hostActor);
             gCsCountdown.active = 0;
         }
