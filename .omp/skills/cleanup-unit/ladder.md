@@ -124,6 +124,8 @@ function-level `reconstruct`. Without a fresh `review` the function is OPEN `nex
 with zero sites. `status` prints per site `✓`, `stale` or `—` per required method and
 `OPEN next=<first missing method>`. Sites inside `#ifdef NON_MATCHING` blocks are not tracked;
 a file-scope FAKE line (a declaration) belongs to the first later function naming its symbol.
+A function with a FAKE-kind site is never EXHAUSTED: once its rungs are fresh it is OPEN
+`next=retry` and `rank` rotates it back in, least recently attempted first (SKILL §7).
 
 ## LEDGER line format (`quality.py record --batch`)
 
