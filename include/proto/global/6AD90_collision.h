@@ -9,7 +9,6 @@
 struct CollisionBoxTri;
 struct CollisionBstFlatItem;
 struct CollisionBstNode;
-struct CollisionBstNodeBase;
 struct CollisionStaticTri;
 #ifndef PROTO_SKIP_collisionBuildCellTable
 void collisionBuildCellTable(struct MapFileHeader *);
@@ -30,7 +29,7 @@ void collisionClearFlags(void);
 u8 collisionGetStateByte(void);
 #endif
 #ifndef PROTO_SKIP_collisionFindFloorAtPoint
-s32 collisionFindFloorAtPoint(Actor *, f32, f32, f32, u8 *, f32 *, u8 *, f32 *, u8);
+u8 collisionFindFloorAtPoint(Actor *, f32, f32, f32, u8 *, f32 *, u8 *, f32 *, u8);
 #endif
 #ifndef PROTO_SKIP_collisionGetHitStatus
 u8 collisionGetHitStatus(void);
@@ -207,19 +206,19 @@ void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_assetSetTableEntry
-void assetSetTableEntry(s32, s32, s32);
+void assetSetTableEntry(s32, s32, void *);
 #endif
 #ifndef PROTO_SKIP_assetResolveRomRange
 s32 assetResolveRomRange(s32, s32, s32 *, u32 *);
 #endif
 #ifndef PROTO_SKIP_assetGetTableEntry
-s32 assetGetTableEntry(s32, s32);
+void *assetGetTableEntry(s32, s32);
 #endif
 #ifndef PROTO_SKIP_assetEnsureTableLoaded
 void assetEnsureTableLoaded(s32);
 #endif
 #ifndef PROTO_SKIP_collisionBstCountNodes
-s32 collisionBstCountNodes(struct CollisionBstNodeBase *);
+s32 collisionBstCountNodes(struct CollisionBstNode *);
 #endif
 #ifndef PROTO_SKIP_collisionBstLookupByHash
 void collisionBstLookupByHash(s32, s32 *, s32 *);
@@ -243,7 +242,7 @@ void collisionQueueSearch(s32, u8 *, u16 *, s32 *);
 void collisionQueueAppend(s32, u8, u16);
 #endif
 #ifndef PROTO_SKIP_collisionBstLookupAndDecrement
-s32 collisionBstLookupAndDecrement(struct CollisionBstNodeBase *, u32);
+s32 collisionBstLookupAndDecrement(struct CollisionBstNode *, u32);
 #endif
 #ifndef PROTO_SKIP_collisionBstDeleteByHash
 void collisionBstDeleteByHash(void *, s32 *, s32 *);
@@ -261,7 +260,7 @@ void collisionBstRebalanceAll(void);
 void collisionBstRebalanceBucket(s32);
 #endif
 #ifndef PROTO_SKIP_collisionBstFreeTree
-void collisionBstFreeTree(struct CollisionBstNodeBase *);
+void collisionBstFreeTree(struct CollisionBstNode *);
 #endif
 #ifndef PROTO_SKIP_collisionBstBuildBalanced
 struct CollisionBstNode *collisionBstBuildBalanced(struct CollisionBstFlatItem *, s32, s32);
