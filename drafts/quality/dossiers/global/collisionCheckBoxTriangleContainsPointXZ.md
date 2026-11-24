@@ -1,4 +1,4 @@
-# collisionCheckBoxTriangleContainsPointXZ (global, src/global/6AD90.c)
+# collisionCheckBoxTriangleContainsPointXZ (global, src/global/6AD90_collision.c)
 ## Sites
 global:8066A988:noop-arith:a2d087 (was b58281) `b = (tri->z2 + tri->z1) * 0.5;`: b holds the z edge midpoint (f12, mul.d at 0x4960, never stored), later the side product (z - oz) * dx (f2). A separate hz gives the same instructions but needs an eleventh f64 home: the cfe extent grows 96 -> 104, every uopt spill temp moves 8 lower and the frame grows 0xc8 -> 0xd0.
 Fixed 2026-11-16c: global:8066A988:noop-arith:ec388d (a reused for the x midpoint, now a dedicated hx) and global:8066A988:other:0fc400 (dead `sideC = 0` init, gone with the sideP/sideC locals).
@@ -35,6 +35,7 @@ Fixed 2026-11-16c: global:8066A988:noop-arith:ec388d (a reused for the x midpoin
 - byte packing, hx/hz named: `u8 outside; s8 sideP; s8 sideC;` set from the two ternaries (or by if/else) removes the -96 ternary temp, but the extent is 100 (i + packed byte word + switch temp): spills 4 lower (swc1 f8 0x58 -> 0x54 at 0x4930), and each s8 side adds sll/sra a2,0x18: 34 (both forms).
 - the same with `s8 i`: extent exactly 96, no sp-offset line differs from the target; only width code remains (sll/sra + slti/bnez in place of li t0,3/bne at 0x4b3c, sll/sra per side at 0x4b08/0x4b2c): 22. `u8 i`: 23.
 - variants scan from the split body: 31 variants, best 12 (dx/dz/ox/oz declswaps), no zero.
+2026-11-24 CleancollisionCheckBoxTriangleContainsPointXZ claude-opus-5-5 (unit "2026-11-24: cleanup CleancollisionCheckBoxTriangleContainsPointXZ"), re-measured after the ba289f28 file-scope edits (body unchanged, fp_local changed): hx/hz split 14 (frame 0xc8 -> 0xd0, sp offsets only), function-local static f64 hz 10 (lui %hi(.bss) + sdc1 f12 store), s8 i + u8 outside + s8 sideP/sideC 22 (width code only), int i with the byte-packed outside/sides 34 (extent 100): all equal to 2026-11-18c, ruling M21 (47fa703b) stands, a2d087 kept FAKE.
 ## Untried ideas
 None that keeps the switch and an int-width i: 88 bytes of f64 + i (4) + the switch selector temp (4) already fill the 96-byte extent the spill temps fix, so `outside` (or a named side value) has no byte left; byte packing proves the frame then matches exactly (s8 i: zero sp-offset lines) but every narrow type adds its own sll/sra/slti. The inline forms of all eleven values (midpoints, products, c with either `!=` operand order, cx/cz) are measured; an f64 midpoint array, an f32 hz and a function-local static hz fail on their own stores/conversions.
 ## Evidence
