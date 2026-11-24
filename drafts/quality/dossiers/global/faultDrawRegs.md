@@ -79,6 +79,12 @@
     plus `(count = gFaultDrawCount) >= 4` (uopt `$2`, target t0 0x404-0x408): the pair skips the odd
     front t9 and gFaultStackTraceCount lands in `$25` (target t1 0x418). Its other edits (a
     `&gFaultDrawCount` pointer re-read, a `thread` alias) change nothing. Four steers, not 0.
+- 2026-11-24b continue ReMeasureKnow24b anthropic/claude-opus-5-5 (knowledge re-measure after Q1631, the
+  Q1605 scope limit filed from this site; body unchanged at 1afda3b9):
+  - variants.py try: `(u32)ctx->ra` 14, `(s32)ctx->ra` 14, `(u32)(ctx->ra & 0xFFFFFFFF)` 17 (shape 3).
+  - variants.py scan --max 1000 of the `(u32)` body: 31 variants, best 14.
+  - uopt -l 6, base vs `(u32)`: the `(u32)` copy adds candidate `ucvt{202|1}` (bit 21) ahead of
+    `uilod{1578|0}`, so the u64 ilod survives uopt and ugen burns the pair (Q1631). Kept FAKE.
 
 ## Untried ideas
 - None that stays natural C. A 32-bit view would need a header type: a game-local context view with

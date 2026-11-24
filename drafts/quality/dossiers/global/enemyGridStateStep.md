@@ -1,7 +1,7 @@
 # enemyGridStateStep (global, src/global/C0EE0.c)
 
 ## Sites
-- global:806BC1E0:other:706cd2 other (was 3f4254 before the gEnemyGridCells rename): `for (j = 0; &gEnemyGridCells[j] < &gEnemyGridCells[16]; j++)` keeps the strength-reduced pointer compare `sltu at,v1,a0` + `bnezl at` at 0x4dc/0x508 (v1 = walk pointer, a0 = gEnemyGridCells+16); `j < 16` gives LFTR `bnel v1,a0`.
+- global:806BC1E0:other:706cd2 other (was 3f4254 before the gEnemyGridCells rename): ORIG (ReMeasureKnow24b, 2026-11-24b, Q1629). `for (j = 0; &gEnemyGridCells[j] < &gEnemyGridCells[16]; j++)` is the target's ordered end-address exit test: `sltu at,v1,a0` + `bnezl at` at 0x4dc/0x508 (v1 = walk pointer, a0 = gEnemyGridCells+16 from 0x4c0/0x4c8). Every index bound gives LFTR `bnel v1,a0` (j < 16, != 16, <= 15, u32 j: 2 each).
 - global:806BC1E0:other:92ac80 other: `(u16)(cell >> 2)` gives the cell >> 2 chain a second ugen record (`sra $25` + `and $11,0xffff`), so cell >> 2 lands in t3 at 0x750 and the dx sll in t4 at 0x74c.
 - global:806BC1E0:other:cc75db / 047f57 other: s32 dx/dy with `dx = (s16)dx; dy = (s16)dy;` after both subtractions puts the dx narrowing (sll t4 at 0x74c) after cell >> 2 in ugen order (Q0758 / ido-uopt-statics-and-live-ranges#6).
 - global:806BC1E0:dead-if:148492 dead-if (was 716d92 + 85e7fb, merged 2026-11-17 Step5): `if (ones == 0 && col) {}` in the dx < -1 block. Two same-value reads in one guard: `ones` (uninitialised on this path; its home read makes the ones web, cand 105 a3, interfere with the gridX/gridY uilod webs 169/176) and `col` (= cell & 3, kept live to the clamp; the old `if (cell & 3) {}` in the dy < -1 block was the same value). Matches inside any of the four clamp blocks; outside them 67, after the gridX/gridY writes 7.
@@ -63,6 +63,12 @@
   - cc75db/047f57: s16 dx/dy declared in the `n > 0` block: 68 with the u16, 150 without (two new homes: frame 0x88 -> 0x90, ones/zeros spills 66/64 -> 74/72, subState a1 -> v1 at 0x1a8-0x1d4); dy alone block-scoped s16 25 (frame unchanged; candidate loop i/dy swap v1/a0 at 0x5fc-0x6fc, dx sll t4 -> t6 at 0x74c): the target dy is one web across the candidate loop and the cell block.
   - 148492: dead store in place of the guard (`best = ones + col;`, `zeros = ones - col;`) 94 = removal (gridX/gridY v1/a3): uopt removes it before colouring (Q1271). Case 3/4 as early breaks (`if (st->step != 0.0f) break;`, then-branch ending in break, else body unnested) 47/49 with every site kept, 58/60 with the natural cell block (shape 45-48).
   - reconstruct: natural body under the ORIG default 13 (bnel v1,a0 0x508; gridX/gridY v1/a3; andi t9 / sll t3 / sra t5); with early-break case 3/4 62.
+- 2026-11-24b continue ReMeasureKnow24b anthropic/claude-opus-5-5 (knowledge re-measure after Q1629; variants.py try full=; 706cd2 retagged ORIG, no code change):
+  - 706cd2: j < 16 / j != 16 / j <= 15 / u32 j: 2 each (`bnel v1,a0` 0x508, no sltu 0x4dc). Retagged `// ORIG:`.
+  - 92ac80: (u16) dropped 92, on the gridY operand 2, s16 row reused for cell >> 2 90, u16 r local (block or function scope) 0. That is the ruled width steer (Q1307); Q1611 needs the function's own width and row is s16.
+  - cc75db/047f57: dx fold 4, dy fold 4, both 4 (sll t9 / sra t5 vs sll t4 0x74c / sra t3 0x750).
+  - 148492: removal 94, `if (ones == 0) {}` 94, `if (col) {}` 7.
+  - reconstruct on the ORIG-loop body (`col = cell & 3; dx = (s16)(col - st->gridX); dy = (s16)((cell >> 2) - st->gridY);`, no dead test): 11 (gridX/gridY v1/a3 at 0x718/0x724, andi t9 0x744, ring t3/t5). row mirror 111, both inline 110, else-if clamps 13, deferred narrowing statements without u16/guard 8. variants.py scan --max 1000 of the 11 body: 214 variants, best 11.
 
 ## Untried ideas
 - One natural statement inside a clamp block that reads both `ones` and `col` (the merged guard is that shape but dead); a debug-print/assert macro compiled out to an empty if would explain it but reads `ones` uninitialised (and stays a dead if). The 17f traces show the guard is needed for both webs (237 col -> v1, 105 ones -> a3), not for the block count alone. 2026-11-20: a dead store reading them (`best = ones + col;`) is deleted before colouring (94 = removal), so the statement must survive to colouring, i.e. emit code or be a branch; only the empty if does that without code.
