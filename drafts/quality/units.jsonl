@@ -1348,3 +1348,4 @@
 {"type": "unit", "t": "2026-11-24T14:57:15Z", "unit": "2026-11-24: cleanup CleanraceOpponentFollowWaypointsc", "commit": "7448261f078a1c17716531371bbabbf97aa84ee3"}
 {"type": "unit", "t": "2026-11-24T16:56:26Z", "unit": "2026-11-24b: continue", "commit": "cbe7a15c6238af3ea406271ca47fff88e44a85bf"}
 {"type": "unit", "t": "2026-11-24T21:34:59Z", "unit": "2026-11-24: cleanup CleanactorCheckAlwaysFalsee", "commit": "f8cbf590ae3bc545adc6dc33f8802b6e321b0269"}
+{"type": "unit", "t": "2026-11-24T21:43:57Z", "unit": "2026-11-24: names actorBridgeCheckCollapse", "commit": "f676641f2b97a8a7e323332933ef8a3a242c2120"}
