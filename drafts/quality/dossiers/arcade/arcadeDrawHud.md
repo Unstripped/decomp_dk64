@@ -1,4 +1,4 @@
-# arcadeDrawHud (arcade, src/arcade/0.c)
+# arcadeDrawHud (arcade, src/arcade/0_game.c)
 ## Sites
 - arcade:800319D4:other:2c43a5: fixed 2026-11-17 (function-local `static s32 sFrameCount`, lead carve 463d64ab).
 - arcade:800319D4:other:216e1c (kept, FAKE): the lives-loop counter `i` (a3, home 148(sp)) also holds the clamped bonus
@@ -51,6 +51,18 @@
     `bonus = 0;` before the loop, no else arm 15 (bonus uncoloured: `sw zero,0x8c(sp)` before the loop, `sw v0`/`lw a2,0x8c(sp)`).
   - `i = 0;` hoisted before dlSetTextureScaleAndFlip 28 (i homed 0x94 across the call).
   - sweep (plain/recipe) nohit; clint uninit 0 new; cwarn 0.
+- 2026-11-24 2026-11-24: cleanup CleanarcadeDrawHudb anthropic/claude-opus-5-5 (base 24c8cb63, re-measure after the
+  05c5a664 file-scope edits; body unchanged):
+  - re-run, same numbers: u8 bonus buf[0x4C] 13, s32 bonus 25, life after g 25, x-first buf[0x48] 24, `bonus = 0;` no
+    else 15, inline ternary buf[0x50] 29 / buf[0x4C] 66, block-scoped u8 buf[0x50] 15. Traces unchanged (now bits 27/35
+    for i/IV; earlier notes 26/34): base IV v0 first, i a3; split exact 15.5 tie, i v0, IV v1, bonus a2.
+  - new: variants.py scan of the u8 and s32 split copies (widths of i/bonus/n incl. int/u32/unsigned int, declswaps,
+    truth/swap/branch/arith): best is the u8 baseline 13, no zero. Block-scoped u8/s32 bonus with buf[0x4C] 91/64,
+    block-scoped int with buf[0x50] 31, `register s32` / `int` / `u32` bonus with buf[0x4C] 25.
+  - permuter 900 s -j 2 (hack-free weights) from the u8 bonus + buf[0x4C] body: base 457, four zeros, every one puts the
+    clamp back into i and fills the freed slot with a new steer (constant local, `&g` alias, volatile pad, `&gArcadeTexWidth`
+    alias); best non-zero 136 also reuses i.
+  - only 148(sp) stores in the function: the loop's `sw a3` 0xdafc (+ `lw` 0xdb00): stays FAKE.
 ## Untried ideas
 - none natural: the frame objection is gone (buf[0x4C]) and the colour-order tie can be flipped (Q1590/Q1551), but a3 for
   both the lives counter and the clamp comes only from one variable whose clamp web carries the `_sprintf` a2 preference

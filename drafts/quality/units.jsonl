@@ -1341,3 +1341,4 @@
 {"type": "unit", "t": "2026-11-24T14:34:11Z", "unit": "2026-11-24: cleanup CleanactorCheckAlwaysFalsed", "commit": "8688b503ee3307fe6d38302ba49458684bac2278"}
 {"type": "unit", "t": "2026-11-24T14:36:32Z", "unit": "2026-11-24: cleanup CleaneffectBuildGridVerticesc", "commit": "55d30995fc95d31684e1a220c6f83b6d874b5235"}
 {"type": "unit", "t": "2026-11-24T14:40:52Z", "unit": "2026-11-24: cleanup CleanmapChunksInitFromMapDatac", "commit": "a8ed1eba7dc878a243065998384122fb3fcbad52"}
+{"type": "unit", "t": "2026-11-24T14:43:09Z", "unit": "2026-11-24: cleanup CleanarcadeDrawHudb", "commit": "7ad61a51b8917f693336f2cb837ded53bf9ca62e"}
