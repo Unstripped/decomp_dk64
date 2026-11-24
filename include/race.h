@@ -80,8 +80,14 @@ typedef struct RaceParticipant {
         /* 0x20 */ s32 reverseThrust; // 6650 racers: nonzero turns the thrust around and caps speed (raceUpdateRacerMotion)
     };
     /* 0x24 */ u8 lapCount;
-    /* 0x25 */ u8 hasCpuRival;
-    /* 0x26 */ u8 route; // route index (raceGetRoute)
+    union {
+        /* 0x25 */ u8 hasCpuRival; // race manager: a CPU rival races (one player)
+        /* 0x25 */ u8 boostTimer; // racer: boost frames left (0x14 after a handicap boost)
+    };
+    union {
+        /* 0x26 */ u8 route; // race manager: route index (raceGetRoute)
+        /* 0x26 */ u8 boostCharge; // racer: handicap boost charge, 11..14 with Z held (raceGetHandicapSpeedBonus)
+    };
     /* 0x27 */ u8 isCpu;
     /* 0x28 */ u8 playerIdx;
     /* 0x29 */ u8 fireRequested;
