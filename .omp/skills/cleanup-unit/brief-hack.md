@@ -54,7 +54,7 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
 - Unused locals that only reproduce a frame size are `pad`/`pad[N]`, untagged (in 201B0 an
   inline ternary plus `pad[2]` replaced two FAKE temps).
 - Never grow or shift a shared struct. Header changes: write the exact hunk to
-  `.scratch/<You>/header-request.md` and message the orchestrator; continue with other work.
+  `.scratch/<You>/header-request.md` and message the orchestrator (director mode: name it at the TOP of the report); continue with other work.
   A function DEFINED in your file whose prototype needs another type is not a header request:
   retype the definition and fdiff a stand-in copy (`#define PROTO_SKIP_<f>` + the new
   declaration after the includes); the orchestrator regenerates the header at merge.

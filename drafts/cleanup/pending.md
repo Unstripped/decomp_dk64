@@ -1,4 +1,4 @@
-# Cleanup pending (unresolved items only; checked against the tree at the 2026-11-20 close)
+# Cleanup pending (unresolved items only; checked against the tree at the 2026-11-24 close)
 
 Open functions come from `uv run tools/quality.py rank` / `rank --polish` (SKILL §2) or `status --file <f>`. This file keeps what
 `rank` cannot show: the `TypesOwner` queue (`.omp/skills/cleanup-unit/types-stream.md`: oldest first, skipping HELD/PARKED items), director rulings, held
@@ -97,12 +97,17 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   width code). Reopen only with a shape that keeps both the frame and int widths.
 - 9DD70 actorCheckAlwaysFalse e999c8 `case 6: case 7:` stays ONE FAKE (R8, director 2026-11-18c): no 6/7 compare in the target
   (0x16e0-0x1754); no restore of the pre-merge sites c56038/0641d2.
-- Names kept (director 2026-11-14): collisionGetFloorHeight, collisionGetFloorTriangleNormal (proposals collisionGetWaterHeight,
-  collisionCheckLedgeGrab: .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState/stateTimer, D_807FF0F2 ->
+- Names kept (director 2026-11-14): collisionGetFloorTriangleNormal (proposal collisionCheckLedgeGrab: .scratch/close/renames.md row 105);
+  collisionGetFloorHeight was renamed collisionGetWaterSurface at the 2026-11-24 close (eb53794b) on new evidence (it returns
+  sWaterSurfaceHit and writes sWaterSurfaceY, names from the continue-unit windows): director to confirm, else `rename.py func global
+  collisionGetWaterSurface collisionGetFloorHeight`. Rejected: Actor.unk155 -> subState/stateTimer, D_807FF0F2 ->
   gAudioHeadphonesEnabled (inferred), Actor.unk15F -> hudMode (C8C10: 0x80 flag + 0x7F phase counter), D_80035B38 ->
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
+- 2026-11-24 close leftovers (OPEN, not EXHAUSTED): D5E10 playerStateSurfaceTreadWater `next=review` (its M19 review staled by the
+  close knowledge commit 1ab24436, Q1612 names it); CC800 kongChainInit `next=diagnose` (dc42ce + the lead-tagged b977a5 alias,
+  M18). Both are re-measure items for the next session; every other `rank` function is EXHAUSTED (stop rule: a named lever first).
 - Continue unit 1 (2026-11-21): the four stale reviews and every knowledge/rename-staled hack rung were re-measured (ReviewU1/U2,
   Hack* workers): reviewed 4,270/4,270, sites open 1; FAKE 168 -> 163 (80150 volatile via bare truth tests Q1585, 36880
   modelPendingQueueInsert 4 -> 2, 7130 sfxUpdateLevelAmbient 4 -> 2 via a per-block element pointer Q1586). Every other rank

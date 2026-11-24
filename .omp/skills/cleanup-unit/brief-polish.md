@@ -42,7 +42,7 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   temp or pointer local that first holds a value or field for use is ordinary C (Q0601): never tag it. Rulings: `.omp/skills/cleanup-unit/rulings.md`.
 - Unused locals that only reproduce a frame size are `pad`/`pad[N]`, untagged.
 - Never grow or shift a shared struct. Header changes: write the exact hunk to
-  `.scratch/<You>/header-request.md` and message the orchestrator (it forwards it to `TypesOwner`);
+  `.scratch/<You>/header-request.md` and message the orchestrator (it forwards it to `TypesOwner`; director mode: workers cannot reach the lead, so name it at the TOP of the report);
   continue with other work. A function DEFINED in your file whose prototype needs another type is
   not a header request: retype the definition and fdiff a stand-in copy (`#define PROTO_SKIP_<f>` +
   the new declaration after the includes); the orchestrator regenerates the header at merge.
