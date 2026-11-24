@@ -23,7 +23,7 @@ void mapFaceBuildTriangleFan(s32);
 void mapChunkBuildCellTable();
 #endif
 #ifndef PROTO_SKIP_mapChunkIsInUse
-s32 mapChunkIsInUse(s16);
+u8 mapChunkIsInUse(s16);
 #endif
 #ifndef PROTO_SKIP_mapByteArraySet
 void mapByteArraySet(s16, u8);
@@ -77,13 +77,13 @@ u8 mapChunkCheckActorCollision(Actor *, f32, f32, f32, f32 *);
 s32 mapPointIsInRenderedChunk(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkIsVisible
-s32 mapChunkIsVisible(s16);
+u8 mapChunkIsVisible(s16);
 #endif
 #ifndef PROTO_SKIP_mapChunkIsActive
-s32 mapChunkIsActive(s16);
+u8 mapChunkIsActive(s16);
 #endif
 #ifndef PROTO_SKIP_mapChunkIsVisibleForPlayer
-s32 mapChunkIsVisibleForPlayer(s16, s16);
+u8 mapChunkIsVisibleForPlayer(s16, s16);
 #endif
 #ifndef PROTO_SKIP_mapChunkFindAtPoint
 s16 mapChunkFindAtPoint(f32, f32, f32, s16);
@@ -134,7 +134,7 @@ void mapChunkRenderNodes(f32, f32, f32);
 void mapChunkBuildClipFrusta(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapScreenRectBuildFrustum
-void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, f32 (*)[4], void *, f32 (*)[3]);
+void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, f32 (*)[4], PlanePoly *, f32 (*)[3]);
 #endif
 #ifndef PROTO_SKIP_mapTriggerCollectZonesAtPoint
 void mapTriggerCollectZonesAtPoint(f32, f32, f32);
@@ -152,7 +152,7 @@ f32 mapTriangleHeightAtPoint(struct MapTriangle *, f32, f32);
 s32 mapTriangleBoundsContainPoint(struct MapTriangle *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapTriangleContainsPoint
-s32 mapTriangleContainsPoint(struct MapTriangle *, f32, f32);
+u8 mapTriangleContainsPoint(struct MapTriangle *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapCellUpdateVisibility
 void mapCellUpdateVisibility(f32, f32, f32, s32);
@@ -209,7 +209,7 @@ void mapRectIntersect(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 
 s32 mapRectOverlapTest(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_mapGridPointPlaneDistanceWithin
-s32 mapGridPointPlaneDistanceWithin(s32, f32, f32, f32, s16);
+u8 mapGridPointPlaneDistanceWithin(s32, f32, f32, f32, s16);
 #endif
 #ifndef PROTO_SKIP_mapGridQuadClipToFrustum
 s32 mapGridQuadClipToFrustum(s32, f32, f32, f32);
@@ -245,7 +245,7 @@ void mapSearchTableUpdateVisibility(void);
 u8 mapSearchTableGetValue(void *);
 #endif
 #ifndef PROTO_SKIP_mapSetClipBounds
-void mapSetClipBounds();
+void mapSetClipBounds(s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_mapPointOutsideClipBounds
 s32 mapPointOutsideClipBounds(f32, f32, f32, u8, u8);

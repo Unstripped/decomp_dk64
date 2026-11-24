@@ -79,16 +79,16 @@ typedef struct MapChunk {
 } MapChunk;
 
 extern MapChunk *gMapChunks;
-typedef struct MapATpSlot {
+typedef struct MapPortalSlot {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 chunk;
     /* 0x4 */ s16 target;
     /* 0x6 */ s16 maxDist;
     /* 0x8 */ u8 seen;
     /* 0x9 */ u8 enabled;
-} MapATpSlot;
+} MapPortalSlot;
 
-extern MapATpSlot *gMapPortalSlots;
+extern MapPortalSlot *gMapPortalSlots;
 
 s32 gMapPortalSlotCount;
 struct MapGridPoint *gMapGridTrianglePlanes;
@@ -156,12 +156,8 @@ typedef struct MapPortal {
 } MapPortal;
 
 extern s32 gMapVtxBase;
-extern s32 gMapCellCount;
-extern u8 sMapCamChunkFromActor;
 extern s16 gMapFogDist;
 extern u8 gMapHasCellLitChunks;
-extern u8 sMapChunkReleaseCursor;
-extern Mtx *sMapChunkScaleMtx;
 extern MapPortal *gMapPortals;
 extern s32 gMapPortalCount;
 typedef struct MapGridPoint {
@@ -182,18 +178,8 @@ typedef struct {
 } MapGridVectors;
 
 extern MapGridVectors *gMapGridTriangleVerts;
-extern MapGridPoint *gMapGridTrianglePlanes;
 extern struct MapCell *gMapCells;
 extern struct MapBox *gMapCellBoxes;
-
-extern s16 sMapPortalChunkStack[20];
-extern s16 sMapVisibleChunks[20];
-extern u8 D_807F6CB8[0xC0];
-extern u8 sMapActiveZones[16];
-extern u8 sMapActiveZoneCount;
-extern u8 sMapBlockedPortals[16];
-extern u8 sMapBlockedPortalCount;
-
 
 typedef struct { s32 offset; s16 minX; s16 minZ; s16 maxX; s16 maxZ; } MapChunkCollEntry;
 
@@ -238,7 +224,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
         dlBase = data->dlBase;
         portalsOff = data->portalsOff;
         gMapPortalSlotCount = *(s32 *)(file + portalsOff);
-        gMapPortalSlots = (MapATpSlot *)(file + portalsOff + 4);
+        gMapPortalSlots = (MapPortalSlot *)(file + portalsOff + 4);
         gMapPortalVisible = heapAlloc(gMapPortalSlotCount);
         relocsOff = data->relocsOff;
         gMapPortalCount = *(s32 *)(file + relocsOff);
@@ -374,29 +360,30 @@ extern MapZone *gMapZones[];
 
 void mapFaceBuildTriangleFan(s32 faceId) {
     MapZone *face;
-    s32 k;
+    s32 triCount;
     s32 next;
     s32 cur;
     s32 out;
     s32 curOff;
     u8 *vtx;
+    s32 nextOff;
 
     face = gMapZones[faceId];
-    if (face->tris != 0) {
+    if (face->tris != NULL) {
         heapFree(face->tris);
     }
-    k = face->vertCount - 2;
-    if (k < 0) {
-        k = 0;
+    triCount = face->vertCount - 2;
+    if (triCount < 0) {
+        triCount = 0;
     }
-    if (k != 0) {
-        face->tris = heapAlloc(k * 0x12);
-        face->triCount = k;
+    if (triCount != 0) {
+        face->tris = heapAlloc(triCount * 0x12);
+        face->triCount = triCount;
         if (face->vertCount >= 3) {
             cur = 1;
             next = 2;
             out = 0x24;
-            k = 0xC;
+            nextOff = 0xC;
             do {
                 curOff = cur * 6;
                 cur = next;
@@ -406,11 +393,11 @@ void mapFaceBuildTriangleFan(s32 faceId) {
                 *(s16 *)(face->tris + out - 0x22) = *(s16 *)(face->verts + curOff);
                 *(s16 *)(face->tris + out - 0x1C) = *(s16 *)(face->verts + curOff + 2);
                 *(s16 *)(face->tris + out - 0x16) = *(s16 *)(face->verts + curOff + 4);
-                *(s16 *)(face->tris + out - 0x20) = *(s16 *)(face->verts + k);
-                *(s16 *)(face->tris + out - 0x1A) = *(s16 *)(face->verts + k + 2);
-                *(s16 *)(face->tris + out - 0x14) = *(s16 *)(face->verts + k + 4);
+                *(s16 *)(face->tris + out - 0x20) = *(s16 *)(face->verts + nextOff);
+                *(s16 *)(face->tris + out - 0x1A) = *(s16 *)(face->verts + nextOff + 2);
+                *(s16 *)(face->tris + out - 0x14) = *(s16 *)(face->verts + nextOff + 4);
                 out += 0x12;
-                k += 6;
+                nextOff += 6;
                 next++;
             } while (next < face->vertCount);
         }
@@ -426,7 +413,7 @@ void mapFaceBuildTriangleFan(s32 faceId) {
             if (*(s16 *)(vtx + 2) < face->minY) {
                 face->minY = *(s16 *)(vtx + 2);
             }
-            next += 1;
+            next++;
             vtx += 6;
         } while (next < face->vertCount);
     }
@@ -512,11 +499,11 @@ s32 chunk;
     }
 }
 
-s32 mapChunkIsInUse(s16 chunk) {
+u8 mapChunkIsInUse(s16 chunk) {
     s32 active;
     s32 result;
 
-    result = (chunk + 1) != 0;
+    result = chunk != -1;
     if (result != 0) {
         if (gMapChunks[chunk].lightMode != 0) {
             active = 1;
@@ -525,18 +512,17 @@ s32 mapChunkIsInUse(s16 chunk) {
         }
         result = active != 0;
     }
-    return result & 0xFF;
+    return result;
 }
 
-void mapByteArraySet(s16 index, u8 val) {
-    gMapChunkEnabled[index] = val;
+void mapByteArraySet(s16 chunk, u8 enabled) {
+    gMapChunkEnabled[chunk] = enabled;
 }
 
-void mapObjectSetByte(s16 objIndex, u8 byteOffset, u8 val) {
-    gMapPortalSlots[objIndex * 2 + byteOffset].enabled = val;
+void mapObjectSetByte(s16 pair, u8 side, u8 enabled) {
+    gMapPortalSlots[pair * 2 + side].enabled = enabled;
 }
 
-f32 sqrtf(f32);
 
 void mapGridTriangleBuildPlane(s32 tri, MapGridPoint *plane) {
     s64 e1z;
@@ -549,17 +535,17 @@ void mapGridTriangleBuildPlane(s32 tri, MapGridPoint *plane) {
     s64 absY;
     s64 absZ;
 
-    e1x = (s64)(gMapGridTriangleVerts[tri].x[0] - gMapGridTriangleVerts[tri].x[1]);
-    e1y = (s64)(gMapGridTriangleVerts[tri].y[0] - gMapGridTriangleVerts[tri].y[1]);
-    e1z = (s64)(gMapGridTriangleVerts[tri].z[0] - gMapGridTriangleVerts[tri].z[1]);
-    e2x = (s64)(gMapGridTriangleVerts[tri].x[0] - gMapGridTriangleVerts[tri].x[2]);
-    e2y = (s64)(gMapGridTriangleVerts[tri].y[0] - gMapGridTriangleVerts[tri].y[2]);
-    e2z = (s64)(gMapGridTriangleVerts[tri].z[0] - gMapGridTriangleVerts[tri].z[2]);
+    e1x = gMapGridTriangleVerts[tri].x[0] - gMapGridTriangleVerts[tri].x[1];
+    e1y = gMapGridTriangleVerts[tri].y[0] - gMapGridTriangleVerts[tri].y[1];
+    e1z = gMapGridTriangleVerts[tri].z[0] - gMapGridTriangleVerts[tri].z[1];
+    e2x = gMapGridTriangleVerts[tri].x[0] - gMapGridTriangleVerts[tri].x[2];
+    e2y = gMapGridTriangleVerts[tri].y[0] - gMapGridTriangleVerts[tri].y[2];
+    e2z = gMapGridTriangleVerts[tri].z[0] - gMapGridTriangleVerts[tri].z[2];
     plane->nx = e1y * e2z - e1z * e2y;
     plane->ny = e1z * e2x - e1x * e2z;
     plane->nz = e1x * e2y - e1y * e2x;
-    plane->d = (s64)-(((f32)plane->nx * gMapGridTriangleVerts[tri].x[1] + (f32)plane->ny * gMapGridTriangleVerts[tri].y[1]) + (f32)plane->nz * gMapGridTriangleVerts[tri].z[1]);
-    plane->lenSq = (f32)(plane->nx * plane->nx + plane->ny * plane->ny + plane->nz * plane->nz);
+    plane->d = -((plane->nx * gMapGridTriangleVerts[tri].x[1] + plane->ny * gMapGridTriangleVerts[tri].y[1]) + plane->nz * gMapGridTriangleVerts[tri].z[1]);
+    plane->lenSq = plane->nx * plane->nx + plane->ny * plane->ny + plane->nz * plane->nz;
     plane->len = sqrtf(plane->lenSq);
     absX = plane->nx >= 0 ? plane->nx : 0 - plane->nx;
     absY = plane->ny >= 0 ? plane->ny : 0 - plane->ny;
@@ -575,7 +561,6 @@ void mapGridTriangleBuildPlane(s32 tri, MapGridPoint *plane) {
     }
 }
 
-struct MapCell;
 
 void mapChunkResetFlags(void) {
     s32 i;
@@ -672,8 +657,6 @@ u8 mapChunkPurgeNodeList(void *targetId, s16 *outChunk, u8 all) {
     return removed;
 }
 
-struct MapCell;
-struct MapBox;
 extern u8 gCsModelUpdateCount;
 
 
@@ -713,13 +696,9 @@ void mapChunkRebuildNodeLists(f32 x, f32 y, f32 z, u8 all) {
 void mapChunkResolveNodeAssets(void) {
     s32 i;
 
-    i = 0;
-    if (gMapChunkCount > 0) {
-        do {
-            modelNodeListSyncFlags(gMapChunks[i].opaqueList);
-            modelNodeListSyncFlags(gMapChunks[i].translucentList);
-            i += 1;
-        } while (i < gMapChunkCount);
+    for (i = 0; i < gMapChunkCount; i++) {
+        modelNodeListSyncFlags(gMapChunks[i].opaqueList);
+        modelNodeListSyncFlags(gMapChunks[i].translucentList);
     }
 }
 
@@ -742,8 +721,8 @@ void mapChunkBuildSpriteChains(f32 x, f32 y, f32 z, u8 all) {
 void mapChunkUpdateModelNodes(void) {
     u8 flag;
     s32 i;
-    void *node;
-    void *next;
+    RenderEntry *node;
+    RenderEntry *next;
 
     gCsModelUpdateCount = 0;
     for (i = 0; i < gMapChunkCount; i++) {
@@ -754,7 +733,7 @@ void mapChunkUpdateModelNodes(void) {
         }
         node = gMapChunks[i].opaqueList;
         while (node != NULL) {
-            next = ((RenderEntry *)node)->next;
+            next = node->next;
             modelPendingQueueInsert(node, flag);
             node = next;
         }
@@ -807,10 +786,9 @@ u8 mapChunkCheckActorCollision(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY
 
 s32 mapPointIsInRenderedChunk(f32 x, f32 y, f32 z) {
     s16 *pad;
-    s32 i;
+    s32 i = 0;
     s16 chunk;
 
-    i = 0;
     if (gMapChunkCount == 0) {
         return 0xFF;
     }
@@ -825,7 +803,7 @@ s32 mapPointIsInRenderedChunk(f32 x, f32 y, f32 z) {
     return 0;
 }
 
-s32 mapChunkIsVisible(s16 chunk) {
+u8 mapChunkIsVisible(s16 chunk) {
     s32 result;
 
     if (gMapChunkCount == 0) {
@@ -836,10 +814,10 @@ s32 mapChunkIsVisible(s16 chunk) {
     } else {
         result = 0;
     }
-    return result & 0xFF;
+    return result;
 }
 
-s32 mapChunkIsActive(s16 chunk) {
+u8 mapChunkIsActive(s16 chunk) {
     s32 result;
 
     if (gMapChunkCount == 0) {
@@ -850,10 +828,10 @@ s32 mapChunkIsActive(s16 chunk) {
     } else {
         result = 0;
     }
-    return result & 0xFF;
+    return result;
 }
 
-s32 mapChunkIsVisibleForPlayer(s16 player, s16 chunk) {
+u8 mapChunkIsVisibleForPlayer(s16 player, s16 chunk) {
     s32 result;
 
     if (gMapChunkCount == 0) {
@@ -864,14 +842,14 @@ s32 mapChunkIsVisibleForPlayer(s16 player, s16 chunk) {
     } else {
         result = 0;
     }
-    return result & 0xFF;
+    return result;
 }
 
 s16 mapChunkFindAtPoint(f32 x, f32 y, f32 z, s16 hint) {
-    s16 temp;
+    s16 cell;
 
-    mapCellFindAtPoint(x, y, z, hint, -1, &temp);
-    return temp;
+    mapCellFindAtPoint(x, y, z, hint, -1, &cell);
+    return cell;
 }
 
 typedef struct MapBox {
@@ -1045,16 +1023,16 @@ s32 mapChunkFindNodeAtPoint(f32 x, f32 y, f32 z, s16 chunk, u8 *outBlocked, f32 
     MapCollisionNode *node;
     MapCollisionNode *end;
 
-    if (x < (f32)gMapChunks[chunk].minX) {
+    if (x < gMapChunks[chunk].minX) {
         return 0;
     }
-    if (z < (f32)gMapChunks[chunk].minZ) {
+    if (z < gMapChunks[chunk].minZ) {
         return 0;
     }
-    if ((f32)gMapChunks[chunk].maxX < x) {
+    if (gMapChunks[chunk].maxX < x) {
         return 0;
     }
-    if ((f32)gMapChunks[chunk].maxZ < z) {
+    if (gMapChunks[chunk].maxZ < z) {
         return 0;
     }
     node = gMapChunks[chunk].collStart;
@@ -1066,7 +1044,7 @@ s32 mapChunkFindNodeAtPoint(f32 x, f32 y, f32 z, s16 chunk, u8 *outBlocked, f32 
                     *outBlocked = 0;
                 } else {
                     *outBlocked = 1;
-                    *outHeight = (f32)node->y0;
+                    *outHeight = node->y0;
                 }
                 return 1;
             }
@@ -1090,11 +1068,11 @@ s32 mapNodeBoxContainsPoint(MapCollisionNode *box, f32 x, f32 z) {
 
     x0 = box->x0; x1 = box->x1; // LAYOUT: same line lets as1 issue the x1 load first
     if (x0 < x1) {
-        minX = (f32) x0;
+        minX = x0;
     } else {
-        minX = (f32) x1;
+        minX = x1;
     }
-    x2 = (f32) box->x2;
+    x2 = box->x2;
     if (!(minX < x2)) {
         minX = x2;
     }
@@ -1104,11 +1082,11 @@ s32 mapNodeBoxContainsPoint(MapCollisionNode *box, f32 x, f32 z) {
     z0 = box->z0;
     z1 = box->z1;
     if (z0 < z1) {
-        minZ = (f32) z0;
+        minZ = z0;
     } else {
-        minZ = (f32) z1;
+        minZ = z1;
     }
-    z2 = (f32) box->z2;
+    z2 = box->z2;
     if (!(minZ < z2)) {
         minZ = z2;
     }
@@ -1116,9 +1094,9 @@ s32 mapNodeBoxContainsPoint(MapCollisionNode *box, f32 x, f32 z) {
         return 0;
     }
     if (x1 < x0) {
-        maxX = (f32) x0;
+        maxX = x0;
     } else {
-        maxX = (f32) x1;
+        maxX = x1;
     }
     if (!(x2 < maxX)) {
         maxX = x2;
@@ -1127,9 +1105,9 @@ s32 mapNodeBoxContainsPoint(MapCollisionNode *box, f32 x, f32 z) {
         return 0;
     }
     if (z1 < z0) {
-        maxZ = (f32) z0;
+        maxZ = z0;
     } else {
-        maxZ = (f32) z1;
+        maxZ = z1;
     }
     if (!(z2 < maxZ)) {
         maxZ = z2;
@@ -1150,7 +1128,7 @@ u8 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
     f64 ox;
     f64 oz;
     f64 c;
-    f64 pad;
+    f64 crossX;
     u16 flag;
     s32 i;
 
@@ -1180,10 +1158,10 @@ u8 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
             oz = tri->z1;
             break;
         }
-        mx = (x - ox) * dz; // mx/mz reused as the two cross products
-        mz = (z - oz) * dx;
+        crossX = (x - ox) * dz;
+        mz = (z - oz) * dx; // FAKE: mz reused as the second cross product keeps the frame at 0xC8 (a separate f64 grows it to 0xD0)
         c = (cx - ox) * dz - (cz - oz) * dx;
-        if ((mz <= mx ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
+        if ((mz <= crossX ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
             flag = 1;
         }
     }
@@ -1203,8 +1181,8 @@ void mapChunkActivate(s16 chunkIndex) {
 }
 
 
-void mapChunkSetIndexOverride(s8 index) {
-    sMapCamChunkFromActor = index;
+void mapChunkSetIndexOverride(s8 fromActor) {
+    sMapCamChunkFromActor = fromActor;
 }
 
 extern PlanePoly gFrustumPlanes[];
@@ -1219,8 +1197,8 @@ void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
         gPlayerSlots[gCurrentPlayerIndex].camChunk = gPlayerSlots[gCurrentPlayerIndex].actor->chunkIndex;
     }
     mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].farClip, gPlayerSlots[gCurrentPlayerIndex].camChunk);
-    gMapFogDist = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].farClip;
-    frustumCalculateCornerRays(gViewFov, gViewAspect, (f32)gMapFogDist);
+    gMapFogDist = gPlayerSlots[gCurrentPlayerIndex].farClip;
+    frustumCalculateCornerRays(gViewFov, gViewAspect, gMapFogDist);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
     frustumOrientPolyNormals(x, y, z, gFrustumPlanes, gFrustumCorners[0]);
     mapChunkClearBounds();
@@ -1411,7 +1389,7 @@ typedef struct FrustumCorners {
 } FrustumCorners;
 
 extern FrustumCorners sFrustumCornerRays;
-void mapScreenRectBuildFrustum(s32 left, s32 top, s32 right, s32 bottom, f32 x, f32 y, f32 z, u8 player, f32 (*mtx)[4], void *planes, f32 (*out)[3]) {
+void mapScreenRectBuildFrustum(s32 left, s32 top, s32 right, s32 bottom, f32 x, f32 y, f32 z, u8 player, f32 (*mtx)[4], PlanePoly *planes, f32 (*out)[3]) {
     s32 i;
     f32 q;
     f32 x0;
@@ -1451,8 +1429,6 @@ typedef struct MapTriangle {
 } MapTriangle;
 
 
-extern u8 sMapActiveZones[];
-extern u8 sMapBlockedPortals[];
 
 
 void mapTriggerCollectZonesAtPoint(f32 x, f32 y, f32 z) {
@@ -1472,18 +1448,17 @@ void mapTriggerCollectZonesAtPoint(f32 x, f32 y, f32 z) {
     for (p = gMapZones, i = 0; i != 0x20; i++) {
         if (*p != NULL) {
             zone = *p;
-            if ((f32)zone->minY <= y && y <= (f32)(zone->maxY + zone->height)) {
+            if (zone->minY <= y && y <= zone->maxY + zone->height) {
                 tri = (MapTriangle *)zone->tris;
                 for (j = 0; j < zone->triCount; j++, tri++) {
                     if (mapTriangleBoundsContainPoint(tri, x, z) != 0 && mapTriangleContainsPoint(tri, x, z) != 0) {
                         h = mapTriangleHeightAtPoint(tri, x, z);
-                        if (h <= y && y <= (f32)zone->height + h) {
-                            k = 0;
+                        if (h <= y && y <= zone->height + h) {
                             if (sMapActiveZoneCount != 0x10) {
                                 sMapActiveZones[sMapActiveZoneCount] = i;
                                 sMapActiveZoneCount++;
                             }
-                            for (; k < zone->linkCount; k++) {
+                            for (k = 0; k < zone->linkCount; k++) {
                                 found = 0;
                                 n = 0;
                                 while (!found && n < sMapBlockedPortalCount) {
@@ -1572,32 +1547,33 @@ void mapCellSetFlag(s32 id, u8 visible) {
 
 f32 mapTriangleHeightAtPoint(MapTriangle *tri, f32 x, f32 z) {
     f32 ret;
-    f64 d68;
-    f64 d02;
-    f64 q;
-    f64 d04;
-    f64 d6A;
+    f64 e1y;
+    f64 e1x;
+    f64 d;
+    f64 e2x;
+    f64 e2y;
     f64 t;
-    f64 dCE;
-    f64 N1;
-    f64 N2;
-    f64 dC10;
-    d02 = (f64)(tri->x0 - tri->x1);
-    d68 = (f64)(tri->y0 - tri->y1);
-    dCE = (f64)(tri->z0 - tri->z1);
-    d04 = (f64)(tri->x0 - tri->x2);
-    d6A = (f64)(tri->y0 - tri->y2);
-    dC10 = (f64)(tri->z0 - tri->z2);
-    N1 = d68 * dC10 - dCE * d6A;
-    N2 = dCE * d04 - d02 * dC10;
-    q = -((f64)tri->z1 * (d02 * d6A - d68 * d04) + (N1 * (f64)tri->x1 + N2 * (f64)tri->y1));
-    if (N2 * 2000.0 > 0.01 || N2 * 2000.0 < -0.01) {
-        t = N1 * x + N2 * -1000.0 + (d02 * d6A - d68 * d04) * z + q;
-        t = t / (N2 * 2000.0);
+    f64 e1z;
+    f64 nx;
+    f64 ny;
+    f64 e2z;
+
+    e1x = tri->x0 - tri->x1;
+    e1y = tri->y0 - tri->y1;
+    e1z = tri->z0 - tri->z1;
+    e2x = tri->x0 - tri->x2;
+    e2y = tri->y0 - tri->y2;
+    e2z = tri->z0 - tri->z2;
+    nx = e1y * e2z - e1z * e2y;
+    ny = e1z * e2x - e1x * e2z;
+    d = -(tri->z1 * (e1x * e2y - e1y * e2x) + (nx * tri->x1 + ny * tri->y1));
+    if (ny * 2000.0 > 0.01 || ny * 2000.0 < -0.01) {
+        t = nx * x + ny * -1000.0 + (e1x * e2y - e1y * e2x) * z + d;
+        t = t / (ny * 2000.0);
         if (t < 0.0) {
             t = 0.0 - t;
         }
-        ret = (f32)(2000.0 * t - 1000.0);
+        ret = 2000.0 * t - 1000.0;
     } else {
         ret = -32768.0f;
     }
@@ -1624,7 +1600,7 @@ s32 mapTriangleBoundsContainPoint(MapTriangle *tri, f32 x, f32 z) {
     return 1;
 }
 
-s32 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
+u8 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
     f64 cz;
     f64 mx;
     f64 cx;
@@ -1634,7 +1610,7 @@ s32 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
     f64 ox;
     f64 oz;
     f64 c;
-    f64 pad;
+    f64 crossX;
     u16 flag;
     s32 i;
 
@@ -1664,14 +1640,14 @@ s32 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
             oz = tri->z1;
             break;
         }
-        mx = (x - ox) * dz; // mx/mz reused as the two cross products
-        mz = (z - oz) * dx;
+        crossX = (x - ox) * dz;
+        mz = (z - oz) * dx; // FAKE: mz reused as the second cross product keeps the frame at 0xC8 (a separate f64 grows it to 0xD0)
         c = (cx - ox) * dz - (cz - oz) * dx;
-        if ((mz <= mx ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
+        if ((mz <= crossX ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
             flag = 1;
         }
     }
-    return (flag == 0) & 0xFF;
+    return flag == 0;
 }
 
 
@@ -1849,7 +1825,6 @@ extern void *gRenderLoadedTexture;
 extern struct RenderEntry *gRenderListSorted;
 extern Gfx D_2000180;
 
-u32 osVirtualToPhysical(void *);
 Gfx *func_80027034(Gfx *);
 
 Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags) {
@@ -1892,7 +1867,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
             }
             gDPPipeSync(gfx++);
             gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gMapChunks[idx].clipLeft, gMapChunks[idx].clipTop, gMapChunks[idx].clipRight, gMapChunks[idx].clipBottom);
-            mapSetClipBounds((s16)gMapChunks[idx].clipLeft, (s16)gMapChunks[idx].clipTop, (s16)gMapChunks[idx].clipRight, (s16)gMapChunks[idx].clipBottom);
+            mapSetClipBounds(gMapChunks[idx].clipLeft, gMapChunks[idx].clipTop, gMapChunks[idx].clipRight, gMapChunks[idx].clipBottom);
             gfx = fogRender(gfx);
             if (flags & 0x10) {
                 gfx = mapChunkEmitSegmentCommands(gfx, idx);
@@ -1968,7 +1943,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
         if (gMapChunks[idx].state == 1) {
             gDPPipeSync(gfx++);
             gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gMapChunks[idx].clipLeft, gMapChunks[idx].clipTop, gMapChunks[idx].clipRight, gMapChunks[idx].clipBottom);
-            mapSetClipBounds((s16)gMapChunks[idx].clipLeft, (s16)gMapChunks[idx].clipTop, (s16)gMapChunks[idx].clipRight, (s16)gMapChunks[idx].clipBottom);
+            mapSetClipBounds(gMapChunks[idx].clipLeft, gMapChunks[idx].clipTop, gMapChunks[idx].clipRight, gMapChunks[idx].clipBottom);
             gRenderSetupKind = 0xFF;
             if (flag) {
                 list = gMapChunks[idx].translucentTail;
@@ -2134,7 +2109,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                     }
                     if (((poly0 != 0) && (overlap != 0)) || emitted) {
                         gMapPortalVisible[i] = 1;
-                        id = gMapPortalSlots[i].target;
+                        id = gMapPortalSlots[i].target; // FAKE: id (the grid quad index) reused for the target chunk keeps it in s1 (a separate local spills: frame 0xD8 -> 0xE0)
                         if (gMapChunkEnabled[id] != 0) {
                             gMapChunks[id].state = 1;
                             gMapChunks[id].playerMask |= 1 << gCurrentPlayerIndex;
@@ -2212,7 +2187,7 @@ typedef struct MapGridQuad {
 
 
 u8 mapGridPointEmit(s32 tri, f32 x, f32 y, f32 z) {
-    f32 h;
+    f32 d;
     f32 dist;
     f32 px;
     f32 py;
@@ -2222,11 +2197,11 @@ u8 mapGridPointEmit(s32 tri, f32 x, f32 y, f32 z) {
     f32 ny;
     f32 nz;
 
-    nz = (f32)gMapGridTrianglePlanes[tri].nz;
-    ny = (f32)gMapGridTrianglePlanes[tri].ny;
-    nx = (f32)gMapGridTrianglePlanes[tri].nx;
-    h = (f32)gMapGridTrianglePlanes[tri].d;
-    dist = (h + (nx * x + ny * y + nz * z)) / gMapGridTrianglePlanes[tri].len;
+    nz = gMapGridTrianglePlanes[tri].nz;
+    ny = gMapGridTrianglePlanes[tri].ny;
+    nx = gMapGridTrianglePlanes[tri].nx;
+    d = gMapGridTrianglePlanes[tri].d;
+    dist = (d + (nx * x + ny * y + nz * z)) / gMapGridTrianglePlanes[tri].len;
     if (dist < 0.0) {
         dist = 0.0 - dist;
     }
@@ -2333,19 +2308,20 @@ void mapGridPointBuildVectors(s32 tri, f32 x, f32 y, f32 z, MapGridQuad *quad) {
 }
 
 void mapGridPlaneProjectPoint(s32 tri, f32 x, f32 y, f32 z, f32 *outX, f32 *outY, f32 *outZ) {
-    f32 n10;
+    f32 nz;
     f32 t;
-    f32 n0;
-    f32 n8;
-    f32 a;
-    a = (f32)(-gMapGridTrianglePlanes[tri].d);
-    n8 = (f32)gMapGridTrianglePlanes[tri].ny;
-    n0 = (f32)gMapGridTrianglePlanes[tri].nx;
-    n10 = (f32)gMapGridTrianglePlanes[tri].nz;
-    t = (a - (n10 * z + (n0 * x + n8 * y))) / gMapGridTrianglePlanes[tri].lenSq;
-    *outX = (f32)gMapGridTrianglePlanes[tri].nx * t + x;
-    *outY = (f32)gMapGridTrianglePlanes[tri].ny * t + y;
-    *outZ = (f32)gMapGridTrianglePlanes[tri].nz * t + z;
+    f32 nx;
+    f32 ny;
+    f32 negD;
+
+    negD = -gMapGridTrianglePlanes[tri].d;
+    ny = gMapGridTrianglePlanes[tri].ny;
+    nx = gMapGridTrianglePlanes[tri].nx;
+    nz = gMapGridTrianglePlanes[tri].nz;
+    t = (negD - (nz * z + (nx * x + ny * y))) / gMapGridTrianglePlanes[tri].lenSq;
+    *outX = gMapGridTrianglePlanes[tri].nx * t + x;
+    *outY = gMapGridTrianglePlanes[tri].ny * t + y;
+    *outZ = gMapGridTrianglePlanes[tri].nz * t + z;
 }
 
 void mapRectIntersect(s32 left0, s32 top0, s32 right0, s32 bottom0, s32 left1, s32 top1, s32 right1, s32 bottom1, s32 *outLeft, s32 *outTop, s32 *outRight, s32 *outBottom) {
@@ -2389,14 +2365,14 @@ s32 mapRectOverlapTest(s32 left0, s32 top0, s32 right0, s32 bottom0, s32 left1, 
     return 1;
 }
 
-s32 mapGridPointPlaneDistanceWithin(s32 tri, f32 x, f32 y, f32 z, s16 maxDist) {
-    f32 v;
+u8 mapGridPointPlaneDistanceWithin(s32 tri, f32 x, f32 y, f32 z, s16 maxDist) {
+    f32 dist;
 
-    v = ((f32)gMapGridTrianglePlanes[tri].d + ((f32)gMapGridTrianglePlanes[tri].nx * x + (f32)gMapGridTrianglePlanes[tri].ny * y + (f32)gMapGridTrianglePlanes[tri].nz * z)) / gMapGridTrianglePlanes[tri].len;
-    if (v < 0.0) {
-        v = 0.0 - v;
+    dist = (gMapGridTrianglePlanes[tri].d + (gMapGridTrianglePlanes[tri].nx * x + gMapGridTrianglePlanes[tri].ny * y + gMapGridTrianglePlanes[tri].nz * z)) / gMapGridTrianglePlanes[tri].len;
+    if (dist < 0.0) {
+        dist = 0.0 - dist;
     }
-    return (v <= (f32)maxDist) & 0xFF;
+    return dist <= maxDist;
 }
 
 
@@ -2404,37 +2380,37 @@ s32 mapGridPointPlaneDistanceWithin(s32 tri, f32 x, f32 y, f32 z, s16 maxDist) {
 s32 mapGridQuadClipToFrustum(s32 tri, f32 x, f32 y, f32 z)
 {
     s32 k;
-    s32 n2;
-    s32 n1;
+    s32 countA;
+    s32 countB;
 
-    n1 = 0;
-    n2 = 0;
+    countB = 0;
+    countA = 0;
     for (k = 0; k < 4; k++) {
         sMapClipQuad[k].x = gMapGridTriangleVerts[tri].x[k];
         sMapClipQuad[k].y = gMapGridTriangleVerts[tri].y[k];
         sMapClipQuad[k].z = gMapGridTriangleVerts[tri].z[k];
     }
-    mapPolyClipToFrustumPlane(sMapClipQuad, sMapClipScratchA, 4, &n2, 0);
-    if (n2 == 0) {
+    mapPolyClipToFrustumPlane(sMapClipQuad, sMapClipScratchA, 4, &countA, 0);
+    if (countA == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(sMapClipScratchA, sMapClipScratchB, n2, &n1, 1);
-    if (n1 == 0) {
+    mapPolyClipToFrustumPlane(sMapClipScratchA, sMapClipScratchB, countA, &countB, 1);
+    if (countB == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(sMapClipScratchB, sMapClipScratchA, n1, &n2, 2);
-    if (n2 == 0) {
+    mapPolyClipToFrustumPlane(sMapClipScratchB, sMapClipScratchA, countB, &countA, 2);
+    if (countA == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(sMapClipScratchA, sMapClipScratchB, n2, &n1, 3);
-    if (n1 == 0) {
+    mapPolyClipToFrustumPlane(sMapClipScratchA, sMapClipScratchB, countA, &countB, 3);
+    if (countB == 0) {
         return 0;
     }
-    mapPolyClipToFrustumPlane(sMapClipScratchB, sMapClippedPoly, n1, &n2, 4);
-    if (n2 < 3) {
-        n2 = 0;
+    mapPolyClipToFrustumPlane(sMapClipScratchB, sMapClippedPoly, countB, &countA, 4);
+    if (countA < 3) {
+        countA = 0;
     }
-    return n2;
+    return countA;
 }
 
 
@@ -2448,7 +2424,7 @@ void mapPolyClipToFrustumPlane(MapVec3 *in, MapVec3 *out, s32 count, s32 *outCou
     f64 curDist;
     f64 prevDist;
 
-    cur = in;
+    cur = in; // FAKE: redundant alias of in (only feeds prev) keeps planeIdx in s8; prev = in + (count - 1) swaps s7/s8
     n = 0;
     prev = cur + (count - 1);
     plane = &gFrustumPlanes[planeIdx];
@@ -2458,16 +2434,16 @@ void mapPolyClipToFrustumPlane(MapVec3 *in, MapVec3 *out, s32 count, s32 *outCou
         prevDist = plane->d + (((plane->a * prev->x) + (plane->b * prev->y)) + (plane->c * prev->z));
         if (curDist >= 0.0) {
             if (prevDist >= 0.0) {
-                memcpy(&out[n], cur, 0xC);
+                memcpy(&out[n], cur, sizeof(MapVec3));
                 n++;
             } else {
                 mapFrustumPlaneIntersectEdge(&prev->x, &cur->x, planeIdx, hit);
-                memcpy(&out[n++], hit, 0xC);
-                memcpy(&out[n++], cur, 0xC);
+                memcpy(&out[n++], hit, sizeof(MapVec3));
+                memcpy(&out[n++], cur, sizeof(MapVec3));
             }
         } else if (prevDist >= 0.0) {
             mapFrustumPlaneIntersectEdge(&prev->x, &cur->x, planeIdx, hit);
-            memcpy(&out[n++], hit, 0xC);
+            memcpy(&out[n++], hit, sizeof(MapVec3));
         }
     }
     *outCount = n;
@@ -2541,7 +2517,7 @@ void mapPolyProjectToScreenRect(s32 count, s32 *outLeft, s32 *outTop, s32 *outRi
 void mapLoadNodeAsset(s32 id) {
     u8 *p;
 
-    p = (u8 *)assetLoad(0x14, id, 1, 1);
+    p = assetLoad(0x14, id, 1, 1);
     mapNodeAssetParse(p);
     if (p != NULL) {
         assetFreeBuffer(p, 0xBED, 0x22);
@@ -2571,9 +2547,9 @@ void mapNodeAssetParse(u8 *data) {
         gMapZones[idx]->maxY = -0x8000;
         gMapZones[idx]->tris = NULL;
         gMapZones[idx]->vertCount = *p++;
-        gMapZones[idx]->verts = heapAlloc((u32)gMapZones[idx]->vertCount * 6);
-        memcpy(gMapZones[idx]->verts, p, (u32)gMapZones[idx]->vertCount * 6);
-        p += (u32)gMapZones[idx]->vertCount * 6 / sizeof(s16);
+        gMapZones[idx]->verts = heapAlloc(gMapZones[idx]->vertCount * 6);
+        memcpy(gMapZones[idx]->verts, p, gMapZones[idx]->vertCount * 6);
+        p += gMapZones[idx]->vertCount * 6 / sizeof(s16);
         gMapZones[idx]->height = *p++;
         gMapZones[idx]->exitCount = *p++;
         memcpy(gMapZones[idx]->exitCells, p, sizeof(gMapZones[idx]->exitCells));
@@ -2594,16 +2570,17 @@ extern s16 sMapClipRight;
 extern s16 sMapClipBottom;
 
 
-s16 mapObjectCollectIdsByType(s8 type, s8 *out, s16 max) {
+s16 mapObjectCollectIdsByType(s8 chunk, s8 *out, s16 max) {
     s16 i;
     s16 n;
 
     n = 0;
-    if (type == -1) {
+    if (chunk == -1) {
         return 0;
     }
-    for (i = 0; i < gMapPortalSlotCount && n < max; ) {
-        if (gMapPortalSlots[i].chunk == type) {
+    i = 0;
+    while (i < gMapPortalSlotCount && n < max) {
+        if (gMapPortalSlots[i].chunk == chunk) {
             out[n++] = gMapPortalSlots[i].target;
         }
         i++;
@@ -2665,11 +2642,13 @@ void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {
 
 void mapSearchTableUpdateVisibility(void) {
     s32 i;
+    f32 depth;
 
     for (i = 0; i < 10; i++) {
         if (gMapSearchTable[i].active != 0) {
             if (gFrameCounter == gMapSearchTable[i].frame) {
-                if ((f32)zbufferDepthToDistance(zbufferReadDepth(gMapSearchTable[i].x, gMapSearchTable[i].y)) <= (f32)gMapSearchTable[i].maxDepth) {
+                depth = zbufferDepthToDistance(zbufferReadDepth(gMapSearchTable[i].x, gMapSearchTable[i].y));
+                if (depth <= gMapSearchTable[i].maxDepth) {
                     gMapSearchTable[i].visible = 1;
                 } else {
                     gMapSearchTable[i].visible = 0;
@@ -2699,12 +2678,7 @@ u8 mapSearchTableGetValue(void *key) {
 }
 
 
-void mapSetClipBounds(left, top, right, bottom)
-s16 left;
-s16 top;
-s16 right;
-s16 bottom;
-{
+void mapSetClipBounds(s16 left, s16 top, s16 right, s16 bottom) {
     sMapClipLeft = left;
     sMapClipTop = top;
     sMapClipRight = right;
@@ -2717,10 +2691,10 @@ s32 mapPointOutsideClipBounds(f32 x, f32 y, f32 z, u8 marginX, u8 marginY) {
     f32 sy;
     s16 px;
     s16 py;
-    s16 x0;
-    s16 x1;
-    s16 z0;
-    s16 z1;
+    s16 extraLeft;
+    s16 extraRight;
+    s16 extraTop;
+    s16 extraBottom;
     f32 dist;
     f32 t;
 
@@ -2733,25 +2707,25 @@ s32 mapPointOutsideClipBounds(f32 x, f32 y, f32 z, u8 marginX, u8 marginY) {
     if (dist < 90.0f) {
         return 0;
     }
-    x0 = 20;
-    x1 = 20;
-    z0 = 0;
+    extraLeft = 20;
+    extraRight = 20;
+    extraTop = 0;
     t = (dist - 60.0f) / 120.0f;
     if (dist >= 180.0f) {
-        z1 = 50;
+        extraBottom = 50;
     } else if (t > 0.0) {
-        x0 = -60.0f * t + 80.0f;
-        x1 = -60.0f * t + 80.0f;
-        z0 = -130.0f * t + 130.0f;
-        z1 = -80.0f * t + 130.0f;
+        extraLeft = -60.0f * t + 80.0f;
+        extraRight = -60.0f * t + 80.0f;
+        extraTop = -130.0f * t + 130.0f;
+        extraBottom = -80.0f * t + 130.0f;
     } else {
-        x0 = 80;
-        x1 = 80;
-        z0 = 130;
-        z1 = 130;
+        extraLeft = 80;
+        extraRight = 80;
+        extraTop = 130;
+        extraBottom = 130;
     }
-    if ((px < sMapClipLeft - x0 - marginX) || (sMapClipRight + x1 + marginX < px)
-        || (py < sMapClipTop - z0 - marginY) || (sMapClipBottom + z1 + marginY < py)) {
+    if ((px < sMapClipLeft - extraLeft - marginX) || (sMapClipRight + extraRight + marginX < px)
+        || (py < sMapClipTop - extraTop - marginY) || (sMapClipBottom + extraBottom + marginY < py)) {
         return 1;
     }
     return 0;
