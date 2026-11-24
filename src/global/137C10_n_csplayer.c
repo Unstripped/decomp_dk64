@@ -1,0 +1,794 @@
+// ultralib prototypes osGetIntMask(void); the boot-segment implementation takes the mask (see 131B0.c).
+#define _OS_EXCEPTION_H_
+#include <PR/ultratypes.h>
+typedef u32 OSIntMask;
+typedef u32 OSHWIntr;
+#include "common.h"
+#include "audio_synth.h"
+#include "seqplayer.h"
+#include "proto/global/137C10_n_csplayer.h"
+#include "proto/global/13CB50_csp_channel.h"
+#include "proto/global/13D170_n_cseq.h"
+#include "proto/global/13ECE0_seqp_voice.h"
+#include "proto/global/13FED0_evtq.h"
+#include "proto/global/140530_n_synsetvol.h"
+#include "proto/global/140600_syn_filter.h"
+#include "proto/global/141520_syn_fx_params.h"
+#include "proto/global/1417C0_n_synallocvoice.h"
+#include "proto/global/141AD0_n_synstartvoiceparam.h"
+#include "proto/global/141C00_n_synsetpan.h"
+
+extern s32 osGetIntMask(s32 unused);
+
+void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
+    s32 i;
+    s32 pad[2];
+    ALEventListItem *items;
+    N_VoiceState *vs;
+    N_VoiceState *vsArray;
+    ALHeap *hp = c->heap;
+
+    seqp->bank = NULL;
+    seqp->target = NULL;
+    seqp->drvr = n_syn;
+    seqp->chanMask = 0xFFFF;
+    resetCSPChannelStates(seqp);
+    seqp->uspt = 488;
+    seqp->nextDelta = 0;
+    seqp->state = 0;
+    seqp->vol = 0x7FFF;
+    seqp->debugFlags = c->debugFlags;
+    seqp->frameTime = 16000;
+    seqp->curTime = 0;
+    seqp->initOsc = c->initOsc;
+    seqp->updateOsc = c->updateOsc;
+    seqp->stopOsc = c->stopOsc;
+    seqp->fxMixOffset = 0.0f;
+    seqp->fxMixScale = 1.0f;
+    seqp->eventQueue = NULL;
+    seqp->voiceCount = 0;
+    seqp->maxVoices = c->maxVoices;
+    seqp->nextEvent.type = 9;
+    seqp->maxChannels = c->maxChannels;
+    seqp->chanState = alHeapDBAlloc(NULL, 0, hp, c->maxChannels, 0x34);
+    __n_initChanState(seqp);
+    vsArray = alHeapDBAlloc(NULL, 0, hp, c->maxVoices, 0x40);
+    seqp->vFreeList = NULL;
+    for (i = 0; i < c->maxVoices; i++) {
+        vs = &vsArray[i];
+        vs->next = seqp->vFreeList;
+        seqp->vFreeList = vs;
+    }
+    seqp->vAllocHead = NULL;
+    seqp->vAllocTail = NULL;
+    items = alHeapDBAlloc(NULL, 0, hp, c->maxEvents, 0x1C);
+    alEvtqNew(&seqp->evtq, items, c->maxEvents);
+    seqp->node.next = NULL;
+    seqp->node.handler = __n_CSPVoiceHandler;
+    seqp->node.clientData = seqp;
+    n_alSynAddCSPPlayer(&seqp->node);
+}
+
+ALMicroTime __n_CSPVoiceHandler(void *node) {
+    N_CSPlayer *seqp = node;
+    ALEvent evt;
+    ALVoice *voice;
+    ALMicroTime delta;
+    N_VoiceState *vs;
+    void *oscState;
+    f32 oscValue;
+    u8 chan;
+    s32 pad;
+    void *cmdA;
+    struct SynLPFilter *cmdB;
+
+    do {
+        switch (seqp->nextEvent.type) {
+            case AL_SEQ_REF_EVT:
+                __n_CSPHandleNextSeqEvent(seqp);
+                break;
+            case AL_SEQP_API_EVT:
+                evt.type = AL_SEQP_API_EVT;
+                alEvtqPostEvent(&seqp->evtq, &evt, seqp->frameTime);
+                break;
+            case AL_NOTE_END_EVT:
+                voice = seqp->nextEvent.msg.note.voice;
+                n_alSynStopVoice(voice);
+                n_alSynFreeVoice(voice);
+                vs = voice->clientPrivate;
+                if (vs->flags != 0) {
+                    __n_seqpStopOsc(seqp, vs);
+                }
+                __n_unmapVoice(seqp, voice);
+                break;
+            case AL_SEQP_ENV_EVT:
+                voice = seqp->nextEvent.msg.note.voice;
+                vs = voice->clientPrivate;
+                if (vs->envPhase == 0) {
+                    vs->envPhase = 1;
+                }
+                delta = seqp->nextEvent.msg.vol.delta;
+                vs->envEndTime = seqp->curTime + delta;
+                vs->envGain = seqp->nextEvent.msg.vol.vol;
+                n_alSynSetVol(voice, __n_vsVol(vs, seqp), delta);
+                break;
+            case AL_TREM_OSC_EVT:
+                vs = (N_VoiceState *)seqp->nextEvent.msg.osc.vs;
+                oscState = seqp->nextEvent.msg.osc.oscState;
+                delta = seqp->updateOsc(oscState, &oscValue);
+                vs->tremelo = oscValue;
+                n_alSynSetVol(&vs->voice, __n_vsVol(vs, seqp), __n_vsDelta(vs, seqp->curTime));
+                evt.type = AL_TREM_OSC_EVT;
+                evt.msg.osc.vs = (ALVoiceState *)vs;
+                evt.msg.osc.oscState = oscState;
+                alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                break;
+            case AL_VIB_OSC_EVT:
+                vs = (N_VoiceState *)seqp->nextEvent.msg.osc.vs;
+                oscState = seqp->nextEvent.msg.osc.oscState;
+                chan = seqp->nextEvent.msg.osc.chan;
+                delta = seqp->updateOsc(oscState, &oscValue);
+                vs->vibrato = oscValue;
+                n_alSynSetPitch(&vs->voice, seqp->chanState[chan].pitchBend * (vs->pitch * vs->vibrato));
+                if (seqp->chanState[chan].lowpassGain != 0) {
+                    n_alSynSetLowpassCutoff(&vs->voice, 440.0f * n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * seqp->chanState[chan].pitchBend * vs->vibrato);
+                }
+                evt.type = AL_VIB_OSC_EVT;
+                evt.msg.osc.vs = (ALVoiceState *)vs;
+                evt.msg.osc.oscState = oscState;
+                evt.msg.osc.chan = chan;
+                alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                break;
+            case AL_SEQP_MIDI_EVT:
+            case AL_CSP_NOTEOFF_EVT:
+                __n_CSPHandleMIDIMsg(seqp, (ALEvent *)&seqp->nextEvent);
+                break;
+            case AL_SEQP_META_EVT:
+                __n_CSPHandleMetaMsg(seqp, (ALEvent *)&seqp->nextEvent);
+                break;
+            case AL_SEQP_VOL_EVT:
+                seqp->vol = seqp->nextEvent.msg.spvol.vol;
+                for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                    n_alSynSetVol(&vs->voice, __n_vsVol(vs, seqp), __n_vsDelta(vs, seqp->curTime));
+                }
+                break;
+            case AL_VIB_OSC_EVT + 1:
+                seqp->fxMixOffset = seqp->nextEvent.msg.fpair.f0;
+                seqp->fxMixScale = seqp->nextEvent.msg.fpair.f1;
+                for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                    n_alSynSetFXMix(&vs->voice, n_alCSPClampVoiceFXMix(vs, seqp));
+                }
+                break;
+            case AL_VIB_OSC_EVT + 2:
+                if (seqp->nextEvent.msg.cmd.paramId < 8) {
+                    cmdA = n_alSynGetFXDelay(seqp->nextEvent.msg.cmd.busIndex);
+                    if (cmdA != NULL) {
+                        n_alSynSetFXParam(cmdA, (seqp->nextEvent.msg.cmd.delayIndex << 3) | (seqp->nextEvent.msg.cmd.paramId & 7), &seqp->nextEvent.msg.cmd.value);
+                    }
+                } else {
+                    cmdB = n_alSynGetFXFeedback(seqp->nextEvent.msg.cmd.busIndex);
+                    if (cmdB != NULL) {
+                        n_alSynSetFXFilterParam(cmdB, seqp->nextEvent.msg.cmd.paramId, &seqp->nextEvent.msg.cmd.value);
+                    }
+                }
+                break;
+            case AL_SEQP_PLAY_EVT:
+                if (seqp->state != AL_PLAYING) {
+                    seqp->state = AL_PLAYING;
+                    __n_CSPPostNextSeqEvent(seqp);
+                }
+                break;
+            case AL_SEQP_STOP_EVT:
+                if (seqp->state == AL_STOPPING) {
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = seqp->vAllocHead) {
+                        n_alSynStopVoice(&vs->voice);
+                        n_alSynFreeVoice(&vs->voice);
+                        if (vs->flags != 0) {
+                            __n_seqpStopOsc(seqp, vs);
+                        }
+                        __n_unmapVoice(seqp, &vs->voice);
+                    }
+                    seqp->state = AL_STOPPED;
+                }
+                break;
+            case AL_SEQP_STOPPING_EVT:
+                if (seqp->state == AL_PLAYING) {
+                    alEvtqFlushType(&seqp->evtq, AL_SEQ_REF_EVT);
+                    alEvtqFlushType(&seqp->evtq, AL_CSP_NOTEOFF_EVT);
+                    alEvtqFlushType(&seqp->evtq, AL_SEQP_MIDI_EVT);
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                        if (__n_voiceNeedsNoteKill(seqp, &vs->voice, 50000)) {
+                            __n_seqpReleaseVoice(seqp, &vs->voice, 50000);
+                        }
+                    }
+                    for (chan = 0; chan < 16; chan++) {
+                        seqp->chanState[chan].fadeVol = seqp->chanState[chan].fadeTarget;
+                        if (seqp->chanState[chan].fadeVol == 0) {
+                            seqp->chanMask &= (1 << chan) ^ 0xFFFF;
+                        } else {
+                            seqp->chanMask |= 1 << chan;
+                        }
+                    }
+                    seqp->state = AL_STOPPING;
+                    evt.type = AL_SEQP_STOP_EVT;
+                    alEvtqPostEvent(&seqp->evtq, &evt, 0x7FFFFFFF);
+                }
+                break;
+            case AL_SEQP_PRIORITY_EVT:
+                chan = seqp->nextEvent.msg.sppriority.chan;
+                seqp->chanState[chan].priority = seqp->nextEvent.msg.sppriority.priority;
+                break;
+            case AL_SEQP_SEQ_EVT:
+                seqp->target = seqp->nextEvent.msg.spseq.seq;
+                seqp->chanMask = 0xFFFF;
+                if (seqp->bank != NULL) {
+                    __n_initFromBank(seqp, seqp->bank);
+                }
+                break;
+            case AL_SEQP_BANK_EVT:
+                seqp->bank = seqp->nextEvent.msg.spbank.bank;
+                __n_initFromBank(seqp, seqp->bank);
+                break;
+            case AL_SEQ_MIDI_EVT:
+            case AL_TEMPO_EVT:
+            case AL_SEQ_END_EVT:
+                break;
+        }
+        seqp->nextDelta = alEvtqNextEvent(&seqp->evtq, (ALEvent *)&seqp->nextEvent);
+    } while (seqp->nextDelta == 0);
+    seqp->curTime += seqp->nextDelta;
+    return seqp->nextDelta;
+}
+
+void __n_CSPHandleNextSeqEvent(N_CSPlayer *seqp) {
+    ALEvent evt;
+
+    if (seqp->target == NULL) {
+        return;
+    }
+    n_alCSeqNextEvent(seqp->target, &evt, 1);
+    switch (evt.type) {
+        case 1:
+            __n_CSPHandleMIDIMsg(seqp, &evt);
+            __n_CSPPostNextSeqEvent(seqp);
+            break;
+        case 3:
+            __n_CSPHandleMetaMsg(seqp, &evt);
+            __n_CSPPostNextSeqEvent(seqp);
+            break;
+        case 4:
+            seqp->state = 2;
+            evt.type = 0x10;
+            alEvtqPostEvent(&seqp->evtq, &evt, 0x7FFFFFFF);
+            break;
+        case 18:
+        case 19:
+        case 20:
+            __n_CSPPostNextSeqEvent(seqp);
+            break;
+        default:
+            break;
+    }
+}
+
+void __n_CSPUpdateChanVol(N_CSPlayer *seqp, u8 chan) {
+    N_VoiceState *vs;
+    s16 vol;
+
+    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+        if (vs->channel == chan && vs->envPhase != 3) {
+            vol = __n_vsVol(vs, seqp);
+            n_alSynSetVol(&vs->voice, vol, __n_vsDelta(vs, seqp->curTime));
+        }
+    }
+}
+
+void __n_CSPUpdateChanFxPan(N_CSPlayer *seqp, u8 chan) {
+    N_VoiceState *vs;
+    s16 fxmix;
+    s8 pan;
+    f32 pitchBend;
+
+    pan = (s8)seqp->chanState[chan].lowpassKeyOffset - 0x40;
+    pitchBend = seqp->chanState[chan].pitchBend;
+    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+        if (vs->channel == chan) {
+            fxmix = seqp->chanState[chan].lowpassGain;
+            n_alSynSetLowpassGain(&vs->voice, fxmix);
+            if (fxmix != 0) {
+                n_alSynSetLowpassCutoff(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase + pan) * 440.0f * pitchBend);
+            }
+        }
+    }
+}
+
+typedef s32 (*GdOscInit)(void **, f32 *, u8, u8, u8, u8, u8);
+
+extern s32 gCspChanNoteOffDelta[];
+
+void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
+    ALVoice *voice;
+    N_VoiceState *vs;
+    s32 status;
+    u8 chan;
+    u8 key;
+    u8 vel;
+    u8 byte1;
+    u8 byte2;
+    ALMIDIEvent *midi;
+    s16 vol;
+    ALEvent evt;
+    s32 delta;
+    N_VoiceState *voiceState;
+    u8 pan;
+    N_ChanState *chanSt;
+    s32 oscTypeOrIndex;
+    ALVoiceConfig vc;
+    ALSound *sound;
+    s16 cents;
+    f32 pitch;
+    f32 oscVal;
+    u8 fxmix;
+    u8 unityPitch;
+    f32 voiceTune;
+    void *oscState;
+    ALInstrument *inst;
+    u8 currentVal;
+    u8 targetVal;
+    s32 stepDelta;
+    ALInstrument *targetInst;
+    s32 bendVal;
+    f32 bendRatio;
+    s32 bendCents;
+
+    midi = (ALMIDIEvent *)&event->msg;
+    status = midi->status & 0xF0;
+    chan = midi->status & 0xF;
+    byte1 = key = midi->byte1;
+    byte2 = vel = midi->byte2;
+    switch (status) {
+        case 0x90:
+            if (vel != 0) {
+                if (seqp->state != 1 || !(seqp->chanMask & (1 << chan))) {
+                    if (midi->duration != 0) {
+                        evt.type = 0x15;
+                        evt.msg.midi.status = chan | 0x80;
+                        evt.msg.midi.byte1 = key;
+                        evt.msg.midi.byte2 = 0;
+                        delta = seqp->uspt * midi->duration;
+                        gCspChanNoteOffDelta[chan] = delta;
+                        alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                    }
+                    break;
+                }
+                {
+                    chanSt = &seqp->chanState[chan];
+                    sound = __n_lookupSoundQuick(seqp, key, vel, chan);
+                    if (sound == NULL) {
+                        return;
+                    }
+                    vc.priority = chanSt->priority;
+                    vc.fxBus = chanSt->fxBus;
+                    vc.unityPitch = 0;
+                    voiceState = __n_mapVoice(seqp, key, vel, chan);
+                    if (voiceState == NULL) {
+                        return;
+                    }
+                    voice = &voiceState->voice;
+                    n_alSynAllocVoice(voice, &vc);
+                    voiceState->sound = sound;
+                    voiceState->envPhase = 0;
+                    if (chanSt->sustain >= 0x40) {
+                        voiceState->phase = 2;
+                    } else {
+                        voiceState->phase = 0;
+                    }
+                    cents = (key - sound->keyMap->keyBase) * 100 + sound->keyMap->detune;
+                    if (chanSt->useInstCopy != 0) {
+                        cents += chanSt->detune;
+                    }
+                    voiceState->pitch = alCents2Ratio(cents);
+                    if (chanSt->useInstCopy != 0) {
+                        voiceState->envGain = chanSt->attackVolume;
+                        voiceState->envEndTime = seqp->curTime + chanSt->attackTime;
+                    } else {
+                        voiceState->envGain = sound->envelope->attackVolume;
+                        voiceState->envEndTime = seqp->curTime + sound->envelope->attackTime;
+                    }
+                    voiceState->flags = 0;
+                    if (chanSt->useInstCopy != 0) {
+                        oscTypeOrIndex = chanSt->tremType;
+                    } else {
+                        inst = seqp->chanState[chan].instrument;
+                        oscTypeOrIndex = inst->tremType;
+                    }
+                    oscVal = 127.0f;
+                    if (oscTypeOrIndex != 0 && seqp->initOsc != NULL) {
+                        if (chanSt->useInstCopy != 0) {
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, chanSt->tremType, chanSt->tremRate, chanSt->tremDepth, chanSt->tremDelay, chanSt->unk31);
+                        } else {
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, inst->tremType, inst->tremRate, inst->tremDepth, inst->tremDelay, chanSt->unk31);
+                        }
+                        if (delta != 0) {
+                            evt.type = 0x16;
+                            evt.msg.osc.vs = (void *)voiceState;
+                            evt.msg.osc.oscState = oscState;
+                            alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                            voiceState->flags |= 1;
+                            voiceState->tremOsc = oscState;
+                        }
+                    }
+                    voiceState->tremelo = (u32)oscVal;
+                    oscVal = 1.0f;
+                    if (chanSt->useInstCopy != 0) {
+                        oscTypeOrIndex = chanSt->vibType;
+                    } else {
+                        oscTypeOrIndex = inst->vibType;
+                    }
+                    if (oscTypeOrIndex != 0 && seqp->initOsc != NULL) {
+                        if (chanSt->useInstCopy != 0) {
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, chanSt->vibType, chanSt->vibRate, chanSt->vibDepth, chanSt->vibDelay, chanSt->unk31);
+                        } else {
+                            delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, inst->vibType, inst->vibRate, inst->vibDepth, inst->vibDelay, chanSt->unk31);
+                        }
+                        if (delta != 0) {
+                            evt.type = 0x17;
+                            evt.msg.osc.vs = (void *)voiceState;
+                            evt.msg.osc.oscState = oscState;
+                            evt.msg.osc.chan = chan;
+                            alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                            voiceState->flags |= 2;
+                            voiceState->vibOsc = oscState;
+                        }
+                    }
+                    voiceState->vibrato = oscVal;
+                    pitch = voiceState->pitch * chanSt->pitchBend * voiceState->vibrato;
+                    fxmix = n_alCSPClampVoiceFXMix(voiceState, seqp);
+                    unityPitch = chanSt->lowpassGain;
+                    if (unityPitch != 0) {
+                        voiceTune = n_alSemitonesToPitchRatio(((cents / 100) + chanSt->lowpassKeyOffset) - 0x40) * 440.0f * chanSt->pitchBend;
+                    } else {
+                        voiceTune = 127.0f;
+                    }
+                    pan = __n_vsPan(voiceState, seqp);
+                    vol = __n_vsVol(voiceState, seqp);
+                    if (chanSt->useInstCopy != 0) {
+                        delta = chanSt->attackTime;
+                    } else {
+                        delta = sound->envelope->attackTime;
+                    }
+                    n_alSynStartVoiceParams(voice, sound->wavetable, pitch, vol, pan, fxmix, unityPitch, voiceTune, chanSt->rspFxLevel, delta);
+                    evt.type = 6;
+                    evt.msg.vol.voice = voice;
+                    if (chanSt->useInstCopy != 0) {
+                        evt.msg.vol.vol = chanSt->decayVolume;
+                        evt.msg.vol.delta = chanSt->decayTime;
+                    } else {
+                        evt.msg.vol.vol = sound->envelope->decayVolume;
+                        evt.msg.vol.delta = sound->envelope->decayTime;
+                    }
+                    alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                    if (midi->duration != 0) {
+                        evt.type = 0x15;
+                        evt.msg.midi.status = chan | 0x80;
+                        evt.msg.midi.byte1 = key;
+                        evt.msg.midi.byte2 = 0;
+                        delta = seqp->uspt * midi->duration;
+                        gCspChanNoteOffDelta[chan] = delta;
+                        alEvtqPostEvent(&seqp->evtq, &evt, delta);
+                    }
+                    if ((chanSt->noteNotify & 1) && seqp->eventQueue != NULL) {
+                        osSendMesg(seqp->eventQueue, (OSMesg)((gCspChanNoteOffDelta[chan] & ~0xFF) | (chanSt->noteNotify >> 2)), 0);
+                    }
+                }
+                break;
+            }
+        case 0x80:
+            voiceState = __n_lookupVoice(seqp, key, chan);
+            if (voiceState == NULL) {
+                return;
+            }
+            chanSt = &seqp->chanState[chan];
+            if (voiceState->phase == 2) {
+                voiceState->phase = 4;
+            } else {
+                voiceState->phase = 3;
+                if (chanSt->useInstCopy != 0) {
+                    __n_seqpReleaseVoice(seqp, &voiceState->voice, chanSt->releaseTime);
+                } else {
+                    __n_seqpReleaseVoice(seqp, &voiceState->voice, voiceState->sound->envelope->releaseTime);
+                }
+            }
+            if ((chanSt->noteNotify & 2) && seqp->eventQueue != NULL) {
+                osSendMesg(seqp->eventQueue, (OSMesg)((key << 16) | 8 | (chanSt->noteNotify >> 2)), 0);
+            }
+            break;
+        case 0xA0:
+            voiceState = __n_lookupVoice(seqp, key, chan);
+            if (voiceState == NULL) {
+                return;
+            }
+            voiceState->velocity = byte2;
+            n_alSynSetVol(&voiceState->voice, __n_vsVol(voiceState, seqp), __n_vsDelta(voiceState, seqp->curTime));
+            break;
+        case 0xD0:
+            for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                if (vs->channel == chan) {
+                    vs->velocity = byte1;
+                    n_alSynSetVol(&vs->voice, __n_vsVol(vs, seqp), __n_vsDelta(vs, seqp->curTime));
+                }
+            }
+            break;
+        case 0xB0:
+            switch (byte1) {
+                case 0xA:
+                    seqp->chanState[chan].pan = byte2;
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                        if (vs->channel == chan) {
+                            pan = __n_vsPan(vs, seqp);
+                            n_alSynSetPan(&vs->voice, pan);
+                        }
+                    }
+                    break;
+                case 0xFD:
+                    seqp->chanState[chan].fadeRate = byte2;
+                    break;
+                case 0xFF:
+                    if (seqp->chanState[chan].fadeRate == 0) {
+                        seqp->chanState[chan].fadeRate = 0x90;
+                    }
+                    if (seqp->chanState[chan].fadeTarget != byte2) {
+                        if (seqp->chanState[chan].fadeTarget == seqp->chanState[chan].fadeVol) {
+                            seqp->chanState[chan].fadeTarget = byte2;
+                        } else {
+                            seqp->chanState[chan].fadeTarget = byte2;
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                    midi->byte1 = 0xFE;
+                case 0xFE:
+                    currentVal = seqp->chanState[chan].fadeVol;
+                    targetVal = seqp->chanState[chan].fadeTarget;
+                    vel = seqp->chanState[chan].fadeRate;
+                    stepDelta = targetVal - currentVal;
+                    if (stepDelta > 0) {
+                        if (vel & 0x80) {
+                            vel = (vel & 0x7F) << 1;
+                        }
+                        if (stepDelta > vel) {
+                            stepDelta = vel;
+                        }
+                    } else {
+                        vel &= 0x7F;
+                        if (stepDelta < -vel) {
+                            stepDelta = -vel;
+                        }
+                    }
+                    currentVal += stepDelta;
+                    seqp->chanState[chan].fadeVol = currentVal;
+                    if (currentVal != targetVal) {
+                        alEvtqPostEvent(&seqp->evtq, event, seqp->uspt * 100);
+                    }
+                    if (currentVal != 0) {
+                        seqp->chanMask |= 1 << chan;
+                    } else {
+                        seqp->chanMask &= ~(1 << chan);
+                    }
+                    __n_CSPUpdateChanVol(seqp, chan);
+                    break;
+                case 0xFC:
+                    seqp->chanState[chan].fadeVol = byte2;
+                    seqp->chanState[chan].fadeTarget = byte2;
+                    if (byte2 == 0) {
+                        seqp->chanMask = seqp->chanMask & ((1 << chan) ^ 0xFFFF);
+                    } else {
+                        seqp->chanMask |= 1 << chan;
+                    }
+                    __n_CSPUpdateChanVol(seqp, chan);
+                    break;
+                case 0x21:
+                    seqp->chanState[chan].lowpassGain = byte2;
+                    __n_CSPUpdateChanFxPan(seqp, chan);
+                    break;
+                case 0x22:
+                    seqp->chanState[chan].lowpassKeyOffset = byte2;
+                    __n_CSPUpdateChanFxPan(seqp, chan);
+                    break;
+                case 0x23:
+                    seqp->chanState[chan].rspFxLevel = byte2;
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                        if (vs->channel == chan) {
+                            n_alSynAllocVoicePriorityB(&vs->voice, byte2);
+                        }
+                    }
+                    break;
+                case 0x1E:
+                    if (seqp->eventQueue != NULL) {
+                        osSendMesg(seqp->eventQueue, (OSMesg)(((byte2 & 7) | 0x10) | ((seqp->node.samplesLeft << 5) & ~0xFF)), 0);
+                    }
+                    break;
+                case 0x7:
+                    seqp->chanState[chan].vol = byte2;
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                        if (vs->channel == chan && vs->envPhase != 3) {
+                            vol = __n_vsVol(vs, seqp);
+                            n_alSynSetVol(&vs->voice, vol, __n_vsDelta(vs, seqp->curTime));
+                        }
+                    }
+                    break;
+                case 0x10:
+                    seqp->chanState[chan].priority = byte2;
+                    break;
+                case 0x40:
+                    seqp->chanState[chan].sustain = byte2;
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                        if (vs->channel == chan && vs->phase != 3) {
+                            if (byte2 >= 0x40) {
+                                if (vs->phase == 0) {
+                                    vs->phase = 2;
+                                }
+                            } else if (vs->phase == 2) {
+                                vs->phase = 0;
+                            } else if (vs->phase == 4) {
+                                vs->phase = 3;
+                                if (chanSt->useInstCopy != 0) {
+                                    __n_seqpReleaseVoice(seqp, &vs->voice, (seqp->chanState[chan].releaseTime < 0x3E80) ? 0x3E80 : seqp->chanState[chan].releaseTime);
+                                } else {
+                                    __n_seqpReleaseVoice(seqp, &vs->voice, (voiceState->sound->envelope->releaseTime < 0x3E80) ? 0x3E80 : voiceState->sound->envelope->releaseTime);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case 0x5B:
+                    seqp->chanState[chan].fxmix = (seqp->chanState[chan].fxmix & 0x80) | byte2;
+                    byte2 = seqp->chanState[chan].fxmix >> 7;
+                case 0x41:
+                    seqp->chanState[chan].fxmix = (seqp->chanState[chan].fxmix & 0x7F) | (byte2 << 7);
+                    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                        if (vs->channel == chan) {
+                            n_alSynSetFXMix(&vs->voice, seqp->chanState[chan].fxmix);
+                        }
+                    }
+                    break;
+                case 0x5C:
+                    if (byte2 < n_syn->maxAuxBusses && byte2 >= 0) {
+                        seqp->chanState[chan].fxBus = byte2;
+                    }
+                    break;
+                case 0x1A:
+                    break;
+                case 0x20:
+                    seqp->chanState[chan].bankSelect = byte2;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 0xC0:
+            oscTypeOrIndex = (seqp->chanState[chan].bankSelect << 7) + key;
+            if (oscTypeOrIndex < seqp->bank->instCount) {
+                targetInst = seqp->bank->instArray[oscTypeOrIndex];
+                __n_setInstChanState(seqp, targetInst, chan);
+            } else { // ORIG: target branches over the empty else at 0x2558 (__n_CSPHandleMIDIMsg+0x16DC, b 0x2560)
+            }
+            break;
+        case 0xE0:
+            bendVal = ((byte2 << 7) + byte1) - 0x2000;
+            bendCents = (seqp->chanState[chan].bendRange * bendVal) / 8192;
+            bendRatio = alCents2Ratio(bendCents);
+            seqp->chanState[chan].pitchBend = bendRatio;
+            for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+                if (vs->channel == chan) {
+                    n_alSynSetPitch(&vs->voice, vs->pitch * bendRatio * vs->vibrato);
+                    if (seqp->chanState[chan].lowpassGain != 0) {
+                        n_alSynSetLowpassCutoff(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * 440.0f * bendRatio * vs->vibrato);
+                    }
+                }
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void __n_CSPHandleMetaMsg(N_CSPlayer *seqp, ALEvent *event) {
+    ALTempoEvent *tevt = &event->msg.tempo;
+    s32 tempo;
+    s32 oldUspt;
+    s32 quot;
+    s32 tmp;
+    s32 deltaTime = 0;
+    ALEventListItem *item;
+    ALEventListItem *nextItem;
+    ALEventListItem *lastItem = NULL;
+
+    if (event->msg.tempo.status == 0xFF) {
+        if (event->msg.tempo.type == 0x51) {
+            oldUspt = seqp->uspt;
+            tempo = (tevt->byte1 << 16) | (tevt->byte2 << 8) | tevt->byte3;
+            __n_setUsptFromTempo(seqp, (f32)tempo);
+            item = (ALEventListItem *)seqp->evtq.allocList.next;
+            while (item != NULL) {
+                deltaTime += item->delta;
+                nextItem = (ALEventListItem *)item->node.next;
+                if (item->evt.type == 0x15) {
+                    alUnlink((ALLink *)item);
+                    if (lastItem != NULL) {
+                        alLink((ALLink *)item, (ALLink *)lastItem);
+                    } else {
+                        item->node.next = NULL;
+                        item->node.prev = NULL;
+                        lastItem = item;
+                    }
+                    tmp = deltaTime;
+                    if (nextItem != NULL) {
+                        deltaTime -= item->delta;
+                        nextItem->delta += item->delta;
+                    }
+                    item->delta = tmp;
+                }
+                item = nextItem;
+            }
+            item = lastItem;
+            while (item != NULL) {
+                nextItem = (ALEventListItem *)item->node.next;
+                quot = item->delta / oldUspt;
+                item->delta = seqp->uspt * quot;
+                __n_CSPRepostEvent(&seqp->evtq, item);
+                item = nextItem;
+            }
+        }
+    }
+}
+
+void __n_CSPRepostEvent(ALEventQueue *evtq, ALEventListItem *item) {
+    s32 mask;
+    ALLink *node;
+    ALLink *next;
+
+    mask = osGetIntMask(1);
+    for (node = &evtq->allocList; node != 0; node = node->next) {
+        if (node->next == 0) {
+            alLink((ALLink *)item, node);
+            break;
+        } else {
+            next = node->next;
+            if (item->delta < ((ALEventListItem *)next)->delta) {
+                ((ALEventListItem *)next)->delta -= item->delta;
+                alLink((ALLink *)item, node);
+                break;
+            }
+            item->delta -= ((ALEventListItem *)next)->delta;
+        }
+    }
+    osGetIntMask(mask);
+}
+
+void __n_setUsptFromTempo(N_CSPlayer *seqp, f32 tempo) {
+    if (seqp->target != NULL) {
+        seqp->uspt = (f32)tempo * (f32)seqp->target->qnpt;
+    } else {
+        seqp->uspt = 0x1E8;
+    }
+}
+
+void __n_CSPPostNextSeqEvent(N_CSPlayer *seqp) {
+    ALEvent evt;
+    s32 deltaTicks;
+
+    if (seqp->state != 1 || seqp->target == NULL) {
+        return;
+    }
+    if (!__n_alCSeqGetNextDelta(seqp->target, &deltaTicks)) {
+        return;
+    }
+    evt.type = 0;
+    alEvtqPostEvent(&seqp->evtq, &evt, seqp->uspt * deltaTicks);
+}
+
+void n_alCSPSetMaxVoices(N_CSPlayer *seqp, u8 arg) {
+    seqp->maxVoices = arg;
+}

@@ -1,11 +1,11 @@
 #include "common.h"
 #include "proto/boot/3630_string.h"
 #include "proto/critter/4840.h"
-#include "proto/global/100180.h"
-#include "proto/global/15050.h"
-#include "proto/global/6AD90.h"
-#include "proto/global/7CA80.h"
-#include "proto/global/90D80.h"
+#include "proto/global/100180_text_font.h"
+#include "proto/global/15050_heap.h"
+#include "proto/global/6AD90_collision.h"
+#include "proto/global/7CA80_actor_manager.h"
+#include "proto/global/90D80_render_callbacks.h"
 
 
 typedef struct TextData {

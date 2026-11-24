@@ -1,0 +1,64 @@
+#include "common.h"
+#include "seqplayer.h"
+#include "proto/global/13CB50_csp_channel.h"
+#include "proto/global/13CFA0_n_cspsendmidi.h"
+#include "proto/global/13FED0_evtq.h"
+
+void alCSPPlay(ALCSPlayer *seqp) {
+    ALEvent evt;
+
+    evt.type = AL_SEQP_PLAY_EVT;
+    alEvtqPostEvent(&seqp->evtq, &evt, 0);
+}
+
+void alCSPSetEventQueue(N_CSPlayer *seqp, OSMesgQueue *queue) {
+    seqp->eventQueue = queue;
+}
+
+void setCSPInstrumentFlags(N_CSPlayer *seqp, s32 instIndex, s32 flags) {
+    ALInstrument *inst;
+
+    instIndex &= 0xFF;
+    flags &= 0xFF;
+    if (instIndex < seqp->bank->instCount) {
+        inst = seqp->bank->instArray[instIndex];
+        if (inst != NULL) {
+            inst->flags = (flags * 2) | (inst->flags & 1);
+        }
+    }
+}
+
+void setCSPChannelStateValue(N_CSPlayer *seqp, s32 chan, u8 value) {
+    seqp->chanState[chan].noteNotify = value;
+}
+
+void resetCSPChannelStates(N_CSPlayer *seqp) {
+    s32 i;
+
+    seqp->chanMask = 0xFFFF;
+    for (i = 0; i < seqp->maxChannels; i++) {
+        seqp->chanState[i].fadeTarget = 0xFF;
+        seqp->chanState[i].fadeVol = 0xFF;
+    }
+}
+
+void alCSPChannelResetControl(ALCSPlayer *seqp, s32 chan) {
+    alCSPSendMidi(seqp, 0, chan | AL_MIDI_ControlChange, 0xFF, 0);
+}
+
+void enableCSPChannel(N_CSPlayer *seqp, s32 chan) {
+    seqp->chanMask |= 1 << chan;
+    alCSPSendMidi(&seqp->al, 0, chan | AL_MIDI_ControlChange, 0xFF, 0xFF);
+}
+
+void alCSPChannelSetControl(ALCSPlayer *seqp, s32 chan, u8 value) {
+    alCSPSendMidi(seqp, 0, chan | AL_MIDI_ControlChange, 0xFF, value);
+}
+
+void setCSPChannelPortamento(ALCSPlayer *seqp, s32 chan, u8 value) {
+    alCSPSendMidi(seqp, 0, chan | AL_MIDI_ControlChange, 0x41, value);
+}
+
+void setCSPChannelStopControl(ALCSPlayer *seqp, s32 chan, u8 value) {
+    alCSPSendMidi(seqp, 0, chan | AL_MIDI_ControlChange, AL_MIDI_Stop, value);
+}

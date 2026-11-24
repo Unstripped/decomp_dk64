@@ -1,12 +1,12 @@
 #include "common.h"
 #include "actor.h"
 #include "proto/boss/8520.h"
-#include "proto/global/135D30.h"
-#include "proto/global/166A0.h"
-#include "proto/global/17B90.h"
-#include "proto/global/35000.h"
-#include "proto/global/8CA50.h"
-#include "proto/global/B1F60.h"
+#include "proto/global/135D30_flags.h"
+#include "proto/global/166A0_random.h"
+#include "proto/global/17B90_anim_controller.h"
+#include "proto/global/35000_render_entry.h"
+#include "proto/global/8CA50_anim_list.h"
+#include "proto/global/B1F60_enemy_patrol.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 extern Actor *gCurrentActor;

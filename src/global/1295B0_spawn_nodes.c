@@ -1,0 +1,1693 @@
+#include "common.h"
+#include "actor.h"
+#include "sched.h"
+#include "proto/global/119370_effect_grid.h"
+#include "proto/global/11BC10_effect_update.h"
+#include "proto/global/1295B0_spawn_nodes.h"
+#include "proto/global/12E800_behaviour.h"
+#include "proto/global/1332B0_volume_trigger.h"
+#include "proto/global/135D30_flags.h"
+#include "proto/global/15050_heap.h"
+#include "proto/global/166A0_random.h"
+#include "proto/global/17B90_anim_controller.h"
+#include "proto/global/19A00_actor_script.h"
+#include "proto/global/201B0_camera.h"
+#include "proto/global/55B20_map_chunk.h"
+#include "proto/global/69E60_actor_physics.h"
+#include "proto/global/7130_sfx.h"
+#include "proto/global/79890_collision_hit.h"
+#include "proto/global/7CA80_actor_manager.h"
+#include "proto/global/80150_barrels.h"
+#include "proto/global/89250_effect_spawn.h"
+#include "proto/global/8CA50_anim_list.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/CEAE0_player_update.h"
+
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
+extern Actor *gPrimaryPlayerActor;
+extern PlayerStruct *gPlayerSlots;
+
+extern ZoneTable D_807FDC80;
+extern SpawnNodeList D_807FDC88;
+extern EffectGridAsset sEffectSparkConfig, gEffectSpriteStar;
+
+ZoneTable *gZoneTable = &D_807FDC80;
+SpawnNodeList *gSpawnNodeList = &D_807FDC88;
+u8 gSpawnEntryKind[116] = {
+    2, 5, 0, 4, 0, 4, 0, 9, 7, 0, 0, 6, 6, 6, 2, 6, 0, 4, 10, 6,
+    6, 6, 6, 6, 9, 6, 7, 2, 4, 4, 2, 2, 8, 2, 0, 8, 0, 0, 7, 8,
+    7, 0, 8, 0, 0, 0, 10, 0, 8, 0, 0, 3, 3, 10, 3, 10, 3, 7, 0, 0,
+    5, 1, 1, 1, 1, 1, 5, 6, 10, 10, 0, 0, 10, 10, 9, 8, 8, 8, 3, 3,
+    6, 0, 9, 4, 0, 5, 5, 3, 3, 3, 2, 0, 2, 0, 2, 2, 10, 7, 0, 4,
+    2, 0, 5, 0, 0, 3, 7, 7, 7, 7, 4, 10, 2, 0, 0, 0,
+};
+s16 sSpawnControllerStateIds[68] = {
+    0x3E, 0xA0, 0x21, 0x22, 0x23, 0x3A, 0x11, 0x41, 0x99, 0xC, 0x1C, 0x3B,
+    0x3C, 0x25, 0x46, 0x49, 0x3A, 0x37, 0x31, 0x1D, 0x58, 0x1, 0xC, 0x6,
+    0x9, 0x4, 0x17, 0x60, 0x63, 0x88, 0x5B, 0x45, 0x66, 0x99, 0x18, 0x38,
+    0x67, 0xDA, 0x13, 0x12, 0x3D, 0x27, 0x2D, 0x14, 0x68, 0x69, 0xE2, 0x61,
+    0xDC, 0xDD, 0xDE, 0xDF, 0xE3, 0x2C, 0x70, 0x71, 0x72, 0x6B, 0xEA, 0xE9,
+    0x1A, 0x1B, 0x44, 0x80, 0xEC, 0xEB, 0xC3, 0,
+};
+
+void actorSetUniformScale(Actor *actor, f32 scale) {
+    actor->sub4->scaleX = scale;
+    actor->sub4->scaleY = scale;
+    actor->sub4->scaleZ = scale;
+    if (actor->collision != NULL) {
+        actor->eyeHeight = (u32)((f32)actor->collision->scaledRadius * scale * 0.5);
+    }
+}
+
+void spawnNodesSendVolumeTrigger(u8 subtype, s16 value0, s16 value1, s16 value2, s16 value3) {
+    s16 *payload;
+    Actor *target;
+
+    payload = heapAlloc(8);
+    heapFreeDeferred(payload);
+    payload[0] = value0;
+    payload[1] = value1;
+    payload[2] = value2;
+    payload[3] = value3;
+    actorFindActiveByType(0xB, &target);
+    actorAppendCallbackMemcpy8(0, target, 0x01000000, subtype, payload, 0);
+}
+
+s32 volumeTriggerApplyActorState(void) {
+    s32 found;
+    s16 i;
+
+    found = 0;
+    for (i = 0; found == 0 && i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
+            found = 1;
+            gCurrentActor->state = gActorGlobalState.volumeTriggerQueueId[i][1];
+            gCurrentActor->subState = 0;
+        }
+    }
+    return found;
+}
+
+void zoneEntrySetDisabled(u8 zoneId, u8 entryIndex, u8 disabled) {
+    Zone *group;
+    s16 i;
+
+    group = gZoneTable->zones;
+    for (i = 0; i < gZoneTable->count; i++, group++) {
+        if (group->id == zoneId) {
+            if (entryIndex < group->entryCount) {
+                if (disabled != 0) {
+                    group->entries[entryIndex].flags |= 0x80;
+                } else {
+                    group->entries[entryIndex].flags &= ~0x80;
+                }
+            }
+            return;
+        }
+    }
+}
+
+void zoneEntryGetPosition(u8 zoneId, u8 entryIndex, f32 *outX, f32 *outY, f32 *outZ) {
+    Zone *group;
+    s16 i;
+
+    group = gZoneTable->zones;
+    for (i = 0; i < gZoneTable->count; i++, group++) {
+        if (group->id == zoneId) {
+            if (entryIndex < group->entryCount) {
+                *outX = group->entries[entryIndex].x;
+                *outY = group->entries[entryIndex].y;
+                *outZ = group->entries[entryIndex].z;
+            }
+            return;
+        }
+    }
+}
+
+
+void actorKnockbackFromAttacker(s16 speed) {
+    s16 angle;
+
+    angle = (gActorGlobalState.targetActor->moveYaw + 0x800) & 0xFFF;
+    gCurrentActor->moveYaw = angle;
+    gCurrentActor->yaw = angle;
+    gCurrentActor->speedXZ = speed;
+}
+
+void spawnNodesInitForMap(void *mapData) {
+    spawnNodeListInitFromMap(mapData, gZoneTable, gSpawnNodeList);
+}
+
+void actorAllocBoneRotations(s16 first, s16 count) {
+    BoneRotation *table;
+
+    gCurrentActor->sub4->boneRotations = heapAlloc((count + 1) * sizeof(BoneRotation));
+    heapClearBlock(gCurrentActor->sub4->boneRotations);
+    table = gCurrentActor->sub4->boneRotations;
+    table[0].weight = 0x7F;
+    table[0].bone = first;
+    table[count].weight = 0;
+}
+
+void actorAllocBoneOffsets(s16 first, s16 count) {
+    BoneVector *table;
+
+    gCurrentActor->sub4->boneOffsets = heapAlloc((count + 1) * sizeof(BoneVector));
+    heapClearBlock(gCurrentActor->sub4->boneOffsets);
+    table = gCurrentActor->sub4->boneOffsets;
+    table[0].bone = first;
+    table[0].lastBone = first + 1;
+    table[count].bone = 0xFF;
+}
+
+void actorAllocBoneScales(s16 first, s16 count) {
+    BoneVector *table;
+
+    gCurrentActor->sub4->boneScales = heapAlloc((count + 1) * sizeof(BoneVector));
+    heapClearBlock(gCurrentActor->sub4->boneScales);
+    table = gCurrentActor->sub4->boneScales;
+    table[0].x = 1.0f;
+    table[0].y = 1.0f;
+    table[0].z = 1.0f;
+    table[0].bone = first;
+    table[0].lastBone = first;
+    table[count].bone = 0xFF;
+}
+
+extern u8 gGameMode;
+
+void actorTrackBoneTowardTarget(u8 mode) {
+    f32 angle;
+    f32 pitch;
+    f32 yaw;
+    BoneRotation *rot;
+    f32 curYaw;
+    f32 limit;
+    s32 pitchArg;
+    s16 res;
+
+    pitch = 0.0f;
+    angle = 0.0f;
+    if (mode == 8) {
+        pitchArg = 0x46;
+        yaw = gPrimaryPlayerActor->yaw * 3.1415927f * (1.0 / 2048.0);
+        rot = gPrimaryPlayerActor->sub4->boneRotations;
+        limit = 1.0431069f;
+    } else {
+        yaw = gCurrentActor->yaw * 3.1415927f * (1.0 / 2048.0);
+        rot = gCurrentActor->sub4->boneRotations;
+        pitchArg = gSpawnEntryTable[gBehaviourAnimState->entryIndex].headPitchMinDist;
+        limit = gSpawnEntryTable[gBehaviourAnimState->entryIndex].headYawLimit * 4 * 3.1415927f * (1.0 / 2048.0);
+        if (pitchArg == 0xFF) {
+            pitchArg = 0x3E8;
+        }
+    }
+    if (rot == NULL) {
+        return;
+    }
+    curYaw = rot->rotY / 65535.0 * 6.2831854820251465;
+    if (gGameMode == 1 && mode != 5 && mode != 7) {
+        mode = 6;
+    }
+    switch (mode) {
+        case 8:
+            pitch = mathCalculatePitchAngle(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z) - yaw;
+            break;
+        case 7:
+            pitch = mathCalculatePitchAngle(gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+        case 6:
+            pitch = mathCalculatePitchAngle(gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+        case 0:
+            pitch = mathCalculatePitchAngle(gPlayerSlots->headX, gPlayerSlots->headY, gPlayerSlots->headZ, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
+        case 1:
+            angle = mathAngleBetweenPointsRad(gPlayerSlots->headX, gPlayerSlots->headZ, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+        case 2:
+            angle = gBehaviourWorkState->wanderAngle * 2 * 0.017453292f;
+            break;
+        case 3:
+            pitch = mathCalculatePitchAngle(gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+    }
+    if (angle < 0.0f) {
+        angle += 6.2831855f;
+    }
+    if (limit != 0.0f) {
+        if (limit < angle && angle <= 3.1415927f) {
+            angle = limit;
+            if (curYaw > 3.1415927f) {
+                angle = limit + 6.2831855f;
+            }
+        } else if (angle < 6.2831855f - limit && angle > 3.1415927f) {
+            angle = 6.2831855f - limit;
+            if (curYaw < 3.1415927f) {
+                angle = angle - 6.2831855f;
+            }
+        }
+    }
+    if (angle > 3.1415927f) {
+        angle -= 6.2831855f;
+    }
+    if (curYaw > 3.1415927f) {
+        curYaw -= 6.2831855f;
+    }
+    res = mathAngleEaseToward((s32)(curYaw * 2048.0 / 3.1415927410125732), (s32)(angle * 2048.0 / 3.1415927410125732), 5.0f);
+    rot->rotX = (u32)(pitch / 6.2831855f * 65535.0);
+    rot->rotY = (u32)(res / 4095.0 * 65535.0);
+    rot->rotZ = 0;
+}
+
+s32 lineSegmentIntersect2D(s16 x1, s16 z1, s16 x2, s16 z2, s16 x3, s16 z3, s16 x4, s16 z4, f32 *outX, f32 *outZ) {
+    f32 a1;
+    f32 b1;
+    f32 c1;
+    f32 a2;
+    f32 b2;
+    f32 c2;
+    f32 d1;
+    f32 d2;
+    f32 d3;
+    f32 d4;
+    f32 det;
+    f32 half;
+    f32 y;
+    f32 num;
+    s16 ix;
+    s16 iy;
+
+    a1 = z2 - z1;
+    b1 = x1 - x2;
+    c1 = x2 * z1 - x1 * z2;
+    d3 = x3 * a1 + b1 * z3 + c1;
+    d4 = x4 * a1 + b1 * z4 + c1;
+    if (d3 != 0.0f && d4 != 0.0f && ((s32)((u32)d3 ^ (u32)d4)) >= 0) {
+        return 0;
+    }
+    a2 = z4 - z3;
+    b2 = x3 - x4;
+    c2 = x4 * z3 - x3 * z4;
+    d1 = x1 * a2 + b2 * z1 + c2;
+    d2 = x2 * a2 + b2 * z2 + c2;
+    if (d1 != 0.0f && d2 != 0.0f && ((s32)((u32)d1 ^ (u32)d2)) >= 0) {
+        return 0;
+    }
+    det = a1 * b2 - a2 * b1;
+    if (det == 0.0f) {
+        return 2;
+    }
+    if (det < 0.0f) {
+        half = -det / 2;
+    } else {
+        half = det / 2;
+    }
+    if (b1 * c2 < b2 * c1) {
+        num = (b1 * c2 - b2 * c1) - half;
+    } else {
+        num = (b1 * c2 - b2 * c1) + half;
+    }
+    *outX = num / det;
+    if (a2 * c1 < a1 * c2) {
+        num = (a2 * c1 - a1 * c2) - half;
+    } else {
+        num = (a2 * c1 - a1 * c2) + half;
+    }
+    y = num / det;
+    *outZ = y;
+    ix = (s32)*outX;
+    iy = (s32)y;
+    if ((ix == x1 && iy == z1) || (ix == x2 && iy == z2) || (ix == x3 && iy == z3) || (ix == x4 && iy == z4)) {
+        return 3;
+    }
+    return 1;
+}
+
+u8 rectContainsPoint2D(s16 px, s16 pz, s16 minX, s16 minZ, s16 maxX, s16 maxZ) {
+    return px >= minX && maxX >= px && pz >= minZ && maxZ >= pz;
+}
+
+
+u8 polygonContainsPoint2D(s16 x, s16 z, Zone *zone) {
+    s32 res;
+    f32 hitX;
+    f32 hitZ;
+    s16 hits;
+    s16 i;
+    u8 edgeHits;
+
+    hits = 0;
+    if (rectContainsPoint2D(x, z, zone->minX, zone->minZ, zone->maxX, zone->maxZ)) {
+        edgeHits = 0;
+        i = 1;
+        if (zone->vertexCount >= 2) {
+            do {
+                if (i + 1 != zone->vertexCount) {
+                    res = lineSegmentIntersect2D(x, z, -0x8000, -0x8000, zone->vertices[i].x, zone->vertices[i].z, zone->vertices[i + 1].x, zone->vertices[i + 1].z, &hitX, &hitZ);
+                } else {
+                    res = lineSegmentIntersect2D(x, z, -0x8000, -0x8000, zone->vertices[i].x, zone->vertices[i].z, zone->vertices[1].x, zone->vertices[1].z, &hitX, &hitZ);
+                }
+                hits += res != 0;
+                if (res == 3) {
+                    edgeHits++;
+                }
+                i++;
+            } while (i < zone->vertexCount);
+        }
+        if (edgeHits != 0 && !(edgeHits & 1) && hits == edgeHits) {
+            hits--;
+        }
+    }
+    return hits & 1;
+}
+
+
+u8 segmentIntersectsCircle2D(s16 x1, s16 z1, s16 x2, s16 z2, s16 cx, s16 cz, s16 radius) {
+    f32 outX;
+    f32 outY;
+    f32 outZ;
+
+    camClosestPointOnSegment(cx, 0.0f, cz, x1, 0.0f, z1, x2, 0.0f, z2, &outX, &outY, &outZ);
+    return ((outX - cx) * (outX - cx) + (outZ - cz) * (outZ - cz) < (f32)(radius * radius));
+}
+
+
+s32 zoneFindBestReachablePoint(u8 mode, Actor *actor, Zone *zone, s16 *outX, s16 *outY, s16 *outZ) {
+    s16 i;
+    u8 stop;
+    u8 found;
+    s32 best;
+    ZoneEntry *e;
+    s32 d;
+
+    stop = 0;
+    found = 0;
+    if (mode & 1) {
+        best = 0;
+    } else {
+        best = 999999;
+    }
+    for (i = 0; i < zone->entryCount && !stop; i++) {
+        e = &zone->entries[i];
+        if (!(e->flags & 0x80) && ((e->flags & 0x7F) == 3)) {
+            if (segmentIntersectsCircle2D(actor->x, actor->z, e->x, e->z, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 20) == 0) {
+                if (zoneCanReachPoint(actor, e->x, e->y, e->z, zone) != 0) {
+                    if (((mode & 1) && (d = (gBehaviourTargetActor->x - e->x) * (gBehaviourTargetActor->x - e->x) + (gBehaviourTargetActor->z - e->z) * (gBehaviourTargetActor->z - e->z)) > best) ||
+                        ((mode & 2) && (d = (actor->x - e->x) * (actor->x - e->x) + (actor->z - e->z) * (actor->z - e->z)) < best)) {
+                        best = d;
+                        *outX = e->x;
+                        *outY = e->y;
+                        *outZ = e->z;
+                        found = 1;
+                        if (mode & 0x80) {
+                            if (((randomNonNegative() >> 15) % 100) >= 51) {
+                                stop = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return found;
+}
+
+
+s32 zoneCanReachPoint(Actor *actor, s16 targetX, s16 targetY, s16 targetZ, Zone *zone) {
+    s32 res;
+    f32 hitX;
+    f32 hitZ;
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 i;
+    s16 cross;
+    u8 edges;
+
+    cross = 0;
+    edges = 0;
+    x = actor->x;
+    y = actor->y + (f32)(u32)actor->eyeHeight;
+    z = actor->z;
+    for (i = 1; i < zone->vertexCount; i++) {
+        if ((i + 1) != zone->vertexCount) {
+            res = lineSegmentIntersect2D(targetX, targetZ, -0x8000, -0x8000, zone->vertices[i].x, zone->vertices[i].z, zone->vertices[i + 1].x, zone->vertices[i + 1].z, &hitX, &hitZ);
+        } else {
+            res = lineSegmentIntersect2D(targetX, targetZ, -0x8000, -0x8000, zone->vertices[i].x, zone->vertices[i].z, zone->vertices[1].x, zone->vertices[1].z, &hitX, &hitZ);
+        }
+        cross += (res != 0);
+        if (res == 3) {
+            edges++;
+        }
+    }
+    if (edges != 0) {
+        if (!(edges & 1) && (cross == edges)) {
+            cross--;
+        }
+    }
+    res = 1;
+    if (cross & 1) {
+        for (i = 0; res && i < zone->entryCount; i++) {
+            if (!(zone->entries[i].flags & 0x80)) {
+                if (((zone->entries[i].flags & 0x7F) == 0) || ((zone->entries[i].flags & 0x7F) == 5)) {
+                    if (segmentIntersectsCircle2D((s32)x, (s32)z, targetX, targetZ, zone->entries[i].x, zone->entries[i].z, zone->entries[i].radius) != 0) {
+                        if (((f32)zone->entries[i].y <= y) && (y <= (f32)(zone->entries[i].y + zone->entries[i].height))) {
+                            res = 0;
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        res = 0;
+    }
+    return res;
+}
+
+
+s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone, s16 *unused) {
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 i;
+    s32 found;
+    ZoneEntry *e;
+    u8 sel;
+
+    actor->arcYawMin = 0;
+    actor->arcYawMax = 0xFFF;
+    found = 0;
+    x = actor->x;
+    y = actor->y;
+    z = actor->z;
+    for (i = 0; i < zone->entryCount; i++) {
+        e = &zone->entries[i];
+        sel = e->flags & 0x7F;
+        if (!(e->flags & 0x80)) {
+            if ((sel == 0) || (sel == 1) ||
+                ((sel == 5) && ((f64)actor->speedXZ < (f64)(u32)gBehaviourExtraState->chaseSpeed * 1.4))) {
+                if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
+                    if ((e->flags == 0) || (e->flags == 5)) {} // FAKE: flags + const-5 uses and 2 blocks steer count/flags (t0/a1) and s3/s4 colouring
+                    if (!(((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius))) {
+                        continue;
+                    }
+                    collisionComputeArcYawBounds((s32)x, (s32)z, e->x, e->z, &actor->arcYawMin, &actor->arcYawMax);
+                    found = 1;
+                    actor->hasArcBounds = 1;
+                    actor->collisionHit = 1;
+                }
+            }
+        }
+    }
+    return found;
+}
+
+void actorSetPositionFromPoint(Actor *actor, SpawnNode *pt) {
+    actor->x = pt->x;
+    actor->y = pt->y;
+    actor->prevY = pt->y;
+    actor->z = pt->z;
+    actor->yaw = pt->yaw;
+}
+
+// Spawn-node actors of entry type 6 have a third component; its pointer sits at 0x17C.
+typedef struct SpawnControllerActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ void *unk178;
+    /* 0x17C */ s16 *controllerState; // the controller state id (sSpawnControllerStateIds entry or controllerLookupModelAssetId)
+} SpawnControllerActor;
+
+extern f32 gDefaultActorGravity;
+extern s16 gDefaultActorTerminalSpeedY;
+extern s32 gGlobalCutsceneFlags;
+extern u8 gPlayerCount;
+extern s32 gCurrentMap;
+
+void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
+    BehaviourWorkState *st;
+    s32 yaw;
+    s16 pad;
+    s16 scriptId;
+    s32 interval;
+    u8 type;
+    u8 idx;
+    s16 *controllerState;
+    s32 sum;
+
+    st = act->customState;
+    idx = node->entryIndex;
+    type = gSpawnEntryKind[idx];
+    node->state = 5;
+    node->actor = act;
+    node->shadowScale = 1.0f;
+    node->turnAnimScale = 0.01f;
+    if (gSpawnEntryTable[idx].animSpeedDivisor != 0) {
+        node->animSpeedScale = 1.0 / gSpawnEntryTable[idx].animSpeedDivisor;
+    } else {
+        node->animSpeedScale = 0.0f;
+    }
+    scriptId = gSpawnEntryTable[idx].scriptId;
+    if (scriptId != 0) {
+        actorScriptStart(act, scriptId);
+    }
+    gBehaviourAnimState = node;
+    behaviourSetAnimIds(scriptId, scriptId, scriptId);
+    if (act->sub4 != NULL) {
+        actorSetUniformScale(act, ((node->scale * 5) / 255.0) * 0.15);
+    }
+    actorSetPositionFromPoint(act, node);
+    act->floorSlopePitch = 0x400;
+    act->accelY = gDefaultActorGravity;
+    act->terminalSpeedY = gDefaultActorTerminalSpeedY;
+    act->chunkIndex = node->chunkIndex;
+    if (gSpawnEntryTable[idx].spawnRange == 0) {
+        act->drawDistance = 0x7D0;
+    }
+    actorSetTargetSpeed(act, node->targetSpeed);
+    st->node = node;
+    yaw = act->yaw;
+    act->moveYaw = yaw;
+    st->waypointIndex = 0;
+    st->lastMoveTier = 0xFF;
+    st->targetYaw = yaw;
+    st->lastValidX = act->x;
+    st->lastValidY = act->y;
+    st->lastValidZ = act->z;
+    act->collisionMode = 0x24;
+    act->flags &= ~0x10000;
+    act->flags |= 0x20000;
+    act->flags |= gSpawnEntryTable[idx].actorFlags;
+    if (act->sub4 != NULL) {
+        act->flags2 |= 0xC0;
+    }
+    act->shadowScale[0] = gSpawnEntryTable[idx].shadowScaleX;
+    act->shadowScale[1] = gSpawnEntryTable[idx].shadowScaleZ;
+    interval = gSpawnEntryTable[idx].wanderInterval;
+    st->wanderTimer = interval;
+    st->wanderInterval = interval;
+    st->turnRate = gSpawnEntryTable[idx].turnRate;
+    st->moveYawRate = gSpawnEntryTable[idx].moveYawRate;
+    st->wanderDegrees = gSpawnEntryTable[idx].wanderDegrees;
+    st->acceleration = gSpawnEntryTable[idx].acceleration;
+    st->engageState = gSpawnEntryTable[idx].engageState;
+    act->state = node->actorState;
+    act->subState = 0;
+    switch (type) {
+        case 0:
+        case 2:
+        case 3:
+            node->flags |= 0x4000;
+        case 1:
+            node->flags |= 8;
+            break;
+        case 10:
+            node->flags |= 0x80;
+            break;
+        case 6:
+            controllerState = ((SpawnControllerActor *)act)->controllerState;
+            if (act->actorType == 0xFE) {
+                *controllerState = sSpawnControllerStateIds[node->stateIdIndex];
+            } else {
+                *controllerState = controllerLookupModelAssetId(act);
+            }
+            break;
+    }
+    act->tintR = 0xFF;
+    act->tintG = 0xFF;
+    act->tintB = 0xFF;
+    switch (gCurrentMap) {
+        case 0x4E:
+        case 0x4F:
+        case 0x83:
+            sum = node->chaseSpeed + (node->spawnCount * 0xA);
+            if (sum >= 0x100) {
+                node->chaseSpeed = 0xFF;
+            } else {
+                node->chaseSpeed = sum;
+            }
+            break;
+        case 0x53:
+        case 0xC5:
+            if (type != 6) {
+                break;
+            }
+        case 0x4C:
+            act->cullMarginX = 0x3C;
+            act->cullMarginY = 0x3C;
+            act->state = 0;
+            act->subState = 0;
+            act->collisionMode = 1;
+            act->flags |= 0x10000000;
+        case 0x6:
+        case 0xE:
+        case 0x1B:
+        case 0x1C:
+        case 0x27:
+        case 0x37:
+        case 0x52:
+        case 0x6A:
+        case 0x98:
+        case 0x99:
+        case 0xAC:
+        case 0xB9:
+        case 0xD0:
+            node->flags |= 0x20;
+        case 0x3:
+        case 0x43:
+        case 0x44:
+        case 0x4A:
+        case 0xD1:
+            act->flags |= 0x800000;
+            break;
+        case 0x45:
+            act->flags |= 0x800000;
+        case 0x42:
+        case 0x68:
+        case 0x7C:
+        case 0x88:
+        case 0x89:
+        case 0xA5:
+            if (node->actorState != 4) {
+                st->engageState = 7;
+            }
+            break;
+        case 0xD4:
+            act->drawDistance = 0x7D0;
+        case 0xD3:
+            node->flags |= 4;
+            break;
+        case 0x50:
+            act->flags &= ~0x1000000;
+            break;
+    }
+    if (gPlayerCount >= 2) {
+        st->targetActor = gPlayerSlots[(randomNonNegative() >> 0xF) % gPlayerCount].actor;
+    } else {
+        st->targetActor = gPrimaryPlayerActor;
+    }
+    node->nearTurnSpeedScale = 0.75f;
+    act->floorY = node->y;
+    if (type != 8) {
+        actorUpdateFloorContactAndTilt(act, 0.0f);
+        if (gGlobalCutsceneFlags & 2) {
+            act->attachMode = 0;
+        } else if ((type == 4) || (act->actorType == 0xF8)) {
+            node->flags |= 0x800;
+            act->attachMode = 0;
+        } else if (act->attachMode == 1) {
+            node->flags |= 0x200;
+        }
+    }
+    if (type == 5) {
+        gCurrentActor->contactFlags |= 4;
+        gCurrentActor->prevContactFlags |= 4;
+    }
+}
+
+
+u8 spawnNodeHasActor(u8 id) {
+    return spawnNodeHasState(id, 5) || spawnNodeHasState(id, 6);
+}
+
+u8 spawnNodeIsInCooldown(u8 id) {
+    return spawnNodeHasState(id, 7);
+}
+
+u8 spawnNodeHasState(u8 id, u8 state) {
+    s16 i;
+    SpawnNode *node;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        if (node->id == id) {
+            return node->state == state;
+        }
+    }
+    return 0;
+}
+
+void spawnNodesSetActorStateByFlag(u16 mask, u8 state) {
+    s16 i;
+    SpawnNode *node;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        if (node->state == 5) {
+            if (node->actor->collisionFlags & mask) {
+                node->actor->state = state;
+            }
+        }
+    }
+}
+
+
+void spawnNodesSetRespawnHold(u8 command) {
+    s16 i;
+    SpawnNode *node;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        if (!(node->flags & 0x80)) {
+            if ((node->state == 5) && (node->actor->collisionFlags & 2)) {
+                actorQueueDelayedCallback(node->actor, 0, 8, 0, 0, 0, 1);
+            } else if ((node->state == 6) && (node->actor->collisionFlags & 2)) {
+                node->state = 7;
+                node->respawnTimer = node->respawnDelay * 0x1E;
+                camClearActorRefs(node->actor);
+                actorDespawn(node->actor);
+            }
+            switch (command) {
+                case 0:
+                case 1:
+                    node->flags |= 2;
+                    break;
+                case 2:
+                    node->flags &= ~2;
+                    break;
+            }
+        }
+    }
+}
+
+
+void spawnNodeActivateAndSetState(s16 id, u8 state, u16 flags) {
+    Actor *a = spawnNodeActivate(id, flags);
+
+    if (a != NULL) {
+        a->state = state;
+        a->subState = 0;
+    }
+}
+
+
+Actor *spawnNodeActivate(s16 id, u16 flags) {
+    s16 i;
+    SpawnNode *node;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        if (id == node->id) {
+            if (node->state == 5) {
+                node->flags |= flags;
+                return node->actor;
+            } else if ((node->state == 6) && (flags & 0x400)) {
+                actorRegisterActive(node->actor);
+                node->state = 5;
+                return node->actor;
+            }
+        }
+    }
+    return NULL;
+}
+
+u8 spawnNodeIdForActor(Actor *actor) {
+    s16 i;
+    SpawnNode *node;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        if ((actor == node->actor) && (node->state == 5)) {
+            return node->id;
+        }
+    }
+    return 0;
+}
+
+Actor *spawnNodeSpawnById(s16 id, s16 x, s16 y, s16 z, s16 yaw, s16 speed, s16 speedY) {
+    s16 i;
+    SpawnNode *node;
+    const SpawnEntry *entry;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        if ((id == node->id) && (node->state != 5)) {
+            entry = &gSpawnEntryTable[node->entryIndex];
+            if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {
+                node->flags |= 4;
+                spawnNodeInitActorFromEntry(gSpawnedActor, node);
+                if (x != 0) {
+                    gSpawnedActor->x = x;
+                    gSpawnedActor->y = y;
+                    gSpawnedActor->z = z;
+                    gSpawnedActor->moveYaw = yaw;
+                    gSpawnedActor->yaw = yaw;
+                }
+                gSpawnedActor->speedXZ = speed;
+                gSpawnedActor->speedY = speedY;
+                gSpawnedActor->contactFlags = 0;
+                return gSpawnedActor;
+            }
+        }
+    }
+    return NULL;
+}
+
+
+void spawnNodeSpawnAtTablePoint(s16 id, u8 slot) {
+    u8 point;
+    s16 yaw;
+
+    point = gBehaviourAnimState->path[slot][0];
+    yaw = (s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, gBehaviourZone->entries[point].x, gBehaviourZone->entries[point].z) * 4096.0f) / 360.0f);
+    if (spawnNodeSpawnById(id, gBehaviourZone->entries[point].x, gBehaviourZone->entries[point].y, gBehaviourZone->entries[point].z, yaw, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
+        gSpawnedActor->state = 0x17;
+        gSpawnedActor->subState = 0;
+    }
+}
+
+
+void spawnNodeSpawnFacingPoint(s16 id, s16 x, s16 y, s16 z, s16 targetX, s16 targetY, s16 targetZ, s16 duration, s16 speedY) {
+    s16 yaw;
+    s16 speed;
+    f32 dist;
+    s32 dx;
+    s32 dy;
+    s32 dz;
+
+    dx = targetX - x;
+    dy = targetY - y;
+    dz = targetZ - z;
+    yaw = mathAngleBetweenPoints2D(targetX, targetZ, x, z);
+    dist = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+    speed = sqrtf((dx * dx) + (dz * dz)) / (dist / duration);
+    if (spawnNodeSpawnById(id, x, y, z, yaw, speed, speedY) != 0) {
+        gSpawnedActor->state = 0x17;
+        gSpawnedActor->subState = 0;
+    }
+}
+
+void spawnNodesProcessVolumeTriggers(void) {
+    s32 pad;
+    s16 i;
+    SpawnNode *node;
+    s16 j;
+    s16 *trigger;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        for (j = 0; j < gActorGlobalState.volumeTriggerQueueCount; j++) {
+            trigger = gActorGlobalState.volumeTriggerQueueId[j];
+            if (node->id == *trigger) {
+                switch (gActorGlobalState.volumeTriggerQueueOp[j]) {
+                    case 1:
+                        if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].spawnArg) != 0)) {
+                            spawnNodeInitActorFromEntry(gSpawnedActor, node);
+                        } else if ((node->state == 3) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0)) {
+                            if (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].spawnArg) != 0) {
+                                spawnNodeInitActorFromEntry(gSpawnedActor, node);
+                                gSpawnedActor->state = 0x36;
+                            }
+                        }
+                        break;
+                    case 2:
+                        if (node->state == 7) {
+                            node->state = node->initialState;
+                        }
+                        break;
+                    case 3:
+                    case 4:
+                        if (node->state == 5) {
+                            actorAppendCallbackMemcpy8(gCurrentActor, node->actor, 0x01000000, gActorGlobalState.volumeTriggerQueueOp[j], trigger, 0);
+                        }
+                        break;
+                }
+            }
+        }
+    }
+}
+
+extern PlayerState *gActivePlayerState;
+
+void spawnNodeSelectEntry(SpawnNode *node) {
+    if ((gCurrentMap == 0x30) && (gActivePlayerState->stateFlags & 0x100000) && (gSpawnEntryKind[node->baseEntryIndex] != 0xA)) {
+        switch (node->baseEntryIndex) {
+            case 28:
+                node->entryIndex = 0x63;
+                return;
+            case 9:
+                node->entryIndex = 0x54;
+                return;
+            case 44:
+                node->entryIndex = 0x67;
+                return;
+        }
+    } else {
+        node->entryIndex = node->baseEntryIndex;
+    }
+}
+
+
+extern s16 gCurrentLevelIndex;
+
+void spawnNodesUpdate(void) {
+    s16 i;
+    SpawnNode *node;
+    s32 rangeSq;
+    u8 active;
+    s32 bestDistSq;
+    s16 p;
+    const SpawnEntry *entry;
+    f32 dz;
+    f32 dx;
+    s32 distSq;
+    PlayerState *primaryState;
+
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
+        active = (node->state >= 5) && (node->state < 7);
+        if (active) {
+            gBehaviourWorkState = node->actor->customState;
+        }
+        rangeSq = gSpawnEntryTable[node->entryIndex].spawnRange * 0x64;
+        rangeSq = rangeSq * rangeSq;
+        if (active) {
+            node->chunkIndex = node->actor->chunkIndex;
+        }
+        if ((rangeSq == 0) || (node->flags & 4) || (gGlobalOverlayFlags & 0x100)) {
+            rangeSq = 0x7FFFFFFF;
+        }
+        if (active && (node->actor->state == 0x3B)) {
+            camClearActorRefs(node->actor);
+            actorDespawn(node->actor);
+            node->state = 0;
+        } else if (active && (node->actor->state == 0x3C)) {
+            camClearActorRefs(node->actor);
+            actorDespawn(node->actor);
+            node->state = node->initialState;
+            node->flags &= ~4;
+        } else if ((node->state == 7) && (node->respawnTimer != 0)) {
+            if (!(node->flags & 2)) {
+                node->respawnTimer -= 1;
+                if (node->respawnTimer == 0) {
+                    node->spawnCount += 1;
+                    node->state = node->initialState;
+                    node->chunkIndex = mapChunkFindByPosition(node->x, node->y, node->z, 0);
+                    spawnNodeSelectEntry(node);
+                    entry = &gSpawnEntryTable[node->entryIndex];
+                    if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {
+                        spawnNodeInitActorFromEntry(gSpawnedActor, node);
+                        gSpawnedActor->state = 0x36;
+                        node->flags |= 1;
+                    }
+                }
+            }
+        } else if (node->state == 2) {
+            if ((spawnNodeInRangeAndVisible(node, rangeSq) != 0) && (spawnFlagConditionMet(gCurrentLevelIndex, node->id) != 0)) {
+                spawnNodeSelectEntry(node);
+                entry = &gSpawnEntryTable[node->entryIndex];
+                if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {
+                    spawnNodeInitActorFromEntry(gSpawnedActor, node);
+                }
+            }
+        } else if (active && (node->actor->state == 0x40)) {
+            node->state = 7;
+            node->respawnTimer = node->respawnDelay * 0x1E;
+            if (node->zone->occupant == node->actor) {
+                node->zone->occupant = NULL;
+            }
+            camClearActorRefs(node->actor);
+            actorDespawn(node->actor);
+        } else if (active) {
+            bestDistSq = 0xF423F;
+            if ((gBehaviourWorkState->targetActor->collisionFlags & 1) && (gBehaviourWorkState->targetActor->state == 0x67)) {
+                if ((node->actor->collisionFlags & 2) && (node->state == 5)) {
+                    if ((node->actor->state != 0x16) && (node->actor->state != 0x37) && !(node->flags & 0x40)) {
+                        node->actor->state = 0x16;
+                        node->actor->subState = 0;
+                    }
+                }
+            }
+            if (gPlayerCount >= 2) {
+                for (p = 0; p < gPlayerCount; p++) {
+                    primaryState = gPlayerSlots[0].actor->customState;
+                    dz = gCurrentActor->z - gPlayerSlots[p].actor->z;
+                    dx = gCurrentActor->x - gPlayerSlots[p].actor->x;
+                    distSq = (s32)((dz * dz) + (dx * dx));
+                    if ((distSq < bestDistSq) || (primaryState->surfaceTimer != 0)) {
+                        bestDistSq = distSq;
+                        gBehaviourWorkState->targetActor = gPlayerSlots[p].actor;
+                    }
+                }
+            }
+            if (node->state == 6) {
+                if (spawnNodeActorOutOfRangeScaled(node, rangeSq) != 0) {
+                    actorDespawn(node->actor);
+                    node->state = node->initialState;
+                } else if (spawnNodeActorInRangeAndVisible(node, rangeSq) != 0) {
+                    actorRegisterActive(node->actor);
+                    node->state = 5;
+                    node->flags |= 0x8000;
+                }
+            } else if ((node->state == 5) && (spawnNodeActorOutOfRangeOrHidden(node, rangeSq) != 0)) {
+                if ((node->actor->state != 0x16) && (node->actor->state != 0x37)) {
+                    if (node->actor->actorType == 0xF8) {
+                        sfxStopChannel(0x42, 0);
+                    }
+                    sfxStopSlotSound(node->actor, 0);
+                    sfxStopSlotSound(node->actor, 1);
+                    actorDeregisterActive(node->actor);
+                    node->state = 6;
+                    gBehaviourWorkState->stepCount = 0;
+                }
+            }
+        }
+    }
+}
+
+
+u8 spawnNodeInRangeAndVisible(SpawnNode *node, s32 rangeSq) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    s32 ret;
+
+    dz = gPlayerSlots[0].camZ - node->z;
+    dx = gPlayerSlots[0].camX - node->x;
+    dy = gPlayerSlots[0].camY - node->y;
+    ret = 0;
+    if (((dz * dz) + ((dx * dx) + (dy * dy))) < rangeSq) {
+        ret = 1;
+    }
+    if (ret) {
+        ret = gSpawnEntryKind[node->entryIndex] == 6;
+        if (!ret) {
+            ret = (node->flags & 0x20) != 0;
+            if (!ret) {
+                ret = mapChunkIsVisibleForPlayer(0, node->chunkIndex) != 0;
+            }
+        }
+    }
+    return ret;
+}
+
+u8 spawnNodeActorInRangeAndVisible(SpawnNode *node, s32 rangeSq) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    s32 ret;
+
+    dz = gPlayerSlots[0].camZ - node->actor->z;
+    dx = gPlayerSlots[0].camX - node->actor->x;
+    dy = gPlayerSlots[0].camY - node->actor->y;
+    ret = 0;
+    if (((dz * dz) + ((dx * dx) + (dy * dy))) < rangeSq) {
+        ret = 1;
+    }
+    if (ret) {
+        ret = (node->actor->collisionFlags & 0x40) != 0;
+        if (!ret) {
+            ret = (node->flags & 0x20) != 0;
+            if (!ret) {
+                ret = mapChunkIsVisibleForPlayer(0, node->chunkIndex) != 0;
+            }
+        }
+    }
+    return ret;
+}
+
+u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *node, s32 rangeSq) {
+    s32 ret;
+
+    ret = rangeSq < ((gPlayerSlots[0].camX - node->actor->x) * (gPlayerSlots[0].camX - node->actor->x)) +
+                        ((gPlayerSlots[0].camY - node->actor->y) * (gPlayerSlots[0].camY - node->actor->y)) +
+                        ((gPlayerSlots[0].camZ - node->actor->z) * (gPlayerSlots[0].camZ - node->actor->z));
+    if (ret == 0) {
+        ret = (node->actor->collisionFlags & 0x40) == 0;
+        if (ret != 0) {
+            ret = (node->flags & 0x20) == 0;
+            if (ret != 0) {
+                ret = mapChunkIsVisibleForPlayer(0, node->chunkIndex) == 0;
+            }
+        }
+    }
+    return ret;
+}
+
+u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
+    f32 r;
+    s32 scaledRange;
+    s32 ret;
+
+    r = sqrtf(rangeSq);
+    ret = (node->actor->collisionFlags & 2) != 0;
+    if (ret) {
+        ret = (node->flags & 0x20) == 0;
+        if (ret) {
+            ret = node->initialState == 2;
+            if (ret) {
+                scaledRange = r * 1.5;
+                ret = (scaledRange * scaledRange) <
+                      ((gPlayerSlots[0].camX - node->actor->x) * (gPlayerSlots[0].camX - node->actor->x)) +
+                          ((gPlayerSlots[0].camY - node->actor->y) * (gPlayerSlots[0].camY - node->actor->y)) +
+                          ((gPlayerSlots[0].camZ - node->actor->z) * (gPlayerSlots[0].camZ - node->actor->z));
+            }
+        }
+    }
+    return ret;
+}
+
+void spawnNodeAssignZone(SpawnNode *node) {
+    s16 i;
+    Zone *zone;
+
+    zone = gZoneTable->zones;
+    for (i = 0; i < gZoneTable->count; i++, zone++) {
+        zone->occupant = NULL;
+        zone->attachedCount = 0;
+        if (zone->id == node->zoneId) {
+            node->zone = zone;
+            break;
+        }
+    }
+    if (node->zone == NULL) {
+        node->zone = gZoneTable->zones;
+    }
+}
+
+
+
+// Map-file records copied verbatim: a node's first 0x16 bytes and one 2-byte path step.
+typedef struct SpawnNodeRecord {
+    s16 v[11];
+} SpawnNodeRecord;
+
+typedef struct SpawnPathStep {
+    u8 v[2];
+} SpawnPathStep;
+
+void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes) {
+    s32 t;
+    s16 *src;
+    s16 cnt;
+    s16 *p;
+    s16 *q;
+    s16 j;
+    void *mem;
+    s32 sameY;
+    SpawnNode *node;
+    s16 i;
+    s16 prevY;
+    Zone *rec;
+    s16 *r;
+
+    src = data;
+    if (src != NULL) {
+        t = *src++;
+        cnt = t;
+        zones->count = t;
+    } else {
+        cnt = zones->count = 0;
+    }
+    rec = heapAlloc(cnt * sizeof(Zone));
+    zones->zones = rec;
+    for (i = 0; i < zones->count; i++) {
+        sameY = 1;
+        j = 0;
+        if (i != 0) {
+            rec++;
+        }
+        rec->minZ = rec->minX = 0x7FFF;
+        rec->maxZ = rec->maxX = -0x8000;
+        if (src != NULL) {
+            t = *src++;
+            cnt = t;
+            rec->vertexCount = t;
+        } else {
+            cnt = rec->vertexCount = 0;
+        }
+        p = src;
+        if (cnt != 0) {
+            rec->vertices = heapAlloc(cnt * sizeof(ZoneVertex));
+        }
+        if (cnt > 0) {
+            do {
+                rec->vertices[j] = *(ZoneVertex *)p;
+                p += 3;
+                rec->minX = (rec->minX < rec->vertices[j].x) ? rec->minX : rec->vertices[j].x;
+                rec->minZ = (rec->minZ < rec->vertices[j].z) ? rec->minZ : rec->vertices[j].z;
+                rec->maxX = (rec->vertices[j].x < rec->maxX) ? rec->maxX : rec->vertices[j].x;
+                rec->maxZ = (rec->vertices[j].z < rec->maxZ) ? rec->maxZ : rec->vertices[j].z;
+                if (j == 0) {
+                    prevY = rec->vertices[j].y;
+                } else {
+                    if (prevY != rec->vertices[j].y) {
+                        sameY = 0;
+                    }
+                    prevY = rec->vertices[j].y;
+                }
+                j++;
+            } while (j < cnt);
+            j = 0;
+        }
+        src = p;
+        if (src != NULL) {
+            t = *src++;
+            cnt = t;
+            rec->entryCount = t;
+        } else {
+            cnt = rec->entryCount = 0;
+        }
+        q = src;
+        if (cnt != 0) {
+            rec->entries = heapAlloc(cnt * sizeof(ZoneEntry));
+        }
+        if (cnt > 0) {
+            do {
+                rec->entries[j] = *(ZoneEntry *)q;
+                j++;
+                q += 5;
+            } while (j < cnt);
+        }
+        src = q;
+        if (src != NULL) {
+            rec->id = *src++;
+            rec->floorQueryMode = *src++;
+            if (sameY != 0) {
+                rec->floorQueryMode = 1;
+            }
+        }
+    }
+    i = 0;
+    if (src != NULL) {
+        t = *src++;
+        nodes->count = t;
+        cnt = t;
+    } else {
+        nodes->count = 0;
+        cnt = 0;
+    }
+    mem = heapAlloc(cnt * sizeof(SpawnNode));
+    nodes->nodes = mem;
+    heapClearBlock(mem);
+    r = src;
+    node = nodes->nodes;
+    for (; i < nodes->count; i++) {
+        j = 0;
+        if (i != 0) {
+            node++;
+        }
+        *(SpawnNodeRecord *)node = *(SpawnNodeRecord *)r;
+        r += 11;
+        node->state = node->initialState;
+        node->entryIndex = node->baseEntryIndex;
+        node->actor = NULL;
+        node->flags = 0;
+        node->respawnTimer = 0;
+        node->spawnCount = 0;
+        node->minAnimSpeed = 0.0f;
+        node->chunkIndex = mapChunkFindByPosition((f32)node->x, (f32)node->y, (f32)node->z, 0);
+        node->path = heapAlloc(node->pathCount * sizeof(*node->path));
+        q = r;
+        if (node->pathCount > 0) {
+            do {
+                ((SpawnPathStep *)node->path)[j] = *(SpawnPathStep *)q;
+                j++;
+                q += 1;
+            } while (j < node->pathCount);
+        }
+        r = q;
+        spawnNodeAssignZone(node);
+    }
+}
+
+
+
+u8 currentActorAnimTryIdleVariant(u8 anim, u32 *lastFrame) {
+    u8 ret;
+
+    ret = 0;
+    if ((anim & 0x80) || (((*lastFrame + 0x32) < gFrameCounter) && (((randomNonNegative() >> 0xF) % 1000) >= 0x3C1) && (animIsPlaying(gCurrentActor, anim) == 0))) {
+        anim &= 0x7F;
+        animSetSpeed(gCurrentActor, anim, 1.0f);
+        animSetLoopMode(gCurrentActor, anim, 1);
+        animSetDirection(gCurrentActor, anim, 0);
+        animSetEndFrame(gCurrentActor, anim, 3);
+        animClearStartFrame(gCurrentActor, anim);
+        animSetFrameAndSubframe(gCurrentActor, anim, 0, 0.0f);
+        animSetLoopLimit(gCurrentActor, anim, 2);
+        *lastFrame = gFrameCounter;
+        ret = 1;
+    }
+    return ret;
+}
+
+
+void currentActorAnimFinish(u8 anim) {
+    animSetLoopLimit(gCurrentActor, anim, 1);
+    animSetFinished(gCurrentActor, anim, 1);
+    animSetFrameAndSubframe(gCurrentActor, anim, 2, 0.0f);
+}
+
+void currentActorAnimSetFrame(u8 frame, u8 subframe) {
+    animSetFrameAndSubframe(gCurrentActor, frame, subframe, 0.0f);
+}
+
+extern EffectGridAsset gEffectSpriteImpactFlash, gEffectSpriteBurstOrange, gEffectSpriteWaterSplash, gEffectSpriteBubble, gEffectSpriteSparklePurple;
+extern void *gPuffSprites[];
+
+
+
+void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
+    Zone *group;
+    s16 x;
+    s16 y;
+    s16 z;
+    s16 i;
+
+    group = gZoneTable->zones;
+    x = group->entries[entryIndex].x;
+    y = group->entries[entryIndex].y;
+    z = group->entries[entryIndex].z;
+    switch (effect) {
+        case 0: {
+            f32 offX;
+            f32 offY;
+            f32 offZ;
+
+            for (i = 0; i < count; i++) {
+                offX = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
+                offY = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 20);
+                offZ = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
+                effectSetColor(0xE6, 0xE6, 0xE6, 0xC8);
+                effectSetCallback(effectSinkBySpeedUpdate);
+                effectSetSpeed(-(i * 20));
+                effectSetDepth(1);
+                effectSetFrameDelay(param);
+                effectCreateAtPosition(&sEffectSparkConfig, 1.5f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
+            }
+            return;
+        }
+        case 7:
+            break;
+        case 1:
+            effectSpawnMultiTierRing(0.36f, 1, (f32)x, (f32)(y + 5), (f32)z);
+            camStartShake(gCamActor, 0x14, 0xF);
+            return;
+        case 2:
+            weatherTriggerLightningFlash();
+            return;
+        case 3:
+            actorSpawnEffectChild((f32)x, (f32)y, (f32)z, param * 0.01, count * 0.01, NULL, 0);
+            return;
+        case 4:
+            tagBarrelSpawnSmokeAndPuffs((f32)x, (f32)y, (f32)z, param * 0.01, 0, 0);
+            return;
+        case 5:
+            if (param != 0x14) {
+                actorSpawn(0x104, 0);
+                gSpawnedActor->splineT = count;
+            }
+            switch (param) {
+                case 0:
+                    gSpawnedActor->x = 450.0f;
+                    gSpawnedActor->y = 500.0f;
+                    gSpawnedActor->bannerId = 0x14;
+                    break;
+                case 1:
+                    gSpawnedActor->x = 820.0f;
+                    gSpawnedActor->y = 500.0f;
+                    gSpawnedActor->bannerId = 0x15;
+                    break;
+                case 10:
+                    sfxPlayOnFreeSlot(0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    gSpawnedActor->bannerId = 0;
+                    gSpawnedActor->x = 500.0f;
+                    gSpawnedActor->y = 80.0f;
+                    break;
+                case 11:
+                    sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    gSpawnedActor->bannerId = 0x89;
+                    gSpawnedActor->x = 600.0f;
+                    gSpawnedActor->y = 80.0f;
+                    break;
+                case 12:
+                    sfxPlayOnFreeSlot(0x3F4, 0x7FFF, 63.0f, 1.0f, 0, 0);
+                    gSpawnedActor->bannerId = 0x47;
+                    gSpawnedActor->x = 600.0f;
+                    gSpawnedActor->y = 80.0f;
+                    break;
+                case 13:
+                    gSpawnedActor->bannerId = 0x23;
+                    gSpawnedActor->x = 600.0f;
+                    gSpawnedActor->y = 80.0f;
+                    break;
+                case 20:
+                    actorSpawn(0x92, 0x73);
+                    actorScriptStart(gSpawnedActor, 0x42A);
+                    return;
+                case 30:
+                case 31:
+                case 32:
+                case 33:
+                case 34:
+                case 35:
+                    gSpawnedActor->bannerId = param;
+                    gSpawnedActor->x = 500.0f;
+                    gSpawnedActor->y = 80.0f;
+                    break;
+            }
+            break;
+        case 15:
+            actorSpawn(0x92, 0x73);
+            actorScriptStart(gSpawnedActor, 0x42A);
+            return;
+        case 6:
+            for (i = 0; i < count; i++) {
+                void *configs[2] = { &sEffectSparkConfig, &gEffectSpriteStar };
+                u8 durations[2] = { 1, 0x12 };
+                u8 pick;
+                s16 targetX;
+                s16 targetZ;
+                s16 angle;
+
+                pick = (randomNonNegative() >> 0xF) % 2;
+                targetX = group->entries[param].x;
+                targetZ = group->entries[param].z;
+                angle = mathAngleBetweenPoints2D((f32)targetX, (f32)targetZ, (f32)x, (f32)z);
+                effectSetDepth(1);
+                effectSetDuration(durations[pick]);
+                effectSetCallback(effectConfettiPhysicsUpdate);
+                effectSetSpeed((angle << 16) + 3);
+                effectCreateAtPosition(configs[pick], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
+            }
+            return;
+        case 12:
+            effectSetMaxDistance(0x7D0);
+            effectSetFrameDelay(1);
+            effectCreateAtPosition(&gEffectSpriteWaterSplash, param * 0.01, (f32)x, (f32)y, (f32)z);
+            return;
+        case 8: {
+            f32 scale;
+            f32 offX;
+            f32 offZ;
+
+            scale = param * 0.01;
+            for (i = 0; i < count; i++) {
+                offX = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale;
+                offZ = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale;
+                effectSetMaxDistance(0x7D0);
+                effectSetDepth(1);
+                effectCreateAtPosition(&gEffectSpriteBurstOrange, scale * 1.3, (f32)x + offX, (f32)y, (f32)z + offZ);
+                effectSetColor(0xD2, 0xD2, 0xD2, 0xC8);
+                effectSpawnBoneDefault(NULL, 0, scale * 1.2, (f32)x + offX, (f32)y, (f32)z + offZ, -0xB4);
+            }
+            return;
+        }
+        case 9:
+            for (i = 0; i < param; i++) {
+                effectSetFrameDelay(2);
+                effectSetCallback(effectPuffRiseUpdate);
+                effectSetDepth(1);
+                effectSetSpeed(1);
+                effectSetStartDelay(i * 3);
+                effectCreateAtPosition(gPuffSprites[(randomNonNegative() >> 0xF) % 1000 % 3], count * 0.01, (f32)x, (f32)y, (f32)z);
+            }
+            return;
+        case 10: {
+            s32 rnd;
+            f32 posX;
+            f32 posY;
+
+            for (i = 0; i < param; i++) {
+                rnd = randomNonNegative() >> 0xF;
+                posX = (f32)(rnd % 300);
+                posY = (f32)((randomNonNegative() >> 0xF) % 200);
+                effectEnableFade();
+                effectCreateAtPosition(&gEffectSpriteImpactFlash, count * 0.01, posX, posY, -10.0f);
+            }
+            return;
+        }
+        case 11: {
+            s8 jitterX;
+            s8 jitterY;
+            s8 jitterZ;
+
+            for (i = 0; i < param; i++) {
+                jitterX = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
+                jitterY = (randomLcgNext() / 10000 % 200) / 10.0 - 7.0;
+                jitterZ = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
+                effectSetDepth(1);
+                effectSetDuration(2);
+                effectSetSpeed(0x64);
+                effectSetCallback(effectSinkBySpeedUpdate);
+                effectSetStartDelay(i / 7);
+                effectCreateAtPosition(&gEffectSpriteSparklePurple, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
+            }
+            return;
+        }
+        case 13:
+            effectSpawnDebrisParticles(NULL, param * 0.01, (f32)x, (f32)y, (f32)z);
+            return;
+        case 14: {
+            f32 offX;
+            f32 offY;
+            f32 offZ;
+
+            for (i = 0; i < param; i++) {
+                offX = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                offY = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                offZ = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                effectSetDepth(1);
+                effectSetSpeed(2);
+                effectSetDuration(-1);
+                effectSetCallback(effectWobbleRiseUpdate);
+                effectSetFlags(4);
+                effectCreateAtPosition(&gEffectSpriteBubble, 0.0f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
+            }
+            break;
+        }
+    }
+}
+
+
+
+void spawnNodeSignalActor(u8 id) {
+    Actor *a;
+
+    a = spawnNodeActivate(id, 0);
+    if (a == NULL) {
+        a = gPrimaryPlayerActor;
+    }
+    a->contactFlags |= 0x100;
+}
+
+const SpawnEntry gSpawnEntryTable[113] = {
+    /* 0x00 */ { 0xB2, 0x1A, 504, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 2, 94, 94, 35, 25 },
+    /* 0x01 */ { 0x11E, 0x36, 0, { 0, 0 }, 0, 170, 70, 0, 16, 12, 10, 10, 12, 94, 94, 35, 33 },
+    /* 0x02 */ { 0xB4, 0x26, 640, { 0, 0 }, 0, 0, 0, 15, 12, 14, 3, 6, 2, 94, 94, 1, 40 },
+    /* 0x03 */ { 0xB5, 0x57, 819, { 0, 0 }, 0x00000001, 170, 70, 10, 12, 14, 3, 6, 2, 180, 180, 1, 0 },
+    /* 0x04 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x05 */ { 0xB7, 0x1C, 592, { 0, 0 }, 0, 170, 70, 5, 8, 8, 2, 10, 10, 94, 94, 1, 0 },
+    /* 0x06 */ { 0xB6, 0x1E, 590, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 2, 8, 6, 255, 94, 94, 51, 50 },
+    /* 0x07 */ { 0xB8, 0x1F, 0, { 0, 0 }, 0x01001001, 170, 70, 10, 12, 14, 3, 6, 2, 94, 94, 1, 40 },
+    /* 0x08 */ { 0xB9, 0x38, 598, { 0, 0 }, 0x00000401, 170, 70, 0, 20, 20, 3, 6, 12, 250, 200, 1, 125 },
+    /* 0x09 */ { 0xBB, 0x3A, 683, { 0, 0 }, 0x00000001, 170, 70, 5, 12, 14, 3, 6, 2, 94, 94, 35, 67 },
+    /* 0x0A */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x0B */ { 0xBD, 0x11, 0, { 0, 0 }, 0x01000401, 170, 70, 10, 12, 14, 3, 6, 2, 94, 94, 1, 25 },
+    /* 0x0C */ { 0xBE, 0x12, 0, { 0, 0 }, 0x01000401, 170, 70, 10, 12, 14, 3, 6, 2, 94, 94, 1, 25 },
+    /* 0x0D */ { 0xBF, 0x13, 626, { 0, 0 }, 0x01000401, 170, 70, 10, 12, 14, 3, 6, 2, 45, 45, 1, 25 },
+    /* 0x0E */ { 0xC0, 0x2E, 641, { 0, 0 }, 0x00000001, 170, 70, 90, 30, 5, 3, 6, 2, 94, 94, 1, 100 },
+    /* 0x0F */ { 0xC1, 0x5B, 931, { 0, 0 }, 0x00000400, 170, 70, 10, 20, 20, 2, 6, 2, 94, 94, 1, 50 },
+    /* 0x10 */ { 0xAF, 0x20, 590, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 2, 8, 6, 255, 94, 94, 51, 50 },
+    /* 0x11 */ { 0xC2, 0x4E, 583, { 0, 0 }, 0, 170, 70, 10, 8, 12, 4, 10, 2, 94, 94, 1, 0 },
+    /* 0x12 */ { 0xC3, 0x1D, 573, { 0, 0 }, 0, 170, 70, 10, 8, 12, 4, 10, 2, 94, 94, 1, 20 },
+    /* 0x13 */ { 0xC4, 0x4, 630, { 0, 0 }, 0x01001001, 175, 70, 10, 12, 14, 3, 6, 8, 94, 94, 1, 40 },
+    /* 0x14 */ { 0xC5, 0x1, 631, { 0, 0 }, 0x01001001, 170, 70, 10, 12, 14, 3, 6, 8, 94, 94, 1, 40 },
+    /* 0x15 */ { 0xC6, 0x6, 632, { 0, 0 }, 0x01001001, 170, 70, 10, 12, 14, 3, 6, 8, 94, 94, 1, 33 },
+    /* 0x16 */ { 0xC7, 0x9, 633, { 0, 0 }, 0x01001001, 170, 70, 10, 12, 14, 3, 6, 8, 94, 94, 1, 50 },
+    /* 0x17 */ { 0xC8, 0xC, 634, { 0, 0 }, 0x01001001, 170, 70, 10, 12, 14, 3, 6, 8, 94, 94, 1, 33 },
+    /* 0x18 */ { 0xCB, 0xA0, 0, { 0, 0 }, 0x00000001, 170, 70, 10, 12, 14, 3, 6, 2, 94, 94, 1, 33 },
+    /* 0x19 */ { 0xC9, 0x3E, 700, { 0, 0 }, 0x00000001, 170, 70, 10, 12, 14, 3, 6, 8, 94, 94, 1, 33 },
+    /* 0x1A */ { 0xCC, 0x25, 545, { 0, 0 }, 0x00000400, 170, 70, 0, 20, 20, 2, 10, 8, 135, 135, 1, 50 },
+    /* 0x1B */ { 0xCD, 0x21, 562, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 6, 6, 4, 80, 100, 35, 50 },
+    /* 0x1C */ { 0xCE, 0x1C, 592, { 0, 0 }, 0, 170, 70, 5, 8, 8, 2, 10, 10, 94, 150, 1, 0 },
+    /* 0x1D */ { 0xCF, 0x4D, 575, { 0, 0 }, 0, 170, 70, 5, 8, 12, 4, 10, 2, 94, 94, 1, 0 },
+    /* 0x1E */ { 0xD0, 0x22, 562, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 6, 6, 4, 80, 100, 35, 50 },
+    /* 0x1F */ { 0xD1, 0x23, 562, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 6, 6, 4, 80, 100, 35, 50 },
+    /* 0x20 */ { 0xD2, 0, 0, { 0, 0 }, 0, 0, 0, 0, 12, 14, 3, 6, 2, 94, 94, 1, 1 },
+    /* 0x21 */ { 0xD4, 0x1B, 504, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 2, 94, 94, 35, 25 },
+    /* 0x22 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x23 */ { 0xD5, 0, 0, { 0, 0 }, 0, 0, 0, 10, 12, 14, 3, 6, 2, 94, 94, 1, 1 },
+    /* 0x24 */ { 0xD6, 0x8E, 0, { 0, 0 }, 0x00001000, 170, 70, 10, 12, 14, 3, 6, 2, 94, 94, 1, 40 },
+    /* 0x25 */ { 0xD7, 0x8E, 0, { 0, 0 }, 0x00001000, 170, 70, 10, 12, 14, 3, 6, 2, 94, 94, 1, 40 },
+    /* 0x26 */ { 0xD8, 0x3B, 531, { 0, 0 }, 0x80000401, 170, 70, 0, 20, 10, 2, 10, 8, 200, 200, 1, 50 },
+    /* 0x27 */ { 0xDC, 0, 0, { 0, 0 }, 0, 0, 0, 10, 12, 14, 3, 6, 2, 94, 94, 1, 1 },
+    /* 0x28 */ { 0xE3, 0x6C, 0, { 0, 0 }, 0x00001400, 0, 50, 0, 20, 12, 1, 10, 4, 80, 80, 1, 50 },
+    /* 0x29 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x2A */ { 0xDF, 0, 0, { 0, 0 }, 0, 0, 0, 10, 12, 14, 3, 6, 2, 0, 0, 1, 1 },
+    /* 0x2B */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x2C */ { 0xE0, 0x5C, 887, { 0, 0 }, 0x00000001, 170, 70, 90, 30, 5, 3, 6, 6, 94, 94, 35, 80 },
+    /* 0x2D */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x2E */ { 0xE2, 0x27, 652, { 0, 0 }, 0x00000401, 170, 160, 10, 10, 5, 5, 10, 2, 140, 140, 1, 20 },
+    /* 0x2F */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x30 */ { 0xE4, 0x28, 0, { 0, 0 }, 0x00000400, 170, 70, 5, 30, 15, 3, 3, 2, 50, 50, 1, 40 },
+    /* 0x31 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x32 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x33 */ { 0xE6, 0x2B, 0, { 0, 0 }, 0x00000001, 170, 70, 5, 30, 14, 3, 3, 2, 50, 50, 35, 40 },
+    /* 0x34 */ { 0xE7, 0x9E, 0, { 0, 0 }, 0x00000001, 170, 70, 10, 30, 14, 3, 3, 2, 50, 50, 1, 40 },
+    /* 0x35 */ { 0xE9, 0x1D, 573, { 0, 0 }, 0, 170, 70, 10, 8, 12, 4, 10, 2, 94, 94, 1, 20 },
+    /* 0x36 */ { 0x134, 0x17, 667, { 0, 0 }, 0x00000001, 170, 70, 0, 30, 14, 3, 3, 2, 50, 50, 1, 40 },
+    /* 0x37 */ { 0xEA, 0x2D, 649, { 0, 0 }, 0x00000401, 128, 255, 10, 10, 5, 5, 10, 2, 140, 140, 1, 20 },
+    /* 0x38 */ { 0xEB, 0x2C, 801, { 0, 0 }, 0x00000001, 170, 70, 10, 10, 5, 5, 10, 10, 50, 50, 35, 40 },
+    /* 0x39 */ { 0xEC, 0x3C, 0, { 0, 0 }, 0x00000401, 170, 70, 0, 20, 12, 1, 10, 8, 200, 240, 1, 50 },
+    /* 0x3A */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x3B */ { 0xEE, 0x31, 507, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 100 },
+    /* 0x3C */ { 0xF0, 0x59, 813, { 0, 0 }, 0, 170, 70, 10, 8, 12, 4, 10, 2, 94, 94, 1, 20 },
+    /* 0x3D */ { 0xF1, 0x37, 515, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 60 },
+    /* 0x3E */ { 0xF2, 0x37, 515, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 60 },
+    /* 0x3F */ { 0xF3, 0x37, 515, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 60 },
+    /* 0x40 */ { 0xF4, 0x37, 515, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 60 },
+    /* 0x41 */ { 0xF5, 0x37, 515, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 60 },
+    /* 0x42 */ { 0xF6, 0x34, 698, { 0, 0 }, 0, 170, 70, 80, 8, 30, 10, 10, 2, 94, 94, 1, 20 },
+    /* 0x43 */ { 0xF7, 0x17, 677, { 0, 0 }, 0x00000001, 175, 70, 20, 12, 18, 10, 6, 8, 94, 94, 1, 50 },
+    /* 0x44 */ { 0xF8, 0x3D, 693, { 0, 0 }, 0, 170, 70, 5, 8, 8, 2, 10, 10, 94, 94, 1, 0 },
+    /* 0x45 */ { 0xF9, 0x5E, 573, { 0, 0 }, 0, 170, 70, 10, 8, 12, 4, 10, 2, 94, 94, 1, 0 },
+    /* 0x46 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x47 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x48 */ { 0xFC, 0x47, 770, { 0, 0 }, 0, 170, 70, 5, 8, 8, 2, 10, 2, 50, 50, 1, 50 },
+    /* 0x49 */ { 0xFA, 0x56, 854, { 0, 0 }, 0, 170, 70, 10, 8, 12, 4, 10, 2, 94, 94, 1, 20 },
+    /* 0x4A */ { 0xFD, 0x30, 0, { 0, 0 }, 0, 170, 70, 20, 8, 12, 4, 10, 2, 94, 94, 1, 20 },
+    /* 0x4B */ { 0x101, 0, 0, { 0, 0 }, 0, 0, 0, 10, 12, 14, 3, 6, 2, 94, 94, 1, 1 },
+    /* 0x4C */ { 0x100, 0, 0, { 0, 0 }, 0, 0, 0, 0, 12, 14, 3, 6, 2, 94, 94, 1, 1 },
+    /* 0x4D */ { 0x129, 0, 0, { 0, 0 }, 0, 0, 0, 0, 12, 14, 3, 6, 2, 94, 94, 1, 1 },
+    /* 0x4E */ { 0x12F, 0x35, 0, { 0, 0 }, 0x00000001, 170, 70, 0, 30, 14, 3, 3, 2, 50, 50, 1, 40 },
+    /* 0x4F */ { 0x138, 0x8E, 0, { 0, 0 }, 0x00001001, 170, 70, 0, 30, 14, 3, 3, 2, 50, 50, 1, 40 },
+    /* 0x50 */ { 0xFE, 0x21, 0, { 0, 0 }, 0x01000001, 175, 70, 0, 12, 14, 3, 6, 8, 94, 94, 1, 40 },
+    /* 0x51 */ { 0x103, 0x3F, 705, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 30 },
+    /* 0x52 */ { 0x13A, 0xBD, 0, { 0, 0 }, 0, 170, 70, 20, 8, 12, 4, 10, 2, 94, 94, 1, 20 },
+    /* 0x53 */ { 0x105, 0x40, 594, { 0, 0 }, 0, 170, 70, 5, 12, 12, 5, 20, 10, 94, 150, 1, 0 },
+    /* 0x54 */ { 0x106, 0x42, 727, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 33 },
+    /* 0x55 */ { 0x10B, 0x43, 734, { 0, 0 }, 0, 170, 70, 5, 16, 12, 10, 10, 12, 94, 94, 35, 33 },
+    /* 0x56 */ { 0x10C, 0x44, 738, { 0, 0 }, 0, 170, 70, 5, 16, 12, 10, 10, 12, 94, 94, 35, 33 },
+    /* 0x57 */ { 0x10D, 0x39, 745, { 0, 0 }, 0x00000001, 170, 70, 5, 12, 14, 3, 6, 2, 50, 50, 35, 40 },
+    /* 0x58 */ { 0x10E, 0x29, 746, { 0, 0 }, 0x00000001, 170, 70, 5, 12, 14, 3, 6, 2, 50, 50, 35, 40 },
+    /* 0x59 */ { 0x10F, 0x2A, 747, { 0, 0 }, 0x00000001, 170, 70, 5, 12, 14, 3, 6, 2, 50, 50, 35, 40 },
+    /* 0x5A */ { 0x110, 0x47, 0, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 2, 94, 94, 35, 25 },
+    /* 0x5B */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x5C */ { 0x111, 0x4A, 0, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 2, 94, 94, 35, 50 },
+    /* 0x5D */ { 0x113, 0x45, 752, { 0, 0 }, 0x01000001, 170, 70, 0, 12, 14, 3, 6, 2, 200, 200, 35, 25 },
+    /* 0x5E */ { 0xFB, 0x46, 761, { 0, 0 }, 0, 170, 70, 0, 10, 12, 10, 6, 12, 94, 94, 1, 33 },
+    /* 0x5F */ { 0x114, 0x46, 756, { 0, 0 }, 0, 170, 70, 5, 10, 7, 5, 6, 12, 94, 94, 35, 33 },
+    /* 0x60 */ { 0x115, 0x1D, 0, { 0, 0 }, 0, 170, 70, 5, 8, 12, 4, 10, 2, 94, 94, 1, 20 },
+    /* 0x61 */ { 0x119, 0x68, 993, { 0, 0 }, 0x00001401, 0, 50, 0, 20, 12, 1, 10, 4, 80, 80, 1, 50 },
+    /* 0x62 */ { 0x11B, 0x4B, 0, { 0, 0 }, 0x01000001, 170, 70, 0, 12, 14, 3, 6, 2, 20, 20, 35, 25 },
+    /* 0x63 */ { 0x11D, 0x4F, 779, { 0, 0 }, 0, 170, 70, 5, 6, 6, 2, 12, 2, 95, 95, 1, 0 },
+    /* 0x64 */ { 0x120, 0x51, 793, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 70 },
+    /* 0x65 */ { 0x121, 0x52, 798, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 30 },
+    /* 0x66 */ { 0x122, 0x5A, 814, { 0, 0 }, 0, 170, 70, 5, 16, 12, 10, 10, 12, 94, 94, 35, 33 },
+    /* 0x67 */ { 0x123, 0x61, 863, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 50 },
+    /* 0x68 */ { 0, 0, 0, { 0, 0 }, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* 0x69 */ { 0x143, 0x35, 0, { 0, 0 }, 0x00000001, 170, 70, 0, 30, 14, 3, 3, 2, 50, 50, 1, 40 },
+    /* 0x6A */ { 0x124, 0x68, 993, { 0, 0 }, 0x00001401, 0, 50, 0, 20, 12, 1, 10, 4, 80, 80, 1, 50 },
+    /* 0x6B */ { 0x125, 0x68, 993, { 0, 0 }, 0x00001401, 0, 50, 0, 20, 12, 1, 10, 4, 80, 80, 1, 50 },
+    /* 0x6C */ { 0x126, 0x68, 993, { 0, 0 }, 0x00001401, 0, 50, 0, 20, 12, 1, 10, 4, 80, 80, 1, 50 },
+    /* 0x6D */ { 0x127, 0x68, 993, { 0, 0 }, 0x00001401, 0, 50, 0, 20, 12, 1, 10, 3, 80, 80, 1, 80 },
+    /* 0x6E */ { 0x154, 0x53, 815, { 0, 0 }, 0, 170, 70, 5, 8, 8, 2, 10, 10, 94, 94, 1, 0 },
+    /* 0x6F */ { 0xA3, 0x3D, 697, { 0, 0 }, 0x00000400, 170, 70, 5, 8, 8, 2, 10, 10, 94, 94, 1, 0 },
+    /* 0x70 */ { 0xA4, 0x62, 796, { 0, 0 }, 0x01000001, 170, 70, 5, 12, 14, 3, 6, 6, 94, 94, 35, 70 },
+};

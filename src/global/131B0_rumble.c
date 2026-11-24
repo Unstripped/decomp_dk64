@@ -1,0 +1,211 @@
+#include "common.h"
+#include "sched.h"
+#include "proto/global/131B0_rumble.h"
+#include "proto/global/117190_menu_transition.h"
+#include "proto/global/201B0_camera.h"
+#include "proto/global/2DE90_screen_wipe.h"
+#include "proto/global/F600_controller_input.h"
+
+extern s32 __osMotorAccess(OSPfs *, s32);
+
+s32 gRumblePaused = 1;
+s32 D_80746814 = 0;
+u8 gRumbleResetPending = 1;
+extern u8 gScreenRenderFlags;
+extern u8 gControllerConnectedMask;
+extern OSMesgQueue gSiMesgQueue;
+extern PlayerStruct *gPlayerSlots;
+
+// .bss 0x807F02D0-0x807F04C0
+OSPfs gRumblePfs[4];
+RumbleInfo gRumbleInfo[4];
+
+void rumbleInfoClear(RumbleInfo *info) {
+    bzero(info, sizeof(RumbleInfo));
+}
+
+void rumbleMotorStart(u8 port) {
+    RumbleInfo *info;
+
+    if (__osMotorAccess(&gRumblePfs[port], 1) == 4) {
+        info = &gRumbleInfo[port];
+        rumbleInfoClear(info);
+        info->pakState = 3;
+    } else {
+        gRumbleInfo[port].motorOn = 1;
+    }
+}
+
+void rumbleMotorInit(u8 port) {
+    s32 ret = osMotorInit(&gSiMesgQueue, &gRumblePfs[port], port);
+
+    switch (ret) {
+    case 0:
+        gRumbleInfo[port].pakState = 1;
+        break;
+    case 1:
+        gRumbleInfo[port].pakState = 0;
+        break;
+    case 11:
+        gRumbleInfo[port].pakState = 2;
+        break;
+    case 4:
+        gRumbleInfo[port].pakState = 3;
+        break;
+    }
+}
+
+void rumbleMotorStop(u8 port) {
+    rumbleMotorInit(port);
+    __osMotorAccess(&gRumblePfs[port], 0);
+    __osMotorAccess(&gRumblePfs[port], 0);
+    __osMotorAccess(&gRumblePfs[port], 0);
+    gRumbleInfo[port].motorOn = 0;
+}
+
+void rumbleResetAll(s32 unused) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < 4; i++) {
+        rumbleInfoClear(&gRumbleInfo[i]);
+        gRumbleInfo[i].pakState = 0;
+        if (gControllerConnectedMask & (1 << i)) {
+            for (j = 0; j < 2; j++) {
+                rumbleMotorStop(i);
+            }
+        }
+    }
+}
+
+s32 rumbleGetPakState(u8 port) {
+    if (port >= 4) {
+        return 0;
+    }
+    return gRumbleInfo[controllerGetPort(port)].pakState;
+}
+
+void rumbleRequest(u8 playerIndex, u8 intensity, s32 duration) {
+    RumbleInfo *info;
+
+    info = &gRumbleInfo[controllerGetPort(playerIndex)];
+    if (gRumblePaused != 1 && info->pakState == 1 && gPlayerSlots[playerIndex].rumbleDisabled == 0) {
+        if (menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) {
+            if (info->overheated != 0) {
+                if (info->heat >= 0x1F) {
+                    return;
+                }
+                info->overheated = 0;
+                info->heat = 0;
+            }
+            info->duration = duration;
+            info->intensity = intensity;
+        }
+    }
+}
+
+void rumbleInfoCancel(RumbleInfo *info) {
+    if (info->pakState == 1) {
+        info->intensity = 0;
+        info->duration = 0;
+    }
+}
+
+void rumbleCancel(u8 playerIndex) {
+    rumbleInfoCancel(&gRumbleInfo[controllerGetPort(playerIndex)]);
+}
+
+void rumbleShutdown(void) {
+    rumbleResetAll(1);
+    rumbleSetPaused(1);
+}
+
+void rumbleInit(void) {
+    rumbleResetAll(0);
+    rumbleSetPaused(1);
+}
+
+int rumbleShouldPause(void) {
+    return ((gGlobalPauseFlags & 0x4002) != 0) ||
+           ((gScreenRenderFlags & 1) != 0) ||
+           (screenWipeGetState() != 0) ||
+           (camIsCutsceneActive() != 0) ||
+           (menuIsTransitionType6() == 0 && menuIsTransitionTypeC() == 0 && menuIsTransitionTypeD() == 0);
+}
+
+void rumbleUpdate(void) {
+    RumbleInfo *info;
+    s32 i;
+    s32 pad;
+    u8 activeMask;
+
+    info = gRumbleInfo;
+    if (gRumblePaused == 1) {
+        if (rumbleShouldPause() == 0) {
+            rumbleSetPaused(0);
+        }
+    } else {
+        if (rumbleShouldPause() != 0) {
+            rumbleSetPaused(1);
+        }
+    }
+
+    if (gRumbleResetPending != 0) {
+        rumbleResetAll(0);
+    }
+    gRumbleResetPending = 0;
+
+    if (gRumblePaused != 1) {
+        activeMask = controllerGetActiveMask();
+        for (i = 0; i < 4; i++, info++) {
+            if (info->pakState != 1) {
+                if ((gControllerConnectedMask & (1 << i)) && (activeMask & (1 << i)) && (gFrameCounter % 15 == 0)) {
+                    rumbleMotorStop(i);
+                }
+            } else {
+                if (info->overheated == 0) {
+                    info->overheated = info->heat >= 0x33;
+                }
+                if (info->duration == 0 && info->intensity == 0) {
+                    if (info->heat != 0) {
+                        info->heat--;
+                    }
+                }
+                if (info->intensity == 0) {
+                    if (info->motorOn != 0) {
+                        rumbleMotorStop(i);
+                    }
+                } else {
+                    if (info->duration != 0) {
+                        info->duration--;
+                        info->heat++;
+                    }
+                    if (info->duration == 0 || info->overheated != 0) {
+                        rumbleInfoCancel(info);
+                    } else {
+                        if (info->pwmAccum >= 0x100) {
+                            if (info->motorOn == 0) {
+                                rumbleMotorStart(i);
+                            }
+                            info->pwmAccum -= 0x100;
+                        } else {
+                            u8 intensity = info->intensity;
+
+                            info->pwmAccum += intensity * 4;
+                            if (info->motorOn != 0) {
+                                rumbleMotorStop(i);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void rumbleSetPaused(s32 paused) {
+    if (paused != gRumblePaused) {
+        gRumblePaused = paused;
+        gRumbleResetPending = 1;
+    }
+}

@@ -26,10 +26,11 @@ def test_keymap_rejects_malformed_line():
 
 
 def test_dry_run_ledger_only(tmp_path, capsys):
-    head = subprocess.run(["git", "show", "HEAD:src/global/0.c"], cwd=REPO_ROOT, capture_output=True, check=True).stdout
-    (tmp_path / "0.c").write_bytes(head)
+    head = subprocess.run(["git", "show", "HEAD:src/global/0_init.c"], cwd=REPO_ROOT, capture_output=True,
+                          check=True).stdout
+    (tmp_path / "0_init.c").write_bytes(head)
     assert mr.main(["--dry-run", "--agent", "X", "--unit", "u", "--base", "HEAD", "--model", "a/b:high",
-                    "--ledger", "/dev/null", "--copy-dir", str(tmp_path), "src/global/0.c"]) == 0
+                    "--ledger", "/dev/null", "--copy-dir", str(tmp_path), "src/global/0_init.c"]) == 0
     out = capsys.readouterr().out
     cmds = [line for line in out.splitlines() if line.startswith("$ ")]
     assert [c.split()[4] if "quality.py" in c else c.split()[1:3] for c in cmds] == [

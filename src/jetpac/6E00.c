@@ -1,5 +1,5 @@
 #include "common.h"
-#include "proto/global/100180.h"
+#include "proto/global/100180_text_font.h"
 #include "proto/jetpac/6E00.h"
 
 // .data 0x8002E9C0-0x8002E9D0: highlight colour (jetpacSetTextHighlightColor).

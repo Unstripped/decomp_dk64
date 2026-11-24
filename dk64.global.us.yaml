@@ -42,415 +42,415 @@ segments:
     vram: 0x805FB300
     bss_size: 0x9E0B0
     subsegments:
-      - [0x0, c, 0]
-      - [0x450, c, 450] # hidden TU: seg11DmaRead (0x805FB750); mainThreadLoop's `.align 5` epilogue (0x805FC290) is 32-aligned only from here
-      - [0x3C10, c, 3C10]
-      - [0x5230, c, 5230] # hidden TU: 3C10's rodata ends at 0x15B390 (255.0 + 8-byte pad) before frameTimingReset's jump table; func_80600454 is the last user of D_807565E0/D_80756630
-      - [0x5650, c, 5650]
-      - [0x5A50, c, 5A50]
-      - [0x6710, c, 6710]
-      - [0x7130, c, 7130] # hidden TU: 6710 data ends with an 8-byte pad at 0x14A1F0
-      - [0xF4C0, c, F4C0]
-      - [0xF600, c, F600]
-      - [0xFE40, c, FE40]
-      - [0x10130, c, 10130]
-      - [0x104F0, c, 104F0]
-      - [0x131B0, c, 131B0]
-      - [0x13980, c, 13980] # hidden TU: schedCreate (0x8060EC80) on; rumble* above
-      - [0x14CF0, c, 14CF0]
+      - [0x0, c, 0_init]
+      - [0x450, c, 450_main_loop] # hidden TU: seg11DmaRead (0x805FB750); mainThreadLoop's `.align 5` epilogue (0x805FC290) is 32-aligned only from here
+      - [0x3C10, c, 3C10_map_transition]
+      - [0x5230, c, 5230_frame_timing] # hidden TU: 3C10's rodata ends at 0x15B390 (255.0 + 8-byte pad) before frameTimingReset's jump table; func_80600454 is the last user of D_807565E0/D_80756630
+      - [0x5650, c, 5650_timer_queue]
+      - [0x5A50, c, 5A50_seq_player]
+      - [0x6710, c, 6710_audio_thread]
+      - [0x7130, c, 7130_sfx] # hidden TU: 6710 data ends with an 8-byte pad at 0x14A1F0
+      - [0xF4C0, c, F4C0_map_action]
+      - [0xF600, c, F600_controller_input]
+      - [0xFE40, c, FE40_asset_dma]
+      - [0x10130, c, 10130_demo_playback]
+      - [0x104F0, c, 104F0_eeprom]
+      - [0x131B0, c, 131B0_rumble]
+      - [0x13980, c, 13980_scheduler] # hidden TU: schedCreate (0x8060EC80) on; rumble* above
+      - [0x14CF0, c, 14CF0_gfx_task]
       - [0x15010, asm]
-      - [0x15050, c, 15050]
-      - [0x16550, c, 16550]
-      - [0x166A0, c, 166A0]
-      - [0x169F0, c, 169F0]
-      - [0x16A20, c, 16A20]
+      - [0x15050, c, 15050_heap]
+      - [0x16550, c, 16550_inverse_trig]
+      - [0x166A0, c, 166A0_random]
+      - [0x169F0, c, 169F0_float_convert]
+      - [0x16A20, c, 16A20_fixed_point_trig]
       - [0x16B60, asm]
-      - [0x17540, c, 17540]
-      - [0x17800, c, 17800] # hidden TU: setVec3f (func_80612AD8) ends with two nops of 16-byte TU padding; 17540 owns no rodata
+      - [0x17540, c, 17540_vec3f]
+      - [0x17800, c, 17800_matrix_rotation] # hidden TU: setVec3f (func_80612AD8) ends with two nops of 16-byte TU padding; 17540 owns no rodata
       - [0x17A10, asm] # hidden TU (17540 rodata ends with a zero pad at 0x15C01C), hand-written: func_80612D10 adds pi/2 and falls through into the sine polynomial func_80612D1C (no jr $ra)
-      - [0x17B40, c, 17B40]
-      - [0x17B90, c, 17B90]
-      - [0x19A00, c, 19A00] # hidden TU: 17B90 rodata ends with a pad after D_80757360 at 0x15C070 (func_806134B4); layout-neutral: first 16-aligned start after func_8061421C (last D_80746B60/64 user)
+      - [0x17B40, c, 17B40_float_ceil]
+      - [0x17B90, c, 17B90_anim_controller]
+      - [0x19A00, c, 19A00_actor_script] # hidden TU: 17B90 rodata ends with a pad after D_80757360 at 0x15C070 (func_806134B4); layout-neutral: first 16-aligned start after func_8061421C (last D_80746B60/64 user)
       - [0x1E2D0, asm] # hand-written: entries without prologues, j into alabels, shared non-ABI $s/$f state; uses 1F9A0's table like 16B60
       - [0x1F9A0, asm] # f32 table in .text (0x204 words, 0x8061ACA0), read by 16B60's hand-written asm and 1E2D0: data, not C
-      - [0x201B0, c, 201B0]
-      - [0x2C700, c, 2C700]
+      - [0x201B0, c, 201B0_camera]
+      - [0x2C700, c, 2C700_spline]
       - [0x2C910, c, 2C910]
-      - [0x2DE90, c, 2DE90]
-      - [0x2F550, c, 2F550]
-      - [0x35000, c, 35000]
-      - [0x36880, c, 36880]
-      - [0x41090, c, 41090] # hidden TU: rodata pad after D_807584E4 (func_8063B4C0) at 0x15D1F0; data D_80747D80 (16-aligned) first used by func_8063C390, and func_8063BF34..func_8063C328 still use 36880's D_807F6000/D_807F6240 bss
-      - [0x42630, c, 42630]
-      - [0x478F0, c, 478F0] # hidden TU: 42630 rodata ends with an 8-byte pad at 0x15D630 (func_806425FC owns D_80758920); func_80642940 shares bss D_807F621C–24 with 42630, func_80642BF0 shares D_8071FF18 with func_80642C78
-      - [0x54150, c, 54150]
-      - [0x55B20, c, 55B20]
-      - [0x5DE10, c, 5DE10]
-      - [0x5E020, c, 5E020]
-      - [0x5E2F0, c, 5E2F0]
+      - [0x2DE90, c, 2DE90_screen_wipe]
+      - [0x2F550, c, 2F550_map_render]
+      - [0x35000, c, 35000_render_entry]
+      - [0x36880, c, 36880_model_slot]
+      - [0x41090, c, 41090_env_texture] # hidden TU: rodata pad after D_807584E4 (func_8063B4C0) at 0x15D1F0; data D_80747D80 (16-aligned) first used by func_8063C390, and func_8063BF34..func_8063C328 still use 36880's D_807F6000/D_807F6240 bss
+      - [0x42630, c, 42630_cutscene_interp]
+      - [0x478F0, c, 478F0_cutscene_cmds] # hidden TU: 42630 rodata ends with an 8-byte pad at 0x15D630 (func_806425FC owns D_80758920); func_80642940 shares bss D_807F621C–24 with 42630, func_80642BF0 shares D_8071FF18 with func_80642C78
+      - [0x54150, c, 54150_model_anim]
+      - [0x55B20, c, 55B20_map_chunk]
+      - [0x5DE10, c, 5DE10_fog]
+      - [0x5E020, c, 5E020_hash_table]
+      - [0x5E2F0, c, 5E2F0_light]
       - [0x61690, asm]
-      - [0x61AA0, c, 61AA0]
-      - [0x63810, c, 63810]
-      - [0x63EC0, c, 63EC0]
-      - [0x67890, c, 67890]
-      - [0x684C0, c, 684C0]
-      - [0x68960, c, 68960]
-      - [0x68AA0, c, 68AA0]
-      - [0x68EA0, c, 68EA0]
-      - [0x699B0, c, 699B0]
-      - [0x69E60, c, 69E60] # hidden TU: 699B0 rodata ends with an 8-byte pad at 0x15DB28
-      - [0x6AD90, c, 6AD90] # hidden TU: 69E60 rodata ends with an 8-byte pad at 0x15DBB8
-      - [0x70FD0, c, 70FD0]
+      - [0x61AA0, c, 61AA0_render_caches]
+      - [0x63810, c, 63810_light_queue]
+      - [0x63EC0, c, 63EC0_effect_water]
+      - [0x67890, c, 67890_target_table]
+      - [0x684C0, c, 684C0_trigger_zone]
+      - [0x68960, c, 68960_fog_distance]
+      - [0x68AA0, c, 68AA0_target_entries]
+      - [0x68EA0, c, 68EA0_model_emitter]
+      - [0x699B0, c, 699B0_particle_path]
+      - [0x69E60, c, 69E60_actor_physics] # hidden TU: 699B0 rodata ends with an 8-byte pad at 0x15DB28
+      - [0x6AD90, c, 6AD90_collision] # hidden TU: 69E60 rodata ends with an 8-byte pad at 0x15DBB8
+      - [0x70FD0, c, 70FD0_collision_geometry]
       - [0x77B90, asm] # hand-written 64-bit asm (dmult/ld/sd, $k0/$k1): not IDO C
-      - [0x79890, c, 79890]
-      - [0x7A510, c, 7A510]
-      - [0x7AF60, c, 7AF60]
-      - [0x7BA00, c, 7BA00] # hidden TU: 7AF60 rodata ends with a 4-byte pad after jtbl_807591E8 (func_8067680C) at 0x15DF4C; func_80676D00's floats start the 16-aligned 0x15DF50 (any 16-aligned start from func_80676A70 on is layout-neutral: no rodata users between)
-      - [0x7BBD0, c, 7BBD0]
-      - [0x7CA80, c, 7CA80]
-      - [0x80150, c, 80150]
-      - [0x89250, c, 89250]
-      - [0x8CA50, c, 8CA50]
-      - [0x8D3E0, c, 8D3E0]
-      - [0x8F050, c, 8F050]
+      - [0x79890, c, 79890_collision_hit]
+      - [0x7A510, c, 7A510_collision_interact]
+      - [0x7AF60, c, 7AF60_hit_conditions]
+      - [0x7BA00, c, 7BA00_knockback_sound] # hidden TU: 7AF60 rodata ends with a 4-byte pad after jtbl_807591E8 (func_8067680C) at 0x15DF4C; func_80676D00's floats start the 16-aligned 0x15DF50 (any 16-aligned start from func_80676A70 on is layout-neutral: no rodata users between)
+      - [0x7BBD0, c, 7BBD0_actor_collision]
+      - [0x7CA80, c, 7CA80_actor_manager]
+      - [0x80150, c, 80150_barrels]
+      - [0x89250, c, 89250_effect_spawn]
+      - [0x8CA50, c, 8CA50_anim_list]
+      - [0x8D3E0, c, 8D3E0_actor_list]
+      - [0x8F050, c, 8F050_actor_config]
       - [0x8F4B0, c, 8F4B0]
-      - [0x90D80, c, 90D80]
-      - [0x936B0, c, 936B0]
-      - [0x9BF30, c, 9BF30]
-      - [0x9CE20, c, 9CE20]
+      - [0x90D80, c, 90D80_render_callbacks]
+      - [0x936B0, c, 936B0_projectile]
+      - [0x9BF30, c, 9BF30_projectile_ring]
+      - [0x9CE20, c, 9CE20_projectile_behaviours]
       - [0x9DD70, c, 9DD70]
       - [0xA2F10, c, A2F10]
       - [0xA6280, c, A6280]
-      - [0xA7710, c, A7710]
-      - [0xA8400, c, A8400]
-      - [0xAA960, c, AA960] # hidden TU: A8400 rodata ends with an 8-byte pad at 0x15F6A0; data D_80750400 (16-aligned) used only by func_806A5C60
-      - [0xACDC0, c, ACDC0]
-      - [0xB1F60, c, B1F60]
-      - [0xB2CE0, c, B2CE0]
-      - [0xB5EC0, c, B5EC0]
-      - [0xB6C50, c, B6C50]
-      - [0xB7490, c, B7490]
-      - [0xBA790, c, BA790]
-      - [0xBB300, c, BB300]
-      - [0xBC3B0, c, BC3B0]
-      - [0xBD820, c, BD820]
-      - [0xBDEE0, c, BDEE0]
-      - [0xC0EE0, c, C0EE0]
-      - [0xC1E70, c, C1E70]
+      - [0xA7710, c, A7710_countdown_timer]
+      - [0xA8400, c, A8400_text_box]
+      - [0xAA960, c, AA960_pickup_drops] # hidden TU: A8400 rodata ends with an 8-byte pad at 0x15F6A0; data D_80750400 (16-aligned) used only by func_806A5C60
+      - [0xACDC0, c, ACDC0_pause_menu]
+      - [0xB1F60, c, B1F60_enemy_patrol]
+      - [0xB2CE0, c, B2CE0_enemy_attack]
+      - [0xB5EC0, c, B5EC0_kong_item_enemy]
+      - [0xB6C50, c, B6C50_smoke_target]
+      - [0xB7490, c, B7490_enemy_swim_fly]
+      - [0xBA790, c, BA790_enemy_chaser]
+      - [0xBB300, c, BB300_enemy_pulse]
+      - [0xBC3B0, c, BC3B0_cursor_emitters]
+      - [0xBD820, c, BD820_delivery_door]
+      - [0xBDEE0, c, BDEE0_armadillo_fairy]
+      - [0xC0EE0, c, C0EE0_enemy_grid]
+      - [0xC1E70, c, C1E70_rings]
       - [0xC2A90, c, C2A90]
-      - [0xC4620, c, C4620] # hidden TU: rodata pad after D_8075BCB0 (func_806BF218); func_806BF920 owns jtbl_8075BCC0
+      - [0xC4620, c, C4620_npc_kongs] # hidden TU: rodata pad after D_8075BCB0 (func_806BF218); func_806BF920 owns jtbl_8075BCC0
       - [0xC8C10, c, C8C10]
-      - [0xCB230, c, CB230]
-      - [0xCBEA0, c, CBEA0]
-      - [0xCC800, c, CC800] # one TU: the rodata_owners pad flag after gKongCharacterTable (0x8075C4B0) is the .rodata/late_rodata edge (func_806C850C and func_806C8D2C use both sides)
-      - [0xCEAE0, c, CEAE0]
-      - [0xD5E10, c, D5E10] # hidden TU: rodata pad after D_8075CCE0 (mathAngleFromVector2D); func_806D10D0 uses CEAE0 data D_80750B54, D_80750FB0 (func_806D205C) starts this TU's data
-      - [0xE4090, c, E4090] # hidden TU: rodata pad after D_8075D0D0 (func_806DF280); playerInputUpdate owns D_8075D0E0; first 16-aligned start after func_806DF280
-      - [0xEFDC0, c, EFDC0]
-      - [0xF56F0, c, F56F0]
-      - [0xF93B0, c, F93B0] # hidden TU: rodata pad after D_8075D848 (func_806F3E0C) at 0x162550; func_806F46B0 (the only function) owns D_8075D850
-      - [0xF9450, c, F9450]
-      - [0xFCCD0, c, FCCD0]
-      - [0x100180, c, 100180]
-      - [0x1025E0, c, 1025E0]
-      - [0x103AB0, c, 103AB0] # hidden TU: rodata pad after D_8075DE60 (textDrawAnimated) at 0x162B70; playerViewGfxSetup is the only 16-aligned start before D_8075DE70's user func_806FEF7C
-      - [0x109660, c, 109660] # hidden TU: data 0x1599E0-0x159C80 (D_80754CE0..sBgScrollY, defined in C; sBgScrollX/Y are gfxBuildScrollingBackground's statics) after D_80754CC8 (screenFadeUpdate)'s pad; first 16-aligned start after it (func_80704960, no data/rodata users before gfxDrawBackgroundQuad); rodata D_8075DF90 is 16-aligned, layout-neutral
-      - [0x10D2D0, c, 10D2D0]
-      - [0x10E1D0, c, 10E1D0]
+      - [0xCB230, c, CB230_spotlight_follower]
+      - [0xCBEA0, c, CBEA0_banner_text]
+      - [0xCC800, c, CC800_player_setup] # one TU: the rodata_owners pad flag after gKongCharacterTable (0x8075C4B0) is the .rodata/late_rodata edge (func_806C850C and func_806C8D2C use both sides)
+      - [0xCEAE0, c, CEAE0_player_update]
+      - [0xD5E10, c, D5E10_player_states] # hidden TU: rodata pad after D_8075CCE0 (mathAngleFromVector2D); func_806D10D0 uses CEAE0 data D_80750B54, D_80750FB0 (func_806D205C) starts this TU's data
+      - [0xE4090, c, E4090_player_input] # hidden TU: rodata pad after D_8075D0D0 (func_806DF280); playerInputUpdate owns D_8075D0E0; first 16-aligned start after func_806DF280
+      - [0xEFDC0, c, EFDC0_player_state_enter]
+      - [0xF56F0, c, F56F0_player_weapon]
+      - [0xF93B0, c, F93B0_void_height] # hidden TU: rodata pad after D_8075D848 (func_806F3E0C) at 0x162550; func_806F46B0 (the only function) owns D_8075D850
+      - [0xF9450, c, F9450_grid_nodes]
+      - [0xFCCD0, c, FCCD0_slot_queue]
+      - [0x100180, c, 100180_text_font]
+      - [0x1025E0, c, 1025E0_gfx_resource]
+      - [0x103AB0, c, 103AB0_view_effects] # hidden TU: rodata pad after D_8075DE60 (textDrawAnimated) at 0x162B70; playerViewGfxSetup is the only 16-aligned start before D_8075DE70's user func_806FEF7C
+      - [0x109660, c, 109660_background] # hidden TU: data 0x1599E0-0x159C80 (D_80754CE0..sBgScrollY, defined in C; sBgScrollX/Y are gfxBuildScrollingBackground's statics) after D_80754CC8 (screenFadeUpdate)'s pad; first 16-aligned start after it (func_80704960, no data/rodata users before gfxDrawBackgroundQuad); rodata D_8075DF90 is 16-aligned, layout-neutral
+      - [0x10D2D0, c, 10D2D0_health_hud]
+      - [0x10E1D0, c, 10E1D0_screen_transition]
       - [0x110F00, asm] # hand-written round.w.s + mfc1 helper (func_8070C200), not IDO C
-      - [0x110F10, c, 110F00] # retain the matrix TU's source/rodata name; both text boundaries are 16-aligned
-      - [0x112080, c, 112080]
-      - [0x1135F0, c, 1135F0]
-      - [0x114270, c, 114270]
-      - [0x117190, c, 117190] # hidden TU: rodata pad after D_8075E5B0 (func_807122B4) at 0x1632C0; func_80712490 is the first 16-aligned start after it and already uses this TU's data (D_80755318; data TU starts at or before 16-aligned D_807552E0, used by func_80714060)
-      - [0x119370, c, 119370]
-      - [0x11BC10, c, 11BC10] # hidden TU: rodata pad after D_8075E6C0 (effectGridBuildDisplayList) at 0x1633D0; func_80716F10 is the first 16-aligned start after it; rodata users are monotonic
-      - { start: 0x124780, type: .data, name: 124780, linker_section_order: .text } # data-only TU inside the text: effect sprite sheets 0x8071FA80-0x80721558 (gEffectGridAssets' 176 targets) + 8-byte TU pad; no functions
-      - [0x126260, c, 126260]
-      - [0x127B00, c, 127B00]
-      - [0x1292F0, c, 1292F0] # hidden TU: rodata pad after D_8075EB60 (func_80724154) at 0x163870; pathFollowUpdateHeading (16-aligned) owns D_8075EB70/D_8075EB78
-      - [0x1295B0, c, 1295B0] # rodata 0x163880-0x164880: table D_8075EB80 (also read by 12E800) + floats/jtbls, TU end pad after D_8075FB70
-      - [0x12E800, c, 12E800] # rodata 0x164880-0x164C50 (first user func_80729EB0 reads D_8075FB80)
-      - [0x1332B0, c, 1332B0] # no rodata
-      - [0x133A90, c, 133A90] # rodata 0x164C50-0x164CF0, TU end pad after D_8075FFE0
-      - [0x135D30, c, 135D30] # no rodata
-      - [0x136820, c, 136820] # rodata 0x164CF0-0x164E90 (strings via data table D_80756360, floats of func_80731E68)
-      - [0x137120, c, 137120] # -g (alHeapInit/alHeapDBAlloc); TU start: func_8073239C's file is -O2, these are unoptimised
-      - [0x1371D0, c, 1371D0] # -g
-      - [0x137630, c, 137630] # -g; rodata 0x164E90-0x164EA0
-      - [0x137C10, c, 137C10] # -g; rodata 0x164EA0-0x165150 (jtbls)
-      - [0x13A750, c, 13A750] # -g
-      - [0x13A7A0, c, 13A7A0] # -g; rodata 0x165150-0x165190 (jtbl)
-      - [0x13C920, c, 13C920] # -g
-      - [0x13CB30, c, 13CB30] # -g
-      - [0x13CB50, c, 13CB50] # -g
-      - [0x13CE70, c, 13CE70] # -g
-      - [0x13CFA0, c, 13CFA0] # -g
-      - [0x13D020, c, 13D020] # -g
-      - [0x13D0B0, c, 13D0B0] # -g
-      - [0x13D100, c, 13D100] # -g
-      - [0x13D170, c, 13D170] # -g
-      - [0x13E0E0, c, 13E0E0] # -g
-      - [0x13E160, c, 13E160] # -g; rodata 0x165190-0x1651A0
-      - [0x13EC00, c, 13EC00] # -g
-      - [0x13EC90, c, 13EC90] # -g
-      - [0x13ECE0, c, 13ECE0] # -g; rodata 0x1651A0-0x1651B0
-      - [0x13FED0, c, 13FED0] # -g
-      - [0x140530, c, 140530] # -g
-      - [0x140600, c, 140600] # -g; rodata 0x1651B0-0x1651D0
-      - [0x141520, c, 141520] # -g; rodata 0x1651D0-0x1651E0
-      - [0x1417C0, c, 1417C0] # -g
-      - [0x141AD0, c, 141AD0] # -g
-      - [0x141C00, c, 141C00] # -g
-      - [0x141E40, c, 141E40] # -g
-      - [0x141E60, c, 141E60] # -g
-      - [0x141EF0, c, 141EF0] # -g; rodata 0x1651E0-0x165210
-      - [0x1435A0, c, 1435A0] # -g
-      - [0x1435C0, c, 1435C0] # -g; rodata 0x165210-0x165260
-      - [0x1445A0, c, 1445A0] # -g; hidden TU: 1435C0's rodata ends with a pad after D_80760554 at 0x165260; n_alAuxBusPull is 16-aligned
-      - [0x144A90, c, 144A90] # -g
-      - [0x144E00, c, 144E00] # -g
-      - [0x145950, c, 145950] # -g; rodata 0x165270-0x165280
-      - [0x145D70, c, 145D70] # -g; rodata 0x165280-0x165290
+      - [0x110F10, c, 110F00_matrix] # retain the matrix TU's source/rodata name; both text boundaries are 16-aligned
+      - [0x112080, c, 112080_resource_parse]
+      - [0x1135F0, c, 1135F0_dl_texture]
+      - [0x114270, c, 114270_sprite_particles]
+      - [0x117190, c, 117190_menu_transition] # hidden TU: rodata pad after D_8075E5B0 (func_807122B4) at 0x1632C0; func_80712490 is the first 16-aligned start after it and already uses this TU's data (D_80755318; data TU starts at or before 16-aligned D_807552E0, used by func_80714060)
+      - [0x119370, c, 119370_effect_grid]
+      - [0x11BC10, c, 11BC10_effect_update] # hidden TU: rodata pad after D_8075E6C0 (effectGridBuildDisplayList) at 0x1633D0; func_80716F10 is the first 16-aligned start after it; rodata users are monotonic
+      - { start: 0x124780, type: .data, name: 124780_effect_sprite_data, linker_section_order: .text } # data-only TU inside the text: effect sprite sheets 0x8071FA80-0x80721558 (gEffectGridAssets' 176 targets) + 8-byte TU pad; no functions
+      - [0x126260, c, 126260_command_queue]
+      - [0x127B00, c, 127B00_path_playback]
+      - [0x1292F0, c, 1292F0_path_follow] # hidden TU: rodata pad after D_8075EB60 (func_80724154) at 0x163870; pathFollowUpdateHeading (16-aligned) owns D_8075EB70/D_8075EB78
+      - [0x1295B0, c, 1295B0_spawn_nodes] # rodata 0x163880-0x164880: table D_8075EB80 (also read by 12E800) + floats/jtbls, TU end pad after D_8075FB70
+      - [0x12E800, c, 12E800_behaviour] # rodata 0x164880-0x164C50 (first user func_80729EB0 reads D_8075FB80)
+      - [0x1332B0, c, 1332B0_volume_trigger] # no rodata
+      - [0x133A90, c, 133A90_prox_path] # rodata 0x164C50-0x164CF0, TU end pad after D_8075FFE0
+      - [0x135D30, c, 135D30_flags] # no rodata
+      - [0x136820, c, 136820_fault] # rodata 0x164CF0-0x164E90 (strings via data table D_80756360, floats of func_80731E68)
+      - [0x137120, c, 137120_al_heap] # -g (alHeapInit/alHeapDBAlloc); TU start: func_8073239C's file is -O2, these are unoptimised
+      - [0x1371D0, c, 1371D0_bnkf] # -g
+      - [0x137630, c, 137630_oscillator] # -g; rodata 0x164E90-0x164EA0
+      - [0x137C10, c, 137C10_n_csplayer] # -g; rodata 0x164EA0-0x165150 (jtbls)
+      - [0x13A750, c, 13A750_n_cspsetbank] # -g
+      - [0x13A7A0, c, 13A7A0_n_sndplayer] # -g; rodata 0x165150-0x165190 (jtbl)
+      - [0x13C920, c, 13C920_csp_output_mode] # -g
+      - [0x13CB30, c, 13CB30_n_cspgetstate] # -g
+      - [0x13CB50, c, 13CB50_csp_channel] # -g
+      - [0x13CE70, c, 13CE70_csp_channel_mix] # -g
+      - [0x13CFA0, c, 13CFA0_n_cspsendmidi] # -g
+      - [0x13D020, c, 13D020_n_cspsettempo] # -g
+      - [0x13D0B0, c, 13D0B0_n_cspgettempo] # -g
+      - [0x13D100, c, 13D100_n_cspsetfxparam] # -g
+      - [0x13D170, c, 13D170_n_cseq] # -g
+      - [0x13E0E0, c, 13E0E0_al_link] # -g
+      - [0x13E160, c, 13E160_n_synthesizer] # -g; rodata 0x165190-0x1651A0
+      - [0x13EC00, c, 13EC00_seqp_control] # -g
+      - [0x13EC90, c, 13EC90_n_seqpsetvol] # -g
+      - [0x13ECE0, c, 13ECE0_seqp_voice] # -g; rodata 0x1651A0-0x1651B0
+      - [0x13FED0, c, 13FED0_evtq] # -g
+      - [0x140530, c, 140530_n_synsetvol] # -g
+      - [0x140600, c, 140600_syn_filter] # -g; rodata 0x1651B0-0x1651D0
+      - [0x141520, c, 141520_syn_fx_params] # -g; rodata 0x1651D0-0x1651E0
+      - [0x1417C0, c, 1417C0_n_synallocvoice] # -g
+      - [0x141AD0, c, 141AD0_n_synstartvoiceparam] # -g
+      - [0x141C00, c, 141C00_n_synsetpan] # -g
+      - [0x141E40, c, 141E40_n_syndelete] # -g
+      - [0x141E60, c, 141E60_syn_new_fx] # -g
+      - [0x141EF0, c, 141EF0_syn_output_pull] # -g; rodata 0x1651E0-0x165210
+      - [0x1435A0, c, 1435A0_n_synsetpriority] # -g
+      - [0x1435C0, c, 1435C0_n_env] # -g; rodata 0x165210-0x165260
+      - [0x1445A0, c, 1445A0_n_auxbus] # -g; hidden TU: 1435C0's rodata ends with a pad after D_80760554 at 0x165260; n_alAuxBusPull is 16-aligned
+      - [0x144A90, c, 144A90_n_mainbus] # -g
+      - [0x144E00, c, 144E00_n_load] # -g
+      - [0x145950, c, 145950_n_resample] # -g; rodata 0x165270-0x165280
+      - [0x145D70, c, 145D70_n_save] # -g; rodata 0x165280-0x165290
       - [0x146010, asm] # RSP microcode text (mtc0/RSP jal targets), not C; was the tail of splat's 145D70
       - [0x146C40, asm] # RSP microcode text (two overlays, each with a handwritten mfc0/mtc0 DMA helper), not C
-      - [0x149160, .data, 0] # D_80744460/64 only (0x80744460-0x80744470)
-      - [0x149170, .data, 450] # 0x80744470-0x807445E0
-      - [0x1492E0, .data, 3C10] # gMapHubWorldIndex..D_8074482C[221] (0x807445E0-0x80745288 + 8-byte TU pad); D_807446D0..D_80744710 are read only by later TUs (478F0, 8F4B0, ACDC0, C1E70, critter 3340); D_80744736 = &D_80744734[1] (undefined_syms)
-      - [0x149F90, .data, 5230] # D_80745290 (0x80745290-0x807452A0)
-      - [0x149FA0, .data, 5650] # gTimerQueue (0x807452A0-0x807452B0)
-      - [0x149FB0, .data, 5A50] # D_807452B0[4] sequence-player buffer sizes (0x807452B0-0x807452C0)
-      - [0x149FC0, .data, 6710]
-      - [0x14A1F0, .data, 7130] # D_807454F0..D_807462A8 (0x807454F0-0x80746332 + 14-byte TU pad): sfx/sequence tables defined in src/global/7130.c in address order; D_80745B20/D_80745B24 are sfxUpdateChannels's initialised-local templates (bankChannel/seqState); D_807462A8[69][2] is the table 7130 reached as D_807460AE (= D_807462A8 - 0x1FA); next TU F4C0's gMapActionRemapTable starts 16-aligned at 0x80746340
-      - [0x14B040, .data, F4C0] # gMapActionRemapTable[14] (0x80746340-0x80746394 + 12-byte TU pad; D_80746344 was its [0].mappedAction split label)
-      - [0x14B0A0, .data, 10130] # D_807463A0..D_807463B8 (0x807463A0-0x807463B9 + 7-byte TU pad); D_807463A4 unreferenced; D_807463B8 is also read by F600, 201B0, CEAE0, D5E10, F56F0
-      - [0x14B0C0, .data, 104F0] # D_807463C0 (CRC32 table)..D_80746800 (0x807463C0-0x80746804 + 12-byte TU pad); D_807467D0's four eeprom* handlers make their entry labels address-taken (Q0552)
-      - [0x14B510, .data, 131B0] # gRumblePaused, D_80746814 (unreferenced), gRumbleResetPending (0x80746810-0x80746820)
-      - [0x14B520, .data, 13980] # D_80746820..D_80746A2C (0x80746820-0x80746A30); 131B0's own data is gRumblePaused/gRumbleResetPending (0x80746810-0x80746820)
-      - [0x14B730, .data, 15050] # sHeapReclaimFlag, sHeapReclaimMatrixFlag (sHeapFlags = its low byte) (0x80746A30-0x80746A40)
-      - [0x14B740, .data, 166A0] # sRandomSeed (0x80746A40-0x80746A44 + 12-byte TU pad)
-      - [0x14B750, .data, 16A20] # D_80746A50[61], D_80746ACC[64], D_80746B4C[5] fixed-point interpolation tables (0x80746A50-0x80746B56 + 10-byte TU pad)
-      - [0x14B860, .data, 17B90] # D_80746B60 (also written by 117190), gDefaultModelBone (0x80746B60-0x80746B80)
-      - [0x14B880, .data, 19A00] # sScriptEffectSprites..sCharacterBehaviorMap (0x80746B80-0x80746E1E) + 2-byte TU pad; 16-aligned after 17B90's D_80746B64; sScriptOpcodeTable's .word scriptOpPlaySoundAndShake makes its entry label address-taken (Q0552)
+      - [0x149160, .data, 0_init] # D_80744460/64 only (0x80744460-0x80744470)
+      - [0x149170, .data, 450_main_loop] # 0x80744470-0x807445E0
+      - [0x1492E0, .data, 3C10_map_transition] # gMapHubWorldIndex..D_8074482C[221] (0x807445E0-0x80745288 + 8-byte TU pad); D_807446D0..D_80744710 are read only by later TUs (478F0, 8F4B0, ACDC0, C1E70, critter 3340); D_80744736 = &D_80744734[1] (undefined_syms)
+      - [0x149F90, .data, 5230_frame_timing] # D_80745290 (0x80745290-0x807452A0)
+      - [0x149FA0, .data, 5650_timer_queue] # gTimerQueue (0x807452A0-0x807452B0)
+      - [0x149FB0, .data, 5A50_seq_player] # D_807452B0[4] sequence-player buffer sizes (0x807452B0-0x807452C0)
+      - [0x149FC0, .data, 6710_audio_thread]
+      - [0x14A1F0, .data, 7130_sfx] # D_807454F0..D_807462A8 (0x807454F0-0x80746332 + 14-byte TU pad): sfx/sequence tables defined in src/global/7130_sfx.c in address order; D_80745B20/D_80745B24 are sfxUpdateChannels's initialised-local templates (bankChannel/seqState); D_807462A8[69][2] is the table 7130 reached as D_807460AE (= D_807462A8 - 0x1FA); next TU F4C0's gMapActionRemapTable starts 16-aligned at 0x80746340
+      - [0x14B040, .data, F4C0_map_action] # gMapActionRemapTable[14] (0x80746340-0x80746394 + 12-byte TU pad; D_80746344 was its [0].mappedAction split label)
+      - [0x14B0A0, .data, 10130_demo_playback] # D_807463A0..D_807463B8 (0x807463A0-0x807463B9 + 7-byte TU pad); D_807463A4 unreferenced; D_807463B8 is also read by F600, 201B0, CEAE0, D5E10, F56F0
+      - [0x14B0C0, .data, 104F0_eeprom] # D_807463C0 (CRC32 table)..D_80746800 (0x807463C0-0x80746804 + 12-byte TU pad); D_807467D0's four eeprom* handlers make their entry labels address-taken (Q0552)
+      - [0x14B510, .data, 131B0_rumble] # gRumblePaused, D_80746814 (unreferenced), gRumbleResetPending (0x80746810-0x80746820)
+      - [0x14B520, .data, 13980_scheduler] # D_80746820..D_80746A2C (0x80746820-0x80746A30); 131B0's own data is gRumblePaused/gRumbleResetPending (0x80746810-0x80746820)
+      - [0x14B730, .data, 15050_heap] # sHeapReclaimFlag, sHeapReclaimMatrixFlag (sHeapFlags = its low byte) (0x80746A30-0x80746A40)
+      - [0x14B740, .data, 166A0_random] # sRandomSeed (0x80746A40-0x80746A44 + 12-byte TU pad)
+      - [0x14B750, .data, 16A20_fixed_point_trig] # D_80746A50[61], D_80746ACC[64], D_80746B4C[5] fixed-point interpolation tables (0x80746A50-0x80746B56 + 10-byte TU pad)
+      - [0x14B860, .data, 17B90_anim_controller] # D_80746B60 (also written by 117190), gDefaultModelBone (0x80746B60-0x80746B80)
+      - [0x14B880, .data, 19A00_actor_script] # sScriptEffectSprites..sCharacterBehaviorMap (0x80746B80-0x80746E1E) + 2-byte TU pad; 16-aligned after 17B90's D_80746B64; sScriptOpcodeTable's .word scriptOpPlaySoundAndShake makes its entry label address-taken (Q0552)
       - [0x14BB20, data]
-      - [0x14C3A0, .data, 201B0]
+      - [0x14C3A0, .data, 201B0_camera]
       - [0x14C450, .data, 2C910] # gScriptAnimScriptIds[210], sScriptTintColors[5], sScriptAnimBase[254], sScriptParticleColors[8] (0x80747750-0x80747B18 + 8-byte TU pad): 2C910 reads gScriptAnimScriptIds; the other three are read only by C4620, which follows 2DE90 in text (data order = text order)
-      - [0x14C820, .data, 2DE90] # sScreenWipeCooldown..D_80747B50 (0x80747B20-0x80747B54 + 12-byte TU pad)
-      - [0x14C860, .data, 2F550] # sCamZoomTable[23][4] (0x80747B60-0x80747CD0): 201B0's only user cannot own it: 2C910/2DE90 data lie between; nearest later TU with data, layout-neutral. Then cameraStepAspectScale's static f32 sc (D_80747CD0, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad)
-      - [0x14C9E0, .data, 36880] # D_80747CE0..D_80747D78 (0x80747CE0-0x80747D79 + 7-byte TU pad); D_80747CE0[20][2] is unreferenced, ends at 36880's first label (tentative: 35000 would be layout-neutral too)
-      - [0x14CA80, .data, 41090] # gMapSurfaceEffects[8]..D_80747E64 (0x80747D80-0x80747E68 + 8-byte TU pad; D_80747D84/D_80747E10 were split labels); D_80747E64 unreferenced (its label is gEnvFlipbookFrames's loop end); the table's env* handlers make their entry labels address-taken (Q0552)
-      - [0x14CB70, .data, 42630] # gCsCmdTable[118], gCsCondTable[19], D_80748094..D_807480BC[8] (0x80747E70-0x807480CC + 4-byte TU pad); D_80748098 unreferenced; every table handler but csCmdSpawnSparkAndLight lives in 478F0
-      - [0x14CDD0, .data, 478F0] # D_807480D0..D_807482EC (0x807480D0-0x807482F0, no pad): cutscene-command data, defined in src/global/478F0.c in address order before each first user; sHubItemsFrames/sHubItemsCycle (0x80748170/0x80748178) are csCmdHubWorldItemsAdjust's function-local statics, D_8074817C an unreferenced word; 16-aligned after 42630's D_807480BC, next TU data starts 16-aligned at 0x807482F0
-      - [0x14CFF0, .data, 55B20] # D_807482F0 (unreferenced, tentative: 54150 would be layout-neutral too), D_807482F4 (0x807482F0-0x807482F8 + 8-byte TU pad)
-      - [0x14D000, .data, 5E2F0] # gLightVolumeCount, gShadowLitAlpha, gShadowAmbientAlpha (0x80748300-0x8074830C + 4-byte TU pad)
-      - [0x14D010, .data, 61AA0] # D_80748310, D_80748370, D_807483D0 segment-6 render-mode lists (0x80748310-0x80748430)
-      - [0x14D130, .data, 63810] # gLightKeyframeTable[27], gLightQueueCount (0x80748430-0x80748A86 + 10-byte TU pad)
-      - [0x14D790, .data, 63EC0] # D_80748A90[9] effect table rows (D_80748A94/A9C/AA5 are column views: undefined_syms), D_80748B68 (0x80748A90-0x80748B6C + 4-byte TU pad); the rows' effect* handlers make their entry labels address-taken (Q0552)
-      - [0x14D870, .data, 68960] # gMapFogDistances[6] (0x80748B70-0x80748B94 + 12-byte TU pad)
-      - [0x14D8A0, .data, 699B0] # particlePathTable[13] (0x80748BA0-0x80748D40)
-      - [0x14DA40, .data, 69E60] # D_80748D40[19] tilt table (D_80748D48/D_80748D4A/D_80748DA4 interior), D_80748E00, D_80748E04 (0x80748D40-0x80748E05 + 11-byte TU pad)
-      - [0x14DB10, .data, 6AD90] # D_80748E10 (unreferenced), D_80748E14, D_80748E18[0x28] (0x80748E10-0x80748E40)
-      - [0x14DB40, .data, 70FD0] # D_80748E40 (0x80748E40-0x80748E42 + 14-byte TU pad)
-      - [0x14DB50, .data, 7A510] # D_80748E50[29][9] node-flag sets, D_80748F58[24], D_80748FE8[595] hit windows, gActorInteractionTable[4] (0x80748E50-0x8074AC0C + 4-byte TU pad)
-      - [0x14F910, .data, 7BBD0] # per-actor-type tables (0x8074AC10-0x8074DA2C + 4-byte TU pad): 185 collision interaction lists/pattern tables (no C user; reached through D_8074C604), D_8074C0A0[345] update functions (7CA80), D_8074C604[344] collision slots and D_8074D0C4[344] health/damage (7A510), D_8074D624[344] collision flags and gActorTypeInitIndex[344] (7CA80). Both ends are 4-byte TU pads, so a TU between 7A510 and 7CA80 in text: tentative 7BBD0 (7AF60/7BA00 layout-neutral too; the lists point at 108 7AF60 filters, none at 7BBD0)
-      - [0x152730, .data, 7CA80] # gActorInitFuncs[10], D_8074DA58[117] component sizes, 344 component lists D_8074DB44..D_8074E214, D_8074E218[344], D_8074E778 (112080 indexes the name table through it), gPlayerCharacterId[4], D_8074E780[8] kong/animal name strings (0x8074DA30-0x8074E7A0, no pad); gActorInitFuncs makes its ten init functions' entry labels address-taken (Q0552)
-      - [0x1534A0, .data, 80150] # D_8074E7A0[4], D_8074E7B8 (unreferenced 270.0f), D_8074E7BC[8], D_8074E7D4, D_8074E7E0[10], D_8074E7F4..D_8074E80C (D_8074E80C unreferenced), D_8074E810, D_8074E814[5], gTagBarrelKongAnimFrames, D_8074E848[5], sKongNameTextIds[6] (0x8074E7A0-0x8074E874 + 12-byte TU pad)
-      - [0x153580, .data, 89250] # gPuffSprites[3] (read by many TUs and overlays), sGrowthTierScales, sMultiTierRingActorTypes, unreferenced D_8074E8A8/D_8074E8AC (0x8074E880-0x8074E8B0)
-      - [0x1535B0, .data, 8D3E0] # gActorListSpawnTable[128] (spawn/despawn predicates make their entry labels address-taken, Q0552), sActorListOffsetsReady, D_807500B4, D_807500D4 (0x8074E8B0-0x807500F4 + 12-byte TU pad)
-      - [0x154E00, .data, 8F050] # gActorOverrideModelConfigs[7] (0x80750100-0x8075018C + 4-byte TU pad; D_80750102 was entry 0's modelAssetId label)
+      - [0x14C820, .data, 2DE90_screen_wipe] # sScreenWipeCooldown..D_80747B50 (0x80747B20-0x80747B54 + 12-byte TU pad)
+      - [0x14C860, .data, 2F550_map_render] # sCamZoomTable[23][4] (0x80747B60-0x80747CD0): 201B0's only user cannot own it: 2C910/2DE90 data lie between; nearest later TU with data, layout-neutral. Then cameraStepAspectScale's static f32 sc (D_80747CD0, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad)
+      - [0x14C9E0, .data, 36880_model_slot] # D_80747CE0..D_80747D78 (0x80747CE0-0x80747D79 + 7-byte TU pad); D_80747CE0[20][2] is unreferenced, ends at 36880's first label (tentative: 35000 would be layout-neutral too)
+      - [0x14CA80, .data, 41090_env_texture] # gMapSurfaceEffects[8]..D_80747E64 (0x80747D80-0x80747E68 + 8-byte TU pad; D_80747D84/D_80747E10 were split labels); D_80747E64 unreferenced (its label is gEnvFlipbookFrames's loop end); the table's env* handlers make their entry labels address-taken (Q0552)
+      - [0x14CB70, .data, 42630_cutscene_interp] # gCsCmdTable[118], gCsCondTable[19], D_80748094..D_807480BC[8] (0x80747E70-0x807480CC + 4-byte TU pad); D_80748098 unreferenced; every table handler but csCmdSpawnSparkAndLight lives in 478F0
+      - [0x14CDD0, .data, 478F0_cutscene_cmds] # D_807480D0..D_807482EC (0x807480D0-0x807482F0, no pad): cutscene-command data, defined in src/global/478F0_cutscene_cmds.c in address order before each first user; sHubItemsFrames/sHubItemsCycle (0x80748170/0x80748178) are csCmdHubWorldItemsAdjust's function-local statics, D_8074817C an unreferenced word; 16-aligned after 42630's D_807480BC, next TU data starts 16-aligned at 0x807482F0
+      - [0x14CFF0, .data, 55B20_map_chunk] # D_807482F0 (unreferenced, tentative: 54150 would be layout-neutral too), D_807482F4 (0x807482F0-0x807482F8 + 8-byte TU pad)
+      - [0x14D000, .data, 5E2F0_light] # gLightVolumeCount, gShadowLitAlpha, gShadowAmbientAlpha (0x80748300-0x8074830C + 4-byte TU pad)
+      - [0x14D010, .data, 61AA0_render_caches] # D_80748310, D_80748370, D_807483D0 segment-6 render-mode lists (0x80748310-0x80748430)
+      - [0x14D130, .data, 63810_light_queue] # gLightKeyframeTable[27], gLightQueueCount (0x80748430-0x80748A86 + 10-byte TU pad)
+      - [0x14D790, .data, 63EC0_effect_water] # D_80748A90[9] effect table rows (D_80748A94/A9C/AA5 are column views: undefined_syms), D_80748B68 (0x80748A90-0x80748B6C + 4-byte TU pad); the rows' effect* handlers make their entry labels address-taken (Q0552)
+      - [0x14D870, .data, 68960_fog_distance] # gMapFogDistances[6] (0x80748B70-0x80748B94 + 12-byte TU pad)
+      - [0x14D8A0, .data, 699B0_particle_path] # particlePathTable[13] (0x80748BA0-0x80748D40)
+      - [0x14DA40, .data, 69E60_actor_physics] # D_80748D40[19] tilt table (D_80748D48/D_80748D4A/D_80748DA4 interior), D_80748E00, D_80748E04 (0x80748D40-0x80748E05 + 11-byte TU pad)
+      - [0x14DB10, .data, 6AD90_collision] # D_80748E10 (unreferenced), D_80748E14, D_80748E18[0x28] (0x80748E10-0x80748E40)
+      - [0x14DB40, .data, 70FD0_collision_geometry] # D_80748E40 (0x80748E40-0x80748E42 + 14-byte TU pad)
+      - [0x14DB50, .data, 7A510_collision_interact] # D_80748E50[29][9] node-flag sets, D_80748F58[24], D_80748FE8[595] hit windows, gActorInteractionTable[4] (0x80748E50-0x8074AC0C + 4-byte TU pad)
+      - [0x14F910, .data, 7BBD0_actor_collision] # per-actor-type tables (0x8074AC10-0x8074DA2C + 4-byte TU pad): 185 collision interaction lists/pattern tables (no C user; reached through D_8074C604), D_8074C0A0[345] update functions (7CA80), D_8074C604[344] collision slots and D_8074D0C4[344] health/damage (7A510), D_8074D624[344] collision flags and gActorTypeInitIndex[344] (7CA80). Both ends are 4-byte TU pads, so a TU between 7A510 and 7CA80 in text: tentative 7BBD0 (7AF60/7BA00 layout-neutral too; the lists point at 108 7AF60 filters, none at 7BBD0)
+      - [0x152730, .data, 7CA80_actor_manager] # gActorInitFuncs[10], D_8074DA58[117] component sizes, 344 component lists D_8074DB44..D_8074E214, D_8074E218[344], D_8074E778 (112080 indexes the name table through it), gPlayerCharacterId[4], D_8074E780[8] kong/animal name strings (0x8074DA30-0x8074E7A0, no pad); gActorInitFuncs makes its ten init functions' entry labels address-taken (Q0552)
+      - [0x1534A0, .data, 80150_barrels] # D_8074E7A0[4], D_8074E7B8 (unreferenced 270.0f), D_8074E7BC[8], D_8074E7D4, D_8074E7E0[10], D_8074E7F4..D_8074E80C (D_8074E80C unreferenced), D_8074E810, D_8074E814[5], gTagBarrelKongAnimFrames, D_8074E848[5], sKongNameTextIds[6] (0x8074E7A0-0x8074E874 + 12-byte TU pad)
+      - [0x153580, .data, 89250_effect_spawn] # gPuffSprites[3] (read by many TUs and overlays), sGrowthTierScales, sMultiTierRingActorTypes, unreferenced D_8074E8A8/D_8074E8AC (0x8074E880-0x8074E8B0)
+      - [0x1535B0, .data, 8D3E0_actor_list] # gActorListSpawnTable[128] (spawn/despawn predicates make their entry labels address-taken, Q0552), sActorListOffsetsReady, D_807500B4, D_807500D4 (0x8074E8B0-0x807500F4 + 12-byte TU pad)
+      - [0x154E00, .data, 8F050_actor_config] # gActorOverrideModelConfigs[7] (0x80750100-0x8075018C + 4-byte TU pad; D_80750102 was entry 0's modelAssetId label)
       - [0x154E90, .data, 8F4B0] # D_80750190 (also read by 7130 and boss 0.c), gCutsceneSpotLights[3], gLightFlickerColors[9] (0x80750190-0x807501DB + 5-byte TU pad)
-      - [0x154EE0, .data, 90D80] # D_807501E0, D_807501E8 (Vtx[4], 8-aligned), D_80750228, D_8075022C, D_80750230 (Vtx[4]) (0x807501E0-0x80750270, no pad)
-      - [0x154F70, .data, 936B0] # sProjectileShortLivedFlag, D_80750274 (0x80750270-0x80750278 + 8-byte TU pad)
-      - [0x154F80, .data, 9BF30] # gSpriteRingQuadVtx[4], D_807502C0[3] (0x80750280-0x807502CC + 4-byte TU pad)
-      - [0x154FD0, .data, 9CE20] # movement scalars gCarryMinFallSpeed..D_80750398, one 4-byte slot each (0x807502D0-0x8075039C + 4-byte TU pad): read by 80150, 936B0, 9DD70, A2F10, AA960, B7490, BB300, C4620, E4090, 11BC10, 1295B0 and overlays; 9CE20 (D_8075037C/D_80750380) is the only text TU between 9BF30 and 9DD70
+      - [0x154EE0, .data, 90D80_render_callbacks] # D_807501E0, D_807501E8 (Vtx[4], 8-aligned), D_80750228, D_8075022C, D_80750230 (Vtx[4]) (0x807501E0-0x80750270, no pad)
+      - [0x154F70, .data, 936B0_projectile] # sProjectileShortLivedFlag, D_80750274 (0x80750270-0x80750278 + 8-byte TU pad)
+      - [0x154F80, .data, 9BF30_projectile_ring] # gSpriteRingQuadVtx[4], D_807502C0[3] (0x80750280-0x807502CC + 4-byte TU pad)
+      - [0x154FD0, .data, 9CE20_projectile_behaviours] # movement scalars gCarryMinFallSpeed..D_80750398, one 4-byte slot each (0x807502D0-0x8075039C + 4-byte TU pad): read by 80150, 936B0, 9DD70, A2F10, AA960, B7490, BB300, C4620, E4090, 11BC10, 1295B0 and overlays; 9CE20 (D_8075037C/D_80750380) is the only text TU between 9BF30 and 9DD70
       - [0x1550A0, .data, 9DD70] # D_807503A0, gCarryDebrisSprites (0x807503A0-0x807503AC + 4-byte TU pad)
       - [0x1550B0, .data, A2F10] # D_807503B0[9] kong/boss name table (read as D_80750338[0x1E..0x26]), D_807503D4[12], D_807503E0[12] (0x807503B0-0x807503EC + 4-byte TU pad)
-      - [0x1550F0, .data, A8400] # D_807503F0 (0x807503F0-0x807503F1 + 15-byte TU pad)
-      - [0x155100, .data, AA960] # gActorSpawnSfxTable[27], sSparkleSprites, sShrinkRate..sShrinkAlphaStep, unreferenced D_807504D4 (0x80750400-0x807504D8 + 8-byte TU pad)
-      - [0x1551E0, .data, ACDC0] # D_807504E0..D_807505F8 (0x807504E0-0x807505FA + 6-byte TU pad): pause-menu tables; sPauseSaveCooldown, D_807505D8, D_807505F8 are function-local statics of hudPauseMenuUpdate, hudPauseMenuBuildPage, hudDrawTwoOptionMenu, laid out in source order after the file-scope tables (defined above the functions)
-      - [0x155300, .data, B5EC0] # D_80750600[5] (0x80750600-0x80750614 + 12-byte TU pad): func_806B1DD4's per-mode flag rows
-      - [0x155320, .data, BDEE0] # D_80750620[8], D_80750628[16], gFairySpawnOrder (0x80750620-0x80750643 + 13-byte TU pad); D_80750620 is unreferenced, its TU start is the 16-aligned address below the unaligned D_80750628
-      - [0x155350, .data, C0EE0] # D_80750650 (s8 + 15-byte TU pad)
-      - [0x155360, .data, C1E70] # D_80750660..D_807506B8 (0x80750660-0x807506C0, no pad): ring-node data; sRingSequence/sRingSequencePos (0x807506A8/0x807506B4) are actorNodeRingUpdate's function-local statics, laid out in source order between D_807506A4 and D_807506B8
+      - [0x1550F0, .data, A8400_text_box] # D_807503F0 (0x807503F0-0x807503F1 + 15-byte TU pad)
+      - [0x155100, .data, AA960_pickup_drops] # gActorSpawnSfxTable[27], sSparkleSprites, sShrinkRate..sShrinkAlphaStep, unreferenced D_807504D4 (0x80750400-0x807504D8 + 8-byte TU pad)
+      - [0x1551E0, .data, ACDC0_pause_menu] # D_807504E0..D_807505F8 (0x807504E0-0x807505FA + 6-byte TU pad): pause-menu tables; sPauseSaveCooldown, D_807505D8, D_807505F8 are function-local statics of hudPauseMenuUpdate, hudPauseMenuBuildPage, hudDrawTwoOptionMenu, laid out in source order after the file-scope tables (defined above the functions)
+      - [0x155300, .data, B5EC0_kong_item_enemy] # D_80750600[5] (0x80750600-0x80750614 + 12-byte TU pad): func_806B1DD4's per-mode flag rows
+      - [0x155320, .data, BDEE0_armadillo_fairy] # D_80750620[8], D_80750628[16], gFairySpawnOrder (0x80750620-0x80750643 + 13-byte TU pad); D_80750620 is unreferenced, its TU start is the 16-aligned address below the unaligned D_80750628
+      - [0x155350, .data, C0EE0_enemy_grid] # D_80750650 (s8 + 15-byte TU pad)
+      - [0x155360, .data, C1E70_rings] # D_80750660..D_807506B8 (0x80750660-0x807506C0, no pad): ring-node data; sRingSequence/sRingSequencePos (0x807506A8/0x807506B4) are actorNodeRingUpdate's function-local statics, laid out in source order between D_807506A4 and D_807506B8
       - [0x1553C0, .data, C2A90] # D_807506C0[16] (0x807506C0-0x807506D0, no pad); A6280 also reads it but its data lies before C1E70's
-      - [0x1553D0, .data, CBEA0] # gBannerTextSteps[22]..D_80750828[4] (0x807506D0-0x80750838 + 8-byte TU pad): banner text steps/fade table/margins; D_807506D5 was a split label (lineCount of entry 0)
-      - [0x155540, .data, CC800] # D_80750840[22]..D_80750B34[5] (0x80750840-0x80750B48 + 8-byte TU pad; D_80750B48 was playerSpawnMapActors's loop-end label): D_80750840 (split-screen divider rects) is read only by 109660, sits before CC800's own D_80750948 (tentative: CBEA0 would be layout-neutral too); the shared viewport/player-count globals between them are CC800's
-      - [0x155850, .data, CEAE0] # gPlayerStateHandlers[138] {handler, flags} (handlers in D5E10 and the menu overlay), unreferenced D_80750FA0[2], gPlayerLargeModeScale (0x80750B50-0x80750FAC + 4-byte TU pad); the split label gPlayerStateFlags (0x80750B54, entry 0's flags) folded into gPlayerStateHandlers[i].flags
-      - [0x155CB0, .data, D5E10] # D_80750FB0..D_80750FE0[4] (0x80750FB0-0x80750FF0, no pad); D_80750FB8[2] unreferenced
-      - [0x155CF0, .data, E4090] # gButtonRemapTable, D_80750FF4..D_80751000, gPlayerInputHandlers[107][17] (0x80750FF0-0x80752C70, no pad); 16-aligned after D5E10's D_80750FE0[4]; the table's words make playerInputUpdateCannonAim's entry label address-taken (Q0552)
-      - [0x157970, .data, EFDC0] # gPlayerStateCallbacks[93] (0x80752C70-0x80752DE4) + 12-byte TU pad; 16-aligned after E4090's gPlayerInputHandlers; the word pointing at playerStateSetFlagsByActorType makes its entry label address-taken (Q0552)
-      - [0x157AF0, .data, F56F0] # D_80752DF0..gWaypointPaths (0x80752DF0-0x80753E94 + 12-byte TU pad): weapon recoil tables, then the per-kong tables (f32[7] / s16[8]) read by CEAE0, D5E10, E4090, EFDC0, 6AD90, 19A00, 70FD0, 7BBD0, 80150, 89250, 133A90 (data order = text order puts them in this TU's range; no text user here), then gWaypointPaths; zeros at 0x80753E84 keep gWaypointPaths 16-aligned (possibly a hidden TU start, layout-neutral); 89250's D_80753A08/D_80753A18 are actorType-indexed bases 4 bytes below D_80753A0C/D_80753A1C (undefined_syms)
-      - [0x158BA0, .data, F93B0] # gMapVoidHeights[13] (0x80753EA0-0x80753EEE + 2-byte TU pad)
-      - [0x158BF0, .data, F9450] # gGridTypeTable[42]..D_80754264[6] (0x80753EF0-0x8075427C + 4-byte TU pad); D_80753EF2/D_80753EFC/D_8075424C/D_80754250/D_80754268 were splat labels at field/loop addresses, not named in C
-      - [0x158F80, .data, FCCD0] # gSlotQueue, gSlotQueueMaskList, D_80754288 (0x80754280-0x8075428C + 4-byte TU pad)
-      - [0x158F90, .data, 100180] # font line starts, glyph tables, gTextFontLineStarts, gTextGlyphTables, gTextFonts[8], charsets D_80754A64/D_80754AA0 (0x80754290-0x80754AD0, no pad); D_80754A35..D_80754A39 were splat labels inside gTextFonts (1025E0 reads spaceWidth)
-      - [0x1597D0, .data, 1025E0] # gGfxResourceList, gGfxResourceNextId, unreferenced D_80754AD8[2] (+-pi/2) and D_80754AE0 zeros (0x80754AD0-0x80754AF0)
-      - [0x1597F0, .data, 103AB0] # D_80754AF0[13] lens flare sprites..D_80754CC8 (0x80754AF0-0x80754CD4 + 12-byte TU pad); D_80754C08 is Vtx[4] (8-aligned: 4-byte gap after D_80754BC4)
-      - [0x1599E0, .data, 109660] # D_80754CE0..sBgScrollY (0x80754CE0-0x80754F80): gfx background/sky data, defined in src/global/109660.c; sBgScrollX/Y (0x80754F70/F74) are gfxBuildScrollingBackground's function-local statics, after the file-scope data
-      - [0x159C80, .data, 10E1D0] # D_80754F80..D_807550A8 (0x80754F80-0x807550B8 + 8-byte TU pad): mesh texture table, an unreferenced end-DL Gfx at 0x80754FC0, transition data; 0x807550A4 is transitionSetAudioVolume's function-local static sGroupVolScaled
-      - [0x159DC0, .data, 112080] # sResNodeListHead, sResQueueHead, sLanguageIndex, sResQueueValue (0x807550C0-0x807550CD + 3-byte TU pad); 104F0 also reads sLanguageIndex
-      - [0x159DD0, .data, 1135F0] # gCurrentTexture (0x807550D0-0x807550D4 + 12-byte TU pad)
-      - [0x159DE0, .data, 114270] # gEffectSpritePool (+4-byte Vtx alignment), D_807550E8..D_807551E8 Vtx[4], image-id arrays D_80755228..D_80755258, gEffectSpriteTextureSetups[6] (0x807550E0-0x807552DC + 4-byte TU pad); the image arrays were reached only through the setups' unrelocated words; the setups' update callbacks are 114270 functions
-      - [0x159FE0, .data, 117190] # D_807552E0, gMpSettings..D_80755384[3] (0x807552E0-0x80755390, no pad): menu/multiplayer state; D_807552E8/D_807552EC/D_807552F0/gMultiplayerOverrideAnimFrames were split labels inside gMpSettings (folded to .gameMode/.limit/.playerControllerSlots in 478F0/8F050), D_80755348/D_80755350 inside gMenuBonusTimer
-      - [0x15A090, .data, 119370] # gEffectGridAssets[176] (0x80755390-0x80755650, no pad): read only by A8400/112080 (earlier in text); between 117190's data and 11BC10's, given to the effect-grid unit 119370 (tentative: 117190 or 11BC10 would be layout-neutral too); entries point into the 124780 blob, 46 at an offset from the enclosing label
-      - [0x15A350, .data, 11BC10] # D_80755650[18], D_80755674, D_80755678, D_8075567C (effectCircleRiseFadeUpdate's static s8 + 3-byte pad): the TU's data, 16-aligned after 119370's gEffectGridAssets; 126260's data starts at 0x80755680
-      - [0x15A380, .data, 126260] # D_80755680..D_8075568C (0x80755680-0x80755690, no pad): interpolated light parameters
-      - [0x15A390, .data, 1295B0] # gZoneTable, gSpawnNodeList, gSpawnEntryKind[116], D_8075570C[68], D_80755794, D_8075579C (0x80755690-0x8075579E + 2-byte TU pad); C2A90 also reads gZoneTable
-      - [0x15A4A0, .data, 1332B0] # gVolumeTriggerHooks[39] (condition func_8072E5B0 is its own; text unchanged), unreferenced hook count D_80755A10, gVolumeTriggerTable (0x807557A0-0x80755A18 + 8-byte TU pad)
-      - [0x15A720, .data, 135D30] # D_80755A20[0x71], D_80755DA8[0x1F], D_80755EA0[0x16], D_80755F50[0x35], D_80756024[0x21] (0x80755A20-0x8075612C + 4-byte TU pad); D_80755DAE was a split label (D_80755DA8 +6), D_80755F4C (D_80755F50 - 4, func_8073195C's 1-based index) is an undefined_syms interior label; ACDC0 also reads D_80755DA8
-      - [0x15AE30, .data, 136820] # D_80756130[0x230] (fault font, data_inc), gFaultMessageStrings[20], D_807563B0, D_807563B4, gFaultDrawCount (0x80756130-0x807563BC + 4-byte TU pad); 13980/menu also read D_807563B4
-      - [0x15B0C0, .data, 13A7A0] # gSndpUsedHead..gSndpVoiceCount (0x807563C0-0x807563D2 + 14-byte TU pad)
-      - [0x15B0E0, .data, 13D170] # n_globals, n_syn (0x807563E0-0x807563E8 + 8-byte TU pad)
-      - [0x15B0F0, .data, 140600] # unreferenced reverb parameters D_807563F0[26], n_alFxNew's default D_80756458[14] (0x807563F0-0x80756490, no pad): D_80756458 is unaligned after the params, so both are one TU, its user's
-      - [0x15B190, .data, 1435C0] # D_80756490[128] eqpower curve (0x80756490-0x80756590, no pad); D_8075658E (its last entry, read as D_8075658E[-pan]) is an undefined_syms interior label
-      - [0x15B290, .rodata, 450] # playerViewsBuildMatrices's doubles, func_805FD088's +-20000.0f, 255.0, 0.5493331552f, 4-byte TU pad
-      - [0x15B2E0, .rodata, 3C10] # D_807565E0/D_80756630 byte tables, then func_805FF9AC's double 255.0, 8-byte TU pad
-      - [0x15B390, .rodata, 5230]
-      - [0x15B4B0, .rodata, 7130]
-      - [0x15BD20, .rodata, 104F0]
-      - [0x15BE40, .rodata, 13980]
-      - [0x15BF90, .rodata, 15050]
-      - [0x15BFD0, .rodata, 16550]
-      - [0x15BFF0, .rodata, 166A0]
-      - [0x15C010, .rodata, 17800]
+      - [0x1553D0, .data, CBEA0_banner_text] # gBannerTextSteps[22]..D_80750828[4] (0x807506D0-0x80750838 + 8-byte TU pad): banner text steps/fade table/margins; D_807506D5 was a split label (lineCount of entry 0)
+      - [0x155540, .data, CC800_player_setup] # D_80750840[22]..D_80750B34[5] (0x80750840-0x80750B48 + 8-byte TU pad; D_80750B48 was playerSpawnMapActors's loop-end label): D_80750840 (split-screen divider rects) is read only by 109660, sits before CC800's own D_80750948 (tentative: CBEA0 would be layout-neutral too); the shared viewport/player-count globals between them are CC800's
+      - [0x155850, .data, CEAE0_player_update] # gPlayerStateHandlers[138] {handler, flags} (handlers in D5E10 and the menu overlay), unreferenced D_80750FA0[2], gPlayerLargeModeScale (0x80750B50-0x80750FAC + 4-byte TU pad); the split label gPlayerStateFlags (0x80750B54, entry 0's flags) folded into gPlayerStateHandlers[i].flags
+      - [0x155CB0, .data, D5E10_player_states] # D_80750FB0..D_80750FE0[4] (0x80750FB0-0x80750FF0, no pad); D_80750FB8[2] unreferenced
+      - [0x155CF0, .data, E4090_player_input] # gButtonRemapTable, D_80750FF4..D_80751000, gPlayerInputHandlers[107][17] (0x80750FF0-0x80752C70, no pad); 16-aligned after D5E10's D_80750FE0[4]; the table's words make playerInputUpdateCannonAim's entry label address-taken (Q0552)
+      - [0x157970, .data, EFDC0_player_state_enter] # gPlayerStateCallbacks[93] (0x80752C70-0x80752DE4) + 12-byte TU pad; 16-aligned after E4090's gPlayerInputHandlers; the word pointing at playerStateSetFlagsByActorType makes its entry label address-taken (Q0552)
+      - [0x157AF0, .data, F56F0_player_weapon] # D_80752DF0..gWaypointPaths (0x80752DF0-0x80753E94 + 12-byte TU pad): weapon recoil tables, then the per-kong tables (f32[7] / s16[8]) read by CEAE0, D5E10, E4090, EFDC0, 6AD90, 19A00, 70FD0, 7BBD0, 80150, 89250, 133A90 (data order = text order puts them in this TU's range; no text user here), then gWaypointPaths; zeros at 0x80753E84 keep gWaypointPaths 16-aligned (possibly a hidden TU start, layout-neutral); 89250's D_80753A08/D_80753A18 are actorType-indexed bases 4 bytes below D_80753A0C/D_80753A1C (undefined_syms)
+      - [0x158BA0, .data, F93B0_void_height] # gMapVoidHeights[13] (0x80753EA0-0x80753EEE + 2-byte TU pad)
+      - [0x158BF0, .data, F9450_grid_nodes] # gGridTypeTable[42]..D_80754264[6] (0x80753EF0-0x8075427C + 4-byte TU pad); D_80753EF2/D_80753EFC/D_8075424C/D_80754250/D_80754268 were splat labels at field/loop addresses, not named in C
+      - [0x158F80, .data, FCCD0_slot_queue] # gSlotQueue, gSlotQueueMaskList, D_80754288 (0x80754280-0x8075428C + 4-byte TU pad)
+      - [0x158F90, .data, 100180_text_font] # font line starts, glyph tables, gTextFontLineStarts, gTextGlyphTables, gTextFonts[8], charsets D_80754A64/D_80754AA0 (0x80754290-0x80754AD0, no pad); D_80754A35..D_80754A39 were splat labels inside gTextFonts (1025E0 reads spaceWidth)
+      - [0x1597D0, .data, 1025E0_gfx_resource] # gGfxResourceList, gGfxResourceNextId, unreferenced D_80754AD8[2] (+-pi/2) and D_80754AE0 zeros (0x80754AD0-0x80754AF0)
+      - [0x1597F0, .data, 103AB0_view_effects] # D_80754AF0[13] lens flare sprites..D_80754CC8 (0x80754AF0-0x80754CD4 + 12-byte TU pad); D_80754C08 is Vtx[4] (8-aligned: 4-byte gap after D_80754BC4)
+      - [0x1599E0, .data, 109660_background] # D_80754CE0..sBgScrollY (0x80754CE0-0x80754F80): gfx background/sky data, defined in src/global/109660_background.c; sBgScrollX/Y (0x80754F70/F74) are gfxBuildScrollingBackground's function-local statics, after the file-scope data
+      - [0x159C80, .data, 10E1D0_screen_transition] # D_80754F80..D_807550A8 (0x80754F80-0x807550B8 + 8-byte TU pad): mesh texture table, an unreferenced end-DL Gfx at 0x80754FC0, transition data; 0x807550A4 is transitionSetAudioVolume's function-local static sGroupVolScaled
+      - [0x159DC0, .data, 112080_resource_parse] # sResNodeListHead, sResQueueHead, sLanguageIndex, sResQueueValue (0x807550C0-0x807550CD + 3-byte TU pad); 104F0 also reads sLanguageIndex
+      - [0x159DD0, .data, 1135F0_dl_texture] # gCurrentTexture (0x807550D0-0x807550D4 + 12-byte TU pad)
+      - [0x159DE0, .data, 114270_sprite_particles] # gEffectSpritePool (+4-byte Vtx alignment), D_807550E8..D_807551E8 Vtx[4], image-id arrays D_80755228..D_80755258, gEffectSpriteTextureSetups[6] (0x807550E0-0x807552DC + 4-byte TU pad); the image arrays were reached only through the setups' unrelocated words; the setups' update callbacks are 114270 functions
+      - [0x159FE0, .data, 117190_menu_transition] # D_807552E0, gMpSettings..D_80755384[3] (0x807552E0-0x80755390, no pad): menu/multiplayer state; D_807552E8/D_807552EC/D_807552F0/gMultiplayerOverrideAnimFrames were split labels inside gMpSettings (folded to .gameMode/.limit/.playerControllerSlots in 478F0/8F050), D_80755348/D_80755350 inside gMenuBonusTimer
+      - [0x15A090, .data, 119370_effect_grid] # gEffectGridAssets[176] (0x80755390-0x80755650, no pad): read only by A8400/112080 (earlier in text); between 117190's data and 11BC10's, given to the effect-grid unit 119370 (tentative: 117190 or 11BC10 would be layout-neutral too); entries point into the 124780 blob, 46 at an offset from the enclosing label
+      - [0x15A350, .data, 11BC10_effect_update] # D_80755650[18], D_80755674, D_80755678, D_8075567C (effectCircleRiseFadeUpdate's static s8 + 3-byte pad): the TU's data, 16-aligned after 119370's gEffectGridAssets; 126260's data starts at 0x80755680
+      - [0x15A380, .data, 126260_command_queue] # D_80755680..D_8075568C (0x80755680-0x80755690, no pad): interpolated light parameters
+      - [0x15A390, .data, 1295B0_spawn_nodes] # gZoneTable, gSpawnNodeList, gSpawnEntryKind[116], D_8075570C[68], D_80755794, D_8075579C (0x80755690-0x8075579E + 2-byte TU pad); C2A90 also reads gZoneTable
+      - [0x15A4A0, .data, 1332B0_volume_trigger] # gVolumeTriggerHooks[39] (condition func_8072E5B0 is its own; text unchanged), unreferenced hook count D_80755A10, gVolumeTriggerTable (0x807557A0-0x80755A18 + 8-byte TU pad)
+      - [0x15A720, .data, 135D30_flags] # D_80755A20[0x71], D_80755DA8[0x1F], D_80755EA0[0x16], D_80755F50[0x35], D_80756024[0x21] (0x80755A20-0x8075612C + 4-byte TU pad); D_80755DAE was a split label (D_80755DA8 +6), D_80755F4C (D_80755F50 - 4, func_8073195C's 1-based index) is an undefined_syms interior label; ACDC0 also reads D_80755DA8
+      - [0x15AE30, .data, 136820_fault] # D_80756130[0x230] (fault font, data_inc), gFaultMessageStrings[20], D_807563B0, D_807563B4, gFaultDrawCount (0x80756130-0x807563BC + 4-byte TU pad); 13980/menu also read D_807563B4
+      - [0x15B0C0, .data, 13A7A0_n_sndplayer] # gSndpUsedHead..gSndpVoiceCount (0x807563C0-0x807563D2 + 14-byte TU pad)
+      - [0x15B0E0, .data, 13D170_n_cseq] # n_globals, n_syn (0x807563E0-0x807563E8 + 8-byte TU pad)
+      - [0x15B0F0, .data, 140600_syn_filter] # unreferenced reverb parameters D_807563F0[26], n_alFxNew's default D_80756458[14] (0x807563F0-0x80756490, no pad): D_80756458 is unaligned after the params, so both are one TU, its user's
+      - [0x15B190, .data, 1435C0_n_env] # D_80756490[128] eqpower curve (0x80756490-0x80756590, no pad); D_8075658E (its last entry, read as D_8075658E[-pan]) is an undefined_syms interior label
+      - [0x15B290, .rodata, 450_main_loop] # playerViewsBuildMatrices's doubles, func_805FD088's +-20000.0f, 255.0, 0.5493331552f, 4-byte TU pad
+      - [0x15B2E0, .rodata, 3C10_map_transition] # D_807565E0/D_80756630 byte tables, then func_805FF9AC's double 255.0, 8-byte TU pad
+      - [0x15B390, .rodata, 5230_frame_timing]
+      - [0x15B4B0, .rodata, 7130_sfx]
+      - [0x15BD20, .rodata, 104F0_eeprom]
+      - [0x15BE40, .rodata, 13980_scheduler]
+      - [0x15BF90, .rodata, 15050_heap]
+      - [0x15BFD0, .rodata, 16550_inverse_trig]
+      - [0x15BFF0, .rodata, 166A0_random]
+      - [0x15C010, .rodata, 17800_matrix_rotation]
       - [0x15C020, rodata]
-      - [0x15C050, .rodata, 17B40]
-      - [0x15C060, .rodata, 17B90]
-      - [0x15C070, .rodata, 19A00]
+      - [0x15C050, .rodata, 17B40_float_ceil]
+      - [0x15C060, .rodata, 17B90_anim_controller]
+      - [0x15C070, .rodata, 19A00_actor_script]
       - [0x15C190, rodata]
-      - [0x15C1A0, .rodata, 201B0]
+      - [0x15C1A0, .rodata, 201B0_camera]
       - [0x15CC70, .rodata, 2C910]
-      - [0x15CE00, .rodata, 2DE90]
-      - [0x15CE60, .rodata, 2F550]
-      - [0x15CED0, .rodata, 35000]
-      - [0x15CF00, .rodata, 36880]
-      - [0x15D1F0, .rodata, 41090]
-      - [0x15D260, .rodata, 42630]
-      - [0x15D630, .rodata, 478F0]
-      - [0x15D8E0, .rodata, 54150]
-      - [0x15D960, .rodata, 55B20]
-      - [0x15D9A0, .rodata, 5E2F0]
+      - [0x15CE00, .rodata, 2DE90_screen_wipe]
+      - [0x15CE60, .rodata, 2F550_map_render]
+      - [0x15CED0, .rodata, 35000_render_entry]
+      - [0x15CF00, .rodata, 36880_model_slot]
+      - [0x15D1F0, .rodata, 41090_env_texture]
+      - [0x15D260, .rodata, 42630_cutscene_interp]
+      - [0x15D630, .rodata, 478F0_cutscene_cmds]
+      - [0x15D8E0, .rodata, 54150_model_anim]
+      - [0x15D960, .rodata, 55B20_map_chunk]
+      - [0x15D9A0, .rodata, 5E2F0_light]
       - [0x15DA50, rodata]
-      - [0x15DA60, .rodata, 61AA0]
-      - [0x15DAC0, .rodata, 63810]
-      - [0x15DAD0, .rodata, 63EC0]
-      - [0x15DAE0, .rodata, 67890]
-      - [0x15DAF0, .rodata, 68960]
-      - [0x15DB10, .rodata, 68EA0]
-      - [0x15DB20, .rodata, 699B0]
-      - [0x15DB30, .rodata, 69E60]
-      - [0x15DBC0, .rodata, 6AD90]
-      - [0x15DD50, .rodata, 70FD0]
-      - [0x15DEA0, .rodata, 79890]
-      - [0x15DEC0, .rodata, 7A510]
-      - [0x15DEE0, .rodata, 7AF60]
-      - [0x15DF50, .rodata, 7BA00]
-      - [0x15DF60, .rodata, 7CA80]
-      - [0x15E090, .rodata, 80150]
-      - [0x15E790, .rodata, 89250]
-      - [0x15E8B0, .rodata, 8D3E0]
+      - [0x15DA60, .rodata, 61AA0_render_caches]
+      - [0x15DAC0, .rodata, 63810_light_queue]
+      - [0x15DAD0, .rodata, 63EC0_effect_water]
+      - [0x15DAE0, .rodata, 67890_target_table]
+      - [0x15DAF0, .rodata, 68960_fog_distance]
+      - [0x15DB10, .rodata, 68EA0_model_emitter]
+      - [0x15DB20, .rodata, 699B0_particle_path]
+      - [0x15DB30, .rodata, 69E60_actor_physics]
+      - [0x15DBC0, .rodata, 6AD90_collision]
+      - [0x15DD50, .rodata, 70FD0_collision_geometry]
+      - [0x15DEA0, .rodata, 79890_collision_hit]
+      - [0x15DEC0, .rodata, 7A510_collision_interact]
+      - [0x15DEE0, .rodata, 7AF60_hit_conditions]
+      - [0x15DF50, .rodata, 7BA00_knockback_sound]
+      - [0x15DF60, .rodata, 7CA80_actor_manager]
+      - [0x15E090, .rodata, 80150_barrels]
+      - [0x15E790, .rodata, 89250_effect_spawn]
+      - [0x15E8B0, .rodata, 8D3E0_actor_list]
       - [0x15EA00, .rodata, 8F4B0]
-      - [0x15EC30, .rodata, 90D80]
-      - [0x15EC70, .rodata, 936B0]
-      - [0x15EEF0, .rodata, 9BF30]
-      - [0x15EF40, .rodata, 9CE20]
+      - [0x15EC30, .rodata, 90D80_render_callbacks]
+      - [0x15EC70, .rodata, 936B0_projectile]
+      - [0x15EEF0, .rodata, 9BF30_projectile_ring]
+      - [0x15EF40, .rodata, 9CE20_projectile_behaviours]
       - [0x15EFD0, .rodata, 9DD70]
       - [0x15F110, .rodata, A2F10] # kong-name strings (pointer table D_807503A4) run into A2F10's "ROUND" with no gap
       - [0x15F250, .rodata, A6280]
-      - [0x15F2B0, .rodata, A7710]
-      - [0x15F440, .rodata, A8400]
-      - [0x15F6A0, .rodata, AA960]
-      - [0x15F780, .rodata, ACDC0] # unreferenced strings 0x15F780-0x15F7EC run into ACDC0's first label with no gap
-      - [0x15FA20, .rodata, B1F60]
-      - [0x15FB20, .rodata, B2CE0]
-      - [0x15FFA0, .rodata, B5EC0]
-      - [0x1600C0, .rodata, B6C50]
-      - [0x1600F0, .rodata, B7490]
-      - [0x160420, .rodata, BA790]
-      - [0x160460, .rodata, BB300]
-      - [0x160570, .rodata, BC3B0]
-      - [0x1605B0, .rodata, BD820]
-      - [0x1605D0, .rodata, BDEE0]
-      - [0x160830, .rodata, C0EE0]
-      - [0x1608C0, .rodata, C1E70]
+      - [0x15F2B0, .rodata, A7710_countdown_timer]
+      - [0x15F440, .rodata, A8400_text_box]
+      - [0x15F6A0, .rodata, AA960_pickup_drops]
+      - [0x15F780, .rodata, ACDC0_pause_menu] # unreferenced strings 0x15F780-0x15F7EC run into ACDC0's first label with no gap
+      - [0x15FA20, .rodata, B1F60_enemy_patrol]
+      - [0x15FB20, .rodata, B2CE0_enemy_attack]
+      - [0x15FFA0, .rodata, B5EC0_kong_item_enemy]
+      - [0x1600C0, .rodata, B6C50_smoke_target]
+      - [0x1600F0, .rodata, B7490_enemy_swim_fly]
+      - [0x160420, .rodata, BA790_enemy_chaser]
+      - [0x160460, .rodata, BB300_enemy_pulse]
+      - [0x160570, .rodata, BC3B0_cursor_emitters]
+      - [0x1605B0, .rodata, BD820_delivery_door]
+      - [0x1605D0, .rodata, BDEE0_armadillo_fairy]
+      - [0x160830, .rodata, C0EE0_enemy_grid]
+      - [0x1608C0, .rodata, C1E70_rings]
       - [0x1608E0, .rodata, C2A90]
-      - [0x1609C0, .rodata, C4620]
+      - [0x1609C0, .rodata, C4620_npc_kongs]
       - [0x160F60, .rodata, C8C10]
-      - [0x161080, .rodata, CB230]
-      - [0x1610E0, .rodata, CBEA0]
-      - [0x161110, .rodata, CC800]
-      - [0x1614B0, .rodata, CEAE0]
-      - [0x1619F0, .rodata, D5E10]
-      - [0x161DE0, .rodata, E4090]
-      - [0x162080, .rodata, EFDC0]
-      - [0x1622F0, .rodata, F56F0]
-      - [0x162550, .rodata, F93B0]
-      - [0x162560, .rodata, F9450]
-      - [0x162760, .rodata, FCCD0]
-      - [0x162920, .rodata, 100180]
-      - [0x162A40, .rodata, 1025E0]
-      - [0x162B70, .rodata, 103AB0]
-      - [0x162C90, .rodata, 109660]
-      - [0x1630F0, .rodata, 10D2D0]
-      - [0x163130, .rodata, 10E1D0]
-      - [0x163170, .rodata, 110F00]
-      - [0x163190, .rodata, 112080]
-      - [0x1631B0, .rodata, 114270]
-      - [0x1632C0, .rodata, 117190]
-      - [0x1633A0, .rodata, 119370]
-      - [0x1633D0, .rodata, 11BC10]
-      - [0x163800, .rodata, 126260]
-      - [0x163840, .rodata, 127B00]
-      - [0x163870, .rodata, 1292F0]
-      - [0x163880, .rodata, 1295B0]
-      - [0x164880, .rodata, 12E800]
-      - [0x164C50, .rodata, 133A90]
-      - [0x164CF0, .rodata, 136820]
-      - [0x164E90, .rodata, 137630]
-      - [0x164EA0, .rodata, 137C10]
-      - [0x165150, .rodata, 13A7A0]
-      - [0x165190, .rodata, 13E160]
-      - [0x1651A0, .rodata, 13ECE0]
-      - [0x1651B0, .rodata, 140600]
-      - [0x1651D0, .rodata, 141520]
-      - [0x1651E0, .rodata, 141EF0]
-      - [0x165210, .rodata, 1435C0]
-      - [0x165260, .rodata, 1445A0]
-      - [0x165270, .rodata, 145950]
-      - [0x165280, .rodata, 145D70]
+      - [0x161080, .rodata, CB230_spotlight_follower]
+      - [0x1610E0, .rodata, CBEA0_banner_text]
+      - [0x161110, .rodata, CC800_player_setup]
+      - [0x1614B0, .rodata, CEAE0_player_update]
+      - [0x1619F0, .rodata, D5E10_player_states]
+      - [0x161DE0, .rodata, E4090_player_input]
+      - [0x162080, .rodata, EFDC0_player_state_enter]
+      - [0x1622F0, .rodata, F56F0_player_weapon]
+      - [0x162550, .rodata, F93B0_void_height]
+      - [0x162560, .rodata, F9450_grid_nodes]
+      - [0x162760, .rodata, FCCD0_slot_queue]
+      - [0x162920, .rodata, 100180_text_font]
+      - [0x162A40, .rodata, 1025E0_gfx_resource]
+      - [0x162B70, .rodata, 103AB0_view_effects]
+      - [0x162C90, .rodata, 109660_background]
+      - [0x1630F0, .rodata, 10D2D0_health_hud]
+      - [0x163130, .rodata, 10E1D0_screen_transition]
+      - [0x163170, .rodata, 110F00_matrix]
+      - [0x163190, .rodata, 112080_resource_parse]
+      - [0x1631B0, .rodata, 114270_sprite_particles]
+      - [0x1632C0, .rodata, 117190_menu_transition]
+      - [0x1633A0, .rodata, 119370_effect_grid]
+      - [0x1633D0, .rodata, 11BC10_effect_update]
+      - [0x163800, .rodata, 126260_command_queue]
+      - [0x163840, .rodata, 127B00_path_playback]
+      - [0x163870, .rodata, 1292F0_path_follow]
+      - [0x163880, .rodata, 1295B0_spawn_nodes]
+      - [0x164880, .rodata, 12E800_behaviour]
+      - [0x164C50, .rodata, 133A90_prox_path]
+      - [0x164CF0, .rodata, 136820_fault]
+      - [0x164E90, .rodata, 137630_oscillator]
+      - [0x164EA0, .rodata, 137C10_n_csplayer]
+      - [0x165150, .rodata, 13A7A0_n_sndplayer]
+      - [0x165190, .rodata, 13E160_n_synthesizer]
+      - [0x1651A0, .rodata, 13ECE0_seqp_voice]
+      - [0x1651B0, .rodata, 140600_syn_filter]
+      - [0x1651D0, .rodata, 141520_syn_fx_params]
+      - [0x1651E0, .rodata, 141EF0_syn_output_pull]
+      - [0x165210, .rodata, 1435C0_n_env]
+      - [0x165260, .rodata, 1445A0_n_auxbus]
+      - [0x165270, .rodata, 145950_n_resample]
+      - [0x165280, .rodata, 145D70_n_save]
       - [0x165290, rodata]
-      - { start: 0x165D50, type: .bss, vram: 0x80761050, name: 0 } # D_80761050..D_807655E8 (0x80761050-0x807655F0)
-      - { start: 0x165D50, type: .bss, vram: 0x807655F0, name: 450 } # D_807655F0..D_8076A158 (0x807655F0-0x8076A160)
-      - { start: 0x165D50, type: .bss, vram: 0x8076A160, name: 3C10 } # D_8076A160[18] slots .. D_8076AEF8 (0x8076A160-0x8076AF00)
-      - { start: 0x165D50, type: .bss, vram: 0x8076AF00, name: 5230 } # D_8076AF00..D_8076AF18 (0x8076AF00-0x8076AF20)
+      - { start: 0x165D50, type: .bss, vram: 0x80761050, name: 0_init } # D_80761050..D_807655E8 (0x80761050-0x807655F0)
+      - { start: 0x165D50, type: .bss, vram: 0x807655F0, name: 450_main_loop } # D_807655F0..D_8076A158 (0x807655F0-0x8076A160)
+      - { start: 0x165D50, type: .bss, vram: 0x8076A160, name: 3C10_map_transition } # D_8076A160[18] slots .. D_8076AEF8 (0x8076A160-0x8076AF00)
+      - { start: 0x165D50, type: .bss, vram: 0x8076AF00, name: 5230_frame_timing } # D_8076AF00..D_8076AF18 (0x8076AF00-0x8076AF20)
       - { start: 0x165D50, type: bss, vram: 0x8076AF20, name: 165D50_8076AF20 }
-      - { start: 0x165D50, type: .bss, vram: 0x8076D4C0, name: 6710 } # D_8076D4C0..D_80770558 (0x8076D4C0-0x80770560)
-      - { start: 0x165D50, type: .bss, vram: 0x80770560, name: 7130 } # D_80770560..D_80770EF8 + sfxUpdateSourceGroups's static pitch at 0x80770F38 (0x80770560-0x80770F40): every file-scope object defined at the top of src/global/7130.c in address order (IDO lays .bss out by first reference, Q0565); 6710's bss ends at 0x80770560
+      - { start: 0x165D50, type: .bss, vram: 0x8076D4C0, name: 6710_audio_thread } # D_8076D4C0..D_80770558 (0x8076D4C0-0x80770560)
+      - { start: 0x165D50, type: .bss, vram: 0x80770560, name: 7130_sfx } # D_80770560..D_80770EF8 + sfxUpdateSourceGroups's static pitch at 0x80770F38 (0x80770560-0x80770F40): every file-scope object defined at the top of src/global/7130_sfx.c in address order (IDO lays .bss out by first reference, Q0565); 6710's bss ends at 0x80770560
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
-      - { start: 0x165D50, type: .bss, vram: 0x807ECCD0, name: F600 } # D_807ECCD0..D_807ECDFC (0x807ECCD0-0x807ECE00)
+      - { start: 0x165D50, type: .bss, vram: 0x807ECCD0, name: F600_controller_input } # D_807ECCD0..D_807ECDFC (0x807ECCD0-0x807ECE00)
       - { start: 0x165D50, type: bss, vram: 0x807ECE00, name: 165D50_807ECE00 }
-      - { start: 0x165D50, type: .bss, vram: 0x807ECEA0, name: 104F0 } # D_807ECEA0 (10130's bss ends at D_807ECE98+8), D_807ECEA8[0x800], D_807ED6A8[0x800], D_807EDEA8[4] (eepromValidateSaveSlots's four byte stores share one lui only when the TU defines it), D_807EDEAC (0x807ECEA0-0x807EDEB0)
+      - { start: 0x165D50, type: .bss, vram: 0x807ECEA0, name: 104F0_eeprom } # D_807ECEA0 (10130's bss ends at D_807ECE98+8), D_807ECEA8[0x800], D_807ED6A8[0x800], D_807EDEA8[4] (eepromValidateSaveSlots's four byte stores share one lui only when the TU defines it), D_807EDEAC (0x807ECEA0-0x807EDEB0)
       - { start: 0x165D50, type: bss, vram: 0x807EDEB0, name: 165D50_807EDEB0 }
-      - { start: 0x165D50, type: .bss, vram: 0x807F02D0, name: 131B0 } # gRumblePfs, gRumbleInfo (0x807F02D0-0x807F04C0)
-      - { start: 0x165D50, type: .bss, vram: 0x807F04C0, name: 13980 } # D_807F04C0..D_807F0568 (0x807F04C0-0x807F0570)
+      - { start: 0x165D50, type: .bss, vram: 0x807F02D0, name: 131B0_rumble } # gRumblePfs, gRumbleInfo (0x807F02D0-0x807F04C0)
+      - { start: 0x165D50, type: .bss, vram: 0x807F04C0, name: 13980_scheduler } # D_807F04C0..D_807F0568 (0x807F04C0-0x807F0570)
       - { start: 0x165D50, type: bss, vram: 0x807F0570, name: 165D50_807F0570 }
-      - { start: 0x165D50, type: .bss, vram: 0x807F5B10, name: 201B0 }
+      - { start: 0x165D50, type: .bss, vram: 0x807F5B10, name: 201B0_camera }
       - { start: 0x165D50, type: bss, vram: 0x807F5D30, name: 165D50_807F5D30 }
-      - { start: 0x165D50, type: .bss, vram: 0x807F5DE0, name: 2F550 } # D_807F5DE0..D_807F5DEC, D_807F5DF0[12] (frustumCalculateCornerRays's stores share one lui only when the TU defines the array); 2DE90's bss ends at 0x807F5DE0 (D_807F5DD8 + 8), 16-aligned start (0x807F5DE0-0x807F5E20)
+      - { start: 0x165D50, type: .bss, vram: 0x807F5DE0, name: 2F550_map_render } # D_807F5DE0..D_807F5DEC, D_807F5DF0[12] (frustumCalculateCornerRays's stores share one lui only when the TU defines the array); 2DE90's bss ends at 0x807F5DE0 (D_807F5DD8 + 8), 16-aligned start (0x807F5DE0-0x807F5E20)
       - { start: 0x165D50, type: bss, vram: 0x807F5E20, name: 165D50_807F5E20 }
-      - { start: 0x165D50, type: .bss, vram: 0x807F61B0, name: 42630 } # gCsTimerQueue..D_807F693F (0x807F61B0-0x807F6940)
+      - { start: 0x165D50, type: .bss, vram: 0x807F61B0, name: 42630_cutscene_interp } # gCsTimerQueue..D_807F693F (0x807F61B0-0x807F6940)
       - { start: 0x165D50, type: bss, vram: 0x807F6940, name: 165D50_807F6940 }
-      - { start: 0x165D50, type: .bss, vram: 0x807F6C20, name: 55B20 } # initializer's function-static count, map lists, clipping buffers and 50 flags (0x807F6C20-0x807F70B0)
+      - { start: 0x165D50, type: .bss, vram: 0x807F6C20, name: 55B20_map_chunk } # initializer's function-static count, map lists, clipping buffers and 50 flags (0x807F6C20-0x807F70B0)
       - { start: 0x165D50, type: bss, vram: 0x807F70B0, name: 165D50_807F70B0 }
-      - { start: 0x165D50, type: .bss, vram: 0x807FBFE0, name: 7CA80 } # D_807FBFE0[4] (actorGlobalCallbacksReset/actorUpdateWhilePaused clear it with one lui per store pair only when the TU defines it) (0x807FBFE0-0x807FBFF0)
+      - { start: 0x165D50, type: .bss, vram: 0x807FBFE0, name: 7CA80_actor_manager } # D_807FBFE0[4] (actorGlobalCallbacksReset/actorUpdateWhilePaused clear it with one lui per store pair only when the TU defines it) (0x807FBFE0-0x807FBFF0)
       - { start: 0x165D50, type: bss, vram: 0x807FBFF0, name: 165D50_807FBFF0 }
       - { start: 0x165D50, type: .bss, vram: 0x807FC620, name: 8F4B0 } # D_807FC620..D_807FC622, playerCameraUpdateFromTarget's function-static swayPhase (0x807FC620-0x807FC630)
       - { start: 0x165D50, type: bss, vram: 0x807FC630, name: 165D50_807FC630 }
-      - { start: 0x165D50, type: .bss, vram: 0x807FC7D0, name: A7710 } # D_807FC7D0 (u64, hudCountdownTimerSaveElapsed stores it with one lui only when the TU defines it), D_807FC7D8 (0x807FC7D0-0x807FC7E0)
+      - { start: 0x165D50, type: .bss, vram: 0x807FC7D0, name: A7710_countdown_timer } # D_807FC7D0 (u64, hudCountdownTimerSaveElapsed stores it with one lui only when the TU defines it), D_807FC7D8 (0x807FC7D0-0x807FC7E0)
       - { start: 0x165D50, type: bss, vram: 0x807FC7E0, name: 165D50_807FC7E0 }
-      - { start: 0x165D50, type: .bss, vram: 0x807FD6E0, name: E4090 } # D_807FD6E0, D_807FD6E1 (func_806E3E40's statics once matched; 0x807FD6E0-0x807FD6F0)
+      - { start: 0x165D50, type: .bss, vram: 0x807FD6E0, name: E4090_player_input } # D_807FD6E0, D_807FD6E1 (func_806E3E40's statics once matched; 0x807FD6E0-0x807FD6F0)
       - { start: 0x165D50, type: bss, vram: 0x807FD6F0, name: 165D50_807FD6F0 }
-      - { start: 0x165D50, type: .bss, vram: 0x807FDCD0, name: 135D30 } # D_807FDCD0[0x18] (8-byte flag table entries), D_807FDD90[14] (flag bank 2: func_80731030's peeled stores share one lui only when the TU defines it); 2-byte tail to 0x807FDDA0
+      - { start: 0x165D50, type: .bss, vram: 0x807FDCD0, name: 135D30_flags } # D_807FDCD0[0x18] (8-byte flag table entries), D_807FDD90[14] (flag bank 2: func_80731030's peeled stores share one lui only when the TU defines it); 2-byte tail to 0x807FDDA0
       - { start: 0x165D50, type: bss, vram: 0x807FDDA0, name: 165D50_807FDDA0 }
 
   - [0x165D50]

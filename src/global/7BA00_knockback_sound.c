@@ -1,0 +1,37 @@
+#include "common.h"
+#include "actor.h"
+#include "sched.h"
+#include "proto/global/7130_sfx.h"
+#include "proto/global/7BA00_knockback_sound.h"
+#include "proto/global/EFDC0_player_state_enter.h"
+
+extern PlayerStruct *gPlayerSlots;
+extern Actor *gPrimaryPlayerActor;
+
+void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, u8 phase, u8 event) {
+    u8 playerIndex;
+    PlayerState* ps;
+
+    if (target == gPrimaryPlayerActor) {
+        ps = target->customState;
+        playerIndex = ps->playerIndex;
+        ps->stateFlags |= 0x80000;
+        if (ps->surfaceTimer == (ps->playerIndex * 0)) { // FAKE: 2nd use makes the 0x1A4 load a web, attacker gets no reg and stays in 0x38(sp)
+            if (gPrimaryPlayerActor->state != 0x36) {
+                if (playerCanTakeHit(gPrimaryPlayerActor)) {
+                    if (gPrimaryPlayerActor->actorType == 6 && gPlayerSlots[playerIndex].sizeMode == 2) {
+                        if (gPrimaryPlayerActor->state != 0x31) {
+                            if (attacker->collisionFlags & 0x80) {
+                                sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
+                            }
+                        }
+                    } else if (attacker->actorType == 0xBB) {
+                        sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x37, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
+                    } else {
+                        sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,6 +1,6 @@
 #include "common.h"
 #include "jetpac.h"
-#include "proto/global/135D30.h"
+#include "proto/global/135D30_flags.h"
 #include "proto/jetpac/0.h"
 #include "proto/jetpac/1460.h"
 #include "proto/jetpac/3060.h"

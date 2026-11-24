@@ -1,14 +1,14 @@
 #include "common.h"
 #include "proto/critter/5110.h"
-#include "proto/global/1025E0.h"
-#include "proto/global/112080.h"
-#include "proto/global/135D30.h"
-#include "proto/global/201B0.h"
-#include "proto/global/3C10.h"
-#include "proto/global/7130.h"
-#include "proto/global/90D80.h"
-#include "proto/global/A7710.h"
-#include "proto/global/FCCD0.h"
+#include "proto/global/1025E0_gfx_resource.h"
+#include "proto/global/112080_resource_parse.h"
+#include "proto/global/135D30_flags.h"
+#include "proto/global/201B0_camera.h"
+#include "proto/global/3C10_map_transition.h"
+#include "proto/global/7130_sfx.h"
+#include "proto/global/90D80_render_callbacks.h"
+#include "proto/global/A7710_countdown_timer.h"
+#include "proto/global/FCCD0_slot_queue.h"
 
 typedef struct CritterBattleArenaState {
     s16 timer;

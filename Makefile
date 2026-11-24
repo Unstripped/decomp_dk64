@@ -129,7 +129,7 @@ $(foreach seg,$(LIBULTRA_SEGMENTS),$(eval $(call LIBULTRA_FLAGS,$(seg))))
 
 # Rare's audio library TUs: built with IDO 7.1, unoptimised (-g: no uopt, every arg homed, a dead
 # `b` to the epilogue after each return): alHeap*, bnkf, the 137630 oscillators, n_csplayer, n_sndplayer.
-GLOBAL_G_FILES := 137120 1371D0 137630 137C10 13A750 13A7A0 13C920 13CB30 13CB50 13CE70 13CFA0 13D020 13D0B0 13D100 13D170 13E0E0 13E160 13EC00 13EC90 13ECE0 13FED0 140530 140600 141520 1417C0 141AD0 141C00 141E40 141E60 141EF0 1435A0 1435C0 1445A0 144A90 144E00 145950 145D70
+GLOBAL_G_FILES := 137120_al_heap 1371D0_bnkf 137630_oscillator 137C10_n_csplayer 13A750_n_cspsetbank 13A7A0_n_sndplayer 13C920_csp_output_mode 13CB30_n_cspgetstate 13CB50_csp_channel 13CE70_csp_channel_mix 13CFA0_n_cspsendmidi 13D020_n_cspsettempo 13D0B0_n_cspgettempo 13D100_n_cspsetfxparam 13D170_n_cseq 13E0E0_al_link 13E160_n_synthesizer 13EC00_seqp_control 13EC90_n_seqpsetvol 13ECE0_seqp_voice 13FED0_evtq 140530_n_synsetvol 140600_syn_filter 141520_syn_fx_params 1417C0_n_synallocvoice 141AD0_n_synstartvoiceparam 141C00_n_synsetpan 141E40_n_syndelete 141E60_syn_new_fx 141EF0_syn_output_pull 1435A0_n_synsetpriority 1435C0_n_env 1445A0_n_auxbus 144A90_n_mainbus 144E00_n_load 145950_n_resample 145D70_n_save
 $(GLOBAL_G_FILES:%=$(BUILD_DIR)/src/global/%.o): OPT_FLAGS := -g
 $(GLOBAL_G_FILES:%=$(BUILD_DIR)/src/global/%.o): CC := $(IDO71)/cc
 

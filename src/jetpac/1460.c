@@ -1,6 +1,6 @@
 #include "common.h"
 #include "jetpac.h"
-#include "proto/global/1135F0.h"
+#include "proto/global/1135F0_dl_texture.h"
 #include "proto/jetpac/1460.h"
 #include "proto/jetpac/3060.h"
 void jetpacInitGrid(void) {

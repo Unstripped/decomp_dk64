@@ -3,13 +3,13 @@
 #include "actor.h"
 #include "proto/bonus/9010.h"
 #include "proto/boot/3D20_sprintf.h"
-#include "proto/global/100180.h"
-#include "proto/global/1025E0.h"
-#include "proto/global/112080.h"
-#include "proto/global/201B0.h"
-#include "proto/global/3C10.h"
-#include "proto/global/90D80.h"
-#include "proto/global/A7710.h"
+#include "proto/global/100180_text_font.h"
+#include "proto/global/1025E0_gfx_resource.h"
+#include "proto/global/112080_resource_parse.h"
+#include "proto/global/201B0_camera.h"
+#include "proto/global/3C10_map_transition.h"
+#include "proto/global/90D80_render_callbacks.h"
+#include "proto/global/A7710_countdown_timer.h"
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;

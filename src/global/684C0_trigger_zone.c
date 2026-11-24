@@ -1,0 +1,164 @@
+#include "common.h"
+#include "actor.h"
+#include "map.h"
+#include "proto/global/15050_heap.h"
+#include "proto/global/17B90_anim_controller.h"
+#include "proto/global/684C0_trigger_zone.h"
+#include "proto/global/7CA80_actor_manager.h"
+
+typedef struct TriggerZoneData {
+    s16 xMin;
+    s16 yMin;
+    s16 zMin;
+    s16 xMax;
+    s16 yMax;
+    s16 zMax;
+    s16 planeOffset;
+    u8 axisFlags;
+    u8 alpha;
+} TriggerZoneData;
+
+typedef struct TriggerZoneSubNode {
+    Actor *actor;
+    s32 instanceId;
+    struct Actor *spawnedActor;
+    struct TriggerZoneSubNode *next;
+} TriggerZoneSubNode;
+
+typedef struct TriggerZoneNode {
+    TriggerZoneData *zone;
+    TriggerZoneSubNode *subList;
+    struct TriggerZoneNode *next;
+} TriggerZoneNode;
+
+extern TriggerZoneNode *gTriggerZoneList;
+extern Actor *gSpawnedActor;
+
+void triggerZoneInit(MapFileHeader *header) {
+    s32 i;
+    TriggerZoneNode **link;
+    s32 zoneCount;
+    TriggerZoneData *zones;
+    TriggerZoneNode *newNode;
+
+    link = &gTriggerZoneList;
+    zoneCount = *(s32 *)(header->triggerZonesOff + (u8 *)header);
+    zones = (TriggerZoneData *)((s32 *)(header->triggerZonesOff + (u8 *)header) + 1);
+    *link = NULL;
+    for (i = 0; i < zoneCount; i++) {
+        newNode = heapAlloc(sizeof(TriggerZoneNode));
+        *link = newNode;
+        link = &newNode->next;
+        newNode->zone = &zones[i];
+        newNode->subList = NULL;
+        newNode->next = NULL;
+    }
+}
+
+void triggerZoneCheckEntry(Actor *actor) {
+    TriggerZoneNode *node;
+    TriggerZoneSubNode **subLink;
+    TriggerZoneSubNode *subNode;
+    TriggerZoneSubNode *newNode;
+    for (node = gTriggerZoneList; node != NULL; node = node->next) {
+        if ((f32)node->zone->xMin <= actor->x &&
+            (f32)node->zone->yMin <= actor->y &&
+            (f32)node->zone->zMin <= actor->z &&
+            actor->x <= (f32)node->zone->xMax &&
+            actor->y <= (f32)node->zone->yMax &&
+            actor->z <= (f32)node->zone->zMax) {
+            if (triggerZoneContainsActor(actor, node->subList) == 0) {
+                triggerZoneSpawnTrigger(actor, node->zone);
+                subLink = &node->subList;
+                subNode = *subLink;
+                if (subNode != NULL) {
+                    do {
+                        subLink = &subNode->next;
+                        subNode = subNode->next;
+                    } while (subNode != NULL);
+                }
+                newNode = heapAlloc(sizeof(TriggerZoneSubNode));
+                *subLink = newNode;
+                newNode->actor = actor;
+                newNode->instanceId = actor->instanceId;
+                newNode->spawnedActor = gSpawnedActor;
+                newNode->next = NULL;
+            }
+        }
+    }
+}
+
+
+s32 triggerZoneContainsActor(Actor *actor, TriggerZoneSubNode *subNode) {
+    while (subNode != NULL) {
+        if (actor == subNode->actor && subNode->instanceId == actor->instanceId) {
+            return 1;
+        }
+        subNode = subNode->next;
+    }
+    return 0;
+}
+
+void triggerZoneSpawnTrigger(Actor *actor, TriggerZoneData *zone) {
+    MirrorActorState *spawnState;
+
+    actorSpawn(0x7B, controllerLookupModelAssetId(actor));
+    gSpawnedActor->parentActor = actor;
+    spawnState = gSpawnedActor->customState;
+    spawnState->axisFlags = zone->axisFlags;
+    spawnState->planeOffset = zone->planeOffset;
+    spawnState->alpha = zone->alpha;
+    actor->mirrorCount++;
+}
+
+
+void triggerZoneUpdate(void) {
+    TriggerZoneNode *node;
+    TriggerZoneSubNode **subListPtr;
+    TriggerZoneSubNode *subNode;
+    TriggerZoneSubNode *toFree;
+    Actor *actor;
+    TriggerZoneData *zone;
+    for (node = gTriggerZoneList; node != NULL; node = node->next) {
+        for (subListPtr = &node->subList, subNode = *subListPtr; subNode != NULL; ) {
+            zone = node->zone;
+            actor = subNode->actor;
+            if (actor->x < (f32)zone->xMin ||
+                actor->y < (f32)zone->yMin ||
+                actor->z < (f32)zone->zMin ||
+                (f32)zone->xMax < actor->x ||
+                (f32)zone->yMax < actor->y ||
+                (f32)zone->zMax < actor->z) {
+                actor->mirrorCount--;
+                actorDespawn(subNode->spawnedActor);
+                toFree = subNode;
+                *subListPtr = subNode->next;
+                subNode = subNode->next;
+                heapFree(toFree);
+            } else {
+                subListPtr = &subNode->next;
+                subNode = subNode->next;
+            }
+        }
+    }
+}
+
+void triggerZoneRemoveSpawned(Actor *spawnedActor) {
+    TriggerZoneNode *node;
+    TriggerZoneSubNode **subListPtr;
+    TriggerZoneSubNode *subNode;
+    Actor *spawned;
+
+    for (node = gTriggerZoneList; node != NULL; node = node->next) {
+        for (subListPtr = &node->subList, subNode = *subListPtr; subNode != NULL; ) {
+            spawned = subNode->spawnedActor;
+            if (spawnedActor == spawned) {
+                *subListPtr = subNode->next;
+                heapFree(subNode);
+                return;
+            }
+            subListPtr = &subNode->next;
+            subNode = subNode->next;
+        }
+    }
+}

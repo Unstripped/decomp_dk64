@@ -1,6 +1,6 @@
 #include "common.h"
 #include "jetpac.h"
-#include "proto/global/166A0.h"
+#include "proto/global/166A0_random.h"
 #include "proto/jetpac/3060.h"
 
 s32 jetpacCheckAabbOverlap(f32 minX1, f32 minY1, f32 maxX1, f32 maxY1, f32 minX2, f32 minY2, f32 maxX2, f32 maxY2) {

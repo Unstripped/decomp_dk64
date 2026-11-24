@@ -1,6 +1,6 @@
 # ROM-extracted C initialisers (tools/data_inc.py gen, run by `make split`): seg name vram size width file
 boot sNoExpPakImageGz 0x8000DE88 0xE81 1 src/boot/1630_no_expansion_pak.c
-global sFaultFontGlyphs 0x80756130 0x230 1 src/global/136820.c
+global sFaultFontGlyphs 0x80756130 0x230 1 src/global/136820_fault.c
 jetpac D_8002B098 0x8002B098 0x188 1 src/jetpac/0.c
 jetpac D_8002B220 0x8002B220 0x188 1 src/jetpac/0.c
 jetpac D_8002B3A8 0x8002B3A8 0x188 1 src/jetpac/0.c
