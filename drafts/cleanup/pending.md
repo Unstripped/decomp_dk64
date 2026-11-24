@@ -111,7 +111,9 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   `(f64)` + seven `(f32)` (each fdiff 0 in a probe copy, Polishglobal42630d); 70FD0 420f8c FAKE comments still say unk140.
 - Re-derive from the asm alone, fresh copies started from m2c output (not the current bodies; workers do not read the current C
   of these functions): 0_init `mainThreadHalt` (0x805FB5C4), 450_main_loop `mainSystemInit` (0x805FBC5C) and
-  `mainResetEngineState` (0x805FBE04). Acceptance: fdiff exit 0, then the usual gate.
+  `mainResetEngineState` (0x805FBE04). Acceptance: fdiff exit 0, then the usual gate. Prerequisite: matched functions have no
+  `.s` for `tools/m2c.py`; `tools/restore_split_asm.sh 5535bf19 dk64.global.us.yaml` puts back the ROM split's
+  `asm/global/nonmatchings/**/func_805FB5C4.s` etc. (names at that commit are `func_<VRAM>`; the next `make split` removes them).
 
 ## Held names
 Continue unit 1 (2026-11-20/21, names windows 4b47df82..741670df, union carves e14a06d4) landed ~1,360 names, including every
