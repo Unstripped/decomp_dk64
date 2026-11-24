@@ -1094,6 +1094,67 @@ def test_carry_anonymous_typedef_record_gains_its_tag(tmp_path, monkeypatch, cap
     assert "would carry 3 events" in out and "skipped" not in out
 
 
+REN_H = ("void g(int);\ntypedef struct GT {\n    short x;\n    short y;\n} GT;\n"
+         "typedef struct {\n    int a;\n    int b;\n} AT;\ntypedef struct S {\n    int a;\n    GT *v;\n    int b;\n} S;\n")
+REN_C = ('#include "s.h"\nGT gG = { 1, 2 };\n'
+         "int f(S *p, AT *q) {\n    GT *v = p->v;\n    if (p->a) {} // FAKE: steers\n    g(p->a);\n"
+         "    return v->y + gG.y + q->b + sizeof(GT);\n}\n")
+
+
+@pytest.mark.parametrize("edit,reason", [
+    # G00Entry -> ViewportLayout (typedef and tag) and Struct80744464 -> ViModeByTvType (anonymous), dcc777e3:
+    # the body's type names, its locals' and the global's types and S's field type follow the renames
+    (lambda h: h, None),
+    (lambda h: h.replace("short y;", "int y;"), ""),  # V's layout differs from G's: no rename
+    (lambda h: h + "typedef V G;\n", ""),  # G still declared at HEAD: no rename
+    (lambda h: h + "typedef struct W {\n    short x;\n    short y;\n} W;\n", ""),  # G -> V or W: no rename
+])
+def test_carry_include_typedef_and_record_renamed(tmp_path, monkeypatch, capsys, edit, reason):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "include" / "s.h").write_text(REN_H.replace("GT", "G").replace("AT", "A"))
+    src = repo / "src" / "global" / "x.c"
+    src.write_text(REN_C.replace("GT", "G").replace("AT", "A"))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    q.append_events([q.event("u1", "sweep", fn, fn["sites"][0], "remove", "nohit"),
+                     q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
+    (repo / "include" / "s.h").write_text(edit(REN_H.replace("GT", "V").replace("AT", "B")))
+    src.write_text(REN_C.replace("GT", "V").replace("AT", "B"))
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed{reason}" in out
+        assert "would carry 0 events" in out
+        return
+    how = "type A renamed B, identical; type G renamed V, identical"
+    assert f"would carry src/global/x.c: f: remove, review, views ({how})" in out
+    assert "would carry 3 events" in out and "skipped" not in out
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    new = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    by_site, by_func = q.index_events(q.load_events())
+    fp, fevs = (new["fp_local"], new["fp_hdr"], new["fp_hdr2"]), by_func[("global", "80600000")]
+    assert {m: q.mark(fevs, m, fp, "f")[0] for m in ("views", "review")} == {"views": "✓", "review": "✓"}
+    assert q.mark(by_site[new["sites"][0]["key"]], "remove", fp, "f")[0] == "✓"
+
+
 MACRO_C = ('#include "s.h"\n%s'
            "float f(float *p) {\n    if (p[0]) {} // FAKE: steers\n    return %s;\n}\n")
 CAM_LERP = "#define CAM_LERP(a, b, t) ((a) + ((b) - (a)) * (t))\n"
@@ -1277,6 +1338,27 @@ def test_carry_header_carve_padding_array_to_scalar(tmp_path, monkeypatch, capsy
         assert _carve_state()["f"] == {"views": "✓", "review": "✓", "remove": "✓"}
     else:
         assert reason in out and "carried 0 events" in out
+
+
+CARVE_REN_H = ("void g(int);\ntypedef struct GT {\n    short x;\n    short y;\n} GT;\n"
+               "typedef struct S {\n    int a;\n    GT *v;\n    int b;\n} S;\n")
+
+
+@pytest.mark.parametrize("y,reason", [
+    ("short", None),  # RaceParticipant viewport: struct G00Entry * -> struct ViewportLayout * (dcc777e3)
+    ("int", "layout changed: S v type struct G * -> struct V *"),  # V's layout differs from G's: no rename
+])
+def test_carry_header_carve_field_type_through_renamed_record(tmp_path, monkeypatch, capsys, y, reason):
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, CARVE_REN_H.replace("GT", "V").replace("short y;", f"{y} y;"),
+                           old_header=CARVE_REN_H.replace("GT", "G"))
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve", "--dry-run"])
+    out = capsys.readouterr().out
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: {reason}" in out and "would carry 0 events" in out
+        return
+    assert "would carry src/global/x.c: f: remove, views (type G renamed V, identical)" in out
+    assert "would carry 2 events" in out and "skipped" not in out
 
 
 MOVE_REC = "    int a;\n    char b;\n    short pad6;\n"

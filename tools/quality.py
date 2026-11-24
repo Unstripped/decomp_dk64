@@ -47,7 +47,12 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          changed record keeping its clint record_layout modulo field names
                                          (nested unnamed records' too); unused file-scope text may differ
                                          ("(renames; record field renames: <record>)"); a global replaced by
-                                         a field access (a split-label fold) is no rename.
+                                         a field access (a split-label fold) is no rename. A typedef or
+                                         record (typedef name and/or tag) renamed with the same declaration
+                                         (old name gone at HEAD, new one absent at REV, same tokens and
+                                         clint record_layout once renamed) is a rename in the body, locals'
+                                         types, field types and prototypes: "(type <old> renamed <new>,
+                                         identical)"; with --header-carve too.
                                          --header-carve: instead carry the automatic results of functions
                                          whose fp_local and sites are unchanged and whose reached include/
                                          declarations changed only by record carves keeping size, offsets,
@@ -1586,6 +1591,19 @@ def type_respellings(old_toks, new_toks):
                    and type_ref(x) is not None and type_ref(x) == type_ref(y)})
 
 
+def respell(v, m):
+    """V (a type spelling, or tuples and lists of them and other values: a `token_meaning`, a
+    `clint.record_layout`, a `decl_signature`) with every type name M renames (`renamed_types`)
+    respelled to its new name."""
+    if not m or v is None:
+        return v
+    if isinstance(v, str):
+        return re.sub(r"[A-Za-z_]\w*", lambda w: m.get(w[0], w[0]), v)
+    if isinstance(v, (tuple, list)):
+        return type(v)(respell(x, m) for x in v)
+    return v
+
+
 def macro_def(tok):
     """The MACRO_DEFINITION cursor a macro-name token expands, else None."""
     c = tok.cursor
@@ -1622,7 +1640,7 @@ def file_tokens(tu, path):
             and os.path.realpath(os.path.join(ROOT, t.location.file.name)) == want]
 
 
-def rename_map(old_toks, new_toks, addr_old, addr_new):
+def rename_map(old_toks, new_toks, addr_old, addr_new, types=None):
     """{old: new} of every renamed identifier when NEW_TOKS is OLD_TOKS with only declared names
     renamed: keywords, literals, punctuation and every non-renameable identifier (types, macros,
     labels, enum constants) unchanged, except a type name respelled to another of the same
@@ -1631,7 +1649,8 @@ def rename_map(old_toks, new_toks, addr_old, addr_new):
     (a field's name per record: keys and values ('field', record type, name)); each renamed token
     keeping its declaration kind and canonical type, a field its offset, a global or function its
     address (ADDR_OLD / ADDR_NEW: name -> address or None). `PROTO_SKIP_<name>` follows the mapping
-    of <name>. Else None."""
+    of <name>. TYPES (`renamed_types`, not in the map) apply to OLD_TOKS' canonical types first, so
+    `G00Entry *vp;` -> `ViewportLayout *vp;` (and every use of `vp`) is a respelling. Else None."""
     if len(old_toks) != len(new_toks):
         return None
     fwd, back = {}, {}
@@ -1643,7 +1662,7 @@ def rename_map(old_toks, new_toks, addr_old, addr_new):
             if xs != ys:
                 return None
             continue
-        if xs != ys and type_ref(x) is not None and type_ref(x) == type_ref(y):
+        if xs != ys and type_ref(x) is not None and respell(type_ref(x), types) == type_ref(y):
             continue
         dx = macro_def(x) if xs != ys else None
         if dx is not None:
@@ -1659,7 +1678,7 @@ def rename_map(old_toks, new_toks, addr_old, addr_new):
                 return None
             xs, ys = xs[len("PROTO_SKIP_"):], ys[len("PROTO_SKIP_"):]
         else:
-            mx, my = token_meaning(x), token_meaning(y)
+            mx, my = respell(token_meaning(x), types), token_meaning(y)
             if mx != my:
                 return None
             if xs != ys:
@@ -1670,7 +1689,7 @@ def rename_map(old_toks, new_toks, addr_old, addr_new):
                     if a is None or a != addr_new(ys):
                         return None
             if mx is not None and mx[0] == "field":
-                xs, ys = ("field", field_record(x), xs), ("field", field_record(y), ys)
+                xs, ys = ("field", respell(field_record(x), types), xs), ("field", field_record(y), ys)
         if fwd.setdefault(xs, ys) != ys or back.setdefault(ys, xs) != xs:
             return None
     return {x: y for x, y in fwd.items() if x != y}
@@ -1806,8 +1825,72 @@ def decl_renames(old_scope, old_closure, new_scope, new_closure, known, addr_old
     return ok
 
 
+TYPE_DECLS = (CursorKind.TYPEDEF_DECL, CursorKind.STRUCT_DECL, CursorKind.UNION_DECL)
+
+
+def renamed_types(old_scope, new_scope):
+    """{old: new} of the typedefs and records renamed between OLD_SCOPE and NEW_SCOPE (`Scope`s of
+    REV's and HEAD's parse), typedef name and/or tag (`typedef struct G00Entry {..} G00Entry;` ->
+    `typedef struct ViewportLayout {..} ViewportLayout;`, an anonymous record's `typedef struct {..}
+    Struct80744464;` -> `.. ViModeByTvType;`): OLD declared only at REV and NEW only at HEAD, both by
+    typedef and record declarations alone, paired in order (same kinds) with the same tokens and
+    canonical types once the renames apply, a record also the same `clint.record_layout` once they
+    apply to its field types (`respell`; nested records too). One-to-one: an old name matching two
+    new ones (or the reverse), or whose declarations differ in any name that is not such a rename,
+    is no rename."""
+    def only(a, b):
+        return {n: cs for n, cs in a.idx.items() if cs and n not in b.idx and all(c.kind in TYPE_DECLS for c in cs)}
+
+    olds, news = only(old_scope, new_scope), only(new_scope, old_scope)
+    if not olds or not news:
+        return {}
+    toks = {}
+
+    def diff(o, n):  # {old identifier: new} of O's and N's paired declaration tokens, else None
+        if len(olds[o]) != len(news[n]) or any(a.kind != b.kind for a, b in zip(olds[o], news[n])):
+            return None
+        d = {}
+        for k in (o, n):
+            if k not in toks:
+                toks[k] = [decl_tokens(c) for c in (olds.get(k) or news[k])]
+        for at, bt in zip(toks[o], toks[n]):
+            if len(at) != len(bt) or any(x.kind != y.kind or x.spelling != y.spelling and (
+                    x.kind != TokenKind.IDENTIFIER or d.setdefault(x.spelling, y.spelling) != y.spelling)
+                    for x, y in zip(at, bt)):
+                return None
+        return d if d.get(o) == n and all(x in olds and y in news for x, y in d.items()) else None
+
+    def same(o, n, m):  # canonical types and record layouts equal once M's renames apply
+        if [respell(type_spelling(c.type), m) for c in olds[o]] != [type_spelling(c.type) for c in news[n]]:
+            return False
+        ot, nt = record_type(olds[o]), record_type(news[n])
+        if ot is None or nt is None:
+            return ot is None and nt is None
+        lo, ln = clint.record_layout(ot), clint.record_layout(nt)
+        return lo is not None and respell(lo, m) == ln
+
+    pairs = {(o, n): d for o in olds for n in news if (d := diff(o, n)) is not None}
+    while True:
+        no, nn = collections.Counter(o for o, _ in pairs), collections.Counter(n for _, n in pairs)
+        m = {o: n for o, n in pairs if no[o] == 1 and nn[n] == 1}
+        bad = [(o, n) for (o, n), d in pairs.items()
+               if m.get(o) != n or any(m.get(x) != y for x, y in d.items()) or not same(o, n, m)]
+        if not bad:
+            return m
+        for k in bad:
+            del pairs[k]
+
+
+def renamed_texts(scope, name, m):
+    """`Scope.direct`'s (file, text) pairs of NAME's top-level declarations with M's identifier renames applied."""
+    return sorted({(rel(os.path.join(ROOT, c.location.file.name)),
+                    " ".join(m.get(t.spelling, t.spelling) if t.kind == TokenKind.IDENTIFIER else t.spelling
+                             for t in decl_tokens(c)))
+                   for c in scope.idx.get(name, [])})
+
+
 def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, old_body, new_body=None,
-                   addr_old=lambda n: None, addr_new=lambda n: None):
+                   addr_old=lambda n: None, addr_new=lambda n: None, types=None):
     """(sorted records whose fields were renamed, {name: `respelled_decl`/`moved_decl`/alias
     description}, None) when every declaration OLD_CLOSURE reaches (in OLD_SCOPE: REV's text parsed
     with REV's headers) has NEW_CLOSURE's text once FWD's (`rename_map`) name renames apply (a renamed
@@ -1823,12 +1906,11 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
     anonymous typedef'd definition only gained its typedef name as tag (`tag_added`, the layout
     unchanged: "record <name> tag added, same layout"); a name then reached on
     one side only (the alias no longer used) is unchanged when only such respelled declarations, or
-    body type names respelled alike (NEW_BODY: HEAD's body tokens), reach it. Else (None, None, why)."""
-    def texts(scope, name, m):  # `Scope.direct`'s texts with M's renames applied
-        return sorted({(rel(os.path.join(ROOT, c.location.file.name)),
-                        " ".join(m.get(t.spelling, t.spelling) if t.kind == TokenKind.IDENTIFIER else t.spelling
-                                 for t in decl_tokens(c)))
-                       for c in scope.idx.get(name, [])})
+    body type names respelled alike (NEW_BODY: HEAD's body tokens), reach it. A typedef or record
+    renamed with the same declaration (TYPES: `renamed_types`) is a rename too ("type <old> renamed
+    <new>, identical"), applied to every declaration's text, record field types and function or
+    variable signature (`respell`, `respelled_decl`). Else (None, None, why)."""
+    types = types or {}
 
     def unnamed(lay):  # field names dropped, nested unnamed records' (`name@offset:`) too
         return lay[0], [(o, w, re.sub(r"\w*@", "@", s)) for _, o, w, s in lay[1]], lay[2]
@@ -1839,7 +1921,7 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
 
     used = {(field_record(t), t.spelling) for t in old_body
             if t.kind == TokenKind.IDENTIFIER and (token_meaning(t) or ("",))[0] == "field"}
-    sfwd = {k: v for k, v in fwd.items() if isinstance(k, str)}
+    sfwd = {**types, **{k: v for k, v in fwd.items() if isinstance(k, str)}}
     sfwd.update(decl_renames(old_scope, old_closure, new_scope, new_closure, sfwd, addr_old, addr_new))
     clash = next((f"{k} renamed {v}, which REV reaches too" for k, v in sorted(sfwd.items())
                   if k in old_closure and v in old_closure), None)
@@ -1852,7 +1934,9 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
             oneside.append((name, name in new_closure))
             continue
         o, nv = olds[name], new_closure[name]
-        if texts(old_scope, o, sfwd) == nv:
+        if renamed_texts(old_scope, o, sfwd) == nv:
+            if o in types:
+                moved[name] = f"type {o} renamed {name}, identical"
             continue
         ot, nt = record_type(old_scope.idx[o]), record_type(new_scope.idx[name])
         if ot is None or nt is None:
@@ -1869,12 +1953,12 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
                     f" ({', '.join(ofs)} -> {', '.join(nfs)})" if ofs != nfs else "")
                 continue
             how, mwhy = moved_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else (None, None)
-            resp = respelled_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else None
+            resp = respelled_decl(path, name, old_closure[o], nv, old_scope, new_scope, types) if o == name else None
             if how is None and resp is None and o != name and all(
                     c.kind == CursorKind.FUNCTION_DECL for c in old_scope.idx[o] + new_scope.idx[name]):
                 # a callee renamed by `rename.py func` (its own body may have changed by renames too): a caller
                 # depends on its signature only
-                osig = {decl_signature(c) for c in old_scope.idx[o]}
+                osig = {respell(decl_signature(c), types) for c in old_scope.idx[o]}
                 if None not in osig and osig == {decl_signature(c) for c in new_scope.idx[name]}:
                     resp = f"function {o} renamed {name}, same type"
             if how is None and resp is None:
@@ -1885,7 +1969,7 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
             if how is None:
                 leaves.add(name)
             continue
-        lo, ln = clint.record_layout(ot), clint.record_layout(nt)
+        lo, ln = respell(clint.record_layout(ot), types), clint.record_layout(nt)
         if lo is None or ln is None:
             return None, None, f"record {name} incomplete"
         if unnamed(lo) != unnamed(ln):
@@ -1897,7 +1981,7 @@ def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, ol
             if fmap.setdefault(x, y) != y:
                 frn = None
         resp = None
-        if frn is not None and texts(old_scope, o, fmap) != nv:
+        if frn is not None and renamed_texts(old_scope, o, fmap) != nv:
             resp = respelled(o, name, fmap, "record ")
             if resp is None and o == name:
                 tag = tag_added(old_scope.idx[o], new_scope.idx[name], name, fmap)
@@ -2137,14 +2221,14 @@ def decl_signature(c):
     return sig
 
 
-def respelled_decl(path, name, ov, nv, old_scope, new_scope):
+def respelled_decl(path, name, ov, nv, old_scope, new_scope, types=None):
     """'NAME declaration respelled|moved to|from <header>, same type' when NAME's top-level
     declarations (OV and NV, its `Scope.closure` values in OLD_SCOPE and NEW_SCOPE) are function or
     variable declarations whose text changed, possibly moving between PATH's file scope and an
-    include/ header, but whose `decl_signature`s are identical (K&R vs prototyped is a change);
-    else None."""
+    include/ header, but whose `decl_signature`s are identical (K&R vs prototyped is a change) once
+    TYPES' renames (`renamed_types`) apply to OLD_SCOPE's; else None."""
     os_, ns = ([decl_signature(c) for c in sc.idx.get(name, [])] for sc in (old_scope, new_scope))
-    if not os_ or not ns or None in os_ or None in ns or set(os_) != set(ns):
+    if not os_ or not ns or None in os_ or None in ns or {respell(s, types) for s in os_} != set(ns):
         return None
     inc = "include" + os.sep
     ofiles = {f for f, _ in ov if (f, _) not in nv}
@@ -2319,9 +2403,11 @@ def carry_renames(a, by_site, by_func):
     body and the file's top level), or by renames in its body or none (REV's parsed with REV's
     headers, so renamed fields of an include/ record resolve) with every declaration it reaches
     equal modulo the renames (`header_renames`: records, include/ or the .c's own, keeping their
-    layout modulo field names; declarations moved or respelled with the same type), or only by
-    file-scope text of the .c it does not use or by declarations it uses moving unchanged between
-    the .c and an include/ header (`scope_equivalent`), with HEAD's fingerprints and site keys.
+    layout modulo field names; declarations moved or respelled with the same type; typedefs and
+    records renamed with the same declaration, `renamed_types` of REV's and HEAD's parse, applied to
+    the body's and those declarations' types), or only by file-scope text of the .c it does not use
+    or by declarations it uses moving unchanged between the .c and an include/ header
+    (`scope_equivalent`), with HEAD's fingerprints and site keys.
     REV's text is analysed (parsed, fingerprinted and compiled for its warning sites) with REV's
     headers. A.func: only functions so named at REV or HEAD."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
@@ -2346,6 +2432,7 @@ def carry_renames(a, by_site, by_func):
         ntoks = [(t.location.line, t) for t in file_tokens(ntu, path)]
         oscope, nscope = Scope(otu), Scope(ntu)
         onames, nnames = idents_by_line(t for _, t in otoks), idents_by_line(t for _, t in ntoks)
+        types = None  # `renamed_types` of REV's parse and HEAD's, once a function needs them
         for fo, fn in zip(old["functions"], new["functions"]):
             if a.func and fo["name"] not in a.func and fn["name"] not in a.func:
                 continue
@@ -2404,14 +2491,18 @@ def carry_renames(a, by_site, by_func):
                     # names), and every declaration the body reaches (the .c's own ones too, so unused
                     # file-scope text may differ) modulo the renames
                     obt = [t for t in old["toks"] if fo["line"] <= t.location.line <= fo["end"]]
-                    fwd = rename_map(obt, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
+                    if types is None:
+                        types = renamed_types(old["scope"], nscope)
+                    fwd = rename_map(obt, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None),
+                                     types)
                     recs = None
                     if fwd is not None:
                         ocl = old["scope"].closure(rnames, pastes=True)
                         paste = old["scope"].unbounded(ocl)
                         recs, hmoved, hwhy = (None, None, f"token-pasting macro {paste}") if paste else header_renames(
                             path, old["scope"], ocl, nscope, nscope.closure(body_names(nnames, fn), pastes=True),
-                            fwd, obt, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
+                            fwd, obt, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None),
+                            types)
                         why = why or hwhy
                     if recs is None:
                         skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed"
@@ -2602,41 +2693,57 @@ def record_type(cursors):
 SIZEOF = re.compile(r"\bsizeof\b")
 
 
-def carve_changes(old_scope, new_scope, old_names, new_names, body):
-    """(changed record names, None) when every declaration either version's closure reaches has the
-    same text in both, or is a record whose layout, alignment and surviving field types are kept
-    (`clint.layout_diff` with types: padding carved into named fields; a padding array shrunk around
-    them, to a shorter array or to a scalar of its element type, only when neither BODY (the
+def carve_changes(old_scope, new_scope, old_names, new_names, body, types=None):
+    """(changed record names, None, renames) when every declaration either version's closure reaches
+    has the same text in both, or is a record whose layout, alignment and surviving field types are
+    kept (`clint.layout_diff` with types: padding carved into named fields; a padding array shrunk
+    around them, to a shorter array or to a scalar of its element type, only when neither BODY (the
     function's text) nor a reached declaration uses `sizeof`, and to a scalar only when neither
     accesses that field) or that only one version declares (a type introduced or dropped by such a
-    carve); else (names so far, reason)."""
+    carve). A typedef or record renamed with the same declaration (TYPES: `renamed_types`) is
+    unchanged under its new name, as is a declaration whose text, record field types (`respell`)
+    or, for a function or variable declaration, `decl_signature` only differ by such renames
+    (RENAMES: "type <old> renamed <new>, identical", "<name> declaration respelled, same type");
+    else (names so far, reason, renames so far)."""
+    types = types or {}
     ocl, ncl = old_scope.closure(old_names), new_scope.closure(new_names)
-    changed, resized = [], []
-    for name in sorted(set(ocl) | set(ncl)):
-        ocur, ncur = old_scope.idx.get(name, []), new_scope.idx.get(name, [])
-        ov = ocl[name] if name in ocl else old_scope.direct(name)[0] if ocur else None
+    olds = {types.get(k, k): k for k in ocl}
+    changed, resized, renames = [], [], []
+    for name in sorted(set(olds) | set(ncl)):
+        o = olds.get(name, name)
+        ocur, ncur = old_scope.idx.get(o, []), new_scope.idx.get(name, [])
+        ov = ocl[o] if o in ocl else old_scope.direct(o)[0] if ocur else None
         nv = ncl[name] if name in ncl else new_scope.direct(name)[0] if ncur else None
         if ov == nv:
             continue
+        if types and ocur and renamed_texts(old_scope, o, types) == nv:
+            if o != name:
+                renames.append(f"type {o} renamed {name}, identical")
+            continue
         ot, nt = record_type(ocur), record_type(ncur)
         if (ocur and ot is None) or (ncur and nt is None):
+            if types and ocur and ncur:
+                os_, ns = [decl_signature(c) for c in ocur], [decl_signature(c) for c in ncur]
+                if None not in os_ + ns and set(os_) != set(ns) and {respell(s, types) for s in os_} == set(ns):
+                    renames.append(f"{name} declaration respelled, same type")
+                    continue
             c = next((c for c in ocur + ncur if c.kind in CARVE_KIND), (ocur + ncur)[0])
-            return changed, f"{CARVE_KIND.get(c.kind, 'record')} {name} changed"
+            return changed, f"{CARVE_KIND.get(c.kind, 'record')} {name} changed", renames
         if ot is not None and nt is not None:
-            lo, ln = clint.record_layout(ot), clint.record_layout(nt)
+            lo, ln = respell(clint.record_layout(ot), types), clint.record_layout(nt)
             if lo is None or ln is None:
-                return changed, f"record {name} incomplete"
+                return changed, f"record {name} incomplete", renames
             diff = clint.layout_diff({name: lo}, {name: ln}, types=True, resized=resized)
             if diff:
-                return changed, "layout changed: " + "; ".join(diff)
+                return changed, "layout changed: " + "; ".join(diff), renames
         changed.append(name)
     texts = [body] + [t for cl in (ocl, ncl) for v in cl.values() for _, t in v]
     if resized and any(SIZEOF.search(t) for t in texts):
-        return changed, f"array {resized[0][0]}.{resized[0][1]} resized and sizeof reached"
+        return changed, f"array {resized[0][0]}.{resized[0][1]} resized and sizeof reached", renames
     for rec, f, scalar in resized:
         if scalar and any(re.search(rf"(?:->|\.)\s*{f}\b", t) for t in texts):
-            return changed, f"array {rec}.{f} became a scalar and is accessed"
-    return changed, None
+            return changed, f"array {rec}.{f} became a scalar and is accessed", renames
+    return changed, None, renames
 
 
 def _carve_job(job):
@@ -2656,7 +2763,7 @@ def _carve_job(job):
         return [], [f"{path}: more clang errors at {rev} (a header deleted since?)"]
     count = collections.Counter(f["name"] for f in old["functions"])
     by_name = {f["name"]: f for f in old["functions"] if count[f["name"]] == 1}
-    res = []
+    res, types = [], None  # `renamed_types` of REV's parse and HEAD's, once a function needs them
     for fn in new["functions"]:
         fo = by_name.get(fn["name"])
         if fn["vram"] is None or fo is None or fo["vram"] not in (None, fn["vram"]):
@@ -2678,8 +2785,11 @@ def _carve_job(job):
                 reason = f"token-pasting macro {paste}: dependencies not tracked"
             else:
                 body = "\n".join(r.stdout.split("\n")[fo["line"] - 1:fo["end"]])
-                changed, reason = carve_changes(old["scope"], new["scope"], onames, nnames, body)
-                how = "header carve: " + (", ".join(changed) or "no reached declaration changed")
+                if types is None:
+                    types = renamed_types(old["scope"], new["scope"])
+                changed, reason, renames = carve_changes(old["scope"], new["scope"], onames, nnames, body, types)
+                how = "; ".join(([f"header carve: {', '.join(changed) or 'no reached declaration changed'}"]
+                                 if changed or not renames else []) + renames)
         res.append(dict(path=path, seg=seg, name=fn["name"], vram=fn["vram"], rev_fp=rev_fp, now_fp=now_fp,
                         keys=[s["key"] for s in fn["sites"]], reason=reason, how=how))
     return res, []
@@ -2689,8 +2799,9 @@ def carry_carves(a, by_site, by_func):
     """(events, skipped, carried lines) re-stamping the newest automatic-method events fresh at REV
     (REV's text of the file and REV's headers) of every function whose fp_local (so its body text)
     and site keys are unchanged and whose reached include/ declarations changed only by layout-
-    keeping record carves (`carve_changes`). The other methods depend on fp_local alone and stay
-    fresh by themselves. A function is listed as skipped only when it had something to carry."""
+    keeping record carves or typedef/record renames (`carve_changes`, `renamed_types`). The other
+    methods depend on fp_local alone and stay fresh by themselves. A function is listed as skipped
+    only when it had something to carry."""
     hdrs = rev_headers(a.rev)
     added = {p for p, t in hdrs.items() if t is None}
     jobs = []
