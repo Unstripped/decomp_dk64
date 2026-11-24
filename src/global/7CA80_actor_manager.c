@@ -2004,7 +2004,7 @@ void playerSetActiveGlobals(Actor *actor) {
     gActivePlayerActor = gPlayerSlots[gCurrentPlayerIndex].actor;
     gCurrentKongInventory = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[character];
     gCurrentContPad = gPlayerSlots[gCurrentPlayerIndex].contPad;
-    gContPressedButtons = *gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr;
+    gContPressedButtons = *gPlayerSlots[gCurrentPlayerIndex].pressedButtonsPtr;
     gCurrentCharacterIndex = gKongCharacterTable[character].characterIndex;
     gPlayerSlots[gCurrentPlayerIndex].sizeModeDirty = 0;
 }

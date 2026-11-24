@@ -117,7 +117,7 @@ typedef struct {
     /* 0x290 */ s16 camChunk;
     /* 0x292 */ u8 pad292[2];
     /* 0x294 */ OSContPad *contPad;
-    /* 0x298 */ u16 *heldButtonsPtr;
+    /* 0x298 */ u16 *pressedButtonsPtr;
     s16 queuedState;
     u8 pad29E[2];
     struct Actor *queuedActor;

@@ -2727,19 +2727,19 @@ Gfx *menuUpdateStateDispatch(Actor *actor, s32 opMode, Gfx *dl, s32 subArg) {
     MenuScreenState *state = actor->customState;
     s32 buttons = 0;
 
-    if (*gPlayerSlots->heldButtonsPtr & 0x8000) {
+    if (*gPlayerSlots->pressedButtonsPtr & 0x8000) {
         buttons = 1;
     }
-    if (*gPlayerSlots->heldButtonsPtr & 0x4000) {
+    if (*gPlayerSlots->pressedButtonsPtr & 0x4000) {
         buttons |= 2;
     }
-    if (*gPlayerSlots->heldButtonsPtr & 8) {
+    if (*gPlayerSlots->pressedButtonsPtr & 8) {
         buttons |= 0x40;
     }
-    if (*gPlayerSlots->heldButtonsPtr & 4) {
+    if (*gPlayerSlots->pressedButtonsPtr & 4) {
         buttons |= 0x80;
     }
-    if (*gPlayerSlots->heldButtonsPtr & 0x2000) {
+    if (*gPlayerSlots->pressedButtonsPtr & 0x2000) {
         buttons |= 0x100;
     }
     if (gCurrentContPad->stick_x < -0x28) {
@@ -3397,7 +3397,7 @@ void menuUpdateKioskActor(void) {
         }
         break;
     case 3:
-        if (*gPlayerSlots->heldButtonsPtr & 0x8000) {
+        if (*gPlayerSlots->pressedButtonsPtr & 0x8000) {
             if (sMenuMainSelectable == 1) {
                 actorScriptStart(gCurrentActor, 0x348);
                 gCurrentActor->subState = 4;

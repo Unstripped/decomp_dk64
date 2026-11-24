@@ -224,7 +224,7 @@ void playerAllocSlots(s32 spawnIndex) {
         slot->farClip = gGfxFarClip;
         slot->camChunk = 0;
         slot->contPad = &gControllerPads[i];
-        slot->heldButtonsPtr = &gPadPressedButtons[i];
+        slot->pressedButtonsPtr = &gPadPressedButtons[i];
         slot->queuedState = -1;
         slot->sizeMode = 1;
         slot->sizeModeDirty = 1;

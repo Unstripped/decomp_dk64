@@ -1687,7 +1687,7 @@ void bonusBigBugBashGameUpdate(void) {
         if (gCurrentActor->parentActor->state == 5) {
             gCurrentActor->state = 6;
         }
-        if (gCurrentActor->state == 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
+        if (gCurrentActor->state == 0 && (*gPlayerSlots[gCurrentPlayerIndex].pressedButtonsPtr & 0xE000)) {
             sfxPlayOnFreeSlot(0x25, 0x7FFF, 63.0f, 0.51f, 0, 0);
             controllerAnimSetStateIfChanged(gCurrentActor, 0x5FD, 0.0f, 1.0f);
             gCurrentActor->state = 1;
@@ -2017,7 +2017,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             if (subExt->fireCooldown > 0) {
                 subExt->fireCooldown = subExt->fireCooldown - 1;
             }
-            if (subExt->fireCooldown <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
+            if (subExt->fireCooldown <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].pressedButtonsPtr & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 x = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX; // ORIG: the target stores the aim point into the clamp's x/y homes (swc1 $f6,124(sp) at 0x5f5c, swc1 $f10,120(sp) at 0x5f68); separate aim locals grow the frame
                 y = gPlayerSlots->camY - 25.0f;

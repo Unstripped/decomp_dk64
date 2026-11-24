@@ -238,7 +238,7 @@ void hudPauseMenuUpdate(void) {
     }
     if (hud->fade == 0.0f && sPauseExitRequested == 0) {
         moved = hud->worldIndex[hud->buffer] != hud->worldIndex[1 - hud->buffer];
-        buttons = *gPlayerSlots->heldButtonsPtr;
+        buttons = *gPlayerSlots->pressedButtonsPtr;
         if (moved == 0 && hud->carouselProgress == 0.0f && sPauseCarouselIndex == sPauseCarouselTarget) {
             if (buttons & 0x5000) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -1710,7 +1710,7 @@ void hudTwoOptionMenuUpdate(void) {
     } else {
         sPauseStickHeld &= ~1;
     }
-    btn = *gPlayerSlots[i].heldButtonsPtr;
+    btn = *gPlayerSlots[i].pressedButtonsPtr;
     if (btn & 0x8000) {
         if (gCurrentActor->optionCursor == 0) {
             gGlobalPauseFlags |= 0x10070;
