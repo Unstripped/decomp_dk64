@@ -83,7 +83,6 @@ sArmydilloPhaseScripts = 0x800358B0;
 sArmydilloPieceBones = 0x800358D8;
 sArmydilloPiecePoses = 0x800358E0;
 sArmydilloCannonPieceList = 0x80035984;
-sArmydilloSmokeBones = 0x8003598C;
 sArmydilloDebrisBones = 0x80035994;
 sBossRoundFirstCamPath = 0x800359A0;
 sBossRoundRetryCamPath = 0x800359AC;

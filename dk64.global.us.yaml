@@ -263,7 +263,7 @@ segments:
       - [0x154F70, .data, 936B0_projectile] # sProjectileShortLivedFlag, D_80750274 (0x80750270-0x80750278 + 8-byte TU pad)
       - [0x154F80, .data, 9BF30_projectile_ring] # gSpriteRingQuadVtx[4], D_807502C0[3] (0x80750280-0x807502CC + 4-byte TU pad)
       - [0x154FD0, .data, 9CE20_projectile_behaviours] # movement scalars gCarryMinFallSpeed..D_80750398, one 4-byte slot each (0x807502D0-0x8075039C + 4-byte TU pad): read by 80150, 936B0, 9DD70, A2F10, AA960, B7490, BB300, C4620, E4090, 11BC10, 1295B0 and overlays; 9CE20 (D_8075037C/D_80750380) is the only text TU between 9BF30 and 9DD70
-      - [0x1550A0, .data, 9DD70] # D_807503A0, gCarryDebrisSprites (0x807503A0-0x807503AC + 4-byte TU pad)
+      - [0x1550A0, .data, 9DD70] # sSpotLightRelightDelay, carryObjectUpdate's debrisSprites initialiser template (0x807503A0-0x807503AC + 4-byte TU pad)
       - [0x1550B0, .data, A2F10] # D_807503B0[9] kong/boss name table (read as D_80750338[0x1E..0x26]), D_807503D4[12], D_807503E0[12] (0x807503B0-0x807503EC + 4-byte TU pad)
       - [0x1550F0, .data, A8400_text_box] # D_807503F0 (0x807503F0-0x807503F1 + 15-byte TU pad)
       - [0x155100, .data, AA960_pickup_drops] # gActorSpawnSfxTable[27], sSparkleSprites, sShrinkRate..sShrinkAlphaStep, unreferenced D_807504D4 (0x80750400-0x807504D8 + 8-byte TU pad)

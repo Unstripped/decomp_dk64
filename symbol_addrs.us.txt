@@ -4709,7 +4709,6 @@ gBarrelMountLaunchSpeedY = 0x80750390;
 gSpinningActorGravity = 0x80750394;
 gFallAndBurstGravity = 0x80750398;
 sSpotLightRelightDelay = 0x807503A0;
-gCarryDebrisSprites = 0x807503A4;
 gActorGroupFirstAnimFrames = 0x807503D4;
 gActorGroupSecondAnimFrames = 0x807503E0;
 sTextBoxStartAlpha = 0x807503F0;
