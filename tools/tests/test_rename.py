@@ -1,11 +1,22 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from tools import rename  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _restore_root():
+    # rename.main(--root) repoints the shared clint/ledger ROOT at the test tree; later test files read it.
+    root = rename.ROOT
+    yield
+    rename.set_root(root)
+
 
 TYPES = """\
 typedef struct A {
