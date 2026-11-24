@@ -113,7 +113,7 @@ void timedSmokeTargetHostUpdate(void) {
 }
 
 extern Actor *gPrimaryPlayerActor;
-extern s32 gEffectSpriteExplosion;
+extern EffectGridAsset gEffectSpriteExplosion;
 
 f32 sqrtf(f32);
 

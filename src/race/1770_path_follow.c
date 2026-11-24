@@ -185,7 +185,7 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
     }
 }
 
-extern u8 gSparkEffectSprite[];
+extern EffectGridAsset gSparkEffectSprite;
 void *gRaceSparkEffects[4] = { 0 };
 u8 gLightSlotNext = 0;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
@@ -320,7 +320,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
             mathPickCloserTargetPoint3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, cur, &points[next], &points[next], nxt2, &sparkX, &sparkY, &sparkZ);
             effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(timedLightOrbitUpdate);
-            gRaceSparkEffects[gLightSlotNext] = effectCreateAtPosition(gSparkEffectSprite, 0.4f, sparkX, sparkY, sparkZ);
+            gRaceSparkEffects[gLightSlotNext] = effectCreateAtPosition(&gSparkEffectSprite, 0.4f, sparkX, sparkY, sparkZ);
             gLightSlotNext++;
             gLightSlotNext = gLightSlotNext % 4;
             sfxPlayAtPositionPooled(sparkX, sparkY, sparkZ, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
@@ -512,8 +512,8 @@ void raceVehicleBehaviorUpdate(void) {
     }
 }
 
-extern u8 gEffectSpriteExplosion[];
-extern u8 sEffectSparkConfig[];
+extern EffectGridAsset gEffectSpriteExplosion;
+extern EffectGridAsset sEffectSparkConfig;
 
 
 void raceProjectileBehaviorUpdate(void) {
@@ -536,7 +536,7 @@ void raceProjectileBehaviorUpdate(void) {
     }
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0) || (gActorGlobalState.bossFightPhase == 5)) {
         effectSetDepth(1);
-        effectCreateAtPosition(gEffectSpriteExplosion, 3.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteExplosion, 3.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
         hasCollided = 1;
     }
@@ -544,7 +544,7 @@ void raceProjectileBehaviorUpdate(void) {
     gCurrentActor->y += 5.0f;
     if (aux->lifetime != 0) {
         effectSetDepth(1);
-        effectCreateAtPosition(sEffectSparkConfig, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
+        effectCreateAtPosition(&sEffectSparkConfig, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
         if (--aux->lifetime == 0) {
             hasCollided = 1;
         }

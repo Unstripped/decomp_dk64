@@ -116,9 +116,9 @@ extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
 extern EffectGridAsset gEffectSpriteStarBurst;
-extern u8 gEffectSpriteFireBurst;
-extern u8 gEffectSpriteExplosion;
-extern u8 gEffectSpriteEmber;
+extern EffectGridAsset gEffectSpriteFireBurst;
+extern EffectGridAsset gEffectSpriteExplosion;
+extern EffectGridAsset gEffectSpriteEmber;
 
 s32 tagBarrelIsSpecial(Actor *actor) {
     s32 count = sizeof(gHiddenBarrelRevealFlags) / sizeof(gHiddenBarrelRevealFlags[0]); // ORIG: the row count is stored to its own home before the call: li a2,4 at 0x8, sw a2,0x1c(sp) in the jal delay slot at 0x10, lw a2,0x1c(sp) at 0x1c, bne a0,a2 at 0x5c
@@ -3092,7 +3092,7 @@ void tagBarrelInitUnlockedKongs(Actor *actor) {
 }
 
 
-extern u8 gEffectSpriteSparkleYellow[];
+extern EffectGridAsset gEffectSpriteSparkleYellow;
 
 void tagBarrelUpdate(void) {
     TagBarrelData *sub = gCurrentActor->customState;
