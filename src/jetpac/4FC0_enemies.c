@@ -1,11 +1,11 @@
 #include "common.h"
 #include "jetpac.h"
-#include "proto/jetpac/0.h"
-#include "proto/jetpac/1460.h"
-#include "proto/jetpac/1A60.h"
-#include "proto/jetpac/3060.h"
-#include "proto/jetpac/3480.h"
-#include "proto/jetpac/4FC0.h"
+#include "proto/jetpac/0_game.h"
+#include "proto/jetpac/1460_sprite_grid.h"
+#include "proto/jetpac/1A60_player.h"
+#include "proto/jetpac/3060_collision_utils.h"
+#include "proto/jetpac/3480_rocket_items.h"
+#include "proto/jetpac/4FC0_enemies.h"
 extern s32 jetpacBlinkPhase;
 extern f32 D_8002F054;
 extern s32 D_8002F078;

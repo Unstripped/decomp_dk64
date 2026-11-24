@@ -1,8 +1,8 @@
 #include "common.h"
 #include "jetpac.h"
 #include "proto/global/1135F0_dl_texture.h"
-#include "proto/jetpac/1460.h"
-#include "proto/jetpac/3060.h"
+#include "proto/jetpac/1460_sprite_grid.h"
+#include "proto/jetpac/3060_collision_utils.h"
 void jetpacInitGrid(void) {
     JetpacCell *cell = &jetpacGrid[0][0];
     s32 row;

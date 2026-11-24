@@ -1,10 +1,10 @@
 #include "common.h"
 #include "jetpac.h"
 #include "proto/global/135D30_flags.h"
-#include "proto/jetpac/0.h"
-#include "proto/jetpac/1460.h"
-#include "proto/jetpac/3060.h"
-#include "proto/jetpac/3480.h"
+#include "proto/jetpac/0_game.h"
+#include "proto/jetpac/1460_sprite_grid.h"
+#include "proto/jetpac/3060_collision_utils.h"
+#include "proto/jetpac/3480_rocket_items.h"
 
 typedef struct {
     u8 rgba[4];

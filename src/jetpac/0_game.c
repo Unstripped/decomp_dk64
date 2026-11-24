@@ -12,12 +12,12 @@
 #include "proto/global/3C10_map_transition.h"
 #include "proto/global/450_main_loop.h"
 #include "proto/global/F600_controller_input.h"
-#include "proto/jetpac/0.h"
-#include "proto/jetpac/1460.h"
-#include "proto/jetpac/1A60.h"
-#include "proto/jetpac/3480.h"
-#include "proto/jetpac/4FC0.h"
-#include "proto/jetpac/6E00.h"
+#include "proto/jetpac/0_game.h"
+#include "proto/jetpac/1460_sprite_grid.h"
+#include "proto/jetpac/1A60_player.h"
+#include "proto/jetpac/3480_rocket_items.h"
+#include "proto/jetpac/4FC0_enemies.h"
+#include "proto/jetpac/6E00_text.h"
 
 extern JetpacState jetpacPlayer;
 extern struct GfSndState *gLoopSfxHandles[];

@@ -1,7 +1,7 @@
 #include "common.h"
 #include "jetpac.h"
 #include "proto/global/166A0_random.h"
-#include "proto/jetpac/3060.h"
+#include "proto/jetpac/3060_collision_utils.h"
 
 s32 jetpacCheckAabbOverlap(f32 minX1, f32 minY1, f32 maxX1, f32 maxY1, f32 minX2, f32 minY2, f32 maxX2, f32 maxY2) {
     minX1 = (minX2 < minX1) ? minX1 : minX2;

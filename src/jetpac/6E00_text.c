@@ -1,6 +1,6 @@
 #include "common.h"
 #include "proto/global/100180_text_font.h"
-#include "proto/jetpac/6E00.h"
+#include "proto/jetpac/6E00_text.h"
 
 // .data 0x8002E9C0-0x8002E9D0: highlight colour (jetpacSetTextHighlightColor).
 u8 jetpacTextHighlightR = 0;
