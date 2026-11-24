@@ -96,7 +96,7 @@ id	name	loaded	overlay	status	notes
 0x5E	Crystal Caves - Cabin interior (blue rug)	0x5E	none	success	Round blue carpet in center, fruit items, colorful shelf by doorway
 0x5F	Crystal Caves - Igloo interior (round room)	0x5F	none	success	Round ice room, reflective ice floor, arched doorway
 0x60	Bonus minigame (circular wooden vat)	0x60	bonus	success	Circular wooden wall tub with water, bonus overlay
-0x61	Creepy Castle - Dungeon / Crypt arena	0x61	none	success	Tiered stone arena, torch on wall, castle arches
+0x61	K. Lumsy's prison (cage)	0x61	none	success	Tiered stone arena around the cage; ring node actor 0x113 reads D_8076A0A6 (button-sequence check), set by event 0x1C of actorCutsceneDispatchEvents (EmuGlobalsU5 2026-11-24b; was labelled a Creepy Castle crypt)
 0x62	Crystal Caves - Igloo interior (doorway)	0x62	none	success	Ice block walls, purple ice floor, arched doorway
 0x63	Bonus minigame - Speedy Swing Sortie	0x63	bonus	success	Title text 'SPEEDY SWINGSO...', palm trees in circular enclosure, bonus overlay
 0x64	Crystal Caves - Igloo interior (ice pillar)	0x64	none	success	Reflective ice floor, ice support pillar / arch
