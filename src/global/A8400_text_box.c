@@ -236,7 +236,7 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
-extern void *gEffectGridAssets[];
+extern EffectGridAsset *gEffectGridAssets[];
 
 void textBoxRowUpdateIcon(ResGlyph *glyph, ResRow *row, ResQueueActorState *state) {
     ResGlyphCell *cell = &glyph->cell;
