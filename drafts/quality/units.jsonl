@@ -1337,3 +1337,4 @@
 {"type": "unit", "t": "2026-11-24T14:12:57Z", "unit": "2026-11-24: cleanup CleanarcadeUpdateDonkeyKongStage4", "commit": "7b85bcc013b642dbc1bc98ee44fb819c28a66e83"}
 {"type": "unit", "t": "2026-11-24T14:21:03Z", "unit": "2026-11-24: cleanup CleanfaultDrawRegsd", "commit": "24c8cb6373ddefb69dcf315b853e125e3a72ec5a"}
 {"type": "unit", "t": "2026-11-24T14:25:05Z", "unit": "2026-11-24: cleanup CleanplayerStateHoldPickupb", "commit": "b9a697644b4a26d3ef35a6f155de87a042852216"}
+{"type": "unit", "t": "2026-11-24T14:28:16Z", "unit": "2026-11-24: cleanup CleancsCmdBobbingLightsc", "commit": "3f3990aecfecd04f9edb36effc4b8a578663bbc2"}

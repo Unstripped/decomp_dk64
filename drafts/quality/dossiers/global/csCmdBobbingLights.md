@@ -1,11 +1,12 @@
-# csCmdBobbingLights (global, src/global/478F0.c)
+# csCmdBobbingLights (global, src/global/478F0_cutscene_cmds.c)
 ## Sites
 - global:80643440:noop-arith:9d8298 / b4e5ff / 7aae48 (base, removed): `(0, (sn * 0.5 + 0.5))` comma on the blend factor.
   - It made cfe emit the blend t before dy, so uopt's umpy became {t}{cvt dy}.
   - That gives the target FP numbering: light 1 at 0x8C4-0x8F0 (cvt.d.s $f4, mul.d $f6, add.d $f8, sub.s $f16, cvt.d.s $f18, mul.d $f4,$f8,$f18); light 2 at 0x964+ (cvt.d.s $f8, mul.d $f18, ...).
-- global:80643440:other:b584f0 (copy only): the `TRACK_PAIR_LERP_Y` macro reads its points as `((pt) + 1)->y` / `(pt)->y`.
-  - This pointer spelling keeps cfe's source-order emission.
-  - Tagged as one spelling steer (68EA0 tags the `(base + i)->` spelling the same way).
+- global:80643440:other:b584f0 (removed 2026-11-24): the `TRACK_PAIR_LERP_Y` macro read its points as `((pt) + 1)->y` / `(pt)->y`.
+  - This pointer spelling kept cfe's source-order emission (no subscript in any right operand).
+  - Fixed by the natural lerp `G[1][k].y + (G[1][k + 1].y - G[1][k].y) * (mathSinF(*ang + K) * 0.5 + 0.5)` with direct
+    `gMinecartTrackPoints[1][k]` reads and no `p`/`sn` locals; the macro (its only users were this function) is deleted.
 ## Attempts
 - 2026-11-09..14, Clean478F0 / Clean42630 / Rev16K / Rev17L / CleanGlobal478F0 / OwnerMinecartTrackPoints (opus low/xhigh/high).
   - Removing the comma, operand swaps, sn/2.0, (sn+1)*0.5, f64 sn, f64 casts, 0.5f, an f64 t temp, factor-first `t * dy`: 18+ lines each.
@@ -62,15 +63,45 @@
   - Compound `fy = p[k].y; fy += t * (p[k + 1].y - p[k].y);`: 37. The arrow spelling of the same form is also 37.
   - sweep at the base and on the final copy: 0 hits (plain, recipe). The macro line is unchanged. Its only users are this
     function's lines 192, 198 and 204.
+- 2026-11-24 CleancsCmdBobbingLightsc anthropic/claude-opus-5-5 (cleanup session 2026-11-24, base 9879c633):
+  - Re-measure after fcbd5594 (M5 Polishglobal478F0, 29 sprite externs retyped: file-scope text only, body unchanged),
+    `variants.py try` on the base copy: macro body 0 (fdiff OK); plain `t * (p[k+1].y - p[k].y) + p[k].y` 18; addend-first
+    18; `(&p[k])->y` 18; compound `fy = p[k].y; fy += ...` 37; lo/hi element pointer locals 11 (shape 10: `addiu` per point);
+    direct `gMinecartTrackPoints[1][k]` reads + inline `mathSinF` 18; two-statement f64 `t`/`rise` locals 38. All equal to
+    the earlier numbers: the file-scope edit changed nothing for this function.
+  - New: per-node cfe rule mapped with light-1-only probes (`as1probe ucode --cfe`, lights 2/3 on the macro):
+    - `t * (p[1].y - p->y) + p->y`: 6. The outer `+` keeps source order (right operand `p->y` has no subscript), but the
+      `mpy` right operand `(p[1].y - p->y)` holds a subscript, so dy (`p1; p0; sub; cvt`) is emitted before t.
+    - `t * ((p + 1)->y - p[0].y) + p->y`: 6 (dy first, then `swp; sub` because `p[0].y` goes first inside the sub).
+    - `t * ((p + 1)->y - p->y) + p[0].y`: 15 (only the outer addend goes first).
+    - `t * (p[1].y - (*p).y) + (*p).y`: 15: an explicit `*` counts like a subscript.
+    - `(*p).y + t * (p[1].y - (*p).y)`: 6: the left operand being an explicit-`*` load does not keep source order; the
+      product (right, holds subscripts) is still emitted first.
+    - `(mathSinF(*ang) * 0.5 + 0.5) * (...)` with the p local: 37; cfe hoists the call into a vreg temp
+      (`vreg f32 off -20; mst; ...; cup; str`), so the `*ang` never reaches the operand tree, and p is loaded before the call.
+    - Rule: at every binary node evaluated on an empty ucode stack, a right operand holding a subscript, explicit `*`
+      or call is emitted first, whatever the left operand holds (the plain form's left product holds `p[1]`/`p[0]` and still
+      loses to the addend `p[0].y`; `(*p).y * (p[1].y - p[0].y)` emits `p0; p1; swp; sub` first; `p[2].y * (...)` too).
+  - Fix (fdiff OK): `a + (b - a) * t` with the sine call inline in t. The outer `+`'s right operand (the product) holds
+    subscripts, so it goes first; inside it the right operand t holds the call, so t goes first (`cup; cvt; mpy 0.5;
+    add 0.5`, no vreg temp), then `p1; p0; sub; cvt` on the non-empty stack in source order, `mpy`, and the left addend
+    `p0` last: the target's t, p1, p0, sub, mpy, p0, add. `p` and `sn` locals cannot stay: with `p` loaded before the
+    statement the load precedes the call (39); with an `sn` local t holds no call (18). Other orders with the inline call:
+    `a + t * (b - a)` 18, `t * (b - a) + a` 18, `(b - a) * t + a` 27; `p` reloaded only for lightAdd 51; the lerp split
+    over two lines 0.
+  - `variants.py scan` of the plain-body copy (`plain_copy.c`): 55 variants, best 13 (`p[0].y` -> `(p + 0)->y` on
+    light 1), no zero. sweep of the copy: 0 hits.
+  - Hack-free-weights permuter from the plain p-local/sn-local body (not run before with hack-free weights): 900 s -j 2,
+    baseline 125, best 100 (12 outputs): an f32 `new_var = p[0].y` copy-temp on light 1 plus a joined reload line; no zero.
 
 ## Untried ideas
-- A spelling that reads the three y values without a subscript or `*` and still folds their offsets into one base: only `(base + k)->y` is known. A file-local six-point view (`tl->p3.y`) would fold too, but it is a view.
-- The struct-pair view (`{TargetVec3f lo, hi;}`) still needs `(pair + 1)` or a pair pointer variable per light (addiu shape, as for lo/hi).
-- The ucode stack is empty at every statement and argument start (Q1285). A local-struct store and the `cs->data = ang`
-  istr both push the value before any address (2026-11-19). Untested: an istr whose address holds a subscript or `*`, but
-  the target stores no lerp result, so that form is moot. Only the operand tree can order the addend after the product.
+- None open: the site is fixed. A file-local pointer macro for `gMinecartTrackPoints[1]` would shorten the three lerp
+  lines but is a file-scope edit (stales every other function's fp_local); not needed for the match.
 ## Evidence
 - Target 0x8C4 cvt.d.s $f4,$f0 / 0x8CC mul.d $f6,$f4,$f20 / 0x8E0 add.d $f8,$f6,$f20: the blend is allocated first.
 - 0x8D8 lwc1 $f10,16(s0) / 0x8DC sub.s $f16 / 0x8E4 cvt.d.s $f18: dy is allocated second.
 - 0x8EC mul.d $f4,$f8,$f18: blend × dy. 0x8F0 add.d $f10,$f4,$f6: product + p0.
 - uopt isop order in the matching build: ucvt sn(26), umpy(27), uadd t(28), uilod p1(29), uilod p0(30), usub, ucvt, umpy{140}{1179}(33), ucvt p0(34), uadd{64}{731}(35).
+- Matching rewrite (`.scratch/CleancsCmdBobbingLightsc/ap_final/cfe.txt`): `mst; lod ang; ilod s16; par; cup mathSinF;
+  lod $f0; cvt f64 f32; ldc 0.5; mpy; ldc 0.5; add; [G; +4; ilod; +12; +4; ilod f32]; [G; +4; ilod; +0; +4; ilod f32];
+  sub f32; cvt f64 f32; mpy f64; [G; +4; ilod; +0; +4; ilod f32]; cvt f64 f32; add f64; cvt f32 f64; str fy`.
