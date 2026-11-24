@@ -89,7 +89,7 @@ void particleSpawnPathTrail(void) {
                         effectSetFlags(4);
                         effectSetCallback(effectPlayerDistanceFadeUpdate);
                         effectSetDuration(2);
-                        effectSetParam((randomNonNegative() % 10000) % 6);
+                        effectSetStartFrame((randomNonNegative() % 10000) % 6);
                         effectSetMaxDistance(node->radius);
                         effectCreateAtPosition(&effectAssetPathTrail, node->trailScale,
                                                (node->endX - node->startX) * t + node->startX,

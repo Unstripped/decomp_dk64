@@ -358,7 +358,7 @@ void playerStateGameOver(void) {
     if (!(gCurrentActor->contactFlags & 4)) {
         playerApplyFullPhysics();
     } else {
-        playerCanPerformActionCheck();
+        playerSwimSurfaceCheck();
         if (!(gCurrentActor->prevContactFlags & 4)) {
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x34);
         }
@@ -384,7 +384,7 @@ void playerStateSquishDeath(void) {
     if (!(gCurrentActor->contactFlags & 4)) {
         playerApplyFullPhysics();
     } else {
-        playerCanPerformActionCheck();
+        playerSwimSurfaceCheck();
         if (!(gCurrentActor->prevContactFlags & 4)) {
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x34);
         }
@@ -701,7 +701,7 @@ void playerInputUpdateCaseD(void) {
     gActivePlayerState->airAccel = gKongSwimAccel[gCurrentCharacterIndex];
     playerRegisterWeaponHudRenderCallback(0xD);
     playerApplyDecelVelocityVector(gKongSwimBuoyancy[gCurrentCharacterIndex]);
-    if (playerCanPerformActionCheck() != 0) {
+    if (playerSwimSurfaceCheck() != 0) {
         playerLeaveViewMode(gCurrentActor, 1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -711,7 +711,7 @@ void playerInputUpdateCase11(void) {
     gActivePlayerState->airAccel = gKongSwimAccel[gCurrentCharacterIndex];
     playerRegisterInstrumentHudRenderCallback(0x11);
     playerApplyDecelVelocityVector(gKongSwimBuoyancy[gCurrentCharacterIndex]);
-    if (playerCanPerformActionCheck() != 0) {
+    if (playerSwimSurfaceCheck() != 0) {
         playerLeaveViewMode(gCurrentActor, 1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2516,7 +2516,7 @@ extern s16 gKongSwimExitDepths[];
 extern s16 gKongDiveFrames[];
 extern s16 gKongDiveAngles[];
 
-s32 playerCanPerformActionCheck(void) {
+s32 playerSwimSurfaceCheck(void) {
     f32 surfaceOffset;
     f32 exitDepth;
 
@@ -2603,7 +2603,7 @@ void playerStateSurfaceSwim(void) {
             }
             break;
     }
-    playerCanPerformActionCheck();
+    playerSwimSurfaceCheck();
     gCurrentActor->flags &= ~1;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -3388,7 +3388,7 @@ void playerInputUpdate12(void) {
 
 extern s16 gKongTurnRate[];
 
-void playerStateTransformHold(void) {
+void playerStateWalkToDestPoint(void) {
     f32 dx;
     f32 dz;
 
@@ -4263,7 +4263,7 @@ void playerStateBounceRecover(void) {
         gCurrentActor->speedY = 0.0f;
         gCurrentActor->speedXZ = gActivePlayerState->maxSpeed;
         if (playerProbeLedgeAhead(gCurrentActor, &ledgeY, 1, 15.0f) != 0) {
-            if (gCurrentActor->y <= ledgeY && ledgeY - ledgeOffset - gCurrentActor->y < 10.0f && collisionGetHitFlags() != 0) {
+            if (gCurrentActor->y <= ledgeY && ledgeY - ledgeOffset - gCurrentActor->y < 10.0f && collisionIsFloorGrabbable() != 0) {
                 gCurrentActor->y = ledgeY - ledgeOffset;
                 onLedge = 1;
             }
@@ -4302,7 +4302,7 @@ void playerStateBounceRecover(void) {
     }
     if (gActivePlayerState->hangInputDelay == 0) {
         lostGrip = gCurrentActor->hasArcBounds == 0 || onLedge == 0;
-        collisionGetCoords(&hitA, &hitB);
+        collisionGetFloorTilt(&hitA, &hitB);
         if (hitB < 0x385) {
             lostGrip |= 1;
         }

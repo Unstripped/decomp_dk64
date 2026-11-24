@@ -93,7 +93,7 @@ void timedSmokeTargetHostUpdate(void) {
                 gCurrentActor->callbackMask &= ~0x8000;
                 sfxStopSlotSound(gCurrentActor, 0);
                 spawnNodesSetRespawnHold(0);
-                effectFreeByResource(gBehaviourTargetActor);
+                effectFreeByOwner(gBehaviourTargetActor);
                 actorDespawn(gCurrentActor->parentActor);
                 gCurrentActor->state = 0x27;
                 gCurrentActor->subState = 0;

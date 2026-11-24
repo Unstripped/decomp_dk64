@@ -838,9 +838,9 @@ void menuMysteryHandleInput(Actor *actor, s32 buttons) {
     if (state->fade == 0.0f && state->scroll == 0.0f) {
         if (buttons & 1) {
             if ((buttons & 8) && (sMenuEraseSliderAtEdge != 0)) {
-                effectEnableFade();
+                effectSetScreenSpace();
                 effectCreateAtPosition(&gEffectSpriteBlast, 10.3f, 240.0f, 120.0f, -10.0f);
-                effectEnableFade();
+                effectSetScreenSpace();
                 effectCreateAtPosition(&gEffectSpriteStarBurst, 10.3f, 240.0f, 120.0f, -10.0f);
                 sfxPlayOnFreeSlot(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 eepromSetCurrentSlot(sMenuSelectedFile, 1);
@@ -2920,7 +2920,7 @@ void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, 
     f32 scale;
 
     effectSetFrameDelay(flags);
-    effectEnableFade();
+    effectSetScreenSpace();
     effectSetDuration(-1);
     effectSetSpeed((s32)state);
     effectSetCallback(menuUpdateElementTargetAndColor);
@@ -3422,13 +3422,13 @@ void menuUpdateKioskActor(void) {
             kioskState->phaseFrames = 0x3E8;
         }
         if (kioskState->phaseFrames == 8) {
-            effectEnableFade();
+            effectSetScreenSpace();
             effectCreateAtPosition(&gEffectSpriteStarBurst, 8.3f, 160.0f, 120.0f, -10.0f);
             sfxPlayOnFreeSlot(0x23, 0x7FFF, 63.0f, 1.0f, 0, 0);
             sfxPlayOnFreeSlot(0x17, 0x7FFF, 63.0f, 1.0f, 0, 0);
             for (i = 0; i != 5; i++) {
                 effectSetCallback(menuSparkleParticleUpdate);
-                effectEnableFade();
+                effectSetScreenSpace();
                 effectCreateAtPosition(&gEffectSpriteBarrelDebrisDark, 1.8f, 160.0f, 120.0f, -10.0f);
             }
         }

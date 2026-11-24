@@ -104,7 +104,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
             gfx = textDrawAnimated(gfx, timer->textId, animMode, actor->x + offset, actor->y + 5.0f, 0.0f, 1.0f);
             if (actor->state == 2) {
                 gfx = playerViewSetPrimaryViewport(gfx);
-                effectEnableFade();
+                effectSetScreenSpace();
                 sinAngle = sinApprox(angle);
                 effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, sinAngle * 40.0 + (40.0f + actor->x),
                                        cosApprox(angle) * 25.0 + actor->y, 0.0f);

@@ -72,8 +72,8 @@ void playerStateSetFlag8(void);
 #ifndef PROTO_SKIP_playerStateInitKongAction69
 void playerStateInitKongAction69(void);
 #endif
-#ifndef PROTO_SKIP_playerStateAdjustUpwardVelocity
-void playerStateAdjustUpwardVelocity(void);
+#ifndef PROTO_SKIP_playerStateBoostRiddenRacer
+void playerStateBoostRiddenRacer(void);
 #endif
 #ifndef PROTO_SKIP_playerStateAdjustUpwardVelocity200
 void playerStateAdjustUpwardVelocity200(void);
@@ -102,8 +102,8 @@ void playerStateEnterFrozen(void);
 #ifndef PROTO_SKIP_playerStateEnterState3C
 void playerStateEnterState3C(void);
 #endif
-#ifndef PROTO_SKIP_playerStateCheckLandingAir
-void playerStateCheckLandingAir(void);
+#ifndef PROTO_SKIP_playerStateEnterWaterFromAir
+void playerStateEnterWaterFromAir(void);
 #endif
 #ifndef PROTO_SKIP_playerStateEnterKnockbackRecovery
 void playerStateEnterKnockbackRecovery(void);
@@ -120,8 +120,8 @@ void playerStateEnterGroundImpact(void);
 #ifndef PROTO_SKIP_playerStateEnterAction24
 void playerStateEnterAction24(void);
 #endif
-#ifndef PROTO_SKIP_playerStateEnterHoldThrow
-void playerStateEnterHoldThrow(void);
+#ifndef PROTO_SKIP_playerStateEnterLedgeHang
+void playerStateEnterLedgeHang(void);
 #endif
 #ifndef PROTO_SKIP_playerStateEnterState57
 void playerStateEnterState57(void);
@@ -156,11 +156,11 @@ void playerStateDamageTargetCheck(void);
 #ifndef PROTO_SKIP_playerStateDamageCheck4
 void playerStateDamageCheck4(void);
 #endif
-#ifndef PROTO_SKIP_playerStatePlayAnimationByDamageType
-void playerStatePlayAnimationByDamageType(u16);
+#ifndef PROTO_SKIP_playerStatePlayFirstAnimalCutscene
+void playerStatePlayFirstAnimalCutscene(u16);
 #endif
-#ifndef PROTO_SKIP_playerStateApplyAttackerDamage
-void playerStateApplyAttackerDamage(Actor *);
+#ifndef PROTO_SKIP_playerStatePlayFirstUseCutscene
+void playerStatePlayFirstUseCutscene(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerStateSetLaunchVelocity
 void playerStateSetLaunchVelocity(void);

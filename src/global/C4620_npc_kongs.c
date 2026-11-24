@@ -1039,7 +1039,7 @@ void actorSpawnOctagonRingsByTimer(void) {
 void effectSpawnColoredParticleAtPoint(u8 r, u8 g, u8 b, f32 x, f32 y, f32 z, void *particleGfx, f32 scale) {
     effectSetMaxDistance(1000);
     effectSetFrameDelay(0xFF);
-    effectSetParam(((randomNonNegative() >> 15) % 0x7FFF) % 11);
+    effectSetStartFrame(((randomNonNegative() >> 15) % 0x7FFF) % 11);
     effectSetColor(r, g, b, 0xFF);
     effectSetCallback(effectLinearFadeAlphaUpdate);
     effectSetSpeed(2);

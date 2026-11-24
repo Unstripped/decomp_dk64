@@ -26,7 +26,7 @@
 #include "proto/global/70FD0_collision_geometry.h"
 #include "proto/global/CC800_player_setup.h"
 
-CamZoomEntry sCamZoomTable[23][4] = {
+CamZoomEntry gCamZoomTable[23][4] = {
     { { 0, 0 }, { 80, 200 }, { 300, 300 }, { 300, 300 } },
     { { 0, 0 }, { 25, 70 }, { 35, 90 }, { 60, 140 } },
     { { 0, 0 }, { 60, 120 }, { 100, 200 }, { 150, 220 } },
@@ -1388,8 +1388,8 @@ extern s16 gCollisionCellSizeZ;
 extern s16 gCollisionCellsX;
 extern s16 gCollisionCellsZ;
 extern s16 gMapHeaderSpawnPos;
-extern s16 D_807FD576;
-extern s16 D_807FD578;
+extern s16 gMapHeaderSpawnY;
+extern s16 gMapHeaderSpawnZ;
 extern s16 gMapBoundMinX;
 extern s16 gMapBoundMinZ;
 extern s16 gMapBoundMaxX;
@@ -1423,8 +1423,8 @@ void mapHeaderLoad(MapFileHeader *header) {
     gCollisionCellsX = header->meshCellsX;
     gCollisionCellsZ = header->meshCellsZ;
     gMapHeaderSpawnPos = header->defaultSpawnX;
-    D_807FD576 = header->defaultSpawnY;
-    D_807FD578 = header->defaultSpawnZ;
+    gMapHeaderSpawnY = header->defaultSpawnY;
+    gMapHeaderSpawnZ = header->defaultSpawnZ;
     gMapBoundMinX = header->boundMinX;
     gMapBoundMinZ = header->boundMinZ;
     gMapBoundMaxX = header->boundMaxX;

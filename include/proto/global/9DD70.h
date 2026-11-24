@@ -54,8 +54,8 @@ s32 actorHasCallbackTargetThisFrame(void);
 #ifndef PROTO_SKIP_carryObjectUpdate
 void carryObjectUpdate(void);
 #endif
-#ifndef PROTO_SKIP_actorUpdateTimerBarAndRange
-void actorUpdateTimerBarAndRange(void);
+#ifndef PROTO_SKIP_carryObjectUpdateScaled
+void carryObjectUpdateScaled(void);
 #endif
 #ifndef PROTO_SKIP_actorSpawnEffectAndTick
 void actorSpawnEffectAndTick(void);

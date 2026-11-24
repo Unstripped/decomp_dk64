@@ -801,7 +801,7 @@ void actorFreeImmediate(Actor *actor) {
         }
     }
     i = 0;
-    effectFreeByResource(actor);
+    effectFreeByOwner(actor);
     pathPlaybackStopForActor(actor);
     sfxStopSlotSound(actor, 0);
     sfxStopSlotSound(actor, 1);

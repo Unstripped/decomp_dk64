@@ -76,7 +76,7 @@ void (*gPlayerStateCallbacks[])(void) = {
     playerStateEnterKnockbackState3,
     playerStateEnterKnockbackState5,
     playerStateInitApproachVelocity,
-    playerStateEnterHoldThrow,
+    playerStateEnterLedgeHang,
     playerStateEnterState59,
     playerStateEnterState57,
     playerStateEnterState17,
@@ -127,7 +127,7 @@ void (*gPlayerStateCallbacks[])(void) = {
     playerStateInitAnimalTransformation,
     playerRevertToSavedKong,
     playerStateNoop1,
-    playerStateCheckLandingAir,
+    playerStateEnterWaterFromAir,
     playerStateEnterState3C,
     playerStateEnterDamageReaction,
     playerStateEnterDamageReaction2,
@@ -145,7 +145,7 @@ void (*gPlayerStateCallbacks[])(void) = {
     playerStateEnterSlideSlope,
     playerStateEnterFrozen,
     playerStateClearCarriedAndCallF00BC,
-    playerStateAdjustUpwardVelocity,
+    playerStateBoostRiddenRacer,
     playerStateAdjustUpwardVelocity200,
     playerStateAdjustUpwardVelocity300,
     playerStateSpawnParticles,
@@ -427,7 +427,7 @@ void playerStateInitKongAction69(void) {
 /* The race overlay's racePlayCheckpointSfx: starts a boost of the path cursor's racer. */
 void func_80026004(RacePathState *, u8, f32);
 
-void playerStateAdjustUpwardVelocity(void) {
+void playerStateBoostRiddenRacer(void) {
     Actor *actor;
     RacePathState *path;
 
@@ -560,7 +560,7 @@ extern f32 gKongSwimTopSpeeds[];
 extern s16 gKongWaterEntryTurnRates[];
 extern f32 gKongSwimBuoyancy[];
 
-void playerStateCheckLandingAir(void) {
+void playerStateEnterWaterFromAir(void) {
     f32 rise;
     f32 waterY;
     f32 decelMinSigned;
@@ -690,7 +690,7 @@ void playerStateEnterAction24(void) {
     gActivePlayerState->chargeTimer = 0x32;
 }
 
-void playerStateEnterHoldThrow(void) {
+void playerStateEnterLedgeHang(void) {
     f32 height;
 
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
@@ -891,7 +891,7 @@ void playerStateDamageCheck4(void) {
     }
 }
 
-void playerStatePlayAnimationByDamageType(u16 damageType) {
+void playerStatePlayFirstAnimalCutscene(u16 damageType) {
     u16 flag;
     s16 camPath;
 
@@ -914,7 +914,7 @@ void playerStatePlayAnimationByDamageType(u16 damageType) {
     }
 }
 
-void playerStateApplyAttackerDamage(Actor *attacker) {
+void playerStatePlayFirstUseCutscene(Actor *attacker) {
     s16 id;
     u16 type;
     s32 flag;
@@ -1073,7 +1073,7 @@ void playerStateSetLaunchVelocity(void) {
             }
             gActivePlayerState->gravityDelay = 4;
             playerSetTerminalVelocity5B0();
-            playerStatePlayAnimationByDamageType(gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType);
+            playerStatePlayFirstAnimalCutscene(gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType);
             break;
         case 0x84:
             kongId = playerGetResolvedKongId(gCurrentPlayerIndex);
@@ -1098,7 +1098,7 @@ void playerStateSetLaunchVelocity(void) {
         playerKongHolsterGun(gCurrentActor);
     }
     if (gPlayerSlots[gCurrentPlayerIndex].queuedActor != NULL) {
-        playerStateApplyAttackerDamage(gPlayerSlots[gCurrentPlayerIndex].queuedActor);
+        playerStatePlayFirstUseCutscene(gPlayerSlots[gCurrentPlayerIndex].queuedActor);
     }
     if ((gActivePlayerActor->contactFlags & 4) && (gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType != 0x81)) {
         gActivePlayerState->subTimer = gKongDiveAngles[gCurrentCharacterIndex];

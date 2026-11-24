@@ -2041,7 +2041,7 @@ void playerInputHandlerCheckBAndFireWeapon(void) {
     playerFireWeapon(0, 0);
 }
 
-extern s16 D_80753354[];
+extern s16 gKongCrouchTurnRate[];
 
 void playerInputHandleZButtonCrouch(void) {
     s32 canCrouch;
@@ -2051,7 +2051,7 @@ void playerInputHandleZButtonCrouch(void) {
         canCrouch = playerInputCheckMultiplayerPlayerTarget() == 0;
     }
     if (canCrouch && (gCurrentActor->state != 0x62) && (gCurrentActor->contactFlags & 1)) {
-        gActivePlayerState->turnRate = D_80753354[gCurrentCharacterIndex];
+        gActivePlayerState->turnRate = gKongCrouchTurnRate[gCurrentCharacterIndex];
         gCurrentActor->state = 0x62;
         gCurrentActor->subState = 0;
         actorScriptStartByIndex(gCurrentActor, 0x52);

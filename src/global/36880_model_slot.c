@@ -706,7 +706,7 @@ s32 groundSurfaceTypeAt(f32 x, f32 y, f32 z) {
 
     groundY = y + 10.0f;
     if (collisionCheckGroundAtPoint(x, z, &groundY) != 0) {
-        return collisionGetSurfaceType();
+        return collisionGetFloorLightLevel();
     }
     return 0xF;
 }
@@ -726,7 +726,7 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     }
     groundY = gModelSlots[slot].y + 20.0f;
     if (collisionCheckGroundAtPoint(gModelSlots[slot].x, gModelSlots[slot].z, &groundY) != 0) {
-        collisionGetCoords(&groundX, &groundZ);
+        collisionGetFloorTilt(&groundX, &groundZ);
         info = gModelSlots[slot].asset;
         switch (info->modelKind) {
             case 1:
@@ -2100,7 +2100,7 @@ u8 restore;
             }
             if (found == 0) {
                 if (restore) {
-                    collisionBstLookupByHash(start->w1, &bstValue, &bstNode);
+                    assetRefBstLookupByHash(start->w1, &bstValue, &bstNode);
                 }
                 assetFreeBuffer((void *)start->w1, 0xB27, 7);
                 if (restore) {
@@ -2210,7 +2210,7 @@ void dlFreeSegmentCommandTextures(DisplayListCmd *start, DisplayListCmd *end, u8
             tag = start->w0 >> 24;
             if (tag == 0xFD) {
                 if (restore) {
-                    collisionBstLookupByHash(start->w1, &bstValue, &bstNode);
+                    assetRefBstLookupByHash(start->w1, &bstValue, &bstNode);
                 }
                 assetFreeBuffer((void *)start->w1, 0xBCD, 7);
                 if (restore) {
@@ -2484,7 +2484,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
     gDPSetPrimColor(gfx++, 0, 0xFF, red, green, blue, 0xFF);
     if (useLight) {
         if (obj->id != -1 && (model = gModelSlots[slotIdx].csState) != NULL && model->alphaOverride == 1) {
-            csUpdateStepAndInterpolation(model);
+            csStepAlpha(model);
             alpha = gModelSlots[slotIdx].csState->alpha;
         } else {
             renderCalcPlayerDistanceAlpha(obj->x, obj->y, obj->z, obj->maxDist, obj->modelType, &alpha);
@@ -2497,7 +2497,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
             if (obj->id != -1) {
                 model = gModelSlots[slotIdx].csState;
                 if (model != NULL) {
-                    csUpdateStepAndInterpolation(model);
+                    csStepAlpha(model);
                 }
             }
             if (obj->id != -1) {
@@ -3007,7 +3007,7 @@ void texAnimNodeUpdateBuffers(TexAnimNode *node, s32 *texAOut, s32 *texBOut, u8 
                     assetFreeBuffer(oldBufB, 0xFCB, 7);
                 }
                 if (node->keepBuffers != 0) {
-                    collisionResolveWallContact();
+                    assetSetLoadPersistent();
                 }
                 node->textureBuffer = assetLoad(7, node->frameTextures[frameB], 0, 0);
                 oldBufA = node->textureBuffer2;
@@ -3015,7 +3015,7 @@ void texAnimNodeUpdateBuffers(TexAnimNode *node, s32 *texAOut, s32 *texBOut, u8 
                     assetFreeBuffer(oldBufA, 0xFCE, 7);
                 }
                 if (node->keepBuffers != 0) {
-                    collisionResolveWallContact();
+                    assetSetLoadPersistent();
                 }
                 node->textureBuffer2 = assetLoad(7, node->frameTextures[frameA], 0, 0);
             } else {
@@ -3025,7 +3025,7 @@ void texAnimNodeUpdateBuffers(TexAnimNode *node, s32 *texAOut, s32 *texBOut, u8 
                 oldBufA = node->textureBuffer2;
                 node->textureBuffer = oldBufA;
                 if (node->keepBuffers != 0) {
-                    collisionResolveWallContact();
+                    assetSetLoadPersistent();
                 }
                 node->textureBuffer2 = assetLoad(7, node->frameTextures[frameA], 0, 0);
             }
@@ -3034,7 +3034,7 @@ void texAnimNodeUpdateBuffers(TexAnimNode *node, s32 *texAOut, s32 *texBOut, u8 
                 assetFreeBuffer(oldBufB, 0xFDF, 7);
             }
             if (node->keepBuffers != 0) {
-                collisionResolveWallContact();
+                assetSetLoadPersistent();
             }
             node->textureBuffer = assetLoad(7, node->frameTextures[frameB], 0, 0);
         }

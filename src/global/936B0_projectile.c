@@ -545,7 +545,7 @@ void actorInitFromSpawnPoint(Actor *actor, RaceParticipant *vehicle) {
     G01Pos *spawn;
     s16 yaw;
 
-    spawn = raceGridSpawnPoint(vehicle->place);
+    spawn = mapGetSpawnPoint(vehicle->place);
     actor->x = spawn->x;
     actor->y = spawn->y;
     actor->z = spawn->z;
@@ -1376,7 +1376,7 @@ void projectileHomingUpdate(void) {
     }
     if (hit ||
         actorGetFloorSnapped() != 0 ||
-        ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
+        ((gCurrentActor->contactFlags & 1) && collisionGetFloorSource() == 1) ||
         gActorGlobalState.damaged != 0 ||
         (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && state->spawnFrame + 1 < gGameFrameCounter)) {
         effectSetDepth(1);
@@ -1449,7 +1449,7 @@ void projectileMultiplayerUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (gCurrentActor->collisionHit != 0 ||
         actorGetFloorSnapped() != 0 ||
-        ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
+        ((gCurrentActor->contactFlags & 1) && collisionGetFloorSource() == 1) ||
         gActorGlobalState.damaged != 0 ||
         (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && state->spawnFrame + 1 < gGameFrameCounter)) {
         if (gMultiplayerReducedEffects == 0) {
@@ -1811,7 +1811,7 @@ void projectileBeamUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (actorGetFloorSnapped() != 0 ||
         gCurrentActor->collisionHit != 0 ||
-        ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
+        ((gCurrentActor->contactFlags & 1) && collisionGetFloorSource() == 1) ||
         gActorGlobalState.damaged != 0 ||
         (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && state->spawnFrame + 1 < gGameFrameCounter)) {
         effectSetDepth(1);
@@ -1953,7 +1953,7 @@ void projectileRotatingUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (gCurrentActor->collisionHit != 0 ||
         actorGetFloorSnapped() != 0 ||
-        ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
+        ((gCurrentActor->contactFlags & 1) && collisionGetFloorSource() == 1) ||
         gActorGlobalState.damaged != 0 ||
         (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && state->spawnFrame + 1 < gGameFrameCounter)) {
         effectSetDepth(1);
@@ -2061,7 +2061,7 @@ void projectileMatrixRotationUpdate(void) {
         }
         break;
     }
-    if (((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) || gActorGlobalState.damaged != 0) {
+    if (((gCurrentActor->contactFlags & 1) && collisionGetFloorSource() == 1) || gActorGlobalState.damaged != 0) {
         actorDespawn(gCurrentActor);
     }
     if (gPlayerCount >= 2) {

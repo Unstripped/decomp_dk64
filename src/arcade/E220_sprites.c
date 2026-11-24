@@ -391,4 +391,4 @@ u8 gArcadeHighScoreInitials[5][3] = {
     { 0x20, 0x20, 0x20 }, { 0x20, 0x20, 0x20 }, { 0x20, 0x20, 0x20 }, { 0x20, 0x20, 0x20 }, { 0x20, 0x20, 0x20 },
 };
 u8 gArcadeRoundStages[4] = { 1, 4, 3, 2 };
-s32 gArcadeInitPending[1] = { 1 }; // 0.c's gArcadeInitPending[1]++ is 0.c's own D_8004A790, the first word of its .data
+s32 gArcadeInitPending[1] = { 1 }; // 0.c's gArcadeInitPending[1]++ is 0.c's own gArcadeDispatchFrames, the first word of its .data

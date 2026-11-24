@@ -67,7 +67,7 @@ CsCmdFunc gCsCmdTable[118] = {
     /* 0x00 */ csCmdVarAdd,
     /* 0x01 */ csCmdCopyTargetPosSub10,
     /* 0x02 */ csCmdVarIncrement,
-    /* 0x03 */ csCmdDecayTargetPosDiff,
+    /* 0x03 */ csCmdStoreAttachLocalPos,
     /* 0x04 */ csCmdDecayTargetPosCoord,
     /* 0x05 */ csCmdRotXAdjust,
     /* 0x06 */ csCmdTransformSave,
@@ -121,7 +121,7 @@ CsCmdFunc gCsCmdTable[118] = {
     /* 0x36 */ csCmdAnimStepInterpolate,
     /* 0x37 */ csCmdChanceNodeEffect,
     /* 0x38 */ csCmdSpawnEffectsAtNodeRange,
-    /* 0x39 */ csCmdModelApplyTranslation,
+    /* 0x39 */ csCmdSetCartDamage,
     /* 0x3A */ csCmdFindNearestActorToCamera,
     /* 0x3B */ csCmdStepCameraFrac,
     /* 0x3C */ csCmdTagBarrelSpawnSmokeAndPuffs,
@@ -170,8 +170,8 @@ CsCmdFunc gCsCmdTable[118] = {
     /* 0x67 */ csCmdPlayerProximityPointCheck,
     /* 0x68 */ csCmdSfxFadeLoop,
     /* 0x69 */ csCmdSpawnActorAtPoint,
-    /* 0x6A */ csCmdSetAudioUnk3,
-    /* 0x6B */ csCmdUpdateSlotIdView8A,
+    /* 0x6A */ csCmdSetSpawnRespawnHold,
+    /* 0x6B */ csCmdEnemyGridCellSet,
     /* 0x6C */ csCmdSpawnFallingWhiteSparks,
     /* 0x6D */ csCmdStepMultiModelAnimations,
     /* 0x6E */ csCmdSpawnRandomNodeParticles,
@@ -187,7 +187,7 @@ typedef s32 (*CsCondFunc)(CsState *, s16, s16, s16);
 CsCondFunc gCsCondTable[19] = {
     /* 0x00 */ (CsCondFunc)csCondVarLess, // u8 return
     /* 0x01 */ csCondSyncActorAnim,
-    /* 0x02 */ (CsCondFunc)csCmdCheckCollectedSufficientItems, // u8 return
+    /* 0x02 */ (CsCondFunc)csCondCollectedSufficientItems, // u8 return
     /* 0x03 */ (CsCondFunc)csCondActorFacingPos, // u8 return
     /* 0x04 */ csCondFlags82Or83,
     /* 0x05 */ (CsCondFunc)csCondCheckSlotMapIndex, // u8 return
@@ -593,7 +593,7 @@ void csStateEndUpdate(CsState *cs) {
 }
 
 
-void csUpdateStepAndInterpolation(CsState *cs) {
+void csStepAlpha(CsState *cs) {
     s16 target;
     s16 alpha;
 
@@ -1047,7 +1047,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0x10:
         if (cs->hitId != 0 && (cond->arg[1] == -1 || cs->hitId == cond->arg[1]) &&
             (cond->arg[0] & actorLookupClass(cs->hitActorType)) && csIsPlayerInCutsceneState() != 0) {
-            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
+            csSetDamageCooldownForModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
         } else {
             ret = 0;
@@ -1056,7 +1056,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0x18:
         if (cs->hitId != 0 && (cond->arg[1] == -1 || cs->hitId == cond->arg[1]) && cs->hitActorType == cond->arg[0] &&
             csIsPlayerInCutsceneState() != 0) {
-            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
+            csSetDamageCooldownForModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
         } else {
             ret = 0;
@@ -1793,10 +1793,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gModelSlots[hashTableLookup(csId)].boxBuffer.unk14 = cmd->a;
         break;
     case 0x2E:
-        mapByteArraySet(cmd->a, cmd->b);
+        mapChunkSetEnabled(cmd->a, cmd->b);
         break;
     case 0x38:
-        mapObjectSetByte(cmd->a, cmd->b, cmd->c);
+        mapPortalSlotSetEnabled(cmd->a, cmd->b, cmd->c);
         break;
     case 0x61:
         if (cmd->c != 0) {
@@ -1865,7 +1865,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
 }
 
 
-void csSetCameraFollowModel(s16 modelId) {
+void csSetDamageCooldownForModel(s16 modelId) {
     PlayerState *playerState;
 
     playerState = gPlayerSlots->actor->customState;

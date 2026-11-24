@@ -990,7 +990,7 @@ void mapLoadLevel(void) {
         gPlayerCharacterId[0] = 7;
     }
     gSavedMapModelData = NULL;
-    collisionInitTables();
+    assetInitTables();
     textFontInitTables();
     gfxResourceListReset();
     vtxGradientSetColorA(0xFF, 0xFF, 0xFF);
@@ -1048,7 +1048,7 @@ void mapLoadLevel(void) {
         if (gGlobalOverlayFlags & 0x2000) {
             func_8002EC08(gCurrentMap);
         }
-        collisionBstRebalanceAll();
+        assetRefBstRebalanceAll();
         gModelSlotAppendBlocked = 0;
         if ((transitionGetState() == 0) && (gGameMode != 2)) {
             if ((gCurrentMap == 0x11) && (flagGet(0x302, 0) != 0)) {

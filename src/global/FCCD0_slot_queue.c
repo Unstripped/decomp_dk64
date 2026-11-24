@@ -691,13 +691,13 @@ void effectSpawnSprite(SlotQueueNode *node, s32 slot, f32 x, f32 y, s32 param) {
 
     effectNode = node->data;
     mode = 2;
-    effectEnableFade();
+    effectSetScreenSpace();
     effectSetDuration(-1);
     if (slot == 0xE) {
         mode = 1;
     }
     effectSetFrameDelay(mode);
-    effectSetParam(param);
+    effectSetStartFrame(param);
     effectSetSpeed((s32)node);
     effectSetCallback(effectWaveMotionUpdate);
     effectSetFlags(0x21);
@@ -815,7 +815,7 @@ void slotQueueInitEffectSprites(s32 slot) {
     label->x = gSlotQueue[slot].x + 0x14;
     label->y = gSlotQueue[slot].y - 0x14;
     for (i = 0; i < 5; i++) {
-        effectEnableFade();
+        effectSetScreenSpace();
         effectSetDuration(-1);
         effectSetCallback(effectSpriteUpdatePosition);
         effectSetSpeed(i);

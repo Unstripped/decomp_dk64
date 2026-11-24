@@ -830,10 +830,10 @@ void mpUpdate(void) {
                     continue;
                 }
                 vp = state->viewports[k];
-                effectEnableFade();
+                effectSetScreenSpace();
                 effectSetDuration(-1);
                 effectSetFrameDelay(0);
-                effectSetParam(mpHudIconTable[j].param);
+                effectSetStartFrame(mpHudIconTable[j].param);
                 if (j == 0) {
                     x = vp->left + 0xB;
                 } else {
@@ -995,7 +995,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
 
     for (i = 0; i < 4; i++) {
         nearestDist = 9999999.0f;
-        spawn = raceGridSpawnPoint(i);
+        spawn = mapGetSpawnPoint(i);
         for (j = 0; j < gPlayerCount; j++) {
             playerActor = gPlayerSlots[j].actor;
             if (gPlayerSlots[j].active != 0 && playerActor->state != 0x84) {

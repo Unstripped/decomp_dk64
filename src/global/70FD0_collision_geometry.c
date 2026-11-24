@@ -251,7 +251,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
         assetFreeBuffer(compressed, 0x14C, 0xA);
         sStaticCollisionResident = 1;
     }
-    assetSize = assetGetSize(2, gCurrentMap);
+    assetSize = assetGetRomAddress(2, gCurrentMap);
     D_807FB530 = *(s32 *)data;
     sStaticCollisionCells = heapAlloc(0x1518);
     cellHeader = (s32 *)(data + 4);
@@ -360,7 +360,7 @@ void modelSlotExpireNextBuffers(void) {
 
 void collisionBufferCacheUpdate(void) {
     collisionPurgeExpiredBuffers();
-    dynamicBufferPurgeExpired();
+    collisionCellPurgeExpired();
 }
 
 void collisionPurgeExpiredBuffers(void) {

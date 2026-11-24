@@ -133,7 +133,7 @@ PlayerStateFn gPlayerStateHandlers[138] = {
     { playerStateTagBarrelPadEnter, 0 },
     { playerStateTagBarrelFade, 0 },
     { playerStateStationaryInteraction, 0 },
-    { playerStateTransformHold, 0 },
+    { playerStateWalkToDestPoint, 0 },
     { playerInputUpdate12, 0 },
     { playerStateAttachedCallbackFall, 0x40 },
     { playerStateSwingLeap, 0x80 },
@@ -514,10 +514,10 @@ void playerUpdateCommon(s32 mode) {
     if ((gActivePlayerState->stateFlags & 0x01000000) && gActorGlobalState.grabCandidateReceived != 0 && gCurrentActor->state != 0x47) {
         playerStateQueueCallback(3, NULL, gCurrentPlayerIndex);
     }
-    heavyImpact = collisionIsHeavyGroundImpact();
-    groundImpact = collisionIsGroundImpact();
-    floorType = collisionGetFloorType();
-    materialType = collisionGetMaterialType();
+    heavyImpact = collisionGetHazardFloorKind();
+    groundImpact = collisionGetHazardFloorContact();
+    floorType = collisionIsBelowHazardSurface();
+    materialType = collisionGetVoidFloorContact();
     if (gCurrentActor->flags2 & 0x10) {
         playerCheckLedgeGrab();
     }
@@ -549,7 +549,7 @@ void playerUpdateCommon(s32 mode) {
                     effectSetDuration(-1);
                     effectSetFrameDelay(0);
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x78);
-                    effectEnableFade();
+                    effectSetScreenSpace();
                     gActivePlayerState->effectObj = effectCreateAtPosition(&gEffectSpriteMelonSpin, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
                 }
             } else {
@@ -2202,11 +2202,11 @@ void playerCheckLedgeGrab(void) {
         notWall = actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0;
         if (notWall || !(gKongLedgeGrabMaxSpeeds[gCurrentCharacterIndex] < gCurrentActor->speedXZ) || flag != 0) {
             foundLedge = playerProbeLedgeAhead(gCurrentActor, &ledgeY, notWall, flag ? 30.0 : 15.0);
-            collisionGetCoords(&coordX, &coordY);
+            collisionGetFloorTilt(&coordX, &coordY);
             hit = 0;
             if (foundLedge != 0 && gCurrentActor->speedY < 0.0 && coordY >= 0x385) {
                 hit = 0;
-                if (collisionGetHitFlags() != 0) {
+                if (collisionIsFloorGrabbable() != 0) {
                     if (gCurrentActor->y - gCurrentActor->floorY > 15.0f) {
                         if (flag != 0) {
                             if (gKongLedgeGrabOffsetY[gCurrentCharacterIndex] + gCurrentActor->y < ledgeY + 15.0f && ledgeY - gKongLedgeGrabOffsetY[gCurrentCharacterIndex] - gCurrentActor->y < 80.0f) {
@@ -2240,7 +2240,7 @@ u8 playerProbeLedgeAhead(Actor *actor, f32 *outFloorY, u8 forward, f32 distance)
     dx = mathSinF(angle) * distance;
     dz = mathCosF(angle) * distance;
     found = collisionCheckActorFloor(actor, actor->x + dx, actor->y + 30.0f, actor->z + dz, outFloorY);
-    actor->floorTriSurface[0] = collisionGetSurfaceFlags();
+    actor->floorTriSurface[0] = collisionGetFloorTriSurface();
     return found;
 }
 

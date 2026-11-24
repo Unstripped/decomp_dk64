@@ -511,11 +511,11 @@ u8 mapChunkIsInUse(s16 chunk) {
     return result;
 }
 
-void mapByteArraySet(s16 chunk, u8 enabled) {
+void mapChunkSetEnabled(s16 chunk, u8 enabled) {
     gMapChunkEnabled[chunk] = enabled;
 }
 
-void mapObjectSetByte(s16 pair, u8 side, u8 enabled) {
+void mapPortalSlotSetEnabled(s16 pair, u8 side, u8 enabled) {
     gMapPortalSlots[pair * 2 + side].enabled = enabled;
 }
 
@@ -1250,7 +1250,7 @@ void mapChunkReleaseAssets(u8 *cmd, u8 *end) {
             case 0xFD:
                 addr = *(u32 *)(cmd + 4);
                 if ((addr >= 0x80000000U) && (addr < 0xA0000000U)) {
-                    collisionBstLookupByHash(addr, &node, &orig);
+                    assetRefBstLookupByHash(addr, &node, &orig);
                     assetFreeBuffer((void *)*(u32 *)(cmd + 4), 0x542, 0x22);
                     *(u32 *)(cmd + 4) = orig;
                 }
@@ -1261,7 +1261,7 @@ void mapChunkReleaseAssets(u8 *cmd, u8 *end) {
     }
 }
 
-void mapChunkSetFlagBit3(s16 chunk) {
+void mapChunkRequestStreaming(s16 chunk) {
     gMapChunks[chunk].streamFlags |= 8;
 }
 
@@ -1288,7 +1288,7 @@ void mapChunkUpdateAssetStreaming(void) {
                     gMapChunks[i].streamFlags |= 4;
                     gMapChunks[i].streamFlags &= ~3;
                 }
-                n = mapObjectCollectIdsByType(i, buf, 0x10);
+                n = mapPortalCollectTargets(i, buf, 0x10);
                 for (j = 0; j < n; j++) {
                     idx = buf[j];
                     if (flags[idx] == 0) {
@@ -1795,7 +1795,7 @@ void mapChunkReleaseAndAdvance(void) {
 }
 
 
-s32 mapNodeIdListContains(s16 id, s32 count) {
+s32 mapPortalChunkStackContains(s16 id, s32 count) {
     s32 i;
 
     i = 0;
@@ -2054,13 +2054,13 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
     s32 found;
     s32 k;
 
-    mapChunkIdListAddUnique(chunk);
+    mapVisibleChunkAdd(chunk);
     for (i = 0; i < gMapPortalSlotCount; i++) {
-        if ((chunk == gMapPortalSlots[i].chunk) && (mapNodeIdListContains(gMapPortalSlots[i].target, depth) == 0)) {
+        if ((chunk == gMapPortalSlots[i].chunk) && (mapPortalChunkStackContains(gMapPortalSlots[i].target, depth) == 0)) {
             if (gMapPortalSlots[i].enabled != 0) {
                 gMapPortalSlots[i].seen = 1;
                 id = i / 2;
-                if (mapChunkHitListExcludes(id) != 0) {
+                if (mapPortalIsUnblocked(id) != 0) {
                     emitted = mapGridPointEmit(id, x, y, z);
                     if (emitted != 0) {
                         clipRight = right;
@@ -2089,7 +2089,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                             if (poly != 0) {
                                 mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);
                                 if (mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom) != 0) {
-                                    mapChunkIdListAddUniqueLimited(k);
+                                    mapVisiblePortalAdd(k);
                                 }
                             }
                         }
@@ -2125,7 +2125,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
 }
 
 
-s32 mapChunkHitListExcludes(s32 id) {
+s32 mapPortalIsUnblocked(s32 id) {
     u8 *p = sMapBlockedPortals;
 
     if (sMapBlockedPortalCount > 0) {
@@ -2141,7 +2141,7 @@ s32 mapChunkHitListExcludes(s32 id) {
 }
 
 
-void mapChunkIdListAddUniqueLimited(s32 id) {
+void mapVisiblePortalAdd(s32 id) {
     s32 i = 0;
 
     while (i < sMapVisiblePortalCount) {
@@ -2158,7 +2158,7 @@ void mapChunkIdListAddUniqueLimited(s32 id) {
 }
 
 
-void mapChunkIdListAddUnique(s16 id) {
+void mapVisibleChunkAdd(s16 id) {
     s32 i = 0;
 
     while (i < sMapVisibleChunkCount) {
@@ -2566,7 +2566,7 @@ extern s16 sMapClipRight;
 extern s16 sMapClipBottom;
 
 
-s16 mapObjectCollectIdsByType(s8 chunk, s8 *out, s16 max) {
+s16 mapPortalCollectTargets(s8 chunk, s8 *out, s16 max) {
     s16 i;
     s16 n;
 

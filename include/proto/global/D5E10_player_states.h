@@ -318,8 +318,8 @@ void playerStateUnderwaterRamp(void);
 #ifndef PROTO_SKIP_playerStateDive
 void playerStateDive(void);
 #endif
-#ifndef PROTO_SKIP_playerCanPerformActionCheck
-s32 playerCanPerformActionCheck(void);
+#ifndef PROTO_SKIP_playerSwimSurfaceCheck
+s32 playerSwimSurfaceCheck(void);
 #endif
 #ifndef PROTO_SKIP_playerStateSurfaceSwim
 void playerStateSurfaceSwim(void);
@@ -402,8 +402,8 @@ void playerStateHoldJump(void);
 #ifndef PROTO_SKIP_playerInputUpdate12
 void playerInputUpdate12(void);
 #endif
-#ifndef PROTO_SKIP_playerStateTransformHold
-void playerStateTransformHold(void);
+#ifndef PROTO_SKIP_playerStateWalkToDestPoint
+void playerStateWalkToDestPoint(void);
 #endif
 #ifndef PROTO_SKIP_playerStateTagBarrelFade
 void playerStateTagBarrelFade(void);

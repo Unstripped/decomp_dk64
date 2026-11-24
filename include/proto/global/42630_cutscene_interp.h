@@ -48,8 +48,8 @@ void csStateUpdate(CsState *, s16);
 #ifndef PROTO_SKIP_csStateEndUpdate
 void csStateEndUpdate(CsState *);
 #endif
-#ifndef PROTO_SKIP_csUpdateStepAndInterpolation
-void csUpdateStepAndInterpolation(CsState *);
+#ifndef PROTO_SKIP_csStepAlpha
+void csStepAlpha(CsState *);
 #endif
 #ifndef PROTO_SKIP_csStateIntegrateMotion
 void csStateIntegrateMotion(CsState *);
@@ -60,8 +60,8 @@ u8 csCondEval(CsCond *, CsState *, s16);
 #ifndef PROTO_SKIP_csCmdExec
 void csCmdExec(CsCmd *, CsState *, s16);
 #endif
-#ifndef PROTO_SKIP_csSetCameraFollowModel
-void csSetCameraFollowModel(s16);
+#ifndef PROTO_SKIP_csSetDamageCooldownForModel
+void csSetDamageCooldownForModel(s16);
 #endif
 #ifndef PROTO_SKIP_csSendMsgByActorType
 void csSendMsgByActorType(s16, s16);

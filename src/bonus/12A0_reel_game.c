@@ -190,7 +190,7 @@ void bonusReelGameUpdate(void) {
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 3;
                 gCurrentActor->subState = 0;
-                effectEnableFade();
+                effectSetScreenSpace();
                 effectSetFrameDelay(2);
                 effectSetDuration(-1);
                 obj->effect = effectCreateAtPosition(&gAButtonSprite, 1.0f, 40.0f, 200.0f, 5.0f);

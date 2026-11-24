@@ -90,8 +90,8 @@ void arcadeGameplayLoop(Gfx **);
 #ifndef PROTO_SKIP_arcadeOpenPauseMenu
 void arcadeOpenPauseMenu(void);
 #endif
-#ifndef PROTO_SKIP_arcadeClearEntitiesByType1C
-void arcadeClearEntitiesByType1C(void);
+#ifndef PROTO_SKIP_arcadeClearPanelTiles
+void arcadeClearPanelTiles(void);
 #endif
 #ifndef PROTO_SKIP_arcadePauseMenuLoop
 void arcadePauseMenuLoop(Gfx **);
@@ -156,20 +156,20 @@ void arcadeSpawnStage4Entities(void);
 #ifndef PROTO_SKIP_arcadeInitStage
 void arcadeInitStage(void);
 #endif
-#ifndef PROTO_SKIP_arcadeCheckStage1Collision
-s32 arcadeCheckStage1Collision(s32, s32);
+#ifndef PROTO_SKIP_arcadeGetStage1FloorY
+s32 arcadeGetStage1FloorY(s32, s32);
 #endif
-#ifndef PROTO_SKIP_arcadeCheckStage2Collision
-s32 arcadeCheckStage2Collision(s32, s32);
+#ifndef PROTO_SKIP_arcadeGetStage2FloorY
+s32 arcadeGetStage2FloorY(s32, s32);
 #endif
-#ifndef PROTO_SKIP_arcadeCheckStage3Collision
-s32 arcadeCheckStage3Collision(s32, s32);
+#ifndef PROTO_SKIP_arcadeGetStage3FloorY
+s32 arcadeGetStage3FloorY(s32, s32);
 #endif
-#ifndef PROTO_SKIP_arcadeCheckStage4Collision
-s32 arcadeCheckStage4Collision(s32, s32);
+#ifndef PROTO_SKIP_arcadeGetStage4FloorY
+s32 arcadeGetStage4FloorY(s32, s32);
 #endif
-#ifndef PROTO_SKIP_arcadeCheckPlayerCollision
-s32 arcadeCheckPlayerCollision(s32, s32);
+#ifndef PROTO_SKIP_arcadeGetFloorY
+s32 arcadeGetFloorY(s32, s32);
 #endif
 #ifndef PROTO_SKIP_arcadeCheckLadderBounds
 s32 arcadeCheckLadderBounds(s32, s32, s32, s32, s32, s32);
@@ -204,8 +204,8 @@ void arcadeUpdatePlayerAnimation(s32);
 #ifndef PROTO_SKIP_arcadeUpdatePlayerEntity
 void arcadeUpdatePlayerEntity(s32);
 #endif
-#ifndef PROTO_SKIP_arcadeUpdateEntitySprite
-void arcadeUpdateEntitySprite(s32);
+#ifndef PROTO_SKIP_arcadeUpdateBarrelSprite
+void arcadeUpdateBarrelSprite(s32);
 #endif
 #ifndef PROTO_SKIP_arcadeUpdateBarrelEntity
 void arcadeUpdateBarrelEntity(s32);

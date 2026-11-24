@@ -247,7 +247,7 @@ void textBoxRowUpdateIcon(ResGlyph *glyph, ResRow *row, ResQueueActorState *stat
     if (cell->effect == NULL) {
         effectSetDuration(-1);
         effectSetDepth(0);
-        effectEnableFade();
+        effectSetScreenSpace();
         effectSetFrameDelay(2);
         effectSetBounds(state->boxLeft, state->boxTop, state->boxRight, state->boxBottom);
         cell->effect = effectCreateAtPosition(gEffectGridAssets[cell->effectId], 1.0f, state->boxLeft, state->boxTop, 1);

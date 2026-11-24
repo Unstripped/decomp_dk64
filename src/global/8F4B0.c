@@ -400,7 +400,7 @@ void actorCutsceneDispatchEvents(void) {
             ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x80000000;
             break;
         case 0x1B:
-            mapChunkSetFlagBit3(eventData[1]);
+            mapChunkRequestStreaming(eventData[1]);
             break;
         }
     }

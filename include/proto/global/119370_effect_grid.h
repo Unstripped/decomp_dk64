@@ -22,20 +22,20 @@ void effectGridGetScaledDimensions(struct EffectGridAsset *, s16 *, s16 *);
 #ifndef PROTO_SKIP_effectGridRegister
 void effectGridRegister(struct EffectGridAsset *);
 #endif
-#ifndef PROTO_SKIP_effectSetParam
-void effectSetParam(s32);
+#ifndef PROTO_SKIP_effectSetStartFrame
+void effectSetStartFrame(s32);
 #endif
 #ifndef PROTO_SKIP_effectSetSpeed
 void effectSetSpeed(s32);
 #endif
-#ifndef PROTO_SKIP_effectEnableFade
-void effectEnableFade(void);
+#ifndef PROTO_SKIP_effectSetScreenSpace
+void effectSetScreenSpace(void);
 #endif
 #ifndef PROTO_SKIP_effectSetStartDelay
 void effectSetStartDelay(s16);
 #endif
-#ifndef PROTO_SKIP_effectSetZOffset
-void effectSetZOffset(s16);
+#ifndef PROTO_SKIP_effectSetScreenRotation
+void effectSetScreenRotation(s16);
 #endif
 #ifndef PROTO_SKIP_effectSetCallback
 void effectSetCallback(void *);
@@ -91,8 +91,8 @@ void effectBuildGridVertices(struct EffectNode *);
 #ifndef PROTO_SKIP_effectUpdateAll
 void effectUpdateAll(u8);
 #endif
-#ifndef PROTO_SKIP_effectFreeByResource
-void effectFreeByResource(Actor *);
+#ifndef PROTO_SKIP_effectFreeByOwner
+void effectFreeByOwner(Actor *);
 #endif
 #ifndef PROTO_SKIP_effectFreeAll
 void effectFreeAll(void);

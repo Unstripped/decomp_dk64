@@ -245,7 +245,7 @@ s32 arcadeCountEntitiesByType(s32 type) {
     return count;
 }
 extern s32 gArcadeInitPending[];
-s32 D_8004A790 = 0;
+s32 gArcadeDispatchFrames = 0;
 extern s32 gArcadeFrameCounter;
 
 void arcadeDispatchState(Gfx **glistp) {
@@ -530,7 +530,7 @@ void arcadeOpenPauseMenu(void) {
     gArcadeHighScoresDeleted = 0;
 }
 
-void arcadeClearEntitiesByType1C(void) {
+void arcadeClearPanelTiles(void) {
     s32 index;
     do {
         index = arcadeFindEntityByType(0x1C);
@@ -560,13 +560,13 @@ void arcadePauseMenuLoop(Gfx **glistp) {
     }
     gArcadePrevStickY = gInputContPads->stick_y;
     if (gPadPressedButtons[0] & 0x1000) {
-        arcadeClearEntitiesByType1C();
+        arcadeClearPanelTiles();
         gArcadeScreenMode = 5;
     }
     if (gPadPressedButtons[0] & 0xC000) {
         switch (gArcadePauseSelection) {
         case 0:
-            arcadeClearEntitiesByType1C();
+            arcadeClearPanelTiles();
             gArcadeScreenMode = 5;
             break;
         case 1:
@@ -1534,7 +1534,7 @@ void arcadeInitStage(void) {
     gArcadeConveyorSpeeds[3] = 0;
 }
 
-s32 arcadeCheckStage1Collision(s32 posX, s32 posY) {
+s32 arcadeGetStage1FloorY(s32 posX, s32 posY) {
     s32 floorY;
 
     if (posY < 0x5D) {
@@ -1599,7 +1599,7 @@ s32 arcadeCheckStage1Collision(s32 posX, s32 posY) {
     return floorY;
 }
 
-s32 arcadeCheckStage2Collision(s32 posX, s32 posY) {
+s32 arcadeGetStage2FloorY(s32 posX, s32 posY) {
     s32 floorY;
 
     gArcadeWalkMinX = 0x36;
@@ -1650,7 +1650,7 @@ s32 arcadeCheckStage2Collision(s32 posX, s32 posY) {
     return floorY;
 }
 
-s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
+s32 arcadeGetStage3FloorY(s32 posX, s32 posY) {
     s32 floorY;
     s32 i;
 
@@ -1744,7 +1744,7 @@ s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
     return floorY;
 }
 
-s32 arcadeCheckStage4Collision(s32 posX, s32 posY) {
+s32 arcadeGetStage4FloorY(s32 posX, s32 posY) {
     s32 floorY;
 
     gArcadeWalkMinX = 0x36;
@@ -1782,15 +1782,15 @@ s32 arcadeCheckStage4Collision(s32 posX, s32 posY) {
     return floorY;
 }
 
-s32 arcadeCheckPlayerCollision(s32 posX, s32 posY) {
+s32 arcadeGetFloorY(s32 posX, s32 posY) {
     if (gArcadeStage == 1) {
-        return arcadeCheckStage1Collision(posX, posY);
+        return arcadeGetStage1FloorY(posX, posY);
     } else if (gArcadeStage == 2) {
-        return arcadeCheckStage2Collision(posX, posY);
+        return arcadeGetStage2FloorY(posX, posY);
     } else if (gArcadeStage == 3) {
-        return arcadeCheckStage3Collision(posX, posY);
+        return arcadeGetStage3FloorY(posX, posY);
     } else {
-        return arcadeCheckStage4Collision(posX, posY);
+        return arcadeGetStage4FloorY(posX, posY);
     }
 }
 
@@ -2225,7 +2225,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
 
     if (gArcadeEntities[entIndex].state == 8 || gArcadeFrozen == 0) {
         if (gArcadeEntities[entIndex].state == 2) {
-            arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
+            arcadeGetFloorY((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
             if (gArcadeEntities[entIndex].vx < 0.0f) {
                 gArcadeEntities[entIndex].facing &= 1;
             } else if (gArcadeEntities[entIndex].vx > 0.0f) {
@@ -2251,7 +2251,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 gArcadeEntities[entIndex].state = 3;
             }
         }
-        if (gArcadeEntities[entIndex].y < arcadeCheckPlayerCollision((s32)(gArcadeEntities[entIndex].x + gArcadeEntities[entIndex].vx), (s32)gArcadeEntities[entIndex].y) + 3) {
+        if (gArcadeEntities[entIndex].y < arcadeGetFloorY((s32)(gArcadeEntities[entIndex].x + gArcadeEntities[entIndex].vx), (s32)gArcadeEntities[entIndex].y) + 3) {
             gArcadeEntities[entIndex].x += gArcadeEntities[entIndex].vx;
         } else {
             gArcadeEntities[entIndex].vx = 0.0f;
@@ -2263,7 +2263,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             return;
         }
         gArcadePlayerLadder = arcadeCheckStageLadders((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
-        floorY = arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
+        floorY = arcadeGetFloorY((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
         gArcadePlayerFloorRow = gArcadeFloorRow;
         switch (gArcadeEntities[entIndex].state) {
         case 2:
@@ -2441,7 +2441,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             n_alSndpPlay(gSfxBank, 0x40, 0x7FFF, 0x3F, 1.0f, 0, &gLoopSfxHandles[1]);
             n_alSndpPostEvent(gLoopSfxHandles[1], 0x10, soundPitch.bits);
         }
-        floorY = arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
+        floorY = arcadeGetFloorY((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
         gArcadeEntities[entIndex].param = gArcadeFloorRow;
         gArcadePlayerLadderDepth = (s32)(gArcadeEntities[entIndex].y - gArcadeLadderTop);
         if (gArcadeBonusTimer < 0 && gArcadeEntities[entIndex].state != 8) {
@@ -2473,7 +2473,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
     }
 }
 
-void arcadeUpdateEntitySprite(s32 entIndex) {
+void arcadeUpdateBarrelSprite(s32 entIndex) {
     ArcadeEntity *barrel = &gArcadeEntities[entIndex];
     s32 frame = (s32)barrel->animTimer;
 
@@ -2539,11 +2539,11 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
 
     if (gArcadeFrozen == 0) {
         if (gArcadeEntities[entIndex].state == 0 || gArcadeEntities[entIndex].state == 1) {
-            arcadeUpdateEntitySprite(entIndex);
+            arcadeUpdateBarrelSprite(entIndex);
             return;
         }
         gArcadeEntities[entIndex].x += gArcadeEntities[entIndex].vx;
-        floorY = arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
+        floorY = arcadeGetFloorY((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
         arcadeCheckStageLadders((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
         switch (gArcadeEntities[entIndex].state) {
         case 2:
@@ -2603,7 +2603,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
             gArcadeEntities[entIndex].animTimer += 0.3;
             gArcadeEntities[entIndex].y += gArcadeEntities[entIndex].vy;
             gArcadeEntities[entIndex].vy += 0.06;
-            floorY = arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
+            floorY = arcadeGetFloorY((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
             if (gArcadeEntities[entIndex].y > floorY && gArcadeEntities[entIndex].y - floorY < 8.0f && gArcadeEntities[entIndex].param < gArcadeFloorRow) {
                 gArcadeEntities[entIndex].param = gArcadeFloorRow;
                 gArcadeEntities[entIndex].y = floorY;
@@ -2651,7 +2651,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
                 arcadeKillPlayer();
             }
         }
-        arcadeUpdateEntitySprite(entIndex);
+        arcadeUpdateBarrelSprite(entIndex);
     }
 }
 
@@ -2715,7 +2715,7 @@ void arcadeUpdateFireballEntity(s32 entIndex) {
     } else {
         gArcadeEntities[entIndex].sprite = gArcadeFireballFlickerSprite;
     }
-    floorY = arcadeCheckPlayerCollision((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
+    floorY = arcadeGetFloorY((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
     arcadeCheckStageLadders((s32)gArcadeEntities[entIndex].x, (s32)gArcadeEntities[entIndex].y);
     switch (gArcadeEntities[entIndex].state) {
     case 2:
@@ -2724,7 +2724,7 @@ void arcadeUpdateFireballEntity(s32 entIndex) {
             bias += ((gArcadeEntities[gArcadePlayerIndex].facing & 2) * 3) / 2;
             gArcadeEntities[entIndex].facing = (arcadeRand() + bias * 0xFB8) - 0x1F70 >= 0x4001;
         }
-        if (arcadeCheckPlayerCollision((s32)(gArcadeEntities[entIndex].x + gArcadeEntities[entIndex].vx * 8.0f), (s32)gArcadeEntities[entIndex].y) - gArcadeEntities[entIndex].y > 5.0f) {
+        if (arcadeGetFloorY((s32)(gArcadeEntities[entIndex].x + gArcadeEntities[entIndex].vx * 8.0f), (s32)gArcadeEntities[entIndex].y) - gArcadeEntities[entIndex].y > 5.0f) {
             gArcadeEntities[entIndex].facing = !gArcadeEntities[entIndex].facing;
         } else {
             gArcadeEntities[entIndex].x += gArcadeEntities[entIndex].vx;

@@ -22,8 +22,8 @@ void raceInitOpponentEntities(Actor *);
 #ifndef PROTO_SKIP_raceInitSplineAndOpponent
 void raceInitSplineAndOpponent(void);
 #endif
-#ifndef PROTO_SKIP_racePlayCheckpointSfx
-void racePlayCheckpointSfx(struct RacePathState *, u8, f32);
+#ifndef PROTO_SKIP_raceStartPathBoost
+void raceStartPathBoost(RacePathState *, u8, f32);
 #endif
 #ifndef PROTO_SKIP_raceAdvanceCheckpoint
 void raceAdvanceCheckpoint(struct RacePathState *, struct RaceParticipant *, s32);

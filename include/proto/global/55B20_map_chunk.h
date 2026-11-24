@@ -25,11 +25,11 @@ void mapChunkBuildCellTable();
 #ifndef PROTO_SKIP_mapChunkIsInUse
 u8 mapChunkIsInUse(s16);
 #endif
-#ifndef PROTO_SKIP_mapByteArraySet
-void mapByteArraySet(s16, u8);
+#ifndef PROTO_SKIP_mapChunkSetEnabled
+void mapChunkSetEnabled(s16, u8);
 #endif
-#ifndef PROTO_SKIP_mapObjectSetByte
-void mapObjectSetByte(s16, u8, u8);
+#ifndef PROTO_SKIP_mapPortalSlotSetEnabled
+void mapPortalSlotSetEnabled(s16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_mapGridTriangleBuildPlane
 void mapGridTriangleBuildPlane(s32, struct MapGridPoint *);
@@ -121,8 +121,8 @@ u8 *mapChunkLoadAssetRefs(u8 *, u8 *, s16);
 #ifndef PROTO_SKIP_mapChunkReleaseAssets
 void mapChunkReleaseAssets(u8 *, u8 *);
 #endif
-#ifndef PROTO_SKIP_mapChunkSetFlagBit3
-void mapChunkSetFlagBit3(s16);
+#ifndef PROTO_SKIP_mapChunkRequestStreaming
+void mapChunkRequestStreaming(s16);
 #endif
 #ifndef PROTO_SKIP_mapChunkUpdateAssetStreaming
 void mapChunkUpdateAssetStreaming(void);
@@ -166,8 +166,8 @@ void mapChunkFreeIdleBuffers(void);
 #ifndef PROTO_SKIP_mapChunkReleaseAndAdvance
 void mapChunkReleaseAndAdvance(void);
 #endif
-#ifndef PROTO_SKIP_mapNodeIdListContains
-s32 mapNodeIdListContains(s16, s32);
+#ifndef PROTO_SKIP_mapPortalChunkStackContains
+s32 mapPortalChunkStackContains(s16, s32);
 #endif
 #ifndef PROTO_SKIP_mapChunksRender
 Gfx *mapChunksRender(Gfx *, struct MapBspNode *, f32, f32, f32, s32);
@@ -181,14 +181,14 @@ void mapChunkEffectSetFlag(s16, s16, u8, u8);
 #ifndef PROTO_SKIP_mapChunkTraversePortals
 void mapChunkTraversePortals(s16, s32, s32, s32, s32, s32, f32, f32, f32);
 #endif
-#ifndef PROTO_SKIP_mapChunkHitListExcludes
-s32 mapChunkHitListExcludes(s32);
+#ifndef PROTO_SKIP_mapPortalIsUnblocked
+s32 mapPortalIsUnblocked(s32);
 #endif
-#ifndef PROTO_SKIP_mapChunkIdListAddUniqueLimited
-void mapChunkIdListAddUniqueLimited(s32);
+#ifndef PROTO_SKIP_mapVisiblePortalAdd
+void mapVisiblePortalAdd(s32);
 #endif
-#ifndef PROTO_SKIP_mapChunkIdListAddUnique
-void mapChunkIdListAddUnique(s16);
+#ifndef PROTO_SKIP_mapVisibleChunkAdd
+void mapVisibleChunkAdd(s16);
 #endif
 #ifndef PROTO_SKIP_mapGridPointEmit
 u8 mapGridPointEmit(s32, f32, f32, f32);
@@ -229,8 +229,8 @@ void mapLoadNodeAsset(s32);
 #ifndef PROTO_SKIP_mapNodeAssetParse
 void mapNodeAssetParse(u8 *);
 #endif
-#ifndef PROTO_SKIP_mapObjectCollectIdsByType
-s16 mapObjectCollectIdsByType(s8, s8 *, s16);
+#ifndef PROTO_SKIP_mapPortalCollectTargets
+s16 mapPortalCollectTargets(s8, s8 *, s16);
 #endif
 #ifndef PROTO_SKIP_mapSearchTableReset
 void mapSearchTableReset(void);

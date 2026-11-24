@@ -1308,7 +1308,7 @@ void csCmdSpawnEffectAtRandomNode(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetDepth(1);
     effectSetFrameDelay(9);
     effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
-    effectSetParam(5);
+    effectSetStartFrame(5);
     modelSlotGetNodePos(csId, 1, node, &x, &y, &z);
     effectCreateAtPosition(&sEffectSparkConfig, 1.5f, x, y - 70.0f, z);
 }
@@ -1718,7 +1718,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 
-s32 csIsPlayerState4OrC(void) {
+s32 csIsCamChunk4OrC(void) {
     s16 chunk = gPlayerSlots->camChunk;
 
     if (chunk == 4 || chunk == 0xC) {
@@ -1760,7 +1760,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     switch (q->phase) {
         case 0:
             if (q->timer == 0) {
-                if (csIsPlayerState4OrC() != 0 || flag == 0) {
+                if (csIsCamChunk4OrC() != 0 || flag == 0) {
                     q->phase = 1;
                     q->timer = 0x190;
                     q->level = 0.0f;
@@ -1776,7 +1776,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
             q->level += 0.01;
             if (q->level > 1.0) {
                 q->level = 1.0f;
-                if (--q->timer == 0 || (csIsPlayerState4OrC() == 0 && flag != 0)) {
+                if (--q->timer == 0 || (csIsCamChunk4OrC() == 0 && flag != 0)) {
                     q->phase = 2;
                 }
             }
@@ -2432,7 +2432,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdEnemyGridCellSet(CsState *cs, s16 csId, s16 b, s16 c) {
     enemyGridCellSet(gModelSlots[hashTableLookup(csId)].csModelId, b);
 }
 
@@ -2579,7 +2579,7 @@ void csCmdVarIncrement(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->vars[b] = 0.0 - cs->vars[b];
 }
 
-void csCmdDecayTargetPosDiff(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdStoreAttachLocalPos(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->vars[b] = gPrimaryPlayerActor->attachLocalX;
     cs->vars[b + 1] = gPrimaryPlayerActor->attachLocalY;
     cs->vars[b + 2] = gPrimaryPlayerActor->attachLocalZ;
@@ -2657,7 +2657,7 @@ void csCmdSlotQueueSelectPlayer(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void csCmdSetAudioUnk3(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetSpawnRespawnHold(CsState *cs, s16 csId, s16 b, s16 c) {
     spawnNodesSetRespawnHold(3);
 }
 
@@ -2712,7 +2712,7 @@ void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void csCmdModelApplyTranslation(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetCartDamage(CsState *cs, s16 csId, s16 b, s16 c) {
     PlayerState *ps = gPlayerSlots->actor->customState;
     ps->cartDamage = b;
 }
@@ -2793,7 +2793,7 @@ u8 csCondVarLess(CsState *cs, s16 csId, s16 b, s16 c) {
     return cs->vars[b] < cs->vars[c];
 }
 
-u8 csCmdCheckCollectedSufficientItems(CsState *cs, s16 csId, s16 b, s16 c) {
+u8 csCondCollectedSufficientItems(CsState *cs, s16 csId, s16 b, s16 c) {
     return mapHasCollectedSufficientItems();
 }
 
@@ -3188,7 +3188,7 @@ void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
     pts = tr->pts;
     groundY = gCsPosY;
     if (collisionCheckGroundAtPoint(gCsPosX, gCsPosZ, &groundY)) {
-        if (collisionGetFloorHeight(&floorY)) {
+        if (collisionGetWaterSurface(&floorY)) {
             gCsPosY = floorY;
         }
     } else {
@@ -3232,7 +3232,7 @@ void csCmdSetCeilAndFloorAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
 
     state = 2;
     ceil = gCsPosY + 20.0f;
-    if (collisionCheckGroundAtPoint(gCsPosX, gCsPosZ, &ceil) != 0 && collisionGetFloorHeight(&floor) != 0) {
+    if (collisionCheckGroundAtPoint(gCsPosX, gCsPosZ, &ceil) != 0 && collisionGetWaterSurface(&floor) != 0) {
         if (floor < ceil) {
             state = 0;
             gCsPosY = ceil;

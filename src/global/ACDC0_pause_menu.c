@@ -1114,7 +1114,7 @@ void hudPauseMenuSpawnIcon(HudEntry *hud, s32 sprite, s32 x, s32 y, f32 scale, u
     f32 fy;
 
     effectSetFrameDelay(mode);
-    effectEnableFade();
+    effectSetScreenSpace();
     effectSetDuration(-1);
     effectSetSpeed((s32)hud);
     effectSetCallback(hudPauseMenuIconUpdate);

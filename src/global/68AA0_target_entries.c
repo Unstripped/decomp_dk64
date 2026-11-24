@@ -52,7 +52,7 @@ void actorInitTargetEntries(void) {
                 gActorTargetEntries[k].z = gModelSlots[i].z;
                 gActorTargetEntries[k].type = res;
                 gActorTargetEntries[k].u.s.chunk = mapChunkFindByPosition(gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, 0);
-                temp = mapObjectCollectIdsByType(gActorTargetEntries[k].u.s.chunk, &gActorTargetEntries[k].u.s.linkedChunks[0], 4);
+                temp = mapPortalCollectTargets(gActorTargetEntries[k].u.s.chunk, &gActorTargetEntries[k].u.s.linkedChunks[0], 4);
                 if (temp != 4) {
                     gActorTargetEntries[k].u.s.linkedChunks[temp] = -1;
                 }

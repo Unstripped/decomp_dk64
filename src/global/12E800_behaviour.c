@@ -201,8 +201,8 @@ extern u16 gEnemyDefeatCount;
 
 void behaviourCheckGroundImpactEffects(void) {
     if (gCurrentActor->collisionFlags & 2) {
-        if (collisionIsGroundImpact() || collisionIsHeavyGroundImpact()) {
-            if (collisionIsHeavyGroundImpact()) {
+        if (collisionGetHazardFloorContact() || collisionGetHazardFloorKind()) {
+            if (collisionGetHazardFloorKind()) {
                 effectCreateAtPosition(&gEffectSpriteFireBurst, gCurrentActor->sub4->scaleY * 6.66666666999999968, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
             gCurrentActor->state = 0x40;

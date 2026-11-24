@@ -33,11 +33,11 @@ typedef struct RaceRouteEvent { // per-route event row: applied when the racer r
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
-RaceRouteEvent D_8002FB10[8] = {
+RaceRouteEvent sRaceRouteEventsMap52[8] = {
     { 0x10, -360.0f, 0 }, { 0x11, -19.0f, 0 }, { 0x17, -20.0f, 1 }, { 0x1B, -360.0f, 0 },
     { 0x1C, -17.0f, 0 }, { 0x33, -20.0f, 1 }, { 0x38, -20.0f, 2 }, { 0x3C, -20.0f, 2 },
 };
-RaceRouteEvent D_8002FB70[3] = { { 0x26, -20.0f, 1 }, { 0x28, -20.0f, 2 }, { 0x32, -20.0f, 2 } };
+RaceRouteEvent sRaceRouteEventsDefault[3] = { { 0x26, -20.0f, 1 }, { 0x28, -20.0f, 2 }, { 0x32, -20.0f, 2 } };
 
 void raceOpponentFollowWaypoints(void) {
     f32 speedDelta;
@@ -57,9 +57,9 @@ void raceOpponentFollowWaypoints(void) {
 
     routeRowIdx = gBehaviourWorkState->routeRow;
     if (gCurrentMap == 0x52) {
-        routeRows = D_8002FB10;
+        routeRows = sRaceRouteEventsMap52;
     } else {
-        routeRows = D_8002FB70;
+        routeRows = sRaceRouteEventsDefault;
     }
     curSpeed = gCurrentActor->speedXZ;
     oscSpeed = mathSinF(gCurrentActor->floorSlopeFactor * 11.4) * 20.0f;
@@ -178,9 +178,9 @@ void raceOpponentBehaviourUpdate(void) {
     manager = controller->actor;
     managerData = NULL;
     if (gCurrentMap == 0x52) {
-        routeRows = D_8002FB10;
+        routeRows = sRaceRouteEventsMap52;
     } else {
-        routeRows = D_8002FB70;
+        routeRows = sRaceRouteEventsDefault;
     }
     if (manager != NULL) {
         managerData = manager->customState;

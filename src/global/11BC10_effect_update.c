@@ -692,7 +692,7 @@ void effectWobbleRiseUpdate(EffectNode *effect, s8 *isDone) {
         }
         floorY = effect->y;
         collisionCheckGroundAtPoint(effect->x, effect->z, &floorY);
-        if (collisionGetFloorHeight(&effect->wobbleRise->floorY) == 0) {
+        if (collisionGetWaterSurface(&effect->wobbleRise->floorY) == 0) {
             effect->wobbleRise->floorY = 0.0f;
         }
         effect->wobbleRise->spawnFrame = gFrameCounter;
@@ -1641,7 +1641,7 @@ void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
         effectSetDepth(1);
         effectSetSpeed(1);
         effectSetCallback(timedLightPulse);
-        effectSetParam(7);
+        effectSetStartFrame(7);
         effectCreateAtPosition(&gEffectSpriteBurstOrange, 0.667f, effect->x, groundY + 10.0f, effect->z);
     }
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, color[0], color[1], color[2]);
@@ -2056,7 +2056,7 @@ void effectFallStateInit(Actor *source, EffectNode *effect, u8 *isDone) {
     fallState->velX = mathSinF(angle) * speedXZ;
     fallState->velZ = mathCosF(angle) * speedXZ;
     fallState->velY = speedY;
-    collisionGetFloorHeight(&fallState->floorY);
+    collisionGetWaterSurface(&fallState->floorY);
 }
 
 void effectFloorFallUpdate(EffectNode *effect, u8 *isDone) {

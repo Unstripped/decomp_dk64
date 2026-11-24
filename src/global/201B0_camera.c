@@ -335,7 +335,7 @@ void camSampleFloorHeight(Actor *camActor, CamState *state, f32 sampleX, f32 sam
 
     state->hasWater = 0;
     collisionCheckActorFloor(camActor, sampleX, floorY, sampleZ, &floorY);
-    state->hasWater = collisionGetFloorHeight(&state->waterY);
+    state->hasWater = collisionGetWaterSurface(&state->waterY);
 }
 
 void camSetSettleMode(CamState *st, u8 mode) {
@@ -446,7 +446,7 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 posX, f32 *outHeight, f
             floorY = 32767.0f;
         }
     }
-    camState->hasWater = collisionGetFloorHeight(&camState->waterY);
+    camState->hasWater = collisionGetWaterSurface(&camState->waterY);
     if (snapMode) {
         camState->prevRoomHeight = camState->roomHeight;
         if (ceilY != -32768.0f && floorY < ceilY) {
@@ -2388,8 +2388,8 @@ u8 camSetZoomLevel(Actor *cam, s16 level) {
     } else if (st->mode == 5 || st->mode == 0xC || st->mode == 0xA) {
         zoomSet = 1;
     }
-    st->followDistGoal = sCamZoomTable[zoomSet][level].distance;
-    st->followHeightGoal = sCamZoomTable[zoomSet][level].height;
+    st->followDistGoal = gCamZoomTable[zoomSet][level].distance;
+    st->followHeightGoal = gCamZoomTable[zoomSet][level].height;
     st->zoomLevel = level;
     return old;
 }
@@ -2418,7 +2418,7 @@ void camSetZoomForDistance(Actor *cam, s16 distance) {
         zoomSet = 1;
     }
     for (i = 2; i < 4; i++) {
-        if (distance >= sCamZoomTable[zoomSet][i].distance) {
+        if (distance >= gCamZoomTable[zoomSet][i].distance) {
             best = i;
         }
     }

@@ -160,8 +160,8 @@ void csCmdSpawnSphereEffects(CsState *, s16, s16, s16);
 #ifndef PROTO_SKIP_csCmdSpawnPuffBurst
 void csCmdSpawnPuffBurst(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csIsPlayerState4OrC
-s32 csIsPlayerState4OrC(void);
+#ifndef PROTO_SKIP_csIsCamChunk4OrC
+s32 csIsCamChunk4OrC(void);
 #endif
 #ifndef PROTO_SKIP_csCmdSfxFadeLoop
 void csCmdSfxFadeLoop(CsState *, s16, s16, s16);
@@ -211,8 +211,8 @@ void csCmdStepCameraFrac(CsState *, s16, s16, s16);
 #ifndef PROTO_SKIP_csCmdResolveNodePair
 void csCmdResolveNodePair(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csCmdUpdateSlotIdView8A
-void csCmdUpdateSlotIdView8A(CsState *, s16, s16, s16);
+#ifndef PROTO_SKIP_csCmdEnemyGridCellSet
+void csCmdEnemyGridCellSet(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondSyncActorAnim
 s32 csCondSyncActorAnim(CsState *, s16, s16, s16);
@@ -232,8 +232,8 @@ void csCmdCopyTargetPosSub10(CsState *, s16, s16, s16);
 #ifndef PROTO_SKIP_csCmdVarIncrement
 void csCmdVarIncrement(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csCmdDecayTargetPosDiff
-void csCmdDecayTargetPosDiff(CsState *, s16, s16, s16);
+#ifndef PROTO_SKIP_csCmdStoreAttachLocalPos
+void csCmdStoreAttachLocalPos(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdTransformSave
 void csCmdTransformSave(CsState *, s16, s16, s16);
@@ -250,14 +250,14 @@ void csCmdPosFromNode(CsState *, s16, s16, s16);
 #ifndef PROTO_SKIP_csCmdSlotQueueSelectPlayer
 void csCmdSlotQueueSelectPlayer(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csCmdSetAudioUnk3
-void csCmdSetAudioUnk3(CsState *, s16, s16, s16);
+#ifndef PROTO_SKIP_csCmdSetSpawnRespawnHold
+void csCmdSetSpawnRespawnHold(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdStepLightColor
 void csCmdStepLightColor(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csCmdModelApplyTranslation
-void csCmdModelApplyTranslation(CsState *, s16, s16, s16);
+#ifndef PROTO_SKIP_csCmdSetCartDamage
+void csCmdSetCartDamage(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdNoop
 void csCmdNoop(CsState *, s16, s16, s16);
@@ -283,8 +283,8 @@ void csCmdSetPositionPreset(CsState *, s16, s16, s16);
 #ifndef PROTO_SKIP_csCondVarLess
 u8 csCondVarLess(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csCmdCheckCollectedSufficientItems
-u8 csCmdCheckCollectedSufficientItems(CsState *, s16, s16, s16);
+#ifndef PROTO_SKIP_csCondCollectedSufficientItems
+u8 csCondCollectedSufficientItems(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondWorldHubFlagSet
 u8 csCondWorldHubFlagSet(CsState *, s16, s16, s16);

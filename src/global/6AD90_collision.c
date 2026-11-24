@@ -36,7 +36,7 @@ typedef struct CollisionStaticTri {
     /* 0x0C */ s16 z[3];
     /* 0x12 */ s16 flags;
     /* 0x14 */ u8 slopeType;
-    /* 0x15 */ u8 surface; // surface type: collisionGetSurfaceFlags, Actor.unk78[0]
+    /* 0x15 */ u8 surface; // surface type: collisionGetFloorTriSurface, Actor.unk78[0]
     /* 0x16 */ u8 tintPath; // low nibble: Actor.tintA level; high nibble: water path id (0xF = none)
     /* 0x17 */ s8 offsetSlot;
 } CollisionStaticTri; // size = 0x18
@@ -86,7 +86,7 @@ void collisionBuildCellTable(MapFileHeader *header) {
         assetFreeBuffer(compressed, 0x9D, 0x3A);
         sCollisionCellsResident = 1;
     }
-    base = assetGetSize(3, gCurrentMap);
+    base = assetGetRomAddress(3, gCurrentMap);
     cursor = data + 4;
     for (i = 0; i < sCollisionCellCount; i++) {
         sCollisionCells[i].lastUsedFrame = 0;
@@ -170,7 +170,7 @@ void collisionClearFlags(void) {
     sVoidFloorContact = 0;
 }
 
-u8 collisionGetStateByte(void) {
+u8 collisionGetFloorSource(void) {
     return sFloorSource;
 }
 
@@ -180,7 +180,7 @@ extern u8 sCeilingClampActive;
 extern f32 D_807F9468;
 extern u8 D_807F946C;
 extern u8 sAllowObjectAttach;
-extern u8 D_807F946E;
+extern u8 sFloorHitStatus;
 extern Actor *sRiddenActor;
 extern f32 sRiderPointX;
 extern f32 sRiderPointY;
@@ -215,7 +215,7 @@ u8 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor,
     u8 hits;
     f32 threshold;
 
-    D_807F946E = 0;
+    sFloorHitStatus = 0;
     if (gFloorQueryMode == 1) {
         collisionClearFlags();
         *outHasFloor = 0;
@@ -376,35 +376,35 @@ u8 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor,
 extern u8 sFloorTriSurface;
 
 u8 collisionGetHitStatus(void) {
-    return D_807F946E;
+    return sFloorHitStatus;
 }
 
-u8 collisionIsGroundImpact(void) {
+u8 collisionGetHazardFloorContact(void) {
     return sHazardFloorContact;
 }
 
-u8 collisionIsHeavyGroundImpact(void) {
+u8 collisionGetHazardFloorKind(void) {
     return sHazardFloorKind;
 }
 
-u8 collisionGetFloorType(void) {
+u8 collisionIsBelowHazardSurface(void) {
     return sBelowHazardSurface;
 }
 
-u8 collisionGetMaterialType(void) {
+u8 collisionGetVoidFloorContact(void) {
     return sVoidFloorContact;
 }
 
-void collisionGetCoords(s16 *outYaw, s16 *outPitch) {
+void collisionGetFloorTilt(s16 *outYaw, s16 *outPitch) {
     *outYaw = sFloorTiltYaw;
     *outPitch = sFloorTiltPitch;
 }
 
-u8 collisionGetSurfaceFlags(void) {
+u8 collisionGetFloorTriSurface(void) {
     return sFloorTriSurface;
 }
 
-u8 collisionGetHitFlags(void) {
+u8 collisionIsFloorGrabbable(void) {
     return sFloorGrabbable;
 }
 
@@ -622,12 +622,12 @@ u8 collisionCheckGroundAtPoint(f32 x, f32 z, f32 *yInOut) {
     return ret;
 }
 
-u8 collisionGetFloorHeight(f32 *outY) {
+u8 collisionGetWaterSurface(f32 *outY) {
     *outY = sWaterSurfaceY;
     return sWaterSurfaceHit;
 }
 
-u8 collisionGetSurfaceType(void) {
+u8 collisionGetFloorLightLevel(void) {
     return sFloorLightLevel;
 }
 
@@ -848,7 +848,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
         }
         return 0;
     }
-    dynamicBufferAllocateEntry(cell);
+    collisionCellEnsureLoaded(cell);
     x = x * 6.0f;
     z = z * 6.0f;
     if (actor != NULL && actor->floorTriangle != NULL && collisionCheckTriangleXZBoundsS16(actor->floorTriangle, (s32)x, (s32)z) != 0 &&
@@ -948,7 +948,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                                     sMeshFloorGrabbable = 1;
                                 }
                                 if (tri->flags & 0x2000) {
-                                    D_807F946E = 1;
+                                    sFloorHitStatus = 1;
                                 }
                                 if (actor != NULL && (tri->flags & 0x1000)) {
                                     actor->renderFlags |= 0x40;
@@ -988,7 +988,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
             sMeshFloorGrabbable = 1;
         }
         if (hitTri->flags & 0x2000) {
-            D_807F946E = 1;
+            sFloorHitStatus = 1;
         }
         if (actor != NULL && (hitTri->flags & 0x1000)) {
             actor->renderFlags |= 0x40;
@@ -1044,7 +1044,7 @@ void collisionRecordTriangleS(CollisionStaticTri *tri, f32 height) {
     }
 }
 
-void dynamicBufferAllocateEntry(s32 index) {
+void collisionCellEnsureLoaded(s32 index) {
     u32 size;
 
     if (sCollisionCells[index].tris == NULL) {
@@ -1058,13 +1058,13 @@ void dynamicBufferAllocateEntry(s32 index) {
     sCollisionCells[index].lastUsedFrame = gFrameCounter;
 }
 
-void dynamicBufferPurgeExpired(void) {
+void collisionCellPurgeExpired(void) {
     s32 i;
 
     if (!sCollisionCellsResident) {
         for (i = 0; i < sCollisionCellCount; i++) {
             if (sCollisionCells[i].tris != NULL && (gFrameCounter - sCollisionCells[i].lastUsedFrame) >= 21) {
-                actorClearBufferReferences(i);
+                collisionCellClearActorRefs(i);
                 heapFree(sCollisionCells[i].tris);
                 sCollisionCells[i].tris = NULL;
                 sCollisionCells[i].trisEnd = NULL;
@@ -1073,7 +1073,7 @@ void dynamicBufferPurgeExpired(void) {
     }
 }
 
-void actorClearBufferReferences(s32 cell) {
+void collisionCellClearActorRefs(s32 cell) {
     s32 i;
     CollisionStaticTri *min = sCollisionCells[cell].tris;
     CollisionStaticTri *max = sCollisionCells[cell].trisEnd;
@@ -1942,7 +1942,7 @@ extern s32 sDmaQueueCount;
 extern u8 sAssetFreeHistoryTail;
 extern u8 sAssetFreeHistoryHead;
 
-void collisionInitTables(void) {
+void assetInitTables(void) {
     s32 i;
     u32 size;
 
@@ -2011,7 +2011,7 @@ void dmaDrainQueueAndFreeBuffer(void) {
     sDmaQueueCount = 0;
 }
 
-s32 assetGetSize(s32 table, s32 index) {
+s32 assetGetRomAddress(s32 table, s32 index) {
     s32 romAddr;
     u32 size;
 
@@ -2036,11 +2036,11 @@ s32 assetGetCachedSizeOrResolve(s32 table, s32 index) {
     return size;
 }
 
-void collisionResolveWallContact(void) {
+void assetSetLoadPersistent(void) {
     sAssetLoadPersistent = 1;
 }
 
-void assetSetRomTableOffset(s32 pool) {
+void assetSetLoadPool(s32 pool) {
     sAssetLoadPool = pool;
 }
 
@@ -2056,14 +2056,14 @@ void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset ind
     assetEnsureTableLoaded(table);
     if (noCache == 0) {
         if ((index >= 0x80000000U) && (index < 0xA0000000U)) {
-            collisionBstInsertByHash((void *)index, table, 0);
+            assetRefBstInsertByHash((void *)index, table, 0);
             sAssetLoadPersistent = 0;
             sAssetLoadPool = 0;
             return (void *)index;
         }
         buffer = assetGetTableEntry(table, index);
         if (buffer != NULL) {
-            collisionBstInsertByHash(buffer, table, index);
+            assetRefBstInsertByHash(buffer, table, index);
             sAssetLoadPersistent = 0;
             sAssetLoadPool = 0;
             return buffer;
@@ -2110,7 +2110,7 @@ void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset ind
         sDmaQueueCount += 1;
     }
     assetSetTableEntry(table, index, buffer);
-    collisionBstInsertByHash(buffer, table, index);
+    assetRefBstInsertByHash(buffer, table, index);
     sAssetLoadPersistent = 0;
     sAssetLoadPool = 0;
     return buffer;
@@ -2124,8 +2124,8 @@ void assetFreeBuffer(void *buffer, s32 line, s32 fileId) {
     s32 table;
     s32 index;
 
-    if (collisionBstLookupAndDecrementByHash(buffer) == 0) {
-        collisionBstDeleteByHash(buffer, &table, &index);
+    if (assetRefBstLookupAndDecrementByHash(buffer) == 0) {
+        assetRefBstDeleteByHash(buffer, &table, &index);
         assetSetTableEntry(table, index, NULL);
         if (sAssetFreeImmediate == 0) {
             heapFreeDeferred(buffer);
@@ -2215,22 +2215,22 @@ void assetEnsureTableLoaded(s32 tableIndex) {
     }
 }
 
-s32 collisionBstCountNodes(CollisionBstNode *node) {
+s32 assetRefBstCountNodes(CollisionBstNode *node) {
     s32 count;
 
     if (node == NULL) {
         return 0;
     }
-    count = collisionBstCountNodes(node->left);
-    return collisionBstCountNodes(node->right) + count + 1;
+    count = assetRefBstCountNodes(node->left);
+    return assetRefBstCountNodes(node->right) + count + 1;
 }
 
 
-void collisionBstLookupByHash(s32 key, s32 *outTable, s32 *outIndex) {
-    collisionBstLookupOrAssert(sAssetRefBuckets[collisionGetBucketIndex(key)], key, outTable, outIndex);
+void assetRefBstLookupByHash(s32 key, s32 *outTable, s32 *outIndex) {
+    assetRefBstLookupOrAssert(sAssetRefBuckets[assetRefBucketIndex(key)], key, outTable, outIndex);
 }
 
-void collisionBstLookupOrAssert(CollisionBstNode *node, u32 key, s32 *outTable, s32 *outIndex) {
+void assetRefBstLookupOrAssert(CollisionBstNode *node, u32 key, s32 *outTable, s32 *outIndex) {
     u8 table;
     u16 index;
     s32 frame;
@@ -2239,27 +2239,27 @@ void collisionBstLookupOrAssert(CollisionBstNode *node, u32 key, s32 *outTable, 
         table = 0;
         index = 0;
         frame = 0;
-        collisionQueueSearch(key, &table, &index, &frame);
+        assetFreeHistorySearch(key, &table, &index, &frame);
         faultSetMessage(7, table, index, gFrameCounter - frame);
     }
     if (key == node->key) {
         *outTable = node->table;
         *outIndex = node->index;
     } else if (node->key < key) {
-        collisionBstLookupOrAssert(node->right, key, outTable, outIndex);
+        assetRefBstLookupOrAssert(node->right, key, outTable, outIndex);
     } else {
-        collisionBstLookupOrAssert(node->left, key, outTable, outIndex);
+        assetRefBstLookupOrAssert(node->left, key, outTable, outIndex);
     }
 }
 
 
-void collisionBstInsertByHash(void *buffer, s32 table, s32 index) { // keyed by the loaded asset's address
-    u32 bucket = collisionGetBucketIndex((u32)buffer);
+void assetRefBstInsertByHash(void *buffer, s32 table, s32 index) { // keyed by the loaded asset's address
+    u32 bucket = assetRefBucketIndex((u32)buffer);
 
-    sAssetRefBuckets[bucket] = collisionBstInsert(sAssetRefBuckets[bucket], (u32)buffer, table, index);
+    sAssetRefBuckets[bucket] = assetRefBstInsert(sAssetRefBuckets[bucket], (u32)buffer, table, index);
 }
 
-CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 key, s32 table, s32 index) {
+CollisionBstNode *assetRefBstInsert(CollisionBstNode *node, u32 key, s32 table, s32 index) {
     if (node == NULL) {
         node = heapAlloc(sizeof(CollisionBstNode));
         node->refCount = 1;
@@ -2275,16 +2275,16 @@ CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 key, s32 table,
             node->persistent = 1;
         }
     } else if (node->key < key) {
-        node->right = collisionBstInsert(node->right, key, table, index);
+        node->right = assetRefBstInsert(node->right, key, table, index);
     } else {
-        node->left = collisionBstInsert(node->left, key, table, index);
+        node->left = assetRefBstInsert(node->left, key, table, index);
     }
     return node;
 }
 
 
-s32 collisionBstLookupAndDecrementByHash(void *buffer) {
-    return collisionBstLookupAndDecrement(sAssetRefBuckets[collisionGetBucketIndex((u32)buffer)], (u32)buffer);
+s32 assetRefBstLookupAndDecrementByHash(void *buffer) {
+    return assetRefBstLookupAndDecrement(sAssetRefBuckets[assetRefBucketIndex((u32)buffer)], (u32)buffer);
 }
 
 typedef struct CollisionQueueEntry {
@@ -2296,7 +2296,7 @@ typedef struct CollisionQueueEntry {
 
 extern CollisionQueueEntry sAssetFreeHistory[];
 
-void collisionQueueSearch(s32 key, u8 *outTable, u16 *outIndex, s32 *outFrame) {
+void assetFreeHistorySearch(s32 key, u8 *outTable, u16 *outIndex, s32 *outFrame) {
     s32 i;
 
     if ((i = sAssetFreeHistoryHead - 1) < 0) {
@@ -2315,7 +2315,7 @@ void collisionQueueSearch(s32 key, u8 *outTable, u16 *outIndex, s32 *outFrame) {
     }
 }
 
-void collisionQueueAppend(s32 key, u8 table, u16 index) {
+void assetFreeHistoryAppend(s32 key, u8 table, u16 index) {
     u8 head = sAssetFreeHistoryHead;
     CollisionQueueEntry *item = &sAssetFreeHistory[head];
 
@@ -2338,7 +2338,7 @@ void collisionQueueAppend(s32 key, u8 table, u16 index) {
 }
 
 
-s32 collisionBstLookupAndDecrement(CollisionBstNode *node, u32 key) {
+s32 assetRefBstLookupAndDecrement(CollisionBstNode *node, u32 key) {
     u8 table;
     u16 index;
     s32 frame;
@@ -2347,31 +2347,31 @@ s32 collisionBstLookupAndDecrement(CollisionBstNode *node, u32 key) {
         table = 0;
         index = 0;
         frame = 0;
-        collisionQueueSearch(key, &table, &index, &frame);
+        assetFreeHistorySearch(key, &table, &index, &frame);
         return 0;
     }
     if (key == node->key) {
         if (node->persistent == 0) {
             node->refCount--;
         }
-        collisionQueueAppend(key, node->table, node->index);
+        assetFreeHistoryAppend(key, node->table, node->index);
         return node->refCount;
     }
     if (node->key < key) {
-        return collisionBstLookupAndDecrement(node->right, key);
+        return assetRefBstLookupAndDecrement(node->right, key);
     }
-    return collisionBstLookupAndDecrement(node->left, key);
+    return assetRefBstLookupAndDecrement(node->left, key);
 }
 
 
-void collisionBstDeleteByHash(void *buffer, s32 *table, s32 *index) {
-    u32 bucket = collisionGetBucketIndex((u32)buffer);
+void assetRefBstDeleteByHash(void *buffer, s32 *table, s32 *index) {
+    u32 bucket = assetRefBucketIndex((u32)buffer);
 
-    sAssetRefBuckets[bucket] = collisionBstDelete(sAssetRefBuckets[bucket], (u32)buffer, table, index);
+    sAssetRefBuckets[bucket] = assetRefBstDelete(sAssetRefBuckets[bucket], (u32)buffer, table, index);
 }
 
 
-CollisionBstNode *collisionBstDelete(CollisionBstNode *node, u32 key, s32 *outTable, s32 *outIndex) {
+CollisionBstNode *assetRefBstDelete(CollisionBstNode *node, u32 key, s32 *outTable, s32 *outIndex) {
     CollisionBstNode *old;
 
     if (node != NULL) {
@@ -2390,18 +2390,18 @@ CollisionBstNode *collisionBstDelete(CollisionBstNode *node, u32 key, s32 *outTa
                 node = node->left;
                 heapFree(old);
             } else {
-                node->right = collisionBstExtractMin(node->right, &node->key, &node->table, &node->index, &node->refCount, &node->persistent);
+                node->right = assetRefBstExtractMin(node->right, &node->key, &node->table, &node->index, &node->refCount, &node->persistent);
             }
         } else if (node->key < key) {
-            node->right = collisionBstDelete(node->right, key, outTable, outIndex);
+            node->right = assetRefBstDelete(node->right, key, outTable, outIndex);
         } else {
-            node->left = collisionBstDelete(node->left, key, outTable, outIndex);
+            node->left = assetRefBstDelete(node->left, key, outTable, outIndex);
         }
     }
     return node;
 }
 
-CollisionBstNode *collisionBstExtractMin(CollisionBstNode *node, s32 *outKey, s32 *outTable, s32 *outIndex, s32 *outRefCount, u8 *outPersistent) {
+CollisionBstNode *assetRefBstExtractMin(CollisionBstNode *node, s32 *outKey, s32 *outTable, s32 *outIndex, s32 *outRefCount, u8 *outPersistent) {
     void *pad;
     CollisionBstNode *left = node->left;
 
@@ -2417,17 +2417,17 @@ CollisionBstNode *collisionBstExtractMin(CollisionBstNode *node, s32 *outKey, s3
         node = node->right;
         heapFree(old);
     } else {
-        node->left = collisionBstExtractMin(left, outKey, outTable, outIndex, outRefCount, outPersistent);
+        node->left = assetRefBstExtractMin(left, outKey, outTable, outIndex, outRefCount, outPersistent);
     }
     return node;
 }
 
 
-void collisionBstRebalanceAll(void) {
+void assetRefBstRebalanceAll(void) {
     s32 i;
 
     for (i = 0; i < 20; i++) {
-        collisionBstRebalanceBucket(i);
+        assetRefBstRebalanceBucket(i);
     }
 }
 
@@ -2440,35 +2440,35 @@ typedef struct CollisionBstFlatItem {
 } CollisionBstFlatItem;
 
 
-void collisionBstRebalanceBucket(s32 bucket) {
+void assetRefBstRebalanceBucket(s32 bucket) {
     s32 count;
     CollisionBstFlatItem *buffer;
     CollisionBstNode *newRoot;
     s32 index;
 
     index = 0;
-    count = collisionBstCountNodes(sAssetRefBuckets[bucket]);
+    count = assetRefBstCountNodes(sAssetRefBuckets[bucket]);
     if (count != 0) {
         buffer = heapAlloc(count * sizeof(CollisionBstFlatItem));
-        collisionBstFlatten(sAssetRefBuckets[bucket], buffer, &index);
-        collisionBstSortFlatItems(buffer, 0, count - 1);
-        newRoot = collisionBstBuildBalanced(buffer, 0, count - 1);
-        collisionBstFreeTree(sAssetRefBuckets[bucket]);
+        assetRefBstFlatten(sAssetRefBuckets[bucket], buffer, &index);
+        assetRefBstSortFlatItems(buffer, 0, count - 1);
+        newRoot = assetRefBstBuildBalanced(buffer, 0, count - 1);
+        assetRefBstFreeTree(sAssetRefBuckets[bucket]);
         sAssetRefBuckets[bucket] = newRoot;
         heapFree(buffer);
     }
 }
 
 
-void collisionBstFreeTree(CollisionBstNode *node) {
+void assetRefBstFreeTree(CollisionBstNode *node) {
     if (node != NULL) {
-        collisionBstFreeTree(node->left);
-        collisionBstFreeTree(node->right);
+        assetRefBstFreeTree(node->left);
+        assetRefBstFreeTree(node->right);
         heapFree(node);
     }
 }
 
-CollisionBstNode *collisionBstBuildBalanced(CollisionBstFlatItem *buffer, s32 start, s32 end) {
+CollisionBstNode *assetRefBstBuildBalanced(CollisionBstFlatItem *buffer, s32 start, s32 end) {
     CollisionBstNode *node;
     s32 mid;
 
@@ -2482,13 +2482,13 @@ CollisionBstNode *collisionBstBuildBalanced(CollisionBstFlatItem *buffer, s32 st
     node->persistent = buffer[mid].persistent;
 
     if (start != mid) {
-        node->left = collisionBstBuildBalanced(buffer, start, mid - 1);
+        node->left = assetRefBstBuildBalanced(buffer, start, mid - 1);
     } else {
         node->left = NULL;
     }
 
     if (end != mid) {
-        node->right = collisionBstBuildBalanced(buffer, mid + 1, end);
+        node->right = assetRefBstBuildBalanced(buffer, mid + 1, end);
     } else {
         node->right = NULL;
     }
@@ -2496,7 +2496,7 @@ CollisionBstNode *collisionBstBuildBalanced(CollisionBstFlatItem *buffer, s32 st
     return node;
 }
 
-void collisionBstFlatten(CollisionBstNode *node, CollisionBstFlatItem *buffer, s32 *index) {
+void assetRefBstFlatten(CollisionBstNode *node, CollisionBstFlatItem *buffer, s32 *index) {
     if (node == NULL) {
         return;
     }
@@ -2506,11 +2506,11 @@ void collisionBstFlatten(CollisionBstNode *node, CollisionBstFlatItem *buffer, s
     buffer[*index].refCount = node->refCount;
     buffer[*index].persistent = node->persistent;
     (*index)++;
-    collisionBstFlatten(node->left, buffer, index);
-    collisionBstFlatten(node->right, buffer, index);
+    assetRefBstFlatten(node->left, buffer, index);
+    assetRefBstFlatten(node->right, buffer, index);
 }
 
-void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
+void assetRefBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
     s32 i;
     s32 j;
     u32 pivot;
@@ -2566,11 +2566,11 @@ void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
         arr[high].refCount = swapRefCount;
         arr[high].persistent = swapPersistent;
 
-        collisionBstSortFlatItems(arr, low, i - 1);
-        collisionBstSortFlatItems(arr, i + 1, high);
+        assetRefBstSortFlatItems(arr, low, i - 1);
+        assetRefBstSortFlatItems(arr, i + 1, high);
     }
 }
 
-u32 collisionGetBucketIndex(u32 key) {
+u32 assetRefBucketIndex(u32 key) {
     return (key >> 12) % 20;
 }

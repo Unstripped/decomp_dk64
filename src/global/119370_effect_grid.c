@@ -32,7 +32,7 @@ extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern Mtx D_2000200;
 
-extern s16 sEffectPendingZOffset;
+extern s16 sEffectScreenRotation;
 extern EffectGridNode *sEffectGridHead;
 extern EffectNode *sEffectListHead;
 extern EffectNode *sEffectListTail;
@@ -45,12 +45,12 @@ extern EffectCallback sEffectPendingCallback;
 extern u8 sEffectPendingDepth;
 extern s16 sEffectPendingStartDelay;
 extern u8 sEffectPendingFrameDelay;
-extern u8 sEffectPendingFade;
+extern u8 sEffectPendingScreenSpace;
 extern f32 sEffectPendingScaleX;
 extern f32 sEffectPendingScaleY;
 extern u8 sEffectPendingHasScale;
 extern s32 sEffectPendingSpeed;
-extern s32 sEffectPendingParam;
+extern s32 sEffectPendingStartFrame;
 extern u16 sEffectPendingFlags;
 extern s16 sEffectPendingChunkFilter;
 extern s16 sEffectPendingMaxDist;
@@ -219,24 +219,24 @@ void effectGridRegister(EffectGridAsset *asset) {
     node->data = asset->data;
 }
 
-void effectSetParam(s32 param) {
-    sEffectPendingParam = param;
+void effectSetStartFrame(s32 param) {
+    sEffectPendingStartFrame = param;
 }
 
 void effectSetSpeed(s32 initSpeed) {
     sEffectPendingSpeed = initSpeed;
 }
 
-void effectEnableFade(void) {
-    sEffectPendingFade = 1;
+void effectSetScreenSpace(void) {
+    sEffectPendingScreenSpace = 1;
 }
 
 void effectSetStartDelay(s16 delay) {
     sEffectPendingStartDelay = delay;
 }
 
-void effectSetZOffset(s16 degrees) {
-    sEffectPendingZOffset = degrees;
+void effectSetScreenRotation(s16 degrees) {
+    sEffectScreenRotation = degrees;
 }
 
 void effectSetCallback(void *callback) {
@@ -300,11 +300,11 @@ void effectResetState(void) {
     sEffectPendingDepth = 0;
     sEffectPendingFrameDelay = 1;
     sEffectPendingStartDelay = 0;
-    sEffectPendingFade = 0;
+    sEffectPendingScreenSpace = 0;
     sEffectPendingHasScale = 0;
     minBound = gHiResScale * 10;
     sEffectPendingSpeed = 0;
-    sEffectPendingParam = 0;
+    sEffectPendingStartFrame = 0;
     sEffectPendingFlags = 0;
     sEffectPendingChunkFilter = -1;
     sEffectPendingBoundsMinX = minBound;
@@ -370,7 +370,7 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
         effect->previous = NULL;
     }
     sEffectListTail = effect;
-    if (sEffectPendingFade != 0) {
+    if (sEffectPendingScreenSpace != 0) {
         posX *= 4.0f;
         posY *= 4.0f;
         posZ *= 4.0f;
@@ -400,14 +400,14 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
         effect->alpha = node->alpha;
     }
     effect->depth = sEffectPendingDepth;
-    effect->mode = sEffectPendingFade;
+    effect->mode = sEffectPendingScreenSpace;
     effect->startDelay = sEffectPendingStartDelay;
     effect->frameCount = node->width * node->height;
     effect->anchorType = anchorType;
     effect->owner = owner;
     effect->boneIndex = modelSlot;
     effect->subIndex = nodeIndex;
-    effect->param = sEffectPendingParam;
+    effect->param = sEffectPendingStartFrame;
     effect->frameDelay = sEffectPendingFrameDelay;
     effect->frameTimer = 0;
     effect->duration = sEffectPendingDuration;
@@ -626,7 +626,7 @@ void effectUpdateAll(u8 paused) {
 }
 
 
-void effectFreeByResource(Actor *owner) {
+void effectFreeByOwner(Actor *owner) {
     EffectNode *effect;
 
     for (effect = sEffectListHead; effect != NULL; effect = effect->next) {
@@ -763,7 +763,7 @@ void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f3
         } else {
             guScaleF(matrix, 1.0f, 1.0f, 1.0f);
         }
-        matrixMakeRotationZ(transform, sEffectPendingZOffset);
+        matrixMakeRotationZ(transform, sEffectScreenRotation);
         guMtxCatF(matrix, transform, matrix);
         guTranslateF(transform, x, y, z);
         guMtxCatF(matrix, transform, matrix);

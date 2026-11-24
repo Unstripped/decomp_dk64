@@ -70,7 +70,7 @@ extern u8 menu_VRAM_END[];
 
 // .data 0x80744460-0x80744470
 s8 gMainThreadHalted = 0;
-Struct80744464 D_80744464 = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 }; // low-res VI mode per osTvType (OS_TV_PAL, OS_TV_NTSC, OS_TV_MPAL)
+Struct80744464 gLowResViModeByTvType = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 }; // low-res VI mode per osTvType (OS_TV_PAL, OS_TV_NTSC, OS_TV_MPAL)
 
 // .bss 0x80761050-0x807655F0
 OSMesgQueue gPiMgrCmdQueue;
@@ -78,7 +78,7 @@ OSMesg gPiMgrCmdMesgs[0xF2];
 OSThread gMainThread;
 u8 D_807615E0[160];
 u64 gMainThreadStackSentinel;
-u8 D_80761688[16216];
+u8 gMainThreadStack[16216];
 OSMesgQueue *gBootResetQueue;
 u32 D_807655E4;
 
@@ -102,7 +102,7 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
     osDpSetStatus(4);
     osCreatePiManager(OS_PRIORITY_PIMGR, &gPiMgrCmdQueue, gPiMgrCmdMesgs, 0xF2);
     gMainThreadStackSentinel = 0x12345678;
-    osCreateThread(&gMainThread, 3, mainThreadLoop, NULL, D_80761688 + sizeof(D_80761688), 0xA);
+    osCreateThread(&gMainThread, 3, mainThreadLoop, NULL, gMainThreadStack + sizeof(gMainThreadStack), 0xA);
     osStartThread(&gMainThread);
 }
 
@@ -110,7 +110,7 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
 void mainThreadHalt(OSMesgQueue *queue, s32 haltReason) {
     static OSTime sHaltStartTime;
     s32 pad[2];
-    Struct80744464 unused = D_80744464; // ORIG: the target copies D_80744464 into sp+0x34 (lw/sw at 0x2d4-0x2f0) and never reads it
+    Struct80744464 unused = gLowResViModeByTvType; // ORIG: the target copies gLowResViModeByTvType into sp+0x34 (lw/sw at 0x2d4-0x2f0) and never reads it
     s32 pad2[4];
     OSMesg msg;
     s32 pad3[2];

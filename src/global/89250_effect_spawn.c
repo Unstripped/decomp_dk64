@@ -711,7 +711,7 @@ void effectSpawnActorBoneEffects(u8 effectType) {
 void effectScreenCenterFlash(void) {
     sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
     effectSetDuration(0xC8);
-    effectEnableFade();
+    effectSetScreenSpace();
     effectSetCallback(effectGrowFadeUpdate);
     effectCreateAtPosition(&gEffectSpriteNoSign, 1.0f, 160.0f, 120.0f, -10.0f);
 }
@@ -820,7 +820,7 @@ void effectShowBananaMedalIcon(void) {
     sfxPlayOnFreeSlot(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
     sfxAllocateChannel(0x97, 1.0f);
     effectSetDuration(0xC8);
-    effectEnableFade();
+    effectSetScreenSpace();
     effectSetCallback(effectGrowFadeUpdate);
     effectCreateAtPosition(&gEffectSpriteBananaMedal, 1.0f, 160.0f, 120.0f, -10.0f);
 }
@@ -829,7 +829,7 @@ void effectShowCrownIcon(void) {
     sfxPlayOnFreeSlot(0xF2, 0x7FFF, 63.0f, 1.0f, 0, 0);
     sfxAllocateChannel(0x97, 1.0f);
     effectSetDuration(0xC8);
-    effectEnableFade();
+    effectSetScreenSpace();
     effectSetCallback(effectGrowFadeUpdate);
     effectCreateAtPosition(&gCrownSprite, 1.0f, 160.0f, 120.0f, -10.0f);
 }

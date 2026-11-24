@@ -1517,7 +1517,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 rnd = randomNonNegative() >> 0xF;
                 posX = (f32)(rnd % 300);
                 posY = (f32)((randomNonNegative() >> 0xF) % 200);
-                effectEnableFade();
+                effectSetScreenSpace();
                 effectCreateAtPosition(&gEffectSpriteImpactFlash, count * 0.01, posX, posY, -10.0f);
             }
             return;

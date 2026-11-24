@@ -300,10 +300,10 @@ void bonusResetAmmo(BonusShooterState *ammo) {
             effectFreeAndUnlink(ammo->ammoIcons[i]);
         }
         ammo->ammoIconSlide[i] = 0;
-        effectEnableFade();
+        effectSetScreenSpace();
         effectSetDuration(-1);
         effectSetFrameDelay(2);
-        effectSetParam(i * 3);
+        effectSetStartFrame(i * 3);
         effectSetCallback(effectSpriteMatrixUpdate);
         effectSetSpeed((s32)&ammo->ammoIconSlide[i]);
         ammo->ammoIcons[i] = effectCreateAtPosition(gEffectSpriteMelonWobble, 1.0f, y, 210.0f, -10.0f);

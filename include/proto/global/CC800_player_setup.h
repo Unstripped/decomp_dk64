@@ -78,8 +78,8 @@ void playerLoadSpawnerAsset(s32);
 #ifndef PROTO_SKIP_playerCheckSpawnerFlagFixup
 void playerCheckSpawnerFlagFixup(s32);
 #endif
-#ifndef PROTO_SKIP_raceGridSpawnPoint
-G01Pos *raceGridSpawnPoint(s32);
+#ifndef PROTO_SKIP_mapGetSpawnPoint
+G01Pos *mapGetSpawnPoint(s32);
 #endif
 #ifndef PROTO_SKIP_playerResolveHitDamage
 s8 playerResolveHitDamage(s8, Actor *);

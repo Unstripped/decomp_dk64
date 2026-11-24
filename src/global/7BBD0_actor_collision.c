@@ -630,7 +630,7 @@ void (*gActorUpdateFuncs[345])(void) = {
     actorSpotLightUpdateEntry,
     projectileSpawnParticleEffect3,
     actorPlayerWarpEffectUpdate,
-    actorUpdateTimerBarAndRange,
+    carryObjectUpdateScaled,
     OVL_FN(void (*)(void), 0x80024B00) /* minecartReverseTrackBehaviour (minecart) */,
     actorUrnType1Update,
     actorUrnType2Update,

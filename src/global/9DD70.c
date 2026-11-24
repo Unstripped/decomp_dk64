@@ -1163,7 +1163,7 @@ void carryObjectUpdate(void) {
     guMtxCatF(mtxA, mtxB, gCurrentActor->modelMtx);
 }
 
-void actorUpdateTimerBarAndRange(void) {
+void carryObjectUpdateScaled(void) {
     f32 frac;
     f32 dx;
     f32 dz;
@@ -1342,7 +1342,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
                 effectSetDepth(1);
                 effectSetCallback(effectConfettiPhysicsUpdate);
                 effectSetSpeed(0xA);
-                effectEnableFade();
+                effectSetScreenSpace();
                 effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, confettiX, actor->y * 0.25 + 12.0, -5.0f);
             }
             // fall through: case 0 also sets the default gradient

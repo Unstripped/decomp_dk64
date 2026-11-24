@@ -423,7 +423,7 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     playerSpawnMapHelpers();
 }
 
-extern s16 D_80753354[];
+extern s16 gKongCrouchTurnRate[];
 void func_80028840(void);
 
 void playerSpawnMapHelpers(void) {
@@ -504,7 +504,7 @@ void playerSpawnMapHelpers(void) {
     case 0x4F:
     case 0x83:
         playerKongDrawGun(gActivePlayerActor);
-        gActivePlayerState->turnRate = D_80753354[gCurrentCharacterIndex];
+        gActivePlayerState->turnRate = gKongCrouchTurnRate[gCurrentCharacterIndex];
         gActivePlayerActor->state = 0x62;
         gActivePlayerActor->subState = 0;
         actorScriptStartByIndex(gActivePlayerActor, 0x52);
@@ -609,7 +609,7 @@ extern u8 gAmbientIndoors;
 
 void playerWarpToSpawnPoint(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
-    G01Pos *spawn = raceGridSpawnPoint(spawnIndex);
+    G01Pos *spawn = mapGetSpawnPoint(spawnIndex);
 
     gSavedSlotSpawnFlags = 0;
     gGlobalPauseFlags &= ~0x400;
@@ -746,7 +746,7 @@ extern f32 gSavedSlotSpawnZ;
 extern s16 gSavedSlotSpawnYaw;
 extern G01Pos gSavedSlotSpawnPoint;
 
-G01Pos *raceGridSpawnPoint(s32 spawnIndex) {
+G01Pos *mapGetSpawnPoint(s32 spawnIndex) {
     if (gSavedSlotSpawnFlags & 1) {
         gSavedSlotSpawnPoint.x = gSavedSlotSpawnX;
         gSavedSlotSpawnPoint.y = gSavedSlotSpawnY;

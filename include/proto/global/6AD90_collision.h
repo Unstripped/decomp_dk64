@@ -25,8 +25,8 @@ s32 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 #ifndef PROTO_SKIP_collisionClearFlags
 void collisionClearFlags(void);
 #endif
-#ifndef PROTO_SKIP_collisionGetStateByte
-u8 collisionGetStateByte(void);
+#ifndef PROTO_SKIP_collisionGetFloorSource
+u8 collisionGetFloorSource(void);
 #endif
 #ifndef PROTO_SKIP_collisionFindFloorAtPoint
 u8 collisionFindFloorAtPoint(Actor *, f32, f32, f32, u8 *, f32 *, u8 *, f32 *, u8);
@@ -34,26 +34,26 @@ u8 collisionFindFloorAtPoint(Actor *, f32, f32, f32, u8 *, f32 *, u8 *, f32 *, u
 #ifndef PROTO_SKIP_collisionGetHitStatus
 u8 collisionGetHitStatus(void);
 #endif
-#ifndef PROTO_SKIP_collisionIsGroundImpact
-u8 collisionIsGroundImpact(void);
+#ifndef PROTO_SKIP_collisionGetHazardFloorContact
+u8 collisionGetHazardFloorContact(void);
 #endif
-#ifndef PROTO_SKIP_collisionIsHeavyGroundImpact
-u8 collisionIsHeavyGroundImpact(void);
+#ifndef PROTO_SKIP_collisionGetHazardFloorKind
+u8 collisionGetHazardFloorKind(void);
 #endif
-#ifndef PROTO_SKIP_collisionGetFloorType
-u8 collisionGetFloorType(void);
+#ifndef PROTO_SKIP_collisionIsBelowHazardSurface
+u8 collisionIsBelowHazardSurface(void);
 #endif
-#ifndef PROTO_SKIP_collisionGetMaterialType
-u8 collisionGetMaterialType(void);
+#ifndef PROTO_SKIP_collisionGetVoidFloorContact
+u8 collisionGetVoidFloorContact(void);
 #endif
-#ifndef PROTO_SKIP_collisionGetCoords
-void collisionGetCoords(s16 *, s16 *);
+#ifndef PROTO_SKIP_collisionGetFloorTilt
+void collisionGetFloorTilt(s16 *, s16 *);
 #endif
-#ifndef PROTO_SKIP_collisionGetSurfaceFlags
-u8 collisionGetSurfaceFlags(void);
+#ifndef PROTO_SKIP_collisionGetFloorTriSurface
+u8 collisionGetFloorTriSurface(void);
 #endif
-#ifndef PROTO_SKIP_collisionGetHitFlags
-u8 collisionGetHitFlags(void);
+#ifndef PROTO_SKIP_collisionIsFloorGrabbable
+u8 collisionIsFloorGrabbable(void);
 #endif
 #ifndef PROTO_SKIP_collisionStoreSurfaceNormalAngles
 void collisionStoreSurfaceNormalAngles(Actor *, f32, f32, f32, u8, u8, u8);
@@ -70,11 +70,11 @@ s32 collisionPickCloserFloor(f32, f32, f32, u8);
 #ifndef PROTO_SKIP_collisionCheckGroundAtPoint
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
 #endif
-#ifndef PROTO_SKIP_collisionGetFloorHeight
-u8 collisionGetFloorHeight(f32 *);
+#ifndef PROTO_SKIP_collisionGetWaterSurface
+u8 collisionGetWaterSurface(f32 *);
 #endif
-#ifndef PROTO_SKIP_collisionGetSurfaceType
-u8 collisionGetSurfaceType(void);
+#ifndef PROTO_SKIP_collisionGetFloorLightLevel
+u8 collisionGetFloorLightLevel(void);
 #endif
 #ifndef PROTO_SKIP_collisionTestSubmeshBoundary
 u8 collisionTestSubmeshBoundary(f32, f32, f32 *, Actor *);
@@ -94,14 +94,14 @@ u8 collisionTestHardcodedFloorPlane(f32 *, f32, f32, f32 *);
 #ifndef PROTO_SKIP_collisionRecordTriangleS
 void collisionRecordTriangleS(struct CollisionStaticTri *, f32);
 #endif
-#ifndef PROTO_SKIP_dynamicBufferAllocateEntry
-void dynamicBufferAllocateEntry(s32);
+#ifndef PROTO_SKIP_collisionCellEnsureLoaded
+void collisionCellEnsureLoaded(s32);
 #endif
-#ifndef PROTO_SKIP_dynamicBufferPurgeExpired
-void dynamicBufferPurgeExpired(void);
+#ifndef PROTO_SKIP_collisionCellPurgeExpired
+void collisionCellPurgeExpired(void);
 #endif
-#ifndef PROTO_SKIP_actorClearBufferReferences
-void actorClearBufferReferences(s32);
+#ifndef PROTO_SKIP_collisionCellClearActorRefs
+void collisionCellClearActorRefs(s32);
 #endif
 #ifndef PROTO_SKIP_collisionCheckTriangleWindingS16
 s32 collisionCheckTriangleWindingS16(struct CollisionStaticTri *);
@@ -175,8 +175,8 @@ s32 collisionCheckBoxTriangleWinding(struct CollisionBoxTri *);
 #ifndef PROTO_SKIP_collisionStoreBoxTriangleNormalAngles
 void collisionStoreBoxTriangleNormalAngles(Actor *, struct CollisionBoxTri *, u8);
 #endif
-#ifndef PROTO_SKIP_collisionInitTables
-void collisionInitTables(void);
+#ifndef PROTO_SKIP_assetInitTables
+void assetInitTables(void);
 #endif
 #ifndef PROTO_SKIP_assetInflateAndFree
 void assetInflateAndFree(void *, void *);
@@ -184,17 +184,17 @@ void assetInflateAndFree(void *, void *);
 #ifndef PROTO_SKIP_dmaDrainQueueAndFreeBuffer
 void dmaDrainQueueAndFreeBuffer(void);
 #endif
-#ifndef PROTO_SKIP_assetGetSize
-s32 assetGetSize(s32, s32);
+#ifndef PROTO_SKIP_assetGetRomAddress
+s32 assetGetRomAddress(s32, s32);
 #endif
 #ifndef PROTO_SKIP_assetGetCachedSizeOrResolve
 s32 assetGetCachedSizeOrResolve(s32, s32);
 #endif
-#ifndef PROTO_SKIP_collisionResolveWallContact
-void collisionResolveWallContact(void);
+#ifndef PROTO_SKIP_assetSetLoadPersistent
+void assetSetLoadPersistent(void);
 #endif
-#ifndef PROTO_SKIP_assetSetRomTableOffset
-void assetSetRomTableOffset(s32);
+#ifndef PROTO_SKIP_assetSetLoadPool
+void assetSetLoadPool(s32);
 #endif
 #ifndef PROTO_SKIP_assetLoad
 void *assetLoad(s32, s32, u8, u8);
@@ -217,61 +217,61 @@ void *assetGetTableEntry(s32, s32);
 #ifndef PROTO_SKIP_assetEnsureTableLoaded
 void assetEnsureTableLoaded(s32);
 #endif
-#ifndef PROTO_SKIP_collisionBstCountNodes
-s32 collisionBstCountNodes(struct CollisionBstNode *);
+#ifndef PROTO_SKIP_assetRefBstCountNodes
+s32 assetRefBstCountNodes(struct CollisionBstNode *);
 #endif
-#ifndef PROTO_SKIP_collisionBstLookupByHash
-void collisionBstLookupByHash(s32, s32 *, s32 *);
+#ifndef PROTO_SKIP_assetRefBstLookupByHash
+void assetRefBstLookupByHash(s32, s32 *, s32 *);
 #endif
-#ifndef PROTO_SKIP_collisionBstLookupOrAssert
-void collisionBstLookupOrAssert(struct CollisionBstNode *, u32, s32 *, s32 *);
+#ifndef PROTO_SKIP_assetRefBstLookupOrAssert
+void assetRefBstLookupOrAssert(struct CollisionBstNode *, u32, s32 *, s32 *);
 #endif
-#ifndef PROTO_SKIP_collisionBstInsertByHash
-void collisionBstInsertByHash(void *, s32, s32);
+#ifndef PROTO_SKIP_assetRefBstInsertByHash
+void assetRefBstInsertByHash(void *, s32, s32);
 #endif
-#ifndef PROTO_SKIP_collisionBstInsert
-struct CollisionBstNode *collisionBstInsert(struct CollisionBstNode *, u32, s32, s32);
+#ifndef PROTO_SKIP_assetRefBstInsert
+struct CollisionBstNode *assetRefBstInsert(struct CollisionBstNode *, u32, s32, s32);
 #endif
-#ifndef PROTO_SKIP_collisionBstLookupAndDecrementByHash
-s32 collisionBstLookupAndDecrementByHash(void *);
+#ifndef PROTO_SKIP_assetRefBstLookupAndDecrementByHash
+s32 assetRefBstLookupAndDecrementByHash(void *);
 #endif
-#ifndef PROTO_SKIP_collisionQueueSearch
-void collisionQueueSearch(s32, u8 *, u16 *, s32 *);
+#ifndef PROTO_SKIP_assetFreeHistorySearch
+void assetFreeHistorySearch(s32, u8 *, u16 *, s32 *);
 #endif
-#ifndef PROTO_SKIP_collisionQueueAppend
-void collisionQueueAppend(s32, u8, u16);
+#ifndef PROTO_SKIP_assetFreeHistoryAppend
+void assetFreeHistoryAppend(s32, u8, u16);
 #endif
-#ifndef PROTO_SKIP_collisionBstLookupAndDecrement
-s32 collisionBstLookupAndDecrement(struct CollisionBstNode *, u32);
+#ifndef PROTO_SKIP_assetRefBstLookupAndDecrement
+s32 assetRefBstLookupAndDecrement(struct CollisionBstNode *, u32);
 #endif
-#ifndef PROTO_SKIP_collisionBstDeleteByHash
-void collisionBstDeleteByHash(void *, s32 *, s32 *);
+#ifndef PROTO_SKIP_assetRefBstDeleteByHash
+void assetRefBstDeleteByHash(void *, s32 *, s32 *);
 #endif
-#ifndef PROTO_SKIP_collisionBstDelete
-struct CollisionBstNode *collisionBstDelete(struct CollisionBstNode *, u32, s32 *, s32 *);
+#ifndef PROTO_SKIP_assetRefBstDelete
+struct CollisionBstNode *assetRefBstDelete(struct CollisionBstNode *, u32, s32 *, s32 *);
 #endif
-#ifndef PROTO_SKIP_collisionBstExtractMin
-struct CollisionBstNode *collisionBstExtractMin(struct CollisionBstNode *, s32 *, s32 *, s32 *, s32 *, u8 *);
+#ifndef PROTO_SKIP_assetRefBstExtractMin
+struct CollisionBstNode *assetRefBstExtractMin(struct CollisionBstNode *, s32 *, s32 *, s32 *, s32 *, u8 *);
 #endif
-#ifndef PROTO_SKIP_collisionBstRebalanceAll
-void collisionBstRebalanceAll(void);
+#ifndef PROTO_SKIP_assetRefBstRebalanceAll
+void assetRefBstRebalanceAll(void);
 #endif
-#ifndef PROTO_SKIP_collisionBstRebalanceBucket
-void collisionBstRebalanceBucket(s32);
+#ifndef PROTO_SKIP_assetRefBstRebalanceBucket
+void assetRefBstRebalanceBucket(s32);
 #endif
-#ifndef PROTO_SKIP_collisionBstFreeTree
-void collisionBstFreeTree(struct CollisionBstNode *);
+#ifndef PROTO_SKIP_assetRefBstFreeTree
+void assetRefBstFreeTree(struct CollisionBstNode *);
 #endif
-#ifndef PROTO_SKIP_collisionBstBuildBalanced
-struct CollisionBstNode *collisionBstBuildBalanced(struct CollisionBstFlatItem *, s32, s32);
+#ifndef PROTO_SKIP_assetRefBstBuildBalanced
+struct CollisionBstNode *assetRefBstBuildBalanced(struct CollisionBstFlatItem *, s32, s32);
 #endif
-#ifndef PROTO_SKIP_collisionBstFlatten
-void collisionBstFlatten(struct CollisionBstNode *, struct CollisionBstFlatItem *, s32 *);
+#ifndef PROTO_SKIP_assetRefBstFlatten
+void assetRefBstFlatten(struct CollisionBstNode *, struct CollisionBstFlatItem *, s32 *);
 #endif
-#ifndef PROTO_SKIP_collisionBstSortFlatItems
-void collisionBstSortFlatItems(struct CollisionBstFlatItem *, s32, s32);
+#ifndef PROTO_SKIP_assetRefBstSortFlatItems
+void assetRefBstSortFlatItems(struct CollisionBstFlatItem *, s32, s32);
 #endif
-#ifndef PROTO_SKIP_collisionGetBucketIndex
-u32 collisionGetBucketIndex(u32);
+#ifndef PROTO_SKIP_assetRefBucketIndex
+u32 assetRefBucketIndex(u32);
 #endif
 #endif
