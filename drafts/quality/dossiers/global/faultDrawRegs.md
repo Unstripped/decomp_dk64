@@ -1,4 +1,4 @@
-# faultDrawRegs (global, src/global/136820.c)
+# faultDrawRegs (global, src/global/136820_fault.c)
 
 ## Sites
 - 5fb2de: `((s32 *)&ctx->ra)[1]`, a low-word read of the u64 saved ra. KEPT.
@@ -57,21 +57,46 @@
     gFaultDrawCount+1 `$15` (t5 0x4b4). No ring allocation sits between the pair (0x400) and 0x404 to
     absorb the shift, and a pair that keeps t0 needs the front at t8: a full 10-register ring cycle after
     `li t8` (0x384) where the target has one allocation (t9).
+- 2026-11-24 2026-11-24: cleanup CleanfaultDrawRegsd CleanfaultDrawRegsd anthropic/claude-opus-5-5
+  (re-measure after 642afafe file-scope edits in other functions: faultPrintf case char literals and
+  compound assigns, unwindDecodeJrRa comments, faultThreadMain `for (;;)`, osCreateThread `NULL`; the
+  faultDrawRegs body is unchanged; score = variants.py try full):
+  - `(u32)ctx->ra` 14, `(s32)` 14, `(void *)` 14, `(u32)(s64)` 14, whole u64 2 (shape 1), mask 17
+    (shape 3), `(u32)(ctx->ra >> 0)` 7 (shape 7), chained store split + `(u32)` 14, reverse split +
+    `(u32)` 22, split + pun 14, pun without ctx (`((u32 *)&thread->context.ra)[1]`) 11, `(u32)` without
+    ctx (pc as `thread->context.pc` too) 25, u32 register-array view 0 (pun), u32 local 20,
+    `FaultStackEntry *entry` walk (`j++, entry++`) + `(u32)` 14 (was 20 in another spelling).
+  - `variants.py scan --max 1000` of the `(u32)` body: 31 variants (truth/swap/width/declswap), best 14.
+  - uopt_trace -l 6 pun vs `(u32)`: same assignment sequence `14..21, 1, 22, 1`, 27 uncoloured each;
+    `(u32)` candidate numbers are +1 (the extra cvt candidate). as1probe keep: the same ugen ring as
+    2026-11-18c (`$25` reload, pair `$8/$9`, then `$10..$15` where the target has t0..t5).
+  - New: a `count` local for the gFaultDrawCount test (Q1553/Q0601) makes it a uopt candidate coloured
+    `$2` (v0) instead of ring t0 (target `lw t0` 0x408): pun + count 14 (gFaultStackTraceCount `$8`, target
+    t1), `(u32)` + count 14 (`$10`). A uopt-coloured load cannot absorb the pair.
+  - Hack-free weights permuter from the `(u32)` body on the current text, -j 2, 900 s (85425
+    iterations): base 80, best 30 (variants.py try 5 once translated), the same family as 2026-11-17: a
+    temp for the chained-store value (`start = gFaultLineStartX = x;`, uopt `$2`, so no `$25` reload)
+    plus `(count = gFaultDrawCount) >= 4` (uopt `$2`, target t0 0x404-0x408): the pair skips the odd
+    front t9 and gFaultStackTraceCount lands in `$25` (target t1 0x418). Its other edits (a
+    `&gFaultDrawCount` pointer re-read, a `thread` alias) change nothing. Four steers, not 0.
 
 ## Untried ideas
 - None that stays natural C. A 32-bit view would need a header type: a game-local context view with
   u32 halves (its only user would be faultDrawRegs, since faultUnwindStack needs the u64 reads, as the
   pairs at 0x668/0x674 show), or an `__OSfp`-style union in the SDK header `include/PR/os_thread.h`
   (renames every `context.a0/sp/ra` user: createthread.c 30-32, faultUnwindStack 225-226; not measured).
-- Permuter on the current body: not run (the ring-count proof above leaves no single-site lever; the
-  2026-11-17 hack-free run's best 30 was a reused-local steer).
 
 ## Evidence
 - Target 0x3fc: `jal faultPrintf` with `lw a1,228(s6)` in the delay slot; s6 = &thread->context (0x3c4).
 - Target ring: `li t6` 0x34c, `li t7` 0x35c, `li t8` 0x384, then gFaultDrawCount in t0 (0x404),
   gFaultStackTraceCount in t1 (0x418) and t2 (0x438), t3/t4 (0x474/0x478), t5 (0x4b4): exactly one ring
   allocation (t9, the chained-store reload as1 deletes; the stores are `sw s5,0(s7)` / `sw s5,0(s8)` at
-  0x3c8/0x3cc) between 0x384 and 0x404, so the original had no u64 load at line 163.
+  0x3c8/0x3cc) between 0x384 and 0x404, so the original had no u64 load at line 166.
+- Ring arithmetic left for natural C (2026-11-24): every u64 read burns an aligned pair, so the six ring
+  temps after 0x400 move by two unless 8 extra invisible ring allocations (as1-deleted reloads) or 2
+  fewer sit between `li t8` 0x384 and 0x404; only one invisible allocation exists there (the `$25`
+  chained-store reload), the other three are the visible constants, and a uopt-coloured gFaultDrawCount
+  (count local) leaves t0 itself. No single-site or natural lever remains.
 - A pair keeping gFaultDrawCount in t0 needs the queue `t8 t9 t0 ...` at the conversion: nine single ring
   allocations between 0x384 and 0x400 where the target has one.
 - cfe ucode of `(u32)ctx->ra`: `ldc 224; add Adt; ilod u64; cvt u32 u64`; uopt output keeps
