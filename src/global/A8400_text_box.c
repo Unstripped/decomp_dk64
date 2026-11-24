@@ -76,7 +76,7 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGly
     }
     guScaleF(tmp, 1.0, 1.0, 1.0);
     guMtxCatF(mtx, tmp, mtx);
-    guTranslateF(tmp, ((f64) state->boxLeft + glyph->x) * 4.0, ((f64) state->boxTop + glyph->y) * 4.0, 0.0f);
+    guTranslateF(tmp, ((f64) state->box[0] + glyph->x) * 4.0, ((f64) state->box[1] + glyph->y) * 4.0, 0.0f);
     guMtxCatF(mtx, tmp, mtx);
     guMtxF2L(mtx, (Mtx *) text->mtx[gGfxBufferIndex]);
     gSPMatrix(dl++, text->mtx[gGfxBufferIndex], G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -156,8 +156,6 @@ extern u8 gCurrentPlayerIndex;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
-#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-
 Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     /* pad* are unused slots above the live locals; with scale/alpha/isLast
        (register-allocated, kept above dl so they cost no below-dl slot) they
@@ -211,8 +209,7 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     dl = renderTextureSprite(dl, &state->mtxBuf[gGfxBufferIndex], alpha, frame);
     if (state->textAlpha != 0) {
         gDPPipeSync(dl++);
-        WRITE_GFX(dl++, ((s32) (state->boxTop * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->boxLeft * 4.0f) & 0xFFF) << 12), // FAKE: hand-expanded gDPSetScissor whose uly-first operand order steers the word schedule (the macro matches with box[4] array reads)
-                  ((s32) (state->boxBottom * 4.0f) & 0xFFF) | (((s32) (state->boxRight * 4.0f) & 0xFFF) << 12));
+        gDPSetScissor(dl++, G_SC_NON_INTERLACE, state->box[0], state->box[1], state->box[2], state->box[3]);
     }
     i = 0;
     while ((state->rowState >= i) && (row != NULL) && (stop == 0)) {
@@ -249,20 +246,20 @@ void textBoxRowUpdateIcon(ResGlyph *glyph, ResRow *row, ResQueueActorState *stat
         effectSetDepth(0);
         effectSetScreenSpace();
         effectSetFrameDelay(2);
-        effectSetBounds(state->boxLeft, state->boxTop, state->boxRight, state->boxBottom);
-        cell->effect = effectCreateAtPosition(gEffectGridAssets[cell->effectId], 1.0f, state->boxLeft, state->boxTop, 1);
+        effectSetBounds(state->box[0], state->box[1], state->box[2], state->box[3]);
+        cell->effect = effectCreateAtPosition(gEffectGridAssets[cell->effectId], 1.0f, state->box[0], state->box[1], 1);
         if (cell->flip != 0) {
             cell->effect->scaleX *= -1.0f;
         }
     }
     x += halfW;
-    cell->effect->x = ((f64) state->boxLeft + x) * 4.0;
-    cell->effect->y = ((f64) state->boxTop + (y + row->height * 0.5f)) * 4.0;
+    cell->effect->x = ((f64) state->box[0] + x) * 4.0;
+    cell->effect->y = ((f64) state->box[1] + (y + row->height * 0.5f)) * 4.0;
     cell->effect->alpha = glyph->alpha;
-    cell->effect->minX = state->boxLeft;
-    cell->effect->minY = state->boxTop;
-    cell->effect->maxX = state->boxRight;
-    cell->effect->maxY = state->boxBottom;
+    cell->effect->minX = state->box[0];
+    cell->effect->minY = state->box[1];
+    cell->effect->maxX = state->box[2];
+    cell->effect->maxY = state->box[3];
 }
 
 void textBoxRowUpdateNodes(f32 y, Actor *actor, ResQueueActorState *state, ResRow *row, u8 isLast, u8 *stop) {
@@ -352,14 +349,14 @@ void textBoxUpdateRows(Actor *actor) {
     }
     state->waveAmp = amp;
     mathAddWaveOffset(&actor->x, &actor->y, state->openProgress, amp, state);
-    state->boxLeft = actor->x - (state->openProgress * 136.8f) * 0.5;
-    state->boxTop = actor->y - (state->openProgress * 79.799995f) * 0.5;
-    state->boxRight = actor->x + (state->openProgress * 136.8f) * 0.5;
-    state->boxBottom = actor->y + (state->openProgress * 79.799995f) * 0.5;
-    state->boxLeft = (gPlayerSlots->rect[0] < state->boxLeft) ? state->boxLeft : gPlayerSlots->rect[0];
-    state->boxTop = (gPlayerSlots->rect[1] < state->boxTop) ? state->boxTop : gPlayerSlots->rect[1];
-    state->boxRight = (state->boxRight < gPlayerSlots->rect[2]) ? state->boxRight : gPlayerSlots->rect[2];
-    state->boxBottom = (state->boxBottom < gPlayerSlots->rect[3]) ? state->boxBottom : gPlayerSlots->rect[3];
+    state->box[0] = actor->x - (state->openProgress * 136.8f) * 0.5;
+    state->box[1] = actor->y - (state->openProgress * 79.799995f) * 0.5;
+    state->box[2] = actor->x + (state->openProgress * 136.8f) * 0.5;
+    state->box[3] = actor->y + (state->openProgress * 79.799995f) * 0.5;
+    state->box[0] = (gPlayerSlots->rect[0] < state->box[0]) ? state->box[0] : gPlayerSlots->rect[0];
+    state->box[1] = (gPlayerSlots->rect[1] < state->box[1]) ? state->box[1] : gPlayerSlots->rect[1];
+    state->box[2] = (state->box[2] < gPlayerSlots->rect[2]) ? state->box[2] : gPlayerSlots->rect[2];
+    state->box[3] = (state->box[3] < gPlayerSlots->rect[3]) ? state->box[3] : gPlayerSlots->rect[3];
     rowY = state->scrollY;
     i = 0;
     while ((state->rowState >= i) && (row != NULL) && (stop == 0)) {

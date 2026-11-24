@@ -88,10 +88,7 @@ typedef struct ResQueueActorState {
     /* 0x3C */ u8 anchorFixed;
     /* 0x3D */ u8 pad3D[3];
     /* 0x40 */ f32 waveAmp;
-    /* 0x44 */ f32 boxLeft;
-    /* 0x48 */ f32 boxTop;
-    /* 0x4C */ f32 boxRight;
-    /* 0x50 */ f32 boxBottom;
+    /* 0x44 */ f32 box[4]; // text clip rect ulx, uly, lrx, lry: the bubble interior clamped to gPlayerSlots->rect[0..3]
     /* 0x54 */ u8 queueFlags;
     /* 0x55 */ u8 inputFlags; // 1 close, 2 slow, 4 fast
     /* 0x56 */ u8 pad56[2];
