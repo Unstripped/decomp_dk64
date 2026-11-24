@@ -6,7 +6,6 @@ the "Check"; the window that applies a line deletes it. Format:
 `held:` lines keep an item out until new evidence arrives.
 
 ## Queue
-- [field] include/sched.h PlayerStruct heldButtonsPtr -> pressedButtonsPtr | CC800:227 stores &gPadPressedButtons[i]; 7CA80:2007 gContPressedButtons = *ptr; readers treat it as edge buttons: 2690:1690/2020 `& 0xE000` fire/start, ACDC0:241/1713 copy into buttons/btn, 3E10:2730-2742/3400 `& 0x8000` A confirms; lead dry run = exactly these 12 positions | TypesOwner17 (2026-11-24b, batch_19 F); WINDOW: after ReMeasureB18H releases 3E10
 
 ## Held
 - held: [global] global D_80753C84 -> gKongPathRespawnTimers, D_80753CA4 -> gKongPathCheckRespawnTimers (worker: tentative) | per-kong s16 tables stored to respawnTimer every frame of playerStateAttachedCallbackFall/CheckFall while proxPathFollowerStep runs | PolishglobalD5E10c (2026-11-24)
