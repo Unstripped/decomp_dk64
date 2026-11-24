@@ -360,7 +360,7 @@ void mainSystemInit(void) {
     gSegment1DataSize = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
     osCreateMesgQueue(&gPiDmaMesgQueue, gPiDmaMesgs, 0x32);
     osCreateMesgQueue(&gAssetDmaDoneQueue, gAssetDmaDoneMesgs, 0xC0);
-    schedCreate(&gScheduler, &gSchedThreadStack[0x400], 0x19, gViModeIndexByTvType[osTvType + osTvType], 1);
+    schedCreate(&gScheduler, gSchedThreadStack + 0x400, 0x19, gViModeIndexByTvType[osTvType + osTvType], 1);
     osCreateMesgQueue(&gGfxDoneQueue, gGfxDoneMesgs, 0x10);
     schedAddClient(&gScheduler, &gGfxSchedClient, &gGfxDoneQueue, 1, 1);
     gCurrentMap = gInitialMap;
@@ -378,18 +378,18 @@ void mainSystemInit(void) {
 }
 
 void mainResetEngineState(void) {
-    s32 pad;
+    FrameMatrices *frames = gFrameMatrices;
     f32 aspectScale;
 
     osWritebackDCacheAll();
-    osInvalDCache((void *)K0BASE, 0x800000);
+    osInvalDCache((void *)0x80000000, 0x800000);
     gSegment1Data = &gSegment1DataBuffer;
-    dmaReadAssetDecompress(gSegmentTable[12].romStart, gSegment1Data, &gSegment1DataSize, 0, 0, 0, 0);
-    gGfxSubListEnabled = 0;
+    dmaReadAssetDecompress(gSegmentTable[12].romStart, gSegment1Data, &gSegment1DataSize, 0, 0, 0, NULL);
+    gGfxSubListEnabled = FALSE;
     controllerWaitRead();
     gFrameCounter = 0;
     gGameFrameCounter = 0;
-    gEepromLoaded = 0;
+    gEepromLoaded = FALSE;
     gHubReturnExit = 4;
     gGlobalPauseFlags = 0x30030;
     gScreenRenderFlags |= 1;
@@ -402,10 +402,12 @@ void mainResetEngineState(void) {
     mapSlotArrayInit();
     csTimerQueueClear();
     aspectScale = cameraStepAspectScale();
-    guTranslate(&gFrameMatrices[0].identity, 0.0f, 0.0f, 0.0f);
-    guTranslate(&gFrameMatrices[1].identity, 0.0f, 0.0f, 0.0f);
-    guPerspective(&gFrameMatrices[0].perspective, &gPerspNorm, gGfxFovY, gGfxAspect * aspectScale, gGfxNearClip, gGfxFarClip, 1.0f);
-    guPerspective(&gFrameMatrices[1].perspective, &gPerspNorm, gGfxFovY, gGfxAspect * aspectScale, gGfxNearClip, gGfxFarClip, 1.0f);
+    guTranslate(&frames[0].identity, 0.0f, 0.0f, 0.0f);
+    guTranslate(&frames[1].identity, 0.0f, 0.0f, 0.0f);
+    guPerspective(&frames[0].perspective, &gPerspNorm, gGfxFovY, gGfxAspect * aspectScale, gGfxNearClip, gGfxFarClip,
+                  1.0f);
+    guPerspective(&frames[1].perspective, &gPerspNorm, gGfxFovY, gGfxAspect * aspectScale, gGfxNearClip, gGfxFarClip,
+                  1.0f);
 }
 
 extern s16 gMainLoopWatchdog;

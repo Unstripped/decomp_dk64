@@ -105,34 +105,30 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
 }
 
 
-void mainThreadHalt(OSMesgQueue *queue, s32 haltCode) {
-    static u64 sHaltStartTime; // .bss 0x807655E8: halt start time
+void mainThreadHalt(OSMesgQueue *queue, s32 haltReason) {
+    static OSTime sHaltStartTime;
     s32 pad[2];
-    Struct80744464 timeConfig;
+    Struct80744464 unused = D_80744464; // ORIG: the target copies D_80744464 into sp+0x34 (lw/sw at 0x2d4-0x2f0) and never reads it
     s32 pad2[4];
-    void *receivedMsg;
+    OSMesg msg;
     s32 pad3[2];
 
-    timeConfig = D_80744464;
-    if (haltCode == 2) {
-        osViBlack(1);
+    if (haltReason == 2) {
+        osViBlack(TRUE);
         audioThreadStop(1);
-        gMainThreadHalted = 1;
-        while (1) {
-        }
+        gMainThreadHalted = TRUE;
+        while (TRUE) {}
     }
-    osRecvMesg(queue, &receivedMsg, 1);
-    gMainThreadHalted = 1;
+    osRecvMesg(queue, &msg, OS_MESG_BLOCK);
+    gMainThreadHalted = TRUE;
     audioThreadStop(1);
     osStopThread(&gMainThread);
-    osSetThreadPri(NULL, 0xB);
+    osSetThreadPri(NULL, 11);
     sHaltStartTime = osGetTime();
-    while (osGetTime() < sHaltStartTime + 0x22ADD7) {
-    }
-    osViBlack(1);
+    while (osGetTime() < sHaltStartTime + 0x22ADD7) {}
+    osViBlack(TRUE);
     __osSpSetStatus(0xAAAA82);
     osDpSetStatus(0x1D6);
     rumbleShutdown();
-    while (1) {
-    }
+    while (TRUE) {}
 }
