@@ -877,7 +877,8 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                 h2 = (2000.0 * val) - 1000.0;
                 if (tri->flags & 4) {
                     offset = mapOffsetSlotGetValue(tri->offsetSlot) * 6.0f;
-                    h2 = ((2000.0 * (0.0 - ((((x * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * z) + d) / (ny * 2000.0)))) - 1000.0) + offset; // FAKE: recomputes the height formula instead of reusing val, keeping it a separate f64 web (f20) for add.d f24,f20,f6
+                    val = 0.0 - ((((x * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                    h2 = ((2000.0 * val) - 1000.0) + offset;
                 }
                 if ((tri->flags & 0x4000) && actor != NULL && (actor->collisionFlags & 1)) {
                     sVoidFloorContact = 1;
