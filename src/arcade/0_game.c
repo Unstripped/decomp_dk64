@@ -3242,7 +3242,7 @@ extern u16 gArcadeKongDazedEyesDownSprite[];
 extern ArcadeEntity gArcadeKongStarsTemplate;
 
 void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
-    s32 tmp; // FAKE: one register-only local for the incremented param byte, the facing flag and the frame selector; a separate local moves the t0 spill 0x2c -> 0x28
+    s32 tmp; // FAKE: one register-only local for the incremented param byte and the frame selector; a separate s32 frame local moves the t0 spill 0x2c -> 0x28, the frame inline flips bne v0,v1 at 0xbc7c
 
     switch (gArcadeEntities[entIndex].state) {
     case 2:
@@ -3264,8 +3264,7 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
                 n_alSndpPlay(gSfxBank, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
             }
             gArcadeEntities[entIndex].sprite = gArcadeKongStompSprite;
-            tmp = ((gArcadeEntities[entIndex].param & 0x20) / 32) == 0;
-            gArcadeEntities[entIndex].facing = tmp;
+            gArcadeEntities[entIndex].facing = !((gArcadeEntities[entIndex].param & 0x20) / 32);
         }
         break;
     case 8:
