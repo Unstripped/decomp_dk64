@@ -43,18 +43,18 @@ segments:
     vram: 0x80024000
     bss_size: 0x20
     subsegments:
-      - [0x0, c, 0]
-      - [0x12A0, c, 12A0]
-      - [0x2690, c, 2690]
-      - [0x9010, c, 9010]
-      - [0x9860, .data, 0] # sBonusChallengeResources (0x8002D860-0x8002D8B0)
-      - [0x98B0, .data, 12A0] # D_8002D8B0 reel table pointers (0x8002D8B0-0x8002D8C0)
-      - [0x98C0, .data, 2690] # D_8002D8C0..D_8002D90C (0x8002D8C0-0x8002D910): 2690's tables, bonusLightFlashGameUpdate's three function-local statics at +0x34/+0x38/+0x3C (separate lui/%lo per access, Q0761)
-      - [0x9910, .data, 9010] # D_8002D910..D_8002D930 (0x8002D910-0x8002D940)
-      - [0x9940, .rodata, 0]
-      - [0x9C90, .rodata, 12A0]
-      - [0x9D20, .rodata, 2690]
-      - [0x9EC0, .rodata, 9010]
+      - [0x0, c, 0_controller]
+      - [0x12A0, c, 12A0_reel_game]
+      - [0x2690, c, 2690_minigames]
+      - [0x9010, c, 9010_score_hud]
+      - [0x9860, .data, 0_controller] # sBonusChallengeResources (0x8002D860-0x8002D8B0)
+      - [0x98B0, .data, 12A0_reel_game] # D_8002D8B0 reel table pointers (0x8002D8B0-0x8002D8C0)
+      - [0x98C0, .data, 2690_minigames] # D_8002D8C0..D_8002D90C (0x8002D8C0-0x8002D910): 2690's tables, bonusLightFlashGameUpdate's three function-local statics at +0x34/+0x38/+0x3C (separate lui/%lo per access, Q0761)
+      - [0x9910, .data, 9010_score_hud] # D_8002D910..D_8002D930 (0x8002D910-0x8002D940)
+      - [0x9940, .rodata, 0_controller]
+      - [0x9C90, .rodata, 12A0_reel_game]
+      - [0x9D20, .rodata, 2690_minigames]
+      - [0x9EC0, .rodata, 9010_score_hud]
       - { start: 0x9EF0, type: bss, vram: 0x8002DEF0 }
 
   - [0x9EF0]

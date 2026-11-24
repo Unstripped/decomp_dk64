@@ -1,7 +1,7 @@
 
 #include "common.h"
 #include "actor.h"
-#include "proto/bonus/9010.h"
+#include "proto/bonus/9010_score_hud.h"
 #include "proto/boot/3D20_sprintf.h"
 #include "proto/global/100180_text_font.h"
 #include "proto/global/1025E0_gfx_resource.h"

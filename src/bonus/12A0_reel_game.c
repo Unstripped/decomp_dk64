@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#include "proto/bonus/12A0.h"
+#include "proto/bonus/12A0_reel_game.h"
 #include "proto/global/1025E0_gfx_resource.h"
 #include "proto/global/112080_resource_parse.h"
 #include "proto/global/119370_effect_grid.h"
