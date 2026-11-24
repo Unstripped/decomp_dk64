@@ -75,6 +75,8 @@ slowest worker. Names yield falls once every file has had a reader: the leftover
   the queue while the workers that produced it are idle, run `quality.py status | grep OPEN`, and send
   each reopened site to the worker that already holds its function's traces (`write agent://<id>`):
   ledger-only follow-up with `new="re-checked against Q...: ..."` (unit 2: 7 functions, minutes each).
+  Do it mid-unit, not only at the close: findings filed at the close stale functions no slot can
+  re-measure any more (2026-11-24b: 4 functions, +45 debt as next-unit leftovers).
 - polish: uninit reads are almost all original control flow (36880: 34/34 kept, 36 plain-C fixes
   all fdiff 1); no slots for them without a function-specific reason.
 
@@ -87,7 +89,12 @@ proposals are not merged: check each against [names.md](names.md) "Check" and ap
 renames carried every review). A types batch whose sites move to new members stales those
 functions' reviews (carry: `not a pure rename`): one ledger-only re-review worker records them
 before the next window. Every commit passes the full ROM gate; a merged file's net hacks and cfe
-warnings never rise.
+warnings never rise. A names window needs every file it renames free of worker copies and open types
+batches: run it before dispatching a worker onto those files (2026-11-24b: R3 window before the
+batch_18 H re-measure). `[type]`/`[local]` queue lines have no names_window mode: snapshot, edit,
+`protos.py gen`, `merge_gate.sh --commit ... --stage <headers> - - <srcs>`, then `carry` (typedef and
+record renames carry since a075dea7). A carry gap is a worker-sized tooling fix (patch handed over,
+applied by the lead in a quiet window), not a lead re-review.
 
 ## 5. Close (user asks to stop, or every stream's queue is empty/exhausted/held)
 
