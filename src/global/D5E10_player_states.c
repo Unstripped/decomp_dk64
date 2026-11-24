@@ -67,13 +67,13 @@ f32 gSlopeSlideParticleMinSpeed = 80.0f;
 s32 gCutscenePauseDecelRate = 50;
 s32 gConsumableRefillSlots[4] = { 2, 4, 6, 5 };
 
-// The player's actor is larger than the shared Actor: its component data continues at 0x178.
-typedef struct ActorExt {
+// Kong actor: second component pointer (0x178) is the KongChain array kongChainInit fills.
+typedef struct KongActorView {
     /* 0x000 */ Actor base;
-    /* 0x178 */ void *chains;
-} ActorExt;
+    /* 0x178 */ KongChain *chains;
+} KongActorView;
 
-#define ACTOR_EXT ((ActorExt *)gCurrentActor)
+#define KONG_ACTOR ((KongActorView *)gCurrentActor)
 
 void playerStateCarried(void) {
     playerStateQueueCallback(0x3C, NULL, gCurrentPlayerIndex);
@@ -749,46 +749,46 @@ extern f32 gKongLightGravity[];
 extern s32 gGlobalCutsceneFlags;
 
 void playerStateVineSwing(void) {
-    f32 v;
-    f32 r;
+    f32 margin;
+    f32 voidY;
     s32 sel;
 
     if (gGlobalCutsceneFlags & 2) {
         f64 t = (gCurrentActor->y - 120.0f) * 0.5;
 
-        v = (t > 0.0) ? t : 0.0;
-        if (gCurrentActor->x < 590.0f - v) {
-            gCurrentActor->x = 590.0f - v;
+        margin = (t > 0.0) ? t : 0.0;
+        if (gCurrentActor->x < 590.0f - margin) {
+            gCurrentActor->x = 590.0f - margin;
         }
-        if (987.0f + v < gCurrentActor->x) {
-            gCurrentActor->x = 987.0f + v;
+        if (987.0f + margin < gCurrentActor->x) {
+            gCurrentActor->x = 987.0f + margin;
         }
-        if (gCurrentActor->z < 571.0f - v) {
-            gCurrentActor->z = 571.0f - v;
+        if (gCurrentActor->z < 571.0f - margin) {
+            gCurrentActor->z = 571.0f - margin;
         }
-        if (965.0f + v < gCurrentActor->z) {
-            gCurrentActor->z = 965.0f + v;
+        if (965.0f + margin < gCurrentActor->z) {
+            gCurrentActor->z = 965.0f + margin;
         }
         gCurrentActor->collisionMode &= 0xFFF7;
     }
     playerInputUpdate(0x1B);
-    r = mapGetVoidHeightForCharacter(gPrimaryPlayerActor->chunkIndex);
-    if (r < gCurrentActor->y) {
+    voidY = mapGetVoidHeightForCharacter(gPrimaryPlayerActor->chunkIndex);
+    if (voidY < gCurrentActor->y) {
         gCurrentActor->accelY = gKongLightGravity[gCurrentCharacterIndex];
         if (gCurrentActor->speedY > 0.0f) {
             gCurrentActor->speedY = gCurrentActor->speedY * 0.7;
         }
     }
     if (gActivePlayerState->thrustApplied != 0) {
-        s32 x = gActivePlayerState->aimPitch;
+        s32 pitch = gActivePlayerState->aimPitch;
 
-        if (x >= 0x8000) {
-            x -= 0x10000;
+        if (pitch >= 0x8000) {
+            pitch -= 0x10000;
         }
-        x += 0x9E8;
-        if (x >= 0x7D1) {
+        pitch += 0x9E8;
+        if (pitch >= 0x7D1) {
             sel = 0x7D;
-        } else if (x < -0x7D0) {
+        } else if (pitch < -0x7D0) {
             sel = 0x80;
         } else {
             sel = 0x7F;
@@ -1005,10 +1005,11 @@ void playerStateSlide(void) {
     playerApplyImpactRumble(0x3D);
 }
 
-typedef struct PlayerCustomState {
+// customState of gActivePlayerState->actor on maps 0x0E and 0x52 (EfRideState in EFDC0.c).
+typedef struct RideState {
     /* 0x00 */ u8 pad0[0x45];
-    /* 0x45 */ u8 unk45;
-} PlayerCustomState;
+    /* 0x45 */ u8 eliminated;
+} RideState;
 
 void playerStateSlideSteep(void) {
     playerApplyImpactRumble(0x3D);
@@ -1027,8 +1028,8 @@ void playerStateSlideRecover(void) {
     playerApplyFullPhysics();
     gCurrentActor->subState++;
     if (gCurrentActor->subState == 0x32) {
-        PlayerCustomState *e = gActivePlayerState->actor->customState;
-        e->unk45 = 1;
+        RideState *ride = gActivePlayerState->actor->customState;
+        ride->eliminated = 1;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -1546,7 +1547,7 @@ void playerStateTurnDecel(void) {
     case 1:
         playerInputUpdate(5);
         playerApplyFullPhysics();
-        mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
+        mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, gActivePlayerState->turnRate * 1.25);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -1595,10 +1596,10 @@ void playerStateSlopeSlide(void) {
         break;
     case 2:
         if (gCurrentActor->hasArcBounds != 0) {
-            f32 t = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
+            f32 bounceSpeed = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
 
-            if (t < gCurrentActor->speedXZ && !(gActivePlayerState->stateFlags2 & 8)) {
-                gCurrentActor->speedXZ = t;
+            if (bounceSpeed < gCurrentActor->speedXZ && !(gActivePlayerState->stateFlags2 & 8)) {
+                gCurrentActor->speedXZ = bounceSpeed;
                 gActivePlayerState->slideLaunchSpeed = gKongSlideBounceSpeeds[gCurrentCharacterIndex];
             }
         }
@@ -1665,7 +1666,7 @@ void playerStateWalkDecel(void) {
             playerInputUpdate(9);
             gActivePlayerState->decelRate = 10.0f;
             playerApplyDeceleration();
-            mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
+            mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, gActivePlayerState->turnRate * 1.25);
             break;
         case 2:
             if (gScheduler.tickCount - gActivePlayerState->jumpStartTime < 0x32) {
@@ -1689,13 +1690,13 @@ void playerStateBrake(void) {
             gCurrentActor->subState++;
         case 1:
             playerInputUpdate(0xA);
-            mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
+            mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, gActivePlayerState->turnRate * 1.25);
             break;
         case 2:
             playerInputUpdate(0xA);
             gActivePlayerState->decelRate = 50.0f;
             playerApplyDeceleration();
-            mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
+            mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, gActivePlayerState->turnRate * 1.25);
             break;
     }
     playerApplyGravityAndMotion();
@@ -2078,7 +2079,7 @@ void playerStateSwimTurn(void) {
         playerInputUpdate(3);
         gActivePlayerState->maxSpeed = gKongSwimTurnSpeeds[gCurrentCharacterIndex];
         gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
-        mathAngleStepToward(&gCurrentActor->yaw, (s16)((gCurrentActor->moveYaw + 0x800) & 0xFFF), (s16)(gActivePlayerState->turnRate * 2));
+        mathAngleStepToward(&gCurrentActor->yaw, (gCurrentActor->moveYaw + 0x800) & 0xFFF, gActivePlayerState->turnRate * 2);
         break;
     case 1:
         playerInputUpdate(3);
@@ -2098,7 +2099,7 @@ void playerStateSwimTread(void) {
     gCurrentActor->renderFlags |= 0x200;
     switch (gCurrentActor->subState) {
     case 0:
-        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, (s16)(gActivePlayerState->damageSource->yaw + 0x800), 8.0f);
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gActivePlayerState->damageSource->yaw + 0x800, 8.0f);
         gActivePlayerState->maxSpeed = 0.0f;
         gCurrentActor->speedXZ = 0.0f;
         playerApplyFullPhysics();
@@ -2150,22 +2151,22 @@ void playerStateSwimPaddle(void) {
         playerInputUpdate(3);
         gActivePlayerState->maxSpeed = gKongSwimPaddleSpeeds[gCurrentCharacterIndex];
         gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
-        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, (s16)(gActivePlayerState->damageSource->yaw + 0x800), 8.0f);
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gActivePlayerState->damageSource->yaw + 0x800, 8.0f);
         playerApplyFullPhysics();
         break;
     case 1:
         playerInputUpdate(3);
         gActivePlayerState->maxSpeed = 0.0f;
         if (gPlayerCharacterId[gCurrentPlayerIndex] == 4) {
-            f32 t = gCurrentActor->sub4->model->frame;
+            f32 frame = gCurrentActor->sub4->model->frame;
 
-            if (t >= 29.0f && t < 33.0f) {
+            if (frame >= 29.0f && frame < 33.0f) {
                 gCurrentActor->moveYaw = (gCurrentActor->yaw + 0x800) & 0xFFF;
                 gCurrentActor->speedXZ = 150.0f;
                 playerApplyGravityAndMotion();
                 break;
             }
-            if (t >= 48.0f) {
+            if (frame >= 48.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 60.0f;
                 playerApplyGravityAndMotion();
@@ -2189,7 +2190,7 @@ void playerStateSwimBackwards(void) {
     case 0:
         playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
         playerInputUpdate(4);
-        mathAngleStepToward(&gCurrentActor->yaw, (s16)((gCurrentActor->moveYaw + 0x800) & 0xFFF), (s16)(gActivePlayerState->turnRate * 2));
+        mathAngleStepToward(&gCurrentActor->yaw, (gCurrentActor->moveYaw + 0x800) & 0xFFF, gActivePlayerState->turnRate * 2);
         if (gCurrentActor->hasArcBounds != 0) {
             gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.5;
         }
@@ -2228,7 +2229,7 @@ void playerStateSurfaceSwimSprint(void) {
             gActivePlayerState->isHoldingObject = 0;
         }
         gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
-        mathAngleStepToward(&gCurrentActor->yaw, (s16)((gCurrentActor->moveYaw + 0x800) & 0xFFF), (s16)(gActivePlayerState->turnRate * 2));
+        mathAngleStepToward(&gCurrentActor->yaw, (gCurrentActor->moveYaw + 0x800) & 0xFFF, gActivePlayerState->turnRate * 2);
         break;
     case 1:
         playerInputUpdate(3);
@@ -2244,9 +2245,9 @@ void playerStateSurfaceSwimSprint(void) {
 }
 
 void playerStateSwimSink(void) {
-    f64 t = gCurrentActor->sub4->scaleY;
+    f64 scale = gCurrentActor->sub4->scaleY;
 
-    actorSetUniformScale(gCurrentActor, (0.001 - t) * 0.01 + t);
+    actorSetUniformScale(gCurrentActor, (0.001 - scale) * 0.01 + scale);
     gCurrentActor->alpha -= 0x14;
     if (gCurrentActor->alpha < 0) {
         gCurrentActor->alpha = 0;
@@ -2529,7 +2530,7 @@ extern s16 gKongDiveAngles[];
 
 s32 playerCanPerformActionCheck(void) {
     f32 surfaceOffset;
-    f32 lim;
+    f32 exitDepth;
 
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
         surfaceOffset = gKongNormalSwimSurfaceDepths[gCurrentCharacterIndex];
@@ -2540,7 +2541,7 @@ s32 playerCanPerformActionCheck(void) {
         gCurrentActor->y + surfaceOffset < gCurrentActor->waterY - 10.0f) {
         gActivePlayerState->subTimer = gKongDiveAngles[gCurrentCharacterIndex];
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
-        gActivePlayerState->actionTimer = (s32)(gKongDiveFrames[gCurrentCharacterIndex] * 0.5);
+        gActivePlayerState->actionTimer = gKongDiveFrames[gCurrentCharacterIndex] * 0.5;
         gCurrentActor->state = 0x4F;
         gCurrentActor->subState = 1;
         if (gCurrentActor->speedY > 0.0f) {
@@ -2554,8 +2555,8 @@ s32 playerCanPerformActionCheck(void) {
     if (gCurrentActor->waterY < gCurrentActor->y + surfaceOffset) {
         gCurrentActor->y = gCurrentActor->waterY - surfaceOffset;
     }
-    lim = (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) ? gKongNormalSwimExitDepths[gCurrentCharacterIndex] : gKongSwimExitDepths[gCurrentCharacterIndex];
-    if (gCurrentActor->waterY - gCurrentActor->floorY < lim) {
+    exitDepth = (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) ? gKongNormalSwimExitDepths[gCurrentCharacterIndex] : gKongSwimExitDepths[gCurrentCharacterIndex];
+    if (gCurrentActor->waterY - gCurrentActor->floorY < exitDepth) {
         playerStateQueueCallback(2, 0, gCurrentPlayerIndex);
         return 1;
     }
@@ -2568,15 +2569,16 @@ extern f32 gKongSurfaceSwimRiseRates[];
 void playerStateSurfaceSwim(void) {
     f32 curSpeedY;
     f32 step;
-    f32 t;
+    f32 sinkStep;
     f32 target;
+    f32 animSpeed;
 
     curSpeedY = gCurrentActor->speedY;
     step = gKongSurfaceSwimRiseRates[gCurrentCharacterIndex];
     target = gKongSwimTopSpeeds[gCurrentCharacterIndex];
     if (curSpeedY < 0.0f) {
-        t = -curSpeedY / 3.0f;
-        step = MAX(step, t);
+        sinkStep = -curSpeedY / 3.0f;
+        step = MAX(step, sinkStep);
     }
     if (gCurrentActor->distToFloor == 0.0f && curSpeedY < -0.1) {
         gCurrentActor->speedY = -0.1f;
@@ -2604,11 +2606,11 @@ void playerStateSurfaceSwim(void) {
                 actorScriptStartByIndex(gCurrentActor, 0x33);
                 gCurrentActor->subState = 1;
             } else {
-                t = gActivePlayerState->maxSpeed * 1.5 / 40.0;
-                if (gCurrentActor->sub4->speed < t) {
-                    scriptSetActorRampTarget(gCurrentActor, t, 0.0f);
+                animSpeed = gActivePlayerState->maxSpeed * 1.5 / 40.0;
+                if (gCurrentActor->sub4->speed < animSpeed) {
+                    scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
                 } else {
-                    scriptSetActorRampTarget(gCurrentActor, t, 5.0f);
+                    scriptSetActorRampTarget(gCurrentActor, animSpeed, 5.0f);
                 }
             }
             break;
@@ -2639,7 +2641,7 @@ extern s16 gKongUnderwaterStrokeFrames[];
 extern f32 gKongUnderwaterStrokeSpeeds[];
 
 void playerStateSurfaceTreadWater(void) {
-    f32 target;
+    f32 target; // FAKE: one local for the case 0 buoyancy target speed and the case 1 animation speed: a separate animation-speed local (either declaration slot) changes regalloc (Q1055)
 
     gActivePlayerState->swimFrames++;
     gActivePlayerState->airAccel = gKongSwimAccel[gCurrentCharacterIndex];
@@ -2744,7 +2746,7 @@ void playerStateSurfacePaddleTurn(void) {
             playerApplyFullPhysics();
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             playerSetTerminalVelocity5B0();
-            gCurrentActor->subState = gCurrentActor->subState + 1;
+            gCurrentActor->subState++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
             break;
@@ -2779,7 +2781,7 @@ void playerStateFreezeIdleCopy(void) {
     playerStateFreezeIdle();
 }
 
-extern s32 gEffectSpriteSmokePuff;
+extern EffectGridAsset gEffectSpriteSmokePuff;
 
 void playerStateEnterFallOnCheck(void) {
     s32 decel;
@@ -2907,8 +2909,8 @@ void playerApproachAirVelocity(void) {
 }
 
 void playerUpdateAirTumble(void) {
-    f32 t;
-    f32 v;
+    f32 rate;
+    f32 animSpeed;
 
     playerInputUpdate(0x4A);
     switch (gCurrentActor->subState) {
@@ -2919,9 +2921,9 @@ void playerUpdateAirTumble(void) {
             } else {
                 playerApplyFullPhysics();
             }
-            t = gCurrentActor->speedXZ * 0.025;
-            v = (t > 1.0) ? t : 1.0;
-            scriptSetActorRampTarget(gCurrentActor, v, 0.0f);
+            rate = gCurrentActor->speedXZ * 0.025;
+            animSpeed = (rate > 1.0) ? rate : 1.0;
+            scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
             break;
         case 1:
             playerApplyFullPhysics();
@@ -2937,8 +2939,8 @@ void playerClearPitchRollFlags(Actor *actor) {
 }
 
 void playerStateCutsceneIdle(void) {
-    s32 ch;
-    f32 vol;
+    s32 channel;
+    f32 volume;
 
     playerInputUpdate(1);
     if (gCurrentActor->subState < 3 ||
@@ -2953,27 +2955,27 @@ void playerStateCutsceneIdle(void) {
             }
             break;
         case 1:
-            vol = 1.0f;
-            ch = 0xA;
+            volume = 1.0f;
+            channel = 0xA;
             switch (gCurrentActor->actorType) {
                 case 2:
-                    ch = 0xB;
+                    channel = 0xB;
                     break;
                 case 5:
-                    ch = 0xD;
+                    channel = 0xD;
                     break;
                 case 4:
-                    ch = 0xC;
+                    channel = 0xC;
                     if (!(gGlobalCutsceneFlags & 2)) {
-                        vol = 0.82f;
+                        volume = 0.82f;
                     }
                     break;
                 case 6:
-                    ch = 9;
+                    channel = 9;
                     break;
             }
-            sfxAllocateChannel(ch, vol);
-            gCurrentActor->subState = gCurrentActor->subState + 1;
+            sfxAllocateChannel(channel, volume);
+            gCurrentActor->subState++;
             break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2981,7 +2983,7 @@ void playerStateCutsceneIdle(void) {
 
 extern f32 gKongHoldPutDownAngles[];
 
-extern u8 gEffectSpriteSparkleYellow;
+extern EffectGridAsset gEffectSpriteSparkleYellow;
 
 void playerStateTransformSparkles(void) {
     f32 pad;
@@ -2990,7 +2992,7 @@ void playerStateTransformSparkles(void) {
     playerInputUpdate(1);
     if (gCurrentActor->subState == 1 || gCurrentActor->subState == 2) {
         randomNonNegative();
-        posY = (s32)(randomNonNegative() >> 15) % 30 + gCurrentActor->y;
+        posY = (randomNonNegative() >> 15) % 30 + gCurrentActor->y;
         randomNonNegative();
         effectSetDepth(1);
         effectSetSpeed((gActivePlayerState->rampLevel << 16) + (s32)(15.0 * (gCurrentActor->alpha / 255.0)));
@@ -3029,7 +3031,7 @@ void playerStateTransformSparkles(void) {
 }
 
 void playerStatePonytailFloat(void) {
-    f32 v;
+    f32 dist;
 
     switch (gCurrentActor->subState) {
     case 0:
@@ -3051,14 +3053,14 @@ void playerStatePonytailFloat(void) {
             gCurrentActor->y -= 1.0;
         }
         gActivePlayerState->floatBaseY = gCurrentActor->y;
-        gCurrentActor->y = mathSinF((s16)gActivePlayerState->bobPhase) * 10.0 + gActivePlayerState->floatBaseY;
+        gCurrentActor->y = mathSinF(gActivePlayerState->bobPhase) * 10.0 + gActivePlayerState->floatBaseY;
         gActivePlayerState->bobPhase += 0x64;
         if (gCurrentActor->yawSpeed < gCurrentActor->y) {
-            v = gCurrentActor->y - gCurrentActor->yawSpeed;
+            dist = gCurrentActor->y - gCurrentActor->yawSpeed;
         } else {
-            v = -(gCurrentActor->y - gCurrentActor->yawSpeed);
+            dist = -(gCurrentActor->y - gCurrentActor->yawSpeed);
         }
-        if (v < 150.0) {
+        if (dist < 150.0) {
             gCurrentActor->accelY = 2.0 * ((gCurrentActor->yawSpeed - gCurrentActor->y) / 150.0);
         }
         if (gCurrentActor->yawSpeed <= gCurrentActor->y) {
@@ -3134,13 +3136,13 @@ void playerStatePonytailTwirl(void) {
 }
 
 void playerStateHoldMoveRamp(void) {
-    f32 v;
+    f32 speed;
     if (gActorGlobalState.forcedContactSpeed != 0.0) {
-        v = gActorGlobalState.forcedContactSpeed;
+        speed = gActorGlobalState.forcedContactSpeed;
     } else {
-        v = gCurrentActor->speedXZ;
+        speed = gCurrentActor->speedXZ;
     }
-    scriptSetActorRampTarget(gCurrentActor, v / 25.0f + 0.25, 2.0f);
+    scriptSetActorRampTarget(gCurrentActor, speed / 25.0f + 0.25, 2.0f);
     playerInputUpdate(0x49);
     if (!(gCurrentActor->contactFlags & 0x10)) {
         playerResumeLocomotion(gCurrentActor);
@@ -3459,7 +3461,7 @@ void playerStateTagBarrelFade(void) {
             gCurrentActor->y = gActivePlayerState->warpY + 10.0;
             gCurrentActor->prevY = gCurrentActor->y;
             gCurrentActor->z = gActivePlayerState->warpZ;
-            kongChainInit(0, ACTOR_EXT->chains, gCurrentActor->actorType);
+            kongChainInit(0, KONG_ACTOR->chains, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
             screenWipeStart(6);
             gActivePlayerState->stateCountdown = 0x14;
@@ -3538,7 +3540,7 @@ void playerStateTagBarrelPadEnter(void) {
             gCurrentActor->y = gActivePlayerState->warpY;
             gCurrentActor->prevY = gCurrentActor->y;
             gCurrentActor->z = gActivePlayerState->warpZ;
-            kongChainInit(0, ACTOR_EXT->chains, gCurrentActor->actorType);
+            kongChainInit(0, KONG_ACTOR->chains, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
             gActivePlayerState->stateCountdown = 0x14;
             screenWipeStart(2);
@@ -3591,8 +3593,8 @@ void playerStateTagBarrelPadEnter(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 gEffectSpriteSparklePurple;
-extern u8 gEffectSpriteSparkleGreen;
+extern EffectGridAsset gEffectSpriteSparklePurple;
+extern EffectGridAsset gEffectSpriteSparkleGreen;
 
 void playerStateKnockbackTumble(void) {
     f32 lightX;
@@ -3602,44 +3604,44 @@ void playerStateKnockbackTumble(void) {
     f32 px;
     f32 py;
     f32 pz;
-    f32 s;
+    f32 sine;
 
     playerInputUpdate(1);
     switch (gCurrentActor->subState) {
     case 0:
         gActivePlayerState->tumbleTimer = 50.0f;
-        gCurrentActor->subState = gCurrentActor->subState + 1;
+        gCurrentActor->subState++;
         break;
     case 1:
         if (gActivePlayerState->tumbleTimer != 0.0f) {
-            gActivePlayerState->tumbleTimer = gActivePlayerState->tumbleTimer - 1.0f;
+            gActivePlayerState->tumbleTimer -= 1.0f;
         } else if (gCurrentActor->y - gCurrentActor->floorY < 60.0f) {
-            gCurrentActor->y = gCurrentActor->y + 1.0f;
+            gCurrentActor->y += 1.0f;
         } else {
             gActivePlayerState->tumbleTimer = 150.0f;
-            gCurrentActor->subState = gCurrentActor->subState + 1;
+            gCurrentActor->subState++;
             camSetTargetScaled(gActivePlayerState->camActor, gCurrentActor, 6, 0, 0x1E, 0, 5, 0x2D, 0x14, 0xC8, 0.15f);
         }
         break;
     case 2:
-        gActivePlayerState->tumbleTimer = gActivePlayerState->tumbleTimer - 1.0f;
+        gActivePlayerState->tumbleTimer -= 1.0f;
         if (gActivePlayerState->tumbleTimer == 0.0f) {
             gActivePlayerState->tumbleTimer = 150.0f;
-            gCurrentActor->subState = gCurrentActor->subState + 1;
+            gCurrentActor->subState++;
         }
-        s = (mathSinF(gActivePlayerState->tumblePhase) > 0.0f) ? mathSinF(gActivePlayerState->tumblePhase) : -mathSinF(gActivePlayerState->tumblePhase);
-        gCurrentActor->yaw = gCurrentActor->yaw + 120.0 * (0.5 + s);
+        sine = (mathSinF(gActivePlayerState->tumblePhase) > 0.0f) ? mathSinF(gActivePlayerState->tumblePhase) : -mathSinF(gActivePlayerState->tumblePhase);
+        gCurrentActor->yaw += 120.0 * (0.5 + sine);
         break;
     case 3:
-        gActivePlayerState->tumbleTimer = gActivePlayerState->tumbleTimer - 1.0f;
+        gActivePlayerState->tumbleTimer -= 1.0f;
         if (gActivePlayerState->tumbleTimer == 0.0f) {
             gActivePlayerState->tumbleTimer = 500.0f;
-            gCurrentActor->subState = gCurrentActor->subState + 1;
+            gCurrentActor->subState++;
         }
-        s = (mathSinF(gActivePlayerState->tumblePhase) > 0.0f) ? mathSinF(gActivePlayerState->tumblePhase) : -mathSinF(gActivePlayerState->tumblePhase);
-        gCurrentActor->yaw = gCurrentActor->yaw + 120.0 * (0.5 + s);
-        s = mathSinF((s16)(gActivePlayerState->tumblePhase + 0x400));
-        gCurrentActor->pitch = gCurrentActor->pitch + 60.0f * s;
+        sine = (mathSinF(gActivePlayerState->tumblePhase) > 0.0f) ? mathSinF(gActivePlayerState->tumblePhase) : -mathSinF(gActivePlayerState->tumblePhase);
+        gCurrentActor->yaw += 120.0 * (0.5 + sine);
+        sine = mathSinF(gActivePlayerState->tumblePhase + 0x400);
+        gCurrentActor->pitch += 60.0f * sine;
         break;
     case 4:
         playerStateQueueCallback(0x1B, 0, 0);
@@ -3648,14 +3650,14 @@ void playerStateKnockbackTumble(void) {
         gCurrentActor->yaw = 0;
         break;
     }
-    gActivePlayerState->tumblePhase = gActivePlayerState->tumblePhase + 6;
-    gActivePlayerState->tumblePhase = gActivePlayerState->tumblePhase & 0xFFF;
+    gActivePlayerState->tumblePhase += 6;
+    gActivePlayerState->tumblePhase &= 0xFFF;
     if (!(gFrameCounter & 1)) {
         kind = (randomNonNegative() >> 15) % 65535 % 3;
         actorGetNodePos(gCurrentActor, 5, &px, &py, &pz);
-        px += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
-        py += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
-        pz += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
+        px += (randomNonNegative() >> 15) % 65535 % 16 - 8;
+        py += (randomNonNegative() >> 15) % 65535 % 16 - 8;
+        pz += (randomNonNegative() >> 15) % 65535 % 16 - 8;
         effectSetFrameDelay(2);
         effectSetDepth(1);
         effectSetCallback(effectPuffRiseUpdate);
@@ -3707,7 +3709,7 @@ void playerStateStationaryInteraction(void) {
         gCurrentActor->moveYaw = yaw;
         gCurrentActor->yaw = yaw;
         camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
-        kongChainInit(0, ACTOR_EXT->chains, gCurrentActor->actorType);
+        kongChainInit(0, KONG_ACTOR->chains, gCurrentActor->actorType);
         gCurrentActor->subState++;
         break;
     case 3:
@@ -3731,21 +3733,21 @@ void playerStateStationaryInteraction(void) {
 }
 
 void playerStepForwardSpeedTowardTarget(f32 step) {
-    f32 cur = gActivePlayerState->forwardSpeed;
-    f32 tgt = gActivePlayerState->maxSpeed;
+    f32 speed = gActivePlayerState->forwardSpeed;
+    f32 target = gActivePlayerState->maxSpeed;
 
-    if (cur < tgt) {
-        cur += step;
-        if (tgt < cur) {
-            cur = tgt;
+    if (speed < target) {
+        speed += step;
+        if (target < speed) {
+            speed = target;
         }
-    } else if (tgt < cur) {
-        cur -= step;
-        if (cur < tgt) {
-            cur = tgt;
+    } else if (target < speed) {
+        speed -= step;
+        if (speed < target) {
+            speed = target;
         }
     }
-    gActivePlayerState->forwardSpeed = cur;
+    gActivePlayerState->forwardSpeed = speed;
 }
 
 extern s16 D_80753C84[];
@@ -3757,8 +3759,8 @@ void playerStateAttachedCallbackFall(void) {
     ActorCallbackNode *node;
     s32 pad[1];
     f32 targetSpeed;
-    f32 f;
-    f64 d;
+    f32 animSpeed;
+    f64 rate;
 
     if (gCurrentActor->subState != 0 && !(gCurrentActor->contactFlags & 0x40)) {
         playerEnterFall(gCurrentActor);
@@ -3820,13 +3822,13 @@ void playerStateAttachedCallbackFall(void) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x6B);
             }
             playerStepForwardSpeedTowardTarget(gKongPathAccelNeutral[gCurrentCharacterIndex]);
-            d = gActivePlayerState->forwardSpeed * 0.025;
-            if (d > 0.0) {
-                f = d;
+            rate = gActivePlayerState->forwardSpeed * 0.025;
+            if (rate > 0.0) {
+                animSpeed = rate;
             } else {
-                f = -d;
+                animSpeed = -rate;
             }
-            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
         }
         break;
     case 3:
@@ -3846,13 +3848,13 @@ void playerStateAttachedCallbackFall(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = gActivePlayerState->forwardSpeed * 0.025;
-            if (d > 0.0) {
-                f = d;
+            rate = gActivePlayerState->forwardSpeed * 0.025;
+            if (rate > 0.0) {
+                animSpeed = rate;
             } else {
-                f = -d;
+                animSpeed = -rate;
             }
-            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
         }
         break;
     case 4:
@@ -3872,13 +3874,13 @@ void playerStateAttachedCallbackFall(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = gActivePlayerState->forwardSpeed * 0.025;
-            if (d > 0.0) {
-                f = d;
+            rate = gActivePlayerState->forwardSpeed * 0.025;
+            if (rate > 0.0) {
+                animSpeed = rate;
             } else {
-                f = -d;
+                animSpeed = -rate;
             }
-            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
         }
         break;
     }
@@ -3894,13 +3896,13 @@ void playerStateSwingLeap(void) {
     f32 nodeY;
     f32 nodeZ;
     s32 diff;
-    s32 absd;
-    s16 t;
+    s32 absDiff;
+    s16 roll;
 
     gCurrentActor->flags &= 0xFFBFFFFF;
     gCurrentActor->contactFlags &= 0xFFBF;
-    t = gCurrentActor->roll;
-    gCurrentActor->roll = t + -t * 0.1;
+    roll = gCurrentActor->roll;
+    gCurrentActor->roll = roll + -roll * 0.1;
     switch (gCurrentActor->subState) {
     case 0:
         playerFindClosestTargetActor();
@@ -3914,11 +3916,11 @@ void playerStateSwingLeap(void) {
             diff -= 0x1000;
         }
         if (diff > 0) {
-            absd = diff;
+            absDiff = diff;
         } else {
-            absd = -diff;
+            absDiff = -diff;
         }
-        if (absd < 0x400) {
+        if (absDiff < 0x400) {
             actorScriptStartByIndex(gCurrentActor, 0x6D);
         } else {
             actorScriptStartByIndex(gCurrentActor, 0x6E);
@@ -3981,44 +3983,44 @@ void playerStateSwingLeap(void) {
 
 void playerFindClosestTargetActor(void) {
     f32 best = 100.0f;
-    Actor *cur = gActivePlayerState->leapTarget;
-    Actor *a;
-    s16 ang;
-    s16 d;
+    Actor *target = gActivePlayerState->leapTarget;
+    Actor *actor;
+    s16 angle;
+    s16 angleDiff;
     s32 i;
     f32 dx;
     f32 dz;
     f32 dist;
-    f32 v;
+    f32 absDy;
 
-    if ((cur != NULL) || (gCurrentActor->subState == 1)) {
-        if (cur == NULL) {
+    if ((target != NULL) || (gCurrentActor->subState == 1)) {
+        if (target == NULL) {
             for (i = 0; i < gActiveActorCount; i++) {
-                a = gActiveActors[i].actor;
-                if (!(a->flags & 0x2000) && (a->flags & 0x04000000) && (a != gActivePlayerState->pathOwner) && (a != gActivePlayerActor)) {
-                    ang = mathAngleBetweenPointsRad(a->x, a->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f / 360.0 * 4095.0;
-                    d = mathAngleDistance(ang, gActivePlayerState->leapYaw);
-                    dx = a->x - gActivePlayerActor->x;
-                    dz = a->z - gActivePlayerActor->z;
+                actor = gActiveActors[i].actor;
+                if (!(actor->flags & 0x2000) && (actor->flags & 0x04000000) && (actor != gActivePlayerState->pathOwner) && (actor != gActivePlayerActor)) {
+                    angle = mathAngleBetweenPointsRad(actor->x, actor->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f / 360.0 * 4095.0;
+                    angleDiff = mathAngleDistance(angle, gActivePlayerState->leapYaw);
+                    dx = actor->x - gActivePlayerActor->x;
+                    dz = actor->z - gActivePlayerActor->z;
                     dist = sqrtf(dx * dx + dz * dz);
-                    if ((d < 0x258) && (dist < best)) {
-                        if (gActivePlayerActor->y < a->y) {
-                            v = a->y - gActivePlayerActor->y;
+                    if ((angleDiff < 0x258) && (dist < best)) {
+                        if (gActivePlayerActor->y < actor->y) {
+                            absDy = actor->y - gActivePlayerActor->y;
                         } else {
-                            v = -(a->y - gActivePlayerActor->y);
+                            absDy = -(actor->y - gActivePlayerActor->y);
                         }
-                        if (v < 100.0) {
+                        if (absDy < 100.0) {
                             best = dist;
-                            gActivePlayerState->leapYaw = ang;
-                            gActivePlayerState->leapTarget = a;
+                            gActivePlayerState->leapYaw = angle;
+                            gActivePlayerState->leapTarget = actor;
                         }
                     }
                 }
             }
         } else {
-            ang = mathAngleBetweenPointsRad(cur->x, cur->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f / 360.0 * 4095.0;
-            if (mathAngleDistance(ang, gActivePlayerState->leapYaw) < 0x258) {
-                gActivePlayerState->leapYaw = ang;
+            angle = mathAngleBetweenPointsRad(target->x, target->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f / 360.0 * 4095.0;
+            if (mathAngleDistance(angle, gActivePlayerState->leapYaw) < 0x258) {
+                gActivePlayerState->leapYaw = angle;
             }
         }
     }
@@ -4030,8 +4032,8 @@ void playerStateAttachedCallbackFallCheck(void) {
     ActorCallbackNode *node;
     s32 pad[1];
     f32 targetSpeed;
-    f32 f;
-    f64 d;
+    f32 animSpeed;
+    f64 rate;
 
     if (gCurrentActor->subState != 0 && (!(gCurrentActor->contactFlags & 0x40) || ((gCurrentActor->contactFlags & 4) && gCurrentActor->waterY - gCurrentActor->y > 3.0))) {
         playerEnterFall(gCurrentActor);
@@ -4087,13 +4089,13 @@ void playerStateAttachedCallbackFallCheck(void) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x72);
             }
             playerStepForwardSpeedTowardTarget(gKongPathAccelNeutral[gCurrentCharacterIndex]);
-            d = gActivePlayerState->forwardSpeed * 0.025;
-            if (d > 0.0) {
-                f = d;
+            rate = gActivePlayerState->forwardSpeed * 0.025;
+            if (rate > 0.0) {
+                animSpeed = rate;
             } else {
-                f = -d;
+                animSpeed = -rate;
             }
-            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
         }
         break;
     case 3:
@@ -4113,13 +4115,13 @@ void playerStateAttachedCallbackFallCheck(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = gActivePlayerState->forwardSpeed * 0.025;
-            if (d > 0.0) {
-                f = d;
+            rate = gActivePlayerState->forwardSpeed * 0.025;
+            if (rate > 0.0) {
+                animSpeed = rate;
             } else {
-                f = -d;
+                animSpeed = -rate;
             }
-            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
         }
         break;
     case 4:
@@ -4139,13 +4141,13 @@ void playerStateAttachedCallbackFallCheck(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = gActivePlayerState->forwardSpeed * 0.025;
-            if (d > 0.0) {
-                f = d;
+            rate = gActivePlayerState->forwardSpeed * 0.025;
+            if (rate > 0.0) {
+                animSpeed = rate;
             } else {
-                f = -d;
+                animSpeed = -rate;
             }
-            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
         }
         break;
     }
@@ -4210,13 +4212,12 @@ void playerStateBounceRecover(void) {
     u8 pad1;
     u8 angleOk;
     s16 angle;
-    f32 t;
+    f32 rate;
     s16 pad2;
-    u8 a;
-    f32 f;
+    u8 letGo;
+    f32 animSpeed;
     f32 ledgeOffset;
-    u8 v;
-    u8 flag;
+    u8 lostGrip;
     s16 hitA;
     s16 hitB;
     u8 onLedge;
@@ -4245,9 +4246,9 @@ void playerStateBounceRecover(void) {
             switch (gActivePlayerState->moveDir) {
             case -1:
                 if (gCurrentActor->subState == 1) {
-                    t = gCurrentActor->speedXZ * 0.025;
-                    f = t > 0.1 ? t : 0.1;
-                    scriptSetActorRampTarget(gCurrentActor, f, 1.0f);
+                    rate = gCurrentActor->speedXZ * 0.025;
+                    animSpeed = rate > 0.1 ? rate : 0.1;
+                    scriptSetActorRampTarget(gCurrentActor, animSpeed, 1.0f);
                 } else {
                     actorScriptStartByIndex(gActivePlayerActor, 0x77);
                     gCurrentActor->subState = 1;
@@ -4261,9 +4262,9 @@ void playerStateBounceRecover(void) {
                 break;
             case 1:
                 if (gCurrentActor->subState == 3) {
-                    t = gCurrentActor->speedXZ * 0.025;
-                    f = t > 0.1 ? t : 0.1;
-                    scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
+                    rate = gCurrentActor->speedXZ * 0.025;
+                    animSpeed = rate > 0.1 ? rate : 0.1;
+                    scriptSetActorRampTarget(gCurrentActor, animSpeed, 0.0f);
                 } else {
                     actorScriptStartByIndex(gActivePlayerActor, 0x78);
                     gCurrentActor->subState = 3;
@@ -4305,28 +4306,27 @@ void playerStateBounceRecover(void) {
         }
         break;
     }
-    flag = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000);
-    a = flag;
+    letGo = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000);
     if (gPlayerSlots[gCurrentPlayerIndex].sizeMode == 1) {
-        a |= gCurrentActor->y - gCurrentActor->floorY < gKongNormalLedgeHangMinFloorHeights[gCurrentCharacterIndex];
+        letGo |= gCurrentActor->y - gCurrentActor->floorY < gKongNormalLedgeHangMinFloorHeights[gCurrentCharacterIndex];
     } else {
-        a |= gCurrentActor->y - gCurrentActor->floorY < gKongLedgeHangMinFloorHeights[gCurrentCharacterIndex];
+        letGo |= gCurrentActor->y - gCurrentActor->floorY < gKongLedgeHangMinFloorHeights[gCurrentCharacterIndex];
     }
     if (gActivePlayerState->hangInputDelay == 0) {
-        v = gCurrentActor->hasArcBounds == 0 || onLedge == 0;
+        lostGrip = gCurrentActor->hasArcBounds == 0 || onLedge == 0;
         collisionGetCoords(&hitA, &hitB);
         if (hitB < 0x385) {
-            v |= 1;
+            lostGrip |= 1;
         }
     } else {
-        v = 0;
+        lostGrip = 0;
     }
-    if (a != 0 || v != 0) {
+    if (letGo != 0 || lostGrip != 0) {
         gActivePlayerState->invulnTimer = 0x14;
         playerResumeLocomotion(gCurrentActor);
         gCurrentActor->flags &= ~0x800;
     }
-    if (gPlayerPadState[gCurrentPlayerIndex].stickY >= 0x33 && gActivePlayerState->hangInputDelay == 0 && v == 0) {
+    if (gPlayerPadState[gCurrentPlayerIndex].stickY >= 0x33 && gActivePlayerState->hangInputDelay == 0 && lostGrip == 0) {
         actorScriptStartByIndex(gActivePlayerActor, 0x79);
         gCurrentActor->state = 0x5C;
         gCurrentActor->subState = 0;
@@ -4344,9 +4344,9 @@ void playerStateLandRecover(void) {
     f32 nodeZ;
     f32 nodeY;
     f32 nodeX;
-    f32 f;
+    f32 f; // FAKE: one local for the ledge/floor height deltas and the case 0 animation frame: a separate frame or delta local (any declaration slot) changes regalloc (Q1055)
     f32 ledgeY;
-    f32 d;
+    f32 nodeHeight;
 
     gCurrentActor->speedY = 0.0f;
     gCurrentActor->speedXZ = 0.0f;
@@ -4375,8 +4375,8 @@ void playerStateLandRecover(void) {
             f = gCurrentActor->sub4->model->frame;
             if (f < 25.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
-                d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->ledgeY - d;
+                nodeHeight = nodeY - gCurrentActor->y;
+                gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
                 f = gCurrentActor->sub4->model->frame;
             }
             if (f < 25.0f) {
@@ -4394,8 +4394,8 @@ void playerStateLandRecover(void) {
             f = gCurrentActor->sub4->model->frame;
             if (f < 17.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
-                d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->ledgeY - d;
+                nodeHeight = nodeY - gCurrentActor->y;
+                gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
                 f = gCurrentActor->sub4->model->frame;
             }
             if (f < 19.0f) {
@@ -4411,8 +4411,8 @@ void playerStateLandRecover(void) {
             break;
         case 2:
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
-            d = nodeY - gCurrentActor->y;
-            gCurrentActor->y = gActivePlayerState->ledgeY - d;
+            nodeHeight = nodeY - gCurrentActor->y;
+            gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
             if (gCurrentActor->sub4->model->frame > 16.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->y = gActivePlayerState->ledgeY;
@@ -4427,8 +4427,8 @@ void playerStateLandRecover(void) {
             f = gCurrentActor->sub4->model->frame;
             if (f < 18.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
-                d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->ledgeY - d;
+                nodeHeight = nodeY - gCurrentActor->y;
+                gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
                 gCurrentActor->x = gActivePlayerState->wallContactX;
                 gCurrentActor->z = gActivePlayerState->wallContactZ;
             } else if (f < 26.0f) {
@@ -4450,8 +4450,8 @@ void playerStateLandRecover(void) {
             break;
         default:
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
-            d = nodeY - gCurrentActor->y;
-            gCurrentActor->y = gActivePlayerState->ledgeY - d;
+            nodeHeight = nodeY - gCurrentActor->y;
+            gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
             if (gCurrentActor->sub4->model->frame > 14.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 10.0f;
@@ -4557,7 +4557,7 @@ typedef struct G20Light {
 void playerStateDialogueWait(void) {
     G20Light *light;
     PlayerState *ps;
-    s32 col;
+    s32 chunk;
     s32 i;
     s16 pathIndex;
 
@@ -4585,14 +4585,14 @@ void playerStateDialogueWait(void) {
         light = gSpawnedActor->customState;
         light->owner = gCurrentActor;
         light->chunk = gCurrentActor->chunkIndex;
-        col = light->chunk;
-        if (col == -1) {
+        chunk = light->chunk;
+        if (chunk == -1) {
             light->chunk = 0;
-            col = 0;
+            chunk = 0;
         }
         light->roll = gCurrentActor->roll;
         light->pitch = gCurrentActor->pitch;
-        lightGetColor(&light->savedR, &light->savedG, &light->savedB, col);
+        lightGetColor(&light->savedR, &light->savedG, &light->savedB, chunk);
         lightSetColor(1.0f, 1.0f, 1.0f, light->chunk);
         actorSpawn(0x136, 0xA8);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleX);
@@ -4630,7 +4630,7 @@ extern u8 gSplitScreenMode;
 void playerStateDialogueHold(void) {
     PlayerState *ps = gCurrentActor->customState;
     s32 step;
-    s16 cur;
+    s16 alpha;
 
     playerStateQueueCallback(0x5C, 0, gCurrentPlayerIndex);
     if (gSplitScreenMode == 0) {
@@ -4638,9 +4638,9 @@ void playerStateDialogueHold(void) {
     }
     gPlayerSlots[ps->playerIndex].rumbleDisabled = 1;
     gCurrentActor->flags &= 0xFFFF7FFF;
-    cur = gCurrentActor->alpha;
-    step = (cur < 4) ? cur : 4;
-    gCurrentActor->alpha = cur - step;
+    alpha = gCurrentActor->alpha;
+    step = (alpha < 4) ? alpha : 4;
+    gCurrentActor->alpha = alpha - step;
     if (gCurrentActor->alpha == 0) {
         if (gSplitScreenMode == 0) {
             gPlayerSlots[ps->playerIndex].active = 0;
