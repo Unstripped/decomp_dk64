@@ -1,5 +1,5 @@
 #include "common.h"
-#include "proto/boot/3630.h"
+#include "proto/boot/3630_string.h"
 
 u8 *strtokSavePtr = NULL;
 

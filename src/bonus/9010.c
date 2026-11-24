@@ -2,7 +2,7 @@
 #include "common.h"
 #include "actor.h"
 #include "proto/bonus/9010.h"
-#include "proto/boot/3D20.h"
+#include "proto/boot/3D20_sprintf.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
 #include "proto/global/112080.h"

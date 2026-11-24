@@ -1,5 +1,5 @@
 #include "common.h"
-#include "proto/boot/30E0.h"
+#include "proto/boot/30E0_gunzip.h"
 #include "proto/global/15050.h"
 #include "proto/global/FE40.h"
 

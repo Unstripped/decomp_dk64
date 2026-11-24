@@ -62,13 +62,13 @@ segments:
     bss_size: 0x5F10
     subsegments:
       - [0x1050, c, main]
-      - [0x1630, c, 1630]
-      - [0x1CC0, c, 1CC0]
-      - [0x30E0, c, 30E0]
+      - [0x1630, c, 1630_no_expansion_pak]
+      - [0x1CC0, c, 1CC0_inflate]
+      - [0x30E0, c, 30E0_gunzip]
       - [0x3390, asm]
-      - [0x3630, c, 3630]
+      - [0x3630, c, 3630_string]
       - [0x3C00, asm]
-      - [0x3D20, c, 3D20]
+      - [0x3D20, c, 3D20_sprintf]
       - [0x5120, asm, libultra/os/invaldcache]
       - [0x51D0, c, libultra/io/pirawdma]
       - [0x52B0, c, libultra/io/pigetstat]
@@ -93,7 +93,7 @@ segments:
       - [0x63B0, c, libultra/libc/ll]
       - [0x6670, c, libultra/os/getcurrfaultthread]
       - [0x6680, asm, libultra/os/getfpccsr]
-      - [0x6690, c, 6690]
+      - [0x6690, c, 6690_texture_desc]
       - [0x66E0, c, libultra/os/stopthread]
       - [0x67A0, c, libultra/io/dpsetstat]
       - [0x67B0, c, libultra/io/spsetstat]
@@ -190,10 +190,10 @@ segments:
       - [0xDC10, c, libultra/io/contpfs]
       - [0xE790, asm, libultra/libc/bcmp]
       - [0xE8B0, .data, main] # sBootResetState, sAudioFreq, D_8000DCB8 (unreferenced), gSegmentTable, sBootViMode (0x8000DCB0-0x8000DE80)
-      - [0xEA80, .data, 1630] # D_8000DE80 (unreferenced), sNoExpPakImageGz (data_inc), framebuffers, vsync delays, unused words, six text lines (0x8000DE80-0x8000EDDC + 4-byte TU pad)
-      - [0xF9E0, .data, 1CC0] # inflate tables border..dbits (0x8000EDE0-0x8000EEDC + 4-byte TU pad)
-      - [0xFAE0, .data, 30E0] # method, exit_code (0x8000EEE0-0x8000EEE8 + 8-byte TU pad)
-      - [0xFAF0, .data, 3630] # strtokSavePtr (0x8000EEF0-0x8000EEF4 + 12-byte TU pad)
+      - [0xEA80, .data, 1630_no_expansion_pak] # D_8000DE80 (unreferenced), sNoExpPakImageGz (data_inc), framebuffers, vsync delays, unused words, six text lines (0x8000DE80-0x8000EDDC + 4-byte TU pad)
+      - [0xF9E0, .data, 1CC0_inflate] # inflate tables border..dbits (0x8000EDE0-0x8000EEDC + 4-byte TU pad)
+      - [0xFAE0, .data, 30E0_gunzip] # method, exit_code (0x8000EEE0-0x8000EEE8 + 8-byte TU pad)
+      - [0xFAF0, .data, 3630_string] # strtokSavePtr (0x8000EEF0-0x8000EEF4 + 12-byte TU pad)
       - [0xFB00, .data, libultra/io/vimgr]
       - [0xFB20, .data, libultra/io/vitbl] # osViModeTable[56] (0x8000EF20-0x800100A0)
       - [0x10CA0, .data, libultra/os/initialize]
@@ -211,8 +211,8 @@ segments:
       - [0x10E60, .data, libultra/vimodes/vimodempallan1] # osViModeMpalLan1 (0x80010260-0x800102B0)
       - [0x10EB0, .data, libultra/vimodes/vimodentsclan1] # osViModeNtscLan1 (0x800102B0-0x80010300)
       - [0x10F00, .data, libultra/io/contpfs]
-      - [0x10F10, .data, 3D20]
-      - [0x10F60, .rodata, 3D20]
+      - [0x10F10, .data, 3D20_sprintf]
+      - [0x10F60, .rodata, 3D20_sprintf]
       - [0x11120, .rodata, libultra/gu/perspective]
       - [0x11130, .rodata, libultra/gu/lookathil]
       - [0x11140, .rodata, libultra/libc/llcvt]

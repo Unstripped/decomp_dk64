@@ -1,7 +1,7 @@
 #include "common.h"
 #include "compiler/ido/stdarg.h"
-#include "proto/boot/3630.h"
-#include "proto/boot/3D20.h"
+#include "proto/boot/3630_string.h"
+#include "proto/boot/3D20_sprintf.h"
 
 unsigned long long __ull_div(unsigned long long, unsigned long long);
 unsigned long long __ull_rem(unsigned long long, unsigned long long);

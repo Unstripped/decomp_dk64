@@ -2,7 +2,7 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#include "proto/boot/3630.h"
+#include "proto/boot/3630_string.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
 #include "proto/global/103AB0.h"

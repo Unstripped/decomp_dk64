@@ -1,7 +1,7 @@
 #include "common.h"
 #include "PR/os_internal_error.h"
 #include "PR/os_internal_reg.h"
-#include "proto/boot/3D20.h"
+#include "proto/boot/3D20_sprintf.h"
 #include "proto/global/136820.h"
 #include "proto/global/201B0.h"
 

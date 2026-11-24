@@ -1,5 +1,5 @@
 #include "common.h"
-#include "proto/boot/3630.h"
+#include "proto/boot/3630_string.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/15050.h"

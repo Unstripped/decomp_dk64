@@ -1,8 +1,8 @@
 #include "common.h"
 #include "segment.h"
 #include "boot.h"
-#include "proto/boot/1630.h"
-#include "proto/boot/30E0.h"
+#include "proto/boot/1630_no_expansion_pak.h"
+#include "proto/boot/30E0_gunzip.h"
 #include "proto/boot/main.h"
 
 s8 sBootResetState = 0;

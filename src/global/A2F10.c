@@ -2,7 +2,7 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#include "proto/boot/3D20.h"
+#include "proto/boot/3D20_sprintf.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/117190.h"

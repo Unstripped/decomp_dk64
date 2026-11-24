@@ -1,6 +1,6 @@
 #include "common.h"
-#include "proto/boot/1CC0.h"
-#include "proto/boot/30E0.h"
+#include "proto/boot/1CC0_inflate.h"
+#include "proto/boot/30E0_gunzip.h"
 #include "gzip.h"
 
 // gzip 1.2.4 (gzip.h, gzip.c) header constants

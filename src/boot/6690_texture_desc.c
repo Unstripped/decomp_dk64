@@ -1,6 +1,6 @@
 #include "common.h"
 #include "render.h"
-#include "proto/boot/6690.h"
+#include "proto/boot/6690_texture_desc.h"
 
 void dlInitTextureDescriptor(texDesc, texture, pal, width, rectWidth, rectHeight, format, type, s, t)
     TextureDescriptor *texDesc;

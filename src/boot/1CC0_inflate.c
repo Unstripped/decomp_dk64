@@ -1,5 +1,5 @@
 #include "common.h"
-#include "proto/boot/1CC0.h"
+#include "proto/boot/1CC0_inflate.h"
 #include "gzip.h"
 
 struct huft {

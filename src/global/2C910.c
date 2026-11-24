@@ -3,7 +3,7 @@
 #include "sched.h"
 #define PROTO_SKIP_csModelStateSetFirstByte // ORIG: hides the shared (s16, s16) prototype; the target passes the s32 b unconverted (lw a0,68(sp) at 0x1374), see the declaration below
 #define PROTO_SKIP_textSpawnMarkerChecked // ORIG: hides the shared (u8, s16, s16, u8 *, u16, u16, u8, u8) prototype; the target promotes the u16 holdTime argument once (lhu t2,222(sp) at 0x118, sw t2,56(sp) at 0x128), see the declaration below
-#include "proto/boot/3630.h"
+#include "proto/boot/3630_string.h"
 #include "proto/global/100180.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/112080.h"

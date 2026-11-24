@@ -1,7 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
-#include "proto/boot/3D20.h"
+#include "proto/boot/3D20_sprintf.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
 #include "proto/global/112080.h"

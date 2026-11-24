@@ -8,7 +8,7 @@
 #include "water.h"
 #include "sched.h"
 #include "segment.h"
-#include "proto/boot/30E0.h"
+#include "proto/boot/30E0_gunzip.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"

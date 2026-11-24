@@ -7,7 +7,7 @@
 #include "collision.h"
 #include "heap.h"
 #include "sched.h"
-#include "proto/boot/30E0.h"
+#include "proto/boot/30E0_gunzip.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
 #include "proto/global/201B0.h"

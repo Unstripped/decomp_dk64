@@ -2,7 +2,7 @@
 #include "actor.h"
 #include "boss.h"
 #include "sched.h"
-#include "proto/boot/3D20.h"
+#include "proto/boot/3D20_sprintf.h"
 #include "proto/boss/3840.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
