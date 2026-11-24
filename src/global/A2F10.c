@@ -678,7 +678,7 @@ typedef struct {
 
 
 extern f32 gFallAndBurstGravity;
-extern u8 gEffectSpriteSmokeCloud;
+extern EffectGridAsset gEffectSpriteSmokeCloud;
 
 void actorFallAndBurstUpdate(void) {
     NodePosition pos;

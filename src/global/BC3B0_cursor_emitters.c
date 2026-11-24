@@ -213,7 +213,7 @@ typedef struct BC3B0EmitterActor {
     /* 0x17C */ s16 *burstCooldown;
 } BC3B0EmitterActor;
 
-extern u8 gEffectSpriteFlame[];
+extern EffectGridAsset gEffectSpriteFlame;
 
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
@@ -235,7 +235,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
         effectSetDepth(1);
         effectSetSpeed(-0x1C2);
         effectSetCallback(effectSinkBySpeedUpdate);
-        effectCreateAtPosition(gEffectSpriteFlame, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteFlame, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
     }
     if (gBehaviourWorkState->timer != 0) {
         lightAdd(gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);

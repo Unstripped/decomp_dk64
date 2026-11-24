@@ -90,7 +90,7 @@ f32 sqrtf(f32);
 
 extern const char sLevelNameJungle[], sLevelNameTemple[], sLevelNameToy[], sLevelNameWreck[], sLevelNameForest[], sLevelNameCrystal[], sLevelNameSpooky[];
 extern const char sLevelNameWorld[], sLevelNameHideout[], sLevelNameBonus[], sLevelNameMulti[], sLevelNameStory[], sLevelNameTest[], sLevelNameShared[];
-extern s32 gEffectSpriteDkHead, gEffectSpriteDiddyHead, gEffectSpriteLankyHead, gEffectSpriteTinyHead, gEffectSpriteChunkyHead;
+extern EffectGridAsset gEffectSpriteDkHead, gEffectSpriteDiddyHead, gEffectSpriteLankyHead, gEffectSpriteTinyHead, gEffectSpriteChunkyHead;
 
 const char *sLevelNames[14] = {
     sLevelNameJungle, sLevelNameTemple, sLevelNameToy, sLevelNameWreck, sLevelNameForest, sLevelNameCrystal, sLevelNameSpooky,

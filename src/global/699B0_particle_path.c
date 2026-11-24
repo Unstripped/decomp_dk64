@@ -58,8 +58,8 @@ void particleFindPathIndices(s16 levelIndex) {
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
-extern s32 effectAssetPathTrail;
-extern s32 gEffectSpriteDustPuff;
+extern EffectGridAsset effectAssetPathTrail;
+extern EffectGridAsset gEffectSpriteDustPuff;
 
 void particleSpawnPathTrail(void) {
     s32 i;

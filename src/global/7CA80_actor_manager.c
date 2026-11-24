@@ -1509,7 +1509,7 @@ void actorDispatchCallbacks(Actor *actor) {
 
 extern PlayerStruct *gPlayerSlots;
 
-extern s32 gEffectSpriteGooGreen;
+extern EffectGridAsset gEffectSpriteGooGreen;
 void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
     s32 reaction;
     s32 queueReaction;

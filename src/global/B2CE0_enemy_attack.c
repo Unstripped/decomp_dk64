@@ -39,7 +39,7 @@ typedef struct PatrolActor {
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
-extern u8 gEffectSpriteBlast[];
+extern EffectGridAsset gEffectSpriteBlast;
 
 void behaviourTumbleDebrisUpdate(void) {
     f32 transMtx[4][4];
@@ -79,7 +79,7 @@ void behaviourTumbleDebrisUpdate(void) {
         return;
     }
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->prevContactFlags & 1)) {
-        effectCreateAtPosition(gEffectSpriteBlast, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectCreateAtPosition(&gEffectSpriteBlast, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         actorDespawn(gCurrentActor);
     }
 }

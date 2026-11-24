@@ -71,7 +71,7 @@ void hudCountdownTimerResume(Actor *actor) {
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
-extern Gfx gEffectSpriteSparklePurple;
+extern EffectGridAsset gEffectSpriteSparklePurple;
 extern PlayerStruct *gPlayerSlots;
 
 Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {

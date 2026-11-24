@@ -18,7 +18,7 @@
 #include "proto/global/CEAE0_player_update.h"
 
 extern Actor *gCurrentActor;
-extern s32 sEffectSparkConfig;
+extern EffectGridAsset sEffectSparkConfig;
 
 s32 sKongItemEnemyKongByMode[5] = { 3, 4, 1, 2, 0 };
 
