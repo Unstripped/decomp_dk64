@@ -36,15 +36,10 @@
 #include "proto/global/EFDC0_player_state_enter.h"
 #include "proto/global/FCCD0_slot_queue.h"
 
-typedef struct SpritePair {
-    /* 0x0 */ EffectGridAsset *sprites[2];
-} SpritePair;
-
-// This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad); the debris sprites are sprite sheets of
-// 124780.c.
+// This TU's .data (0x807503A0-0x807503AC + 4-byte TU pad): sSpotLightRelightDelay, then the template of
+// carryObjectUpdate's debrisSprites initialiser (0x807503A4); the debris sprites are sprite sheets of 124780.c.
 s16 sSpotLightRelightDelay = 200;
 extern EffectGridAsset gEffectSpriteDebrisGreen, gEffectSpriteDebrisGrey;
-SpritePair gCarryDebrisSprites = { { &gEffectSpriteDebrisGreen, &gEffectSpriteDebrisGrey } };
 
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     f32 dx;
@@ -53,13 +48,13 @@ void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 
     *yaw = mathAngleBetweenPoints2D(x1, z1, x2, z2);
     dx = x2 - x1;
     dz = z2 - z1;
-    *pitch = (s16)(s32)(((f64)mathAtan2(y2 - y1, sqrtf((dx * dx) + (dz * dz))) * 2048.0) / 3.1415927410125732);
+    *pitch = (s16)(mathAtan2(y2 - y1, sqrtf(dx * dx + dz * dz)) * 2048.0 / 3.1415927410125732);
 }
 
 extern u8 gGfxBufferIndex;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern Gfx D_2000180;
+extern Mtx D_2000180;
 
 Gfx *renderSetupSegmentsAndFog(Gfx *glistp, Actor *actor) {
     gSPMatrix(glistp++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].projMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -103,7 +98,7 @@ void actorPhotoUpdate(void) {
         gCurrentActor->flags |= 0x400;
         gCurrentActor->drawDistance = 0x3E8;
         subState->texture = playerViewCaptureSepiaPhoto();
-        controllerAnimSetStateIfChanged(gCurrentActor, 0x40B, 0, 0);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x40B, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 0.15f, 0);
     }
     gCurrentActor->flags &= ~4;
@@ -136,7 +131,7 @@ void actorPhotoUpdate(void) {
     mathAngleBetweenPoints3D(&pitch, &yaw, gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ);
     t = PAN_MIN(30.0, frameElapsed) / 30.0;
     gCurrentActor->yaw = yaw;
-    roll = (f32)pitch - (2048.0f + -2048.0f * t);
+    roll = pitch - (2048.0f + -2048.0f * t);
     gCurrentActor->roll = roll;
     guRotateF(mtx1, pitch / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
     guRotateF(mtx2, yaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
@@ -213,8 +208,10 @@ typedef struct WaveState {
 
 
 void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
-    f32 posOffsets[32];
-    f32 nodeForces[26];
+    s32 pad[3];
+    f32 wave;
+    f32 posOffsets[28]; // numNodes is 8 or 28 (actorBridgeUpdate, actorLongBridgeUpdate)
+    f32 nodeForces[26]; // too small for 28 nodes: [26]/[27] land on posOffsets[0]/[1], as in the target (bases sp+0xC0/sp+0x128)
     f32 waveForce;
     WaveState *state;
     s32 i;
@@ -303,7 +300,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         case 0:
             state->trackedPos[i] = gActorGlobalState.riderPoints[i][2];
             break;
-        case 1:
+        case 1: // z again, unlike the x point type 1 uses elsewhere: the target loads riderPoints[i][2] here too (0xebc)
             state->trackedPos[i] = gActorGlobalState.riderPoints[i][2];
             break;
         }
@@ -361,8 +358,8 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
                 if (dist < 0.0) {
                     dist = 0.0f;
                 }
-                waveForce = sinApprox(state->slotPhase[i] * 0.5);
-                nodeForces[j] += dist * state->slotAmp[i] * waveForce;
+                wave = sinApprox(state->slotPhase[i] * 0.5);
+                nodeForces[j] += dist * state->slotAmp[i] * wave;
             }
             state->slotAmp[i] -= state->slotAmp[i] / 20.0;
             if (state->slotAmp[i] < 0.5) {
@@ -431,18 +428,18 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
             pos = forceMagnitude / 843.0;
             if (pos > 0.0) {
                 slots->slotPos[i] = pos;
-                return;
+            } else {
+                slots->slotPos[i] = -pos;
             }
-            slots->slotPos[i] = -pos;
-            return;
+            break;
         case 1:
             slots->slotAmp[i] = 12.0f;
             pos = forceMagnitude / 480.0;
             if (pos > 0.0) {
                 slots->slotPos[i] = pos;
-                return;
+            } else {
+                slots->slotPos[i] = -pos;
             }
-            slots->slotPos[i] = -pos;
             break;
         }
     }
@@ -580,7 +577,7 @@ void actorSpotLightUpdate(void) {
 
     lightState = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        controllerAnimSetStateIfChanged(gCurrentActor, 0x402, 0, 1.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x402, 0.0f, 1.0f);
         if (gCurrentMap == 6) {
             actorScriptStart(gCurrentActor, 0x297);
         }
@@ -627,7 +624,7 @@ void actorSpotLightUpdateEntry(void) {
 extern Actor *gPrimaryPlayerActor;
 extern s16 gNumberedTargetLifetime;
 extern EffectGridAsset gEffectSpriteStarBurst;
-extern u8 gEffectSpriteTargetRing[];
+extern EffectGridAsset gEffectSpriteTargetRing;
 
 void actorNumberedTargetUpdate(void) {
     s32 *spawnFrame = gCurrentActor->customState;
@@ -642,7 +639,7 @@ void actorNumberedTargetUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetCallback(effectScaleSpinUpdate);
-        effectCreateAtActorBone(gEffectSpriteTargetRing, 0.9f, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&gEffectSpriteTargetRing, 0.9f, gCurrentActor, 1, 2);
         *spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->floorY);
@@ -657,7 +654,7 @@ void actorNumberedTargetUpdate(void) {
         }
         if (gCurrentActor->targetNumber == parent->targetNumber) {
             if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) > 900.0f) {
-                gCurrentActor->parentActor->arrowAngle = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
+                gCurrentActor->parentActor->arrowAngle = mathAngleBetweenPointsDeg(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg(gPlayerSlots->focusX, gPlayerSlots->focusZ, gPlayerSlots->camX, gPlayerSlots->camZ);
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
@@ -676,9 +673,7 @@ void actorNumberedTargetUpdate(void) {
     }
 }
 
-extern u8 gEffectSpriteSparklePurple;
-extern u8 gEffectSpriteSparkleYellow;
-extern u8 gEffectSpriteSparkleGreen;
+extern EffectGridAsset gEffectSpriteSparklePurple, gEffectSpriteSparkleYellow, gEffectSpriteSparkleGreen;
 
 void actorPlayerWarpEffectUpdate(void) {
     s16 *spinSpeed = gCurrentActor->customState;
@@ -688,7 +683,7 @@ void actorPlayerWarpEffectUpdate(void) {
     f32 y;
     f32 z;
     s32 j;
-    void *sel;
+    void *sprite;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->collisionMode = 1;
@@ -709,16 +704,16 @@ void actorPlayerWarpEffectUpdate(void) {
                     effectSetSpeed((randomNonNegative() >> 15) % 10000 % 120 + 0x50);
                     switch ((randomNonNegative() >> 15) % 10000 % 3) {
                         case 0:
-                            sel = &gEffectSpriteSparklePurple;
+                            sprite = &gEffectSpriteSparklePurple;
                             break;
                         case 1:
-                            sel = &gEffectSpriteSparkleYellow;
+                            sprite = &gEffectSpriteSparkleYellow;
                             break;
                         case 2:
-                            sel = &gEffectSpriteSparkleGreen;
+                            sprite = &gEffectSpriteSparkleGreen;
                             break;
                     }
-                    effectCreateAtActorBone(sel, 0.6f, gCurrentActor, j, 0);
+                    effectCreateAtActorBone(sprite, 0.6f, gCurrentActor, j, 0);
                 }
             }
         }
@@ -808,6 +803,7 @@ typedef struct CarryObjectState {
 typedef struct CarryObjectSpawnData {
     /* 0x00 */ s32 respawns;
     /* 0x04 */ s32 interactionMode;
+    /* 0x08 */ s32 flagLockMode; // 1: interactionType 4 once flag 0xFD is set (actorSpawnEffectAndTick)
 } CarryObjectSpawnData;
 
 extern s16 gCarryMinFallSpeed;
@@ -825,9 +821,6 @@ void carryObjectUpdate(void) {
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
-    SpritePair spritePair;
-    s32 pad[6];
-    s32 spawnArgs[2];
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1026,7 +1019,8 @@ void carryObjectUpdate(void) {
             actorDespawn(gCurrentActor);
         }
         if (gActorGlobalState.notifyReceived == 0) {
-            spritePair = gCarryDebrisSprites;
+            EffectGridAsset *debrisSprites[2] = { &gEffectSpriteDebrisGreen, &gEffectSpriteDebrisGrey };
+
             for (particleIdx = 0; particleIdx < 8; particleIdx++) {
                 offsetX = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
                 offsetY = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
@@ -1055,7 +1049,7 @@ void carryObjectUpdate(void) {
                     effectSetCallback(effectTumbleBounceUpdate);
                     effectSetFrameDelay(2);
                     effectSetSpeed(2);
-                    effectCreateAtPosition(spritePair.sprites[(randomNonNegative() >> 15) % 2],
+                    effectCreateAtPosition(debrisSprites[(randomNonNegative() >> 15) % 2],
                                   randomFloat() * 0.5 + 0.2,
                                   gCurrentActor->x + offsetX, gCurrentActor->y + offsetY,
                                   gCurrentActor->z + offsetZ);
@@ -1093,6 +1087,9 @@ void carryObjectUpdate(void) {
         if ((gPrimaryPlayerActor->z - state->homeZ) * (gPrimaryPlayerActor->z - state->homeZ) +
             ((gPrimaryPlayerActor->x - state->homeX) * (gPrimaryPlayerActor->x - state->homeX) +
              (gPrimaryPlayerActor->y - state->homeY) * (gPrimaryPlayerActor->y - state->homeY)) > 2500.0f) {
+            s32 pad[6];
+            s32 spawnArgs[2];
+
             spawnArgs[0] = state->respawns;
             if (gCurrentActor->interactionType == 2) {
                 spawnArgs[1] = 1;
@@ -1171,8 +1168,8 @@ void actorUpdateTimerBarAndRange(void) {
     f32 dx;
     f32 dz;
     f32 dy;
-    f32 dist;
-    u32 val;
+    f32 distSqXY;
+    u32 margin;
 
     if (!(gCurrentActor->flags & 0x10)) {
         frac = gCurrentActor->sub4->scaleX / 0.15;
@@ -1180,16 +1177,16 @@ void actorUpdateTimerBarAndRange(void) {
         if (frac < 0.0) {
             frac = 0.0f;
         }
-        val = (u32)(80.0f * frac);
-        gCurrentActor->cullMarginX = val;
-        gCurrentActor->cullMarginY = val;
+        margin = 80.0f * frac;
+        gCurrentActor->cullMarginX = margin;
+        gCurrentActor->cullMarginY = margin;
         gCurrentActor->drawDistance = 0x2BC;
     }
     dz = gCurrentActor->z - gPlayerSlots->camZ;
     dx = gCurrentActor->x - gPlayerSlots->camX;
     dy = gCurrentActor->y - gPlayerSlots->camY;
-    dist = dx * dx + dy * dy;
-    if (dz * dz + dist < 18000.0) {
+    distSqXY = dx * dx + dy * dy;
+    if (dz * dz + distSqXY < 18000.0) {
         gCurrentActor->flags |= 0x400;
     } else {
         gCurrentActor->flags &= ~0x400;
@@ -1206,7 +1203,7 @@ void actorSpawnEffectAndTick(void) {
     }
     carryObjectUpdate();
     if (!(gCurrentActor->flags & 0x10)) {
-        if (((s32 *)gCurrentActor->spawnData)[2] == 1) {
+        if (((CarryObjectSpawnData *)gCurrentActor->spawnData)->flagLockMode == 1) {
             if (flagGet(0xFD, 0) != 0) {
                 gCurrentActor->interactionType = 4;
             }
@@ -1261,13 +1258,13 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, u8 *textStr, u16 startDelay, u1
     if (actorSpawn(0xE8, 0) != 0) {
         marker = gSpawnedActor->customState;
         if (fontStyle & 0x80) {
-            marker->resourceId = gfxResourceCreate((s16)(fontStyle & 0xFF7F), textStr, 2, 160.0f, y, 0.0f);
+            marker->resourceId = gfxResourceCreate(fontStyle & 0xFF7F, textStr, 2, 160.0f, y, 0.0f);
             gSpawnedActor->moveYaw = 1;
             gSpawnedActor->y = y;
             return;
         }
         if (x == 0) {
-            gSpawnedActor->x = (gScreenWidth - textGetStringWidth((s16)fontStyle, textStr)) * 2;
+            gSpawnedActor->x = (gScreenWidth - textGetStringWidth(fontStyle, textStr)) * 2;
         } else {
             gSpawnedActor->x = x * 4;
         }
@@ -1308,7 +1305,7 @@ Gfx *renderAppendScaledMatrix(Gfx *glistp, Actor *actor, s16 xOffset, f32 scale)
     mtx = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(mtx);
     guScaleF(mtxA, scale, scale, 1.0f);
-    guTranslateF(mtxB, (f32)((f64)actor->x + 2.0 * (f64)xOffset), actor->y, 0.0f);
+    guTranslateF(mtxB, actor->x + 2.0 * xOffset, actor->y, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
     guMtxF2L(mtxA, mtx);
     gSPMatrix(glistp++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -1348,6 +1345,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
                 effectEnableFade();
                 effectCreateAtPosition(gPuffSprites[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, confettiX, actor->y * 0.25 + 12.0, -5.0f);
             }
+            // fall through: case 0 also sets the default gradient
         default:
             vtxGradientSetPosition(actor->fadeValue * 3);
             break;
@@ -1472,13 +1470,11 @@ void textCopyGlyphBlock(s32 *dst, s32 *src, u8 rowWidth) {
     s16 i;
     s16 j;
 
-    i = 0;
-    do {
+    for (i = 0; i < 0x20; i++) {
         for (j = 0; j < rowWidth; j++) {
             *dst++ = src[j + i * rowWidth];
         }
-        i++;
-    } while (i < 0x20);
+    }
 }
 
 
