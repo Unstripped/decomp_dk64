@@ -678,6 +678,12 @@ typedef struct KongChain {
     /* 0x01C */ KongChainNode nodes[12];
 } KongChain; // size = 0x13C
 
+// Kong (player) actor: its second component pointer (0x178) is the KongChain array kongChainInit fills.
+typedef struct KongActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ KongChain *chains;
+} KongActor;
+
 typedef struct ZoneVertex {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;

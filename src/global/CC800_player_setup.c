@@ -332,14 +332,7 @@ void kongChainInit(s32 mode, KongChain *chains, u32 kind) {
     }
 }
 
-
-// Kong actor: second component pointer (0x178) is the KongChain array kongChainInit fills.
-typedef struct KongActorView {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ KongChain *chains;
-} KongActorView;
-
-#define KONG_ACTOR ((KongActorView *)gActivePlayerActor)
+#define KONG_ACTOR ((KongActor *)gActivePlayerActor)
 
 extern s32 gCurrentMap;
 extern f32 gKongAccelY[];

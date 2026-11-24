@@ -67,13 +67,7 @@ f32 gSlopeSlideParticleMinSpeed = 80.0f;
 s32 gCutscenePauseDecelRate = 50;
 s32 gConsumableRefillSlots[4] = { 2, 4, 6, 5 };
 
-// Kong actor: second component pointer (0x178) is the KongChain array kongChainInit fills.
-typedef struct KongActorView {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ KongChain *chains;
-} KongActorView;
-
-#define KONG_ACTOR ((KongActorView *)gCurrentActor)
+#define KONG_ACTOR ((KongActor *)gCurrentActor)
 
 void playerStateCarried(void) {
     playerStateQueueCallback(0x3C, NULL, gCurrentPlayerIndex);
