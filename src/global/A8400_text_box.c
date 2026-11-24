@@ -162,14 +162,14 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     /* pad* are unused slots above the live locals; with scale/alpha/isLast
        (register-allocated, kept above dl so they cost no below-dl slot) they
        reproduce the original stack frame (0x148, dl 0x98, start 0x94, tmp 0xA0,
-       mtx 0xE0, half 0x132, stop 0x13B). */
+       mtx 0xE0, frame 0x132, stop 0x13B). */
     s32 padA;
     f32 alpha;
     f32 padH;
     u8 stop;
     s16 padC;
     f32 scale;
-    s16 half;
+    s16 frame;
     f64 padE;
     Gfx *padF;
     u8 isLast;
@@ -196,7 +196,7 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     gDPSetCombine(dl++, 0x119623, 0xFF2FFFFF);
     gSPClearGeometryMode(dl++, 0xFFFFFFFF);
     gSPSetGeometryMode(dl++, G_SHADE | G_SHADING_SMOOTH);
-    half = state->animFrame / 2;
+    frame = state->animFrame / 2;
     scale = (1.0 - state->waveAmp * 0.5) * state->openProgress * 1.9f * 4.0;
     guTranslateF(mtx, -48.0f, -32.0f, 0.0f);
     guScaleF(tmp, scale, scale, 1.0f);
@@ -206,9 +206,9 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     guMtxF2L(mtx, &state->mtxBuf[gGfxBufferIndex]);
     gDPPipeSync(dl++);
     gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
-    dl = textBoxRenderTail(dl, state, half);
+    dl = textBoxRenderTail(dl, state, frame);
     alpha = (state->openProgress * 150.0f * 2 > 150.0f) ? 150.0f : state->openProgress * 150.0f * 2;
-    dl = renderTextureSprite(dl, &state->mtxBuf[gGfxBufferIndex], alpha, half);
+    dl = renderTextureSprite(dl, &state->mtxBuf[gGfxBufferIndex], alpha, frame);
     if (state->textAlpha != 0) {
         gDPPipeSync(dl++);
         WRITE_GFX(dl++, ((s32) (state->boxTop * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->boxLeft * 4.0f) & 0xFFF) << 12), // FAKE: hand-expanded gDPSetScissor whose uly-first operand order steers the word schedule (the macro matches with box[4] array reads)
