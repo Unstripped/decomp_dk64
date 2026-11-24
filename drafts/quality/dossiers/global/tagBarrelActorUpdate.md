@@ -16,6 +16,9 @@ global:806809F0:other:71b822 other: `default: break;` (empty) in the trigger-que
 - ORIG check (director ruling 2026-11-18b, empty default): the not-2 edge is `bne t1,t7,0x5928` at 0x58fc, straight to the latch 0x5928 (the join); no bound check, no gap entries, no block of its own (the `sll t5,a0,2` 0x58f4 / `addu v1,t5,t9` 0x5900 bound recompute sits before and in the bne slot, executed on both edges). Default at the join -> stays FAKE (diagnose nohit).
 - s16 value local `trigger = *gActorGlobalState.volumeTriggerQueueId[i]` (selector local at its use) with the one-case switch and no default: 309; with `if (trigger == 2)`: 313
 - case 2 without its own break, falling into `default: break;`: 249
+2026-11-24 2026-11-24b: continue ReMeasureB18H anthropic/claude-opus-5-5 (variants.py try at 127a3fd5, after the cb17735e EffectGridAsset extern retype; the loop reads no sprite):
+- re-run: no default 294, plain if 301, case-ends-in-continue 4, case 2 falling into `default: break;` 249 (unchanged)
+- Q1616/Q1620 pointer-walk loop `s16 **ids` from `volumeTriggerQueueId` to `&volumeTriggerQueueId[count]` (replacing the triggerId local): with if 289, with the one-case switch 347; the entry test becomes sltu/beqz on the pointers instead of `blez a0` (0x58d4), `li a0,140` is hoisted, and the bound is recomputed only after the case-2 store, never on the not-2 edge
 ## Untried ideas
 none that give the not-2 edge a block with its own line without an empty arm: the target performs no work there except the bound recompute.
 ## Evidence

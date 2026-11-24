@@ -11,6 +11,7 @@ global:8067B4C8:dead-if:bd5eb8 dead-if: `if (0) {}` after `gCurrentActor->state 
 2026-11-15 same: case-20 loop base-depth spellings (`*(op + i)`, `(&op[0])[i]`, `*(&op[0] + i)`, `(&gActorGlobalState)->`, `i[op]`, mirrored compares) and `(&gActorGlobalState)->` in the block -> full=2.
 2026-11-15 same: `default: case 0:`, separate `case 0: break; default: break;`, labels moved last -> 2; dropping case 0 / default -> 61.
 2026-11-15 same: case-1 `--sub->timer == 6` respellings (split decrement, `-= 1`, mirrored, 1.0 / 1) -> 2; variants.py scan (21 variants) -> no zero.
+2026-11-24b ReMeasureB18H opus-5-5:xhigh (after the cb17735e EffectGridAsset extern retype; gEffectSpriteBlast is only &-passed in case 2): removal full=2 (lui a1,0x3f80 one slot earlier, as before); as1probe keep of base vs removal: the `.alias $3,$17` / `.alias $3,$sp` pair sits at ugen records 412/413 (before $38) in the base and 375/376 (right after jal camStartPath) without the dead if; as1probe scan of the removal: only `insert alias` into the .rdata jump-table words (records 390-397) reaches 0; Q0855 explicit empty labels `case 0: case 4: ... case 19:` for `case 0: default:` with or without default -> 197, default without case 0 -> 61.
 
 ## Untried ideas
 A natural construct that ends the $3 (&gActorGlobalState) uopt region at the switch head rather than after camStartPath (own diagnosis).

@@ -108,6 +108,7 @@
   - variants scan on the removal copy: 120 variants, best 37.
   - Q1497 (`p = g; p += i;` gives base-first in 1332B0 volumeTriggerUpdate), new here: `PlayerStruct *slot; slot = gPlayerSlots; slot += gCurrentPlayerIndex;` and `&slot->headX/headY/headZ`: 162 declared last or block-scoped, 198 declared first. `slot` is a uopt variable coloured v0 (`lw v0,0(v0)` gPlayerSlots, `addu v0,v0,t8` at 0x12f4), so the base never takes ugen temp t7. With `slot->headY` also in the first camProjectToScreen: 218.
   - `&(&gPlayerSlots[0] + gCurrentPlayerIndex)->headX` (Q0813 cast-free form) gives 0 but is a Q0813 steer: a FAKE for a FAKE, not adopted.
+- 2026-11-24 2026-11-24b: continue ReMeasureB18H (anthropic/claude-opus-5-5), at 127a3fd5, body untouched, after the cb17735e EffectGridAsset extern retype (gEffectSpriteMelonSpin was s32; it is &-passed elsewhere, not at 318197): cast removal 37 (text 38 shape 0, unchanged); Q1497/Q1619 `slot = gPlayerSlots; slot += gCurrentPlayerIndex;` 162 declared last / 198 declared first (unchanged); new: `&(gPlayerSlots + gCurrentPlayerIndex)->headX` on the first address and on all three, and the index-first `&(gCurrentPlayerIndex + gPlayerSlots)->headX`: 37 each (same score and shape as the plain removal).
 
 ## Untried ideas
 - A field-type change for PlayerState.attackerPlayerIndex/playerIndex was ruled out: playerIndex is already u8 (stored as a byte in CC800/201B0).

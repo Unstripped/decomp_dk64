@@ -14,8 +14,12 @@
   - one cast dropped: site 470 10 (first call rematerialises lui/addiu 0xacc/0xae0, the CSE web starts at the second call: lui/addiu 0xb00/0xb04, `sw a1,0x30(sp)` 0xb18); sites 471-474 5 each (lui/addiu replaces `lw a1,0x30(sp)` at 0xb18/0xb48/0xb78/0xba8).
   - all five dropped 28 (frame 0x30, text +16); `register void *asset = &D_80721444;` local 28 (copy-propagated lda); variants scan of the all-plain body: 18 swap/float variants, all 28.
   - uopt_trace -l 6: with the casts, candidates 16 `ucvt{1287}` and 17 `ucvt{137}` are the address value; bit 17 splits 79/80/82/84 and is never coloured (memory temp 0x30(sp)). Plain: no candidate (lda leaf).
+- 2026-11-24 2026-11-24b: continue ReMeasureB18H (opus-5-5, base 127a3fd5; re-measure after cb17735e retyped gEffectSpriteBarrelEnd and the other sprite externs to EffectGridAsset, as 124780 defines them), variants.py try full=:
+  - extern-type lever: five plain `&gEffectSpriteBarrelEnd` 28, five `(void *)&gEffectSpriteBarrelEnd` 28 (frame 0x30, lui/addiu a1 per call: still an lda constant); `EffectGridAsset *barrelEnd` initialised at the declaration or assigned before the first call 28 (copy-propagated, Q1618); `(s32)&gEffectSpriteBarrelEnd` without `(void *)` 0 but 5 cfe Warning 712 (illegal combination of pointer and integer); `(void *)(u32)` 0 (the same steer).
+  - one cast dropped: 469 -> 10, 470-473 -> 5 each (unchanged).
+  - uopt_trace -l 6: candidate 17 `ucvt{137}` (of 16 `ucvt{1287}`) is the address value; its first piece uopt 4 ($a1), split pieces 79/80/82/84 never coloured (memory temp 0x30(sp)), unchanged by the extern type.
 ## Untried ideas
-none in natural C without the integer parameter; the parameter retype needs 68 caller casts or warnings (both worse). A field read of D_80721444 would pointerize the lda (Q0470), but the target reads no field here.
+none in natural C without the integer parameter; the parameter retype needs 68 caller casts or warnings (both worse). The EffectGridAsset extern type (cb17735e) changes nothing: the pointer spellings stay lda constants (2026-11-24b). A field read of the sprite would pointerize the lda (Q0470), but the target reads no field here.
 ## Evidence
 Background: five unrolled calls (separate .rodata 1.2f literals 312-328(at) at 0xac8-0xb90); &D_80721444 lui/addiu once at 0xacc, sw a1,48(sp) 0xae4, lw a1,48(sp) 0xb18/0xb48/0xb78/0xba8; frame 0x38.
 Integer-parameter test copies: `.scratch/CleanmenuInitMainScreen/t/proto_s32c.c` (fdiff 0, 68 warnings), `t/proto_s32b.c` (menuInitFileSelect frame only).
