@@ -2629,7 +2629,7 @@ extern s16 gKongUnderwaterStrokeFrames[];
 extern f32 gKongUnderwaterStrokeSpeeds[];
 
 void playerStateSurfaceTreadWater(void) {
-    f32 target; // FAKE: one local for the case 0 buoyancy target speed and the case 1 animation speed: a separate animation-speed local (either declaration slot) changes regalloc (Q1055)
+    f32 target; // FAKE: one local for the case 0 buoyancy target speed and the case 1 animation speed: a separate animation-speed local (any declaration slot, a case block) or no local moves the case 1 value from $f14 to $f0 (Q1055, Q1612)
 
     gActivePlayerState->swimFrames++;
     gActivePlayerState->airAccel = gKongSwimAccel[gCurrentCharacterIndex];
