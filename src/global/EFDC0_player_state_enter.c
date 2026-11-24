@@ -34,12 +34,6 @@ extern s32 gCurrentMap;
 
 extern PlayerStruct *gPlayerSlots;
 
-/* Racer actor ridden by the player: the race overlay's path cursor follows the base Actor (RaceRacerActor). */
-typedef struct EfExtActor {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ RacePathState *path;
-} EfExtActor;
-
 /* Arguments for the next queued player-state callback (playerStateSetCallbackParameters). */
 typedef struct EfCallbackParams {
     /* 0x00 */ s32 param0; // cutscene command 0x73's a, playerTryEnterViewMode's view mode, callback 0x2F
@@ -438,7 +432,7 @@ void playerStateAdjustUpwardVelocity(void) {
     RacePathState *path;
 
     actor = gActivePlayerState->actor;
-    path = ((EfExtActor *)actor)->path;
+    path = ((RaceRacerActor *)actor)->path;
     if (actor->state < 3) {
         func_80026004(path, 0x1E, 1.0f);
     }

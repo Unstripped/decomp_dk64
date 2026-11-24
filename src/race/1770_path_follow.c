@@ -39,15 +39,6 @@ s32 raceGetPrevWaypointIndex(s32 pathLength, s32 curWaypoint) {
     return curWaypoint - 1;
 }
 
-
-
-// Racer actor: its participant is the customState (0x174); path cursor and aux state follow.
-typedef struct RaceRacerActor {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ RacePathState *path;
-    /* 0x17C */ RaceAuxState *aux;
-} RaceRacerActor;
-
 /* Effect node actor spawned by spawnNodeSpawnById: participant, path cursor and the race pair it registers. */
 typedef struct RaceNodeActor {
     /* 0x000 */ Actor base;

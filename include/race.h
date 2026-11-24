@@ -189,4 +189,11 @@ typedef struct RaceAuxState {
     /* 0x0C */ struct Actor *owner;
 } RaceAuxState; // size = 0x10
 
+// Racer actor: its participant is the customState (0x174); path cursor and aux state follow.
+typedef struct RaceRacerActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ RacePathState *path;
+    /* 0x17C */ RaceAuxState *aux;
+} RaceRacerActor;
+
 #endif
