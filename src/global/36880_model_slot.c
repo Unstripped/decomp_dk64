@@ -3510,7 +3510,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     allow = 1;
     if (entry->type == 1) {
         idx = hashTableLookup(entry->modelId);
-        slots = gModelSlots; obj = slots[idx].csState; // FAKE: one-line join lets as1 schedule addu t9,t8,t7 (0x99a0) ahead of the slots home store sw t8,52(sp) (0x99a4); on two lines the store goes first
+        slots = gModelSlots; obj = slots[idx].csState; // LAYOUT: one-line join lets as1 schedule addu t9,t8,t7 (0x99a0) ahead of the slots home store sw t8,52(sp) (0x99a4); on two lines the store goes first
         if (obj != NULL) {
             switch (obj->updateMode) {
             case 2:
