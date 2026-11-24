@@ -43,9 +43,9 @@ segments:
     vram: 0x80024000
     bss_size: 0x10
     subsegments:
-      - [0x0, c, 0]
-      - [0x2F70, .data, 0] # mpSfxFlags, spawn points, mpMapSpawnTable, mpHudIconTable (0x80026F70-0x80027040)
-      - [0x3040, .rodata, 0]
+      - [0x0, c, 0_match]
+      - [0x2F70, .data, 0_match] # mpSfxFlags, spawn points, mpMapSpawnTable, mpHudIconTable (0x80026F70-0x80027040)
+      - [0x3040, .rodata, 0_match]
       - { start: 0x3100, type: bss, vram: 0x80027100 }
 
   - [0x3100]

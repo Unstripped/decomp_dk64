@@ -25,7 +25,7 @@
 #include "proto/global/F56F0_player_weapon.h"
 #include "proto/global/F9450_grid_nodes.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/multiplayer/0.h"
+#include "proto/multiplayer/0_match.h"
 
 // Match controller state (actor +0x174 of the controller actor).
 typedef struct MpControllerState {
