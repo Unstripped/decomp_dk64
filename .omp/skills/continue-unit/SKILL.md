@@ -64,13 +64,15 @@ own report is enough between full runs):
 Refill a slot the moment its worker reports and its merge lands. No rounds: nothing waits for the
 slowest worker. Names yield falls once every file has had a reader: the leftovers are held items
 (no evidence), macro uses (hand edits, inspected) and rulings; stop names slots there.
-- hack: an EXHAUSTED function returns only with a new lever: rungs staled by knowledge or renames
-  (`quality.py status` OPEN after a unit's windows: one worker per file, 5 of 12 removed FAKE in
-  unit 1), or a lever-transfer list (a scout matching new Q-entries to exhausted sites, the Q-ID in
-  the brief). A new lever that is a pure respelling goes into `tools/variants.py` as a recipe and is
-  swept, not dispatched (unit 2: `switch`). Check the lever's precondition on the target asm before
-  dispatch (unit 2: 2 fixes of 10 transfers; Q1594/Q1595/Q1597/Q1598/Q1599/Q1602 list why the rest
-  failed). `// LAYOUT:` lines are not sites (rulings): never dispatched.
+- hack: first every open `uv run tools/fakehunt.py hits` line (one apply item per function: the worker
+  diffs the hit against src, merges through `merge_record`, records `diagnose fixed note="fakehunt
+  <recipe|remove|plain> hit <path>"`; a ZERO-PERMUTE dir goes to a worker that rewrites the permuter
+  output into readable C), then `rank` top to bottom (`next=retry` included). Keep `uv run
+  tools/fakehunt.py run` running in the background whenever the hack stream has slots (`--parallel 3
+  -j 2`). A pure respelling lever still goes into `tools/variants.py` as a recipe, not into a
+  dispatch. Check a lever's precondition on the target asm before dispatch (unit 2: 2 fixes of 10
+  transfers; Q1594/Q1595/Q1597/Q1598/Q1599/Q1602 list why the rest failed). `// LAYOUT:` lines are
+  not sites.
 - knowledge filing reopens the named functions' OTHER sites (rungs from earlier units go stale). File
   the queue while the workers that produced it are idle, run `quality.py status | grep OPEN`, and send
   each reopened site to the worker that already holds its function's traces (`write agent://<id>`):

@@ -144,7 +144,8 @@ session, a consolidation in a quiet window runs steps 1-3 only. Once every worke
 
 ## 7. Stop rule
 
-A function leaves the hack queue only when it has no hack site (fixed, or `// ORIG:` with a cited
-offset). The campaign is done at `reviewed <n>/<n>` with every `rank` function at `strong >= 3`;
-then the user decides about the rest. A `proto-type` site stops blocking once the types stream
-recorded `views` `blocked` with a reason.
+A function leaves the hack queue only when it has no hack site (fixed, or `// ORIG:` with a cited offset). The FAKE queue
+never ends: once its rungs are fresh a FAKE function shows `next=retry` and `rank` brings it back, least recently attempted
+first. Its next attempt follows the retry rule (`new=` naming what history lacks, `fakehunt.py show` output in the brief).
+goto-only functions finish at `goto-hand` kept. A `proto-type` site stops blocking once the types stream recorded `views`
+`blocked` with a reason.

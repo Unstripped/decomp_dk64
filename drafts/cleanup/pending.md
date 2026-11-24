@@ -23,7 +23,7 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   with file-local ModelSlot typedefs); actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
 - 8F4B0 CutsceneActorState / WeatherActorState merge (same layout, 8F4B0.c:203/485): needs proof that actorCutsceneDispatchEvents
   runs on actor type 0xC (PolishGlobal8F4B0Names 237b3f89).
-- B5EC0 72fa9a actorTrackBoneTowardTarget proto-steer: TERMINAL (director RQ3 2026-11-20): FAKE kept; owner prototype (u8, s32)
+- REOPENED (user 2026-11-24, FAKE queue never terminal): B5EC0 72fa9a actorTrackBoneTowardTarget proto-steer: TERMINAL (director RQ3 2026-11-20): FAKE kept; owner prototype (u8, s32)
   rejected (a1 = sel by residence only: B5EC0.o `move a1,a0` 0x9c0, jal 0x9d8; owner +0x8 `andi a1,a0,0xff`; 37 callers by
   residence). Re-measured 2026-11-20 (Cleanfunc_806B13B4b, 900d6b5c): EXHAUSTED.
 - effectSetSpeed(s32) receives an actor pointer (race/1770.c:330 `(s32)gCurrentActor`) and an index (boss/0): owner type review.
@@ -46,7 +46,7 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   (`((u8 *)p)[0xB]` in heapInitGeneralPool, heapInitBlockPool, heapReleasePool, heapFree, heapFreeDeferred,
   heapRegister/UnregisterSurvivor; `ptr[-5]` in heapLockBlock/heapUnlockBlock). An anonymous union adds cfe W838 + W649 per
   declaration; a named one rewrites all 28 `->next` in 15050.c. Only as a file-wide polish/types pass.
-- 7130 D_80770DD9 (undefined_syms.us.txt:341) stays while 7130.c:853 stores through it (FAKE linker alias of D_80770DD8[1]).
+- REOPENED (user 2026-11-24, FAKE queue never terminal): 7130 D_80770DD9 (undefined_syms.us.txt:341) stays while 7130.c:853 stores through it (FAKE linker alias of D_80770DD8[1]).
 - effectSetCallback (119370) keeps `void *callback` + `(EffectCallback)` cast (`views blocked`, 2026-11-24 M15): 80 callbacks in
   47 files: 55 `(EffectNode *, s8 *)`, 9 `(EffectNode *, void *)`, 5 `(EffectNode *, s32)`, 3 K&R, 8 unclassified. Plan (batch_19 G,
   not run): `.scratch/TypesOwner/batch_19/G_plan.md` (census script, one EffectCallback typedef for the dominant group, retype
@@ -67,36 +67,34 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - PlayerStruct.rect[4] (sched.h) scissor-field rename HELD: named fields flip textBoxRender's `|` chain order (Q1082).
 - HeapBlock u64 view for 15050's 14 `// ORIG:` pair puns DECLINED (TypesOwner9 batch_9 part J): no hack site gained, alignment
   4 -> 8 (clint TYPES LAYOUT BAD), defeats `--header-carve`, reopened 15 functions. Retry only with a new form.
-- CollisionBoxTri shared struct (collision.h) DROPPED (TypesOwner5 batch_5 Part A; probes .scratch/TypesOwner/batch_5/partA_req/,
+- REOPENED (user 2026-11-24, FAKE queue never terminal): CollisionBoxTri shared struct (collision.h) DROPPED (TypesOwner5 batch_5 Part A; probes .scratch/TypesOwner/batch_5/partA_req/,
   partA_alt/): scalar x0..z2 needs a pun in 70FD0, x[3]/y[3]/z[3] fails fdiff in 6AD90. Reopen only with a shape that fdiffs in both.
-- FE40 0b7e03/#2 PERMANENT DEBT (director 2026-11-17d, `retype kept`, ledger 70e3f1e4): `void *dst` is polymorphic; `u8 *dst`
+- REOPENED (user 2026-11-24, FAKE queue never terminal): FE40 0b7e03/#2 PERMANENT DEBT (director 2026-11-17d, `retype kept`, ledger 70e3f1e4): `void *dst` is polymorphic; `u8 *dst`
   raises W709 at 9 caller args (5A50 4, 6AD90 5) and gunzip's `void **outBufPtr` needs a pun. Probes .scratch/PolishglobalFE40/.
-- 11BC10 effectInterpolationUpdate 6e5dc3 DECLINED (director; CleaneffectInterpolationUpdate, merge 45e10058): an `f32 *` interp
+- REOPENED (user 2026-11-24, FAKE queue never terminal): 11BC10 effectInterpolationUpdate 6e5dc3 DECLINED (director; CleaneffectInterpolationUpdate, merge 45e10058): an `f32 *` interp
   with enum slot indices matches (.scratch/CleaneffectInterpolationUpdate/render_interp_f32.patch, typed_standin_11BC10.c) but is a
   view chosen for codegen. Retry only with new type evidence.
-- A8400 textBoxRender scissor d5a412 REFUSED (director turn 162): the plain gDPSetScissor gives fdiff 1; an anonymous union over
+- REOPENED (user 2026-11-24, FAKE queue never terminal): A8400 textBoxRender scissor d5a412 REFUSED (director turn 162): the plain gDPSetScissor gives fdiff 1; an anonymous union over
   ResQueueActorState.boxLeft..boxBottom (cfe W838/649) or an `f32 box[4]` exists only to steer it. Retry only with another user or
   asset-layout evidence (.scratch/PolishglobalA8400/header-request.md, resqueue.patch hunk 2, shadow/resqueue.h).
-- D1 TERMINAL (director 2026-11-18): the menu/3E10 `(void *)(s32)&D_80721444` cast family (menuInitMainScreen 5,
+- REOPENED (user 2026-11-24, FAKE queue never terminal): D1 TERMINAL (director 2026-11-18): the menu/3E10 `(void *)(s32)&D_80721444` cast family (menuInitMainScreen 5,
   menuInitAdventureFileSelect 3, 3E10.c:738) keeps `void *` + 9 FAKE casts: an `s32` asset parameter on menuSpawnUiElementEffect
   costs W712 0 -> 68, a `u8 *asset` local scores full=28 (.scratch/TypesOwner/batch_12/partR_plan.md,
   .scratch/Lead20261118/probe3E10; recorded 9f83bf7c). RQ1 2026-11-20: stale rungs re-measured only (CleanmenuInitMainScreenb,
   02ea6af1), nohit, EXHAUSTED; terminal debt.
-- D2 HOLD (director 2026-11-18): ACDC0 hudPauseMenuUpdate, 4 FAKE (c127b7 page and db430c credits reuse sel; 6151e7 limit and
+- REOPENED (user 2026-11-24, FAKE queue never terminal): D2 HOLD (director 2026-11-18): ACDC0 hudPauseMenuUpdate, 4 FAKE (c127b7 page and db430c credits reuse sel; 6151e7 limit and
   32c920 half reuse flag, pinned by register colouring; .scratch/CleanhudPauseMenuUpdate/dossier_global_hudPauseMenuUpdate.md, merge
   54a784f8). RQ2 2026-11-20: re-measured on the merged body (02ea6af1), no new lever (page 7 = cfe's shared switch temp takes v0;
   every split grows the frame 0x58 -> 0x60), EXHAUSTED. A lever not in the dossier goes to the director with offsets before any
   FAKE change. Frame-capacity ORIG declined (ladder.md home-slot rule).
-- Hack queue stop (director 2026-11-20): no re-dispatch of EXHAUSTED rank functions without a concrete new lever named in the
-  brief (new type evidence or tool route); SKILL §7.
-- 7130 70c91e `if (D_80770DC8) {}`: CLOSED 2026-11-18b (CleansfxUpdateLevelAmbientc, ec3c9426): Q1470 lands the function-local
+- REOPENED (user 2026-11-24, FAKE queue never terminal): 7130 70c91e `if (D_80770DC8) {}`: CLOSED 2026-11-18b (CleansfxUpdateLevelAmbientc, ec3c9426): Q1470 lands the function-local
   static at 0x80770DC8 only with N = 160 (mod 256) extra numbered definitions; no natural count. Reopen only with another lever.
-- 80150 tagBarrelActorUpdate 71b822 empty `default: break;`: FAKE (2026-11-18c M19, 9de100e7): the not-2 edge `bne` 0x58fc goes straight
+- REOPENED (user 2026-11-24, FAKE queue never terminal): 80150 tagBarrelActorUpdate 71b822 empty `default: break;`: FAKE (2026-11-18c M19, 9de100e7): the not-2 edge `bne` 0x58fc goes straight
   to the latch 0x5928, no own block, so the empty-default rule keeps it a steer (already tagged).
-- 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) stay FAKE (2026-11-18c M21, 47fa703b): the
+- REOPENED (user 2026-11-24, FAKE queue never terminal): 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) stay FAKE (2026-11-18c M21, 47fa703b): the
   local area is exactly 96 bytes (88 of f64 + int i + the switch temp); an eleventh f64 fits only by byte-packing the ints (22 lines of
   width code). Reopen only with a shape that keeps both the frame and int widths.
-- 9DD70 actorCheckAlwaysFalse e999c8 `case 6: case 7:` stays ONE FAKE (R8, director 2026-11-18c): no 6/7 compare in the target
+- REOPENED (user 2026-11-24, FAKE queue never terminal): 9DD70 actorCheckAlwaysFalse e999c8 `case 6: case 7:` stays ONE FAKE (R8, director 2026-11-18c): no 6/7 compare in the target
   (0x16e0-0x1754); no restore of the pre-merge sites c56038/0641d2.
 - Names kept (director 2026-11-14): collisionGetFloorTriangleNormal (proposal collisionCheckLedgeGrab: .scratch/close/renames.md row 105);
   collisionGetFloorHeight was renamed collisionGetWaterSurface at the 2026-11-24 close (eb53794b) on new evidence (it returns
@@ -113,11 +111,11 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - Next-unit re-measure items (OPEN after 1dadd028, `quality.py status | grep OPEN`): ACDC0 hudPauseMenuUpdate `review` + diagnose
   6151e7 (`flag = sPauseCarouselSpacing / 10`) and 32c920 (`flag = sPauseCarouselSpacing >> 1`), staled by the Q1582 correction
   paragraph: re-check both flag-reuse steers against Q1635/Q1582 (does the shared switch temp change which local the step/half-span
-  values need?). One ledger-only worker, minutes. Every other `rank` function is EXHAUSTED (stop rule: a named lever first).
+  values need?). One ledger-only worker, minutes. Every other `rank` function is EXHAUSTED.
 - Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
   `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
   function's real outputs). Not dispatched: a param rename is a body change.
-- Continue unit 1 (2026-11-21): the four stale reviews and every knowledge/rename-staled hack rung were re-measured (ReviewU1/U2,
+- REOPENED (user 2026-11-24, FAKE queue never terminal): Continue unit 1 (2026-11-21): the four stale reviews and every knowledge/rename-staled hack rung were re-measured (ReviewU1/U2,
   Hack* workers): reviewed 4,270/4,270, sites open 1; FAKE 168 -> 163 (80150 volatile via bare truth tests Q1585, 36880
   modelPendingQueueInsert 4 -> 2, 7130 sfxUpdateLevelAmbient 4 -> 2 via a per-block element pointer Q1586). Every other rank
   function is EXHAUSTED; re-dispatch only with a lever named in the brief (continue-unit SKILL §3: lever-transfer lists).

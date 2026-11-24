@@ -79,6 +79,9 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
 - Every `diagnose`/`permute`/`reconstruct`/`goto-hand` line on a site tried before carries
   `new="..."`: what this attempt tried that the dossier/history does not list (a hypothesis, a
   recipe, a spelling). `record` refuses a retry without it.
+- A `next=retry` function is retried with a lever the history lacks: a different hack-free base
+  (one local per role, alias removed, retyped local), coordinated multi-site changes from the
+  as1probe rounds, or a reconstruct from the asm.
 - `diagnose`/`permute`/`reconstruct` notes: concrete register/offset terms (`$s1 keeps sp+0x34`),
   not generic words (`steer`, `comma`, `re-read`).
 - Score candidate bodies with `tools/dk python3 tools/variants.py try .scratch/<You>/<file>.c <src>
@@ -117,7 +120,9 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   other functions' rungs: list them).
 
 # Phases (per assigned function, in order)
-1. Dossier/history: read both; list the untried ideas.
+1. Dossier/history: read both, and `uv run tools/fakehunt.py show <FUNC>` (best hack-free candidate,
+   as1probe multi-round hints, permuter bests/zeros); list the untried ideas (what fakehunt already
+   tried counts as untried-for-agents only if no agent tried it).
 2. `uv run tools/quality.py sweep .scratch/<You>/<file>.c --copy-of <src> -j 2`: read its `HIT`
    lines (remove/plain/cond/classify/recipe; apply by hand, fdiff each).
 3. Diagnose: `tools/uopt_trace.sh -s <src> .scratch/<You>/<file>.c FUNC` for regalloc,
