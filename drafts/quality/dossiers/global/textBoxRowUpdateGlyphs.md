@@ -1,4 +1,4 @@
-# textBoxRowUpdateNodes (global, src/global/A8400_text_box.c)
+# textBoxRowUpdateGlyphs (global, src/global/A8400_text_box.c; was textBoxRowUpdateNodes)
 ## Sites
 global:806A4B84:other:66d3ed other: the guard and the add re-read glyph->fade (line 294-295) while the fade local holds it; uopt CSEs the reads into one lbu v1,2(s0) (0x157c) that carries usub/uadd, which colours step a0; with the local at every read (N2) or no local (N3) step takes v1 and fade a0.
 ## Attempts

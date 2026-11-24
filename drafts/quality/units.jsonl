@@ -1353,3 +1353,4 @@
 {"type": "unit", "t": "2026-11-24T22:15:56Z", "unit": "2026-11-24: cleanup CleanschedStartTaskb", "commit": "fc1a7cdab5b7b2fae613aaf18bb5cccb6e544dda"}
 {"type": "unit", "t": "2026-11-24T22:29:26Z", "unit": "2026-11-24: cleanup CleantextBoxRender", "commit": "c138794db42ce82f07c4ba211dbd74725e00daa3"}
 {"type": "unit", "t": "2026-11-24T22:31:53Z", "unit": "2026-11-24: cleanup CleantextBoxRender box", "commit": "ae568705083568c2013b7f4711ee6931b02d8a73"}
+{"type": "unit", "t": "2026-11-24T22:40:40Z", "unit": "2026-11-24: names textBoxRowUpdateGlyphs", "commit": "bc0065f3361dec59c16da7df0d50dfc8fb2a4303"}
