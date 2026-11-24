@@ -1,4 +1,4 @@
-# arcadeUpdatePlayerAnimation (arcade, src/arcade/0.c)
+# arcadeUpdatePlayerAnimation (arcade, src/arcade/0_game.c)
 ## Sites
 - arcade:8002B390:dead-if:edb3d1 (was 104665; re-keyed by the gArcadeGameOver rename) (kept): removal 5 (&D_8004A764 address web {513|0} takes v0 instead of v1 at 0x7684/0x7694/0x769c/0x76f4/0x770c). Mechanism (2026-11-18 trace): the guard is bb1-bb3 of the state == 2 arm; its two reads of D_8004A764 are one CSE candidate (uilod{513}, lr 24, reg 1 = v0) and put bb1 into the address web (lr 182 = bb1, bb63, bb64), so the web interferes with that value and gets forbidden [1 4 5 7 17 18] -> reg 2 (v1). Removed, the web is bb60/bb61 only (forbidden [17 18], neighbours 113 col / 180 &D_8004BCD0 / 215 const 1) -> lowest free reg 1 (v0).
   2026-11-18 (CleanarcadeDrawStage3Background): sweep classify class 2 (same-value lever); no real use of D_8004A764 in the
@@ -28,6 +28,12 @@
   - NEW: `u8 lives = gArcadeSpareLives` with `gArcadeSpareLives = lives - 1` 11 (block-scoped 11), `s32 lives` 5 (target keeps
     `lbu v0,0(v1)` 0x7670 / `addiu t4,v0,-1` 0x767c); `u8 over = gArcadeGameOver` read before the `> 48.0f` test 61 (extra lbu).
     variants scan of the removed form best 5.
+- 2026-11-24 2026-11-24: cleanup CleanarcadeUpdateDonkeyKongStage4 CleanarcadeUpdateDonkeyKongStage4 anthropic/claude-opus-5-5 (base 2e593510, re-measure after 05c5a664):
+  - re-run: removal 5 (`lui/addiu v0` for &gArcadeGameOver at 0x7684/0x7694, `lbu t8,0(v0)` 0x769c/0x76f4, `sb t9,0(v0)`
+    0x770c instead of v1), single `if (gArcadeGameOver) {}` 5, `gArcadeGameOver++` for `= 1` 51.
+  - NEW: spare-lives arms swapped (`if (gArcadeSpareLives != 0) { gArcadeSpareLives--; arcadeFinishStageIntro(); } else
+    {...}`, also bare test) 37: `beqz v0` at 0x7678 and the decrement store and call move into the fall-through block;
+    `s32 index` declared at function scope (after y or after row) instead of in the spawn loop 5.
 ## Untried ideas
 - none from the local asm: in the target every v0 (reg 1) candidate lives in bb0 (dirBit), bb1-2 (D_8004C710 value), the frame & 3 switch blocks, bb77-79 or bb80. The removed web (bb60/bb61) shows no v0, bb61 leads into the call loop and nothing after the loop (bb68/bb70/epilogue at 0x7878) reads v0, so no live-through v0 value can reach it; the web cannot include bb50/bb69 either (&D_8004C71B shares v1 there). Only a construct that emits no code and still holds v0 inside the web gives v1: a dead `D_8004A764 && D_8004A764` read in a v0 block (extends the web) or any dead two-use read inside bb60/bb61 (the 2026-11-18 permuter zero: `if (!D_8004C6E4 && !D_8004C6E4) {}` before `D_8004A764 = 1`); a real two-use read (`D_8004A764++`) costs an add. The FAKE stays unless the real source of such a dead read turns up.
 ## Evidence

@@ -1,4 +1,4 @@
-# arcadeDrawStage3Background (arcade, src/arcade/0.c)
+# arcadeDrawStage3Background (arcade, src/arcade/0_game.c)
 ## Sites
 - arcade:800275E8:other:317c79 (was e89353, 1489cd; re-keyed by the gArcadeStage3Girders rename): kept // FAKE 2026-11-17 (CleanarcadeDrawHud, lead ruling Q0816): `count = sizeof(D_8004A7C8) / sizeof(D_8004A7C8[0]);`
   (Q0780 ARRAY_COUNT bound local, data-proven length) and `for (pt = D_8004A7C8; pt < D_8004A7C8 + count; pt++)` keep the
@@ -64,6 +64,15 @@
   - NEW: the table as a function-local static (`static ArcadeGirderSpan sGirders[]` inside the function, Q1125; only this
     function reads it): with the count local RELOC-EQUIV OK (data placement unchanged); with the literal bound the end still
     folds to `lui s1,%hi(.data)` / `addiu s1,%lo(.data+0x8c)` (fdiff 1). Static vs global makes no difference to the fold.
+- 2026-11-24 2026-11-24: cleanup CleanarcadeUpdateDonkeyKongStage4 CleanarcadeUpdateDonkeyKongStage4 anthropic/claude-opus-5-5 (base 2e593510, re-measure after 05c5a664):
+  - re-run: literal `pt < gArcadeStage3Girders + 21` + `s32 pad` 18 (text 16; `lui s1` / `addiu s1,%lo(+0x54)` at
+    0x3880/0x3884, then t8/t9 renames 0x38f8-0x39f0); inline `sizeof / sizeof` bound + pad 18; count initialised at its
+    declaration 69.
+  - NEW: a dedicated never-reused counter `k` in the count slot (so Q1224 cannot block LFTR): `for (k = 0, pt = T; k < 21;
+    k++, pt++)` 21 (k stays a register counter, no LFTR onto s0), `k < sizeof / sizeof` 21; index loop `pt = &T[k]` 20,
+    index loop on `T[k].f` with a pad in the pt slot 20: the LFTR end folds to `%lo(T+0x54)` like the literal.
+  - CAUTION: `ARRLEN` is not visible in src/arcade/0_game.c (common.h does not reach PRinternal/macros.h): an ARRLEN
+    bound compiles as an implicit call (`jal ARRLEN`, score 25-28), so earlier ARRLEN numbers need the sizeof spelling.
 ## Untried ideas
 - none from the local asm: every hack-free end with a literal offset (sized array, sizeof, pointer local, end local,
   byte offset, pointer difference, index loop, function-local static table) folds to `%lo(D_8004A7C8+0x54)`; only a variable count gives the scaled
