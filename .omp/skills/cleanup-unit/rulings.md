@@ -52,6 +52,8 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - any other constant-valued local
 - a redundant alias (a second copy of a value already in a local: a swap needing one is rejected), also a cursor copy of a parameter
   that is never read again (CC800 kongChainInit `KongChain *chain = chains;`, director 2026-11-24)
+- a fully dead declaration default (every path stores the local before any read, the default returns), also when `= 0` matches too:
+  Q0795 covers only initialisers live on some path (CC800 kongChainInit dc42ce `s32 count = 1; s32 n = 4;`, R1 2026-11-24b)
 - a value cast chosen for codegen, also as the result cast of a one-recomputation macro: ordinary only when dropping it changes
   the computed value for some reachable input (7CA80 actorAllocate `ALIGN8_U16` `(u16)`: headerSize <= 0x188 over all 344 component
   lists, so the cast only steers registers; director 2026-11-20)
@@ -75,7 +77,10 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
   new `#define PROTO_SKIP_<f>` for it (boss/0 actorMoveWithinZone; R2 2026-11-24): new skips are only `// FAKE: callee prototype steer`
   or `// PROTO:` (AGENTS.md). Existing `PROTO_SKIP_<f> // ORIG:` lines paired with such a declaration stay (42630 hudSpawnCountdownTimer,
   modelAnimEntrySetUnkC, effectSetDepth).
-- FAKE → `// LAYOUT:` with line-order evidence is a drop.
+- FAKE → `// LAYOUT:` with line-order evidence is a drop. Evidence: the statements on ONE line match in both orders; for a dependent
+  pair (the second reads the first) splitting the line changes only the relative order of the two statements' own instructions
+  (36880 modelPendingQueueInsert cd1810 `slots = gModelSlots; obj = slots[idx].csState;`: the split swaps only `sw t8,0x34(sp)` and
+  `addu t9,t8,t7` at 0x99a0/0x99a4; R2 2026-11-24b).
 - an empty `default:` whose own block the target keeps (bound-check + gap entries branch to a distinct address) is `// ORIG:` citing
   that block (director 2026-11-18b: vsprintf 0x139c `lbu/li/move` before the loop test 0x13a8, bound check 0x4c4; EFDC0
   playerStateSetFlagsByActorType +0x16c..+0x190 before the join +0x194, no gap entries; C0EE0 enemyGridStateStep: the one reload

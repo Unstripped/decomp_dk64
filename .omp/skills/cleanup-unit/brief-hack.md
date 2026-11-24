@@ -46,7 +46,9 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   Dead ifs, no-op arithmetic, `volatile`, comma expressions, `do {} while (0)`, punned casts,
   value-named constant locals, redundant aliases (`start = head;`) and an unrelated local reused
   for another value keep their tag while they stay. `// LAYOUT:` (not FAKE) only with line-order
-  evidence: the statements on ONE line match in both orders (as1 `.loc`); else it stays FAKE.
+  evidence: the statements on ONE line match in both orders (as1 `.loc`), or, for a dependent pair
+  (the second reads the first), splitting the line only swaps the two statements' own instructions
+  (R2 2026-11-24b, rulings.md); else it stays FAKE.
 - An untagged hack you cannot remove gets `// FAKE: <what it steers>` on its line (`kept`);
   report it as "pre-existing, now tagged" (the hack count, tagged + untagged, never rises).
   Hidden steers count as hacks: an odd spelling chosen only for codegen (`(*p).f` for `p->f`,

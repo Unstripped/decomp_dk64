@@ -10,9 +10,13 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   EffectGridAsset extern for D_8071FE08 + C4620 duplicate dropped (7beb5dbd, 6064fcc9), E ACDC0 sPauseKongTables (070a72b3),
   C 450.c data split + 13980/201B0 s8 readers ORIG (2539d1a6), D1/D2 one declared type for gMinigameCoinCount,
   gFaultScreenEnabled, gDemoFixedAnimRate, gDemoPlaybackState, gActorScriptAnimTable (225a8e51, 3da6b8de).
-- 7CA80 script tables: `extern void *gActorScriptIndexTable` (7CA80.c:533) vs `u16 *` in 19A00.c:284, 80150.c:116, E4090.c:1304 (bss
-  in asm, no C definition), and `extern void *gActorScriptSoundTable` (7CA80.c:535) vs `s16 *` in 19A00.c:1495: one declared type
-  each, every user in one gate; then actorInit casts directly (TypesOwner14, PolishglobalD1Reread 2026-11-20).
+- Landed 2026-11-24b (continue unit, TypesOwner17; history in sessions.md): batch_18 A 7CA80 actor-script table externs take the
+  readers' types (d49a5943); B1-B6 + H every effect sprite extern `EffectGridAsset` (42397ff1, d10406bc, 2db9b450, 7e99f449, 231fc47c,
+  cb17735e, e9a2bee8; closes the D_80720340 / gEffectSpriteExplosion declaration item); batch_19 A A8400 `gEffectGridAssets`
+  `EffectGridAsset *` (01ff4a67), C one VehicleActor in race.h for 936B0 + race/52B0 (570c5e4b), E jetpac/0 BUTTONS_PRESSED
+  (9ab2a986); batch_20 RaceParticipant 0x25 / 0x26 split by actor kind: manager hasCpuRival / route, racer boostTimer / boostCharge
+  (993213f4 header, 3a7a5351 uses); PlayerStruct heldButtonsPtr -> pressedButtonsPtr (names window 757bd3f2). The ucode-symbol item
+  (6710/14CF0 rsp/asp externs) has no remaining externs.
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing, BC3B0.c:172): the shared field name may be too narrow.
 - 55B20 file-local MapZone (55B20.c:350): `tris` as `MapTriangle *` would remove 23 casts; a natural rewrite does not match yet.
 - 36880 views on `ModelSlot.unk20` (model.h:109 `void *`, ModelKindObj users): blocked on the model.h H1/H2 regeneration (clashes
@@ -23,15 +27,13 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   rejected (a1 = sel by residence only: B5EC0.o `move a1,a0` 0x9c0, jal 0x9d8; owner +0x8 `andi a1,a0,0xff`; 37 callers by
   residence). Re-measured 2026-11-20 (Cleanfunc_806B13B4b, 900d6b5c): EXHAUSTED.
 - effectSetSpeed(s32) receives an actor pointer (race/1770.c:330 `(s32)gCurrentActor`) and an index (boss/0): owner type review.
-- Not run (2026-11-14b): RaceParticipant 0x25/0x26 racer-side aliases (boostTimer/boostPending; manager names hasCpuRival/route);
-  one shared VehicleActor (936B0.c:575) / RaceCompetitorActor (race/52B0.c:35) in race.h; 36880 TexImageCmdSpan as a Gfx[] view
-  (G_SETTIMG/G_SETTILESIZE, file scope); jetpac/0.c:442 open-coded BUTTONS_PRESSED; CC800 `heldButtonsPtr` holds
-  &gPadPressedButtons[i] (pressed, not held: field rename).
+- 36880 TexImageCmdSpan as a Gfx[] view (2026-11-14b; batch_19 D, no change): the span reads naturally as `Gfx` (texAddr 0x04 =
+  span[0].words.w1 of the G_SETTIMG, tileSizeW0 0x30 = span[6].words.w0 of the G_SETTILESIZE), but retiring it is not local:
+  dlFindTextureCommands is non-static (its proto names `struct TexImageCmdSpan **` twice: PROTO_SKIP stand-in + gen + stage), the
+  TexAnimCmdSet fields change type, three functions change (the 2072-2095 compares, the 2907-2917 stores) and one store is an ORIG
+  line (2910 `dst = &...->tileSizeW0`, key changes). Plan: one callee-prototype part with views fixed + review for the 3; measure first.
 - 13980 `extern u32 gFramebuffers[]` -> `u16 *gFramebuffers[]` (Polishglobal13980Rereview 3c2f89d7): blocked on 136820's
   `faultFontInit(s32, s32, s32)` prototype.
-- ucode symbols: 6710.c/14CF0.c D_80760590, D_805FB000, D_805FB0D0, func_80741310 are the rsp/asp symbols include/PR/ucode.h
-  declares (aspMainDataStart, rspbootTextStart/End, aspMainTextStart; `long long[]`): replace the externs (rename.py refuses
-  names in scope).
 - 478F0 reads `D_807505AE[5]` (now `sPauseKongTables.unlockFlag[5]`) when sHubItemsCycle is 20, past the 5-entry table: original
   behaviour (TypesOwner14); keep, note only.
 - jetpac 0x8002BA80 Gfx split: the `jetpacInitPending` splat label (jetpac/0.c:404) spans a gSPEndDisplayList.
@@ -45,14 +47,13 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   heapRegister/UnregisterSurvivor; `ptr[-5]` in heapLockBlock/heapUnlockBlock). An anonymous union adds cfe W838 + W649 per
   declaration; a named one rewrites all 28 `->next` in 15050.c. Only as a file-wide polish/types pass.
 - 7130 D_80770DD9 (undefined_syms.us.txt:341) stays while 7130.c:853 stores through it (FAKE linker alias of D_80770DD8[1]).
-- Declaration consistency: D_80720340 `u8`/`u8[]`/`s32` (478F0, 80150, 936B0, 9DD70, B6C50, race/1770; held name gSmokePuffSprite:
-  unify the type first).
-- EffectGridAsset sprite externs, one per global (2026-11-24 M5/M15): 124780 defines them `EFFECT_GRID_ASSET(n)`; 478F0 (M5) and
-  119370 declare `EffectGridAsset`, ~118 externs in 31 other files are `u8`/`u8[]`/`s32`/`void`/`Gfx` (3E10, 80150, B2CE0, E4090,
-  C4620, CEAE0, 699B0, 936B0, B6C50, race/1770, BC3B0, C1E70, boss/F0D0, A2F10, 9DD70, ...). After unifying, 119370
-  effectCreateAtModelNode/ActorBone/Position take `EffectGridAsset *asset` (`views blocked` there). One gate per header-free batch.
 - effectSetCallback (119370) keeps `void *callback` + `(EffectCallback)` cast (`views blocked`, 2026-11-24 M15): 80 callbacks in
-  47 files: 55 `(EffectNode *, s8 *)`, 9 `(EffectNode *, void *)`, 5 `(EffectNode *, s32)`, 3 K&R: a callee-prototype batch first.
+  47 files: 55 `(EffectNode *, s8 *)`, 9 `(EffectNode *, void *)`, 5 `(EffectNode *, s32)`, 3 K&R, 8 unclassified. Plan (batch_19 G,
+  not run): `.scratch/TypesOwner/batch_19/G_plan.md` (census script, one EffectCallback typedef for the dominant group, retype
+  effectSetCallback with a stand-in + gen, cwarn over all 47 files with the shadow proto; a file whose count would rise needs its
+  callee retyped in the same batch or keeps an honest cast). Next unit.
+- 119370 effectCreateAtModelNode / ActorBone / Position could take `EffectGridAsset *asset` now that every sprite extern is
+  `EffectGridAsset` (TypesOwner17 B6 suggestion; callee-prototype retype, stale cost unmeasured).
 
 ## Closed or held by ruling (reopen only with the new evidence named)
 - Return widths: keep `u8 mapGetHubWorldIndex(u8, u8)` (OwnerHubWorldIndexWidthPlan: C2A90 func_806BE09C uses v0 unmasked) and
@@ -105,9 +106,15 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   gBossSavedPlayerUnk144 (address-shaped; boss/DAA0 saves gPrimaryPlayerActor->unk144 there).
 
 ## Hack items
-- 2026-11-24 close leftovers (OPEN, not EXHAUSTED): D5E10 playerStateSurfaceTreadWater `next=review` (its M19 review staled by the
-  close knowledge commit 1ab24436, Q1612 names it); CC800 kongChainInit `next=diagnose` (dc42ce + the lead-tagged b977a5 alias,
-  M18). Both are re-measure items for the next session; every other `rank` function is EXHAUSTED (stop rule: a named lever first).
+- 2026-11-24b close leftovers (OPEN, not EXHAUSTED, staled by the close knowledge commit 0a899c80 which names them): global
+  faultDrawRegs (5fb2de, Q1631), csModelIdTableReset (cc0f6b, Q1629), hudPauseMenuUpdate (c127b7, db430c, 6151e7, 32c920, Q1630),
+  enemyGridStateStep (706cd2, 92ac80, cc75db, 047f57, 148492, Q1629): reviews + diagnose rungs to re-measure against the new entries
+  (one ledger-only worker per file, minutes each). Every other `rank` function is EXHAUSTED (stop rule: a named lever first);
+  playerStateSurfaceTreadWater and kongChainInit were re-measured in 2026-11-24b (Q1626-Q1628), modelPendingQueueInsert cd1810 became
+  `// LAYOUT:` (R2), batch_18 H's 21 reopened rungs were re-measured (ReMeasureB18H, Q1632-Q1634).
+- Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
+  `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
+  function's real outputs). Not dispatched: a param rename is a body change.
 - Continue unit 1 (2026-11-21): the four stale reviews and every knowledge/rename-staled hack rung were re-measured (ReviewU1/U2,
   Hack* workers): reviewed 4,270/4,270, sites open 1; FAKE 168 -> 163 (80150 volatile via bare truth tests Q1585, 36880
   modelPendingQueueInsert 4 -> 2, 7130 sfxUpdateLevelAmbient 4 -> 2 via a per-block element pointer Q1586). Every other rank
@@ -131,9 +138,11 @@ SchedStruct, SpawnNode, BehaviourWorkState, ActorGlobalState, ActorCallbackNode,
 global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog, gWatchdogPaused, camComputeFirstPersonEyeFocus,
 ...). Field renames now carry (quality.py carry + --header-carve): they no longer reopen reviews. What is still unnamed:
 `uv run tools/debt.py names`; queue and procedure: `.omp/skills/continue-unit/names.md`. Still held (evidence or ruling missing):
-- Cross-segment aliases: D_80029FA0 (critter names it critterArenaTargetsLeft; global code uses it), D_80741F40, D_80760840.
+- Cross-segment aliases: D_80741F40, D_80760840 (D_80029FA0 / D_8002FBB0 / D_80028C30 took their overlay names by ruling R3,
+  8ffd3b5b). 2026-11-24b emulator residue: `drafts/cleanup/names-queue.md` "Held" lines (EmuFieldsU5, EmuGlobalsU5).
 - D_80753354 (s16 per-kong turn rate; gKongTurnRate is CEAE0's other table), D_8076A0A6 (copy of gPadPressedButtons[0]),
-  D_807FC952 (= gPlayerInventoryTable[0].kong[0].weaponFlags; cannot fold), race/0 D_8002FB10/D_8002FB70 route tables, D_80750650.
+  D_807FC952 (= gPlayerInventoryTable[0].kong[0].weaponFlags; cannot fold), race/0 D_8002FB10/D_8002FB70 route tables (D_80750650 is
+  gEnemyGridLeaping since f79601f5).
 - Function renames: playerCheckLandingSfx -> playerCheckLandingSlide, effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn
   (water ripple, less certain), gMenuBonusTimer -> gHelmTimer, csSetActorScaleFadeByType / actorSetInteractionTimer (both set
   Actor.collisionMode, NamesActorBytes), csIsPlayerState4OrC (tests gPlayerSlots->camChunk, NamesRaceSched).
@@ -155,6 +164,8 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
 - None open from 2026-11-20: 73393b44 (noop-arith literal), bd5da4f3 (alias respelling), 49c6d3c4 (tag added in place), d84d0487
   (macro renamed to an identical macro), 25fcab9a (knowledge staleness by author date), 4c63a269 (carry skips duplicates),
   994b805b (AGENTS.md) landed; the six 2026-11-18c items closed with 928f8144, 827859da, ed51d26d, 12452351, f29f1c5d, 827913fc.
+  2026-11-24b: carry re-stamps typedef/record renames (a075dea7, ToolsCarryTypeRenames). Still open: names_window.py has no
+  typedef or local rename mode (the 2026-11-24 queue's `[type]`/`[local]` lines were gated by hand, dcc777e3).
 - tools/fdiff.sh and cwarn.py `--as`: `--shadow DIR` is silently ignored when the copy path IS the src path (TypesOwner15
   batch_16: a deliberately broken shadow actor.h still printed OK); helpers must copy each includer to a distinct path first
   (batch_16 fdall.sh/cwall.sh). Fix: apply the shadow (or refuse) when copy == src. Landed gates are safe (full ROM build).

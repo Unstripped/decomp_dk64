@@ -30,6 +30,10 @@ every agent of the round is idle (a rename touches other agents' files).
 - Overlay functions and globals rename only inside `src/<seg>/` (overlay addresses collide);
   global/boot names rename in every non-libultra `src/` file. `rename.py` picks the file set
   and also renames `D_<VRAM>` references of the same address.
+- A global label that is an overlay object at the same address (global code reading overlay .data, identity confirmed at
+  runtime) takes the overlay's name, by hand through the gate: the global `symbol_addrs.us.txt` line plus the global
+  externs, each extern commented that the object lives in the <overlay> overlay and is only valid while it is loaded
+  (gLightSlotNext; gRaceSparkEffects / sMinecartWheelEffect / critterArenaTargetsLeft, R3 2026-11-24b, 8ffd3b5b).
 - `func`/`global` also update the segment's symbol file (keeping `= 0x...;` and the comment),
   point `#pragma GLOBAL_ASM` paths at `<new>.s`, `git mv` the draft, and run `protos.py gen`.
 - Token renames only: never reformat, re-indent, join lines or delete code.
