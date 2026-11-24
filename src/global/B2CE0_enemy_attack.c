@@ -68,7 +68,7 @@ void behaviourTumbleDebrisUpdate(void) {
         guTranslateF(transMtx, 0, -30.0f, 0);
         matrixMakeRotationX(rotMtx, 180.0f);
         guMtxCatF(transMtx, rotMtx, transMtx);
-        guTranslateF(rotMtx, 0, 30.0f, 0.0f);
+        guTranslateF(rotMtx, 0, 30.0f, 0);
         guMtxCatF(transMtx, rotMtx, gCurrentActor->modelMtx);
         actorUpdateModelMatrix(gCurrentActor, 1);
     }
@@ -84,7 +84,7 @@ void behaviourTumbleDebrisUpdate(void) {
     }
 }
 
-void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 extraParam) {
+void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 yawSpeed) {
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
@@ -94,7 +94,7 @@ void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 ex
         gSpawnedActor->floorY = gCurrentActor->floorY;
         gSpawnedActor->yaw = gCurrentActor->yaw + angleOffset;
         gSpawnedActor->moveYaw = gSpawnedActor->yaw;
-        gSpawnedActor->yawSpeed = extraParam;
+        gSpawnedActor->yawSpeed = yawSpeed;
         gSpawnedActor->x = nodeX;
         gSpawnedActor->y = nodeY;
         gSpawnedActor->z = nodeZ;
@@ -120,7 +120,7 @@ void behaviourSearchlightScan(f32 distOffset, f32 radius) {
     node1Z = mathCosF(angle) * distOffset + gCurrentActor->z;
     lightAdd(node1X, gCurrentActor->y, node1Z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, 0xFF, 0xFF);
     if (gCurrentActor->state != 0) {
-        if ((gBehaviourTargetActor->x - node1X) * (gBehaviourTargetActor->x - node1X) + (gBehaviourTargetActor->y - gCurrentActor->y) * (gBehaviourTargetActor->y - gCurrentActor->y) + (gBehaviourTargetActor->z - node1Z) * (gBehaviourTargetActor->z - node1Z) < radius * radius) {
+        if (SQ(gBehaviourTargetActor->x - node1X) + SQ(gBehaviourTargetActor->y - gCurrentActor->y) + SQ(gBehaviourTargetActor->z - node1Z) < SQ(radius)) {
             gCurrentActor->yaw = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
             playerStateQueueCallback(0x43, gCurrentActor, 0);
             gCurrentActor->state = 0;
@@ -152,7 +152,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
                 gCurrentActor->speedY = 200.0f;
             }
             gBehaviourWorkState->acceleration = 2;
-            gCurrentActor->callbackMask &= 0xFFFF7FFF;
+            gCurrentActor->callbackMask &= ~0x8000;
         } else if (gActorGlobalState.bossFightPhase == 4) {
             behaviourSpawnExplosionAndSound(0x1FF, 0x31, gActorGlobalState.targetActor);
         } else if (gActorGlobalState.bossFightPhase == 5) {
@@ -177,6 +177,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
             gCurrentActor->speedY = 200.0f;
             gCurrentActor->speedXZ = 120.0f;
             gCurrentActor->subState++;
+            /* fallthrough */
         case 2:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x200, 0.0f);
             break;
@@ -192,6 +193,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x1FD);
             gCurrentActor->subState++;
+            /* fallthrough */
         case 1:
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
             if (gCurrentActor->speedXZ < 1.0f) {
@@ -200,7 +202,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
             break;
         case 2:
             behaviourUpdateShadowAlpha();
-            if ((randomNonNegative() >> 0xF) % 1000 >= 0x3E4) {
+            if ((randomNonNegative() >> 15) % 1000 >= 996) {
                 actorSetDefaultState(0x1FB);
             }
             break;
@@ -230,11 +232,13 @@ void behaviourMeleePatrolEnemyUpdate(void) {
             gCurrentActor->state = 0x11;
             gCurrentActor->subState = 0;
         }
+        /* fallthrough */
     case 0x23:
         if ((gActorGlobalState.bossFightPhase == 2) && (behaviourIsTargetWithinAngle(0x2710) != 0)) {
             gCurrentActor->state = 0x27;
             gCurrentActor->subState = 0;
         }
+        /* fallthrough */
     case 0x10:
         actorTrackBoneTowardTarget((gCurrentActor->state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
@@ -258,6 +262,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
             }
             sfxSpawnTableNodes(gCurrentActor);
             gCurrentActor->subState++;
+            /* fallthrough */
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             behaviourFadeOutWithinZone(8);
@@ -281,6 +286,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
     case 2:
     case 3:
         patrolPathStep(gCurrentActor->state, 1);
+        /* fallthrough */
     default:
         enemyAggroStateUpdate(0x6400, 0x1FB, 0x1FC);
         break;
@@ -289,7 +295,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
 }
 
 void behaviourTryStartShot(void) {
-    if ((randomNonNegative() >> 15) % 1000 >= 0x3D5 && behaviourIsTargetWithinAngle(0xFA0) != 0 && !(gBehaviourWorkState->flags & 0x80)) {
+    if ((randomNonNegative() >> 15) % 1000 >= 981 && behaviourIsTargetWithinAngle(0xFA0) != 0 && !(gBehaviourWorkState->flags & 0x80)) {
         gCurrentActor->state = 0x25;
         gCurrentActor->subState = 0;
     }
@@ -334,6 +340,7 @@ void behaviourProjectileEnemyUpdate(void) {
                     actorSetTargetSpeed(gCurrentActor, 0);
                     actorScriptStart(gCurrentActor, 0x2B0);
                     gCurrentActor->subState = 1;
+                    /* fallthrough */
                 case 1:
                     actorMoveWithinZone(0x11, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
                     if (gCurrentActor->speedXZ < 1.0f) {
@@ -343,7 +350,7 @@ void behaviourProjectileEnemyUpdate(void) {
                 case 2:
                     behaviourTryStartShot();
                     behaviourUpdateShadowAlpha();
-                    if ((randomNonNegative() >> 15) % 1000 >= 0x3DF && gCurrentActor->sub4->model->animId != 0x4C4) {
+                    if ((randomNonNegative() >> 15) % 1000 >= 991 && gCurrentActor->sub4->model->animId != 0x4C4) {
                         actorSetDefaultState(0x2AB);
                     }
             }
@@ -390,11 +397,13 @@ void behaviourProjectileEnemyUpdate(void) {
                 gCurrentActor->state = 0x11;
                 gCurrentActor->subState = 0;
             }
+            /* fallthrough */
         case 0x23:
             if (gActorGlobalState.bossFightPhase == 2 && behaviourIsTargetWithinAngle(0x1388) != 0) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->subState = 0;
             }
+            /* fallthrough */
         case 0x10:
             behaviourTryStartShot();
             actorTrackBoneTowardTarget(gCurrentActor->state == 1 ? 2 : 0);
@@ -416,6 +425,7 @@ void behaviourProjectileEnemyUpdate(void) {
                 case 1:
                     sfxSpawnTableNodes(gCurrentActor);
                     gCurrentActor->subState++;
+                    /* fallthrough */
                 case 2:
                     behaviourFadeOutWithinZone(5);
                     break;
@@ -439,6 +449,7 @@ void behaviourProjectileEnemyUpdate(void) {
         case 2:
         case 3:
             patrolPathStep(gCurrentActor->state, 1);
+            /* fallthrough */
         default:
             enemyAggroStateUpdate(0x6400, 0x2AB, 0x2AC);
             break;
@@ -467,6 +478,7 @@ void behaviourSearchlightGuardUpdate(void) {
                     actorSetTargetSpeed(gCurrentActor, 0);
                     actorScriptStart(gCurrentActor, 0x2C0);
                     gCurrentActor->subState++;
+                    /* fallthrough */
                 case 1:
                     actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
                     if (gCurrentActor->speedXZ < 1.0f) {
@@ -475,7 +487,7 @@ void behaviourSearchlightGuardUpdate(void) {
                     break;
                 case 2:
                     behaviourUpdateShadowAlpha();
-                    if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
+                    if ((randomNonNegative() >> 15) % 1000 >= 996) {
                         actorSetDefaultState(0x1FB);
                     }
                     break;
@@ -544,7 +556,7 @@ void behaviourArmoredEnemyUpdate(void) {
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.damaged != 0)) && (gCurrentActor->state != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2DD);
         gBehaviourWorkState->acceleration = 2;
-        gCurrentActor->callbackMask &= 0xFFFF7FFF;
+        gCurrentActor->callbackMask &= ~0x8000;
     } else if ((gActorGlobalState.bossFightPhase == 4) || (gActorGlobalState.bossFightPhase == 5)) {
         if (gCurrentActor->segmentFlags & 1) {
             gBehaviourWorkState->turnRate = 0xF;
@@ -575,6 +587,7 @@ void behaviourArmoredEnemyUpdate(void) {
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x2D9);
             gCurrentActor->subState++;
+            /* fallthrough */
         case 1:
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
             if (gCurrentActor->speedXZ < 1.0f) {
@@ -583,7 +596,7 @@ void behaviourArmoredEnemyUpdate(void) {
             break;
         case 2:
             behaviourUpdateShadowAlpha();
-            if ((randomNonNegative() >> 0xF) % 1000 >= 0x3E4) {
+            if ((randomNonNegative() >> 15) % 1000 >= 996) {
                 actorSetDefaultState(0x2D7);
             }
             break;
@@ -597,7 +610,7 @@ void behaviourArmoredEnemyUpdate(void) {
         switch (gCurrentActor->subState) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
-            if ((gCurrentActor->sub4->scaleY > 0.18) && ((randomNonNegative() >> 0xF) % 1000 >= 0x1F5)) {
+            if ((gCurrentActor->sub4->scaleY > 0.18) && ((randomNonNegative() >> 15) % 1000 >= 501)) {
                 actorScriptStart(gCurrentActor, 0x2DB);
             } else {
                 actorScriptStart(gCurrentActor, 0x2DA);
@@ -620,11 +633,13 @@ void behaviourArmoredEnemyUpdate(void) {
             gCurrentActor->state = 0x11;
             gCurrentActor->subState = 0;
         }
+        /* fallthrough */
     case 0x23:
         if ((gActorGlobalState.bossFightPhase == 2) && (behaviourIsTargetWithinAngle(gCurrentActor->attackArc) != 0)) {
             gCurrentActor->state = 0x27;
             gCurrentActor->subState = 0;
         }
+        /* fallthrough */
     case 0x10:
         actorTrackBoneTowardTarget((gCurrentActor->state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
@@ -645,6 +660,7 @@ void behaviourArmoredEnemyUpdate(void) {
         case 1:
             sfxSpawnTableNodes(gCurrentActor);
             gCurrentActor->subState++;
+            /* fallthrough */
         case 2:
             behaviourFadeOutWithinZone(8);
             break;
@@ -667,6 +683,7 @@ void behaviourArmoredEnemyUpdate(void) {
     case 2:
     case 3:
         patrolPathStep(gCurrentActor->state, 1);
+        /* fallthrough */
     default:
         enemyAggroStateUpdate(0x6400, 0x2D7, 0x2D8);
         break;
@@ -707,8 +724,9 @@ void behaviourAmbushEnemyUpdate(void) {
                 case 0:
                     actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
                     gCurrentActor->subState++;
+                    /* fallthrough */
                 case 1:
-                    if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
+                    if ((randomNonNegative() >> 15) % 1000 >= 996) {
                         gCurrentActor->subState++;
                         actorScriptStart(gCurrentActor, 0x379);
                         actorSetTargetSpeed(gCurrentActor, 0);
@@ -740,6 +758,7 @@ void behaviourAmbushEnemyUpdate(void) {
                 case 1:
                     sfxSpawnTableNodes(gCurrentActor);
                     gCurrentActor->subState++;
+                    /* fallthrough */
                 case 2:
                     behaviourFadeOutWithinZone(0xA);
                     break;
@@ -796,7 +815,7 @@ void behaviourExplosiveAwareEnemyUpdate(void) {
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.damaged != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x367);
-        gCurrentActor->callbackMask &= 0xFFFF7FFF;
+        gCurrentActor->callbackMask &= ~0x8000;
     } else if (gActorGlobalState.bossFightPhase == 4) {
         behaviourSpawnExplosionAndSound(0x365, 0x31, gActorGlobalState.targetActor);
     } else if (gActorGlobalState.bossFightPhase == 5) {
@@ -815,6 +834,7 @@ void behaviourExplosiveAwareEnemyUpdate(void) {
                 case 1:
                     sfxSpawnTableNodes(gCurrentActor);
                     gCurrentActor->subState++;
+                    /* fallthrough */
                 case 2:
                     behaviourFadeOutWithinZone(8);
                     break;
@@ -874,6 +894,7 @@ void behaviourExplosiveAwareEnemyUpdate(void) {
                         actorSetTargetSpeed(gCurrentActor, 0);
                         actorScriptStart(gCurrentActor, 0x35E);
                         gCurrentActor->subState++;
+                        /* fallthrough */
                     case 1:
                         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
                         if (gCurrentActor->speedXZ < 1.0f) {
@@ -882,7 +903,7 @@ void behaviourExplosiveAwareEnemyUpdate(void) {
                         break;
                     case 2:
                         behaviourUpdateShadowAlpha();
-                        if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
+                        if ((randomNonNegative() >> 15) % 1000 >= 996) {
                             actorSetDefaultState(0x35F);
                         }
                         break;
@@ -894,11 +915,13 @@ void behaviourExplosiveAwareEnemyUpdate(void) {
                 gCurrentActor->state = 0x11;
                 gCurrentActor->subState = 0;
             }
+            /* fallthrough */
         case 0x23:
             if (actorIsTargetWithinDistance(0x50) != 0 && behaviourIsTargetWithinAngle(0x1770) != 0) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->subState = 0;
             }
+            /* fallthrough */
         case 0x10:
             behaviourDetectNearbyExplosive();
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
@@ -921,6 +944,7 @@ void behaviourExplosiveAwareEnemyUpdate(void) {
         case 2:
         case 3:
             patrolPathStep(gCurrentActor->state, 1);
+            /* fallthrough */
         default:
             enemyAggroStateUpdate(0x6400, 0x35F, 0x360);
             break;

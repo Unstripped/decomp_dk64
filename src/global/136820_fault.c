@@ -82,15 +82,15 @@ void faultPrintf(const char *fmt, ...) {
     c = *p++;
     while (c) {
         switch (c) {
-            case 32:
+            case ' ':
                 gFaultCursorX += gFaultCharScale;
                 break;
-            case 9:
-                gFaultCursorX = gFaultCursorX / 8;
-                gFaultCursorX = gFaultCursorX + 1;
-                gFaultCursorX = gFaultCursorX * 8;
+            case '\t':
+                gFaultCursorX /= 8;
+                gFaultCursorX++;
+                gFaultCursorX *= 8;
                 break;
-            case 10:
+            case '\n':
                 gFaultCursorX = gFaultLineStartX;
                 gFaultCursorY += gFaultCharScale;
                 break;
@@ -200,8 +200,8 @@ s32 unwindDecodeAddiuSp(s32 insn, s32 *sp) {
 }
 
 s32 unwindDecodeJrRa(u32 insn, s32 *sp, s32 ra, s32 **pc) {
-    if ((insn & 0x3FFFFFF) == 0x3E00008) {
-        unwindDecodeAddiuSp(**pc, sp);
+    if ((insn & 0x3FFFFFF) == 0x3E00008) { // jr ra
+        unwindDecodeAddiuSp(**pc, sp); // its delay slot may pop the frame
         if (gFaultStackTraceCount != 0 && ra == gFaultStackTrace[gFaultStackTraceCount - 1].ra) {
             gFaultStackTrace[gFaultStackTraceCount - 1].count++;
         } else {
@@ -255,7 +255,7 @@ void faultThreadMain(void *arg) {
 
     osSetEventMesg(OS_EVENT_FAULT, &sFaultMesgQueue, (OSMesg)0x10);
     for (;;) {
-        while (1) {
+        for (;;) {
             osRecvMesg(&sFaultMesgQueue, &msg, OS_MESG_BLOCK);
             if (gFaultScreenEnabled != 0) {
                 break;
@@ -290,7 +290,7 @@ extern OSThread sFaultThread;
 void faultThreadInit(void) {
     __osSetFpcCsr(__osGetFpcCsr() | FPCSR_EZ);
     osCreateMesgQueue(&sFaultMesgQueue, &sFaultMesg, 1);
-    osCreateThread(&sFaultThread, 8, faultThreadMain, 0, &sFaultMesg, 0x32);
+    osCreateThread(&sFaultThread, 8, faultThreadMain, NULL, &sFaultMesg, 0x32);
     osStartThread(&sFaultThread);
     gFaultThreadStarted = 1;
 }
