@@ -184,27 +184,28 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Continue unit 3 (2026-11-21/23, debt 5,419 → 5,304)** — names held for lack of evidence resolved with the emulator (EmuFieldsU3: map-node opaque/translucent display lists by probe, triangle count, camera reset fields, `PathPoint.floorY`; EmuNamesU3: coin-goal carriers, seal NPC, banana-delivery door, pulse enemies, ambient emitter and kong move tables) and with user rulings (`actorHitTargetNode1`..`5`, `rspFxLevel` with its dead-effect comment, repo-derived `gAudioUcodeText`/`Data`); types: `EfCallbackParams` halfword view, `HudIconState` per-kind union, the collision view types retired onto `ActorCallbackNode` + `CollisionHitRecord`; `clint uninit/layout --shadow`; carry's declaration-reached renames require the same symbol address. `unk` refs 147 → 101, `D_` 117 → 97, `func_` 30 → 14 (the rest unreachable no-op stubs), m2c 1 → 0; hack sites unchanged (EXHAUSTED). Knowledge Q1604.
 - [x] **Continue unit 4 (2026-11-23, debt 5,304 → 5,295)** — emulator setups for held fields: the collision-event flags `takeHitReceived`/`chargeHitReceived`/`heavyHitReceived` seen firing on the matching contacts (EmuFieldsU4, 522e11c9); the 0x100 attack flag written through a `PlayerState` view is the attacker's `BehaviourWorkState.flags` (784357eb, `PlayerState.unk1A` → padding); permuter batch (900 s) on the 8 hack sites with no long run and an automatic edit: 30 zero outputs, every one a steer in another spelling (redundant branch reload, constant-holding local, empty test kept), so the sites stay; `clint --shadow` gets a private tree per call. Remaining debt is EXHAUSTED hacks and evidence-less names.
 - [x] **Cleanup session 2026-11-24 (director mode, Lead20261124)** — coverage after the port-safe respellings (50304ca5) and the main-loop re-derivation staled 955 reviews: 13 polish items (31 files) re-reviewed every function; 4 signature bundles regenerated proto headers (EFDC0, 6AD90, 42630, 55B20); TypesOwner batches 16/17 (RaceRacerActor into race.h, shared KongActor, D5E10 RideState → RaceParticipant, CamZoomEntry, ActorCallbackNode `eventType`, SpawnNode `challengeType`); 15 pre-existing hidden steers tagged, 2 FAKE removed (6AD90 recompute into `val`, 478F0 textbook lerp); 14 hack items re-measured the rungs the polish edits staled; 86 cross-file function/global renames (eb53794b); Q1608-Q1625.
+- [x] **Continue unit 2026-11-24b (director mode, debt 5,590 → 5,581)** — names: the queued fields/typedefs (cbe7a15c, dcc777e3), emulator evidence for held items (EmuFieldsU5: `translucentOverlayDl`, `pushBothSides` ×2; EmuGlobalsU5: `gEnemyGridLeaping`, minecart route tables, 5 effect sprites from decoded textures) and three global aliases of overlay objects named after them by ruling R3 (8ffd3b5b); `heldButtonsPtr` → `pressedButtonsPtr`; carry re-stamps typedef/record renames (a075dea7). Types: every effect sprite extern is `EffectGridAsset` (batch_18, its H part's 21 reopened rungs re-measured), A8400 `gEffectGridAssets`, one `VehicleActor` in race.h, RaceParticipant 0x25/0x26 manager/racer unions (batch_19/20). Hack: the two re-measure leftovers stayed EXHAUSTED (Q1626-Q1628); a Q1604-Q1625 lever-transfer scout found one transfer, a one-line join retagged `// LAYOUT:` (ruling R2; FAKE 174 → 173); ruling R1 keeps fully dead declaration defaults FAKE. Q1626-Q1634; the close knowledge commit reopened 4 functions (pending.md).
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, cleanup session 2026-11-24 close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 2026-11-24b close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 174 | 583 |
+| FAKE | 173 | 583 |
 | FAKE dead-if | 40 | 263 |
 | FAKE proto-steer | 1 | 134 |
-| FAKE other kinds | 133 | 186 |
+| FAKE other kinds | 132 | 186 |
 | ORIG (cited target offset) | 109 | 0 |
-| LAYOUT | 83 | 47 |
+| LAYOUT | 84 | 47 |
 | goto | 25 | 39 |
 | proto-type (`// PROTO:`) | 0 | 0 |
 | protos mismatch | 6 | 1,202 |
-| reviewed / exhausted functions | 4,269 / 4,268 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,266 / 4,266 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 4 | 1,890 |
 | uninit warnings (clint checks every function) | 249 | 122 |
 | `func_` definitions | 14 | 457 |
 | m2c names | 0 | 5,040 |
-| `unk` field references | 91 | - |
-| `D_` references | 83 | - |
+| `unk` field references | 73 | - |
+| `D_` references | 57 | - |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
