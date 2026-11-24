@@ -194,7 +194,7 @@ void actorLongBridgeUpdate(void) {
 
 
 typedef struct WaveState {
-    /* 0x000 */ s16 animDelay;
+    /* 0x000 */ s16 collapseTimer;
     /* 0x002 */ u8 pad2[2];
     /* 0x004 */ f32 nodeY[28];
     /* 0x074 */ Actor *trackedActors[4];
@@ -237,22 +237,22 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         for (i = 0; i < numNodes; i++) {
             state->nodeY[i] = 0.0f;
         }
-        state->animDelay = -1;
+        state->collapseTimer = -1;
         state->trackedCount = 0;
         for (i = 0; i < 4; i++) {
             state->slotPhase[i] = 0;
         }
     }
-    if (actorCheckAlwaysFalse() && state->animDelay == -1) {
-        state->animDelay = 10;
+    if (actorBridgeCheckCollapse() && state->collapseTimer == -1) {
+        state->collapseTimer = 10;
     }
-    if (state->animDelay > 0) {
-        state->animDelay--;
+    if (state->collapseTimer > 0) {
+        state->collapseTimer--;
     }
-    if (state->animDelay == 0) {
+    if (state->collapseTimer == 0) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x403, 0, 1.0f);
         scriptSetActorRampTarget(gCurrentActor, 4.0f, 1.0f);
-        state->animDelay = -2;
+        state->collapseTimer = -2;
     }
     for (i = 0; i < numNodes; i++) {
         posOffsets[i] = 0.0f;
@@ -448,7 +448,7 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
 
 
 
-s32 actorCheckAlwaysFalse(void) {
+s32 actorBridgeCheckCollapse(void) {
     s32 i;
 
     for (i = 0; i < gActorGlobalState.riderCount; i++) {

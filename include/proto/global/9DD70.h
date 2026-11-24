@@ -30,8 +30,8 @@ void actorSagWaveUpdate(u8, u8);
 #ifndef PROTO_SKIP_actorAddNodeForceSlot
 void actorAddNodeForceSlot(f32, u8);
 #endif
-#ifndef PROTO_SKIP_actorCheckAlwaysFalse
-s32 actorCheckAlwaysFalse(void);
+#ifndef PROTO_SKIP_actorBridgeCheckCollapse
+s32 actorBridgeCheckCollapse(void);
 #endif
 #ifndef PROTO_SKIP_actorSagSingleUpdate
 void actorSagSingleUpdate(void);

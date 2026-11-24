@@ -1,4 +1,4 @@
-# actorCheckAlwaysFalse (global, src/global/9DD70.c)
+# actorBridgeCheckCollapse (global, src/global/9DD70.c; was actorCheckAlwaysFalse)
 ## Sites
 global:8069A750:other:e999c8 other (2026-11-18, replaces c56038 + 0641d2): `switch (gActorGlobalState.unk7C[i]->actorType) { case 2: case 3: break; case 6: case 7: break; }` - the empty 6/7 case group is the steer. uopt hoists li $3,2 / li $6,3 / li $7,6 / li $8,7 (webs v1,a2,a3,t0); ugen emits `beq $2,$3,$33; beq $2,$6,$33; beq $2,$7,$33; $33:` (labelopt dropped the case-7 beq as jump-to-next, one pass); as1 drops the case-6 beq (jump-to-next) and the dead `li a3,6` / `li t0,7`, leaving beq v0,v1 / beq v0,a2 to the latch 0x1728; t0 coloured, so the post-loop lw 88(t9) takes t1 at 0x173c.
 global:8069A750:other:c56038 (fixed 2026-11-18, into e999c8) other: `if (v != 2 && v != 3) { v = 0; }` - the dead carrier store `v = 0` (uopt store bit 19, ugen `move $2,$0` between `beq $2,$6,$33` and `$33`) was the one record that kept ugen's labelopt from deleting both state tests; as1 deleted the move after its jump-to-next pass.
