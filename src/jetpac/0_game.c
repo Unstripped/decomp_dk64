@@ -465,7 +465,7 @@ void jetpacUpdateStateAndInput(Gfx **glist) {
     if (gInputContPads->stick_y < -0x1E) {
         jetpacGame.buttons |= 0x400;
     }
-    jetpacGame.pressedButtons = (jetpacGame.buttons ^ jetpacGame.prevButtons) & jetpacGame.buttons;
+    jetpacGame.pressedButtons = BUTTONS_PRESSED(jetpacGame.buttons, jetpacGame.prevButtons);
     if (jetpacGame.stateSettleFrames < 3) {
         jetpacGame.stateSettleFrames++;
         return;
