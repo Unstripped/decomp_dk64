@@ -171,14 +171,9 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
     }
 }
 
-// Height between a track point and the next one, at blend factor t (0..1).
-#define TRACK_PAIR_LERP_Y(pt, t) ((t) * (((pt) + 1)->y - (pt)->y) + (pt)->y) // FAKE: (pt + 1)->/(pt)-> spelling (vs pt[1]./pt[0].) lets cfe emit the blend before the dy loads, the target's mul.d t,dy order at 0x8EC
-
 void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 *ang;
-    TargetVec3f *p;
     f32 fy;
-    f32 sn;
 
     if (cs->data == NULL) {
         ang = heapAlloc(2);
@@ -186,24 +181,16 @@ void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
         *ang = 0;
     }
     ang = cs->data;
-    sn = mathSinF(*ang);
-    p = gMinecartTrackPoints[1];
-    fy = TRACK_PAIR_LERP_Y(p, sn * 0.5 + 0.5);
+    // Each light bobs between the heights of two neighbouring track-1 points, blend 0..1 from the sine.
+    fy = gMinecartTrackPoints[1][0].y + (gMinecartTrackPoints[1][1].y - gMinecartTrackPoints[1][0].y) * (mathSinF(*ang) * 0.5 + 0.5);
     lightSetRadius(0x5DC);
-    p = gMinecartTrackPoints[1];
-    lightAdd(p[0].x, fy, p[0].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
-    sn = mathSinF(*ang + 0x514);
-    p = gMinecartTrackPoints[1];
-    fy = TRACK_PAIR_LERP_Y(p + 2, sn * 0.5 + 0.5);
+    lightAdd(gMinecartTrackPoints[1][0].x, fy, gMinecartTrackPoints[1][0].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
+    fy = gMinecartTrackPoints[1][2].y + (gMinecartTrackPoints[1][3].y - gMinecartTrackPoints[1][2].y) * (mathSinF(*ang + 0x514) * 0.5 + 0.5);
     lightSetRadius(0x5DC);
-    p = gMinecartTrackPoints[1];
-    lightAdd(p[2].x, fy, p[2].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
-    sn = mathSinF(*ang + 0xA28);
-    p = gMinecartTrackPoints[1];
-    fy = TRACK_PAIR_LERP_Y(p + 4, sn * 0.5 + 0.5);
+    lightAdd(gMinecartTrackPoints[1][2].x, fy, gMinecartTrackPoints[1][2].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
+    fy = gMinecartTrackPoints[1][4].y + (gMinecartTrackPoints[1][5].y - gMinecartTrackPoints[1][4].y) * (mathSinF(*ang + 0xA28) * 0.5 + 0.5);
     lightSetRadius(0x5DC);
-    p = gMinecartTrackPoints[1];
-    lightAdd(p[4].x, fy, p[4].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
+    lightAdd(gMinecartTrackPoints[1][4].x, fy, gMinecartTrackPoints[1][4].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
     *ang += 0x32;
 }
 
