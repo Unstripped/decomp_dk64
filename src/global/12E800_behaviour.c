@@ -456,13 +456,13 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             gBehaviourWorkState->wanderTimer = 0x64;
             gCurrentActor->state = 1;
             gCurrentActor->subState = 0;
-            gCurrentActor->speedXZ = (((randomNonNegative() >> 0xF) % 50) + 0x3C);
+            gCurrentActor->speedXZ = (randomNonNegative() >> 15) % 50 + 60;
             break;
         case 8:
             switch (gCurrentActor->subState) {
                 case 0:
                     gCurrentActor->pathHandle = pathPlaybackStart(gCurrentActor, gBehaviourExtraState->yaw, 0, 0.0f, 0.0f, 0.0f, 0);
-                    pathPlaybackSetSpeed(gCurrentActor->pathHandle, (gBehaviourExtraState->targetSpeed * 0.1));
+                    pathPlaybackSetSpeed(gCurrentActor->pathHandle, gBehaviourExtraState->targetSpeed * 0.1);
                     pathPlaybackSetLooping(gCurrentActor->pathHandle, 1);
                     pathPlaybackSetLoopLimit(gCurrentActor->pathHandle, -1);
                     pathPlaybackSetActive(gCurrentActor->pathHandle, 1);
@@ -471,7 +471,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     pathPlaybackAdvance(gCurrentActor->pathHandle);
                     pathPlaybackGetPosition(gCurrentActor->pathHandle, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
                     if (gBehaviourAnimState->animSpeedScale != 0.0f) {
-                        gCurrentActor->speedXZ = sqrtf(((gCurrentActor->x - gCurrentActor->prevX) * (gCurrentActor->x - gCurrentActor->prevX)) + ((gCurrentActor->y - gCurrentActor->prevY) * (gCurrentActor->y - gCurrentActor->prevY)) + ((gCurrentActor->z - gCurrentActor->prevZ) * (gCurrentActor->z - gCurrentActor->prevZ))) * 40.0f;
+                        gCurrentActor->speedXZ = sqrtf((gCurrentActor->x - gCurrentActor->prevX) * (gCurrentActor->x - gCurrentActor->prevX) + (gCurrentActor->y - gCurrentActor->prevY) * (gCurrentActor->y - gCurrentActor->prevY) + (gCurrentActor->z - gCurrentActor->prevZ) * (gCurrentActor->z - gCurrentActor->prevZ)) * 40.0f;
                         actorUpdateAnimSpeedFromSpeed(0);
                         actorAlignToMotion(6.0f);
                     } else {
@@ -491,13 +491,13 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     gCurrentActor->subState = 1;
                 case 1:
                     actorPitchEaseTowardPoint(2, 0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2240);
-                    if (((gCurrentActor->z - gBehaviourWorkState->targetZ) * (gCurrentActor->z - gBehaviourWorkState->targetZ)) + (((gCurrentActor->x - gBehaviourWorkState->targetX) * (gCurrentActor->x - gBehaviourWorkState->targetX)) + ((gCurrentActor->y - gBehaviourWorkState->targetY) * (gCurrentActor->y - gBehaviourWorkState->targetY))) < 225.0f) {
+                    if ((gCurrentActor->z - gBehaviourWorkState->targetZ) * (gCurrentActor->z - gBehaviourWorkState->targetZ) + ((gCurrentActor->x - gBehaviourWorkState->targetX) * (gCurrentActor->x - gBehaviourWorkState->targetX) + (gCurrentActor->y - gBehaviourWorkState->targetY) * (gCurrentActor->y - gBehaviourWorkState->targetY)) < 225.0f) {
                         actorScriptStart(gCurrentActor, gBehaviourAnimState->animId0);
                         gCurrentActor->subState = 2;
                     }
                     break;
                 case 2:
-                    if (((randomNonNegative() >> 0xF) % 1000) >= 0x3E4) {
+                    if ((randomNonNegative() >> 15) % 1000 >= 996) {
                         actorScriptStart(gCurrentActor, gBehaviourAnimState->animId2);
                         gCurrentActor->subState = 3;
                     }
@@ -539,8 +539,8 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             break;
         case 0x19:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x202, 0.0f);
-            if ((gBehaviourWorkState->timer % 15) == 0) {
-                gBehaviourWorkState->wanderAngle = (randomNonNegative() >> 0xF) % 180;
+            if (gBehaviourWorkState->timer % 15 == 0) {
+                gBehaviourWorkState->wanderAngle = (randomNonNegative() >> 15) % 180;
             }
             actorTrackBoneTowardTarget(2);
             switch (gCurrentActor->subState) {
@@ -559,7 +559,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             }
             break;
         case 0x17:
-            if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0)) {
+            if ((gCurrentActor->contactFlags & 1) || gCurrentActor->hasArcBounds != 0) {
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->chaseSpeed);
                 gCurrentActor->speedXZ = gBehaviourWorkState->targetSpeed;
                 gBehaviourWorkState->flags &= 0xFFFD;
@@ -578,7 +578,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     actorSetTargetSpeed(gCurrentActor, 0);
                 }
                 gCurrentActor->subState++;
-            } else if ((gGameMode == 0) && (gBehaviourTargetActor->state != 0x42)) {
+            } else if (gGameMode == 0 && gBehaviourTargetActor->state != 0x42) {
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->collisionMode = 0x24;
                 gCurrentActor->state = gBehaviourExtraState->actorState;
@@ -604,8 +604,8 @@ void behaviourUpdateContactAndState(s32 scriptId) {
         case 0x36:
             switch (gCurrentActor->subState) {
                 case 0:
-                    gCurrentActor->flags &= 0xFFFD7FFF;
-                    gCurrentActor->callbackMask &= 0xFFFF7FFF;
+                    gCurrentActor->flags &= ~0x28000;
+                    gCurrentActor->callbackMask &= ~0x8000;
                     gCurrentActor->alpha = 0;
                     gBehaviourWorkState->emergeTimer = 0x5A;
                     gBehaviourWorkState->emergeDepth = gCurrentActor->sub4->scaleY * gCurrentActor->collision->scaledRadius;
@@ -616,21 +616,21 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                 case 1:
                     effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetDepth(1);
-                    effectSetSpeed(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
-                    effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
+                    effectSetSpeed(-40 - (randomNonNegative() >> 15) % 10000 % 120);
+                    effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, (randomNonNegative() >> 15) % 20 + gBehaviourExtraState->x - 10, gBehaviourExtraState->y, (randomNonNegative() >> 15) % 20 + gBehaviourExtraState->z - 10);
                     if (gBehaviourWorkState->emergeTimer != 0) {
                         f32 t;
 
                         gBehaviourWorkState->emergeTimer--;
                         t = gBehaviourWorkState->emergeTimer / 90.0f;
-                        gCurrentActor->y = gBehaviourExtraState->y + (((gBehaviourExtraState->y - gBehaviourWorkState->emergeDepth) - gBehaviourExtraState->y) * t);
+                        gCurrentActor->y = gBehaviourExtraState->y + (gBehaviourExtraState->y - gBehaviourWorkState->emergeDepth - gBehaviourExtraState->y) * t;
                         if (gCurrentActor->soundSlots[0] == -1) {
                             gCurrentActor->soundSlots[0] = sfxSlotAllocateActor(gCurrentActor, 0x131, 0, 0, 0xFF, 1.0f, 0);
                         }
                         gCurrentActor->soundVolume = gBehaviourExtraState->y - gCurrentActor->y;
                         gCurrentActor->soundTimer++;
                         gCurrentActor->yaw += (gBehaviourExtraState->y - gCurrentActor->y) * 60.0f;
-                        gCurrentActor->alpha = (-255.0f * t) + 255.0f;
+                        gCurrentActor->alpha = -255.0f * t + 255.0f;
                     } else {
                         sfxStopSlotSound(gCurrentActor, 0);
                         gCurrentActor->state = gBehaviourExtraState->actorState;

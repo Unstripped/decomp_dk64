@@ -32,31 +32,31 @@ typedef struct SpotlightActor {
 f32 sqrtf(f32);
 
 void actorUpdateNearestSpotlight(void) {
-    SpotlightActorState *p;
+    SpotlightActorState *light;
     s32 best;
     Actor *found;
     s16 i;
-    Actor *e;
-    f32 B[3];
-    f32 A[3];
+    Actor *actor;
+    f32 lightTarget[3];
+    f32 lightPos[3];
     f32 dx;
     f32 dy;
     f32 dz;
-    s32 d;
+    s32 distSq;
 
-    p = ((SpotlightActor *)gCurrentActor)->light;
+    light = ((SpotlightActor *)gCurrentActor)->light;
     found = NULL;
     best = 999999;
     for (i = 0; i < gActiveActorCount; i++) {
-        e = gActiveActors[i].actor;
-        if (e->actorType == 0xF0 || e->actorType == 0xF9) {
-            dx = e->x - gPrimaryPlayerActor->x;
-            dy = e->y - gPrimaryPlayerActor->y;
-            dz = e->z - gPrimaryPlayerActor->z;
-            d = dx * dx + dy * dy + dz * dz;
-            if (d < best) {
-                best = d;
-                found = e;
+        actor = gActiveActors[i].actor;
+        if (actor->actorType == 0xF0 || actor->actorType == 0xF9) {
+            dx = actor->x - gPrimaryPlayerActor->x;
+            dy = actor->y - gPrimaryPlayerActor->y;
+            dz = actor->z - gPrimaryPlayerActor->z;
+            distSq = dx * dx + dy * dy + dz * dz;
+            if (distSq < best) {
+                best = distSq;
+                found = actor;
             }
         }
     }
@@ -67,36 +67,36 @@ void actorUpdateNearestSpotlight(void) {
     switch (gCurrentActor->actorType) {
         case 0xF0:
             if (gCurrentActor->flags & 0x100) {
-                actorGetNodePos(gCurrentActor, 1, A, &A[1], &A[2]);
+                actorGetNodePos(gCurrentActor, 1, lightPos, &lightPos[1], &lightPos[2]);
             } else {
-                A[0] = gCurrentActor->x;
-                A[1] = gCurrentActor->y;
-                A[2] = gCurrentActor->z;
+                lightPos[0] = gCurrentActor->x;
+                lightPos[1] = gCurrentActor->y;
+                lightPos[2] = gCurrentActor->z;
             }
             dx = gCurrentActor->x - gPrimaryPlayerActor->x;
             dy = gCurrentActor->y - gPrimaryPlayerActor->y;
             dz = gCurrentActor->z - gPrimaryPlayerActor->z;
             if (dx * dx + dy * dy + dz * dz > 40000.0f && (gCurrentActor->flags & 0x100)) {
-                actorGetNodePos(gCurrentActor, 2, B, &B[1], &B[2]);
+                actorGetNodePos(gCurrentActor, 2, lightTarget, &lightTarget[1], &lightTarget[2]);
             } else {
-                B[0] = gPrimaryPlayerActor->x;
-                B[1] = gPrimaryPlayerActor->y;
-                B[2] = gPrimaryPlayerActor->z;
+                lightTarget[0] = gPrimaryPlayerActor->x;
+                lightTarget[1] = gPrimaryPlayerActor->y;
+                lightTarget[2] = gPrimaryPlayerActor->z;
             }
             lightSetFovAngles(30.0f, 80.0f);
             break;
         case 0xF9:
-            A[0] = gCurrentActor->x;
-            A[1] = gCurrentActor->y;
-            A[2] = gCurrentActor->z;
-            B[0] = mathSinF(gCurrentActor->yaw) * 40.0f + gCurrentActor->x;
-            B[1] = gCurrentActor->y - 20.0f;
-            B[2] = mathCosF(gCurrentActor->yaw) * 40.0f + gCurrentActor->z;
+            lightPos[0] = gCurrentActor->x;
+            lightPos[1] = gCurrentActor->y;
+            lightPos[2] = gCurrentActor->z;
+            lightTarget[0] = mathSinF(gCurrentActor->yaw) * 40.0f + gCurrentActor->x;
+            lightTarget[1] = gCurrentActor->y - 20.0f;
+            lightTarget[2] = mathCosF(gCurrentActor->yaw) * 40.0f + gCurrentActor->z;
             lightSetFovAngles(20.0f, 40.0f);
             break;
     }
-    p->brightness = mathSinF(gFrameCounter * 130) * 35.0 + 220.0;
-    lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, p->brightness, p->brightness, p->brightness);
+    light->brightness = mathSinF(gFrameCounter * 130) * 35.0 + 220.0;
+    lightAdd(lightPos[0], lightPos[1], lightPos[2], lightTarget[0], lightTarget[1], lightTarget[2], 0.0f, 1, light->brightness, light->brightness, light->brightness);
 }
 
 void spotlightFollowerStep(s16 yOffset, s16 stopDist, u16 flags) {
@@ -107,16 +107,16 @@ void spotlightFollowerStep(s16 yOffset, s16 stopDist, u16 flags) {
     behaviourFrameBegin();
     dx = gCurrentActor->x - gBehaviourTargetActor->x;
     dz = gCurrentActor->z - gBehaviourTargetActor->z;
-    dist = (u16)sqrtf(dx * dx + dz * dz);
+    dist = sqrtf(dx * dx + dz * dz);
     if (!(gCurrentActor->flags & 0x10)) {
-        SpotlightActorState *p = ((SpotlightActor *)gCurrentActor)->light;
+        SpotlightActorState *light = ((SpotlightActor *)gCurrentActor)->light;
         gCurrentActor->renderFlags |= 4;
         gCurrentActor->flags |= 0x800000;
         gCurrentActor->tintR = 0xFF;
         gCurrentActor->tintG = 0xFF;
         gCurrentActor->tintB = 0xFF;
-        p->unk2 = 0;
-        p->brightness = 0xFF;
+        light->unk2 = 0;
+        light->brightness = 0xFF;
         gBehaviourAnimState->minAnimSpeed = 1.0f;
         if (gCurrentActor->actorType == 0xF0) {
             sfxPlayActorSound(gCurrentActor, 0x132, 0, 0, 0, 0xA0, 1.0f, 0);
@@ -127,7 +127,7 @@ void spotlightFollowerStep(s16 yOffset, s16 stopDist, u16 flags) {
     } else {
         dist = dist - stopDist;
     }
-    actorSetTargetSpeed(gCurrentActor, (s32)((u32)dist * 2.0));
+    actorSetTargetSpeed(gCurrentActor, dist * 2.0);
     actorPitchEaseTowardPoint(0x23, yOffset, gBehaviourTargetActor->x, gBehaviourTargetActor->y + yOffset * 3.0, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, flags | 0x2000);
     gCurrentActor->y += 0.5 * mathSinF(gFrameCounter * 40);
     actorUpdateNearestSpotlight();
@@ -222,7 +222,7 @@ void timedWarpTargetUpdate(void) {
                     case 0:
                         effectSpawnSparks(3, 1);
                         if (gCurrentActor->subState == 0) {
-                            if ((randomNonNegative() >> 15) % 1000 >= 0x3DF) {
+                            if ((randomNonNegative() >> 15) % 1000 >= 991) {
                                 gCurrentActor->subState = 3;
                             }
                         }

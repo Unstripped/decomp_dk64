@@ -287,7 +287,7 @@ void raceOpponentBehaviourUpdate(void) {
                 }
             }
         }
-        ang16 = angU = (s32)(mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465);
+        ang16 = angU = (s32)(mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465); // FAKE: one heading held at two widths; the chain feeds the raw trunc.w.d result to the doubled-yaw sum (no sext/andi) and keeps the s16 home sp+0x66 for the moveYaw step; one s16 local adds sll/sra, one u16 local adds andi 0xffff
         mathAngleStepToward(&gCurrentActor->yaw, (angU + angU - gCurrentActor->moveYaw) & 0xFFF, 0x32);
         mathAngleStepToward(&gCurrentActor->moveYaw, ang16, 0xF);
         if (gBehaviourWorkState->waypointIndex == routeRows[gBehaviourWorkState->routeRow].waypoint && routeRows[gBehaviourWorkState->routeRow].action == 2 && controller->raceStatus == 3) {

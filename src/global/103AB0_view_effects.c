@@ -242,7 +242,7 @@ u16 *playerViewLoadPresetPhoto(void) {
     return assetLoad(0x19, 0x138B, 1, 1);
 }
 
-extern void *gFramebuffers[];
+extern u16 *gFramebuffers[];
 
 u16 *playerViewCaptureSepiaPhoto(void) {
     u16 *buf;
@@ -256,17 +256,13 @@ u16 *playerViewCaptureSepiaPhoto(void) {
     }
     buf = heapAlloc(0xA000);
     dst = buf;
-    src = (u16 *)gFramebuffers[gGfxBufferIndex] + gScreenWidth * 56 + 80;
-    row = 0;
-    do {
-        col = 0;
-        do {
+    src = gFramebuffers[gGfxBufferIndex] + gScreenWidth * 56 + 80;
+    for (row = 0; row < 2; row++) {
+        for (col = 0; col < 5; col++) {
             dst = sepiaCopyFramebufferTile(dst, src + col * 32);
-            col++;
-        } while (col < 5);
+        }
         src += gScreenWidth * 64;
-        row++;
-    } while (row < 2);
+    }
     return buf;
 }
 

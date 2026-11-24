@@ -43,7 +43,7 @@ u8 mode;
         gNextGameMode = 2;
         gGameMode = 6;
         sTransitionRenderDelay = 2;
-        if ((gPrevGameMode == 1) && (gGlobalOverlayFlags & 1)) {
+        if (gPrevGameMode == 1 && (gGlobalOverlayFlags & 1)) {
             timerQueueCancel(0);
         }
         break;

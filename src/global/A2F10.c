@@ -472,14 +472,13 @@ Gfx *renderScaledSprite(Gfx *dl, Actor *actor) {
     f32 scale;
 
     scale = actor->floorSlopeFactor;
-    WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(dl++, 0xE200001C, 0x00504340);
-    WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
-    WRITE_GFX(dl++, 0xE7000000, 0);
-    WRITE_GFX(dl++, 0xFA000000, (actor->yaw & 0xFF) | 0xFFFFFF00);
-    return renderRotatedSprite(dl, (u16)(actor->bannerId + 0x61), 0, 2, 0x28, 0x33,
-                               (s32)actor->x, (s32)actor->y, scale, scale, 0, 0.0f);
+    gSPDisplayList(dl++, &D_1000118);
+    gDPSetCombineMode(dl++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gSPMatrix(dl++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPPipeSync(dl++);
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->yaw);
+    return renderRotatedSprite(dl, actor->bannerId + 0x61, 0, 2, 0x28, 0x33, actor->x, actor->y, scale, scale, 0, 0.0f);
 }
 
 const char D_8075A410[7] = "DONKEY";

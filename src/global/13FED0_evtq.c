@@ -32,7 +32,7 @@ ALMicroTime alEvtqNextEvent(ALEventQueue *evtq, ALEvent *evt) {
     item = (ALEventListItem *)evtq->allocList.next;
     if (item != NULL) {
         alUnlink(&item->node);
-        bcopy(&item->evt, evt, 0x10);
+        bcopy(&item->evt, evt, sizeof(*evt));
         alLink(&item->node, &evtq->freeList);
         delta = item->delta;
     } else {
@@ -58,11 +58,13 @@ void alEvtqPostEvent(ALEventQueue *evtq, ALEvent *evt, ALMicroTime delta) {
         return;
     }
     alUnlink(&item->node);
-    bcopy(evt, &item->evt, 0x10);
-    if (delta == 0x7FFFFFFF) infinite = -1;
+    bcopy(evt, &item->evt, sizeof(*evt));
+    if (delta == AL_EVTQ_END) {
+        infinite = -1;
+    }
     for (node = &evtq->allocList; node != NULL; node = node->next) {
         if (node->next == NULL) {
-            item->delta = infinite != 0 ? 0 : delta;
+            item->delta = infinite ? 0 : delta;
             alLink(&item->node, node);
             break;
         } else {
