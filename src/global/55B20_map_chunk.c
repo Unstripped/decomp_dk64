@@ -453,49 +453,45 @@ s32 chunk;
     s32 cidx;
     s32 k;
 
-    if (size != 0) {
-        do {
-            key = ((MapDlCommand *)list)->w0;
-            idx = 0;
-            found = 0;
-            size -= 8;
-            if (((u32)key >> 24) == 0) {
-                n = *count;
-                key = ((MapDlCommand *)list)->w1;
-                if (n > 0) {
-                    do {
-                        if (key == buf[idx].id) {
-                            found = 1;
-                        } else {
-                            idx += 1;
-                        }
-                    } while (idx < n && found == 0);
-                }
-                cidx = 0;
-                cfound = 0;
-                do {
-                    if (key == gMapCells[cidx].id) {
-                        cfound = 1;
-                    } else {
-                        cidx += 1;
-                    }
-                } while (cfound == 0);
-                if (found == 0) {
-                    buf[n].id = key;
-                    for (k = 0; k < 4; k++) {
-                        buf[*count].dl[k] = -1;
-                    }
-                    buf[*count].dl[kind] = list + 8;
-                    buf[*count].vtx[kind] = gMapChunks[chunk].curVtx + (gMapCells[cidx].vtxOffset[kind] << 4);
-                    *count += 1;
+    while (size != 0) {
+        key = ((MapDlCommand *)list)->w0;
+        idx = 0;
+        found = 0;
+        size -= 8;
+        if (((u32)key >> 24) == 0) {
+            n = *count;
+            key = ((MapDlCommand *)list)->w1; // FAKE: key (the w0 command word) reused for the w1 cell id; a separate w0 local is a bb2 uopt candidate that also makes idx constrained (idx v1, key s1)
+            while (idx < n && found == 0) {
+                if (key == buf[idx].id) {
+                    found = 1;
                 } else {
-                    buf[idx].dl[kind] = list + 8;
-                    buf[idx].vtx[kind] = gMapChunks[chunk].curVtx + (gMapCells[cidx].vtxOffset[kind] << 4);
+                    idx += 1;
                 }
             }
-            list += 8;
-            if ((size & list) && (size & list)) {} // FAKE: constrains loop invariants after both search indices are dead
-        } while (size != 0);
+            cidx = 0;
+            cfound = 0;
+            do {
+                if (key == gMapCells[cidx].id) {
+                    cfound = 1;
+                } else {
+                    cidx += 1;
+                }
+            } while (cfound == 0);
+            if (found == 0) {
+                buf[n].id = key;
+                for (k = 0; k < 4; k++) {
+                    buf[*count].dl[k] = -1;
+                }
+                buf[*count].dl[kind] = list + 8;
+                buf[*count].vtx[kind] = gMapChunks[chunk].curVtx + (gMapCells[cidx].vtxOffset[kind] << 4);
+                *count += 1;
+            } else {
+                buf[idx].dl[kind] = list + 8;
+                buf[idx].vtx[kind] = gMapChunks[chunk].curVtx + (gMapCells[cidx].vtxOffset[kind] << 4);
+            }
+        }
+        list += 8;
+        if ((size & list) && (size & list)) {} // FAKE: constrains loop invariants after both search indices are dead
     }
 }
 
