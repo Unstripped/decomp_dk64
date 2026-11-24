@@ -24,7 +24,7 @@
 #include "proto/global/CEAE0_player_update.h"
 #include "proto/global/EFDC0_player_state_enter.h"
 #include "proto/global/FCCD0_slot_queue.h"
-#include "proto/minecart/0.h"
+#include "proto/minecart/0_player_cart.h"
 
 // A track point is a TargetVec3f (mathPickCloserTargetPoint3D's point type).
 typedef TargetVec3f MinecartTrackPoint;

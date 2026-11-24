@@ -43,11 +43,11 @@ segments:
     vram: 0x80024000
     bss_size: 0x10
     subsegments:
-      - [0x0, c, 0]
-      - [0x25F0, c, 25F0]
-      - [0x4B90, .data, 0] # junction tables (25F0's gMinecartJunctionTable first), wheel effect, track routes (0x80028B90-0x80028C60)
-      - [0x4C60, .rodata, 0]
-      - [0x4D40, .rodata, 25F0]
+      - [0x0, c, 0_player_cart]
+      - [0x25F0, c, 25F0_followers_obstacles]
+      - [0x4B90, .data, 0_player_cart] # junction tables (25F0's gMinecartJunctionTable first), wheel effect, track routes (0x80028B90-0x80028C60)
+      - [0x4C60, .rodata, 0_player_cart]
+      - [0x4D40, .rodata, 25F0_followers_obstacles]
       - { start: 0x4E10, type: bss, vram: 0x80028E10 }
 
   - [0x4E10]
