@@ -43,12 +43,12 @@ segments:
     vram: 0x80024000
     bss_size: 0x1B50
     subsegments:
-      - [0x0, c, 0]
-      - [0xE220, .data, E220] # data-only TU: defining the pool in 0.c reorders 0.c's .bss (IDO orders .bss by symbol id); 0x8004A790 is 16-aligned and 0.c's .data start. Sprite pixels D_80032220..D_80049348 (data_inc.us.txt includes), tables/templates/state D_8004A308..D_8004A78C
-      - [0x26790, .data, 0] # D_8004A790..D_8004A82C defined in C + arcadeDrawHud's function-local static (0x8004A83C); 16-aligned start, 0xB0 bytes up to .rodata
-      - [0x26840, .rodata, 0]
+      - [0x0, c, 0_game]
+      - [0xE220, .data, E220_sprites] # data-only TU: defining the pool in 0.c reorders 0.c's .bss (IDO orders .bss by symbol id); 0x8004A790 is 16-aligned and 0.c's .data start. Sprite pixels D_80032220..D_80049348 (data_inc.us.txt includes), tables/templates/state D_8004A308..D_8004A78C
+      - [0x26790, .data, 0_game] # D_8004A790..D_8004A82C defined in C + arcadeDrawHud's function-local static (0x8004A83C); 16-aligned start, 0xB0 bytes up to .rodata
+      - [0x26840, .rodata, 0_game]
       - { start: 0x26C00, type: bss, vram: 0x8004AC00 }
-      - { start: 0x26C00, type: .bss, vram: 0x8004BC80, name: 0 } # arcadeUpdatePlayerEntity statics sStepTimer/sStepPhase (0x8004BC80/84), D_8004BC88[6] lifts (0x8004BC80-0x8004BCD0)
+      - { start: 0x26C00, type: .bss, vram: 0x8004BC80, name: 0_game } # arcadeUpdatePlayerEntity statics sStepTimer/sStepPhase (0x8004BC80/84), D_8004BC88[6] lifts (0x8004BC80-0x8004BCD0)
       - { start: 0x26C00, type: bss, vram: 0x8004BCD0, name: 26C00_8004BCD0 }
 
   - [0x26C00]

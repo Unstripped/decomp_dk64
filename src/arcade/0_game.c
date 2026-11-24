@@ -1,7 +1,7 @@
 #include "common.h"
 #include "render.h"
 #include "arcade.h"
-#include "proto/arcade/0.h"
+#include "proto/arcade/0_game.h"
 #include "proto/boot/3D20_sprintf.h"
 #include "proto/boot/6690_texture_desc.h"
 #include "proto/global/100180_text_font.h"
