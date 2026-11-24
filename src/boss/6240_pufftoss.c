@@ -118,13 +118,13 @@ void bossPufftossNotifyLaser(u8 targetIndex) {
     }
 }
 
-extern u8 gEffectSpriteFireBurst[];
+extern EffectGridAsset gEffectSpriteFireBurst;
 
 void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     if (!(gFrameCounter & sparkleInterval)) {
         effectSetDepth(1);
         effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
-        effectCreateAtActorBone(gEffectSpriteFireBurst, scale, gCurrentActor, 1, 0);
+        effectCreateAtActorBone(&gEffectSpriteFireBurst, scale, gCurrentActor, 1, 0);
     }
 }
 
@@ -144,7 +144,7 @@ void bossSpawnSparkles(void) {
     effectSetCallback(effectEaseToTargetNodeUpdate);
     effectSetSpeed((s32)gCurrentActor);
     effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
-    effectCreateAtPosition(gEffectSpriteFireBurst, 1.5f, sparkX, sparkY, sparkZ);
+    effectCreateAtPosition(&gEffectSpriteFireBurst, 1.5f, sparkX, sparkY, sparkZ);
     for (i = 0; i < 4; i++) {
         effectSetFrameDelay(2);
         effectSetCallback(effectPuffRiseUpdate);
@@ -164,7 +164,7 @@ void bossClampPosition(Zone *zone) {
 
 
 extern const u8 sPufftossScriptData[];
-extern u8 gEffectSpriteImpactFlash[];
+extern EffectGridAsset gEffectSpriteImpactFlash;
 extern f32 gDefaultActorGravity;
 extern f32 gPufftossSinkAccelY;
 extern s32 gCurrentMap;
@@ -257,7 +257,7 @@ void bossPufftossStep(void) {
         }
         gBehaviourWorkState->targetAnimId = gBehaviourTargetActor->sub4->model->animId;
         gCurrentActor->flags |= 0x20000000;
-        effectCreateAtPosition(gEffectSpriteImpactFlash, 2.0f, ((randomNonNegative() >> 15) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeZ) - 15.0f);
+        effectCreateAtPosition(&gEffectSpriteImpactFlash, 2.0f, ((randomNonNegative() >> 15) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 15) % 30 + nodeZ) - 15.0f);
         sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
         roll = (randomNonNegative() >> 15) % 2048;
         if (roll < 0x2A8) {

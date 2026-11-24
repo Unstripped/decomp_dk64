@@ -236,7 +236,7 @@ void effectSpriteParticleWrapX(EffectSpriteParticle *particle) {
 extern Actor *gPrimaryPlayerActor;
 extern u32 gGlobalCutsceneFlags;
 extern f32 gEffectSpriteBottomY;
-extern u8 sEffectImpactPuffConfig;
+extern EffectGridAsset sEffectImpactPuffConfig;
 
 #define CAM_Y_DISTANCE(y) ((y) < gPlayerSlots->camY ? gPlayerSlots->camY - (y) : -(gPlayerSlots->camY - (y)))
 
@@ -562,7 +562,7 @@ void weatherSpawnSnow(f32 density, s16 windAngle, s16 mapChunk) {
 
 
 
-extern u8 gEffectSpriteLeaf;
+extern EffectGridAsset gEffectSpriteLeaf;
 
 void weatherSpawnDriftParticles(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
     f32 randScale;

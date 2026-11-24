@@ -71,7 +71,7 @@ u8 sArmydilloCannonPieceList[3] = { 0x02, 0x03, 0xFF };
 u8 D_80035988[2] = { 0x04, 0xFF };
 
 extern Actor *gCurrentActor;
-extern u8 sEffectSparkConfig[];
+extern EffectGridAsset sEffectSparkConfig;
 
 
 void bossArmydilloSpawnSmoke(void) {
@@ -89,7 +89,7 @@ void bossArmydilloSpawnSmoke(void) {
         effectSetDepth(1);
         effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
         effectSetFrameDelay(3);
-        effectCreateAtPosition(sEffectSparkConfig, 2.5f, gCurrentActor->x, gCurrentActor->y + 40.0f, gCurrentActor->z);
+        effectCreateAtPosition(&sEffectSparkConfig, 2.5f, gCurrentActor->x, gCurrentActor->y + 40.0f, gCurrentActor->z);
     }
 }
 
@@ -475,7 +475,7 @@ void bossArmydilloShowCannons(void) {
     actorSetNodeFlag(gCurrentActor, 5);
 }
 
-extern u8 gEffectSpriteFireBurst[];
+extern EffectGridAsset gEffectSpriteFireBurst;
 
 void bossArmydilloSpawnExhaustSmoke(void) {
     f32 scale;
@@ -487,12 +487,12 @@ void bossArmydilloSpawnExhaustSmoke(void) {
     effectSetCallback(effectFollowParentUpdate);
     effectSetMaxDistance(1000);
     effectSetSpeed((s32)gCurrentActor);
-    effectCreateAtActorBone(gEffectSpriteFireBurst, scale, gCurrentActor, 3, 0);
+    effectCreateAtActorBone(&gEffectSpriteFireBurst, scale, gCurrentActor, 3, 0);
     effectSetDepth(1);
     effectSetCallback(effectFollowParentUpdate);
     effectSetMaxDistance(1000);
     effectSetSpeed((s32)gCurrentActor);
-    effectCreateAtActorBone(gEffectSpriteFireBurst, scale, gCurrentActor, 4, 0);
+    effectCreateAtActorBone(&gEffectSpriteFireBurst, scale, gCurrentActor, 4, 0);
 }
 
 // Armadillo boss actor: Actor plus its two component pointers (0x178 script state, 0x17C piece animation state).

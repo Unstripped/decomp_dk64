@@ -190,7 +190,7 @@ f32 raceGetCompletionFraction(RacePathState *cursor, RaceParticipant *state, Rac
     return result;
 }
 
-extern void *gEffectSpriteFireBurst;
+extern EffectGridAsset gEffectSpriteFireBurst;
 
 void raceTriggerBoostParticles(void) {
     s32 idx;

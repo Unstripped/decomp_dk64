@@ -125,7 +125,7 @@ extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
 extern u8 gGameMode;
 extern struct GfSndState *gSfxFreeSlotHandles[];
-extern u8 gAButtonSprite;
+extern EffectGridAsset gAButtonSprite;
 
 void bonusReelGameUpdate(void) {
     PlayerState *player;

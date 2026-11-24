@@ -2316,7 +2316,7 @@ void csSetPos(s16 modeAndAxis, s16 posValue, CsState *cs, s16 csId, u8 isRelativ
     }
 }
 
-extern u8 gEffectSpriteSparklePurple[];
+extern EffectGridAsset gEffectSpriteSparklePurple;
 
 void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 i;
@@ -2332,7 +2332,7 @@ void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDuration(2);
         effectSetSpeed(0x64);
         effectSetCallback(effectSinkBySpeedUpdate);
-        effectCreateAtPosition(gEffectSpriteSparklePurple, 0.5f, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
+        effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
     }
     lightAdd(gCsPosX, gCsPosY, gCsPosZ, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xA6, 0x30, 0xFF);
 }
