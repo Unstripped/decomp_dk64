@@ -24,7 +24,6 @@
 #include "proto/global/FCCD0_slot_queue.h"
 
 
-extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern Actor *gPrimaryPlayerActor;
@@ -111,14 +110,14 @@ typedef struct LinkedActorState {
 } LinkedActorState;
 
 
-void playerSpawnMinecart(s32 actorType, u8 param, Actor *parent) {
+void playerSpawnMinecart(s32 actorType, u8 riderPlayer, Actor *parent) {
     LinkedActorState *linked;
 
     actorSpawn(actorType, 0x82);
     actorCopyPoseAndScale(gSpawnedActor, parent, 0.15f);
     linked = gSpawnedActor->customState;
     linked->target = parent;
-    linked->riderPlayer = param;
+    linked->riderPlayer = riderPlayer;
 }
 
 void playerMountBarrel(Actor *rider, Actor *target) {
@@ -175,68 +174,66 @@ extern u32 gGlobalCutsceneFlags;
 extern u16 gSavedHeldActorType;
 
 void playerAllocSlots(s32 spawnIndex) {
-    PlayerStruct *blk;
+    PlayerStruct *slot;
     s32 i;
-    u8 sel;
-    G00Entry *e;
+    G00Entry *layout;
 
     gPlayerSlots = heapAlloc(gPlayerCount * sizeof(PlayerStruct));
     heapClearBlock(gPlayerSlots);
     for (i = 0; i < gPlayerCount; i++) {
-        blk = &gPlayerSlots[i];
-        blk->active = 1;
-        sel = i;
+        slot = &gPlayerSlots[i];
+        slot->active = 1;
         gCurrentPlayerIndex = i;
-        playerSetupCharacterForSlot(spawnIndex++, sel);
-        blk->actor = gActivePlayerActor;
+        playerSetupCharacterForSlot(spawnIndex++, i);
+        slot->actor = gActivePlayerActor;
         if (i == 0) {
             gPrimaryPlayerActor = gActivePlayerActor;
         }
-        blk->camZ = 100.0f;
-        blk->camY = 100.0f;
-        blk->camX = 100.0f;
-        blk->eyeZ = 100.0f;
-        blk->eyeY = 100.0f;
-        blk->eyeX = 100.0f;
-        blk->focusZ = 0.0f;
-        blk->focusY = 0.0f;
-        blk->focusX = 0.0f;
-        blk->upZ = 0.0f;
-        blk->upX = 0.0f;
-        blk->upY = 1.0f;
-        e = cameraFindViewportEntry(sel);
-        blk->rect[0] = e->left;
-        blk->rect[1] = e->top;
-        blk->rect[2] = e->right;
-        blk->rect[3] = e->bottom;
+        slot->camZ = 100.0f;
+        slot->camY = 100.0f;
+        slot->camX = 100.0f;
+        slot->eyeZ = 100.0f;
+        slot->eyeY = 100.0f;
+        slot->eyeX = 100.0f;
+        slot->focusZ = 0.0f;
+        slot->focusY = 0.0f;
+        slot->focusX = 0.0f;
+        slot->upZ = 0.0f;
+        slot->upX = 0.0f;
+        slot->upY = 1.0f;
+        layout = cameraFindViewportEntry(i);
+        slot->rect[0] = layout->left;
+        slot->rect[1] = layout->top;
+        slot->rect[2] = layout->right;
+        slot->rect[3] = layout->bottom;
         if (osViGetCurrentMode() == gViModeIndexByTvType[osTvType + osTvType + 1]) {
-            blk->rect[0] *= 2;
-            blk->rect[1] *= 2;
-            blk->rect[2] += 1;
-            blk->rect[2] *= 2;
-            blk->rect[2] -= 1;
-            blk->rect[3] += 1;
-            blk->rect[3] *= 2;
-            blk->rect[3] -= 1;
+            slot->rect[0] *= 2;
+            slot->rect[1] *= 2;
+            slot->rect[2] += 1;
+            slot->rect[2] *= 2;
+            slot->rect[2] -= 1;
+            slot->rect[3] += 1;
+            slot->rect[3] *= 2;
+            slot->rect[3] -= 1;
         }
-        blk->rectWidth = blk->rect[2] - blk->rect[0];
-        blk->rectHeight = blk->rect[3] - blk->rect[1];
-        blk->fov = 45.0f;
-        blk->nearClip = 10.0f;
-        blk->aspect = (f32)blk->rectWidth / (f32)blk->rectHeight;
-        blk->farClip = gGfxFarClip;
-        blk->camChunk = 0;
-        blk->contPad = &gControllerPads[i];
-        blk->heldButtonsPtr = &gPadPressedButtons[i];
-        blk->queuedState = -1;
-        blk->sizeMode = 1;
-        blk->sizeModeDirty = 1;
-        blk->viewFadingOut = 0;
-        blk->rumbleDisabled = 0;
-        healthHudReset(&blk->healthHud);
+        slot->rectWidth = slot->rect[2] - slot->rect[0];
+        slot->rectHeight = slot->rect[3] - slot->rect[1];
+        slot->fov = 45.0f;
+        slot->nearClip = 10.0f;
+        slot->aspect = (f32)slot->rectWidth / (f32)slot->rectHeight;
+        slot->farClip = gGfxFarClip;
+        slot->camChunk = 0;
+        slot->contPad = &gControllerPads[i];
+        slot->heldButtonsPtr = &gPadPressedButtons[i];
+        slot->queuedState = -1;
+        slot->sizeMode = 1;
+        slot->sizeModeDirty = 1;
+        slot->viewFadingOut = 0;
+        slot->rumbleDisabled = 0;
+        healthHudReset(&slot->healthHud);
         if (((gGlobalOverlayFlags & 1) && !(gGlobalCutsceneFlags & 2)) ||
             (gPlayerInventoryTable[i].health + gPlayerInventoryTable[i].healthDelta <= 0)) {
-            healthRefill(sel);
+            healthRefill(i);
         }
     }
     if (gSavedHeldActorType != 0) {
@@ -286,7 +283,7 @@ void kongChainInit(s32 mode, KongChain *chains, u32 kind) {
     ChainOffsets11 tbl11 = sChainOffsets11;
     ChainOffsets4 tbl4 = sChainOffsets4;
     s32 count = 1; s32 n = 4; // FAKE: dead defaults (every case overwrites count/n, default returns) steer the pre-switch li v1,4 and frame order (Q0784)
-    KongChain *chain = chains;
+    KongChain *chain = chains; // FAKE: redundant cursor alias of chains steers regalloc/frame (chains is never read again; dropping the alias: .text 8928 -> 8944)
     f32 sign = 1.0f;
     f32 *offsets;
     s32 i;
@@ -722,7 +719,7 @@ extern G01Pos gMapHeaderSpawnPos;
 
 void playerLoadSpawnerAsset(s32 mapId) {
     gMapSpawnPoints = assetLoad(0x17, mapId, 1, 1);
-    gMapSpawnPointCount = assetGetCachedSizeOrResolve(0x17, mapId) / 10U;
+    gMapSpawnPointCount = assetGetCachedSizeOrResolve(0x17, mapId) / sizeof(G01Pos);
     playerCheckSpawnerFlagFixup(mapId);
     gMapDefaultSpawnPoint.yaw = 0;
     gMapDefaultSpawnPoint.x = gMapHeaderSpawnPos.x;
@@ -899,13 +896,13 @@ void playerCopyCameraToEye(u8 playerIndex) {
 s32 playerKongHasWorldGoldenBanana(void) {
     KongInventory *row = &gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]];
     s32 i;
-    s32 v;
+    s32 found;
 
-    v = 0;
-    for (i = 0; i < 8 && !v; i++) {
-        v = row->goldenBananas[i] > 0;
+    found = 0;
+    for (i = 0; i < 8 && !found; i++) {
+        found = row->goldenBananas[i] > 0;
     }
-    return v;
+    return found;
 }
 
 // Indexed by gPlayerCharacterId: { actorType, characterIndex, model, actorFlags }.
