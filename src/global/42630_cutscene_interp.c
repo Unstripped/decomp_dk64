@@ -1790,7 +1790,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gCsShakeOuterRadius = cmd->b;
         break;
     case 0x2A:
-        gModelSlots[hashTableLookup(csId)].boxBuffer.unk14 = cmd->a;
+        gModelSlots[hashTableLookup(csId)].boxBuffer.pushBothSides = cmd->a;
         break;
     case 0x2E:
         mapChunkSetEnabled(cmd->a, cmd->b);

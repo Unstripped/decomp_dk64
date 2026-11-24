@@ -24,7 +24,7 @@ extern ActorProximityEntry *gModelEmitters;
 extern s16 gModelEmitterCount;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
-extern EffectGridAsset D_807213D0;
+extern EffectGridAsset gEffectSpriteFlameTongue;
 extern EffectGridAsset gEffectSpriteGlintYellow;
 
 void modelEmittersInit(void) {
@@ -139,7 +139,7 @@ void modelEmitterSpawnJitterParticle(s16 entryIdx) {
         effectSetColor(255, 200, 200, 200);
         effectSetScale(0.2f, 0.1f);
         effectSetFlags(4);
-        effectCreateAtPosition(&D_807213D0, 0.0f,
+        effectCreateAtPosition(&gEffectSpriteFlameTongue, 0.0f,
             gModelEmitters[entryIdx].x + randomNonNegative() % 10000 % 100 / 20.0 - 2.5,
             gModelEmitters[entryIdx].y + 4.0,
             gModelEmitters[entryIdx].z + randomNonNegative() % 10000 % 100 / 20.0 - 2.5);

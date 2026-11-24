@@ -84,7 +84,7 @@ extern EffectGridAsset gEffectSpriteLightningArc, gEffectSpriteWaterDroplet, D_8
 extern EffectGridAsset gEffectSpriteGlintBlue, gEffectSpriteSmokeCloud, gControlStickSprite, D_80720C64, gEffectSpriteWaterDrip;
 extern EffectGridAsset gAButtonSprite, gBButtonSprite, gZButtonSprite, gCDownButtonSprite, gCUpButtonSprite;
 extern EffectGridAsset D_80720DA4, D_80720DC8, gEffectSpriteBurstGreen, gEffectSpriteTargetRing, gEffectSpriteGooGreen;
-extern EffectGridAsset D_80720E44, D_80720E5C, D_80720E74, D_80720E8C, D_80720EA4;
+extern EffectGridAsset gEffectSpriteStrawTuft, gEffectSpriteStrawBundle, D_80720E74, gEffectSpriteStrawWisp, gEffectSpritePlankRed;
 extern EffectGridAsset gEffectSpriteBananaBunchGreen, gEffectSpriteBananaBunchRed, gEffectSpriteBananaBunchBlue, gEffectSpriteBananaBunchYellow, gEffectSpriteBananaBunchPurple;
 extern EffectGridAsset gEffectSpriteBananaBalloonGreen, gEffectSpriteBananaBalloonRed, gEffectSpriteBananaBalloonYellow, gEffectSpriteBananaBalloonBlue, gEffectSpriteBananaBalloonPurple;
 extern EffectGridAsset gRButtonSprite, D_80721070, gFairySprite, gEffectSpriteKey, gCrownSprite;
@@ -92,7 +92,7 @@ extern EffectGridAsset gEffectSpriteRareCoin, gEffectSpriteNintendoCoin, gEffect
 extern EffectGridAsset gStartButtonSprite, gEffectSpriteQuestionMark, gEffectSpriteCandyHead, gEffectSpriteCrankyHead, gEffectSpriteSnideHead;
 extern EffectGridAsset gEffectSpriteFunkyHead, gEffectSpriteArrow, gEffectSpriteTwinkle, gEffectSpriteDebrisGrey, gEffectSpriteDebrisGreen;
 extern EffectGridAsset gEffectSpriteLeaf, D_80721300, D_80721318, D_80721330, D_80721358;
-extern EffectGridAsset gEffectSpriteRainbowCoin, gEffectSpriteGlowOrange, D_807213D0, D_807213F4, effectAssetPathTrail;
+extern EffectGridAsset gEffectSpriteRainbowCoin, gEffectSpriteGlowOrange, gEffectSpriteFlameTongue, D_807213F4, effectAssetPathTrail;
 extern EffectGridAsset D_8072142C, gEffectSpriteBarrelEnd, D_8072145C, gEffectSpriteBananaBunchRainbow, gEffectSpriteDkHead;
 extern EffectGridAsset gEffectSpriteDiddyHead, gEffectSpriteLankyHead, gEffectSpriteTinyHead, gEffectSpriteChunkyHead, gCheckMarkSprite;
 extern EffectGridAsset gEffectSpriteWrinkly;
@@ -119,14 +119,14 @@ EffectGridAsset *gEffectGridAssets[176] = {
     &D_80720B70, &D_80720B88, &gEffectSpriteGrapeShard, &gEffectSpriteGlintBlue, &gEffectSpriteSmokeCloud, &gControlStickSprite,
     &D_80720C64, &gEffectSpriteWaterDrip, &gAButtonSprite, &gBButtonSprite, &gZButtonSprite, &gCDownButtonSprite,
     &gCUpButtonSprite, &D_80720DA4, &D_80720DC8, &gEffectSpriteBurstGreen, &gEffectSpriteTargetRing, &gEffectSpriteGooGreen,
-    &D_80720E44, &D_80720E5C, &D_80720E74, &D_80720E8C, &D_80720EA4, &gEffectSpriteBananaBunchGreen,
+    &gEffectSpriteStrawTuft, &gEffectSpriteStrawBundle, &D_80720E74, &gEffectSpriteStrawWisp, &gEffectSpritePlankRed, &gEffectSpriteBananaBunchGreen,
     &gEffectSpriteBananaBunchRed, &gEffectSpriteBananaBunchBlue, &gEffectSpriteBananaBunchYellow, &gEffectSpriteBananaBunchPurple, &gEffectSpriteBananaBalloonGreen, &gEffectSpriteBananaBalloonRed,
     &gEffectSpriteBananaBalloonYellow, &gEffectSpriteBananaBalloonBlue, &gEffectSpriteBananaBalloonPurple, &gRButtonSprite, &D_80721070, &gFairySprite,
     &gEffectSpriteKey, &gCrownSprite, &gEffectSpriteRareCoin, &gEffectSpriteNintendoCoin, &gEffectSpriteNoSign, &gEffectSpriteHeadphones,
     &D_80721194, &gStartButtonSprite, &gEffectSpriteQuestionMark, &gEffectSpriteCandyHead, &gEffectSpriteCrankyHead, &gEffectSpriteSnideHead,
     &gEffectSpriteFunkyHead, &gEffectSpriteArrow, &gEffectSpriteTwinkle, &gEffectSpriteDebrisGrey, &gEffectSpriteDebrisGreen, &gEffectSpriteLeaf,
     &D_80721300, &D_80721318, &D_80721330, &D_80721358, &gEffectSpriteRainbowCoin, &gEffectSpriteGlowOrange,
-    &D_807213D0, &D_807213F4, &effectAssetPathTrail, &D_8072142C, &gEffectSpriteBarrelEnd, &D_8072145C,
+    &gEffectSpriteFlameTongue, &D_807213F4, &effectAssetPathTrail, &D_8072142C, &gEffectSpriteBarrelEnd, &D_8072145C,
     &gEffectSpriteBananaBunchRainbow, &gEffectSpriteDkHead, &gEffectSpriteDiddyHead, &gEffectSpriteLankyHead, &gEffectSpriteTinyHead, &gEffectSpriteChunkyHead,
     &gCheckMarkSprite, &gEffectSpriteWrinkly,
 };

@@ -1309,7 +1309,7 @@ void actorGetMatrix(ActorSub140 *owner, CollisionMtxF dst, s8 mtxIndex) {
     }
 }
 
-extern u8 D_807FB603;
+extern u8 gCollisionPushBothSides;
 extern u8 gCollisionHit;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
@@ -1347,7 +1347,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
 
     selfBounds = self->collision;
     otherBounds = other->collision;
-    D_807FB603 = selfBounds->unkAC;
+    gCollisionPushBothSides = selfBounds->pushBothSides;
     gCollisionDeferredPush = 1;
     gCollisionResolvePass = 1;
     gCollisionHit = 0;

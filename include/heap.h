@@ -36,7 +36,7 @@ typedef struct DynamicBuffer {
     /* 0x08 */ s32 scaledZ;
     /* 0x0C */ s32 scaledRadius;
     /* 0x10 */ u32 timestamp;
-    /* 0x14 */ u8 unk14;
+    /* 0x14 */ u8 pushBothSides;
     /* 0x15 */ u8 flags;
     /* 0x16 */ u8 pad16[2];
     /* 0x18 */ struct CollisionBox *box_start; // transformed boxes (collisionBuildSlotBoxes), heapAlloc(count * 0x58)

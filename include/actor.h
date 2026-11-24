@@ -192,7 +192,7 @@ typedef struct ActorSub140 {
     /* 0xA0 */ void *boxes;
     /* 0xA4 */ struct CollisionBox *box_start; /* transformed boxes (actorSub140BuildBoxes) */
     /* 0xA8 */ struct CollisionBox *box_end; /* one past the last valid box */
-    /* 0xAC */ u8 unkAC;
+    /* 0xAC */ u8 pushBothSides;
     /* 0xAD */ u8 padAD[3];
     /* 0xB0 */ s32 boxContactX; // last box contact x/z (actorComputeBoxNormal)
     /* 0xB4 */ s32 boxContactZ;

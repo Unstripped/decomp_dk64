@@ -674,10 +674,10 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern EffectGridAsset D_80720E44;
-extern EffectGridAsset D_80720E5C;
+extern EffectGridAsset gEffectSpriteStrawTuft;
+extern EffectGridAsset gEffectSpriteStrawBundle;
 extern EffectGridAsset D_80720E74;
-extern EffectGridAsset D_80720E8C;
+extern EffectGridAsset gEffectSpriteStrawWisp;
 
 void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad0;
@@ -699,16 +699,16 @@ void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetSpeed(2);
         switch (sel) {
             case 0:
-                p = &D_80720E44;
+                p = &gEffectSpriteStrawTuft;
                 break;
             case 1:
-                p = &D_80720E5C;
+                p = &gEffectSpriteStrawBundle;
                 break;
             case 2:
                 p = &D_80720E74;
                 break;
             case 3:
-                p = &D_80720E8C;
+                p = &gEffectSpriteStrawWisp;
                 break;
         }
         effectCreateAtPosition(p, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
@@ -1361,7 +1361,7 @@ void csCmdSpawnFallingSparkles(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern EffectGridAsset D_80720EA4;
+extern EffectGridAsset gEffectSpritePlankRed;
 
 void csCmdSpawnTumbleBounceRing(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1374,7 +1374,7 @@ void csCmdSpawnTumbleBounceRing(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetFrameDelay(2);
         effectSetSpeed(4);
         t = randomLcgNext() / 1000 % 80;
-        effectCreateAtPosition(&D_80720EA4, 1.0f, gCsPosX, gCsPosY + t, gCsPosZ);
+        effectCreateAtPosition(&gEffectSpritePlankRed, 1.0f, gCsPosX, gCsPosY + t, gCsPosZ);
     }
     for (i = 1; i != 6; i++) {
         effectSetSpeed(-0x78);

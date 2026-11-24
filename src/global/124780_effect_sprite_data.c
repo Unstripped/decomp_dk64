@@ -555,11 +555,11 @@ EFFECT_GRID_ASSET(1) gEffectSpriteGooGreen = {
     133, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 48, 42, 1,
     { 5813 },
 };
-EFFECT_GRID_ASSET(1) D_80720E44 = {
+EFFECT_GRID_ASSET(1) gEffectSpriteStrawTuft = {
     134, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 1,
     { 5814 },
 };
-EFFECT_GRID_ASSET(1) D_80720E5C = {
+EFFECT_GRID_ASSET(1) gEffectSpriteStrawBundle = {
     135, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 1,
     { 5815 },
 };
@@ -567,11 +567,11 @@ EFFECT_GRID_ASSET(1) D_80720E74 = {
     136, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 1,
     { 5816 },
 };
-EFFECT_GRID_ASSET(1) D_80720E8C = {
+EFFECT_GRID_ASSET(1) gEffectSpriteStrawWisp = {
     137, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 32, 1,
     { 5817 },
 };
-EFFECT_GRID_ASSET(1) D_80720EA4 = {
+EFFECT_GRID_ASSET(1) gEffectSpritePlankRed = {
     138, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 32, 8, 1,
     { 5818 },
 };
@@ -723,7 +723,7 @@ EFFECT_GRID_ASSET(15) gEffectSpriteGlowOrange = {
     180, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 1, 16, 16, 15,
     { 5967, 5968, 5969, 5970, 5971, 5972, 5973, 5974, 5973, 5972, 5971, 5970, 5969, 5968, 5967 },
 };
-EFFECT_GRID_ASSET(8) D_807213D0 = {
+EFFECT_GRID_ASSET(8) gEffectSpriteFlameTongue = {
     181, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 1, 16, 16, 8,
     { 5975, 5976, 5977, 5978, 5979, 5980, 5981, 5982 },
 };

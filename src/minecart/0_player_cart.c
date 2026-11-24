@@ -96,10 +96,10 @@ MinecartElem D_80028C10[4] = { { 0xFF, 0, 0, 0 }, { 0xFF, 0, 0, 0 }, { 0x05, 0x1
 MinecartElem *sMinecartJunctionTable[4] = { D_80028BE0, D_80028BF0, D_80028C00, D_80028C10 };
 void *sMinecartWheelEffect = NULL;
 // Track routes: point indices ending in 0xFF.
-u8 D_80028C34[8] = { 0x00, 0x01, 0x03, 0x04, 0x06, 0x07, 0x09, 0xFF };
+u8 sMinecartRouteMap06[8] = { 0x00, 0x01, 0x03, 0x04, 0x06, 0x07, 0x09, 0xFF };
 u8 sMinecartDefaultRoute[4] = { 0x00, 0xFF };
-u8 D_80028C40[8] = { 0x00, 0x01, 0x03, 0x04, 0x07, 0xFF };
-u8 D_80028C48[8] = { 0x00, 0x81, 0x43, 0x87, 0xFF };
+u8 sMinecartRouteMap37[8] = { 0x00, 0x01, 0x03, 0x04, 0x07, 0xFF };
+u8 sMinecartRouteMap6A[8] = { 0x00, 0x81, 0x43, 0x87, 0xFF };
 u8 sMinecartReversedRoute[8] = { 0x87, 0x43, 0x81, 0x00, 0xFF };
 
 void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
@@ -258,7 +258,7 @@ void minecartUpdateHeadlightAndSpeed(void) {
         cart->tiltAccel = 0.1f;
         cart->tiltRateMax = 5.0f;
     }
-    minecartPlayerCartUpdate(1, (gCurrentMap == 6) ? D_80028C34 : sMinecartDefaultRoute, 0x7FFF, 0x23);
+    minecartPlayerCartUpdate(1, (gCurrentMap == 6) ? sMinecartRouteMap06 : sMinecartDefaultRoute, 0x7FFF, 0x23);
     minecartUpdateHeadlight();
 }
 
@@ -293,7 +293,7 @@ void minecartUpdatePhysics(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, 0xFF, 0x7F, 0x1E);
         }
     }
-    minecartPlayerCartUpdate(3, D_80028C40, cart->yawDeltaOverride, 0x19);
+    minecartPlayerCartUpdate(3, sMinecartRouteMap37, cart->yawDeltaOverride, 0x19);
     if (gPrimaryPlayerActor->chunkIndex != 0x12 && gPrimaryPlayerActor->chunkIndex != 0xB) {
         minecartUpdateHeadlight();
     }
@@ -334,7 +334,7 @@ void minecartReverseTrackBehaviour(void) {
         gPrimaryPlayerActor->contactFlags &= ~0x100;
         gCurrentActor->yawSpeed = 2;
     }
-    minecartPlayerCartUpdate(1, D_80028C48, 0x7FFF, 0x23);
+    minecartPlayerCartUpdate(1, sMinecartRouteMap6A, 0x7FFF, 0x23);
     minecartUpdateHeadlight();
     if (*cart->routeCursor >= 7 && camIsCutsceneActive() != 0 && gCurrentActor->state != 5) {
         gCurrentActor->speedXZ = 300.0f;

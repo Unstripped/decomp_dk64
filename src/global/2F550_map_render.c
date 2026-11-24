@@ -697,8 +697,8 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
                 if (node->translucentDl != -1) {
                     gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->translucentDl));
                 }
-                if (node->unk18 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unk18));
+                if (node->translucentOverlayDl != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->translucentOverlayDl));
                 }
                 gfx = mapViewDrawPass(gfx, node, 2);
             }
@@ -1533,8 +1533,8 @@ void mapTreeRelocate(MapBspNode *node, s32 base, s32 dlBase) {
     if (node->unk14 != -1) {
         node->unk14 += dlBase;
     }
-    if (node->unk18 != -1) {
-        node->unk18 += dlBase;
+    if (node->translucentOverlayDl != -1) {
+        node->translucentOverlayDl += dlBase;
     }
     for (i = 0; i < node->surfaceCount; i++) {
         node->surfaceDls[i] = (void *)((s32)node->surfaceDls[i] + dlBase);

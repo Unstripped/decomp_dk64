@@ -46,7 +46,7 @@ typedef struct EnemyGridActor {
     /* 0x178 */ EnemyGridState *gridState;
 } EnemyGridActor;
 
-s8 D_80750650 = 0;
+s8 gEnemyGridLeaping = 0;
 extern s8 gEnemyGridCells[16];
 
 void enemyGridStateStep(void) {
@@ -125,7 +125,7 @@ void enemyGridStateStep(void) {
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                D_80750650 = 1;
+                gEnemyGridLeaping = 1;
                 st->state = 3;
                 st->step = 0.025f;
                 st->progress = 0.0f;
@@ -174,7 +174,7 @@ void enemyGridStateStep(void) {
                 }
                 flagSet(0x30, 0, 2);
                 actorScriptStart(gCurrentActor, 0x31C);
-                D_80750650 = 1;
+                gEnemyGridLeaping = 1;
                 if (ones < zeros) {
                     st->state = 6;
                 } else {
@@ -192,7 +192,7 @@ void enemyGridStateStep(void) {
                 st->delay = 0x1E;
             } else {
                 actorScriptStart(gCurrentActor, 0);
-                D_80750650 = 0;
+                gEnemyGridLeaping = 0;
                 best = 4;
                 n = 0;
                 for (i = 0; i < 16; i++) {
@@ -315,7 +315,7 @@ void enemyGridStateStep(void) {
     if (st->step != 0.0f && st->delay == 0) {
         old = st->progress;
         st->progress += st->step;
-        if (D_80750650 == 0) {
+        if (gEnemyGridLeaping == 0) {
             if (old < 0.63f && st->progress >= 0.63f) {
                 csModelStateSetByte(st->gridX + st->gridY * 4, 1, 1);
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x361, 0xFF, 0x7F, 0xA);
@@ -331,7 +331,7 @@ void enemyGridStateStep(void) {
             gCurrentActor->z = st->targetZ;
         } else {
             t = st->progress;
-            if (D_80750650 == 0) {
+            if (gEnemyGridLeaping == 0) {
                 t = 2.0 * t;
                 if (t > 1.0) {
                     t = 1.0f;
@@ -339,7 +339,7 @@ void enemyGridStateStep(void) {
             }
             gCurrentActor->x = st->startX + t * (st->targetX - st->startX);
             gCurrentActor->z = st->startZ + t * (st->targetZ - st->startZ);
-            if (D_80750650 == 0) {
+            if (gEnemyGridLeaping == 0) {
                 gCurrentActor->y = st->startY + t * (st->targetY - st->startY);
             } else {
                 f32 gravity = st->gravity;
@@ -348,7 +348,7 @@ void enemyGridStateStep(void) {
                 gCurrentActor->y = st->startY + (velY * st->progress + st->progress * st->progress * gravity * 0.5);
             }
         }
-        if (D_80750650 == 0 && anim != NULL && st->progress != 0.0f) {
+        if (gEnemyGridLeaping == 0 && anim != NULL && st->progress != 0.0f) {
             if (anim->animId != 0x5C3) {
                 controllerAnimSetStateIfChanged(gCurrentActor, 0x5C3, 0.0f, 0.0f);
             }

@@ -574,7 +574,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
         info->maxDist = 0x1F4;
     }
     modelSlotAllocAnimBuffers(&gModelSlots[slot].anim, info);
-    gModelSlots[slot].boxBuffer.unk14 = 0;
+    gModelSlots[slot].boxBuffer.pushBothSides = 0;
     gModelSlots[slot].boxBuffer.flags = 0;
     collisionBuildSlotBoxes(slot, info, x, y, z, rotX, rotY, rotZ, scale);
     dynamicBufferFree(&gModelSlots[slot].boxBuffer);

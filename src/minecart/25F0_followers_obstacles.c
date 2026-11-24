@@ -60,9 +60,9 @@ extern EffectGridAsset gEffectSpriteFireBurst;
 extern EffectGridAsset gEffectSpriteFuseSpark;
 
 extern struct MinecartElem *gMinecartJunctionTable[];
-extern u8 D_80028C34[];
-extern u8 D_80028C40[];
-extern u8 D_80028C48[];
+extern u8 sMinecartRouteMap06[];
+extern u8 sMinecartRouteMap37[];
+extern u8 sMinecartRouteMap6A[];
 
 
 void minecartFollowerBehaviour(void) {
@@ -625,13 +625,13 @@ void minecartUpdateObstacleType3(void) {
         if (gActorGlobalState.volumeTriggerQueueCount != 0) {
             switch (gCurrentMap) {
             case 0x37:
-                cart->routeCursor = D_80028C40;
+                cart->routeCursor = sMinecartRouteMap37;
                 break;
             case 0x6A:
-                cart->routeCursor = D_80028C48;
+                cart->routeCursor = sMinecartRouteMap6A;
                 break;
             default:
-                cart->routeCursor = D_80028C34;
+                cart->routeCursor = sMinecartRouteMap06;
             }
             cart->pointIndex = 1;
             gCurrentActor->speedXZ = 0.0f;
