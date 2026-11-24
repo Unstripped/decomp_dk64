@@ -48,7 +48,6 @@ void effectSetDepth(s8); // ORIG: csCmdSpawnSparkAndLight loads the argument wit
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 
 typedef struct CsTimer {
     /* 0x0 */ s16 timerId;
@@ -258,7 +257,7 @@ void csModelIdTableReset(void) {
     do {
         gCsModelIds[i] = -1;
         i++;
-    } while (&gCsModelIds[i] < &gCsModelIds[600]);
+    } while (&gCsModelIds[i] < &gCsModelIds[600]); // FAKE: address compare for i < 600 keeps a non-unrolled sltu walk with -1 in v0 (i < 600 unrolls 4x; pointer-variable loops colour -1 v1/a0)
     for (j = 0; j < 0x212; j++) { gCsVarsDirty[j] = 0; } // LAYOUT: one-line loop keeps the as1 unroll schedule (Q0364)
 }
 
@@ -298,10 +297,6 @@ void csModelStateSetByte(s16 modelIndex, s16 val, s16 byteOffset) {
     }
 }
 
-
-extern CsTimer gCsTimerQueue[8];
-extern struct CsSpawnReq gCsCountdown;
-
 void csTimerQueueClear(void) {
     s32 i;
 
@@ -333,77 +328,74 @@ void csTimerQueueFire(s16 timerId) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (gCsTimerQueue[i].active != 0 && timerId == gCsTimerQueue[i].timerId) {
+        if (gCsTimerQueue[i].active != 0 && gCsTimerQueue[i].timerId == timerId) {
             csModelStateSetFirstByte(gCsTimerQueue[i].modelIndex, gCsTimerQueue[i].value);
             gCsTimerQueue[i].active = 0;
         }
     }
 }
 
-extern s16 gCsCamPathLockFlag;
-extern u8 gCsFlagBits;
-extern u8 gCsCamUseGlobalPaths;
 
 void csScriptLoad(s16 *scriptData) {
-    s16 n;
+    s16 modelCount;
     s16 *p;
     s32 slot;
-    s16 id;
-    s16 m;
-    s16 c1;
-    s16 c2;
-    s32 len1;
-    s32 len2;
+    s16 modelIndex;
+    s16 nodeCount;
+    s16 condCount;
+    s16 cmdCount;
+    s32 condLen;
+    s32 cmdLen;
     CsNode **tail;
     CsNode *node;
 
-    n = *scriptData;
+    modelCount = *scriptData;
     p = scriptData + 1;
-    while (n != 0) {
-        id = *p;
+    while (modelCount != 0) {
+        modelIndex = *p;
         p++;
-        slot = hashTableLookup(gCsModelIds[id]);
+        slot = hashTableLookup(gCsModelIds[modelIndex]);
         if (slot != -1) {
             gModelSlots[slot].csState = heapAlloc(sizeof(CsState));
             csStateInit(gModelSlots[slot].csState);
             gModelSlots[slot].csState->nodes = NULL;
-            m = p[0];
+            nodeCount = p[0];
             tail = &gModelSlots[slot].csState->nodes;
             gModelSlots[slot].csState->unk9C = p[1];
             p += 2;
-            while (m != 0) {
+            while (nodeCount != 0) {
                 node = heapAlloc(sizeof(CsNode));
                 *tail = node;
                 node->next = NULL;
-                c1 = *p;
+                condCount = *p;
                 p++;
-                len1 = c1 * 4;
+                condLen = condCount * 4;
                 tail = &node->next;
-                node->condCount = c1;
-                memcpy(node->conds, p, len1 * 2);
-                p += len1;
-                c2 = *p;
+                node->condCount = condCount;
+                memcpy(node->conds, p, condLen * 2);
+                p += condLen;
+                cmdCount = *p;
                 p++;
-                len2 = c2 * 4;
-                node->cmdCount = c2;
-                memcpy(node->cmds, p, len2 * 2);
-                p += len2;
-                m--;
+                cmdLen = cmdCount * 4;
+                node->cmdCount = cmdCount;
+                memcpy(node->cmds, p, cmdLen * 2);
+                p += cmdLen;
+                nodeCount--;
             }
         } else {
-            m = p[0];
+            nodeCount = p[0];
             p += 2;
-            while (m != 0) {
-                c1 = *p;
+            while (nodeCount != 0) {
+                condCount = *p;
                 p++;
-                p += c1 * 4;
-                c2 = *p;
+                p += condCount * 4;
+                cmdCount = *p;
                 p++;
-                p += c2 * 4;
-                m--;
+                p += cmdCount * 4;
+                nodeCount--;
             }
         }
-        n--;
+        modelCount--;
     }
     gCsCamUseGlobalPaths = 0;
     gCsFlagBits = 0;
@@ -416,20 +408,20 @@ void csScriptLoad(s16 *scriptData) {
 }
 
 
-void csStateFree(CsState *loadState) {
+void csStateFree(CsState *cs) {
     CsNode *node;
     CsNode *next;
 
-    if (loadState->data != NULL) {
-        heapFree(loadState->data);
+    if (cs->data != NULL) {
+        heapFree(cs->data);
     }
-    node = loadState->nodes;
+    node = cs->nodes;
     while (node != NULL) {
         next = node->next;
         heapFree(node);
         node = next;
     }
-    heapFree(loadState);
+    heapFree(cs);
 }
 
 void csStateInit(CsState *cs) {
@@ -441,7 +433,7 @@ void csStateInit(CsState *cs) {
     cs->sfxSources[0] = -1;
     cs->sfxSources[1] = -1;
     cs->pathHandle = -1;
-    cs->data = 0;
+    cs->data = NULL;
     cs->unk40[0] = 0;
     cs->unk40[1] = 0;
     cs->timers[0] = 0;
@@ -491,8 +483,6 @@ void csStateInit(CsState *cs) {
     cs->pushDirZ = 0.0f;
 }
 
-extern u8 gCsVarsDirty[];
-
 void csModelStateSetVars(s32 modelIndex, u8 *varsData) {
     s16 slot;
 
@@ -516,29 +506,6 @@ void csStateTickTimers(CsState *cs) {
     }
     cs->transformChanged = 0;
 }
-
-extern f32 gCsPrevPosX;
-extern f32 gCsPrevPosY;
-extern f32 gCsPrevPosZ;
-extern f32 gCsPrevRotX;
-extern f32 gCsPrevRotY;
-extern f32 gCsPrevRotZ;
-extern f32 gCsPrevScale;
-extern f32 gCsPrevGroundOffset;
-extern f32 gCsPosX;
-extern f32 gCsPosY;
-extern f32 gCsPosZ;
-extern f32 gCsRotX;
-extern f32 gCsRotY;
-extern f32 gCsRotZ;
-extern f32 gCsScale;
-extern f32 gCsGroundOffset;
-extern s16 gCsGroundUpdatePending;
-extern s16 gCsShakeInnerRadius;
-extern s16 gCsShakeOuterRadius;
-extern f32 gCsSpawnX;
-extern f32 gCsSpawnY;
-extern f32 gCsSpawnZ;
 
 void csStateUpdate(CsState *cs, s16 csId) {
     CsNode *node;
@@ -627,22 +594,22 @@ void csStateEndUpdate(CsState *cs) {
 
 
 void csUpdateStepAndInterpolation(CsState *cs) {
-    s16 a;
-    s16 b;
+    s16 target;
+    s16 alpha;
 
     if (gFrameCounter != cs->alphaStepFrame) {
-        b = cs->alpha;
-        a = cs->alphaTarget;
+        alpha = cs->alpha;
+        target = cs->alphaTarget;
         cs->alphaStepFrame = gFrameCounter;
-        if (b < a) {
-            cs->alpha = b + cs->alphaStep;
-            if (a < cs->alpha) {
-                cs->alpha = a;
+        if (alpha < target) {
+            cs->alpha = alpha + cs->alphaStep;
+            if (target < cs->alpha) {
+                cs->alpha = target;
             }
         } else {
-            cs->alpha = b - cs->alphaStep;
-            if (cs->alpha < a) {
-                cs->alpha = a;
+            cs->alpha = alpha - cs->alphaStep;
+            if (cs->alpha < target) {
+                cs->alpha = target;
             }
         }
     }
@@ -719,10 +686,10 @@ void csStateIntegrateMotion(CsState *cs) {
 // Cutscene condition evaluator (csCondEval): one CsCond per call, nonzero = condition holds.
 // The arguments are read as cond->arg[n] (CsCond), not through CsCmd's named fields: a named field
 // is canonicalised to the left compare/addu operand, the indexed read gives the target's `bne field,arg`;
-// the actor loops use their own pointer local `b` (not `a`, the player-loop pointer) and index `h` (not `k`).
+// the active-actor loops use their own pointer local `activeActor` (not `actor`, the player-loop pointer) and index `j`.
 
 // Stride view of gPlayerSlots (PlayerStruct): indexing the shared type directly swaps the
-// `addu base,off` operands of the player loops; this record type reproduces the target.
+// `addu base,off` operands of the player loops (Q0606); this record type reproduces the target.
 typedef struct CsCondPlayer {
     /* 0x000 */ u8 active;
     /* 0x001 */ u8 pad1[3];
@@ -742,21 +709,21 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     u8 neg;
     u8 ret;
     s16 type;
-    Actor *a;
-    CsCondPlayer *p;
+    Actor *actor;
+    CsCondPlayer *player;
     u8 found;
     s32 count;
     s32 kong;
-    s32 h;
-    s16 sAnim;
-    f32 fAnim;
-    u8 uAnim;
+    s32 j;
+    s16 animKey;
+    f32 animTime;
+    u8 animState;
     u8 i;
     f32 animProgress;
     u8 *moveLevel;
     PlayerState *playerState;
     u32 mask;
-    Actor *b;
+    Actor *activeActor;
     s32 value;
 
     if (cond->op & 0x8000) {
@@ -773,7 +740,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = gCsCondFlag;
         break;
     case 0x3C:
-        ret = cond->arg[0] == gPlayerSlots->camChunk;
+        ret = gPlayerSlots->camChunk == cond->arg[0];
         break;
     case 0x3A:
         if ((1 << cond->arg[0]) & gCsFlagBits) {
@@ -793,25 +760,25 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = gPlayerCharacterId[0] < 5;
         break;
     case 0x37:
-        modelAnimEntryGetState(csId, cond->arg[0], &sAnim, &fAnim, &uAnim);
-        if (sAnim == cond->arg[1]) {
+        modelAnimEntryGetState(csId, cond->arg[0], &animKey, &animTime, &animState);
+        if (animKey == cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x32:
-        ret = cond->arg[0] == gPreviousMap;
+        ret = gPreviousMap == cond->arg[0];
         break;
     case 0x30:
-        if (cond->arg[0] == gPrimaryPlayerActor->floorSlopeType) {
+        if (gPrimaryPlayerActor->floorSlopeType == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x35:
-        if (cond->arg[0] == gPrimaryPlayerActor->floorSurfaceType) {
+        if (gPrimaryPlayerActor->floorSurfaceType == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
@@ -880,8 +847,8 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x24:
-        a = spawnNodeActivate(cond->arg[0], 0);
-        if (cond->arg[1] == a->state) {
+        actor = spawnNodeActivate(cond->arg[0], 0);
+        if (actor->state == cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;
@@ -969,10 +936,10 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0x2:
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
-            p = &CS_COND_PLAYER[i];
-            if (p->active != 0) {
-                a = p->actor;
-                if (a->attachMode == 1 && csId == a->cutsceneId) {
+            player = &CS_COND_PLAYER[i];
+            if (player->active != 0) {
+                actor = player->actor;
+                if (actor->attachMode == 1 && actor->cutsceneId == csId) {
                     ret = 1;
                 }
             }
@@ -981,10 +948,10 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0xD:
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
-            p = &CS_COND_PLAYER[i];
-            if (p->active != 0) {
-                a = p->actor;
-                if (a->attachMode == 1 && csId == a->cutsceneId && cond->arg[0] == a->attachPartId) {
+            player = &CS_COND_PLAYER[i];
+            if (player->active != 0) {
+                actor = player->actor;
+                if (actor->attachMode == 1 && actor->cutsceneId == csId && actor->attachPartId == cond->arg[0]) {
                     ret = 1;
                 }
             }
@@ -992,9 +959,9 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         break;
     case 0x11:
         found = 0;
-        for (h = 0; h < gActiveActorCount && !found; h++) {
-            b = gActiveActors[h].actor;
-            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && b->attachMode == 1 && csId == b->cutsceneId) {
+        for (j = 0; j < gActiveActorCount && !found; j++) {
+            activeActor = gActiveActors[j].actor;
+            if (!(activeActor->flags & 0x2000) && activeActor->actorType == cond->arg[0] && activeActor->attachMode == 1 && activeActor->cutsceneId == csId) {
                 found = 1;
             }
         }
@@ -1006,10 +973,10 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         break;
     case 0x12:
         found = 0;
-        for (h = 0; h < gActiveActorCount && !found; h++) {
-            b = gActiveActors[h].actor;
-            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && b->attachMode == 1 && csId == b->cutsceneId &&
-                cond->arg[1] == b->attachPartId) {
+        for (j = 0; j < gActiveActorCount && !found; j++) {
+            activeActor = gActiveActors[j].actor;
+            if (!(activeActor->flags & 0x2000) && activeActor->actorType == cond->arg[0] && activeActor->attachMode == 1 && activeActor->cutsceneId == csId &&
+                activeActor->attachPartId == cond->arg[1]) {
                 found = 1;
             }
         }
@@ -1021,9 +988,9 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         break;
     case 0x14:
         count = 0;
-        for (h = 0; h < gActiveActorCount; h++) {
-            b = gActiveActors[h].actor;
-            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && csId == b->cutsceneId && cond->arg[1] == b->attachPartId) {
+        for (j = 0; j < gActiveActorCount; j++) {
+            activeActor = gActiveActors[j].actor;
+            if (!(activeActor->flags & 0x2000) && activeActor->actorType == cond->arg[0] && activeActor->cutsceneId == csId && activeActor->attachPartId == cond->arg[1]) {
                 count++;
             }
         }
@@ -1036,10 +1003,10 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0xB:
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
-            p = &CS_COND_PLAYER[i];
-            if (p->active != 0) {
-                a = p->actor;
-                if (a->attachMode == 3 && cond->arg[0] == a->attachNodeIndex && csId == a->cutsceneId) {
+            player = &CS_COND_PLAYER[i];
+            if (player->active != 0) {
+                actor = player->actor;
+                if (actor->attachMode == 3 && actor->attachNodeIndex == cond->arg[0] && actor->cutsceneId == csId) {
                     ret = 1;
                 }
             }
@@ -1048,10 +1015,10 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0xA:
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
-            p = &CS_COND_PLAYER[i];
-            if (p->active != 0) {
-                a = p->actor;
-                if (a->attachMode == 2 && csId == a->cutsceneId) {
+            player = &CS_COND_PLAYER[i];
+            if (player->active != 0) {
+                actor = player->actor;
+                if (actor->attachMode == 2 && actor->cutsceneId == csId) {
                     ret = 1;
                 } else {
                     ret = 0;
@@ -1078,7 +1045,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = pathPlaybackIsActive(cs->pathHandle);
         break;
     case 0x10:
-        if (cs->hitId != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->hitId) &&
+        if (cs->hitId != 0 && (cond->arg[1] == -1 || cs->hitId == cond->arg[1]) &&
             (cond->arg[0] & actorLookupClass(cs->hitActorType)) && csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
@@ -1087,7 +1054,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x18:
-        if (cs->hitId != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->hitId) && cond->arg[0] == cs->hitActorType &&
+        if (cs->hitId != 0 && (cond->arg[1] == -1 || cs->hitId == cond->arg[1]) && cs->hitActorType == cond->arg[0] &&
             csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
@@ -1098,13 +1065,13 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0x17:
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
-            p = &CS_COND_PLAYER[i];
-            if (p->active != 0) {
-                a = p->actor;
-                if (cond->arg[0] == a->state) {
+            player = &CS_COND_PLAYER[i];
+            if (player->active != 0) {
+                actor = player->actor;
+                if (actor->state == cond->arg[0]) {
                     if (cond->arg[1] != 0) {
                         value = cond->arg[1];
-                        if (a->subState == value) {
+                        if (actor->subState == value) {
                             ret = 1;
                         }
                     } else {
@@ -1117,21 +1084,21 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     case 0x21:
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
-            p = &CS_COND_PLAYER[i];
-            if (p->active != 0 && cond->arg[0] == p->actor->subState) {
+            player = &CS_COND_PLAYER[i];
+            if (player->active != 0 && player->actor->subState == cond->arg[0]) {
                 ret = 1;
             }
         }
         break;
     case 0x19:
-        if (cond->arg[0] == gPrimaryPlayerActor->actorType) {
+        if (gPrimaryPlayerActor->actorType == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x1A:
-        ret = cond->arg[0] == gPlayerSlots->sizeMode;
+        ret = gPlayerSlots->sizeMode == cond->arg[0];
         break;
     case 0x1B:
         ret = gPlayerSlots->sizeModeDirty;
@@ -1186,10 +1153,6 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
 
 extern u8 gNextTransitionFadeType;
 extern s32 gCurrentMap;
-extern CsSpawnReq gCsCountdown;
-extern s16 gCsTrackedModels[16];
-extern u8 gCsTrackedModelCount;
-extern s16 gCsLightIndex;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern u32 gGlobalCutsceneFlags;
@@ -1214,21 +1177,22 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cg;
     f32 cb;
     s16 idx;
+    s16 modelId;
     PlayerState *playerState;
     Actor *actor;
     u8 pitch7;
     s32 map;
-    u8 c;
+    u8 range;
     s32 exit;
     s16 flag;
     struct EffectGridAsset *asset;
-    s32 pad;
+    s32 hub;
     f32 sx;
     f32 sy;
     f32 sz;
     u8 pitch;
     u8 vol;
-    u8 range;
+    u8 range7;
     f32 cx;
     f32 cy;
     f32 cz;
@@ -1310,7 +1274,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = 0; // LAYOUT: the init on its own line schedules move t0,zero ahead of the gActiveActors address at 0x23f4 (on the for line, or one line with it: after it; Q0186)
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
-            if (!(actor->flags & 0x2000) && actor->attachMode == 1 && csId == actor->cutsceneId) {
+            if (!(actor->flags & 0x2000) && actor->attachMode == 1 && actor->cutsceneId == csId) {
                 actorAppendCallback(actor, 0, 8, 0, 0, 0);
             }
         }
@@ -1535,11 +1499,11 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x8D:
         gNextTransitionFadeType = 2;
         playerThrowHeldActor(gActivePlayerActor);
-        slot = mapGetHubWorldIndex(gCurrentMap, 0);
+        hub = mapGetHubWorldIndex(gCurrentMap, 0);
         if (mapIsLobby(gCurrentMap) != 0) {
-            map = gHubWorldMaps[slot];
-            exit = gHubWorldExits[slot];
-            if (flagGet(gHubWorldFlags[slot], 0) == 0) {
+            map = gHubWorldMaps[hub];
+            exit = gHubWorldExits[hub];
+            if (flagGet(gHubWorldFlags[hub], 0) == 0) {
                 if (map == 0x57) {
                     exit = 0x15;
                 } else {
@@ -1550,7 +1514,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
                 mapRequestTransition(map, exit);
             }
         } else {
-            mapTransitionToWorldHub(slot);
+            mapTransitionToWorldHub(hub);
         }
         break;
     case 0x31:
@@ -1607,7 +1571,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0xE:
         pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
-        c = cmd->c & 0x7F;
+        range = cmd->c & 0x7F;
         if (pitch == 0) {
             pitch = 0x7F;
         }
@@ -1617,13 +1581,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         if (cs->sfxSources[i] < 0) {
             bit = cmd->b & 2;
-            cs->sfxSources[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, 0);
+            cs->sfxSources[i] = sfxSlotAllocateSource(csId, cmd->a, range, bit, vol, (u32)pitch / 127.0, 0);
         }
         break;
     case 0x7D:
         pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
-        c = cmd->c & 0x7F;
+        range = cmd->c & 0x7F;
         if (pitch == 0) {
             pitch = 0x7F;
         }
@@ -1633,13 +1597,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 1;
         if (cs->sfxSources[i] < 0) {
             bit = cmd->b & 2;
-            cs->sfxSources[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, gCsSfxNode);
+            cs->sfxSources[i] = sfxSlotAllocateSource(csId, cmd->a, range, bit, vol, (u32)pitch / 127.0, gCsSfxNode);
         }
         break;
     case 0xF:
         pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
-        c = cmd->c & 0x7F;
+        range = cmd->c & 0x7F;
         if (pitch == 0) {
             pitch = 0x7F;
         }
@@ -1647,12 +1611,12 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             vol = 0xFF;
         }
         i = cmd->b & 0x7F; // the spread, in i as in case 0x7E
-        sfxPlayFromTargetSlot(csId, cmd->a, vol, pitch, i, c, 0.3f);
+        sfxPlayFromTargetSlot(csId, cmd->a, vol, pitch, i, range, 0.3f);
         break;
     case 0x7E:
         pitch7 = (cmd->b / 128) & 0xFF;
         vol7 = (cmd->c / 128) & 0xFF;
-        range = cmd->c & 0x7F;
+        range7 = cmd->c & 0x7F;
         if (pitch7 == 0) {
             pitch7 = 0x7F;
         }
@@ -1662,7 +1626,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = cmd->b & 0x7F; // ORIG: the spread is spilled to i's home sp+0xBC at 0x3268 (reloaded 0x327c), the slot the case 0x76 actor loop spills its index to (0x2450/0x2460)
         if (gCsSfxNode > 0) {
             modelSlotGetNodePos(csId, 1, gCsSfxNode, &sx, &sy, &sz);
-            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pitch7, i, range, 0.3f, 0);
+            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pitch7, i, range7, 0.3f, 0);
         } else {
             sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 63.0f, (u32)pitch7 / 127.0, 0, 0);
         }
@@ -1738,7 +1702,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = 0; // LAYOUT: the init on its own line schedules move t0,zero ahead of the gActiveActors address at 0x3664 (on the for line, or one line with it: after it; Q0186)
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
-            if (!(actor->flags & 0x2000) && actor->attachMode == 1 && csId == actor->cutsceneId) {
+            if (!(actor->flags & 0x2000) && actor->attachMode == 1 && actor->cutsceneId == csId) {
                 if (cmd->a != 0) {
                     actor->flags2 |= 4;
                 } else {
@@ -1863,9 +1827,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorAppendEvent(0, gPlayerSlots->actor, cmd->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x4D:
-        idx = modelSlotAppend(cmd->a, gCsSpawnX, gCsSpawnY, gCsSpawnZ, gCsSpawnY - gCsPrevGroundOffset, 0);
+        modelId = modelSlotAppend(cmd->a, gCsSpawnX, gCsSpawnY, gCsSpawnZ, gCsSpawnY - gCsPrevGroundOffset, 0);
         if (cmd->b == 0) {
-            csStateShareScript(idx, csId, cmd->c);
+            csStateShareScript(modelId, csId, cmd->c);
         }
         break;
     case 0x51:
@@ -1902,9 +1866,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
 
 
 void csSetCameraFollowModel(s16 modelId) {
-    PlayerState *cam;
+    PlayerState *playerState;
 
-    cam = gPlayerSlots->actor->customState;
+    playerState = gPlayerSlots->actor->customState;
     switch (modelId) {
         case 0x33:
         case 0xBC:
@@ -1916,7 +1880,7 @@ void csSetCameraFollowModel(s16 modelId) {
         case 0x229:
         case 0x22A:
         case 0x22B:
-            cam->damageCooldown = 0x3C;
+            playerState->damageCooldown = 0x3C;
             break;
     }
 }
@@ -1964,27 +1928,25 @@ s32 csModelStateTrySetByte(s16 modelIndex, s16 val, s16 byteOffset) {
     return 0;
 }
 
-void csSetObjectTrackParam(void *obj, s16 b, s16 c) {
-    CsState *o = obj;
-
-    o->updateMode = b;
-    switch (b & 0xFF) {
+void csSetObjectTrackParam(CsState *cs, s16 mode, s16 value) {
+    cs->updateMode = mode;
+    switch (mode & 0xFF) {
     case 3:
     case 4:
     case 6:
-        o->updateRangeSq = c * c;
+        cs->updateRangeSq = value * value;
         break;
     case 5:
-        o->queueKey = c;
+        cs->queueKey = value;
         break;
     }
 }
 
 
 s32 csIsPlayerInCutsceneState(void) {
-    PlayerState *cam = gPlayerSlots->actor->customState;
+    PlayerState *playerState = gPlayerSlots->actor->customState;
 
-    if ((gPrimaryPlayerActor->state == 0x42 && (cam->hitActorType == 0x62 || cam->hitActorType == 0x88 || cam->hitActorType == 0x17)) || gPrimaryPlayerActor->state == 0x52 ||
+    if ((gPrimaryPlayerActor->state == 0x42 && (playerState->hitActorType == 0x62 || playerState->hitActorType == 0x88 || playerState->hitActorType == 0x17)) || gPrimaryPlayerActor->state == 0x52 ||
         gPrimaryPlayerActor->state == 0x67 || gPlayerSlots->queuedState == 0x1C || gPlayerSlots->queuedState == 0x53) {
         return 0;
     }
@@ -2000,13 +1962,13 @@ void csFreeTrackedModels(void) {
     }
 }
 
-void csStateShareScript(s16 dstModelId, s16 srcModelId, s16 val) {
-    dstModelId = hashTableLookup(dstModelId);
-    srcModelId = hashTableLookup(srcModelId);
-    gModelSlots[dstModelId].csState = heapAlloc(0xA4);
-    csStateInit(gModelSlots[dstModelId].csState);
-    gModelSlots[dstModelId].csState->stateBytes[0] = val;
-    gModelSlots[dstModelId].csState->nodes = gModelSlots[srcModelId].csState->nodes;
+void csStateShareScript(s16 dstModel, s16 srcModel, s16 val) {
+    dstModel = hashTableLookup(dstModel);
+    srcModel = hashTableLookup(srcModel);
+    gModelSlots[dstModel].csState = heapAlloc(sizeof(CsState));
+    csStateInit(gModelSlots[dstModel].csState);
+    gModelSlots[dstModel].csState->stateBytes[0] = val;
+    gModelSlots[dstModel].csState->nodes = gModelSlots[srcModel].csState->nodes;
 }
 
 void csSetActorAlphaByType(s16 actorType, s16 enable, s16 csId) {
@@ -2015,7 +1977,7 @@ void csSetActorAlphaByType(s16 actorType, s16 enable, s16 csId) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->flags & 0x2000) && actor->actorType == actorType && csId == actor->cutsceneId) {
+        if (!(actor->flags & 0x2000) && actor->actorType == actorType && actor->cutsceneId == csId) {
             if (enable != 0) {
                 actor->flags2 |= 4;
             } else {
@@ -2043,7 +2005,7 @@ void csSetActorScaleFadeByType(s16 actorType, s16 mode, s16 csId) {
     }
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->flags & 0x2000) && actor->actorType == actorType && csId == actor->cutsceneId) {
+        if (!(actor->flags & 0x2000) && actor->actorType == actorType && actor->cutsceneId == csId) {
             actorAppendCallback(actor, 0, 0x800, fadeArg, 0, 0);
         }
     }
@@ -2086,14 +2048,12 @@ void csCamPathActorUpdate(void) {
 }
 
 extern u8 gViewportCount;
-f32 sqrtf(f32);
-
 
 u8 csPosOnScreenOfNearPlayer(s16 radius) {
     f32 sx;
     f32 sy;
     u8 i;
-    Actor *a;
+    Actor *actor;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -2101,10 +2061,10 @@ u8 csPosOnScreenOfNearPlayer(s16 radius) {
 
     for (i = 0; i < gViewportCount; i++) {
         if (gPlayerSlots[i].active != 0) {
-            a = gPlayerSlots[i].actor;
-            dx = gCsPosX - a->x;
-            dy = gCsPosY - a->y;
-            dz = gCsPosZ - a->z;
+            actor = gPlayerSlots[i].actor;
+            dx = gCsPosX - actor->x;
+            dy = gCsPosY - actor->y;
+            dz = gCsPosZ - actor->z;
             dx *= dx;
             dy *= dy;
             dz *= dz;
@@ -2148,13 +2108,13 @@ u8 csPosWithinRadius(s16 radius, f32 x, f32 y, f32 z) {
 
 s32 csPlayerNearPos(s16 radius) {
     u8 i;
-    CsPlayerPosView *p;
+    CsPlayerPosView *player;
 
     for (i = 0; i < gViewportCount; i++) {
-        p = (CsPlayerPosView *)gPlayerSlots + i;
-        if (p->active != 0) {
-            Actor *a = p->actor;
-            if (csPosWithinRadius(radius, a->x, a->y, a->z)) {
+        player = (CsPlayerPosView *)gPlayerSlots + i;
+        if (player->active != 0) {
+            Actor *actor = player->actor;
+            if (csPosWithinRadius(radius, actor->x, actor->y, actor->z)) {
                 return 1;
             }
         }
@@ -2164,11 +2124,11 @@ s32 csPlayerNearPos(s16 radius) {
 
 s32 csPlayerSavedPosNearPos(s16 radius) {
     u8 i;
-    CsPlayerPosView *p;
+    CsPlayerPosView *player;
 
     for (i = 0; i < gViewportCount; i++) {
-        p = (CsPlayerPosView *)gPlayerSlots + i;
-        if (p->active != 0 && csPosWithinRadius(radius, p->camX, p->camY, p->camZ)) {
+        player = (CsPlayerPosView *)gPlayerSlots + i;
+        if (player->active != 0 && csPosWithinRadius(radius, player->camX, player->camY, player->camZ)) {
             return 1;
         }
     }
@@ -2178,13 +2138,13 @@ s32 csPlayerSavedPosNearPos(s16 radius) {
 
 s32 csSpawnNodeNearPos(s16 radius, s16 minNodeIndex, s16 maxNodeIndex) {
     s16 i;
-    Actor *a;
+    Actor *actor;
 
     for (i = minNodeIndex; i <= maxNodeIndex; i++) {
         if (spawnNodeHasActor(i)) {
-            a = spawnNodeActivate(i, 0);
-            if (a != NULL) {
-                if (csPosWithinRadius(radius, a->x, a->y, a->z)) {
+            actor = spawnNodeActivate(i, 0);
+            if (actor != NULL) {
+                if (csPosWithinRadius(radius, actor->x, actor->y, actor->z)) {
                     return 1;
                 }
             }
@@ -2211,30 +2171,30 @@ void csSnapToGround(s16 mode, s16 csId) {
 }
 
 s32 csCompareVar(f32 *varsArray, s16 packedParam, s16 compareValue) {
-    u8 idx;
+    u8 varIndex;
     u8 mode;
     s32 ret;
-    f32 v;
-    f32 th;
+    f32 value;
+    f32 threshold;
 
     ret = 0;
     mode = packedParam & 0xFF;
-    idx = (packedParam >> 8) & 0xFF;
-    v = varsArray[idx];
+    varIndex = (packedParam >> 8) & 0xFF;
+    value = varsArray[varIndex];
     switch (mode) {
     case 0:
-        th = compareValue / 10.0f;
-        if (((th < v) ? (v - th) : (th - v)) < 0.05) {
+        threshold = compareValue / 10.0f;
+        if (((threshold < value) ? (value - threshold) : (threshold - value)) < 0.05) {
             ret = 1;
         }
         break;
     case 1:
-        if (compareValue / 10.0f < v) {
+        if (compareValue / 10.0f < value) {
             ret = 1;
         }
         break;
     case 2:
-        if (v < compareValue / 10.0f) {
+        if (value < compareValue / 10.0f) {
             ret = 1;
         }
         break;
@@ -2244,38 +2204,38 @@ s32 csCompareVar(f32 *varsArray, s16 packedParam, s16 compareValue) {
 
 
 s32 csEvaluateParamCondition(s16 packedParam, s16 compareValue) {
-    f32 v;
-    f32 th;
+    f32 value;
+    f32 threshold;
     s32 ret;
     u8 mode;
 
-    th = compareValue / 10.0f;
+    threshold = compareValue / 10.0f;
     ret = 0;
     switch ((u8)((packedParam >> 8) % 255)) {
     case 0:
-        v = gCsPrevRotX;
+        value = gCsPrevRotX;
         break;
     case 1:
-        v = gCsPrevRotY;
+        value = gCsPrevRotY;
         break;
     case 2:
-        v = gCsPrevRotZ;
+        value = gCsPrevRotZ;
         break;
     }
     mode = packedParam & 0xFF;
     switch (mode) {
     case 0:
-        if (((th < v) ? (v - th) : (th - v)) != 0.1) {
+        if (((threshold < value) ? (value - threshold) : (threshold - value)) != 0.1) {
             ret = 1;
         }
         break;
     case 1:
-        if (th < v) {
+        if (threshold < value) {
             ret = 1;
         }
         break;
     case 2:
-        if (v < th) {
+        if (value < threshold) {
             ret = 1;
         }
         break;
@@ -2286,16 +2246,16 @@ s32 csEvaluateParamCondition(s16 packedParam, s16 compareValue) {
 
 void csSetRot(s16 modeAndAxis, s16 rotValue, CsState *cs, s16 csId, u8 isRelative) {
     f32 v;
-    u8 lo;
-    u8 hi;
+    u8 mode;
+    u8 axis;
 
-    lo = modeAndAxis & 0xFF;
-    hi = (modeAndAxis >> 8) & 0xFF;
+    mode = modeAndAxis & 0xFF;
+    axis = (modeAndAxis >> 8) & 0xFF;
     v = rotValue / 10.0f;
-    if (lo == 1) {
+    if (mode == 1) {
         v = cs->vars[rotValue];
     }
-    switch (hi) {
+    switch (axis) {
     case 0:
         if (isRelative == 1) {
             gCsRotX += v;
@@ -2322,16 +2282,16 @@ void csSetRot(s16 modeAndAxis, s16 rotValue, CsState *cs, s16 csId, u8 isRelativ
 
 void csSetPos(s16 modeAndAxis, s16 posValue, CsState *cs, s16 csId, u8 isRelative) {
     f32 v;
-    u8 lo;
-    u8 hi;
+    u8 mode;
+    u8 axis;
 
-    lo = modeAndAxis & 0xFF;
-    hi = (modeAndAxis >> 8) & 0xFF;
+    mode = modeAndAxis & 0xFF;
+    axis = (modeAndAxis >> 8) & 0xFF;
     v = posValue / 10.0f;
-    if (lo == 1) {
+    if (mode == 1) {
         v = cs->vars[posValue];
     }
-    switch (hi) {
+    switch (axis) {
     case 0:
         if (isRelative == 1) {
             gCsPosX += v;

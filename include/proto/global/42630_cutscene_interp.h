@@ -73,7 +73,7 @@ void csSendActorMessagePayload(s16, s16);
 s32 csModelStateTrySetByte(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csSetObjectTrackParam
-void csSetObjectTrackParam(void *, s16, s16);
+void csSetObjectTrackParam(CsState *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csIsPlayerInCutsceneState
 s32 csIsPlayerInCutsceneState(void);
