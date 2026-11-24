@@ -1,6 +1,6 @@
 #include "common.h"
 #include "proto/boot/3630_string.h"
-#include "proto/critter/4840.h"
+#include "proto/critter/4840_text.h"
 #include "proto/global/100180_text_font.h"
 #include "proto/global/15050_heap.h"
 #include "proto/global/6AD90_collision.h"

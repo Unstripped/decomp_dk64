@@ -1,5 +1,5 @@
 #include "common.h"
-#include "proto/critter/5110.h"
+#include "proto/critter/5110_battle_arena.h"
 #include "proto/global/1025E0_gfx_resource.h"
 #include "proto/global/112080_resource_parse.h"
 #include "proto/global/135D30_flags.h"

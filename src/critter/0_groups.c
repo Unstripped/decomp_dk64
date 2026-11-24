@@ -2,7 +2,7 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#include "proto/critter/0.h"
+#include "proto/critter/0_groups.h"
 #include "proto/global/117190_menu_transition.h"
 #include "proto/global/119370_effect_grid.h"
 #include "proto/global/11BC10_effect_update.h"

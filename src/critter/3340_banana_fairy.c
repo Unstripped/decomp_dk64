@@ -1,5 +1,5 @@
 #include "common.h"
-#include "proto/critter/3340.h"
+#include "proto/critter/3340_banana_fairy.h"
 #include "proto/global/112080_resource_parse.h"
 #include "proto/global/119370_effect_grid.h"
 #include "proto/global/1295B0_spawn_nodes.h"
