@@ -1559,18 +1559,10 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     effectCreateAtPosition(gEffectSpriteBubble, 0.0f, x, m->y, z);
 }
 
-typedef union CsAngleCounter {
-    s32 full;
-    struct {
-        s16 hi;
-        s16 angle;
-    } half;
-} CsAngleCounter;
-
-typedef struct CsOrbitCounters {
-    /* 0x0 */ CsAngleCounter scaleX;
-    /* 0x4 */ CsAngleCounter scaleY;
-    /* 0x8 */ CsAngleCounter bob;
+typedef struct CsOrbitCounters { // angle counters; mathSinF takes their low 16 bits
+    /* 0x0 */ s32 scaleX;
+    /* 0x4 */ s32 scaleY;
+    /* 0x8 */ s32 bob;
 } CsOrbitCounters;
 extern u8 gEffectSpriteCandyHead[];
 extern u8 gEffectSpriteCrankyHead[];
@@ -1591,9 +1583,9 @@ void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->data == NULL) {
         p = heapAlloc(0xC);
         cs->data = p;
-        p->scaleX.full = 0;
-        p->scaleY.full = 0;
-        p->bob.full = 0;
+        p->scaleX = 0;
+        p->scaleY = 0;
+        p->bob = 0;
     }
     p = cs->data;
     effectSetDepth(1);
@@ -1611,15 +1603,15 @@ void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
             tex = gEffectSpriteSnideHead;
             break;
     }
-    sa = mathSinF(p->scaleX.half.angle) * 0.1;
-    sb = mathSinF(p->scaleY.half.angle) * 0.1;
-    p->scaleX.full += 0x32;
-    p->scaleY.full += 0x64;
+    sa = mathSinF(p->scaleX) * 0.1;
+    sb = mathSinF(p->scaleY) * 0.1;
+    p->scaleX += 0x32;
+    p->scaleY += 0x64;
     effectSetScale(sa + 1.0, sb + 1.0);
     effectSetMaxDistance(0x578);
     effectSetFlags(4);
-    effectCreateAtPosition(tex, 0.0f, gCsPosX + sx, mathSinF(p->bob.half.angle) * 10.0 + (gCsPosY + 80.0), gCsPosZ + sz);
-    p->bob.full += 0x64;
+    effectCreateAtPosition(tex, 0.0f, gCsPosX + sx, mathSinF(p->bob) * 10.0 + (gCsPosY + 80.0), gCsPosZ + sz);
+    p->bob += 0x64;
     if (gGameFrameCounter % 12U == 0) {
         effectSetDepth(1);
         effectSetSpeed(0x5A);
@@ -2835,16 +2827,16 @@ u8 csCondVarLess(CsState *cs, s16 csId, s16 b, s16 c) {
     return cs->vars[b] < cs->vars[c];
 }
 
-void csCmdCheckCollectedSufficientItems(CsState *cs, s16 csId, s16 b, s16 c) {
-    mapHasCollectedSufficientItems();
+u8 csCmdCheckCollectedSufficientItems(CsState *cs, s16 csId, s16 b, s16 c) {
+    return mapHasCollectedSufficientItems();
 }
 
-void csCondWorldHubFlagSet(CsState *cs, s16 csId, s16 b, s16 c) {
+u8 csCondWorldHubFlagSet(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
     if (idx >= 8) {
         idx = 0;
     }
-    flagGet(gWorldClearedFlags[idx], 0);
+    return flagGet(gWorldClearedFlags[idx], 0);
 }
 
 

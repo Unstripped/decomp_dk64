@@ -1,5 +1,6 @@
 #include "common.h"
 #include "PR/os_internal_error.h"
+#include "PR/os_internal_reg.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/136820.h"
 #include "proto/global/201B0.h"
@@ -72,9 +73,11 @@ void faultPrintf(const char *fmt, ...) {
     u8 *p;
     u8 buf[0x80];
     u8 c;
-    s32 pad;
+    va_list args;
 
-    vsprintf(buf, (const u8 *)fmt, (va_list)(&fmt + 1));
+    va_start(args, fmt);
+    vsprintf(buf, (const u8 *)fmt, args);
+    va_end(args);
     p = buf;
     c = *p++;
     while (c) {

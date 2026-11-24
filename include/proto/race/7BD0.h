@@ -117,7 +117,7 @@ f32 raceEvaluateCurveTargetSpeed(RaceTarget *, f32, RaceCurvePoint *, RaceVec3f 
 void raceInitBeetleRaceParticipants(Actor *);
 #endif
 #ifndef PROTO_SKIP_racePlayerHudRenderCallback
-void racePlayerHudRenderCallback(Gfx *, Actor *);
+Gfx *racePlayerHudRenderCallback(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_racePlayerTrackerBehaviorUpdate
 void racePlayerTrackerBehaviorUpdate(void);

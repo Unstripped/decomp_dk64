@@ -1,4 +1,5 @@
 #include "common.h"
+#include "PR/os_internal_rsp.h"
 #include "sched.h"
 #include "segment.h"
 #include "proto/global/0.h"

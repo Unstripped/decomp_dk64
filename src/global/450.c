@@ -529,12 +529,12 @@ void gfxSubmitFrame(void) {
     }
     if (gGlobalPauseFlags & 0x100) {
         gGlobalPauseFlags &= ~0x100;
-        transitionStart(2, &gGlobalPauseFlags);
+        transitionStart(2);
     } else if (gGlobalPauseFlags & 0x200) {
         gMapLoadPauseFrames--;
         if (gMapLoadPauseFrames == 0) {
             gGlobalPauseFlags &= ~0x200;
-            transitionStart(3, &gGlobalPauseFlags);
+            transitionStart(3);
         }
     } else {
         glist = screenFadeUpdate(glist, gTransitionFadeType);

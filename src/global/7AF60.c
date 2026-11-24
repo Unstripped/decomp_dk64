@@ -11,8 +11,8 @@ extern u8 gCsInvulnerable;
 extern u8 gPlayerCount;
 extern PlayerStruct *gPlayerSlots;
 
-void actorCheckPlayerSmallerThanAttacker(Actor *actor, Actor *attacker, ActorCallbackNode *node) {
-    playerIsSmallerThanAttacker(actor, attacker);
+u8 actorCheckPlayerSmallerThanAttacker(Actor *actor, Actor *attacker, ActorCallbackNode *node) {
+    return playerIsSmallerThanAttacker(actor, attacker);
 }
 
 u8 actorTargetIsVulnerable(Actor *actor, Actor *target, ActorCallbackNode *node) {

@@ -55,8 +55,8 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern PlayerStruct *gPlayerSlots;
 
-void raceRacerRenderCallback(Gfx *gfx, Actor *actor) {
-    raceRenderHud(gfx, actor, actor->customState);
+Gfx *raceRacerRenderCallback(Gfx *gfx, Actor *actor) {
+    return raceRenderHud(gfx, actor, actor->customState);
 }
 
 void raceSpawnCompetitors(Actor *actor) {

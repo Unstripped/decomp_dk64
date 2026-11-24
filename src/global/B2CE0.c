@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_behaviourUpdateContactAndState // ORIG: hides the one-parameter prototype; the target passes a1 = state (move a1,a0 at 0x7b4 and 0x1d68) that the owner never reads (12E800 homes only a0 at 0x1ce0), see the declaration below
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -41,7 +40,6 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
 extern u8 gEffectSpriteBlast[];
-void behaviourUpdateContactAndState(); // ORIG: target loads a1 = state before the two-argument calls (lbu a0,340(s0) at 0x7b0, move a1,a0 at 0x7b4, default branch at 0x7c0 to jal at 0xd9c; lbu at 0x1d58, move a1,a0 at 0x1d68, jal at 0x2280) while the owner never reads a1 (12E800 0x1ccc homes only a0, sw a0,64(sp) at 0x1ce0): the original TU had no prototype in scope
 
 void behaviourTumbleDebrisUpdate(void) {
     f32 transMtx[4][4];
@@ -272,7 +270,7 @@ void behaviourMeleePatrolEnemyUpdate(void) {
     case 0x40:
         break;
     default:
-        behaviourUpdateContactAndState(0x1FB, gCurrentActor->state);
+        behaviourUpdateContactAndState(0x1FB);
         break;
     }
     switch (gCurrentActor->state) {
@@ -658,7 +656,7 @@ void behaviourArmoredEnemyUpdate(void) {
     case 0x40:
         break;
     default:
-        behaviourUpdateContactAndState(0x2D7, gCurrentActor->state);
+        behaviourUpdateContactAndState(0x2D7);
         break;
     }
     switch (gCurrentActor->state) {

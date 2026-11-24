@@ -5,7 +5,7 @@
 #include "actor.h"
 #include "race.h"
 #ifndef PROTO_SKIP_raceRacerRenderCallback
-void raceRacerRenderCallback(Gfx *, Actor *);
+Gfx *raceRacerRenderCallback(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceSpawnCompetitors
 void raceSpawnCompetitors(Actor *);

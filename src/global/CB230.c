@@ -20,13 +20,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
 typedef struct SpotlightActorState { // Actor 0x178 component of the spotlight actors (types 0xF0, 0xF9)
-    union {
-        /* 0x0 */ s16 brightness;
-        struct {
-            /* 0x0 */ u8 brightnessHi;
-            /* 0x1 */ u8 brightnessLo;
-        };
-    };
+    /* 0x0 */ s16 brightness;
     /* 0x2 */ u8 unk2;
 } SpotlightActorState;
 
@@ -102,7 +96,7 @@ void actorUpdateNearestSpotlight(void) {
             break;
     }
     p->brightness = mathSinF(gFrameCounter * 130) * 35.0 + 220.0;
-    lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, p->brightnessLo, p->brightnessLo, p->brightnessLo);
+    lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, p->brightness, p->brightness, p->brightness);
 }
 
 void spotlightFollowerStep(s16 yOffset, s16 stopDist, u16 flags) {

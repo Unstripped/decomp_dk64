@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "map.h"
 #include "render.h"
 #include "actor.h"

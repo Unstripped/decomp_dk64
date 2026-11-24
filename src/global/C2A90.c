@@ -57,7 +57,7 @@ u8 bananaDeliveryNpcBeginFrame(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
-            return ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3];
+            return gActorGlobalState.volumeTriggerQueueId[i][1];
         }
     }
     return 0;

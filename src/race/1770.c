@@ -402,8 +402,8 @@ void raceUpdateEngineSoundPitch(f32 moveSpeed) {
 }
 
 
-void raceVehicleRenderCallback(void *glist, Actor *actor) {
-    raceRenderHud(glist, actor, actor->customState);
+Gfx *raceVehicleRenderCallback(Gfx *glist, Actor *actor) {
+    return raceRenderHud(glist, actor, actor->customState);
 }
 
 extern Actor *gPrimaryPlayerActor;

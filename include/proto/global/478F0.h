@@ -284,10 +284,10 @@ void csCmdSetPositionPreset(CsState *, s16, s16, s16);
 u8 csCondVarLess(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdCheckCollectedSufficientItems
-void csCmdCheckCollectedSufficientItems(CsState *, s16, s16, s16);
+u8 csCmdCheckCollectedSufficientItems(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondWorldHubFlagSet
-void csCondWorldHubFlagSet(CsState *, s16, s16, s16);
+u8 csCondWorldHubFlagSet(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondActorFacingPos
 u8 csCondActorFacingPos(CsState *, s16, s16, s16);

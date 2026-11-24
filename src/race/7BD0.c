@@ -1096,8 +1096,8 @@ void raceInitBeetleRaceParticipants(Actor *raceManager) {
 }
 
 
-void racePlayerHudRenderCallback(Gfx *gfx, Actor *actor) {
-    raceRenderHud(gfx, actor, actor->customState);
+Gfx *racePlayerHudRenderCallback(Gfx *gfx, Actor *actor) {
+    return raceRenderHud(gfx, actor, actor->customState);
 }
 
 

@@ -18,11 +18,7 @@
 extern ArcadeEntity gArcadeEntities[];
 
 extern void *gArcadeTexImage;
-typedef union ArcadeTexScale {
-    s32 word;
-    s16 half[2];
-} ArcadeTexScale;
-extern ArcadeTexScale gArcadeTexScaleT;
+extern s32 gArcadeTexScaleT;
 
 extern s8 gArcadeBonusTimer;
 extern u8 gArcadeFrozen;
@@ -691,7 +687,7 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
 
     gArcadeTexWidth = 8;
     gArcadeTexHeight = 4;
-    gArcadeTexScaleT.word = 0x400;
+    gArcadeTexScaleT = 0x400;
     if (gArcadeStage == 2) gArcadeTexImage = gArcadeLadderStage2Sprite;
     else if (gArcadeStage == 4) gArcadeTexImage = gArcadeLadderStage4Sprite;
     else gArcadeTexImage = gArcadeLadderSprite;
@@ -701,7 +697,7 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
     dlInitTextureDescriptor(&gArcadeLadder3RowTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, 3, 0, 2, 0, 0);
     glist = *glistp;
     dlAppendTextureLoad(&glist, &gArcadeLadderTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 0; i < height / 4; i++) {
         dlAppendTextureRectangle(&glist, x * 4, (i * 4 + y + 8) * 4.0);
     }
@@ -718,7 +714,7 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
             dlAppendTextureLoad(&glist, &gArcadeLadder3RowTextures[gGfxBufferIndex]);
             break;
         }
-        dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+        dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
         dlAppendTextureRectangle(&glist, x * 4, (i * 4 + y + 8) * 4.0);
     }
     *glistp = glist;
@@ -852,12 +848,12 @@ void arcadeDrawTitleText(Gfx **glistp) {
     glist = *glistp;
     gArcadeTexWidth = 8;
     gArcadeTexHeight = 8;
-    gArcadeTexScaleT.word = 0x400;
+    gArcadeTexScaleT = 0x400;
     if (gArcadeScreenTimer & 0x182) gArcadeTexImage = gArcadeBlockSprite; // LAYOUT: then-arm store on the if line (as1 .loc; split onto its own line: text=2)
     else gArcadeTexImage = gArcadeBlockFlashSprite;
     dlInitTextureDescriptor(&gArcadeGirderTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &gArcadeGirderTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 0; i < 12; i++) {
         row = titleBitmap[i];
         for (j = 0; j < 25; j++) {
@@ -876,12 +872,12 @@ void arcadeDrawStage1Background(Gfx **glistp) {
 
     gArcadeTexWidth = 8;
     gArcadeTexHeight = 0xA;
-    gArcadeTexScaleT.word = 0x492;
+    gArcadeTexScaleT = 0x492;
     gArcadeTexImage = gArcadeGirderSprite;
     dlInitTextureDescriptor(&gArcadeGirderTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     glist = *glistp;
     dlAppendTextureLoad(&glist, &gArcadeGirderTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 0; i < 6; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0x220, 0xE0);
     }
@@ -959,11 +955,11 @@ void arcadeDrawStage2Background(Gfx **glistp) {
     if (gArcadeGirderState < 2) {
         gArcadeTexWidth = 2;
         gArcadeTexHeight = 8;
-        gArcadeTexScaleT.word = 0x400;
+        gArcadeTexScaleT = 0x400;
         gArcadeTexImage = gArcadeStage2PostSprite;
         dlInitTextureDescriptor(&gArcadeColumnTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
         dlAppendTextureLoad(&glist, &gArcadeColumnTextures[gGfxBufferIndex]);
-        dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+        dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
         for (i = 0; i < 4; i++) {
             dlAppendTextureRectangle(&glist, 0x1DC, (s32)(i * 8 + 51.625 + 8.0) * 4.0);
         }
@@ -973,11 +969,11 @@ void arcadeDrawStage2Background(Gfx **glistp) {
     }
     gArcadeTexWidth = 8;
     gArcadeTexHeight = 8;
-    gArcadeTexScaleT.word = 0x400;
+    gArcadeTexScaleT = 0x400;
     gArcadeTexImage = gArcadeBlockSprite;
     dlInitTextureDescriptor(&gArcadeGirderTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &gArcadeGirderTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 0; i < 0x1C; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x380);
     }
@@ -1095,11 +1091,11 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     glist = *glistp;
     gArcadeTexWidth = 2;
     gArcadeTexHeight = 8;
-    gArcadeTexScaleT.word = 0x400;
+    gArcadeTexScaleT = 0x400;
     gArcadeTexImage = gArcadeLiftCableSprite;
     dlInitTextureDescriptor(&gArcadeColumnTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &gArcadeColumnTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (j = 5; j < 0x14; j++) {
         dlAppendTextureRectangle(&glist, 0x15C, (s32)(j * 8 + 51.625 + 8.0) * 4.0);
     }
@@ -1108,11 +1104,11 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     }
     gArcadeTexWidth = 8;
     gArcadeTexHeight = 0xA;
-    gArcadeTexScaleT.word = 0x492;
+    gArcadeTexScaleT = 0x492;
     gArcadeTexImage = gArcadeGirderSprite;
     dlInitTextureDescriptor(&gArcadeGirderTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &gArcadeGirderTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     count = sizeof(gArcadeStage3Girders) / sizeof(gArcadeStage3Girders[0]); // FAKE: constant-valued array-count bound local (Q0780); assigned here, not as its initialiser (69)
     for (pt = gArcadeStage3Girders; pt < gArcadeStage3Girders + count; pt++) {
         arcadeDrawGirderSpan(&glist, pt->startX, pt->endX, pt->y);
@@ -1147,11 +1143,11 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     glist = *glistp;
     gArcadeTexWidth = 8;
     gArcadeTexHeight = 0xA;
-    gArcadeTexScaleT.word = 0x492;
+    gArcadeTexScaleT = 0x492;
     gArcadeTexImage = gArcadeStage4GirderSprite;
     dlInitTextureDescriptor(&gArcadeGirderTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &gArcadeGirderTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 0xB; i < 0x11; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0xE0);
     }
@@ -1166,7 +1162,7 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     gArcadeTexImage = gArcadeConveyorSprite;
     dlInitTextureDescriptor(&gArcadeConveyorTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &gArcadeConveyorTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 1; i < 0x1B; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x150);
     }
@@ -1181,7 +1177,7 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     gArcadeTexImage = gArcadeCrossBraceSprite;
     dlInitTextureDescriptor(&gArcadeColumnTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &gArcadeColumnTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 0xC; i < 0x10; i++) {
         for (j = 0; j < 3; j++) {
             dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, ((0x9F - j * 8) * 0.875 + 8.0) * 4.0);
@@ -3918,13 +3914,13 @@ void arcadeDrawHud(Gfx **glistp) {
 
     g = *glistp;
     gDPSetScissor(g++, G_SC_NON_INTERLACE, 0, 0, 320, 240);
-    gArcadeTexScaleT.word = 0x400;
+    gArcadeTexScaleT = 0x400;
     gArcadeTexWidth = 8;
     gArcadeTexImage = gArcadeLifeIconSprite;
     gArcadeTexHeight = 8;
     dlInitTextureDescriptor(&gArcadeLifeIconTextures[gGfxBufferIndex], gArcadeTexImage, 0, gArcadeTexWidth, gArcadeTexWidth, gArcadeTexHeight, 0, 2, 0, 0);
     dlAppendTextureLoad(&g, &gArcadeLifeIconTextures[gGfxBufferIndex]);
-    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT.half[1], 0, 0);
+    dlSetTextureScaleAndFlip(0x400, gArcadeTexScaleT, 0, 0);
     for (i = 0; i < gArcadeLifeIconCount; i++) {
         dlAppendTextureRectangle(&g, i * 0x20 + 0x360, 0x4C);
     }

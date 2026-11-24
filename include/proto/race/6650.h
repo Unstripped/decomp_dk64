@@ -11,7 +11,7 @@ void raceInitParticipants(Actor *);
 void raceUpdateRacerMotion(RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceParticleRenderCallback
-void raceParticleRenderCallback(Gfx *, Actor *);
+Gfx *raceParticleRenderCallback(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceParticipantMotionUpdate
 void raceParticipantMotionUpdate(void);

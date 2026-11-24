@@ -6,6 +6,7 @@ typedef u32 OSHWIntr;
 #include "common.h"
 #include "audio_synth.h"
 #include "proto/global/13E160.h"
+#include "proto/global/1435C0.h"
 
 extern s32 osGetIntMask(s32);
 

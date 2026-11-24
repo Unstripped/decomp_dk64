@@ -2709,7 +2709,7 @@ extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
 
-void menuInitGfxState(Gfx *glistp, Actor *menuActor) {
+Gfx *menuInitGfxState(Gfx *glistp, Actor *menuActor) {
     gDPPipeSync(glistp++);
     gSPDisplayList(glistp++, &D_1000118);
     gDPSetCycleType(glistp++, G_CYC_1CYCLE);
@@ -2717,7 +2717,7 @@ void menuInitGfxState(Gfx *glistp, Actor *menuActor) {
     gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 255);
     gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    menuUpdateStateDispatch(menuActor, 1, glistp, 0);
+    return menuUpdateStateDispatch(menuActor, 1, glistp, 0);
 }
 
 

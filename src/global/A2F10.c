@@ -468,7 +468,7 @@ void actorShockwaveUpdate(void) {
 }
 
 
-void renderScaledSprite(Gfx *dl, Actor *actor) {
+Gfx *renderScaledSprite(Gfx *dl, Actor *actor) {
     f32 scale;
 
     scale = actor->floorSlopeFactor;
@@ -478,8 +478,8 @@ void renderScaledSprite(Gfx *dl, Actor *actor) {
     WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
     WRITE_GFX(dl++, 0xE7000000, 0);
     WRITE_GFX(dl++, 0xFA000000, (actor->yaw & 0xFF) | 0xFFFFFF00);
-    renderRotatedSprite(dl, (u16)(actor->bannerId + 0x61), 0, 2, 0x28, 0x33,
-                  (s32)actor->x, (s32)actor->y, scale, scale, 0, 0.0f);
+    return renderRotatedSprite(dl, (u16)(actor->bannerId + 0x61), 0, 2, 0x28, 0x33,
+                               (s32)actor->x, (s32)actor->y, scale, scale, 0, 0.0f);
 }
 
 const char D_8075A410[7] = "DONKEY";

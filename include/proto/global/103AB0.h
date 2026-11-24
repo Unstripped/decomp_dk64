@@ -17,7 +17,7 @@ Gfx *playerViewDrawCrosshair(Gfx *, Actor *);
 Gfx *playerViewDrawCornerMasks(Gfx *);
 #endif
 #ifndef PROTO_SKIP_playerViewCornerMasksCallback
-void playerViewCornerMasksCallback(Gfx *, Actor *);
+Gfx *playerViewCornerMasksCallback(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerViewDrawCameraViewfinder
 Gfx *playerViewDrawCameraViewfinder(Gfx *, Actor *);
@@ -29,7 +29,7 @@ Gfx *playerViewDrawPhotoResult(Gfx *, Actor *);
 Gfx *playerViewDrawScopeCrosshair(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerViewDrawCameraShutter
-void playerViewDrawCameraShutter(Gfx *, Actor *);
+Gfx *playerViewDrawCameraShutter(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_color5551ToSepia
 u16 color5551ToSepia(u16);
@@ -38,7 +38,7 @@ u16 color5551ToSepia(u16);
 u16 *sepiaCopyFramebufferTile(u16 *, u16 *);
 #endif
 #ifndef PROTO_SKIP_playerViewLoadPresetPhoto
-void playerViewLoadPresetPhoto(void);
+u16 *playerViewLoadPresetPhoto(void);
 #endif
 #ifndef PROTO_SKIP_playerViewCaptureSepiaPhoto
 u16 *playerViewCaptureSepiaPhoto(void);

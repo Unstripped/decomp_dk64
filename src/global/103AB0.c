@@ -122,8 +122,8 @@ Gfx *playerViewDrawCornerMasks(Gfx *dl) {
     return renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
 }
 
-void playerViewCornerMasksCallback(Gfx *dl, Actor *actor) {
-    playerViewDrawCornerMasks(playerViewGfxSetup(dl, ((PlayerState *)actor->customState)->playerIndex));
+Gfx *playerViewCornerMasksCallback(Gfx *dl, Actor *actor) {
+    return playerViewDrawCornerMasks(playerViewGfxSetup(dl, ((PlayerState *)actor->customState)->playerIndex));
 }
 
 Gfx *playerViewDrawCameraViewfinder(Gfx *dl, Actor *actor) {
@@ -197,7 +197,7 @@ Gfx *playerViewDrawScopeCrosshair(Gfx *dl, Actor *actor) {
     return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-void playerViewDrawCameraShutter(Gfx *gfx, Actor *actor) {
+Gfx *playerViewDrawCameraShutter(Gfx *gfx, Actor *actor) {
     f32 depth;
     Gfx *dl;
 
@@ -205,7 +205,7 @@ void playerViewDrawCameraShutter(Gfx *gfx, Actor *actor) {
     dl = playerViewGfxSetup(gfx, ((PlayerState *)actor->customState)->playerIndex);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
-    renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, depth);
+    return renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, depth);
 }
 
 u16 color5551ToSepia(u16 color) {
@@ -238,8 +238,8 @@ u16 *sepiaCopyFramebufferTile(u16 *dst, u16 *src) {
 }
 
 
-void playerViewLoadPresetPhoto(void) {
-    assetLoad(0x19, 0x138B, 1, 1);
+u16 *playerViewLoadPresetPhoto(void) {
+    return assetLoad(0x19, 0x138B, 1, 1);
 }
 
 extern void *gFramebuffers[];
@@ -252,8 +252,7 @@ u16 *playerViewCaptureSepiaPhoto(void) {
     u16 *src;
 
     if (gCurrentActor->actorType == 0xD9) {
-        playerViewLoadPresetPhoto();
-        return;
+        return playerViewLoadPresetPhoto();
     }
     buf = heapAlloc(0xA000);
     dst = buf;

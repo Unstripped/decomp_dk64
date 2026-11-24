@@ -180,7 +180,7 @@ void menuUpdateScrollAnimation(struct MenuScreenState *, s32);
 void menuInit(void);
 #endif
 #ifndef PROTO_SKIP_menuInitGfxState
-void menuInitGfxState(Gfx *, Actor *);
+Gfx *menuInitGfxState(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateStateDispatch
 Gfx *menuUpdateStateDispatch(Actor *, s32, Gfx *, s32);

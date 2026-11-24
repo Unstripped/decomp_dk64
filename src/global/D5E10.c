@@ -7,6 +7,7 @@
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
+#include "proto/global/133A90.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
 #include "proto/global/17B90.h"
@@ -3751,7 +3752,6 @@ extern s16 D_80753C84[];
 extern f32 gKongPathAccelUp[];
 extern f32 gKongPathAccelDown[];
 extern f32 gKongPathAccelNeutral[];
-extern u8 proxPathFollowerStep;
 
 void playerStateAttachedCallbackFall(void) {
     ActorCallbackNode *node;
@@ -3771,7 +3771,7 @@ void playerStateAttachedCallbackFall(void) {
     }
     gActivePlayerState->respawnTimer = D_80753C84[gCurrentCharacterIndex];
     node = heapAlloc(0x14);
-    node->callback = &proxPathFollowerStep;
+    node->callback = proxPathFollowerStep;
     node->source = gActivePlayerActor;
     node->dispatchPass = 1;
     actorRegisterGlobalCallback(node);
@@ -4044,7 +4044,7 @@ void playerStateAttachedCallbackFallCheck(void) {
     }
     gActivePlayerState->respawnTimer = D_80753CA4[gCurrentCharacterIndex];
     node = heapAlloc(0x14);
-    node->callback = &proxPathFollowerStep;
+    node->callback = proxPathFollowerStep;
     node->source = gActivePlayerActor;
     node->dispatchPass = 1;
     actorRegisterGlobalCallback(node);

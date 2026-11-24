@@ -41,13 +41,8 @@ typedef struct EfExtActor {
 
 /* Arguments for the next queued player-state callback (playerStateSetCallbackParameters). */
 typedef struct EfCallbackParams {
-    /* 0x00 */ union {
-        s32 w; // cutscene command 0x73's a, playerTryEnterViewMode's view mode; copied to queuedParam0
-        struct {
-            s16 hi;
-            s16 damage; // callback 0x2F playerTakeQueuedDamage's amount
-        } h;
-    } param0;
+    /* 0x00 */ s32 param0; // cutscene command 0x73's a, playerTryEnterViewMode's view mode, callback 0x2F
+                           // playerTakeQueuedDamage's amount; copied to queuedParam0
     /* 0x04 */ s32 param1;
     /* 0x08 */ s32 param2;
 } EfCallbackParams;
@@ -58,7 +53,7 @@ s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
     if (gPlayerSlots[player].queuedState < priority) {
         gPlayerSlots[player].queuedState = priority;
         gPlayerSlots[player].queuedActor = actor;
-        gPlayerSlots[player].queuedParam0 = gPlayerStateCallbackParams.param0.w;
+        gPlayerSlots[player].queuedParam0 = gPlayerStateCallbackParams.param0;
         gPlayerSlots[player].queuedParam1 = gPlayerStateCallbackParams.param1;
         gPlayerSlots[player].queuedParam2 = gPlayerStateCallbackParams.param2;
         if (actor != NULL) {
@@ -70,7 +65,7 @@ s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
 }
 
 void playerStateSetCallbackParameters(s32 unused, s32 param0, s32 param1, s32 param2) {
-    gPlayerStateCallbackParams.param0.w = param0;
+    gPlayerStateCallbackParams.param0 = param0;
     gPlayerStateCallbackParams.param1 = param1;
     gPlayerStateCallbackParams.param2 = param2;
 }
@@ -1305,7 +1300,7 @@ void playerStateDamageCheck(void) {
 
 void playerTakeQueuedDamage(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
-        playerTakeDamage(gPlayerStateCallbackParams.param0.h.damage);
+        playerTakeDamage(gPlayerStateCallbackParams.param0);
         playerSetBaseGravity();
     }
 }

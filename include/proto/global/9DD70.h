@@ -7,7 +7,7 @@
 void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_renderSetupSegmentsAndFog
-void renderSetupSegmentsAndFog(Gfx *, Actor *);
+Gfx *renderSetupSegmentsAndFog(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorPhotoUpdate
 void actorPhotoUpdate(void);

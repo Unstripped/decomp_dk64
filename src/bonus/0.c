@@ -185,7 +185,7 @@ tail:
         for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
             if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                 endOnTrigger = 1;
-                triggerKind = ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
+                triggerKind = gActorGlobalState.volumeTriggerQueueId[i][1]; // low byte of the record's second s16 (1295B0 reads the same word as the actor state)
                 switch (challengeType) {
                 case 0:
                     if (counter->countLeft != 0) {

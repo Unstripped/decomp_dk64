@@ -32,7 +32,7 @@ s32 actorIsTargetInCylinder(s16, s16, s16, s16, f32);
 void actorShockwaveUpdate(void);
 #endif
 #ifndef PROTO_SKIP_renderScaledSprite
-void renderScaledSprite(Gfx *, Actor *);
+Gfx *renderScaledSprite(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorBannerTextRender
 Gfx *actorBannerTextRender(Gfx *, Actor *);

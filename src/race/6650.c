@@ -197,8 +197,8 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
 }
 
 
-void raceParticleRenderCallback(Gfx *glist, Actor *actor) {
-    actorDrawAnimatedEffect(raceRenderHud(glist, actor, actor->customState), actor);
+Gfx *raceParticleRenderCallback(Gfx *glist, Actor *actor) {
+    return actorDrawAnimatedEffect(raceRenderHud(glist, actor, actor->customState), actor);
 }
 
 void raceParticipantMotionUpdate(void) {

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "model.h"
 #include "cutscene.h"
@@ -7,7 +8,6 @@
 #include "water.h"
 #include "sched.h"
 #include "segment.h"
-#define PROTO_SKIP_assetEnsureTableLoaded // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/boot/30E0.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
@@ -1638,7 +1638,6 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *tri, f32 x, f32 z) {
     return outside == 0;
 }
 
-void assetEnsureTableLoaded();
 extern s32 sAssetLoadPool;
 extern u8 sAssetLoadPersistent;
 extern u8 sAssetFreeImmediate;
@@ -2024,7 +2023,7 @@ s32 assetGetSize(s32 table, s32 index) {
     s32 romAddr;
     u32 size;
 
-    assetEnsureTableLoaded();
+    assetEnsureTableLoaded(table);
     assetResolveRomRange(table, index, &romAddr, &size);
     if (size == 0) {
         return 0;
@@ -2039,7 +2038,7 @@ s32 assetGetCachedSizeOrResolve(s32 table, s32 index) {
     if (sAssetTableCompressed[table] != 0) {
         size = sAssetInflatedSizes[table][index];
     } else {
-        assetEnsureTableLoaded();
+        assetEnsureTableLoaded(table);
         assetResolveRomRange(table, index, &romAddr, &size);
     }
     return size;
@@ -2062,7 +2061,7 @@ void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset ind
     s32 allocSize;
     void *buffer;
 
-    assetEnsureTableLoaded();
+    assetEnsureTableLoaded(table);
     if (noCache == 0) {
         if ((index >= 0x80000000U) && (index < 0xA0000000U)) {
             collisionBstInsertByHash((void *)index, table, 0);

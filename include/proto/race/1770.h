@@ -47,7 +47,7 @@ void racePlayEngineSfx(void);
 void raceUpdateEngineSoundPitch(f32);
 #endif
 #ifndef PROTO_SKIP_raceVehicleRenderCallback
-void raceVehicleRenderCallback(void *, Actor *);
+Gfx *raceVehicleRenderCallback(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceVehicleBehaviorUpdate
 void raceVehicleBehaviorUpdate(void);

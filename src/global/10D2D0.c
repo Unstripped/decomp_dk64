@@ -138,7 +138,7 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
     kongId = playerGetResolvedKongId(playerIndex);
     kong = &inv->kong[kongId];
     mode = player->healthHudMode;
-    flags = player->healthHudFlagsLow;
+    flags = player->healthHudFlags;
     singlePlayer = gPlayerCount == 1;
     if (!singlePlayer) {
         mode = 0;
@@ -146,7 +146,7 @@ Gfx *healthHudUpdateDraw(Gfx *glist, s16 playerIndex, PlayerStruct *player) {
     if (!singlePlayer) {
         healthApplyPendingDelta(playerIndex, player, inv, kong);
         player->healthHudFlags &= 0xFFEA;
-        flags = player->healthHudFlagsLow;
+        flags = player->healthHudFlags;
     }
     if (flags & 0x10) {
         switch (mode) {

@@ -188,7 +188,7 @@ typedef s32 (*CsCondFunc)(CsState *, s16, s16, s16);
 CsCondFunc gCsCondTable[19] = {
     /* 0x00 */ (CsCondFunc)csCondVarLess, // u8 return
     /* 0x01 */ csCondSyncActorAnim,
-    /* 0x02 */ (CsCondFunc)csCmdCheckCollectedSufficientItems, // void return
+    /* 0x02 */ (CsCondFunc)csCmdCheckCollectedSufficientItems, // u8 return
     /* 0x03 */ (CsCondFunc)csCondActorFacingPos, // u8 return
     /* 0x04 */ csCondFlags82Or83,
     /* 0x05 */ (CsCondFunc)csCondCheckSlotMapIndex, // u8 return
@@ -201,7 +201,7 @@ CsCondFunc gCsCondTable[19] = {
     /* 0x0C */ (CsCondFunc)csCondAudioFlag, // u8 return
     /* 0x0D */ (CsCondFunc)csCondTrue, // u8 return
     /* 0x0E */ csCondCheckAllKongs,
-    /* 0x0F */ (CsCondFunc)csCondWorldHubFlagSet, // void return
+    /* 0x0F */ (CsCondFunc)csCondWorldHubFlagSet, // u8 return
     /* 0x10 */ (CsCondFunc)csCondCountFlags261Ge4, // u8 return
     /* 0x11 */ csCondPlayerNearFixedPoint,
     /* 0x12 */ (CsCondFunc)csCondActorInFront, // u8 return

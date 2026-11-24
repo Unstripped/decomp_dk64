@@ -4,7 +4,7 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_actorCheckPlayerSmallerThanAttacker
-void actorCheckPlayerSmallerThanAttacker(Actor *, Actor *, ActorCallbackNode *);
+u8 actorCheckPlayerSmallerThanAttacker(Actor *, Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorTargetIsVulnerable
 u8 actorTargetIsVulnerable(Actor *, Actor *, ActorCallbackNode *);

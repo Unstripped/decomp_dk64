@@ -132,20 +132,14 @@ typedef struct RaceCoinConfig { // component at Actor 0x17C of the coin-race opp
     u8 pad0[4];
     RaceParticipant *rival;
     u8 pad8[0x18 - 0x8];
-    union {
-        s32 w;
-        struct {
-            s16 hi;
-            s16 rewardFlag;
-        } h;
-    } reward;
+    s32 rewardFlag;
     s32 requiredCoins;
 } RaceCoinConfig;
 
 extern u16 gMinigameCoinCount;
 
 int raceCheckCoinRequirement(RaceParticipant *controller, RaceCoinConfig *config) {
-    return controller->place != 0 && flagGet(config->reward.h.rewardFlag, 0) == 0 && gMinigameCoinCount >= config->requiredCoins;
+    return controller->place != 0 && flagGet(config->rewardFlag, 0) == 0 && gMinigameCoinCount >= config->requiredCoins;
 }
 
 
@@ -209,14 +203,14 @@ void raceOpponentBehaviourUpdate(void) {
         gCurrentActor->flags2 &= ~0x40;
         if (gCurrentMap == 0x52) {
             config->requiredCoins = gTextNumberArg = 0x32;
-            config->reward.w = 0x103;
+            config->rewardFlag = 0x103;
             flag = 0x65;
         } else {
             config->requiredCoins = gTextNumberArg = 0x32;
-            config->reward.w = 0x4B;
+            config->rewardFlag = 0x4B;
             flag = 0x66;
         }
-        if (flagGet(flag, 2) == 0 && flagGet(config->reward.h.rewardFlag, 0) == 0) {
+        if (flagGet(flag, 2) == 0 && flagGet(config->rewardFlag, 0) == 0) {
             camStartPath(gCurrentActor, 0, 1);
             currentActorClearFlag();
             flagSet(flag, 1, 2);
@@ -448,7 +442,7 @@ void raceOpponentBehaviourUpdate(void) {
         if (controller->statusStep == 0) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
-            if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
+            if (flagGet(config->rewardFlag, 0) == 0) {
                 pathId = raceResultCamPathIds[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)];
                 camStartPath(gCurrentActor, pathId, 1);
                 currentActorClearFlag();
@@ -461,7 +455,7 @@ void raceOpponentBehaviourUpdate(void) {
     case 5:
         switch (controller->statusStep) {
         case 0:
-            if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
+            if (flagGet(config->rewardFlag, 0) == 0) {
                 sfxStopSlotSound(gActivePlayerActor, 0);
                 playerStateQueueCallback(0x55, NULL, 0);
                 gCurrentActor->speedXZ = 0.0f;
@@ -502,14 +496,14 @@ void raceOpponentBehaviourUpdate(void) {
             }
             break;
         case 4:
-            if (flagGet(config->reward.h.rewardFlag, 0) != 0) {
+            if (flagGet(config->rewardFlag, 0) != 0) {
                 controller->statusStep++;
             }
             break;
         case 5:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                if (flagGet(config->reward.h.rewardFlag, 0) != 0) {
+                if (flagGet(config->rewardFlag, 0) != 0) {
                     mapCheckAutoTransition();
                 } else {
                     hudSpawnTextScreen(1);

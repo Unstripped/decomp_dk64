@@ -2,7 +2,6 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorUpdatePrevContactFlags // ORIG: hides the shared void prototype; the target keeps the actorType switch value in v1 after the call (lw v1,88(s0) at 0x2d88), see the declaration below
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
@@ -47,8 +46,6 @@ s16 sSpotLightRelightDelay = 200;
 extern EffectGridAsset gEffectSpriteDebrisGreen, gEffectSpriteDebrisGrey;
 SpritePair gCarryDebrisSprites = { { &gEffectSpriteDebrisGreen, &gEffectSpriteDebrisGrey } };
 
-s32 actorUpdatePrevContactFlags(Actor *); // ORIG: target loads the actorType switch value into v1 right after jal actorUpdatePrevContactFlags (jal at 0x2d78, lw v1,88(s0) at 0x2d88, beq v1,at at 0x2d8c): the original TU declared the callee non-void (the shared void prototype puts it in v0)
-
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     f32 dx;
     f32 dz;
@@ -64,14 +61,14 @@ extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern Gfx D_2000180;
 
-void renderSetupSegmentsAndFog(Gfx *glistp, Actor *actor) {
+Gfx *renderSetupSegmentsAndFog(Gfx *glistp, Actor *actor) {
     gSPMatrix(glistp++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].projMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glistp++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(glistp++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPPipeSync(glistp++);
     gSPClearGeometryMode(glistp++, G_LIGHTING);
     gDPSetPrimColor(glistp++, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-    renderActorDisplayList(renderSetSegment6AndFog(glistp, actor->alpha, 1), actor);
+    return renderActorDisplayList(renderSetSegment6AndFog(glistp, actor->alpha, 1), actor);
 }
 
 extern PlayerState *gActivePlayerState;

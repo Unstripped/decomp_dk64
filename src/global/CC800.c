@@ -548,7 +548,7 @@ u8 playerLookupKongByActorType(s16 actorType) {
 
     for (i = 0; i < 10; i++) {
         if (actorType == gKongCharacterTable[i].actorType) {
-            return gKongCharacterTable[i].b.characterId;
+            return gKongCharacterTable[i].characterIndex;
         }
     }
     return 0;
@@ -600,7 +600,7 @@ void playerApplyCharacterModel(const KongCharacterEntry *row) {
     gCurrentCharacterIndex = row->characterIndex;
     controllerAnimFree(gActivePlayerActor);
     actorSub140Free(gActivePlayerActor->collision);
-    controllerAnimInit(gActivePlayerActor, row->m.modelId);
+    controllerAnimInit(gActivePlayerActor, row->model);
     gActivePlayerActor->collision = actorSub140CreateFromModel(gActivePlayerActor);
     gActivePlayerActor->flags &= ~0x1000;
     gActivePlayerActor->flags |= row->actorFlags;
@@ -773,7 +773,7 @@ G01Pos *raceGridSpawnPoint(s32 spawnIndex) {
     return &gMapSpawnPoints[spawnIndex];
 }
 
-void func_800268C0();
+void func_800268C0(u8 flags); // multiplayer overlay mpSetFlags, called only while it is loaded
 
 /* Reading `q->collisionFlags` at each test (no flags local) and keeping `q = pl->queuedActor` as a separate copy
  * variable leaves the `move v0,a0`. */
@@ -793,22 +793,22 @@ s8 playerResolveHitDamage(s8 delta, Actor *actor) {
             if (q->collisionFlags & 1) {
                 result = -1;
                 if (gGlobalOverlayFlags & 0x04000000) {
-                    func_800268C0(1, actor);
+                    func_800268C0(1);
                 }
             } else if (q->collisionFlags & 4) {
                 if (q->actorType == 0x29 || q->actorType == 0xAB) {
                     result = -3;
                     if (gGlobalOverlayFlags & 0x04000000) {
-                        func_800268C0(2, actor);
+                        func_800268C0(2);
                     }
                 } else {
                     result = -2;
                     if (gGlobalOverlayFlags & 0x04000000) {
-                        func_800268C0(1, actor);
+                        func_800268C0(1);
                     }
                 }
             } else if (gGlobalOverlayFlags & 0x04000000) {
-                func_800268C0(1, actor);
+                func_800268C0(1);
             }
         }
     }
@@ -917,14 +917,14 @@ s32 playerKongHasWorldGoldenBanana(void) {
 
 // Indexed by gPlayerCharacterId: { actorType, characterIndex, model, actorFlags }.
 const KongCharacterEntry gKongCharacterTable[10] = {
-    { 2, { 0 }, { 0x4 }, 0x1000 },
-    { 3, { 1 }, { 0x1 }, 0x1000 },
-    { 4, { 2 }, { 0x6 }, 0x1000 },
-    { 5, { 3 }, { 0x9 }, 0x1000 },
-    { 6, { 4 }, { 0xC }, 0x1000 },
-    { 7, { 5 }, { 0xDB }, 0x1000 },
-    { 8, { 6 }, { 0x14 }, 0x1000 },
-    { 9, { 0 }, { 0x18 }, 0x1000 },
-    { 2, { 0 }, { 0x1D }, 0x0 },
-    { 2, { 0 }, { 0x1D }, 0x0 },
+    { 2, 0, 0x4, 0x1000 },
+    { 3, 1, 0x1, 0x1000 },
+    { 4, 2, 0x6, 0x1000 },
+    { 5, 3, 0x9, 0x1000 },
+    { 6, 4, 0xC, 0x1000 },
+    { 7, 5, 0xDB, 0x1000 },
+    { 8, 6, 0x14, 0x1000 },
+    { 9, 0, 0x18, 0x1000 },
+    { 2, 0, 0x1D, 0x0 },
+    { 2, 0, 0x1D, 0x0 },
 };
