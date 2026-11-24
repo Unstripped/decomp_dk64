@@ -164,7 +164,7 @@ void enemyGridStateStep(void) {
             if (gCurrentActor->parentActor != NULL && gCurrentActor->parentActor->state == 5) {
                 ones = 0;
                 zeros = 0;
-                for (j = 0; &gEnemyGridCells[j] < &gEnemyGridCells[16]; j++) { // FAKE: pointer-compare bound keeps sltu+bnezl (j < 16 gives bnel v1,a0)
+                for (j = 0; &gEnemyGridCells[j] < &gEnemyGridCells[16]; j++) { // ORIG: ordered end-address exit test, sltu at,v1,a0 at 0x4dc against a0 = gEnemyGridCells + 16 (0x4c0/0x4c8) and bnezl at 0x508; every index bound (j < 16, j != 16, j <= 15, u32 j) gives the LFTR bnel v1,a0 (Q1629)
                     if (gEnemyGridCells[j] == 1) {
                         ones++;
                     }

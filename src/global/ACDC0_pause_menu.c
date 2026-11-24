@@ -162,11 +162,10 @@ void hudPauseMenuUpdate(void) {
     s8 stickY;
     s32 hubWorld;
     s32 step;
-    s32 sel;
+    s32 credits;
 
     hud = gCurrentActor->customState;
-    sel = gCurrentMap;
-    switch (sel) {
+    switch (gCurrentMap) {
         case 0x6:
         case 0xE:
         case 0x1B:
@@ -273,8 +272,7 @@ void hudPauseMenuUpdate(void) {
                 }
             }
         }
-        sel = hud->page; // FAKE: page selector reuses the map selector sel (a1, lb a1,18(s0) at 0x61c); a dedicated page local is coloured v0 (Q1200) and a separate s32 one grows frame 0x58->0x60
-        switch (sel) {
+        switch (hud->page) {
             case 0:
                 if (hud->menuRow != 3) {
                     stickY = gCurrentContPad->stick_y;
@@ -321,12 +319,9 @@ void hudPauseMenuUpdate(void) {
                     }
                 } else if (buttons & 0x8000) {
                     hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 1);
-                    sel = hubWorld == 8; // FAKE: credits flag reuses the selector sel (a1 at 0x814/0x82c); a dedicated credits local swaps a1/a2 with hubWorld and a separate s32 one grows frame 0x58->0x60
-                    if (sel) {
-                        sel = menuGetTimerFlag() != 0;
-                    }
+                    credits = hubWorld == 8 && menuGetTimerFlag() != 0;
                     sPauseExitRequested = 1;
-                    if (gPauseMenuMode == 0 && hubWorld != 7 && hubWorld != 0xD && hubWorld != 9 && sel == 0) {
+                    if (gPauseMenuMode == 0 && hubWorld != 7 && hubWorld != 0xD && hubWorld != 9 && credits == 0) {
                         if (hubWorld == 0xA) {
                             menuReturnToTitle();
                         } else if (mapIsLobby(gCurrentMap) == 0) {
@@ -345,7 +340,7 @@ void hudPauseMenuUpdate(void) {
                         } else {
                             mapCheckAutoTransition();
                         }
-                    } else if (hubWorld == 7 || sel != 0) {
+                    } else if (hubWorld == 7 || credits != 0) {
                         menuResetAndTransitionToCredits();
                     }
                 }
@@ -408,7 +403,7 @@ void hudPauseMenuUpdate(void) {
                 break;
             case 3:
                 diff = step = -mathAngleSignedDistance(sPauseCarouselTarget * sPauseCarouselSpacing, hud->carouselAngle);
-                flag = sPauseCarouselSpacing / 10; // FAKE: step limit reuses flag (a0, move a0,t5 at 0xc94); a dedicated limit local moves the flag bools to v1, and with sel in the freed word it grows frame 0x58->0x60
+                flag = sPauseCarouselSpacing / 10; // FAKE: step limit reuses flag (a0, move a0,t5 at 0xc94); a dedicated s32 limit local grows frame 0x58->0x60 (credits holds the freed word)
                 if (diff > 0) {
                     if (flag < diff) {
                         step = flag;
@@ -440,7 +435,7 @@ void hudPauseMenuUpdate(void) {
                     }
                 }
                 hud->carouselAngle &= 0xFFF;
-                flag = sPauseCarouselSpacing >> 1; // FAKE: half span reuses flag (a0, move a0,t9 at 0xdc0); a dedicated half local is coloured v0, and with sel in the freed word it grows frame 0x58->0x60
+                flag = sPauseCarouselSpacing >> 1; // FAKE: half span reuses flag (a0, move a0,t9 at 0xdc0); a dedicated s32 half local grows frame 0x58->0x60 (credits holds the freed word)
                 if (diff < 0) {
                     diff = -diff;
                 }

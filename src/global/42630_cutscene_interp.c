@@ -257,7 +257,7 @@ void csModelIdTableReset(void) {
     do {
         gCsModelIds[i] = -1;
         i++;
-    } while (&gCsModelIds[i] < &gCsModelIds[600]); // FAKE: address compare for i < 600 keeps a non-unrolled sltu walk with -1 in v0 (i < 600 unrolls 4x; pointer-variable loops colour -1 v1/a0)
+    } while (&gCsModelIds[i] < &gCsModelIds[600]); // ORIG: ordered end-address exit test, sltu at,v1,a0 at 0x18 against a0 = gCsModelIds + 1200 (0x4/0x8), not unrolled; every literal index bound (i < 600, i != 600, for/while) unrolls 4x with bne (Q1629, Q0765)
     for (j = 0; j < 0x212; j++) { gCsVarsDirty[j] = 0; } // LAYOUT: one-line loop keeps the as1 unroll schedule (Q0364)
 }
 
