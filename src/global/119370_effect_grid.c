@@ -19,9 +19,20 @@
 
 extern u8 gGfxBufferIndex;
 extern u8 gViewportCount;
+extern u8 gHiResScale;
+extern PlayerStruct *gPlayerSlots;
+extern Actor *gPrimaryPlayerActor;
+extern u8 gRenderSetupKind;
+extern void *gRenderLoadedTexture;
+extern u8 gCurrentPlayerIndex;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
+extern Mtx D_2000000;
+extern Mtx D_20000C0;
+extern Mtx D_2000180;
+extern Mtx D_2000200;
+
 extern s16 sEffectPendingZOffset;
-
-
 extern EffectGridNode *sEffectGridHead;
 extern EffectNode *sEffectListHead;
 extern EffectNode *sEffectListTail;
@@ -155,6 +166,7 @@ void effectGridGetScaledDimensions(EffectGridAsset *asset, s16 *outScaledW, s16 
     s16 pad1;
     u8 byteW;
     u8 byteH;
+
     effectGridGetByteDimensions(asset, &byteW, &byteH);
     effectGridGetCellDimensions(asset, outScaledW, outScaledH);
     *outScaledW *= byteW;
@@ -219,12 +231,12 @@ void effectEnableFade(void) {
     sEffectPendingFade = 1;
 }
 
-void effectSetStartDelay(s16 val) {
-    sEffectPendingStartDelay = val;
+void effectSetStartDelay(s16 delay) {
+    sEffectPendingStartDelay = delay;
 }
 
-void effectSetZOffset(s16 val) {
-    sEffectPendingZOffset = val;
+void effectSetZOffset(s16 degrees) {
+    sEffectPendingZOffset = degrees;
 }
 
 void effectSetCallback(void *callback) {
@@ -235,12 +247,12 @@ void effectSetFrameDelay(u8 frameDelay) {
     sEffectPendingFrameDelay = frameDelay;
 }
 
-void effectSetMaxDistance(s16 val) {
-    sEffectPendingMaxDist = val;
+void effectSetMaxDistance(s16 maxDistance) {
+    sEffectPendingMaxDist = maxDistance;
 }
 
-void effectSetDepth(u8 val) {
-    sEffectPendingDepth = val;
+void effectSetDepth(u8 depth) {
+    sEffectPendingDepth = depth;
 }
 
 void effectSetColor(u8 r, u8 g, u8 b, u8 a) {
@@ -268,8 +280,8 @@ void effectFlagsOr(u8 flagBits) {
     sEffectPendingFlags |= flagBits;
 }
 
-void effectSetChunkFilter(s16 val) {
-    sEffectPendingChunkFilter = val;
+void effectSetChunkFilter(s16 chunk) {
+    sEffectPendingChunkFilter = chunk;
 }
 
 void effectSetBounds(s16 minX, s16 minY, s16 maxX, s16 maxY) {
@@ -278,8 +290,6 @@ void effectSetBounds(s16 minX, s16 minY, s16 maxX, s16 maxY) {
     sEffectPendingBoundsMaxX = maxX;
     sEffectPendingBoundsMaxY = maxY;
 }
-
-extern u8 gHiResScale;
 
 void effectResetState(void) {
     s32 minBound;
@@ -299,23 +309,23 @@ void effectResetState(void) {
     sEffectPendingChunkFilter = -1;
     sEffectPendingBoundsMinX = minBound;
     sEffectPendingBoundsMinY = minBound;
-    sEffectPendingBoundsMaxX = gHiResScale * 0x135;
-    sEffectPendingBoundsMaxY = gHiResScale * 0xE5;
-    sEffectPendingMaxDist = 0x258;
+    sEffectPendingBoundsMaxX = gHiResScale * 309;
+    sEffectPendingBoundsMaxY = gHiResScale * 229;
+    sEffectPendingMaxDist = 600;
 }
 
 
-void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags) {
+void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 anchorType) {
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
 
     modelSlotGetNodePos(modelSlot, 1, nodeIndex, &nodeX, &nodeY, &nodeZ);
-    effectCreate(asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, flags);
+    effectCreate(asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, anchorType);
 }
 
 
-EffectNode *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 boneIndex, u8 flags) {
+EffectNode *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 boneIndex, u8 anchorType) {
     f32 boneX;
     f32 boneY;
     f32 boneZ;
@@ -324,14 +334,14 @@ EffectNode *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 bo
     if (!(actor->flags & 0x200) && actor->sub4 != NULL && (sEffectPendingFlags & 0x80)) {
         effectFlagsOr(0x40);
     }
-    return effectCreate(asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, flags);
+    return effectCreate(asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, anchorType);
 }
 
 EffectNode *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
     return effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
-EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, f32 posZ, Actor *owner, s32 modelSlot, s32 nodeIndex, u8 flags) {
+EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, f32 posZ, Actor *owner, s32 modelSlot, s32 nodeIndex, u8 anchorType) {
     EffectNode *effect;
     EffectGridNode *node;
     s32 found;
@@ -393,7 +403,7 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
     effect->mode = sEffectPendingFade;
     effect->startDelay = sEffectPendingStartDelay;
     effect->frameCount = node->width * node->height;
-    effect->anchorType = flags;
+    effect->anchorType = anchorType;
     effect->owner = owner;
     effect->boneIndex = modelSlot;
     effect->subIndex = nodeIndex;
@@ -404,7 +414,7 @@ EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, 
     effect->durationTimer = 0;
     effect->speed = sEffectPendingSpeed;
     if (gGlobalOverlayFlags & 0x100) {
-        effect->maxDistance = 0x7D0;
+        effect->maxDistance = 2000;
     } else {
         effect->maxDistance = sEffectPendingMaxDist;
     }
@@ -445,7 +455,7 @@ void effectBuildGridVertices(EffectNode *effect) {
     if (node->width == 0 || node->height == 0) {} // FAKE: numbers the width then height ucvt webs first (a1, a2)
     node = effect->grid; // FAKE: kill splits the width/height webs so they reload in the arms
     x = -(node->width * node->cellW) / 2;
-    startX = x;
+    startX = x; // FAKE: redundant alias of x; numbers the width ucvt ahead of startX (Q1426)
     if (effect->mode == 0) {
         y = -(node->height * node->cellH) / 2;
     } else {
@@ -464,7 +474,7 @@ void effectBuildGridVertices(EffectNode *effect) {
                 vertex->v.tc[1] = 0;
                 vertexIndex++;
                 vertex++;
-                vertex->v.ob[0] = node->cellW + x;
+                vertex->v.ob[0] = x + node->cellW;
                 vertex->v.ob[1] = y;
                 vertex->v.ob[2] = 0;
                 vertex->v.tc[0] = node->cellW << 5;
@@ -473,7 +483,7 @@ void effectBuildGridVertices(EffectNode *effect) {
                 vertex++;
                 vertex->v.ob[0] = x;
                 if (effect->mode == 0) {
-                    vertex->v.ob[1] = node->cellH + y;
+                    vertex->v.ob[1] = y + node->cellH;
                 } else {
                     vertex->v.ob[1] = y - node->cellH;
                 }
@@ -482,9 +492,9 @@ void effectBuildGridVertices(EffectNode *effect) {
                 vertex->v.tc[1] = node->cellH << 5;
                 vertexIndex++;
                 vertex++;
-                vertex->v.ob[0] = node->cellW + x;
+                vertex->v.ob[0] = x + node->cellW;
                 if (effect->mode == 0) {
-                    vertex->v.ob[1] = node->cellH + y;
+                    vertex->v.ob[1] = y + node->cellH;
                 } else {
                     vertex->v.ob[1] = y - node->cellH;
                 }
@@ -505,8 +515,6 @@ void effectBuildGridVertices(EffectNode *effect) {
     }
 }
 
-extern PlayerStruct *gPlayerSlots;
-
 void effectUpdateAll(u8 paused) {
     EffectNode *effect;
     u8 isDone;
@@ -522,14 +530,11 @@ void effectUpdateAll(u8 paused) {
             effect->flags &= ~0x10;
             switch (effect->anchorType) {
             case 1:
-                modelSlotGetNodePos(effect->boneIndex, 1, effect->subIndex,
-                                    &effect->x, &effect->y,
-                                    &effect->z);
+                modelSlotGetNodePos(effect->boneIndex, 1, effect->subIndex, &effect->x, &effect->y, &effect->z);
                 break;
             case 2:
                 if ((effect->owner->flags & 0x200) != 0 || effect->owner->sub4 == NULL) {
-                    actorGetNodePos(effect->owner, effect->subIndex, &effect->x,
-                                    &effect->y, &effect->z);
+                    actorGetNodePos(effect->owner, effect->subIndex, &effect->x, &effect->y, &effect->z);
                 } else {
                     effect->flags |= 0x10;
                 }
@@ -551,8 +556,7 @@ void effectUpdateAll(u8 paused) {
             if (effect->param == effect->grid->frameCount) {
                 effect->param = 0;
                 effect->durationTimer++;
-                if (effect->durationTimer == effect->duration &&
-                    effect->duration != -1) {
+                if (effect->durationTimer == effect->duration && effect->duration != -1) {
                     effect->freePending = 1;
                 }
             }
@@ -570,16 +574,10 @@ void effectUpdateAll(u8 paused) {
                 if (effect->state != 3) {
                     for (i = 0; i < gViewportCount; i++) {
                         if (gPlayerSlots[i].active != 0) {
-                            effectComputeTransformMatrix(&effect->matrices[i][gGfxBufferIndex],
-                                          effect->state,
-                                          effect->scaleX,
-                                          effect->scaleY,
-                                          gPlayerSlots[i].eyeX,
-                                          gPlayerSlots[i].eyeY,
-                                          gPlayerSlots[i].eyeZ,
-                                          effect->x,
-                                          effect->y,
-                                          effect->z, effect->mode);
+                            effectComputeTransformMatrix(&effect->matrices[i][gGfxBufferIndex], effect->state,
+                                                         effect->scaleX, effect->scaleY,
+                                                         gPlayerSlots[i].eyeX, gPlayerSlots[i].eyeY, gPlayerSlots[i].eyeZ,
+                                                         effect->x, effect->y, effect->z, effect->mode);
                         }
                     }
                     effect->state = 3;
@@ -589,27 +587,17 @@ void effectUpdateAll(u8 paused) {
                     if (effect->flags & 4) {
                         listIndex = 4;
                         if (!(effect->flags & 8)) {
-                            effect->chunk = mapChunkFindByPosition(
-                                effect->x, effect->y,
-                                effect->z, 0);
+                            effect->chunk = mapChunkFindByPosition(effect->x, effect->y, effect->z, 0);
                         }
                     } else {
                         listIndex = 1;
                     }
-                    renderEntryAddOrUpdate(0, 5, effect, effect->x,
-                                           effect->y,
-                                           effect->z,
-                                           effect->maxDistance, 0, 1, -1, listIndex);
+                    renderEntryAddOrUpdate(0, 5, effect, effect->x, effect->y, effect->z, effect->maxDistance, 0, 1, -1, listIndex);
                 } else {
-                    renderEntryAddOrUpdate(0, 5, effect, effect->x,
-                                           effect->y,
-                                           effect->z, 0, 0, 1, -1, 3);
+                    renderEntryAddOrUpdate(0, 5, effect, effect->x, effect->y, effect->z, 0, 0, 1, -1, 3);
                 }
-                effectLoadFrameAssets(effect->grid->data,
-                              effect->grid->altCategory,
-                              effect->grid->slots,
-                              effect->frameCount, effect->param,
-                              effect->frames);
+                effectLoadFrameAssets(effect->grid->data, effect->grid->altCategory, effect->grid->slots,
+                                      effect->frameCount, effect->param, effect->frames);
                 if (!paused || (effect->flags & 1)) {
                     effect->frameTimer++;
                     if (effect->frameTimer == effect->frameDelay) {
@@ -685,7 +673,7 @@ void effectFreeAndUnlink(EffectNode *effect) {
         heapFreeDeferred(effect->displayLists[i][0]);
         heapFreeDeferred(effect->displayLists[i][1]);
     }
-    if (osCicId != 0x17D9) {
+    if (osCicId != 6105) { // not the cartridge's CIC-NUS-6105: scramble the OS clock
         osSetTime((s32)randomLcgNext());
     }
     previous = effect->previous;
@@ -729,61 +717,62 @@ void effectLoadFrameAssets(s16 *assetIds, u8 altCategory, EffectGridSlot *slots,
 
 
 void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f32 camX, f32 camY, f32 camZ, f32 x, f32 y, f32 z, u8 mode) {
-    f32 pad[2];
+    f32 sine;
+    f32 yaw;
     f32 distance;
-    f32 value;
-    f32 absValue;
+    f32 divisor;
+    f32 absSine;
     s32 angle;
     s32 asinAngle;
-    f32 scale[4][4];
+    f32 matrix[4][4];
     f32 transform[4][4];
     Mtx mtx;
 
     if (mode == 0) {
         distance = distance3D(camX, camY, camZ, x, y, z);
-        value = distance;
+        divisor = distance;
         if (distance < 0.1) {
-            value = 1.0f;
+            divisor = 1.0f;
         }
-        distance = (camY - y) / value;
-        if (distance > 0.0f) {
-            absValue = distance;
+        sine = (camY - y) / divisor;
+        if (sine > 0.0f) {
+            absSine = sine;
         } else {
-            absValue = -distance;
+            absSine = -sine;
         }
-        asinAngle = mathAsinFixed(absValue * 65536.0) >> 4;
+        asinAngle = mathAsinFixed(absSine * 65536.0) >> 4;
         angle = asinAngle;
-        if (distance >= 0.0f) {
+        if (sine >= 0.0f) {
             angle = 0xFFF - asinAngle;
         }
         if (state != 2) {
-            guScaleF(scale, scaleX, scaleY, 0.0f);
+            guScaleF(matrix, scaleX, scaleY, 0.0f);
         } else {
-            guScaleF(scale, 1.0f, 1.0f, 1.0f);
+            guScaleF(matrix, 1.0f, 1.0f, 1.0f);
         }
         guRotateF(transform, angle / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
-        guMtxCatF(scale, transform, scale);
-        value = mathAngleBetweenPointsRad(camX, camZ, x, z);
-        guRotateF(transform, value * 57.295776f, 0.0f, 1.0f, 0.0f);
-        guMtxCatF(scale, transform, scale);
+        guMtxCatF(matrix, transform, matrix);
+        yaw = mathAngleBetweenPointsRad(camX, camZ, x, z);
+        guRotateF(transform, yaw * 57.295776f, 0.0f, 1.0f, 0.0f);
+        guMtxCatF(matrix, transform, matrix);
         guTranslateF(transform, x, y, z);
-        guMtxCatF(scale, transform, scale);
+        guMtxCatF(matrix, transform, matrix);
     } else {
         if (state != 2) {
-            guScaleF(scale, scaleX, scaleY, 0.0f);
+            guScaleF(matrix, scaleX, scaleY, 0.0f);
         } else {
-            guScaleF(scale, 1.0f, 1.0f, 1.0f);
+            guScaleF(matrix, 1.0f, 1.0f, 1.0f);
         }
         matrixMakeRotationZ(transform, sEffectPendingZOffset);
-        guMtxCatF(scale, transform, scale);
+        guMtxCatF(matrix, transform, matrix);
         guTranslateF(transform, x, y, z);
-        guMtxCatF(scale, transform, scale);
+        guMtxCatF(matrix, transform, matrix);
     }
-    if ((state == 1) || (state == 2)) {
-        guMtxF2L(scale, &mtx);
+    if (state == 1 || state == 2) {
+        guMtxF2L(matrix, &mtx);
         guMtxCatL(dst, &mtx, dst);
     } else {
-        guMtxF2L(scale, dst);
+        guMtxF2L(matrix, dst);
     }
 }
 
@@ -798,19 +787,6 @@ f32 distance3D(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     return sqrtf((x * x) + (y * y) + (z * z));
 }
 
-#define EFFECT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-
-extern Actor *gPrimaryPlayerActor;
-extern u8 gRenderSetupKind;
-extern void *gRenderLoadedTexture;
-extern u8 gCurrentPlayerIndex;
-extern s16 gScreenWidth;
-extern s16 gScreenHeight;
-extern Mtx D_2000000;
-extern Mtx D_20000C0;
-extern Mtx D_2000180;
-extern Mtx D_2000200;
-
 Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     s32 i;
     u8 red;
@@ -824,7 +800,8 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     if (effect->flags & 0x50) {
         return inGlist;
     }
-    if ((((gPrimaryPlayerActor->state == 0x83) || (gPrimaryPlayerActor->state == 0x67)) && !(effect->flags & 0x20)) || (((gGlobalPauseFlags & 0x100002) == 0x100002) && !(effect->flags & 0x100))) {
+    if (((gPrimaryPlayerActor->state == 0x83 || gPrimaryPlayerActor->state == 0x67) && !(effect->flags & 0x20)) ||
+        ((gGlobalPauseFlags & 0x100002) == 0x100002 && !(effect->flags & 0x100))) {
         return inGlist;
     }
     if (chunk == -1) {
@@ -832,7 +809,7 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     }
     if (effect->chunkFilter != -1) {
         if (effect->mode != 0) {
-            if (mapChunkContainsPoint((s16)((f64)effect->x * 0.25), (s16)((f64)effect->y * 0.25), effect->chunkFilter) == 0) {
+            if (mapChunkContainsPoint(effect->x * 0.25, effect->y * 0.25, effect->chunkFilter) == 0) {
                 return inGlist;
             }
         } else if (chunk != effect->chunkFilter) {
@@ -858,17 +835,17 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
 
     if (effect->grid->unlit == 0 && mapChunkIsInUse(chunk)) {
         lightSampleColorAtPosition(effect->x, effect->y, effect->z, 0, &red, &green, &blue, chunk);
-        colorRed = (f32)((f64)red / 255.0);
-        colorGreen = (f32)((f64)green / 255.0);
-        colorBlue = (f32)((f64)blue / 255.0);
+        colorRed = red / 255.0;
+        colorGreen = green / 255.0;
+        colorBlue = blue / 255.0;
     }
-    gDPSetPrimColor(glist++, 0, 0, (u32)((f32)effect->red * colorRed), (u32)((f32)effect->green * colorGreen), (u32)((f32)effect->blue * colorBlue), effect->alpha);
+    gDPSetPrimColor(glist++, 0, 0, effect->red * colorRed, effect->green * colorGreen, effect->blue * colorBlue, effect->alpha);
     if (effect->mode != 0) {
         gSPMatrix(glist++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
         gSPMatrix(glist++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
         glist = gfxInit2DDisplayList(glist);
         if (effect->chunkFilter == -1) {
-            gDPSetScissorFrac(glist++, G_SC_NON_INTERLACE, (f32)effect->minX * 4.0f, (f32)effect->minY * 4.0f, (f32)effect->maxX * 4.0f, (f32)effect->maxY * 4.0f);
+            gDPSetScissorFrac(glist++, G_SC_NON_INTERLACE, effect->minX * 4.0f, effect->minY * 4.0f, effect->maxX * 4.0f, effect->maxY * 4.0f);
         }
     }
     gSPMatrix(glist++, osVirtualToPhysical(&effect->matrices[gCurrentPlayerIndex][gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
@@ -902,7 +879,7 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
         gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
         gSPMatrix(glist++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
         if (effect->chunkFilter == -1) {
-            gDPSetScissorFrac(glist++, G_SC_NON_INTERLACE, 0, 0, (f32)gScreenWidth * 4.0f, (f32)gScreenHeight * 4.0f);
+            gDPSetScissorFrac(glist++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth * 4.0f, gScreenHeight * 4.0f);
         }
     }
     gDPPipeSync(glist++);
