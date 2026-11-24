@@ -411,7 +411,7 @@ extern s16 gMapBoundMinX;
 extern s16 gMapBoundMinZ;
 extern s16 gMapBoundMaxX;
 extern s16 gMapBoundMaxZ;
-extern s32 gEffectSpriteMelonSpin;
+extern EffectGridAsset gEffectSpriteMelonSpin;
 
 void func_80026D40(void *, u8);
 f32 sqrtf(f32);

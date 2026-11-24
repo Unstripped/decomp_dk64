@@ -446,14 +446,14 @@ Gfx *menuDrawMainScreenTitle(Actor *actor, Gfx *dl) {
 }
 
 extern s8 sMenuNextElementBright;
-extern u8 gEffectSpriteGoldenBanana;
-extern u8 gControlStickSprite;
-extern u8 gAButtonSprite;
-extern u8 gFairySprite;
-extern u8 gCrownSprite;
-extern u8 gEffectSpriteHeadphones;
-extern u8 gEffectSpriteQuestionMark;
-extern u8 gEffectSpriteBarrelEnd;
+extern EffectGridAsset gEffectSpriteGoldenBanana;
+extern EffectGridAsset gControlStickSprite;
+extern EffectGridAsset gAButtonSprite;
+extern EffectGridAsset gFairySprite;
+extern EffectGridAsset gCrownSprite;
+extern EffectGridAsset gEffectSpriteHeadphones;
+extern EffectGridAsset gEffectSpriteQuestionMark;
+extern EffectGridAsset gEffectSpriteBarrelEnd;
 
 void menuInitMainScreen(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
@@ -562,8 +562,8 @@ Gfx *menuDrawAdventureFileSelectTitle(Actor *actor, Gfx *dl) {
     return hudDrawScaledText(dl, posX * 4.0f, posY * 4.0f, 0.6f, strBuf);
 }
 
-extern u8 gBButtonSprite;
-extern u8 gEffectSpriteOrange;
+extern EffectGridAsset gBButtonSprite;
+extern EffectGridAsset gEffectSpriteOrange;
 
 void menuInitAdventureFileSelect(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
@@ -1434,9 +1434,9 @@ typedef struct MenuCharacterKongState { // customState of the character-select k
 extern s8 sMenuMatchStarting;
 extern s8 sMenuCharacterAvailMask;
 extern s16 gCheatFlags;
-extern u8 gCDownButtonSprite;
-extern u8 gCUpButtonSprite;
-extern u8 gStartButtonSprite;
+extern EffectGridAsset gCDownButtonSprite;
+extern EffectGridAsset gCUpButtonSprite;
+extern EffectGridAsset gStartButtonSprite;
 
 void menuInitCharacterSelect(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
@@ -1810,7 +1810,7 @@ Gfx *menuFormatOptionValues(Actor *actor, Gfx *dl) {
     return dl;
 }
 
-extern u8 gZButtonSprite;
+extern EffectGridAsset gZButtonSprite;
 
 void menuInitSoundOptions(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;

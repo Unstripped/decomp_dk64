@@ -157,7 +157,7 @@ typedef struct LaunchBarrelState {
 } LaunchBarrelState;
 
 
-extern u8 gEffectSpriteBlast;
+extern EffectGridAsset gEffectSpriteBlast;
 
 void launchBarrelUpdate(void) {
     LaunchBarrelState *sub = gCurrentActor->customState;
@@ -628,8 +628,8 @@ typedef struct ThrowableBarrelState {
 
 extern s16 gCurrentCharacterIndex;
 extern s8 D_80029FA0;
-extern u8 gEffectSpriteBubble;
-extern u8 gEffectSpriteFuseSpark;
+extern EffectGridAsset gEffectSpriteBubble;
+extern EffectGridAsset gEffectSpriteFuseSpark;
 extern s16 gCarryMinFallSpeed;
 extern f32 gCarryGravity;
 extern s16 gKongBarrelThrowMaxFrames[];
@@ -1923,7 +1923,7 @@ typedef struct TagBarrelSpawnParams {
 
 
 extern u8 gScreenRenderFlags;
-extern u8 gEffectSpriteSparklePurple[];
+extern EffectGridAsset gEffectSpriteSparklePurple;
 
 
 extern s16 gBarrelMountLaunchSpeedY;
@@ -2039,11 +2039,11 @@ void tagBarrelActorUpdate(void) {
             effectSetFlags(4);
             if (gCurrentActor->state == 0) {
                 effectSetCallback(effectZSpinMatrixUpdate);
-                effectCreateAtPosition(gEffectSpriteSparklePurple, 0.5f, effectX, effectY, effectZ);
+                effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, effectX, effectY, effectZ);
             } else {
                 effectSetSpeed((s32)(gCurrentActor->sub4->scaleX * 100.0f) + (sub->spinSpeed << 16));
                 effectSetCallback(effectOrbitXZUpdate);
-                effectCreateAtPosition(gEffectSpriteSparklePurple, 0.5f, gCurrentActor->x, effectY, gCurrentActor->z);
+                effectCreateAtPosition(&gEffectSpriteSparklePurple, 0.5f, gCurrentActor->x, effectY, gCurrentActor->z);
             }
         }
     }

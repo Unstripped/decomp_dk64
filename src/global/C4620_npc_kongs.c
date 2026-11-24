@@ -625,8 +625,8 @@ void actorNpcDonkeyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 gEffectSpriteSparklesBlue;
-extern u8 gEffectSpriteMuzzleFlash;
+extern EffectGridAsset gEffectSpriteSparklesBlue;
+extern EffectGridAsset gEffectSpriteMuzzleFlash;
 
 void actorNpcDiddyUpdate(void) {
     ActorSub4 *sub;
@@ -714,7 +714,7 @@ void actorNpcLankyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 gEffectSpriteImpactFlash;
+extern EffectGridAsset gEffectSpriteImpactFlash;
 
 void actorNpcTinyUpdate(void) {
     u8 bone;

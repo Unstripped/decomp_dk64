@@ -245,9 +245,9 @@ extern u8 gBossWaypointLightFade[];
 extern const f32 gBossWaypointPhaseAnimSpeeds[];
 extern s16 gWaypointBossTerminalSpeedY;
 extern f32 gWaypointBossAccelY;
-extern u8 gEffectSpriteSparklePurple[];
-extern u8 gEffectSpriteGlowRed[];
-extern u8 gEffectSpriteSmokeCloud[];
+extern EffectGridAsset gEffectSpriteSparklePurple;
+extern EffectGridAsset gEffectSpriteGlowRed;
+extern EffectGridAsset gEffectSpriteSmokeCloud;
 
 void bossMainStep(void) {
     BossScriptState *scriptState;
@@ -579,8 +579,8 @@ void bossMainStep(void) {
                     effectSetDepth(1);
                     effectSetCallback(effectEaseToTargetNodeUpdate);
                     effectSetSpeed((s32)gCurrentActor);
-                    effectCreateAtPosition(gEffectSpriteSparklePurple, 1.5f, boneX, boneY, boneZ);
-                    effectCreateAtActorBone(gEffectSpriteGlowRed, 3.0f, gCurrentActor, 1, 2);
+                    effectCreateAtPosition(&gEffectSpriteSparklePurple, 1.5f, boneX, boneY, boneZ);
+                    effectCreateAtActorBone(&gEffectSpriteGlowRed, 3.0f, gCurrentActor, 1, 2);
                 }
                 break;
             case 4:
@@ -734,8 +734,8 @@ void bossMainStep(void) {
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
-                effectSpawnScatterRandom(gEffectSpriteSmokeCloud, 0, 6.0f, 6, 0x50, 0x64, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
-                effectSpawnScatterRandom(gEffectSpriteSmokeCloud, 0x14, 6.0f, 8, 0x96, 0x46, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
+                effectSpawnScatterRandom(&gEffectSpriteSmokeCloud, 0, 6.0f, 6, 0x50, 0x64, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
+                effectSpawnScatterRandom(&gEffectSpriteSmokeCloud, 0x14, 6.0f, 8, 0x96, 0x46, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
                 gCurrentActor->subState++;
             }
             break;
