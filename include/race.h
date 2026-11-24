@@ -110,6 +110,13 @@ typedef struct RaceParticipant {
     /* 0xD2 */ u8 padD2[0x108 - 0xD2];
 } RaceParticipant; // size = 0x108
 
+// A racer actor (936B0 VEHICLE_ACTOR helpers, raceCompetitorMotionUpdate): the participant record at 0x174 and
+// the motion state (936B0 VehicleMotion) the shared racer helpers step at 0x178.
+typedef struct VehicleActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ struct VehicleMotion *motion;
+} VehicleActor;
+
 // One race route (raceGetRoute): the ordered waypoint indices a participant passes.
 typedef struct RaceRoute {
     /* 0x00 */ u16 count;

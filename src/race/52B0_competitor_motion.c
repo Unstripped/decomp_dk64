@@ -34,13 +34,6 @@ RaceCurvePoint raceOpponentSpeedCurve[6] = {
 RaceVec3f raceOpponentSpeedLevels = { 0.8f, 1.0f, 2.5f };
 s32 raceOpponentFinishCamIds[5] = { 3, 0, 1, 2, 0 };
 
-// Competitor racers (raceCompetitorMotionUpdate): the participant record at 0x174 and the motion state
-// the shared 936B0 racer helpers step at 0x178.
-typedef struct RaceCompetitorActor {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ struct VehicleMotion *motion;
-} RaceCompetitorActor;
-
 // Opponent racers (raceOpponentRacerBehaviorUpdate, spawnNodeSpawnById(1, ...) in competitor races): the
 // participant record at 0x178, motion state at 0x17C and the rubber-band target at 0x180.
 typedef struct RaceOpponentActor {
@@ -120,7 +113,7 @@ void raceCompetitorMotionUpdate(void) {
     u8 onGround;
 
     participant = gCurrentActor->customState;
-    motion = ((RaceCompetitorActor *)gCurrentActor)->motion;
+    motion = ((VehicleActor *)gCurrentActor)->motion;
     playerState = gPlayerSlots[participant->playerIdx].actor->customState;
     onGround = gCurrentActor->contactFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {

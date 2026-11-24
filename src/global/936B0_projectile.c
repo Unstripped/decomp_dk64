@@ -576,10 +576,6 @@ void actorSpawnChildActor(Actor *parent) {
 }
 
 
-typedef struct VehicleActor {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ VehicleMotion *motion;
-} VehicleActor;
 #define VEHICLE_ACTOR ((VehicleActor *)gCurrentActor)
 
 extern u8 gGameMode;
