@@ -312,8 +312,7 @@ void pathPlaybackAdvance(s32 slot) {
                 pb->t -= whole;
             }
             if (pb->pointIndex < 0) {
-                quot = -pb->pointIndex / pb->path.count;
-                pb->loopCount += quot + 1;
+                pb->loopCount += -pb->pointIndex / pb->path.count + 1;
                 if (pb->loopCount >= pb->loopLimit && pb->loopLimit != -1) {
                     pb->pointIndex = 0;
                     pb->active = 0;
@@ -330,8 +329,7 @@ void pathPlaybackAdvance(s32 slot) {
                         }
                         break;
                     case 1:
-                        loops = quot + 1;
-                        if (loops && loops) {}  // FAKE: second loops use on the case-1 path keeps quot + 1 a v1 candidate
+                        loops = -pb->pointIndex / pb->path.count + 1;
                         if (loops) {
                             pb->direction = 0;
                             pb->pointIndex = 0;
