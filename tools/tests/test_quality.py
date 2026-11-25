@@ -1816,6 +1816,8 @@ def test_record_base_compiles_rev_text_against_rev_headers(tmp_path, monkeypatch
         return out
 
     monkeypatch.setattr(q.cwarn, "run_jobs", run_jobs)
+    # a host without the symlink privilege has the container link asm/assets: a directory stands in
+    monkeypatch.setattr(q.cwarn, "container_symlink", lambda target, link: os.mkdir(link))
     _git(repo, "init", "-q")
     _git(repo, "config", "user.email", "t@example.com")
     _git(repo, "config", "user.name", "t")

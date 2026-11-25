@@ -29,8 +29,8 @@ keyed by the Makefile, every include/ file, the flags src path, the compiled tex
 compile, the *.h files beside it (a copy compiled in place with another file's flags: also the headers
 it shadows); all cache misses of one call compile in one `tools/dk` request
 (inheriting DK64_LEASE). `collect(..., rev=REV)` compiles texts against REV's include/ and REV's *.h
-beside each path instead (exported into the call's stage dir with `git archive`, asm/ linked to the
-checkout's; keyed by REV's include/ tree id). Warnings printed for the compiled input are reported
+beside each path instead (exported into the call's stage dir by `export_tree`, asm/ and assets/ linked to
+the checkout's; keyed by REV's include/ tree id). Warnings printed for the compiled input are reported
 under the given path; other paths (headers, shadowed ones under their source path) are kept as printed.
 """
 import argparse
@@ -180,9 +180,38 @@ def rev_side_headers(rev, path):
     return out
 
 
+GENERATED = ("asm", "assets")  # checkout dirs an export tree links to (generated, not in git)
+
+
 def export_tree(rev, tree):
-    """REV's include/ under TREE, plus TREE/asm and TREE/assets linking to the checkout's (generated, not in git)."""
+    """REV's include/ under TREE (`export_include`), plus TREE/asm and TREE/assets linking to the
+    checkout's. A host that cannot make a symlink (Windows without the privilege) has the container
+    make it, a link later container calls resolve; `unlink_generated` removes either kind."""
+    export_include(rev, tree)
+    for generated in GENERATED:
+        target, link = os.path.relpath(os.path.join(ROOT, generated), tree), os.path.join(tree, generated)
+        try:
+            os.symlink(target, link)
+        except OSError:
+            container_symlink(posix(target), link)
+
+
+def export_include(rev, tree):
+    """REV's include/ under TREE: `git archive | tar`, except on Windows: `git checkout-index` from a
+    private index of REV:include, which writes it as this checkout has it (core.symlinks false: the
+    include/libultra/PR link is a file holding its target, where tar fails without the symlink
+    privilege) and reads no other part of REV (`git archive REV include` fails on a path Windows
+    cannot check out elsewhere in REV: `src/arcade/lso ` before 2ddb60d1)."""
     os.makedirs(tree, exist_ok=True)
+    if os.name == "nt":
+        env = dict(os.environ, GIT_INDEX_FILE=posix(os.path.join(tree, ".index")))
+        for args in (["read-tree", "--prefix=include/", f"{rev}:include"],
+                     ["checkout-index", "-a", f"--prefix={posix(tree)}/"]):
+            r = subprocess.run(["git", *args], cwd=ROOT, env=env, capture_output=True, text=True)
+            if r.returncode:
+                raise CompileError(None, f"git {args[0]} {rev}:include failed: {r.stderr}", rev)
+        os.remove(env["GIT_INDEX_FILE"])
+        return
     arc = subprocess.Popen(["git", "archive", rev, "include"], cwd=ROOT, stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
     tar = subprocess.run(["tar", "-x", "-C", tree], stdin=arc.stdout, capture_output=True, text=True)
@@ -190,10 +219,31 @@ def export_tree(rev, tree):
     err = arc.stderr.read().decode("utf-8", "replace")
     if arc.wait() or tar.returncode:
         raise CompileError(None, f"git archive {rev} include failed: {err}{tar.stderr}", rev)
-    for generated in ("asm", "assets"):
-        os.symlink(os.path.relpath(os.path.join(ROOT, generated), tree), os.path.join(tree, generated))
 
 
+def container_symlink(target, link):
+    """`ln -s TARGET LINK` run in the container (LINK: a path under ROOT)."""
+    r = subprocess.run(dk_argv("ln", "-s", target, rel(link)), cwd=ROOT, capture_output=True, text=True,
+                       errors="replace")
+    if r.returncode:
+        raise CompileError(None, f"ln -s {target} {rel(link)} in the container failed: {r.stdout}{r.stderr}")
+
+
+def unlink_generated(tree):
+    """Remove an export tree's asm/assets links, before anything removes the tree: a link the container
+    made on a Windows host is a WSL symlink that rmtree cannot remove and unlink may not, while rmdir
+    removes just the link (never the checkout's directory behind it)."""
+    for generated in GENERATED:
+        link = os.path.join(tree, generated)
+        try:
+            os.unlink(link)
+        except FileNotFoundError:
+            pass
+        except OSError:
+            try:
+                os.rmdir(link)
+            except OSError:
+                pass
 
 
 def write_atomic(path, text):
@@ -276,6 +326,7 @@ def collect(items, rev=None, shadow=()):
             ex.path, ex.rev = ex.path or next(iter(todo.values()))[0], rev
             raise
         finally:
+            unlink_generated(tree)  # first: rmtree cannot remove a container-made link
             shutil.rmtree(stage, ignore_errors=True)
         for (key, (p, job)), r in zip(todo.items(), results):
             if r["rc"] != 0:

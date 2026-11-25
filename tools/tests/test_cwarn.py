@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -105,3 +107,36 @@ def test_copy_compiles_with_its_shadow_headers(tmp_path, monkeypatch):
     ws = cwarn.collect(item)[0]
     assert len(seen) == 2 and seen[1]["shadow"].split()[2:] == ["-I", ".scratch/A"]
     assert ws[0]["path"] == "include/race.h"  # the unchanged includer, under its include/ path
+
+
+def test_rev_compile_links_through_the_container_when_the_host_cannot(tmp_path, monkeypatch):
+    """No symlink privilege (Windows): the container makes the export tree's asm/assets links, and the
+    stage is removed links first (rmtree cannot remove a container-made link)."""
+    monkeypatch.setattr(cwarn, "ROOT", str(tmp_path))
+    monkeypatch.setattr(cwarn, "SCRATCH", str(tmp_path / ".scratch" / "cwarn"))
+    monkeypatch.setattr(cwarn, "_static", {"key": ("makefile", "include")})
+    (tmp_path / "include").mkdir()
+    (tmp_path / "include" / "s.h").write_text("int s;\n")
+    for args in (["init", "-q"], ["add", "-A"], ["-c", "user.email=t@example.com", "-c", "user.name=t",
+                                                 "-c", "commit.gpgsign=false", "commit", "-qm", "a"]):
+        subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
+    made, seen = [], []
+
+    def no_symlink(*a, **k):
+        raise OSError(1314, "A required privilege is not held by the client")
+
+    def container_symlink(target, link):
+        made.append(target)
+        os.mkdir(link)  # stand-in for the container's link: unlink may not remove it, rmdir does
+
+    def run_jobs(jobs):
+        seen.extend(p.name for p in (tmp_path / jobs[0]["cwd"]).iterdir())
+        return [{"rc": 0, "out": ""}]
+
+    monkeypatch.setattr(cwarn.os, "symlink", no_symlink)
+    monkeypatch.setattr(cwarn, "container_symlink", container_symlink)
+    monkeypatch.setattr(cwarn, "run_jobs", run_jobs)
+    assert cwarn.collect([("src/global/x.c", "int x;\n", None)], rev="HEAD") == [[]]
+    assert made == ["../../../../../asm", "../../../../../assets"]
+    assert {"asm", "assets", "include"} <= set(seen)
+    assert list((tmp_path / ".scratch" / "cwarn" / "in").iterdir()) == []

@@ -97,7 +97,9 @@ stage_copy tools/cwarn.py "$gate/tools/cwarn.py" || exit 1
 [ -e "$gate/baserom.us.z64" ] || cp -c baserom.us.z64 "$gate/" 2>/dev/null || cp baserom.us.z64 "$gate/" || exit 1
 glog=$gate/.scratch/gate.log
 mkdir -p "$gate/.scratch"
-stamp() { (cd "$gate" && cat dk64*.yaml symbol_addrs*.txt undefined_syms*.txt data_inc.us.txt | shasum | cut -c1-40); }
+# SHA-1 for the stamps: shasum, else coreutils sha1sum (Git for Windows ships no shasum)
+SHA1=$(command -v shasum || command -v sha1sum) || { echo "GATE_FAIL: neither shasum nor sha1sum found"; exit 1; }
+stamp() { (cd "$gate" && cat dk64*.yaml symbol_addrs*.txt undefined_syms*.txt data_inc.us.txt | "$SHA1" | cut -c1-40); }
 split_if_needed() {
   want=$(stamp)
   if [ ! -d "$gate/asm" ] || [ "$(cat "$gate/.scratch/split.stamp" 2>/dev/null)" != "$want" ]; then
@@ -126,7 +128,7 @@ done
 split_if_needed
 # make has no header deps: rebuild every C file whenever the headers differ from the ones the
 # gate tree's objects were last compiled with (also after a failed gate with a --stage header).
-inc=$(cd "$gate" && find include -type f | LC_ALL=C sort | xargs shasum | shasum | cut -c1-40)
+inc=$(cd "$gate" && find include -type f | LC_ALL=C sort | xargs "$SHA1" | "$SHA1" | cut -c1-40)
 if [ "$(cat "$gate/.scratch/include.stamp" 2>/dev/null)" != "$inc" ]; then
   find "$gate/src" -name '*.c' -exec touch {} +
   echo "$inc" > "$gate/.scratch/include.stamp"
