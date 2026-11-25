@@ -34,6 +34,9 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from shadow import dk_argv, posix, script_argv  # noqa: E402
+
 QUALITY = ["uv", "run", "tools/quality.py"]
 DOSSIER = re.compile(r"dossier_(\w+?)_(\w+)\.md$")
 
@@ -124,7 +127,7 @@ def main(argv=None):
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("srcs", nargs="+")
     a = p.parse_args(argv)
-    copy_dir = a.copy_dir or os.path.join(".scratch", a.agent)
+    copy_dir = a.copy_dir or posix(os.path.join(".scratch", a.agent))
     segs = sorted({s.split("/")[1] for s in a.srcs if s.count("/") >= 2})
     msg = a.message or f"{'/'.join(segs)}: clean {' '.join(os.path.splitext(os.path.basename(s))[0] for s in a.srcs)} ({a.agent})"
     who = ["--unit", a.unit, "--agent", a.agent]
@@ -141,13 +144,13 @@ def main(argv=None):
             r.step("gate")
             stage = [x for s in a.stage for x in ("--stage", s)]
             lost = [x for s in a.allow_lost for x in ("--allow-lost", s)]
-            r.run(["tools/merge_gate.sh", "--commit", msg, *stage, *lost, copy_dir, a.base, *a.srcs],
+            r.run(script_argv("tools/merge_gate.sh", "--commit", msg, *stage, *lost, copy_dir, a.base, *a.srcs),
                   ok=lambda out: re.search(r"(?m)^GATE_OK$", out) and re.search(r"(?m)^COMMITTED ", out))
             merge = "<MERGE>" if a.dry_run else r.git("rev-parse", "HEAD")
             r.step("record at base")
             r.run(QUALITY + ["record", *who, "--base", a.base, "--model", a.model, "--batch", a.ledger])
             r.step("make expected")
-            r.run(["tools/dk", "make", "expected"])
+            r.run(dk_argv("make", "expected"))
             r.step("sweep")
             r.run(QUALITY + ["sweep", *a.srcs, "-j", "4", "--record", "--unit", a.unit])
             r.step("re-record at merge")

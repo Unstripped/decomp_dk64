@@ -71,3 +71,26 @@ def test_nested_include_reaches_the_private_header(root):
     assert "int x = ACTOR_PRIVATE;" in run([])  # without the shadow race.h reaches include/actor.h
     assert "int x = 1;" in run(flags)
     assert os.path.exists(root / "build/sh/race.h")
+
+
+def test_posix_joins_with_slashes():
+    assert shadow.posix(os.path.join("src", "global", "x.c")) == "src/global/x.c"
+
+
+def test_dk_argv_runs_the_dkd_client_under_this_python():
+    argv = shadow.dk_argv("make", "expected")
+    assert argv[0] == sys.executable and argv[2:] == ["make", "expected"]
+    assert os.path.samefile(argv[1], REPO_ROOT / "tools" / "dkd" / "client.py")
+    assert "/dkd/client.py" in (REPO_ROOT / "tools" / "dk").read_text()  # what tools/dk execs
+
+
+@pytest.mark.parametrize("line,prog", [("#!/bin/sh\n", "sh"), ("#!/usr/bin/env bash\n", "bash"), ("MZ\n", None)])
+def test_interpreter_is_the_shebang_program_found_on_path(root, line, prog):
+    (root / "s.sh").write_text(line + "exit 0\n")
+    assert shadow.interpreter("s.sh") == ([shutil.which(prog) or prog] if prog else [])
+
+
+def test_script_argv_spawns_through_the_interpreter_only_on_windows(root):
+    (root / "s.sh").write_text("#!/bin/sh\nexit 0\n")
+    want = [*shadow.interpreter("s.sh"), "s.sh", "a"] if os.name == "nt" else ["s.sh", "a"]
+    assert shadow.script_argv("s.sh", "a") == want

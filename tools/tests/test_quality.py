@@ -1461,10 +1461,12 @@ def test_carry_file_renames(tmp_path, monkeypatch, capsys):
     _git(repo, "config", "user.email", "t@example.com")
     _git(repo, "config", "user.name", "t")
     src = repo / "src" / "global"
-    (repo / "include/proto/global/A1.h").write_text(PROTO_H % ("A1", "PROTO_GLOBAL_A1_H", "PROTO_GLOBAL_A1_H"))
-    (repo / "include/types.h").write_text("typedef int s32;\n")
+    # LF as in the repo: carry --file-renames compares REV's raw text with the working tree's
+    (repo / "include/proto/global/A1.h").write_text(PROTO_H % ("A1", "PROTO_GLOBAL_A1_H", "PROTO_GLOBAL_A1_H"),
+                                                    newline="\n")
+    (repo / "include/types.h").write_text("typedef int s32;\n", newline="\n")
     for stem, body in RENAME_FNS.items():
-        (src / f"{stem}.c").write_text('#include "types.h"\n#include "proto/global/A1.h"\n' + body)
+        (src / f"{stem}.c").write_text('#include "types.h"\n#include "proto/global/A1.h"\n' + body, newline="\n")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "a")
     rev_a = _git(repo, "rev-parse", "HEAD")
@@ -1478,10 +1480,10 @@ def test_carry_file_renames(tmp_path, monkeypatch, capsys):
     _git(repo, "mv", "src/global/A1.c", "src/global/A1_alpha.c")
     _git(repo, "mv", "include/proto/global/A1.h", "include/proto/global/A1_alpha.h")
     (repo / "include/proto/global/A1_alpha.h").write_text(
-        PROTO_H % ("A1_alpha", "PROTO_GLOBAL_A1_ALPHA_H", "PROTO_GLOBAL_A1_ALPHA_H"))
+        PROTO_H % ("A1_alpha", "PROTO_GLOBAL_A1_ALPHA_H", "PROTO_GLOBAL_A1_ALPHA_H"), newline="\n")
     for stem in ("A1_alpha", "B2"):
         p = src / f"{stem}.c"
-        p.write_text(p.read_text().replace('"proto/global/A1.h"', '"proto/global/A1_alpha.h"'))
+        p.write_text(p.read_text().replace('"proto/global/A1.h"', '"proto/global/A1_alpha.h"'), newline="\n")
     _git(repo, "commit", "-qam", "b")
     monkeypatch.setattr(q, "_htext", {})
     new = {stem: q.analyze(f"src/global/{stem}.c", "global")["functions"][0] for stem in ("A1_alpha", "B2")}
@@ -1506,7 +1508,7 @@ def test_carry_file_renames(tmp_path, monkeypatch, capsys):
         state = q.function_state(fn, by_site, by_func)
         assert state["review"] == "✓" and state["sites"][0][1]["marks"]["remove"] == "✓"
     # an uncommitted shared-header edit (not in REV..HEAD) is refused before anything is analysed
-    (repo / "include/types.h").write_text("typedef short s32;\n")
+    (repo / "include/types.h").write_text("typedef short s32;\n", newline="\n")
     before = q.load_events()
     with pytest.raises(SystemExit) as ex:
         q.main(["carry", "--rev", rev_a, "--unit", "u3", "--file-renames"])
@@ -1514,7 +1516,7 @@ def test_carry_file_renames(tmp_path, monkeypatch, capsys):
     assert q.load_events() == before and not (repo / "include/proto/global/A1.h").exists()
     _git(repo, "checkout", "--", "include/types.h")
     # a body change on top of the renames: refused, nothing written
-    (src / "A1_alpha.c").write_text((src / "A1_alpha.c").read_text().replace("i + 1", "i + 2"))
+    (src / "A1_alpha.c").write_text((src / "A1_alpha.c").read_text().replace("i + 1", "i + 2"), newline="\n")
     _git(repo, "commit", "-qam", "c")
     before = q.load_events()
     with pytest.raises(SystemExit) as ex:
@@ -1771,7 +1773,7 @@ def test_analyze_warning_site_from_subdirectory_cwd(tmp_path, monkeypatch):
         for p, _, _ in items])
     monkeypatch.chdir(os.path.join(q.ROOT, "tools", "tests"))
     assert q.rel(path) == path and q.cwarn.rel(path) == path
-    assert q.cli_path("test_quality.py") == os.path.join("tools", "tests", "test_quality.py")
+    assert q.cli_path("test_quality.py") == "tools/tests/test_quality.py"
     an = q.analyze(path, "global")
     fn, = an["functions"]
     s, = fn["sites"]

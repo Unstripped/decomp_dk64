@@ -56,13 +56,15 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
+from shadow import dk_argv  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Container re-exec when running on host without /opt/decomp-permuter
 # (tools/dk honours DK64_IMAGE)
 # ---------------------------------------------------------------------------
 if __name__ == "__main__" and not os.path.exists("/opt/decomp-permuter") and sys.argv[1:2] != ["batch"]:
-    sys.exit(subprocess.call([str(ROOT / "tools" / "dk"), "python3", "tools/permute.py"] + sys.argv[1:]))
+    sys.exit(subprocess.call(dk_argv("python3", "tools/permute.py", *sys.argv[1:])))
 
 
 # ---------------------------------------------------------------------------
@@ -748,7 +750,7 @@ _RECORDED_FILES = ("base.c", "target.o", "compile.sh")
 
 def _rel_to_root(path: Path) -> str:
     path = path.resolve()
-    return str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
+    return path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path)
 
 
 def _file_digests(out_dir: Path) -> dict:
@@ -1203,16 +1205,16 @@ def batch_row(row: List[str], list_dir: Path, args: argparse.Namespace, lock: th
     d, seg, func, copy, src, key, _base = row
     d = Path(d) if Path(d).is_absolute() else ROOT / d
     perm = d / "perm"
-    dk = str(ROOT / "tools" / "dk")
-    r = subprocess.run([dk, "python3", "tools/permute.py", "setup", seg, func, "--from", copy, "--src", src,
-                        "--headers", _rel_to_root(list_dir / "headers"), "--out", _rel_to_root(perm), "--force"],
+    r = subprocess.run(dk_argv("python3", "tools/permute.py", "setup", seg, func, "--from", copy, "--src", src,
+                               "--headers", _rel_to_root(list_dir / "headers"), "--out", _rel_to_root(perm),
+                               "--force"),
                        cwd=ROOT, capture_output=True, text=True)
     if r.returncode:
         return _batch_fail(d, key, "setup", _last_line(r.stderr or r.stdout or "", f"exit {r.returncode}"), lock)
     t0 = time.monotonic()
     with open(d / "run.log", "w") as log:
-        r = subprocess.run([dk, "python3", "tools/permute.py", "run", _rel_to_root(perm), "-j", str(args.j),
-                            "--seconds", str(args.seconds)], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+        r = subprocess.run(dk_argv("python3", "tools/permute.py", "run", _rel_to_root(perm), "-j", str(args.j),
+                                   "--seconds", str(args.seconds)), cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
     seconds = int(time.monotonic() - t0)
     if r.returncode:
         tail = _last_line((d / "run.log").read_text(errors="replace")[-4000:], "no output")

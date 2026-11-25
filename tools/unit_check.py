@@ -46,6 +46,9 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from shadow import posix  # noqa: E402
+
 INSN = re.compile(r"^\s*/\* [0-9A-F]+ [0-9A-F]{8} [0-9A-F]{8} \*/\s+(\S+)(.*)$")
 PRAGMA = re.compile(r'#pragma GLOBAL_ASM\("asm/(?:(\w+)/)?nonmatchings/[^"]*/(\w+)\.s"\)')
 HANDASM = re.compile(r"\s(dmult|dmultu|ddiv|ddivu|ld|sd|daddu?|dsubu?|dsll|dsra|dsrl)\s|\$k[01]")
@@ -218,11 +221,11 @@ def cmd_drafts(a):
     tracked = set(subprocess.run(["git", "ls-files", "drafts"], cwd=ROOT, capture_output=True, text=True).stdout.split())
     paths = set()
     for src in a.srcs:
-        rel = os.path.relpath(os.path.abspath(src), ROOT)
+        rel = posix(os.path.relpath(os.path.abspath(src), ROOT))
         old = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=ROOT, capture_output=True, text=True).stdout
         now = {(s or "boot", f) for s, f in PRAGMA.findall(open(src).read())}
         for seg, func in now | {(s or "boot", f) for s, f in PRAGMA.findall(old)}:
-            path = os.path.join("drafts", seg, func + ".c")
+            path = f"drafts/{seg}/{func}.c"
             if a.prune and (seg, func) not in now and os.path.exists(os.path.join(ROOT, path)):
                 os.remove(os.path.join(ROOT, path))
                 print(f"pruned {path}", file=sys.stderr)
@@ -298,22 +301,23 @@ def proto_defs():
     for path in glob.glob(os.path.join(ROOT, "src", "**", "*.c"), recursive=True):
         for line, kind, ret, name, args, knr in proto_lines(open(path).read()):
             if kind == "def":
-                defs.setdefault(name, []).append((os.path.relpath(path, ROOT), line, tclass(ret), proto_params(args), knr))
+                rel = posix(os.path.relpath(path, ROOT))
+                defs.setdefault(name, []).append((rel, line, tclass(ret), proto_params(args), knr))
     return defs
 
 
 def cmd_protos(a):
     defs, bad = proto_defs(), False
     for src in a.srcs:
-        m = re.search(r"(?:^|/)src/(\w+)/", os.path.abspath(src))
+        m = re.search(r"(?:^|/)src/(\w+)/", posix(os.path.abspath(src)))
         seg = a.seg or (m.group(1) if m else "global")
         text = open(src).read()
         for line, kind, ret, name, args, _ in proto_lines(text):
             if kind != "decl":
                 continue
             cands = defs.get(name, [])
-            same = [d for d in cands if d[0].split(os.sep)[1] == seg]
-            shared = [d for d in cands if d[0].split(os.sep)[1] in ("global", "boot")]
+            same = [d for d in cands if d[0].split("/")[1] == seg]
+            shared = [d for d in cands if d[0].split("/")[1] in ("global", "boot")]
             pick = same or shared
             if len(pick) != 1:
                 continue

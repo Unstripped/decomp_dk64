@@ -33,6 +33,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clint  # noqa: E402
 from clang.cindex import CursorKind, TypeKind  # noqa: E402
+from shadow import posix, script_argv  # noqa: E402
 
 ROOT = clint.ROOT
 INCLUDE = os.path.join(ROOT, "include")
@@ -49,12 +50,12 @@ class Skip(Exception):
 
 
 def rel(path):
-    return os.path.relpath(os.path.realpath(os.path.join(ROOT, path)), ROOT)
+    return posix(os.path.relpath(os.path.realpath(os.path.join(ROOT, path)), ROOT))
 
 
 def seg_stem(path):
     """('global', '7130') for src/global/7130.c, ('boot', 'main') for src/boot/main.c."""
-    parts = rel(path).split(os.sep)
+    parts = rel(path).split("/")
     return parts[1], os.path.splitext(parts[-1])[0]
 
 
@@ -104,10 +105,10 @@ def named(t, ctx, under_ptr):
     path = os.path.realpath(os.path.join(ROOT, d.location.file.name))
     if path.startswith(INCLUDE + os.sep):
         if path not in common_closure():
-            ctx.includes.add(os.path.relpath(path, INCLUDE))
+            ctx.includes.add(posix(os.path.relpath(path, INCLUDE)))
         return t.spelling
     if path != ctx.src:
-        raise Skip(f"type from {os.path.relpath(path, ROOT)}")
+        raise Skip(f"type from {posix(os.path.relpath(path, ROOT))}")
     if d.kind == CursorKind.TYPEDEF_DECL:
         u = d.underlying_typedef_type
         if quals(t) and u.kind == TypeKind.POINTER:
@@ -224,12 +225,12 @@ def cmd_gen(a):
     stale = sorted(have - set(want))
     if a.check:
         for h in changed + stale:
-            print(f"CHANGED {os.path.relpath(h, ROOT)}")
+            print(f"CHANGED {posix(os.path.relpath(h, ROOT))}")
         print(f"gen --check: {len(changed) + len(stale)} header(s) out of date")
         sys.exit(1 if changed or stale else 0)
     for h in changed:
         os.makedirs(os.path.dirname(h), exist_ok=True)
-        with open(h + ".tmp", "w") as f:  # atomic: concurrent compiles may be reading the old header
+        with open(h + ".tmp", "w", newline="\n") as f:  # atomic: concurrent compiles may be reading the old header
             f.write(want[h])
         os.replace(h + ".tmp", h)
     for h in stale:
@@ -281,7 +282,7 @@ def cmd_tag_structs(a):
     for line, col, name in sorted(edits, reverse=True):
         s = lines[line - 1]
         lines[line - 1] = s[:col - 1] + " " + name + s[col - 1:]
-    with open(path, "w") as f:
+    with open(path, "w", newline="\n") as f:
         f.write("\n".join(lines))
 
 
@@ -293,7 +294,7 @@ def load_headers():
     out = {}
     for h in sorted(glob.glob(os.path.join(PROTO, "*", "*.h"))):
         seg = os.path.basename(os.path.dirname(h))
-        out.setdefault(seg, []).append((os.path.relpath(h, INCLUDE), dict(ENTRY.findall(open(h).read()))))
+        out.setdefault(seg, []).append((posix(os.path.relpath(h, INCLUDE)), dict(ENTRY.findall(open(h).read()))))
     return out
 
 
@@ -404,9 +405,9 @@ class Work:
     def __init__(self, src, out):
         self.src = rel(src)
         seg, stem = seg_stem(src)
-        self.dir = os.path.join(out, ".work", f"{seg}_{stem}")
+        self.dir = posix(os.path.join(out, ".work", f"{seg}_{stem}"))
         os.makedirs(os.path.join(ROOT, self.dir), exist_ok=True)
-        self.try_path = os.path.join(self.dir, os.path.basename(src))
+        self.try_path = posix(os.path.join(self.dir, os.path.basename(src)))
         self.obj = os.path.join(ROOT, "build", ".scratch", self.try_path.replace("/", "_") + ".o")
         self.skips, self.includes, self.removed, self.tags = {}, set(), set(), {}
 
@@ -424,11 +425,11 @@ class Work:
 
     def run(self, text, nonmatching=False):
         """(status, message): status 'error' (no object), else the fdiff exit code."""
-        with open(os.path.join(ROOT, self.try_path), "w") as f:
+        with open(os.path.join(ROOT, self.try_path), "w", newline="\n") as f:
             f.write(text)
         if os.path.exists(self.obj):
             os.remove(self.obj)
-        cmd = ["tools/fdiff.sh", *(["--non-matching"] if nonmatching else []), self.try_path, self.src]
+        cmd = script_argv("tools/fdiff.sh", *(["--non-matching"] if nonmatching else []), self.try_path, self.src)
         r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
         out = r.stdout + r.stderr
         m = CFE_ERROR.search(out)
@@ -611,14 +612,14 @@ def summary(src, c):
 def _consolidate_one(src, out):
     log, text = consolidate(src, out)
     if text is not None:
-        with open(os.path.join(ROOT, out, os.path.basename(src)), "w") as f:
+        with open(os.path.join(ROOT, out, os.path.basename(src)), "w", newline="\n") as f:
             f.write(text)
     shutil.rmtree(os.path.join(ROOT, out, ".work", "_".join(seg_stem(src))), ignore_errors=True)
     return "\n".join(log)
 
 
 def cmd_consolidate(a):
-    out = os.path.relpath(os.path.abspath(a.out), ROOT)
+    out = posix(os.path.relpath(os.path.abspath(a.out), ROOT))
     os.makedirs(os.path.join(ROOT, out), exist_ok=True)
     srcs = [rel(s) for s in a.srcs]
     with concurrent.futures.ProcessPoolExecutor(max_workers=a.j) as ex:

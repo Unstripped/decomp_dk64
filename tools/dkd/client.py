@@ -658,6 +658,11 @@ def _hold(cmd):
                          {proto.LEASE})
     sock = job.sock
     token = frame[1]["lease"]
+    if os.name == "nt" and os.path.isfile(cmd[0]):
+        # CreateProcess runs no `#!` script (tools/merge_gate.sh holds itself): its interpreter does
+        sys.path.insert(1, os.path.join(ROOT, "tools"))
+        from shadow import interpreter
+        cmd = [*interpreter(os.path.abspath(cmd[0])), *cmd]
     try:
         child = subprocess.Popen(cmd, env=dict(os.environ, DK64_LEASE=token))
     except FileNotFoundError:

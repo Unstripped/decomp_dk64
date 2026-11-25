@@ -46,6 +46,9 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from shadow import posix  # noqa: E402
+
 DRAFTS = os.path.join(ROOT, "drafts")
 PRAGMA = re.compile(r'#pragma GLOBAL_ASM\("asm/(?:(\w+)/)?nonmatchings/[^"]*/(\w+)\.s"\)')  # boot: asm/nonmatchings
 
@@ -60,7 +63,7 @@ def unmatched() -> dict:
     """(segment, FUNC) -> src path for every GLOBAL_ASM function in src/."""
     out = {}
     for path in glob.glob(os.path.join(ROOT, "src", "**", "*.c"), recursive=True):
-        rel = os.path.relpath(path, ROOT)
+        rel = posix(os.path.relpath(path, ROOT))
         for key in pragmas(open(path).read()):
             out[key] = rel
     return out
@@ -103,9 +106,9 @@ def write(seg: str, func: str, src_file: str, note: str, todo: dict) -> str:
                  f"pass a file holding only the {func} draft and the declarations it needs")
     dest = draft_path(seg, func)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
-    with open(dest, "w") as f:
+    with open(dest, "w", newline="\n") as f:
         f.write(f"// {func} ({owner}): {note or 'no note'}\n{body.rstrip()}\n")
-    return os.path.relpath(dest, ROOT)
+    return posix(os.path.relpath(dest, ROOT))
 
 
 def scratch_segment(path: str, func: str, todo: dict):
@@ -179,7 +182,7 @@ def main() -> None:
             notes.append(old)
         if head is None:
             sys.exit(f"{os.path.relpath(path, ROOT)} has no `{prefix}...)` header")
-        with open(path, "w") as f:
+        with open(path, "w", newline="\n") as f:
             f.write(f"{head}): " + " | ".join([args.text] + notes) + "\n" + "\n".join(lines))
         print(os.path.relpath(path, ROOT))
     elif args.cmd == "list":
@@ -207,7 +210,7 @@ def main() -> None:
                 continue
             try:
                 head = open(p).readline()
-                rel = os.path.relpath(p, ROOT)
+                rel = posix(os.path.relpath(p, ROOT))
                 note = (head.split("): ", 1)[1].strip() if head.startswith(f"// {func} (") and "): " in head
                         else f"from {rel}")
                 print(write(seg, func, p, note, todo))
@@ -238,7 +241,7 @@ def main() -> None:
         park = text.rfind("#ifdef NON_MATCHING\n", 0, start)
         if park != -1 and "#endif" not in text[park:start] and text.startswith("#endif\n", end):
             start, end = park, end + len("#endif\n")
-        with open(src, "w") as f:
+        with open(src, "w", newline="\n") as f:
             f.write(text[:start] + body + text[end:])
         print(f"pasted {os.path.relpath(path, ROOT)} into {os.path.relpath(src, ROOT)}")
     elif args.cmd == "unpark":
@@ -258,9 +261,9 @@ def main() -> None:
         prev = open(old).readline().split(": ", 1)[1].strip() if old else ""
         dest = draft_path(*key)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-        with open(dest, "w") as f:
+        with open(dest, "w", newline="\n") as f:
             f.write(f"// {args.func} ({src}): {args.note}" + (f"; {prev}" if prev else "") + f"\n{body.rstrip()}\n")
-        with open(os.path.join(ROOT, src), "w") as f:
+        with open(os.path.join(ROOT, src), "w", newline="\n") as f:
             f.write(text[:park] + text[mid + len("#else\n"):end] + text[end + len("#endif\n"):])
         print(f"unparked {args.func} in {src}; draft {os.path.relpath(dest, ROOT)}")
 

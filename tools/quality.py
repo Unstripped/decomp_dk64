@@ -158,6 +158,7 @@ import clint  # noqa: E402
 import cwarn  # noqa: E402
 import ledger  # noqa: E402
 import quirks  # noqa: E402
+from shadow import dk_argv, posix, script_argv  # noqa: E402
 from clang.cindex import CursorKind, StorageClass, TokenKind, TypeKind  # noqa: E402
 
 ROOT = clint.ROOT
@@ -219,7 +220,7 @@ FLIPS = [(re.compile(r"\bif \(([^()]*?) != 0\)"), r"if (\1)"),
 def rel(p):
     """ROOT-relative form of a repo path. Relative inputs are already ROOT-relative
     (git, ledger, internal joins) and are never re-resolved against the process cwd."""
-    return os.path.relpath(os.path.join(ROOT, p), ROOT)
+    return posix(os.path.relpath(os.path.join(ROOT, p), ROOT))
 
 
 def cli_path(p):
@@ -228,7 +229,7 @@ def cli_path(p):
 
 
 def seg_of(path):
-    parts = rel(path).split(os.sep)
+    parts = rel(path).split("/")
     if len(parts) < 3 or parts[0] != "src":
         sys.exit(f"quality: {path}: not a src/<seg>/ file (sweep a copy with --copy-of <src.c>)")
     return parts[1]
@@ -236,7 +237,7 @@ def seg_of(path):
 
 def seg_files(seg):
     d = os.path.join(ROOT, "src", seg)
-    return sorted(os.path.join("src", seg, f) for f in os.listdir(d) if f.endswith(".c"))
+    return sorted(f"src/{seg}/{f}" for f in os.listdir(d) if f.endswith(".c"))
 
 
 # ---------------------------------------------------------------- function identity
@@ -451,12 +452,12 @@ def included(text, here, hdrs=None):
     def visit(text, here):
         for inc in INCLUDE.findall(text):
             for d in (here, *HDR_DIRS):
-                p = os.path.normpath(os.path.join(d, inc))
+                p = posix(os.path.normpath(os.path.join(d, inc)))
                 if hdrs[p] is not None if p in hdrs else os.path.isfile(os.path.join(ROOT, p)):
                     break
             else:
                 continue
-            if p.startswith("include" + os.sep) and p not in seen:
+            if p.startswith("include/") and p not in seen:
                 seen.add(p)
                 visit(hdrs[p] if p in hdrs else header_text(p), os.path.dirname(p))
 
@@ -654,7 +655,7 @@ def append_events(events):
         shards[_shard(e)].append(e)
     for path, es in shards.items():
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "a") as f:
+        with open(path, "a", newline="\n") as f:
             f.writelines(json.dumps(e) + "\n" for e in es)
 
 
@@ -712,7 +713,7 @@ def own_knowledge(name, unit):
     key = ("own", name, unit)
     if key not in _know:
         aliases = quirks.function_aliases(name, ledger.ROOT)
-        _know[key] = {os.path.relpath(str(e.path), ledger.ROOT) for e in _know["units"][unit]
+        _know[key] = {posix(os.path.relpath(str(e.path), ledger.ROOT)) for e in _know["units"][unit]
                       if aliases & set(e.functions)}
     return _know[key]
 
@@ -832,7 +833,8 @@ def cleanup(d, copy):
 def fdiff(copy, src):
     # --reloc-ok: a copy reaching the same addresses through other symbol names (split splat
     # labels) is a match: same instructions, same linked ROM (`RELOC-EQUIV OK`, exit 0)
-    return subprocess.run(["tools/fdiff.sh", "--reloc-ok", copy, src], cwd=ROOT, capture_output=True).returncode
+    return subprocess.run(script_argv("tools/fdiff.sh", "--reloc-ok", copy, src), cwd=ROOT,
+                          capture_output=True).returncode
 
 
 def new_uninit(copy, src):
@@ -846,7 +848,7 @@ def check(text, path, src, uninit=True):
     """Whole-object match of TEXT as a copy of PATH (fdiff exit 0) without a new uninitialised read."""
     d = job_dir()
     copy = rel(os.path.join(d, os.path.basename(path)))
-    open(os.path.join(ROOT, copy), "w").write(text)
+    open(os.path.join(ROOT, copy), "w", newline="\n").write(text)
     try:
         return fdiff(copy, src) == 0 and not (uninit and new_uninit(copy, src))
     finally:
@@ -856,9 +858,9 @@ def check(text, path, src, uninit=True):
 def cond_check(text, body, path, src, func):
     d = job_dir()
     bf = rel(os.path.join(d, "body.c"))
-    open(os.path.join(ROOT, bf), "w").write(body)
+    open(os.path.join(ROOT, bf), "w", newline="\n").write(body)
     try:
-        r = subprocess.run(["tools/dk", "python3", "tools/deadsweep.py", "score", path, src, func, "--body", bf],
+        r = subprocess.run(dk_argv("python3", "tools/deadsweep.py", "score", path, src, func, "--body", bf),
                            cwd=ROOT, capture_output=True, text=True)
     finally:
         shutil.rmtree(d, ignore_errors=True)
@@ -876,12 +878,12 @@ def recipe_check(text, path, src, func, recipes=None, max_n=120):
     failed (non-zero exit, missing or unreadable JSON), with the command's last output lines."""
     d = job_dir()
     copy = rel(os.path.join(d, os.path.basename(path)))
-    open(os.path.join(ROOT, copy), "w").write(text)
+    open(os.path.join(ROOT, copy), "w", newline="\n").write(text)
     js = os.path.join(d, "v.json")
     try:
         rs = ["--recipes", ",".join(recipes)] if recipes else []
-        r = subprocess.run(["tools/dk", "python3", "tools/variants.py", "scan", copy, src, func, *rs, "--max", str(max_n),
-                            "-j", "2", "--out", rel(os.path.join(d, "zeros")), "--json", rel(js)],
+        r = subprocess.run(dk_argv("python3", "tools/variants.py", "scan", copy, src, func, *rs, "--max", str(max_n),
+                                   "-j", "2", "--out", rel(os.path.join(d, "zeros")), "--json", rel(js)),
                            cwd=ROOT, capture_output=True, text=True)
         tail = " | ".join(((r.stdout or "") + (r.stderr or "")).strip().splitlines()[-3:])
         if r.returncode != 0:
@@ -1039,7 +1041,7 @@ def write_hit(seg, src, text):
     for n in itertools.count(1):
         p = os.path.join(d, f"{seg}_{stem}_{n}.c")
         if not os.path.exists(p):
-            open(p, "w").write(text)
+            open(p, "w", newline="\n").write(text)
             return rel(p)
 
 
@@ -1342,7 +1344,7 @@ def cmd_backfill_models(a):
             rows.append({"unit": unit, "agent": agent, "model": max(cands)[1], "src": "transcript"})
     if rows and not a.dry_run:
         os.makedirs(LEDGER, exist_ok=True)
-        with open(models_path(), "a") as f:
+        with open(models_path(), "a", newline="\n") as f:
             f.writelines(json.dumps(r, sort_keys=True) + "\n" for r in rows)
     print(f"filled {len(rows)} of {len(first)} agent units ({len(first) - len(rows)} without a transcript)"
           + (" (dry run)" if a.dry_run else ""))
@@ -1516,10 +1518,10 @@ def cmd_permute_candidates(a):
             break
         if check(text, an["path"], an["path"], uninit=False):
             continue  # already matches: a sweep matter
-        d = os.path.join(out, f"{len(rows) + 1:03d}_{an['seg']}_{fn['name']}")
+        d = posix(os.path.join(out, f"{len(rows) + 1:03d}_{an['seg']}_{fn['name']}"))
         os.makedirs(os.path.join(ROOT, d))
-        copy = os.path.join(d, os.path.basename(an["path"]))
-        open(os.path.join(ROOT, copy), "w").write(text)
+        copy = posix(os.path.join(d, os.path.basename(an["path"])))
+        open(os.path.join(ROOT, copy), "w", newline="\n").write(text)
         rows.append("\t".join((d, an["seg"], fn["name"], copy, an["path"], s["key"], str(base))))
     os.makedirs(os.path.join(ROOT, out), exist_ok=True)
     open(os.path.join(ROOT, out, "list.tsv"), "w").write("".join(r + "\n" for r in rows))
@@ -2150,7 +2152,7 @@ class Scope:
         (a regenerated proto header or an edited struct changes it only for its users). When they
         reach a `##` macro the reached set is incomplete, so it derives from WHOLE (fp_hdr) instead.
         SKIP: names left out (declarations `scope_equivalent` found moved unchanged)."""
-        inc = "include" + os.sep
+        inc = "include/"
         h = hashlib.sha1()
         cl = self.closure(names)
         if self.pasted(cl):
@@ -2186,7 +2188,7 @@ def moved_decl(path, name, ov, nv, old_scope, new_scope):
     anonymous typedef'd record keeps its name) with the same `clint.record_layout` (size, alignment,
     field names, offsets, widths and types: `clint.layout_diff` with types, plus renames), anything
     else (enum, typedef of a scalar, macro, prototype) with the same token text; else (None, why)."""
-    inc = "include" + os.sep
+    inc = "include/"
     oe, ne = [v for v in ov if v not in nv], [v for v in nv if v not in ov]
     ofiles, nfiles = {f for f, _ in oe}, {f for f, _ in ne}
     if len(ofiles) != 1 or len(nfiles) != 1:
@@ -2245,7 +2247,7 @@ def respelled_decl(path, name, ov, nv, old_scope, new_scope, types=None):
     os_, ns = ([decl_signature(c) for c in sc.idx.get(name, [])] for sc in (old_scope, new_scope))
     if not os_ or not ns or None in os_ or None in ns or {respell(s, types) for s in os_} != set(ns):
         return None
-    inc = "include" + os.sep
+    inc = "include/"
     ofiles = {f for f, _ in ov if (f, _) not in nv}
     nfiles = {f for f, _ in nv if (f, _) not in ov}
     if ofiles == {path} and len(nfiles) == 1 and next(iter(nfiles)).startswith(inc):
@@ -2660,7 +2662,7 @@ def carry_file_renames(a, by_site, by_func):
     absent = [p for p, t in sorted(hdrs.items()) if t is not None and not os.path.exists(os.path.join(ROOT, p))]
     try:
         for p in absent:
-            with open(os.path.join(ROOT, p), "w", encoding="utf-8") as f:
+            with open(os.path.join(ROOT, p), "w", encoding="utf-8", newline="\n") as f:
                 f.write(hdrs[p])
         for path, old_path, how in sorted(jobs):
             seg = seg_of(path)

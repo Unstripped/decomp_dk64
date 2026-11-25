@@ -210,7 +210,7 @@ def test_fold_dry_run_and_mismatch_keep_everything(tmp_path, monkeypatch):
     assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y", "--dry-run") == 0
     monkeypatch.setattr(rename, "VERIFY", lambda copy, src: 1)
     assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y") == 2
-    after = {p: b for p, b in _snapshot(tmp_path).items() if ".scratch/fold" not in str(p)}
+    after = {p: b for p, b in _snapshot(tmp_path).items() if ".scratch/fold" not in p.as_posix()}
     assert after == before
 
 

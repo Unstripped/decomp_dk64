@@ -31,6 +31,9 @@ import shutil
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from shadow import dk_argv  # noqa: E402
+
 SCRATCH = ".scratch"
 DECL_EXTERN = re.compile(r"^extern\b[^{}()]*?\b(\w+)\s*(\[[^\]]*\]\s*)*;\s*$")
 DECL_PROTO = re.compile(r"^(?!typedef\b|return\b|extern\b)[A-Za-z_][\w\s\*]*?\b(\w+)\s*\([^;{}]*\)\s*;\s*$")
@@ -248,7 +251,7 @@ def merge(src, drafts, rev=None, allow_lost=frozenset()):
     if rev:
         os.makedirs(os.path.join(SCRATCH, "bases"), exist_ok=True)
         base = os.path.join(SCRATCH, "bases", f"{rev}_" + src.replace("/", "_"))
-        with open(base, "w") as f:
+        with open(base, "w", newline="\n") as f:
             f.write(subprocess.run(["git", "show", f"{rev}:{src}"], check=True,
                                    capture_output=True, text=True).stdout)
     elif not os.path.exists(base):
@@ -285,11 +288,11 @@ def merge(src, drafts, rev=None, allow_lost=frozenset()):
     with open(base) as f:
         base_lines = f.readlines()
     lines = restore_locals(prune(lines, base_lines), base_lines)
-    with open(src, "w") as f:
+    with open(src, "w", newline="\n") as f:
         f.writelines(lines)
     print(f"merged {len(drafts)} draft(s) into {src}")
 
-    r = subprocess.run(["tools/dk", "tools/objdiff.sh", src], capture_output=True, text=True)
+    r = subprocess.run(dk_argv("tools/objdiff.sh", src), capture_output=True, text=True)
     output = r.stdout + r.stderr
     errors = [l for l in output.splitlines() if "cfe: Error" in l]
     if errors:

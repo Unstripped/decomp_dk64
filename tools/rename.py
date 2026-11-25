@@ -73,6 +73,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clint  # noqa: E402
 import ledger  # noqa: E402
 from clint import CursorKind  # noqa: E402
+from shadow import posix, script_argv  # noqa: E402
 
 ROOT = clint.ROOT
 IDENT = re.compile(r"[A-Za-z_]\w*")
@@ -96,7 +97,12 @@ def set_root(root):
 
 
 def rel(p):
-    return os.path.relpath(os.path.join(ROOT, p), ROOT)
+    return posix(os.path.relpath(os.path.join(ROOT, p), ROOT))
+
+
+def repo_glob(pattern):
+    """Sorted ROOT-relative paths matching PATTERN (`**` recursive)."""
+    return sorted(posix(p) for p in glob.glob(pattern, root_dir=ROOT, recursive=True))
 
 
 def read(p):
@@ -158,11 +164,11 @@ def apply(edits, dry):
 
 def scope_files(seg):
     if seg in ("boot", "global"):
-        heads = sorted(p for p in glob.glob("include/*.h", root_dir=ROOT))
+        heads = repo_glob("include/*.h")
         return clint.src_files() + heads
     if not os.path.isdir(os.path.join(ROOT, "src", seg)):
         raise Refuse(f"unknown segment: {seg}")
-    return sorted(glob.glob(f"src/{seg}/**/*.c", root_dir=ROOT, recursive=True))
+    return repo_glob(f"src/{seg}/**/*.c")
 
 
 def define_lines(text):
@@ -224,15 +230,15 @@ def cmd_symbol(a, func):
     check_name(new)
     files = scope_files(seg)
     rx = word(old)
-    heads = [p for d in LIBULTRA_HEADERS for p in sorted(glob.glob(f"{d}/**/*.h", root_dir=ROOT, recursive=True))]
+    heads = [p for d in LIBULTRA_HEADERS for p in repo_glob(f"{d}/**/*.h")]
     if func and (hit := first_hit(rx, heads)):
         raise Refuse(f"header-prototyped: {hit.split(':')[0]}")
     if seg in ("boot", "global"):
-        ultra = sorted(glob.glob("src/**/libultra/**/*.c", root_dir=ROOT, recursive=True))
+        ultra = repo_glob("src/**/libultra/**/*.c")
         if hit := first_hit(rx, ultra):
             raise Refuse(f"referenced in libultra: {hit}")
-    syms = sorted(glob.glob("symbol_addrs*.txt", root_dir=ROOT))
-    if hit := first_hit(word(new), files + syms + sorted(glob.glob("include/**/*.h", root_dir=ROOT, recursive=True))):
+    syms = repo_glob("symbol_addrs*.txt")
+    if hit := first_hit(word(new), files + syms + repo_glob("include/**/*.h")):
         raise Refuse(f"in use: {new} at {hit}")
     m = re.fullmatch(r"D_([0-9A-F]{8})", old)
     vram = int(m.group(1), 16) if m else ledger.vram_of(seg, old)
@@ -358,10 +364,10 @@ def find_record(tu, path, name):
 def cmd_field(a):
     path, old, new = rel(a.path), a.field, a.new
     check_name(new)
-    header = path.startswith("include" + os.sep)
+    header = path.startswith("include/")
     if header:
         virt = "/rename-virtual/field.c"
-        inc = os.path.relpath(path, "include")
+        inc = posix(os.path.relpath(path, "include"))
         tu = clint.parse(virt, unsaved=[(virt, f'#include "common.h"\n#include "{inc}"\n')])
     else:
         tu = clint.parse(path)
@@ -443,9 +449,9 @@ def cmd_fields(a):
             if news[row[0], struct, new] > 1:
                 raise Refuse(f"{new} given twice for {struct}")
             if path not in tus:
-                if path.startswith("include" + os.sep):
+                if path.startswith("include/"):
                     virt = "/rename-virtual/field.c"
-                    tus[path] = clint.parse(virt, unsaved=[(virt, f'#include "common.h"\n#include "{os.path.relpath(path, "include")}"\n')])
+                    tus[path] = clint.parse(virt, unsaved=[(virt, f'#include "common.h"\n#include "{posix(os.path.relpath(path, "include"))}"\n')])
                 else:
                     tus[path] = clint.parse(path)
             rec = find_record(tus[path], path, struct)
@@ -465,7 +471,7 @@ def cmd_fields(a):
             targets[key(target)] = (row, path, old, new, s)
         except Refuse as e:
             refused.append((row, str(e)))
-    header = any(p.startswith("include" + os.sep) for _, p, *_ in targets.values())
+    header = any(p.startswith("include/") for _, p, *_ in targets.values())
     files = clint.src_files() if header else sorted({p for _, p, *_ in targets.values()})
     olds = {k: v[2] for k, v in targets.items()}
     jobs = [(ROOT, f, olds) for f in files]
@@ -562,7 +568,8 @@ def held_files():
 
 def fdiff_reloc_ok(copy, src):
     """Exit status of tools/fdiff.sh --reloc-ok COPY SRC (0: OK or RELOC-EQUIV OK)."""
-    return subprocess.run(["tools/fdiff.sh", "--reloc-ok", copy, src], cwd=ROOT, capture_output=True).returncode
+    return subprocess.run(script_argv("tools/fdiff.sh", "--reloc-ok", copy, src), cwd=ROOT,
+                          capture_output=True).returncode
 
 
 VERIFY = fdiff_reloc_ok
@@ -649,10 +656,10 @@ def cmd_fold(a):
         for f, t in folded.items():
             write(f, t)
     left = [f for f in scope_files(seg) if word(label).search(folded.get(f) or read(f))]
-    left += [p for p in sorted(glob.glob("asm/**/*.s", root_dir=ROOT, recursive=True))
+    left += [p for p in repo_glob("asm/**/*.s")
              if "nonmatchings" in p and word(label).search(read(p))][:1]
     if not left:
-        for sf in sorted(glob.glob("symbol_addrs*.txt", root_dir=ROOT)) + sorted(glob.glob("undefined_syms*.txt", root_dir=ROOT)):
+        for sf in repo_glob("symbol_addrs*.txt") + repo_glob("undefined_syms*.txt"):
             lines = read(sf).split("\n")
             keep = [x for x in lines if not re.match(rf"\s*{re.escape(label)}\s*=", x)]
             if len(keep) != len(lines):
@@ -677,14 +684,13 @@ def yamlfile(seg):
 
 
 def doc_files():
-    return sorted({p for g in DOC_GLOBS for p in glob.glob(g, root_dir=ROOT, recursive=True)})
+    return sorted({p for g in DOC_GLOBS for p in repo_glob(g)})
 
 
 def include_files():
     """Files that may quote-include a proto header: non-libultra src .c/.h, include/ outside proto/."""
-    src = [p for p in glob.glob("src/**/*.[ch]", root_dir=ROOT, recursive=True) if "/libultra/" not in p]
-    inc = [p for p in glob.glob("include/**/*.h", root_dir=ROOT, recursive=True)
-           if not p.startswith("include/proto/")]
+    src = [p for p in repo_glob("src/**/*.[ch]") if "/libultra/" not in p]
+    inc = [p for p in repo_glob("include/**/*.h") if not p.startswith("include/proto/")]
     return sorted(src + inc)
 
 

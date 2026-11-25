@@ -58,9 +58,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):
-    sys.exit(subprocess.call([str(ROOT / "tools" / "dk"), "python3", "tools/variants.py"] + sys.argv[1:]))
 sys.path.insert(0, str(ROOT / "tools"))
+from shadow import dk_argv  # noqa: E402
+
+if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):
+    sys.exit(subprocess.call(dk_argv("python3", "tools/variants.py", *sys.argv[1:])))
 import deadsweep  # noqa: E402
 
 RECIPES = ("truth", "switch", "branch", "swap", "arith", "elem", "float", "width", "declswap", "splitlocal", "unalias")

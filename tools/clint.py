@@ -38,6 +38,7 @@ import tempfile
 
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
+from shadow import posix  # stdlib-only sibling
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLANG_ARGS = ["-std=gnu89", "-target", "mips-linux-gnu", "-fsigned-char", "-nostdinc", "-Iinclude", "-Iassets/inc",
@@ -94,6 +95,8 @@ def parse(path, extra=(), args=None, unsaved=None):
     """TranslationUnit for PATH parsed with CLANG_ARGS from the repo root; `tu.diagnostics_errors`
     counts error/fatal diagnostics (the TU is returned anyway)."""
     path = os.path.abspath(os.path.join(ROOT, path))
+    # unsaved names in PATH's form: a virtual file (none on disk) must match it exactly
+    unsaved = [(os.path.abspath(os.path.join(ROOT, n)), t) for n, t in unsaved or ()]
     a = [f"-working-directory={ROOT}", *(args if args is not None else CLANG_ARGS), *extra]
     tu = index().parse(path, args=a, unsaved_files=unsaved,
                        options=ci.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
@@ -270,7 +273,8 @@ def metrics(path):
 
 
 def src_files():
-    return sorted(p for p in glob.glob("src/**/*.c", root_dir=ROOT, recursive=True) if "/libultra/" not in p)
+    paths = (posix(p) for p in glob.glob("src/**/*.c", root_dir=ROOT, recursive=True))
+    return sorted(p for p in paths if "/libultra/" not in p)
 
 
 def first_error(tu):
@@ -508,7 +512,7 @@ def cmd_layout(a):
             if not os.path.exists(old_path):
                 print(f"LAYOUT NEW {h} (not in {a.base})")
                 continue
-            rel = os.path.relpath(h, "include")
+            rel = posix(os.path.relpath(h, "include"))
             old = records(clang_args(os.path.join(tmp, "include")), rel)
             new = records([*(shadow_flags(os.path.join(a.shadow[0], "_.c"), a.shadow[1:]) if a.shadow else []),
                            *clang_args()], rel)

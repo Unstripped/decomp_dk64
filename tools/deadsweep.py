@@ -38,8 +38,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
+from shadow import dk_argv  # noqa: E402
+
 if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):  # importable on the host (tools/variants.py)
-    sys.exit(subprocess.call([str(ROOT / "tools" / "dk"), "python3", "tools/deadsweep.py"] + sys.argv[1:]))
+    sys.exit(subprocess.call(dk_argv("python3", "tools/deadsweep.py", *sys.argv[1:])))
 
 MARK = "/*@@DEADSWEEP_FUNC@@*/"
 SCALAR = set("s8 s16 s32 s64 u8 u16 u32 u64 f32 f64 int char short long float double unsigned signed".split())

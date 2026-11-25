@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Shadow headers for compiling a private copy against private versions of include/ headers
-(stdlib only; tools/fdiff.sh and `tools/cwarn.py list --as` use it).
+(stdlib only; tools/fdiff.sh and `tools/cwarn.py list --as` use it), and the host-portability
+helpers every host-side tool imports from here (`posix`, `dk_argv`, `script_argv`, below).
 
 A copy shadows `include/<rel>` with `<copy dir>/<rel>` (cpp searches the includer's directory
 first) or with `<DIR>/<rel>` of a shadow dir (`--shadow DIR`, ahead of `-I include`). cpp resolves
@@ -25,10 +26,54 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 QUOTE_INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*"([^"]+)"', re.M)
 
 
+# ---------------------------------------------------------------- host portability
+# A no-op on macOS/Linux; on a Windows host, repo-relative strings keep `/` and the repo's
+# `#!` scripts get spawned through an interpreter, since CreateProcess runs neither.
+
+def posix(path):
+    """PATH with `/` separators: the form of a repo-relative path that becomes a ledger key, a
+    container argument, generated text or a `"/..."` substring filter."""
+    return str(path).replace(os.sep, "/")
+
+
+def dk_argv(*args):
+    """argv of `tools/dk ARGS...` for this checkout: what tools/dk execs (its dkd client), run
+    with this Python."""
+    return [sys.executable, os.path.join(ROOT, "tools", "dkd", "client.py"), *args]
+
+
+def interpreter(script):
+    """argv prefix that runs SCRIPT (ROOT-relative or absolute) through the program its `#!` line
+    names (`env PROG`: PROG), found on PATH by name: `shutil.which` keeps PATH order, where
+    Windows' CreateProcess would search System32 (whose bash.exe is the WSL launcher) first.
+    [] when SCRIPT has no `#!` line (a binary)."""
+    with open(os.path.join(ROOT, script), "rb") as f:
+        line = f.readline().decode("utf-8", "replace")
+    words = line[2:].split() if line.startswith("#!") else []
+    if words and os.path.basename(words[0]) == "env":
+        words = words[1:]
+    if not words:
+        return []
+    prog = os.path.basename(words[0])
+    return [shutil.which(prog) or prog, *words[1:]]
+
+
+def script_argv(script, *args):
+    """argv that runs the repo shell script SCRIPT (ROOT-relative, run with cwd ROOT, or absolute)
+    with ARGS: the script itself where the OS honours its `#!` line, else (Windows) through
+    `interpreter`."""
+    if os.name != "nt":
+        return [script, *args]
+    return [*interpreter(script), script, *args]
+
+
+# ---------------------------------------------------------------- shadow headers
+
+
 def include_files():
     """include/-relative paths of every file under include/."""
     base = os.path.join(ROOT, "include")
-    return {os.path.relpath(os.path.join(d, f), base) for d, _, fs in os.walk(base) for f in fs}
+    return {posix(os.path.relpath(os.path.join(d, f), base)) for d, _, fs in os.walk(base) for f in fs}
 
 
 def shadowed(copy, dirs=()):
@@ -39,7 +84,7 @@ def shadowed(copy, dirs=()):
         for d in (os.path.dirname(copy), *dirs):
             p = os.path.join(d, rel)
             if os.path.isfile(os.path.join(ROOT, p)):
-                out[rel] = os.path.normpath(p)
+                out[rel] = posix(os.path.normpath(p))
                 break
     return out
 
@@ -53,7 +98,7 @@ def includers(rels):
         with open(os.path.join(ROOT, "include", h), encoding="utf-8", errors="replace") as f:
             text = f.read()
         for name in QUOTE_INCLUDE.findall(text):
-            target = os.path.normpath(os.path.join(os.path.dirname(h), name))
+            target = posix(os.path.normpath(os.path.join(os.path.dirname(h), name)))
             if target in files:
                 by_target.setdefault(target, set()).add(h)
     seen, todo = set(rels), list(rels)
@@ -73,14 +118,14 @@ def materialise(copy, dirs, out):
     flags, extra, written = [], [], {}
     if shadow:
         extra = includers(shadow)
-        for rel, src in [*shadow.items(), *((h, os.path.join("include", h)) for h in extra)]:
-            dst = os.path.normpath(os.path.join(out, rel))
+        for rel, src in [*shadow.items(), *((h, posix(os.path.join("include", h))) for h in extra)]:
+            dst = posix(os.path.normpath(os.path.join(out, rel)))
             os.makedirs(os.path.dirname(os.path.join(ROOT, dst)), exist_ok=True)
             shutil.copyfile(os.path.join(ROOT, src), os.path.join(ROOT, dst))
             written[dst] = src
-        flags = ["-I", os.path.normpath(out), "-I", os.path.dirname(copy) or "."]
+        flags = ["-I", posix(os.path.normpath(out)), "-I", posix(os.path.dirname(copy)) or "."]
     for d in dirs:
-        flags += ["-I", os.path.normpath(d)]
+        flags += ["-I", posix(os.path.normpath(d))]
     return flags, shadow, extra, written
 
 
@@ -90,7 +135,7 @@ def fingerprint(copy, dirs):
     paths = set(shadowed(copy).values())
     for d in dirs:
         for base, _, fs in os.walk(os.path.join(ROOT, d)):
-            paths.update(os.path.relpath(os.path.join(base, f), ROOT) for f in fs)
+            paths.update(posix(os.path.relpath(os.path.join(base, f), ROOT)) for f in fs)
     out = []
     for p in sorted(paths):
         with open(os.path.join(ROOT, p), "rb") as f:
@@ -104,7 +149,7 @@ def main(argv=None):
     p.add_argument("--shadow", action="append", default=[], metavar="DIR")
     p.add_argument("--out", required=True)
     a = p.parse_args(argv)
-    rel = lambda x: os.path.relpath(os.path.abspath(x), ROOT)  # noqa: E731
+    rel = lambda x: posix(os.path.relpath(os.path.abspath(x), ROOT))  # noqa: E731
     flags, shadow, extra, _ = materialise(rel(a.copy), [rel(d) for d in a.shadow], rel(a.out))
     if shadow:
         print(f"shadow: {' '.join(shadow)}" + (f" (+ unchanged includers {' '.join(extra)})" if extra else ""),

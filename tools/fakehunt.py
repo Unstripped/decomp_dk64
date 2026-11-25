@@ -66,6 +66,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import quality as q  # noqa: E402
 import variants  # noqa: E402
 import permute  # noqa: E402
+from shadow import dk_argv  # noqa: E402
 
 HUNT = os.path.join(q.ROOT, ".scratch", "fakehunt")
 STATE = os.path.join(HUNT, "state.json")
@@ -242,12 +243,12 @@ class Hunter:
         bodies = []
         for k, (_, _, cl) in enumerate(cands, 1):
             b = os.path.join(d, f"b{k}.c")
-            open(b, "w").write("\n".join(cl[s0:end + len(cl) - len(lines)]) + "\n")
+            open(b, "w", newline="\n").write("\n".join(cl[s0:end + len(cl) - len(lines)]) + "\n")
             bodies.append(q.rel(b))
         scores = {}
         if bodies:
-            r = subprocess.run(["tools/dk", "python3", "tools/variants.py", "try", path, path, name, *bodies,
-                                "-j", str(self.a.j)], cwd=q.ROOT, capture_output=True, text=True)
+            r = subprocess.run(dk_argv("python3", "tools/variants.py", "try", path, path, name, *bodies,
+                                       "-j", str(self.a.j)), cwd=q.ROOT, capture_output=True, text=True)
             if r.returncode != 0:
                 tail = ((r.stderr or "") + (r.stdout or "")).strip().splitlines()
                 print(f"SKIP {name}: {tail[-1] if tail else f'exit {r.returncode}'}", flush=True)
@@ -284,7 +285,7 @@ class Hunter:
                 r["hits"] += hits.get(s["key"], [])
                 if s["key"] in best:
                     bc = os.path.join(d, f"best_{tag(s['key'])}.c")
-                    open(bc, "w").write("\n".join(best[s["key"]][1]))
+                    open(bc, "w", newline="\n").write("\n".join(best[s["key"]][1]))
                     r.update(best=best[s["key"]][0], best_copy=q.rel(bc))
                 else:
                     r.update(best=None, best_copy=None)
@@ -307,11 +308,11 @@ class Hunter:
             return
         print(f"AS1 {key}", flush=True)
         d = q.rel(os.path.join(HUNT, "as1", f"{e['seg']}_{e['func']}_{tag(key)}"))
-        r = subprocess.run(["tools/dk", "python3", "tools/as1probe.py", "keep", bc, e["file"], e["func"], "--out", d],
+        r = subprocess.run(dk_argv("python3", "tools/as1probe.py", "keep", bc, e["file"], e["func"], "--out", d),
                            cwd=q.ROOT, capture_output=True, text=True)
         if r.returncode == 0:
-            r = subprocess.run(["tools/dk", "python3", "tools/as1probe.py", "scan", d, "--rounds", "3",
-                                "-j", str(self.a.j)], cwd=q.ROOT, capture_output=True, text=True)
+            r = subprocess.run(dk_argv("python3", "tools/as1probe.py", "scan", d, "--rounds", "3",
+                                       "-j", str(self.a.j)), cwd=q.ROOT, capture_output=True, text=True)
         os.makedirs(os.path.join(q.ROOT, d), exist_ok=True)
         out = os.path.join(d, "scan.txt")
         open(os.path.join(q.ROOT, out), "w").write((r.stdout or "") + (r.stderr or ""))

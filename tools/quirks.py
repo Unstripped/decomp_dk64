@@ -343,7 +343,7 @@ def add_entry(
     while True:
         eid = f"Q{n:04d}"
         try:
-            with open(edir / f"{eid}.md", "x", encoding="utf-8") as f:
+            with open(edir / f"{eid}.md", "x", encoding="utf-8", newline="\n") as f:
                 f.write(text)
             return eid
         except FileExistsError:

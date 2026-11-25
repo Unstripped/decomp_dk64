@@ -90,6 +90,7 @@ from pathlib import Path
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import quirks  # noqa: E402
+from shadow import posix  # noqa: E402
 
 LEDGER = os.path.join(ROOT, "drafts", "attempts.jsonl")
 SPAWNS = os.path.join(ROOT, "drafts", "spawns.jsonl")
@@ -223,7 +224,7 @@ def unmatched():
                 note = open(d).readline().strip()
                 sm = STAGE.search(note)
                 stage = sm.group(1).replace(" ", "") if sm else None
-            out[(seg, v)] = dict(name=func, src=os.path.relpath(src, ROOT), parked=func in parked,
+            out[(seg, v)] = dict(name=func, src=posix(os.path.relpath(src, ROOT)), parked=func in parked,
                                  stage=stage, insns=n, note=note)
     return out
 
@@ -270,7 +271,7 @@ def load():
 
 
 def append(events):
-    with open(LEDGER, "a") as f:
+    with open(LEDGER, "a", newline="\n") as f:
         for e in events:
             f.write(json.dumps(e, sort_keys=True) + "\n")
 
@@ -616,7 +617,7 @@ def related_knowledge(corpus, name, note, k=8):
         obj = h.entry if h.kind == "entry" else h.guide
         p = getattr(obj, "path", None)
         if p:
-            paths.add(os.path.relpath(str(p), ROOT))
+            paths.add(posix(os.path.relpath(str(p), ROOT)))
     return paths
 
 
@@ -964,7 +965,7 @@ def cmd_backfill_models(a):
             e["model"], e["model_src"] = max(cands)[1], "transcript"
             lines[i] = json.dumps(e, sort_keys=True)  # untouched lines keep their exact text
             filled += 1
-    with open(LEDGER + ".tmp", "w") as f:
+    with open(LEDGER + ".tmp", "w", newline="\n") as f:
         f.write("".join(line + "\n" for line in lines))
     os.replace(LEDGER + ".tmp", LEDGER)
     print(f"filled {filled} of {total} attempt events ({total - filled} without a transcript)")

@@ -36,6 +36,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
+from shadow import posix  # noqa: E402
 
 # quality.py report row -> (metric key, weight, stream)
 ROWS = {
@@ -131,7 +132,7 @@ def names_scan(path):
             if c.kind == CursorKind.MEMBER_REF_EXPR and clint.UNK_FIELD.match(c.spelling):
                 rec = c.referenced.semantic_parent if c.referenced else None
                 name = (rec.type.spelling or rec.spelling) if rec else "?"
-                decl = os.path.relpath(rec.location.file.name, ROOT) if rec and rec.location.file else "?"
+                decl = posix(os.path.relpath(rec.location.file.name, ROOT)) if rec and rec.location.file else "?"
                 fields[(name, c.spelling, decl)] += 1
             elif c.kind == CursorKind.DECL_REF_EXPR and clint.D_REF.match(c.spelling):
                 drefs[c.spelling] += 1

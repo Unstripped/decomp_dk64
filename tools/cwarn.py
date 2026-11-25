@@ -48,6 +48,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import shadow as shadow_headers  # noqa: E402
+from shadow import dk_argv, posix  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRATCH = os.path.join(ROOT, ".scratch", "cwarn")
@@ -63,7 +64,7 @@ def in_container():
 def rel(p):
     """ROOT-relative form of a repo path. Relative inputs are already ROOT-relative
     (git, ledger, internal joins) and are never re-resolved against the process cwd."""
-    return os.path.relpath(os.path.join(ROOT, p), ROOT)
+    return posix(os.path.relpath(os.path.join(ROOT, p), ROOT))
 
 
 def cli_path(p):
@@ -146,7 +147,7 @@ def static_key():
         for d, _, files in os.walk(os.path.join(ROOT, "include")):
             for f in files:
                 p = os.path.join(d, f)
-                pairs.append((os.path.relpath(p, ROOT), sha1(open(p, "rb").read())))
+                pairs.append((posix(os.path.relpath(p, ROOT)), sha1(open(p, "rb").read())))
         inc = sha1("".join(f"{p}\0{s}\n" for p, s in sorted(pairs)))
         mk = sha1(open(os.path.join(ROOT, "Makefile"), "rb").read())
         _static["key"] = (mk, inc)
@@ -198,7 +199,7 @@ def export_tree(rev, tree):
 def write_atomic(path, text):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), suffix=".tmp")
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", newline="\n") as f:
         f.write(text)
     os.replace(tmp, path)
 
@@ -209,7 +210,7 @@ def run_jobs(jobs):
     jf = os.path.join(SCRATCH, "jobs", f"{uuid.uuid4()}.json")
     write_atomic(jf, json.dumps(jobs))
     try:
-        r = subprocess.run([os.path.join(ROOT, "tools", "dk"), "python3", "tools/cwarn.py", "compile-json", rel(jf)],
+        r = subprocess.run(dk_argv("python3", "tools/cwarn.py", "compile-json", rel(jf)),
                            cwd=ROOT, capture_output=True, text=True, errors="replace")
     finally:
         os.remove(jf)
@@ -262,7 +263,7 @@ def collect(items, rev=None, shadow=()):
             for name, blob in side.items():
                 open(os.path.join(d, name), "wb").write(git("cat-file", "blob", blob))
             if rev:
-                job.update(input=os.path.join(key, os.path.basename(p)), cwd=rel(tree))
+                job.update(input=posix(os.path.join(key, os.path.basename(p))), cwd=rel(tree))
             else:
                 job["input"] = rel(os.path.join(d, os.path.basename(p)))
         todo[key] = (p, job)
@@ -294,7 +295,8 @@ def collect(items, rev=None, shadow=()):
 
 
 def src_files():
-    return sorted(p for p in glob.glob("src/**/*.c", root_dir=ROOT, recursive=True) if "/libultra/" not in p)
+    paths = (posix(p) for p in glob.glob("src/**/*.c", root_dir=ROOT, recursive=True))
+    return sorted(p for p in paths if "/libultra/" not in p)
 
 
 def cmd_list(a):

@@ -18,6 +18,9 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from shadow import dk_argv, script_argv  # noqa: E402
+
 LOC = re.compile(r"^((?:src|include)/[^:\s]+|symbol_addrs[^:\s]*|data_inc\.us\.txt):\d+:\d+ ")
 
 
@@ -63,7 +66,7 @@ def main(argv=None):
     batch = os.path.join(ROOT, ".scratch", "names_window_fields.txt")
     rows = [l for f in a.fields for l in open(os.path.join(ROOT, f)) if l.strip() and not l.lstrip().startswith("#")]
     os.makedirs(os.path.dirname(batch), exist_ok=True)
-    open(batch, "w").write("".join(rows))
+    open(batch, "w", newline="\n").write("".join(rows))
     syms = [("global", *x) for s in a.globals for x in pairs(s)] + [("func", *x) for s in a.funcs for x in pairs(s)]
 
     touched, refused, ok_syms = set(), [], []
@@ -111,7 +114,7 @@ def main(argv=None):
         r = run(["uv", "run", "tools/protos.py", "gen"])
         if r.returncode:
             fail("protos.py gen", r.stdout + r.stderr)
-    for step, cmd in (("make split", ["tools/dk", "make", "split"]),):
+    for step, cmd in (("make split", dk_argv("make", "split")),):
         r = run(cmd)
         if r.returncode:
             fail(step, r.stdout + r.stderr)
@@ -119,10 +122,10 @@ def main(argv=None):
         for f in fs:
             if f.endswith(".c"):
                 os.utime(os.path.join(dp, f))
-    r = run(["tools/dk", "make"])
+    r = run(dk_argv("make"))
     if r.returncode or not r.stdout.rstrip().endswith("build/dk64.us.z64: OK"):
         fail("make (not matching)", r.stdout + r.stderr)
-    r = run(["tools/dk", "make", "expected"])
+    r = run(dk_argv("make", "expected"))
     if r.returncode:
         fail("make expected", r.stdout + r.stderr)
     r = run([sys.executable, "tools/unit_check.py", "vanished"])
@@ -133,7 +136,7 @@ def main(argv=None):
     paths = [l[3:] for l in changed]
     src = [x for x in paths if x.startswith("src/")]
     stage = [x for x in paths if x.startswith(("include/", "symbol_addrs", "data_inc.us.txt"))]
-    cmd = ["tools/merge_gate.sh", "--commit", a.message]
+    cmd = script_argv("tools/merge_gate.sh", "--commit", a.message)
     for s in stage:
         cmd += ["--stage", s]
     r = run(cmd + ["-", "-", *src])
@@ -153,7 +156,7 @@ def main(argv=None):
             src_inc = os.path.join(ROOT, "assets", "inc", n[0], f"{n[1]}.inc.c")
             dst_inc = os.path.join(ROOT, "assets", "inc", o[0], f"{o[1]}.inc.c")
             if o[2] == n[2] and os.path.exists(src_inc) and not os.path.exists(dst_inc):
-                open(dst_inc, "w").write(open(src_inc).read())
+                open(dst_inc, "w", newline="\n").write(open(src_inc).read())
                 aliases.append(dst_inc)
         try:
             r = run(["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", a.unit, *funcs])
