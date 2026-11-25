@@ -1,4 +1,4 @@
-# heapRegisterSurvivor (global, src/global/15050.c)
+# heapRegisterSurvivor (global, src/global/15050_heap.c)
 ## Sites
 - 6c7f1e other: `if (1) { ... }` around the body after `b = b - 1`.
   - It is a block split: the handle param (cand 2) spans two blocks, so its adjsave drops 2.0 -> 1.0.
@@ -45,6 +45,13 @@
   - an unreferenced label `l:`, a bare `;` or `{}` there: 6 (no block for uopt)
   - tag store as `*((u8 *)b + 0xB) = 2`: 6
   - list slot pointer local `u8 ***slot = &gHeapSurvivorList[gHeapSurvivorCount]; *slot = handle;`: 20
+- 2026-11-25 continue unit CleanloadOverlay anthropic/claude-opus-5-5 (variants.py try, full=):
+  - removal re-measured: two-line 11, one-line 6
+  - base pointer local `u8 ***list = gHeapSurvivorList;` for the list store (the heapSortSurvivors spelling), declared before or after b: 11
+  - `b--;` for `b = b - 1;`: 11
+  - two-line body with `s32 *count = &gHeapSurvivorCount;` for every count access: 11
+  - payload local `u8 *payload = *handle; b = (HeapBlock *)payload - 1;`: 8 (b folds into `sb t6,-5(v1)`, no addiu at 0x1280; handle a0, &count a1)
+  - variants.py scan (current recipe set) of the two-line and one-line removal bodies: 1 variant each (mirrored `0x20 ==` compare), 11 / 6
 ## Untried ideas
 - A natural second block between the *handle load and the tag store. Nothing in the target asm shows one (straight-line code up to the 0x20 test).
 - Raising &gHeapSurvivorCount above 2.0 needs a third real ref; every count read after the increment is forwarded from the stored value in the same block, so a third ref needs a store that may alias it between two reads (the tag store through b does, but the target reads the count once, after it).
@@ -53,7 +60,7 @@
   - `lw v1,0(a0)` and `move a1,a0` at 0x1260/0x1264
   - `lui/addiu a0,gHeapSurvivorCount` at 0x1268/0x1270
   - `sb t6,-5(v1)` at 0x1274
-  - a dead `addiu v1,v1,-16` (b) at 0x1280
+  - `addiu v1,v1,-16` (b) at 0x1280: b's second definition, materialised because b lives into the `if (1)` block; as1 schedules it below the tag store and rewrites the store offset 0xB to -5. One-line and payload-local bodies fold b into the store and emit no addiu.
 - caller 3C10.c passes one argument (`move a0,s0` in the jal delay slot at 0xc04/0xc2c)
 - traces: .scratch/HackloadOverlay2/tr5_hr_keep.txt and tr5_hr_oneline.txt; .scratch/CleanheapRegisterSurvivor/t/tr_hr_plain5.txt, tr_hr_keep5.txt, tr_hr_plain6.txt
 - 2026-11-18 traces .scratch/CleanheapReleasePoolb/hr/tr5_one.txt (one-line, no block) and tr5_keep.txt: registers 1..4 = v0 v1 a0 a1. One-line: count load {1073} 3.0 v0, b {813} 2.0 v1, handle {282} 2.0 live bb 0 only a0 (forbidden v0 v1), &count {1130} const bit 18 2.0 a1 (forbidden v0 v1 a0). Kept: handle live in bb 0 and 1, 1.0, coloured last (a1); &count 2.0 a0.
