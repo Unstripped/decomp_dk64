@@ -1,4 +1,4 @@
-# tagBarrelActorUpdate (global, src/global/80150.c)
+# tagBarrelActorUpdate (global, src/global/80150_barrels.c)
 ## Sites
 global:806809F0:other:71b822 other: `default: break;` (empty) in the trigger-queue loop's `switch (*triggerId) { case 2: sub->riseTimer = 0x8C; break; ... }`. It gives the not-2 edge its own block with its own source line, which is what lets uopt drop the loop counter (LFTR with a reloaded bound, Q0452) and what puts a `.loc` barrier between the bound recompute and the pointer increment at the 0x5928 latch. Kept (diagnose nohit): no measured natural form builds that block.
 ## Attempts
@@ -19,8 +19,13 @@ global:806809F0:other:71b822 other: `default: break;` (empty) in the trigger-que
 2026-11-24 2026-11-24b: continue ReMeasureB18H anthropic/claude-opus-5-5 (variants.py try at 127a3fd5, after the cb17735e EffectGridAsset extern retype; the loop reads no sprite):
 - re-run: no default 294, plain if 301, case-ends-in-continue 4, case 2 falling into `default: break;` 249 (unchanged)
 - Q1616/Q1620 pointer-walk loop `s16 **ids` from `volumeTriggerQueueId` to `&volumeTriggerQueueId[count]` (replacing the triggerId local): with if 289, with the one-case switch 347; the entry test becomes sltu/beqz on the pointers instead of `blez a0` (0x58d4), `li a0,140` is hoisted, and the bound is recomputed only after the case-2 store, never on the not-2 edge
+2026-11-25 continue CleantagBarrelCheckKongFlag anthropic/claude-opus-5-5 (base 594af197):
+- full-recipe variants scans (truth, switch, branch, swap, arith, elem, float, width, declswap, splitlocal, unalias; 178 variants each) of the no-default copy (baseline 294, best 294) and of the case-2-ends-in-continue copy (baseline 4, best 4): no improvement, no zero
+- as1probe keep listings base vs case-continue: identical ugen records except the line records of the not-2 target. Base: `$41: .loc 2 453` (the default `break` line) before the bound recompute `mul $13,$4,4; la $25,gActorGlobalState; addu $3,$13,$25`, then `$42: .loc 2 446` (for line) before the increment `addu $2,$2,4; bltu $2,$3,$40`. Case-continue: `$41: .loc 2 446` and no record at `$42`, so the bound recompute and the increment share one line and as1 puts `addu v1,t5,t9` before `bne t1,t7` with `addiu v0,v0,4` in the slot (target: `addiu v0,v0,4` 0x58f8 before `bne` 0x58fc, `addu v1,t5,t9` in the slot 0x5900)
+- permuter perm_ta (hack-free weights incl. 12452351, -j 2, 900 s, 4814 iterations) from the case-continue body: base 120, best 120, no improving output
+- names: `angle` -> `speedY` (s16 holding gBarrelMountLaunchSpeedY or 0xB4, passed as the `f32 speedY` parameter of actorAppendPlayerLaunch, 7CA80 definition), fdiff 0
 ## Untried ideas
-none that give the not-2 edge a block with its own line without an empty arm: the target performs no work there except the bound recompute.
+none that give the not-2 edge a block with its own line without an empty arm: the target performs no work there except the bound recompute. The needed effect is only a line record (any statement with its own line on the not-2 path ahead of the latch); every C form with such a statement and no code is itself a steer (empty default, trailing continue, empty statement).
 ## Evidence
 0x58c8-0x58e0: lbu a0,596 (count), li t0,1, blez a0,0x5934, la v0 gActorGlobalState, li t1,2.
 0x58e8-0x5900 (loop head): la t9 gActorGlobalState; lh t7,0(v1) (*triggerId); sll t5,a0,2 and addu v1,t5,t9 (default arm's bound from the old count, hoisted by as1 above and into the slot of bne t1,t7,0x5928 at 0x58fc); addiu v0,v0,4 at 0x58f8.

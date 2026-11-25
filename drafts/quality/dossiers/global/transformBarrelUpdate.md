@@ -1,4 +1,4 @@
-# transformBarrelUpdate
+# transformBarrelUpdate (global, src/global/80150_barrels.c)
 
 ## Sites
 
@@ -76,9 +76,25 @@
 | plain store + case 20 `switch (volumeTriggerQueueOp[i]) { case 1: ... }` (Q0959 lever) | 364 (unchanged) |
 | ORIG check | the store is `li t5,1` 0x3914 + `sh t5,306(t6)` 0x3928: `sh` proves the 16-bit width only; signedness is a uopt web effect, every target load of 0x132 is `lh` -> the u16 view stays FAKE |
 
+**2026-11-25 continue CleantagBarrelCheckKongFlag (anthropic/claude-opus-5-5), base 594af197 (variants.py try):**
+
+| attempt | result |
+|---|---|
+| plain store + block-scoped `u8 hide; s16 channel;` in case 4 / `s16 i` in a case-20 block / both | 366 / 370 / 372 (with the pun 10 / 6 / 16: frame slots shift) |
+| permuter perm_tb (hack-free weights incl. 12452351, -j 2, 900 s, 3975 iterations) from the plain-store body (setup 4760, run base 4649) | best 10: an `Actor *` alias of gCurrentActor for the allowed-arm `flags \|= 0x8000` plus a value-named constant local for 0x1E (`timer = k`, `timer < k`) |
+| plain store + only the 0x1E constant local | 366 |
+| plain store + only the alias `Actor *actor = gCurrentActor; actor->flags \|= 0x8000;` (block-scoped in the allowed arm, in the state < 0x14 block, or function-level last) | 10: the codegen matches; only the case-3 `sound` home moves sp+98 -> sp+94 (the alias local takes a frame word); function-level first 72 |
+| alias + `sound` moved to function level at each of the 16 declaration slots | 74 each |
+| alias + `activePlayerState` dropped (cast `((PlayerState *)player->customState)->actor`) to free its word | 369 (cast alone 435) |
+| alias + `i` folded into `entry` / `entry` into `i` | 29 / 29 |
+| alias + `itemCount`/`allowed` widths (5 x 5 each for a block-scoped and a function-level alias) | **0** for 22 of 50: block-scoped alias with itemCount s16/u16/u8 and allowed s16/u16/u8/s8 (12; e.g. `u8 itemCount` = moveLevel's u8 type, `lbu a0` at 0x3800, and `u8 allowed`, a 0/1 flag); function-level alias with itemCount s16/u16 and any 8/16-bit allowed, or u8 itemCount with 16-bit allowed (10). s8 itemCount 1/11; function-level u8/u8 10; any s32 10. Without the alias no width pair goes below 364 (plain) |
+| alias for both statements of the allowed arm (`actor->interactionType = 1` too) / for the flags RMW in both arms / for every access in both arms | 304 / 4 / 293 (the target reloads gCurrentActor after the flags store: `lw t6,0(t1)` 0x3920 before `sh t5,306(t6)` 0x3928, so the store is not through the local) |
+| verdict | `cand_0f5fc9_alias.c` (plain store, u8 itemCount, u8 allowed, alias for the allowed-arm flags RMW only) fdiff 0, but the alias is a single-use re-read of gCurrentActor through another pointer (the 871b3e `p` family): not adopted (hack swap); ruling requested |
+
 ## Untried ideas
 - 0f5fc9: closed as a header case: interactionType is s16 in actor.h and all 11 target loads of 0x132 are `lh` (C920, 42630, 7A510 x2, 9DD70, A6280, A8400 x2, B1F60, C2A90 x2).
 - 0f5fc9: what bridges is the case 4 `unk2C0 != 1` compare (0x4218 `li at,1`, 0x421c `beq t6,at`): any spelling that makes that compare unsigned matches (1U, `& 0xFFFFFFFF`). A natural reason for an unsigned compare there (a real unsigned field or operand) has not been found; `unk2C0` is `lbu` everywhere (u8).
+- 0f5fc9: the allowed-arm flags RMW through an `Actor *` local is the codegen lever (2026-11-25). A natural reason for a pointer local holding gCurrentActor that covers exactly that access (and leaves the reloaded interactionType store on gCurrentActor) would close the site together with the natural u8 widths of itemCount/allowed.
 
 ## Evidence
 - 0x3f84 `lh a0,98(sp)` (sound reload in the beq delay slot before `jal sfxAllocateChannel`).
