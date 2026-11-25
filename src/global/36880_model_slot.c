@@ -2419,8 +2419,12 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
     if (obj->modelType == 0 || obj->modelType == 0x241) {
         return gfx;
     }
-    if (obj->modelType == 0x74 || obj->modelType == 0x288 || obj->modelType == 0x290) {
-        obj->rotY += 10.0;
+    switch (obj->modelType) {
+        case 0x74:
+        case 0x288:
+        case 0x290:
+            obj->rotY += 10.0;
+            break;
     }
     guScaleF(mtx, obj->scale, obj->scale, obj->scale);
     if (obj->rotX != 0.0) {
@@ -2537,7 +2541,6 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
         gDPPipeSync(gfx++);
         gSPDisplayList(gfx++, osVirtualToPhysical(obj->displayListsB[sel]));
     }
-    { s32 pad6; } // FAKE: block-scoped pad keeps the gfx spill slot at 88(sp) (Q0251/Q0331); pre-existing, now tagged
     gDPPipeSync(gfx++);
     gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
     return gfx;
