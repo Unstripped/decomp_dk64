@@ -48,7 +48,7 @@ void hudPauseMenuRefreshTotals(void);
 Gfx *hudDrawDimOverlay(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_hudPauseMenuIconUpdate
-void hudPauseMenuIconUpdate(EffectNode *, s8 *);
+void hudPauseMenuIconUpdate(EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_hudDrawTextScreen
 Gfx *hudDrawTextScreen(Gfx *, Actor *);

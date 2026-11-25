@@ -38,7 +38,7 @@ void effectSetStartDelay(s16);
 void effectSetScreenRotation(s16);
 #endif
 #ifndef PROTO_SKIP_effectSetCallback
-void effectSetCallback(void *);
+void effectSetCallback(EffectCallback);
 #endif
 #ifndef PROTO_SKIP_effectSetFrameDelay
 void effectSetFrameDelay(u8);

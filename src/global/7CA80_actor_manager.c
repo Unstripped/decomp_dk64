@@ -1513,7 +1513,7 @@ extern EffectGridAsset gEffectSpriteGooGreen;
 void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
     s32 reaction;
     s32 queueReaction;
-    void *pulseCallback;
+    EffectCallback pulseCallback;
     s32 pad;
     s32 damageLevel;
 

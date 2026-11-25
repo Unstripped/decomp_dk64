@@ -239,8 +239,8 @@ void effectSetScreenRotation(s16 degrees) {
     sEffectScreenRotation = degrees;
 }
 
-void effectSetCallback(void *callback) {
-    sEffectPendingCallback = (EffectCallback)callback;
+void effectSetCallback(EffectCallback callback) {
+    sEffectPendingCallback = callback;
 }
 
 void effectSetFrameDelay(u8 frameDelay) {

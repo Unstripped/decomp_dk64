@@ -1400,7 +1400,7 @@ typedef struct {
 } HudIconState;
 
 
-void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
+void hudPauseMenuIconUpdate(EffectNode *effect, u8 *done) {
     HudEntry *src;
     HudIconState *item;
     f32 t;

@@ -25,7 +25,7 @@ extern s32 gCurrentMap;
 extern Actor *gPrimaryPlayerActor;
 
 
-void effectZRotationMatrixUpdate(EffectNode *effect, void *unused) {
+void effectZRotationMatrixUpdate(EffectNode *effect, u8 *isDone) {
     f32 scaleMtx[4][4];
     f32 rotMtx[4][4];
 
@@ -46,7 +46,7 @@ typedef struct {
     f32 heading;
 } DriftHeadingState;
 
-void effectZSpinMatrixUpdate(EffectNode *effect, void *unused) {
+void effectZSpinMatrixUpdate(EffectNode *effect, u8 *isDone) {
     f32 scaleMtx[4][4];
     f32 rotMtx[4][4];
     RotationState *state;
@@ -74,7 +74,7 @@ typedef struct {
     s16 centerZ;
 } OrbitMotionState10;
 
-void effectOrbitXZUpdate(EffectNode *effect, void *unused) {
+void effectOrbitXZUpdate(EffectNode *effect, u8 *isDone) {
     OrbitMotionState10 *state;
 
     if (!effect->allocation) {
@@ -101,7 +101,7 @@ typedef struct {
 } PuffRiseMotionState;
 
 
-void effectPuffRiseUpdate(EffectNode *effect, void *unused) {
+void effectPuffRiseUpdate(EffectNode *effect, u8 *isDone) {
     PuffRiseMotionState *state;
 
     if (effect->allocation == NULL) {
@@ -133,7 +133,7 @@ typedef struct {
     f32 velocityY;
 } ConfettiMotionState;
 
-void effectConfettiPhysicsUpdate(EffectNode *effect, void *unused) {
+void effectConfettiPhysicsUpdate(EffectNode *effect, u8 *isDone) {
     ConfettiMotionState *motion;
     EffectParamPair *params = &effect->pair;
     f64 scale;
@@ -217,7 +217,7 @@ typedef struct {
     s16 riseSpeed;
 } OrbitMotionState;
 
-void effectOrbitRiseUpdate(EffectNode *effect, void *unused) {
+void effectOrbitRiseUpdate(EffectNode *effect, u8 *isDone) {
     f32 scaleFactor;
     s32 flags;
     OrbitMotionState *state;
@@ -270,7 +270,7 @@ extern PlayerStruct *gPlayerSlots;
 
 void effectPlayerDistanceFadeUpdate(effect, isDone)
 EffectNode *effect;
-s8 *isDone;
+u8 *isDone;
 {
     PlayerDistanceFadeState *state;
     f32 dy;
@@ -313,7 +313,7 @@ s8 *isDone;
 
 void effectFadeInSinkUpdate(effect, isDone)
 EffectNode *effect;
-s8 *isDone;
+u8 *isDone;
 {
     if (effect->alpha != 0xFF) {
         effect->alpha += 0x14;
@@ -326,12 +326,12 @@ s8 *isDone;
 
 void effectSinkBySpeedUpdate(effect, isDone)
 EffectNode *effect;
-s8 *isDone;
+u8 *isDone;
 {
     effect->y = (f32) ((f64) effect->y - ((f64) effect->speed / 100.0));
 }
 
-void effectLinearFadeAlphaUpdate(EffectNode *effect, s8 *isDone) {
+void effectLinearFadeAlphaUpdate(EffectNode *effect, u8 *isDone) {
     s32 alphaStep;
     u8 curAlpha;
 
@@ -354,7 +354,7 @@ typedef struct {
     s16 phaseStepZ;
 } DriftMotionState;
 
-void effectDriftXZUpdate(EffectNode *effect, void *unused) {
+void effectDriftXZUpdate(EffectNode *effect, u8 *isDone) {
     DriftMotionState *state;
 
     if (effect->allocation == NULL) {
@@ -412,7 +412,7 @@ s8 *isDone;
 }
 
 
-void effectShrinkAndVelocityUpdate(EffectNode *effect, s8 *isDone) {
+void effectShrinkAndVelocityUpdate(EffectNode *effect, u8 *isDone) {
     f32 scaleFactor;
     VelocityMotionState *state;
 
@@ -426,9 +426,9 @@ void effectShrinkAndVelocityUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void effectSinkZSpinUpdate(EffectNode *effect, void *unused) {
-    effectSinkBySpeedUpdate(effect, unused);
-    effectZSpinMatrixUpdate(effect, unused);
+void effectSinkZSpinUpdate(EffectNode *effect, u8 *isDone) {
+    effectSinkBySpeedUpdate(effect, isDone);
+    effectZSpinMatrixUpdate(effect, isDone);
 }
 
 void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
@@ -440,7 +440,7 @@ void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
 
 extern s16 gCarryMinFallSpeed;
 
-void effectFallUpdate(EffectNode *effect, s8 *isDone) {
+void effectFallUpdate(EffectNode *effect, u8 *isDone) {
     s16 *newVel;
     s16 *velocity;
 
@@ -465,7 +465,7 @@ void effectFallUpdate(EffectNode *effect, s8 *isDone) {
 
 typedef f32 EffectMatrix[4][4];
 
-void effectFadeOutMatrixUpdate(EffectNode *effect, s8 *isDone) {
+void effectFadeOutMatrixUpdate(EffectNode *effect, u8 *isDone) {
     EffectMatrix modelMtx;
     EffectMatrix tempMtx;
     u8 alpha;
@@ -487,7 +487,7 @@ void effectFadeOutMatrixUpdate(EffectNode *effect, s8 *isDone) {
     effect->state = 3;
 }
 
-void effectRandomYRotDecalUpdate(EffectNode *effect, s8 *isDone) {
+void effectRandomYRotDecalUpdate(EffectNode *effect, u8 *isDone) {
     EffectMatrix modelMtx;
     EffectMatrix tempMtx;
     u32 rotAngle;
@@ -521,7 +521,7 @@ typedef struct {
     f32 angleStep;
 } GroundSpinState;
 
-void effectGroundDecalSpinUpdate(EffectNode *effect, s8 *isDone) {
+void effectGroundDecalSpinUpdate(EffectNode *effect, u8 *isDone) {
     EffectMatrix modelMtx;
     EffectMatrix tempMtx;
 
@@ -626,7 +626,7 @@ typedef struct {
     s16 floorY;
 } ProjectileMotionState;
 
-void effectProjectileDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectProjectileDriftUpdate(EffectNode *effect, u8 *isDone) {
     ProjectileMotionState *proj;
     Actor *src;
     f64 temp;
@@ -671,7 +671,7 @@ typedef struct WobbleRiseState {
 } WobbleRiseState;
 
 
-void effectWobbleRiseUpdate(EffectNode *effect, s8 *isDone) {
+void effectWobbleRiseUpdate(EffectNode *effect, u8 *isDone) {
     f64 pad;
     f32 swayX;
     f32 swayZ;
@@ -758,7 +758,7 @@ extern EffectGridAsset gEffectSpriteDebrisGrey;
 extern EffectGridAsset gEffectSpriteDebrisGreen;
 
 
-void effectTumbleBounceUpdate(EffectNode *effect, s8 *isDone) {
+void effectTumbleBounceUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 speed;
@@ -825,7 +825,7 @@ typedef struct {
     f32 rotation;
 } SpiralDriftState;
 
-void effectSpiralDriftMatrixUpdate(EffectNode *effect, s8 *isDone) {
+void effectSpiralDriftMatrixUpdate(EffectNode *effect, u8 *isDone) {
     f32 angle;
     f32 offsetX;
     f32 offsetZ;
@@ -864,7 +864,7 @@ typedef struct {
     f32 baseScaleY;
 } WobbleScaleState;
 
-void effectWobbleScaleUpdate(EffectNode *effect, s8 *isDone) {
+void effectWobbleScaleUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 pad2[4][4];
     f32 wobbleX;
@@ -904,7 +904,7 @@ void effectWobbleScaleUpdate(EffectNode *effect, s8 *isDone) {
     effect->state = 2;
 }
 
-void effectDecelerateDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectDecelerateDriftUpdate(EffectNode *effect, u8 *isDone) {
     f32 stepX;
     f32 stepZ;
     DriftHeadingState *state;
@@ -929,7 +929,7 @@ void effectDecelerateDriftUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void timedEffectCountdownTick(EffectNode *effect, s8 *isDone) {
+void timedEffectCountdownTick(EffectNode *effect, u8 *isDone) {
     u8 newAlpha;
     s32 alpha;
     s32 step;
@@ -960,7 +960,7 @@ typedef struct {
     f32 alphaLevel;
 } SpiralRiseState;
 
-void effectSpiralRiseUpdate(EffectNode *effect, s8 *isDone) {
+void effectSpiralRiseUpdate(EffectNode *effect, u8 *isDone) {
     SpiralRiseState *state;
 
     if (effect->allocation == NULL) {
@@ -986,7 +986,7 @@ void effectSpiralRiseUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void effectSpriteMotionUpdate(EffectNode *effect, s8 *isDone) {
+void effectSpriteMotionUpdate(EffectNode *effect, u8 *isDone) {
     f32 stepX;
     f32 stepZ;
 
@@ -1008,7 +1008,7 @@ void effectSpriteMotionUpdate(EffectNode *effect, s8 *isDone) {
     effect->y += 1.0f;
 }
 
-void effectSpriteMatrixUpdate(EffectNode *effect, s8 *isDone) {
+void effectSpriteMatrixUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 offset;
@@ -1098,7 +1098,7 @@ void effectParticleArcUpdate(EffectNode *effect, s8 *isDone) {
 extern PlayerState *gActivePlayerState;
 extern void *sMinecartWheelEffect; // lives in the minecart overlay: only valid while it is loaded
 
-void effectTimedLightIntensityFade(EffectNode *effect, s8 *isDone) {
+void effectTimedLightIntensityFade(EffectNode *effect, u8 *isDone) {
     f32 ratio;
 
     ratio = (f32)(effect->grid->frameCount - effect->frame) / (f32)effect->grid->frameCount;
@@ -1116,7 +1116,7 @@ void effectTimedLightIntensityFade(EffectNode *effect, s8 *isDone) {
 
 extern void *gRaceSparkEffects[]; // lives in the race overlay: only valid while it is loaded
 extern void *gLightSlotNext;
-void timedLightOrbitUpdate(EffectNode *effect, s8 *isDone) {
+void timedLightOrbitUpdate(EffectNode *effect, u8 *isDone) {
     f32 ratio;
     void **slot;
 
@@ -1139,7 +1139,7 @@ void timedLightOrbitUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void effectLightPulseOscillate(EffectNode *effect, s8 *isDone) {
+void effectLightPulseOscillate(EffectNode *effect, u8 *isDone) {
     f32 ratio;
     f32 radius;
     s16 duration;
@@ -1160,7 +1160,7 @@ void effectLightPulseOscillate(EffectNode *effect, s8 *isDone) {
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, (-80.0f * ratio) + 255.0f, (-205.0f * ratio) + 255.0f);
 }
 
-void effectLightFlickerDecay(EffectNode *effect, s8 *isDone) {
+void effectLightFlickerDecay(EffectNode *effect, u8 *isDone) {
     f32 ratio;
     f32 radius;
     s16 duration;
@@ -1189,7 +1189,7 @@ typedef struct RadialSprayMotion {
 } RadialSprayMotion;
 
 
-void effectRadialSprayUpdate(EffectNode *effect, s8 *isDone) {
+void effectRadialSprayUpdate(EffectNode *effect, u8 *isDone) {
     f32 pad80[4][4];
     f32 pad40[4][4];
     f32 angleDeg;
@@ -1252,7 +1252,7 @@ void effectRadialSprayUpdate(EffectNode *effect, s8 *isDone) {
 
 
 
-void effectFollowParentUpdate(EffectNode *effect, s8 *isDone) {
+void effectFollowParentUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx0[4][4];
     f32 mtx1[4][4];
     s32 angle;
@@ -1301,7 +1301,7 @@ typedef struct {
     f32 speed;
 } SineDriftState;
 
-void effectDownwardDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectDownwardDriftUpdate(EffectNode *effect, u8 *isDone) {
     f32 trig;
     f32 speed;
 
@@ -1313,7 +1313,7 @@ void effectDownwardDriftUpdate(EffectNode *effect, s8 *isDone) {
     effect->z += speed * trig;
 }
 
-void effectUpwardDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectUpwardDriftUpdate(EffectNode *effect, u8 *isDone) {
     f32 trig;
     f32 speed;
 
@@ -1325,7 +1325,7 @@ void effectUpwardDriftUpdate(EffectNode *effect, s8 *isDone) {
     effect->z += speed * trig;
 }
 
-void effectSineHorizontalDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectSineHorizontalDriftUpdate(EffectNode *effect, u8 *isDone) {
     f32 speed;
     f32 riseSpeed;
     f32 trig;
@@ -1348,7 +1348,7 @@ void effectSineHorizontalDriftUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void effectSineDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectSineDriftUpdate(EffectNode *effect, u8 *isDone) {
     f32 speed;
     f32 riseSpeed;
     f32 trig;
@@ -1410,7 +1410,7 @@ void effectFadeRatioStepUpdate(EffectNode *effect, s8 *isDone) {
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 50.0f, 0, intensity, intensity, intensity);
 }
 
-void effectPuffExpandFadeUpdate(EffectNode *effect, s8 *isDone) {
+void effectPuffExpandFadeUpdate(EffectNode *effect, u8 *isDone) {
     f32 scale;
     s16 timer;
 
@@ -1425,7 +1425,7 @@ void effectPuffExpandFadeUpdate(EffectNode *effect, s8 *isDone) {
 
 extern EffectGridAsset sEffectSparkConfig;
 
-void effectSparkSpawnUpdate(EffectNode *effect, s8 *isDone) {
+void effectSparkSpawnUpdate(EffectNode *effect, u8 *isDone) {
     s32 pad;
     s32 random;
 
@@ -1466,7 +1466,7 @@ typedef struct {
     f32 speed;
 } RandomRotationState;
 
-void effectSpinBillboardingUpdate(EffectNode *effect, s8 *isDone) {
+void effectSpinBillboardingUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
 
@@ -1495,7 +1495,7 @@ typedef struct {
     f32 chunk;
 } LightGrowShrinkState;
 
-void effectRandomPitchDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectRandomPitchDriftUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 pad;
@@ -1538,7 +1538,7 @@ typedef struct {
     WaveMotionData *data;
 } WaveMotionState;
 
-void effectWaveMotionUpdate(EffectNode *effect, s8 *isDone) {
+void effectWaveMotionUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 scale;
@@ -1566,7 +1566,7 @@ void effectWaveMotionUpdate(EffectNode *effect, s8 *isDone) {
 
 extern EffectGridAsset gEffectSpriteFlame;
 
-void timedLightPulse(EffectNode *effect, s8 *isDone) {
+void timedLightPulse(EffectNode *effect, u8 *isDone) {
     f64 ratio;
     s32 phase;
     s16 timer;
@@ -1648,7 +1648,7 @@ void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
 }
 
 
-void effectLightPulseTealUpdate(EffectNode *effect, s8 *isDone) {
+void effectLightPulseTealUpdate(EffectNode *effect, u8 *isDone) {
     f32 ratio;
     f32 radius;
     s16 duration;
@@ -1670,7 +1670,7 @@ void effectLightPulseTealUpdate(EffectNode *effect, s8 *isDone) {
              (-80.0f * ratio) + 255.0f, 0xFF);
 }
 
-void effectRandomDirectionDriftUpdate(EffectNode *effect, s8 *isDone) {
+void effectRandomDirectionDriftUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 dirX;
@@ -1697,7 +1697,7 @@ void effectRandomDirectionDriftUpdate(EffectNode *effect, s8 *isDone) {
     effect->z += state->velocityZ;
 }
 
-void effectShrinkFadeMatrixUpdate(EffectNode *effect, s8 *isDone) {
+void effectShrinkFadeMatrixUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
 
@@ -1714,7 +1714,7 @@ void effectShrinkFadeMatrixUpdate(EffectNode *effect, s8 *isDone) {
     effect->state = 2;
 }
 
-void effectGrowExpandMatrixUpdate(EffectNode *effect, s8 *isDone) {
+void effectGrowExpandMatrixUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 scale;
@@ -1746,7 +1746,7 @@ s16 sWispWanderHomes[18] = {
 };
 extern EffectGridAsset gEffectSpriteSparklesBlue;
 
-void effectWispWanderUpdate(EffectNode *effect, s8 *isDone) {
+void effectWispWanderUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     WispWanderState *state;
@@ -1808,7 +1808,7 @@ typedef struct {
     s16 rotation;
 } WispHomeMotionState;
 
-void effectWispHomeUpdate(EffectNode *effect, s8 *isDone) {
+void effectWispHomeUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     WispHomeMotionState *state;
@@ -1859,7 +1859,7 @@ typedef struct {
 extern u8 gCurrentWorldId;
 extern u16 gLevelCollectibleCounts[];
 
-void effectConvergeOnNodeUpdate(EffectNode *effect, s8 *isDone) {
+void effectConvergeOnNodeUpdate(EffectNode *effect, u8 *isDone) {
     LightApproachMotionState *motion;
     f32 factor;
     Actor *node;
@@ -1885,7 +1885,7 @@ void effectConvergeOnNodeUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void effectLifetimeCountdownUpdate(EffectNode *effect, s8 *isDone) {
+void effectLifetimeCountdownUpdate(EffectNode *effect, u8 *isDone) {
     s32 amount;
 
     amount = effect->speed;
@@ -1922,7 +1922,7 @@ typedef struct {
 
 
 
-void effectOrbitSourceUpdate(EffectNode *effect, s8 *isDone) {
+void effectOrbitSourceUpdate(EffectNode *effect, u8 *isDone) {
     OrbitSourceState *state;
     OrbitSourceState *newState;
     Actor *source;
@@ -2099,7 +2099,7 @@ typedef struct {
     f32 bobHeight;
 } ActorOrbitState;
 
-void effectActorOrbitFollowUpdate(EffectNode *effect, s8 *isDone) {
+void effectActorOrbitFollowUpdate(EffectNode *effect, u8 *isDone) {
     ActorOrbitState *state;
     Actor *target;
     PlayerState *targetState;
@@ -2141,7 +2141,7 @@ void effectActorOrbitFollowUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void effectBeamRotateUpdate(EffectNode *effect, s8 *isDone) {
+void effectBeamRotateUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
 
@@ -2207,7 +2207,7 @@ void effectArcMotionInit(EffectNode *effect, u8 reverse, u16 startAngle, f32 rad
     motion->angle = (f32)(u32)startAngle;
 }
 
-void effectArcAroundActorUpdate(EffectNode *effect, s8 *isDone) {
+void effectArcAroundActorUpdate(EffectNode *effect, u8 *isDone) {
     f64 pad0;
     f32 offsetX;
     f32 pad1;
@@ -2253,7 +2253,7 @@ void effectArcAroundActorUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void effectLightGrowShrinkUpdate(EffectNode *effect, s8 *isDone) {
+void effectLightGrowShrinkUpdate(EffectNode *effect, u8 *isDone) {
     f64 size;
     f32 intensity;
     f32 red;
@@ -2335,7 +2335,7 @@ typedef struct {
     f32 heading;
 } DecelDriftState;
 
-void effectDecelDriftFadeUpdate(EffectNode *effect, s8 *isDone) {
+void effectDecelDriftFadeUpdate(EffectNode *effect, u8 *isDone) {
     f32 stepX;
     DecelDriftState *newState;
     DecelDriftState *state;
@@ -2368,7 +2368,7 @@ void effectDecelDriftFadeUpdate(EffectNode *effect, s8 *isDone) {
     effect->z += stepZ;
 }
 
-void effectBurstParticleUpdate(EffectNode *effect, s8 *isDone) {
+void effectBurstParticleUpdate(EffectNode *effect, u8 *isDone) {
     BurstParticleState *state;
 
     if (effect->allocation == NULL) {
@@ -2388,7 +2388,7 @@ void effectBurstParticleUpdate(EffectNode *effect, s8 *isDone) {
 
 
 
-void effectProximityFadeUpdate(EffectNode *effect, s8 *isDone) {
+void effectProximityFadeUpdate(EffectNode *effect, u8 *isDone) {
     f32 *state;
     PlayerStruct *player;
     f32 limit;
@@ -2421,7 +2421,7 @@ void effectProximityFadeUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void effectEaseToTargetNodeUpdate(EffectNode *effect, s32 unused) {
+void effectEaseToTargetNodeUpdate(EffectNode *effect, u8 *isDone) {
     f64 pad;
     f32 nodeX;
     f32 nodeY;
@@ -2438,7 +2438,7 @@ void effectScaleYFromSpeedUpdate(EffectNode *effect, s32 unused) {
 }
 
 
-void effectScaleSpinUpdate(EffectNode *effect, s8 *isDone) {
+void effectScaleSpinUpdate(EffectNode *effect, u8 *isDone) {
     ScaleSpinState *state;
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
@@ -2461,7 +2461,7 @@ void effectScaleSpinUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void effectGrowFadeUpdate(EffectNode *effect, s8 *isDone) {
+void effectGrowFadeUpdate(EffectNode *effect, u8 *isDone) {
     effect->scaleX = effect->scaleX * 1.05;
     effect->scaleY = effect->scaleY * 1.05;
     effect->alpha -= 5;
@@ -2470,7 +2470,7 @@ void effectGrowFadeUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void effectFollowPlayerUpdate(EffectNode *effect, s32 unused) {
+void effectFollowPlayerUpdate(EffectNode *effect, u8 *isDone) {
     if (effect->frame == 0) {
         effect->x = gPrimaryPlayerActor->x;
         effect->y = gPrimaryPlayerActor->y;
@@ -2478,7 +2478,7 @@ void effectFollowPlayerUpdate(EffectNode *effect, s32 unused) {
     }
 }
 
-void effectScatterFallUpdate(EffectNode *effect, s8 *isDone) {
+void effectScatterFallUpdate(EffectNode *effect, u8 *isDone) {
     ScatterFallState *state;
 
     if (effect->allocation == NULL) {
@@ -2498,7 +2498,7 @@ void effectScatterFallUpdate(EffectNode *effect, s8 *isDone) {
 
 
 
-void effectCircleRiseFadeUpdate(EffectNode *effect, s8 *isDone) {
+void effectCircleRiseFadeUpdate(EffectNode *effect, u8 *isDone) {
     static s8 sd = 1; // D_8075567C: a function-local static so uopt treats it as non-aliased
     CircleRiseState *state;
     CircleRiseState *newState;
@@ -2534,7 +2534,7 @@ typedef struct {
     f32 scale;
 } ScaleFollowState;
 
-void effectRiseWithGravityUpdate(EffectNode *effect, s32 unused) {
+void effectRiseWithGravityUpdate(EffectNode *effect, u8 *isDone) {
     f32 height;
     FallingMotionState *newState;
     FallingMotionState *state;
@@ -2554,7 +2554,7 @@ void effectRiseWithGravityUpdate(EffectNode *effect, s32 unused) {
     }
 }
 
-void effectScaleWithOwnerUpdate(EffectNode *effect, s32 unused) {
+void effectScaleWithOwnerUpdate(EffectNode *effect, u8 *isDone) {
     ScaleFollowState *newState;
     ScaleFollowState *state;
 
@@ -2569,7 +2569,7 @@ void effectScaleWithOwnerUpdate(EffectNode *effect, s32 unused) {
     effect->scaleY = effect->scaleX;
 }
 
-void effectSwayRiseUpdate(EffectNode *effect, s8 *isDone) {
+void effectSwayRiseUpdate(EffectNode *effect, u8 *isDone) {
     SwayRiseState *state;
 
     if (effect->allocation == NULL) {
@@ -2601,7 +2601,7 @@ void effectSwayRiseUpdate(EffectNode *effect, s8 *isDone) {
 
 
 
-void effectSinePulseSpinUpdate(EffectNode *effect, void *unused) {
+void effectSinePulseSpinUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 progress;
@@ -2616,7 +2616,7 @@ void effectSinePulseSpinUpdate(EffectNode *effect, void *unused) {
     effect->state = 2;
 }
 
-void effectPulseSpinUpdate(EffectNode *effect, s8 *isDone) {
+void effectPulseSpinUpdate(EffectNode *effect, u8 *isDone) {
     ScaleSpinState *state;
     f32 mtx[4][4];
     f32 tmpMtx[4][4];

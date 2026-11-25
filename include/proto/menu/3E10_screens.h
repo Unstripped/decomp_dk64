@@ -189,7 +189,7 @@ Gfx *menuUpdateStateDispatch(Actor *, s32, Gfx *, s32);
 void menuSpawnUiElementEffect(struct MenuScreenState *, void *, s32, s32, f32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_menuSparkleParticleUpdate
-void menuSparkleParticleUpdate(EffectNode *, s32);
+void menuSparkleParticleUpdate(EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateElementTargetAndColor
 void menuUpdateElementTargetAndColor(EffectNode *, u8 *);

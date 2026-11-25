@@ -2983,7 +2983,7 @@ typedef struct MenuSparkleState { // heapAlloc'd allocation of a menuSparklePart
 
 extern u8 gGfxBufferIndex;
 
-void menuSparkleParticleUpdate(EffectNode *spinner, s32 unused) {
+void menuSparkleParticleUpdate(EffectNode *spinner, u8 *isDone) {
     MenuSparkleState *sparkle;
     s16 randAngle;
     f32 rotMatrix[4][4];
