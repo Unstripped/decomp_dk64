@@ -67,9 +67,10 @@ slowest worker. Names yield falls once every file has had a reader: the leftover
 - hack: first every open `uv run tools/fakehunt.py hits` line (one apply item per function: the worker
   diffs the hit against src, merges through `merge_record`, records `diagnose fixed note="fakehunt
   <recipe|remove|plain> hit <path>"`; a ZERO-PERMUTE dir goes to a worker that rewrites the permuter
-  output into readable C), then `rank` top to bottom (`next=retry` included). Keep `uv run
-  tools/fakehunt.py run` running in the background whenever the hack stream has slots (`--parallel 3
-  -j 2`). A pure respelling lever still goes into `tools/variants.py` as a recipe, not into a
+  output into readable C), then `rank` top to bottom (`next=retry` included). Run `uv run tools/fakehunt.py
+  run` (`--parallel 3 -j 2`) only while no merge is expected (between units, overnight); SIGINT it before merges:
+  its as1probe scans hold shared dk locks that stall each merge's `make expected` (lost unit 2026-11-25: 27 min).
+  A pure respelling lever still goes into `tools/variants.py` as a recipe, not into a
   dispatch. Check a lever's precondition on the target asm before dispatch (unit 2: 2 fixes of 10
   transfers; Q1594/Q1595/Q1597/Q1598/Q1599/Q1602 list why the rest failed). `// LAYOUT:` lines are
   not sites.
@@ -91,7 +92,10 @@ proposals are not merged: check each against [names.md](names.md) "Check" and ap
 renames carried every review). A types batch whose sites move to new members stales those
 functions' reviews (carry: `not a pure rename`): one ledger-only re-review worker records them
 before the next window. Every commit passes the full ROM gate; a merged file's net hacks and cfe
-warnings never rise. A names window needs every file it renames free of worker copies and open types
+warnings never rise. One `merge_record` at a time (concurrent runs race on `git add drafts/quality`); push
+each gated merge at once. Workers' shared dk locks (variants/permute/as1probe) also stall its `make expected`
+(2026-11-25: 27 min): expected, never kill them; one permuter run per worker at a time. A names window needs
+every file it renames free of worker copies and open types
 batches: run it before dispatching a worker onto those files (2026-11-24b: R3 window before the
 batch_18 H re-measure). `[type]`/`[local]` queue lines have no names_window mode: snapshot, edit,
 `protos.py gen`, `merge_gate.sh --commit ... --stage <headers> - - <srcs>`, then `carry` (typedef and

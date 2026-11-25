@@ -89,7 +89,7 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   tools/variants.py scan <copy> <src> FUNC` (swapped comparisons, float suffixes, local widths,
   declaration order) before writing variants by hand.
 - The permuter is optional. If used: `tools/permute.py run <dir> -j 2 --seconds 900` (hack-free
-  weights, no stop-on-zero); record it only with `seconds>=600`.
+  weights, no stop-on-zero), one run at a time (CPU is shared with the merge gate); record it only with `seconds>=600`.
 - When the target really performs the construct (cite the asm offset: a read or store it executes,
   an empty `else` it keeps), replace `// FAKE: ...` with `// ORIG: <what the target does at 0x..>`
   and record `<base key> diagnose fixed quirks=... note="ORIG: ..."`.

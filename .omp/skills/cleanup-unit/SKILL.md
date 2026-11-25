@@ -91,13 +91,12 @@ As each worker reports:
    (`merge_gate.sh --commit`), records at the base, `make expected`, sweeps, re-records at the merge
    commit (`--skip-missing`), records copy-only lines, carries, files dossiers, commits
    `drafts/quality`. Read `MERGE_RECORD_OK`; on `MERGE_RECORD_FAIL: <step>` fix that step by hand and run the remaining steps
-   (docstring); never pipe it. Then grep its log for `restored deleted local declaration` and diff src against the copy:
-   merge_drafts' restore check has false positives (a `case 'c':` char literal re-added `int c;`, fixed d22166c1).
-   `--ledger` takes ONE file: concatenate the worker's `ledger_<f>.txt` (`<f>` = basename WITHOUT `.c`); `ledger_<f>.c.txt` names gave
-   an empty bundle and merge_record recorded 0 events yet printed MERGE_RECORD_OK (2026-11-18b M25): `test -s` the bundle and read
-   `recorded N events`, N > 0. A ledger-only merge (copy == src) skips the sweep: `sweep <src> --record` stale automatic rungs.
-3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to
-   `.scratch/s<YYYY-MM-DD>-knowledge-queue.md`; §6 files them once.
+   (docstring); never pipe it, never run two at once (they race on `git add drafts/quality`: lost unit 2026-11-25). Then grep its
+   log for `restored deleted local declaration` and diff src against the copy (false positives: `case 'c':` re-added `int c;`).
+   `--ledger` takes ONE file (`ledger_<f>.txt`, `<f>` = basename WITHOUT `.c`; a `.c.txt` name recorded 0 events yet printed
+   MERGE_RECORD_OK, 2026-11-18b): read `recorded N events`, N > 0. A ledger-only merge (copy == src) skips the sweep:
+   `sweep <src> --record` its stale automatic rungs.
+3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to `.scratch/s<date>-knowledge-queue.md`; §6 files them.
 4. Signature bundles (stand-in `PROTO_SKIP_`), worker header-request bundles (strip into a lead clean dir, `git apply` the
    patch, one gen that must equal the worker's diff, `merge_record --copy-dir <clean> --stage` each header: no TypesOwner
    needed), same-basename copies, 3-way merges, shared-extern retypes, data to C, yaml carves and `COMMIT_FAILED`:
