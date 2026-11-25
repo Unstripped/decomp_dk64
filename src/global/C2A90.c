@@ -272,7 +272,6 @@ void actorTargetCourseHostUpdate(void) {
     s16 i;
     s16 j;
     s16 ang;
-    s32 sel;
 
     flagF8Set = flagGet(0xF8, 0);
     behaviourFrameBegin();
@@ -319,8 +318,7 @@ void actorTargetCourseHostUpdate(void) {
             }
             break;
         case 0x1F:
-            sel = gCurrentActor->subState;
-            switch (sel) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     if (currentActorTestClearFlag() != 0) {
                         camPausePath();
@@ -361,8 +359,7 @@ void actorTargetCourseHostUpdate(void) {
             }
             break;
         case 0x28:
-            sel = gCurrentActor->subState;
-            switch (sel) {
+            switch (gCurrentActor->subState) {
                 case 0:
                     sfxStopChannel(0xA9, 0);
                     gCurrentActor->flags &= ~0x8000;
@@ -432,12 +429,7 @@ void actorTargetCourseHostUpdate(void) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, gCurrentActor, 3);
             }
             if (((randomNonNegative() >> 0xF) % 1000) >= 0x3DF && gCurrentActor->sub4->animId == 0x302) {
-                if (gFrameCounter & 1) {
-                    sel = 0x303;
-                } else {
-                    sel = 0x304;
-                }
-                actorScriptStart(gCurrentActor, sel); // FAKE: the unk155 switch selector sel reused as the anim id keeps the selector in $a1 (lbu a1,0x155(s0) at 0xd18); a separate anim local gives v0 (Q0162)
+                actorScriptStart(gCurrentActor, (gFrameCounter & 1) ? 0x303 : 0x304);
             }
             if (gActorGlobalState.notifyReceived != 0) {
                 if (gActorGlobalState.notifyValue[0] >= gTargetCourseTargetIds[gCurrentActor->sequenceIndex] && gCurrentActor->sequenceIndex < sizeof(gTargetCourseTargetIds)) {
