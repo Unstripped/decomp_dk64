@@ -17,6 +17,9 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   (9ab2a986); batch_20 RaceParticipant 0x25 / 0x26 split by actor kind: manager hasCpuRival / route, racer boostTimer / boostCharge
   (993213f4 header, 3a7a5351 uses); PlayerStruct heldButtonsPtr -> pressedButtonsPtr (names window 757bd3f2). The ucode-symbol item
   (6710/14CF0 rsp/asp externs) has no remaining externs.
+- Landed 2026-11-25 (continue unit, TypesOwner batch_21): C effectCreateAt{ModelNode,ActorBone,Position} take `EffectGridAsset *`
+  (ce7829eb); A `effectSetCallback(EffectCallback)` with the cast dropped, 70 11BC10 callbacks + menuSparkleParticleUpdate +
+  hudPauseMenuIconUpdate take `u8 *isDone`, 7CA80 `EffectCallback pulseCallback` (aaff5a58; re-review ReviewTypes21).
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing, BC3B0.c:172): the shared field name may be too narrow.
 - 55B20 file-local MapZone (55B20.c:350): `tris` as `MapTriangle *` would remove 23 casts; a natural rewrite does not match yet.
 - 36880 views on `ModelSlot.unk20` (model.h:109 `void *`, ModelKindObj users): blocked on the model.h H1/H2 regeneration (clashes
@@ -27,6 +30,8 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   rejected (a1 = sel by residence only: B5EC0.o `move a1,a0` 0x9c0, jal 0x9d8; owner +0x8 `andi a1,a0,0xff`; 37 callers by
   residence). Re-measured 2026-11-20 (Cleanfunc_806B13B4b, 900d6b5c): EXHAUSTED.
 - effectSetSpeed(s32) receives an actor pointer (race/1770.c:330 `(s32)gCurrentActor`) and an index (boss/0): owner type review.
+  HELD 2026-11-25 (batch_21 B): 156 call sites, 137 numeric (79 literals, 58 expressions incl. float sums the s32 prototype
+  converts), 19 pointers; a pointer type raises W712 on the ints. 0x35C is a union {speed, target, data, pair}; keep s32.
 - 36880 TexImageCmdSpan as a Gfx[] view (2026-11-14b; batch_19 D, no change): the span reads naturally as `Gfx` (texAddr 0x04 =
   span[0].words.w1 of the G_SETTIMG, tileSizeW0 0x30 = span[6].words.w0 of the G_SETTILESIZE), but retiring it is not local:
   dlFindTextureCommands is non-static (its proto names `struct TexImageCmdSpan **` twice: PROTO_SKIP stand-in + gen + stage), the
@@ -47,19 +52,14 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   heapRegister/UnregisterSurvivor; `ptr[-5]` in heapLockBlock/heapUnlockBlock). An anonymous union adds cfe W838 + W649 per
   declaration; a named one rewrites all 28 `->next` in 15050.c. Only as a file-wide polish/types pass.
 - REOPENED (user 2026-11-24, FAKE queue never terminal): 7130 D_80770DD9 (undefined_syms.us.txt:341) stays while 7130.c:853 stores through it (FAKE linker alias of D_80770DD8[1]).
-- effectSetCallback (119370) keeps `void *callback` + `(EffectCallback)` cast (`views blocked`, 2026-11-24 M15): 80 callbacks in
-  47 files: 55 `(EffectNode *, s8 *)`, 9 `(EffectNode *, void *)`, 5 `(EffectNode *, s32)`, 3 K&R, 8 unclassified. Plan (batch_19 G,
-  not run): `.scratch/TypesOwner/batch_19/G_plan.md` (census script, one EffectCallback typedef for the dominant group, retype
-  effectSetCallback with a stand-in + gen, cwarn over all 47 files with the shadow proto; a file whose count would rise needs its
-  callee retyped in the same batch or keeps an honest cast). Next unit.
-- 119370 effectCreateAtModelNode / ActorBone / Position could take `EffectGridAsset *asset` now that every sprite extern is
-  `EffectGridAsset` (TypesOwner17 B6 suggestion; callee-prototype retype, stale cost unmeasured).
 
 ## Closed or held by ruling (reopen only with the new evidence named)
 - Return widths: keep `u8 mapGetHubWorldIndex(u8, u8)` (OwnerHubWorldIndexWidthPlan: C2A90 func_806BE09C uses v0 unmasked) and
   `u8 flagGet(s16, u8)` (OwnerFlagGetWidthPlan: no option passes all 49 files; jetpac/0's pair is ORIG, 0x11d4).
 - ACDC0 split labels D_807FC82A..D_807FC838 KEPT (OwnerCollectibleCountsView 0c2a5e64; ACDC0.c:75): folding them into actor.h's
   `D_807FC828[9]` makes hudPauseMenuRefreshTotals 16 bytes shorter.
+- loadOverlay keeps splat label `D_80744474` (= gFramebuffers[1], 15050.c): the fold makes the shared base a coloured address (t1)
+  and drops the target's two `lui at` (0x1b0-0x1c4), 12 lines (CleanloadOverlay 2026-11-25).
 - proxPathAdd/proxPathSetSegment keep `Actor *` (OwnerProxPathIdParam; ledgers f3f3f306/956c2dfa/48c9b6b0): `s32 id` fails 36880
   modelSlotBuildProxPaths (frame 0xD8 -> 0xD0); the target homes id once at sp+0x98 and reloads it, so 36880.c:790/794's
   `(Actor *)id` casts are original.
@@ -105,10 +105,14 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   enemyGridStateStep; the post-close re-measure (ReMeasureKnow24b, db9779c7 + ledgers 633e5116 / dfac70e2) fixed hudPauseMenuUpdate
   c127b7 + db430c (switches on gCurrentMap / hud->page, `credits = hubWorld == 8 && menuGetTimerFlag() != 0;`), retagged cc0f6b /
   706cd2 ORIG (R4) and kept the rest. Its findings were filed in 1dadd028 (Q1635, Q1636, Q1582 correction).
-- Next-unit re-measure items (OPEN after 1dadd028, `quality.py status | grep OPEN`): ACDC0 hudPauseMenuUpdate `review` + diagnose
-  6151e7 (`flag = sPauseCarouselSpacing / 10`) and 32c920 (`flag = sPauseCarouselSpacing >> 1`), staled by the Q1582 correction
-  paragraph: re-check both flag-reuse steers against Q1635/Q1582 (does the shared switch temp change which local the step/half-span
-  values need?). One ledger-only worker, minutes. Every other `rank` function is EXHAUSTED.
+- Polish follow-ups (ReviewTypes21 2026-11-25, re-read at aaff5a58; nothing edited): 11BC10 effectShrinkOffsetUpdate K&R `s8 *isDone`
+  -> `u8 *` (only caller passes u8 *); effectTimedLightIntensityFade `(void *)effect` vs sMinecartWheelEffect: declare it
+  `EffectNode *` here and in minecart/0_player_cart.c:97; timedLightOrbitUpdate ends at `&gLightSlotNext` (= &gRaceSparkEffects[4];
+  race/1770 declares it u8): `extern ...[4]` + `--reloc-ok`; timedEffectCountdownTick single-use `u8 newAlpha` (try the direct
+  store, else tag); effectWobbleRiseUpdate swayX/swayZ and effectWobbleScaleUpdate `wave` reused for an unrelated role (split or
+  tag); K&R effectPlayerDistanceFadeUpdate/effectFadeInSinkUpdate/effectSinkBySpeedUpdate; 8 uncalled-by-C callbacks keep old
+  second-parameter types (effectInterpolationUpdate & 5 more `s8 *`, effectRandomDriftVelocityUpdate `void *`,
+  effectScaleYFromSpeedUpdate `s32`) for a later types batch.
 - Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
   `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
   function's real outputs). Not dispatched: a param rename is a body change.
@@ -169,4 +173,6 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
 - tools/objdiff.py `pair_addends` pairs a HI16 with the next same-symbol LO16 on the same base register across switch-case
   paths (6AD90 collisionFindFloorAtPoint: case-2 `lui` 0x768 paired with case-1 `%lo` 0x7e0 instead of `%lo(+2)` 0x868), so
   `--reloc-ok` fails a copy retiring split label D_807F949A as `sSourceTiltPitch[1]` although the final bytes match (2026-11-24 M7).
-
+- tools/variants.py `scan --max 120` (the sweep recipe rung) caps a function with more one-edit variants: vehicleUpdateMotion
+  (936B0) has ~181, so ~60 were never scored while the rung reads fresh (CleanmountedBarrelUpdate 2026-11-25). Fix: no cap
+  for the recorded rung, or record `partial` when capped.
