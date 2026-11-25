@@ -57,7 +57,9 @@ DOUBLE_SIGINT_WINDOW = 2.0
 MAX_ROUNDS = 10           # restart-flow iterations before giving up
 MAX_RETRIES = 10          # transparent RUN/HOLD retries after ERROR{retiring}
 DEAD_STATES = ("exited", "dead", "removing")
-FORWARDED_SIGNALS = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)
+# SIGHUP does not exist on Windows.
+FORWARDED_SIGNALS = tuple(getattr(signal, name) for name in ("SIGINT", "SIGTERM", "SIGHUP")
+                          if hasattr(signal, name))
 DEFAULT_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 SHIM_DIR = "/dk64/tools/dkd/shims"
 
@@ -668,7 +670,7 @@ def _hold(cmd):
     def forward(signum, _frame):
         try:
             child.send_signal(signum)
-        except OSError:
+        except (OSError, ValueError):  # ValueError: Windows Popen only sends SIGTERM/CTRL_*
             pass
     for sig in FORWARDED_SIGNALS:
         signal.signal(sig, forward)
@@ -712,9 +714,13 @@ def _interactive(argv):
     if srv is None:
         raise DkError("dkd server container %s disappeared" % NAME)
     path = srv.env.get("PATH") or DEFAULT_PATH
-    os.execvp("docker", ["docker", "exec", "-it", "-w", "/dk64",
-                         "-e", "DKD_SOCK=" + proto.INTERNAL_SOCK,
-                         "-e", "PATH=%s:%s" % (SHIM_DIR, path), srv.id] + argv)
+    cmd = ["docker", "exec", "-it", "-w", "/dk64", "-e", "DKD_SOCK=" + proto.INTERNAL_SOCK,
+           "-e", "PATH=%s:%s" % (SHIM_DIR, path), srv.id] + argv
+    if os.name == "nt":
+        # Windows has no exec(): os.execvp starts a detached child, returns to the shell at
+        # once and does not quote arguments containing spaces.
+        return subprocess.call(cmd)
+    os.execvp("docker", cmd)
 
 
 # --------------------------------------------------------------------------- --status / --stop
@@ -805,7 +811,7 @@ def main(argv):
                 return 64
             args = ["/bin/bash"]
         if tty and not os.environ.get("DK64_LEASE"):
-            _interactive(args)
+            return _interactive(args)
         return _run(args)
     except DkError as e:
         for line in str(e).splitlines() or [""]:
