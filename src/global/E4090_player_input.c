@@ -1060,30 +1060,17 @@ s32 playerInputUpdate(s32 handlerSet) {
 }
 
 u16 inputRemapButtons(u16 buttons, u16 *map) {
-    u32 mask;
     u16 seen;
     u16 mapped;
-    u32 ghost0;
-    u32 ghost1;
 
-    mask = *map;
     seen = 0;
     mapped = 0;
-    if (mask != 0) {
-        ghost0 = mask; // FAKE: pre-loop def, holds a0 across the loop so buttons spills and the mask load takes t0
-        do {
-            ghost1 = seen; // FAKE: loop-head def, holds a3 against the mask load (steers its colour to t0)
-            seen |= mask;
-            if (ghost1) {} // FAKE: dead test keeping ghost1 a coloured web
-            map++;
-            if ((u32)mask & buttons) {} // FAKE: makes the and-result a uopt candidate
-            if (ghost0) {} // FAKE: dead test keeping ghost0 a coloured web
-            if ((u32)mask & buttons) {
-                mapped |= map[0];
-            }
-            mask = map[1];
-            map++;
-        } while (mask != 0);
+    while (*map) {
+        seen |= *map;
+        if (*map++ & buttons) {
+            mapped |= *map;
+        }
+        map++;
     }
     return mapped | (buttons & ~seen);
 }
@@ -1957,29 +1944,21 @@ u8 actorTestNodeSegmentCollision(Actor *actor) {
     f32 y;
     f32 x;
     f32 t;
-    f32 x2;
-    f32 x1;
-    f32 y2;
-    f32 y1;
-    f32 z2;
-    f32 z1;
+    f32 segX[2];
+    f32 segY[2];
+    f32 segZ[2];
     s16 hitA;
     s16 hitB;
     u8 hit;
 
     hit = 0;
     t = 0.0f;
-    actorGetNodePos(actor, 4, &x1, &y1, &z1);
-    actorGetNodePos(actor, 0xA, &x2, &y2, &z2);
+    actorGetNodePos(actor, 4, &segX[0], &segY[0], &segZ[0]);
+    actorGetNodePos(actor, 0xA, &segX[1], &segY[1], &segZ[1]);
     for (; t <= 1.0 && hit == 0; t += 0.2) {
-        do { // FAKE: do/while(0) block ends the copy block so x1/y1/z1 reach the lerp as x/y/z variables, not copy-propagated (x1 f2, y1 f16, z1 f18 at 0x3834-0x3848)
-            x = x1;
-            y = y1;
-            z = z1;
-        } while (0);
-        x = ((x2 - x1) * t) + x;
-        y = ((y2 - y1) * t) + y;
-        z = ((z2 - z1) * t) + z;
+        x = segX[0] + ((segX[1] - segX[0]) * t);
+        y = segY[0] + ((segY[1] - segY[0]) * t);
+        z = segZ[0] + ((segZ[1] - segZ[0]) * t);
         hit = collisionTestSphere(x, y, z, 10.0f, &hitA, &hitB, 0, 0);
     }
     return hit;
