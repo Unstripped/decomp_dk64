@@ -791,12 +791,11 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
     ModelSubNode **subLink;
     s32 n;
     s32 i;
-    s32 pad1;
+    s32 j;
     s32 pad[10];
-    void *triBase;
+    ActorSub140Tri *tri;
     s32 pad50;
     ActorSub140SrcTri *srcTri;
-    ActorSub140Tri *tri;
     s32 count;
     ModelNode *node;
     ModelSubNode *subnode;
@@ -858,21 +857,17 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
         if (count > 0) {
             do {
                 f32 *rec = (f32 *)data;
-                s32 k = 0;
-                s32 j = 0;
-                f32 *dst = srcTri->x;
-                f32 *src = (f32 *)data;
+                s32 k;
+                f32 *dst;
+
+                k = 0;
+                j = 0;
+                dst = srcTri->x;
                 do {
-                    *dst++ = src[0];
-                    j += 2; // FAKE: split increments raise j/k/src priority (v0/v1/a0/a1 roles)
-                    j--;
-                    k += 1;
-                    k += 1;
-                    k += 1;
-                    src += 1;
-                    src += 2;
-                    dst[2] = src[-2];
-                    dst[5] = src[-1];
+                    *dst++ = rec[k++];
+                    dst[2] = rec[k++];
+                    dst[5] = rec[k++];
+                    j++;
                 } while (j != 3);
                 srcTri->id = *(s32 *)(rec + k);
                 srcTri->boneOffset = *(s32 *)(rec + (k + 1));
@@ -888,27 +883,22 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
         sub140->triangleCount = count;
         if (count != 0) {
             sub140->triangles = heapAlloc(count * sizeof(ActorSub140Tri));
-            triBase = sub140->triangles;
+            tri = sub140->triangles;
         }
         if (count > 0) {
-            tri = triBase;
             do {
                 f32 *rec = (f32 *)data;
-                s32 k = 0;
-                s32 j = 0;
-                f32 *dst = tri->x;
-                f32 *src = (f32 *)data;
+                s32 k;
+                f32 *dst;
+
+                k = 0;
+                j = 0;
+                dst = tri->x;
                 do {
-                    *dst++ = src[0];
-                    j += 2; // FAKE: split increments raise j/k/src priority (v0/v1/a0/a1 roles)
-                    j--;
-                    k += 1;
-                    k += 1;
-                    k += 1;
-                    src += 1;
-                    src += 2;
-                    dst[2] = src[-2];
-                    dst[5] = src[-1];
+                    *dst++ = rec[k++];
+                    dst[2] = rec[k++];
+                    dst[5] = rec[k++];
+                    j++;
                 } while (j != 3);
                 tri->id = *(s32 *)(rec + k);
                 tri->boneOffset[0] = *(s32 *)(rec + (k + 1));
@@ -956,7 +946,7 @@ void actorSetBoxEnableById(Actor *actor, s32 id, u8 value) {
     s32 i;
 
     sub = actor->collision;
-    if (actor->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
+    if (actor->collision != NULL) { // FAKE: second read of actor->collision (0x140) makes the load its own $v1 candidate; sub is its copy in $v0
         ent = sub->boxes;
         for (i = 0; i < sub->boxCount; i++) {
             if (id == ent[i].id) {
@@ -972,7 +962,7 @@ void actorSetTriangleEnableById(Actor *actor, s32 id, u8 enabled) {
     s32 i;
 
     sub = actor->collision;
-    if (actor->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
+    if (actor->collision != NULL) { // FAKE: second read of actor->collision (0x140) makes the load its own $v1 candidate; sub is its copy in $v0
         ent = sub->triangles;
         for (i = 0; i < sub->triangleCount; i++) {
             if (id == ent[i].id) {
