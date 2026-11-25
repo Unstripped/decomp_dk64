@@ -130,16 +130,26 @@ def test_elem_rotates_element_spellings():
     assert texts(v.gen_elem, "    x = p->arr[i].f; y = s.arr[j].g;") == []  # member arrays keep their path
 
 
+def fn(*lines):
+    return "\n".join(lines)
+
+
 def test_splitlocal_splits_reused_local():
-    text = "void f(void) {\n    s32 x;\n    s32 y;\n    x = a();\n    b(x);\n    x = c(); // FAKE: reuse\n    d(x);\n}"
+    text = "void f(void) {\n    s32 x;\n    s32 y;\n    x = a();\n    b(x);\n    x = c(); // FAKE: x reused\n    d(x);\n}"
     out = texts(v.gen_splitlocal, text)
     assert len(out) == 3  # decl slots 0, 1, 2
     assert out[2] == ("void f(void) {\n    s32 x;\n    s32 y;\n    s32 x_2;\n    x = a();\n    b(x);\n"
                       "    x_2 = c();\n    d(x_2);\n}")
 
 
+def test_splitlocal_start_tag_names_local_alone_on_line():
+    head = ("void f(void) {", "    s32 x;", "    s32 y;", "    x = a();", "    b(x);")
+    assert texts(v.gen_splitlocal, fn(*head, "    x = c(); // FAKE: reuse", "    d(x);", "}")) == []
+    assert texts(v.gen_splitlocal, fn(*head, "    x = c(); y = 1; // FAKE: x reused", "    d(x);", "}")) == []
+
+
 def test_splitlocal_skips_compound_and_untagged():
-    assert texts(v.gen_splitlocal, "void f(void) {\n    s32 x;\n    x = a();\n    x += c(); // FAKE: r\n}") == []
+    assert texts(v.gen_splitlocal, "void f(void) {\n    s32 x;\n    x = a();\n    x += c(); // FAKE: x\n}") == []
     assert texts(v.gen_splitlocal, "void f(void) {\n    s32 x;\n    x = a();\n    x = c();\n    d(x);\n}") == []
 
 
@@ -148,8 +158,111 @@ def test_unalias_removes_alias():
     assert texts(v.gen_unalias, text) == ["void f(T *p) {\n    g(p);\n    h(p->a);\n}"]
 
 
+def test_unalias_needs_untagged_reader():
+    # (e) only tagged lines read A: deleting the alias re-points the steer at B, the steer unchanged
+    text = fn("void f(T *p) {", "    T *q = p; // FAKE: alias", "    if (q) {} // FAKE: dead test", "    g(p);", "}")
+    assert texts(v.gen_unalias, text) == []
+    text = fn("void f(T *p) {", "    T *q = p; // FAKE: alias", "    if (q) {} // FAKE: dead test", "    g(q);", "}")
+    assert texts(v.gen_unalias, text) == [fn("void f(T *p) {", "    if (p) {} // FAKE: dead test", "    g(p);", "}")]
+
+
+def test_unalias_skips_store_read_by_loop_step():
+    # the for step reads q after the loop body stores it: respelling q there would read p every iteration
+    text = fn("void f(T *p) {", "    T *q;", "    T *r;", "    q = p; // FAKE: alias", "    r = q;",
+              "    for (i = 0; i < 4; i++, r = q) {", "        q = h(i);", "        g(r);", "    }", "}")
+    assert texts(v.gen_unalias, text) == []
+
+
 def test_splitlocal_skips_steer_only_local():
     # the split local would be read only by tagged lines: renaming a steer drops a tag, not a hack
-    text = ("void f(void) {\n    s32 g;\n    g = a();\n    b(g);\n    g = m; // FAKE: holds a0\n"
+    text = ("void f(void) {\n    s32 g;\n    g = a();\n    b(g);\n    g = m; // FAKE: g holds a0\n"
             "    if (g) {} // FAKE: dead test\n}")
+    assert texts(v.gen_splitlocal, text) == []
+
+
+def test_splitlocal_role_refined_in_place():
+    # (a) a clamp, a lone if arm and a one-line conditional store refine x_2's role: the range runs through
+    # them to d(); the unconditional x = e() begins x's next role
+    text = fn("void f(void) {", "    s32 x;", "    x = a();", "    b(x);", "    x = c(); // FAKE: x reused",
+              "    if (x > 9) {", "        x = 9;", "    }", "    if (k) {", "        x = 0;", "    }",
+              "    if (m) x = 1;", "    d(x);", "    x = e();", "    g(x);", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(void) {", "    s32 x;", "    s32 x_2;", "    x = a();", "    b(x);", "    x_2 = c();",
+        "    if (x_2 > 9) {", "        x_2 = 9;", "    }", "    if (k) {", "        x_2 = 0;", "    }",
+        "    if (m) x_2 = 1;", "    d(x_2);", "    x = e();", "    g(x);", "}")
+
+
+def test_splitlocal_switch_case_merging_refines():
+    # (a) a switch case whose value merges at d() refines the role; one read only inside its case begins a role
+    text = fn("void f(s32 k) {", "    s32 x;", "    x = a();", "    b(x);", "    x = c(); // FAKE: x reused",
+              "    switch (k) {", "    case 1:", "        x = 2;", "        break;", "    }", "    d(x);", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(s32 k) {", "    s32 x;", "    s32 x_2;", "    x = a();", "    b(x);", "    x_2 = c();",
+        "    switch (k) {", "    case 1:", "        x_2 = 2;", "        break;", "    }", "    d(x_2);", "}")
+    text = fn("void f(s32 k) {", "    s32 x;", "    x = a();", "    b(x);", "    x = c(); // FAKE: x reused",
+              "    d(x);", "    switch (k) {", "    case 1:", "        x = 2;", "        g(x);", "        break;", "    }", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(s32 k) {", "    s32 x;", "    s32 x_2;", "    x = a();", "    b(x);", "    x_2 = c();",
+        "    d(x_2);", "    switch (k) {", "    case 1:", "        x = 2;", "        g(x);", "        break;", "    }", "}")
+
+
+def test_splitlocal_declaration_starts_only_new_roles():
+    # (a) a tagged declaration splits at each store beginning a role: not the lone if arm `x = 0`, and an if/else
+    # storing x in both arms is one store (its role starts at the then arm and runs through the else arm)
+    text = fn("void f(s32 k) {", "    s32 x; // FAKE: x serves two roles", "    x = a();", "    if (k) {",
+              "        x = 0;", "    }", "    b(x);", "    if (m) {", "        x = c();", "    } else {",
+              "        x = d();", "    }", "    g(x);", "}")
+    out = v.gen_splitlocal(text)
+    assert [d for _, d, _ in out] == ["line 2: x -> new local x_2 from line 9 (decl slot 0)",
+                                      "line 2: x -> new local x_2 from line 9 (decl slot 1)"]
+    assert out[-1][2] == fn(
+        "void f(s32 k) {", "    s32 x;", "    s32 x_2;", "    x = a();", "    if (k) {", "        x = 0;", "    }",
+        "    b(x);", "    if (m) {", "        x_2 = c();", "    } else {", "        x_2 = d();", "    }", "    g(x_2);", "}")
+
+
+def test_splitlocal_for_header_ends_and_starts_role():
+    # (b) a `for (i = ...)` header begins a new role: the split stops before it, or starts at it; one whose
+    # initialiser reads i continues the role
+    text = fn("void f(void) {", "    s32 i;", "    i = a();", "    b(i);", "    i = c(); // FAKE: i reused", "    d(i);",
+              "    for (i = 0; i < 4; i++) {", "        g(i);", "    }", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(void) {", "    s32 i;", "    s32 i_2;", "    i = a();", "    b(i);", "    i_2 = c();", "    d(i_2);",
+        "    for (i = 0; i < 4; i++) {", "        g(i);", "    }", "}")
+    text = fn("void f(void) {", "    s32 i; // FAKE: i serves two roles", "    i = a();", "    b(i);",
+              "    for (i = 0; i < 4; i++) {", "        g(i);", "    }", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(void) {", "    s32 i;", "    s32 i_2;", "    i = a();", "    b(i);",
+        "    for (i_2 = 0; i_2 < 4; i_2++) {", "        g(i_2);", "    }", "}")
+    text = fn("void f(void) {", "    s32 i;", "    i = a();", "    b(i);", "    i = c(); // FAKE: i reused",
+              "    for (i = i + 1; i < 4; i++) {", "        g(i);", "    }", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(void) {", "    s32 i;", "    s32 i_2;", "    i = a();", "    b(i);", "    i_2 = c();",
+        "    for (i_2 = i_2 + 1; i_2 < 4; i_2++) {", "        g(i_2);", "    }", "}")
+
+
+def test_splitlocal_start_keeps_reading_old_value():
+    # (c) the start's right-hand side keeps reading x; an untagged update `x = x + 1` refines the role in place
+    text = fn("void f(void) {", "    s32 x;", "    x = a();", "    x = x * 2; // FAKE: x reused", "    b(x);", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(void) {", "    s32 x;", "    s32 x_2;", "    x = a();", "    x_2 = x * 2;", "    b(x_2);", "}")
+    text = fn("void f(void) {", "    s32 x;", "    x = a();", "    b(x);", "    x = c(); // FAKE: x reused",
+              "    x = x + 1;", "    d(x);", "}")
+    assert texts(v.gen_splitlocal, text)[-1] == fn(
+        "void f(void) {", "    s32 x;", "    s32 x_2;", "    x = a();", "    b(x);", "    x_2 = c();",
+        "    x_2 = x_2 + 1;", "    d(x_2);", "}")
+
+
+def test_splitlocal_keeps_a_role_for_the_old_local():
+    # (d) x must keep a store and an untagged read outside the split, else the split renames every use of x
+    assert texts(v.gen_splitlocal, fn("void f(void) {", "    s32 x;", "    x = a(); // FAKE: x reused", "    b(x);",
+                                      "}")) == []
+    assert texts(v.gen_splitlocal, fn("void f(void) {", "    s32 x;", "    x = a();", "    if (x) {} // FAKE: dead",
+                                      "    x = c(); // FAKE: x reused", "    d(x);", "}")) == []
+    assert texts(v.gen_splitlocal, fn("void f(void) {", "    s32 x;", "    x = a();", "    x = 3; // FAKE: x reused",
+                                      "    b(x);", "}")) == []
+
+
+def test_splitlocal_skips_local_declared_again():
+    text = fn("void f(void) {", "    s32 x;", "    x = a();", "    b(x);", "    x = c(); // FAKE: x reused", "    d(x);",
+              "    {", "        s32 x;", "        x = e();", "        g(x);", "    }", "}")
     assert texts(v.gen_splitlocal, text) == []

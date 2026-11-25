@@ -33,13 +33,23 @@ tools/dk on the host):
                      (`int` and `long` (s32) differ in IDO's cfe: Q0128 menu/E550 maxLevel)
            declswap  two adjacent lines of the leading declaration block swapped
            splitlocal  (lines tagged `// FAKE` only) one local serving two roles split in two: from a tagged
-                     plain assignment `X = ...;` (or, for a tagged declaration of X, from each plain assignment
-                     after X's first) to the line before X's next plain assignment, X becomes a new local
-                     X_<n> (smallest unused n >= 2) declared at every slot of the declaration block; only
-                     when an untagged line in that range reads X (else it would just rename a steer)
+                     `X = ...;` alone on its line whose tag names X (or, for a tagged declaration of X without
+                     an initialiser, from each later store beginning a new role) to the line before X's next
+                     store beginning a new role, a `for (X = ...)` header included, X becomes a new local
+                     X_<n> (smallest unused n >= 2) declared at every slot of the declaration block. A store
+                     whose right-hand side reads X (a clamp, an update), or a conditional one (if/else arm,
+                     switch case, loop body) whose value merges with X's at a later read, refines the role in
+                     place; an if/else or switch storing X on every path is one store. The start keeps
+                     reading X on its right-hand side (`X_2 = f(X)`). Only when an untagged line of the range
+                     reads X_<n> (else it renames a steer) and X keeps a store and an untagged read of its own,
+                     the start's right-hand side included (else it renames every use of X); never for a name
+                     declared again in a nested block
            unalias   (lines tagged `// FAKE` only) a redundant alias `A = B;` / `T *A = B;` of a local A
-                     deleted, A respelled B up to the next plain assignment of A or B; A's separate
-                     declaration line deleted too once unused, and kept (a frame slot) in a second variant
+                     deleted, A respelled B up to the next store to A or B (`for` headers included); A's
+                     separate declaration line deleted too once unused, and kept (a frame slot) in a second
+                     variant. Only when an untagged line of that range reads A (else the deletion re-points
+                     tagged readers at B, the steer unchanged); never when that store lies in a loop entered
+                     in the range that reads A before it, or a nested block declares A or B
          splitlocal/unalias drop the acted-on line's `// FAKE` comment and prove nothing: a rename across a
          loop back-edge is caught by the gates (fdiff --reloc-ok, clint uninit --base).
          Prints the baseline, then `full text reloc recipe desc` per variant (deadsweep score's measures;
@@ -210,15 +220,248 @@ def _name(x):
     return re.compile(r"(?<![\w.])(?<!->)" + re.escape(x) + r"(?!\w)")
 
 
-def _assigns(x):
-    """A plain assignment to X starting a line's code (never `==` or a compound `+=`)."""
-    return re.compile(r"^\s*" + re.escape(x) + r"\s*=(?!=)")
+def _writes(code, x):
+    """Whether CODE stores to X with a plain `=` (never `==` or a compound `+=`)."""
+    return bool(re.search(r"(?<![\w.])(?<!->)" + re.escape(x) + r"\s*=(?!=)", code))
+
+
+def _reads(code, x):
+    """Whether CODE reads X: names it other than as the target of a plain `=`."""
+    return bool(_name(x).search(re.sub(r"(?<![\w.])(?<!->)" + re.escape(x) + r"(?=\s*=(?!=))", "", code)))
+
+
+CASE_LABEL = re.compile(r"(?:case\b[^:]*|default\s*):\s*")
+BRACELESS = re.compile(r"(?:(?:else\s+)?if|for|while)\s*\(.*\)|else")
+
+
+def _store(code, x):
+    """The right-hand side of a plain store to X that starts CODE's statement (after a case label), or the
+    initialiser of a `for (X = ...)` header; None for any other line (a one-line `if (c) X = v;` included)."""
+    m = re.match(r"\s*(?:" + CASE_LABEL.pattern + r")?(?:for\s*\(\s*)?" + re.escape(x) + r"\s*=(?!=)([^;]*)", code)
+    return m.group(1) if m else None
+
+
+class _Blocks:
+    """Brace structure of a function body (the lines after its opening line O). ctx[i]: keys of the constructs
+    enclosing line I's code, outermost first (a line opening a block is outside it); kind[k]: `arm` (an if /
+    else if / else arm, or the statement of a brace-less one), `case` (one case region of a switch body),
+    `loop` (a for/while body), `do`, `switch` or `block`; inner[k]: the ctx of a line directly in K; own[k]:
+    (first, last) line of K's own region; span[k]: (first, last) line of the whole statement (an if chain
+    through its last arm, a case region's switch). An if chain or a switch is a record {first, last, arms (its
+    arm / case keys), else (ends in `else` / has `default`)}: rec[k] of each member, opens[line], ends[line]."""
+    COND = ("arm", "case", "loop")
+
+    def __init__(self, lines, o):
+        n = len(lines)
+        self.ctx, self.kind, self.inner, self.span, self.own = [()] * n, {}, {}, {}, {}
+        self.rec, self.opens, self._recs = {}, {}, []
+        self._ids, self._stack, self._last = itertools.count(), [], None
+        brace = None  # (kind, line) of a brace-less if/else/for/while waiting for its statement
+        pre, paren = "", 0  # the statement text before a `{` (a `for (;;)` header or a condition across lines)
+        for i in range(o + 1, n):
+            c = "" if lines[i].lstrip().startswith("#") else deadsweep.code_of(lines[i])
+            while paren == 0 and c.startswith("}"):
+                self._close(i)
+                c, pre = c[1:].lstrip(), ""
+            top = self._stack[-1] if self._stack else None
+            if paren == 0 and c and top and top["kind"] == "switch" and CASE_LABEL.match(c):
+                if top["case"] is not None:
+                    self.own[top["case"]] = (self.own[top["case"]][0], i - 1)
+                top["case"] = self._key("case", top["line"], i)
+                self._member(top["rec"], top["case"])
+                top["rec"]["else"] |= c.startswith("default")
+                self.inner[top["case"]] = self._keys()
+            keys, over = list(self._keys()), None
+            if brace and c:
+                if c.startswith("{"):
+                    over = brace
+                else:
+                    keys.append(self._key(brace[0], brace[1], i))
+                brace = None
+            self.ctx[i] = tuple(keys)
+            for ch in c:
+                if paren == 0 and ch in "{};":
+                    if ch == "{":
+                        self._open(pre, i, over)
+                        over = None
+                    elif ch == "}":
+                        self._close(i)
+                    pre = ""
+                else:
+                    paren += (ch == "(") - (ch == ")")
+                    pre += ch
+            pre += " "
+            if BRACELESS.fullmatch(c) and _balanced(c):
+                brace = ("loop" if c.startswith(("for", "while")) else "arm", i)
+        while self._stack:  # a truncated body: close what is open
+            self._close(n - 1)
+        self.ends = {}
+        for r in self._recs:
+            if "last" in r:
+                self.ends.setdefault(r["last"], []).append(r)
+
+    def _keys(self):
+        return tuple(k for f in self._stack for k in (f["key"], f["case"]) if k is not None)
+
+    def _key(self, kind, first, last=None):
+        k = next(self._ids)
+        self.kind[k], self.own[k], self.span[k] = kind, (first, last), (first, last)
+        return k
+
+    def _member(self, rec, k):
+        rec["arms"].append(k)
+        self.rec[k] = rec
+
+    def _open(self, pre, i, over):
+        p = re.sub(r"^(?:(?:case\b[^:]*|[A-Za-z_]\w*)\s*:\s*)+", "", pre.strip())  # case and goto labels
+        kind, line, rec, last = "block", i, None, self._last
+        if over:
+            kind, line = over
+        elif re.match(r"if\b", p):
+            kind = "arm"
+        elif p.startswith("else"):
+            kind = "arm"
+            if last and last["kind"] == "arm" and last["depth"] == len(self._stack):
+                rec = last["rec"]
+        elif re.match(r"switch\b", p):
+            kind = "switch"
+        elif re.match(r"(?:for|while)\b", p):
+            kind = "loop"
+        elif re.match(r"do\b", p):
+            kind = "do"
+        if kind == "switch" or (kind == "arm" and rec is None):
+            rec = self.opens[line] = {"first": line, "arms": [], "else": False}
+            self._recs.append(rec)
+        k = self._key(kind, line)
+        if kind == "arm":
+            self._member(rec, k)
+            rec["else"] = bool(re.fullmatch(r"else", p))
+        self.inner[k] = self._keys() + (k,)
+        self._stack.append(dict(key=k, kind=kind, line=line, rec=rec, case=None, depth=len(self._stack)))
+
+    def _close(self, i):
+        if not self._stack:
+            return
+        f = self._last = self._stack.pop()
+        self.own[f["key"]] = self.span[f["key"]] = (f["line"], i)
+        if f["case"] is not None:
+            self.own[f["case"]] = (self.own[f["case"]][0], i)
+        if f["rec"]:
+            f["rec"]["last"] = i
+            for a in f["rec"]["arms"]:
+                self.span[a] = (f["rec"]["first"], i)
+
+    def conds(self, r, i):
+        """The constructs enclosing line I but not line R that run conditionally (if/else arms, switch cases,
+        loop bodies), outermost first."""
+        return [k for k in self.ctx[i] if k not in self.ctx[r] and self.kind[k] in self.COND]
+
+    def under(self, c, t):
+        """Whether line T lies within each construct of C (a ctx): after a store under C, T sees its value."""
+        return self.ctx[t][:len(c)] == c
+
+    def sibling(self, i, t):
+        """Whether line T lies in another arm of an if chain, or another case of a switch, that line I lies in."""
+        g = [id(self.rec[k]) for k in self.ctx[i] if k in self.rec]
+        return any(id(self.rec[k]) in g for k in self.ctx[t] if k in self.rec and k not in self.ctx[i])
+
+
+class _Roles:
+    """The roles of local X in a function body. A store to X begins a new role unless it refines the current
+    one in place: its right-hand side reads X (a clamp or an update), or it runs conditionally (an if/else
+    arm, a switch case, a loop body; a one-line `if (c) X = v;` is no store here at all) and its value merges
+    with the current one at a later read. An if chain ending in `else` or a switch with `default` that stores X
+    on every path counts as one store."""
+
+    def __init__(self, st, code, x):
+        self.st, self.code, self.x = st, code, x
+
+    def _covers(self, rec):
+        """Whether every arm (case) of REC stores X directly in it, or in such a nested statement (an empty
+        case falls through to the next)."""
+        st = self.st
+        if not rec["else"]:
+            return False
+        for k in rec["arms"]:
+            top = [w for w in range(st.own[k][0], st.own[k][1] + 1) if st.ctx[w] == st.inner[k]]
+            if st.kind[k] == "case" and all(not self.code[w] or CASE_LABEL.fullmatch(self.code[w]) for w in top):
+                continue
+            if not any(_store(self.code[w], self.x) is not None or (w in st.opens and self._covers(st.opens[w]))
+                       for w in top):
+                return False
+        return True
+
+    def _reached(self, lines, i=None):
+        """Whether one of LINES reads X before a store among them that it lies under. With I (escape scan from
+        line I's store): lines in sibling regions of I's are skipped, and a store every path from I passes
+        ends the scan."""
+        st, kills = self.st, []  # ctx of each store passed: a line under one sees that store's value
+        for t in lines:
+            if i is not None and st.sibling(i, t):
+                continue
+            rhs = _store(self.code[t], self.x)
+            if _reads(self.code[t] if rhs is None else rhs, self.x) and not any(st.under(c, t) for c in kills):
+                return True
+            new = [st.ctx[t]] if rhs is not None else []
+            new += [st.ctx[r["first"]] for r in st.ends.get(t, ())
+                    if (i is None or not any(k in st.ctx[i] for k in r["arms"])) and self._covers(r)]
+            for c in new:
+                if i is not None and st.under(c, i):
+                    return False
+                kills.append(c)
+        return False
+
+    def _lift(self, i, r):
+        """(P, KS): line I's store lifted to the head of each innermost if chain / switch around it that
+        stores X on every path and does not hold line R; KS: the conditional constructs around P but not R."""
+        st, ks = self.st, self.st.conds(r, i)
+        while ks and (rec := st.rec.get(ks[-1])) and not any(k in st.ctx[r] for k in rec["arms"]) \
+                and self._covers(rec):
+            i = rec["first"]
+            ks = st.conds(r, i)
+        return i, ks
+
+    def begins(self, i, r, rhs_ok=False):
+        """Whether the store to X at line I begins a new role after line R of the current role (RHS_OK: its
+        right-hand side may read X, as a tagged start's does)."""
+        st, rhs = self.st, _store(self.code[i], self.x)
+        if rhs is None or (not rhs_ok and _reads(rhs, self.x)):
+            return False
+        for k in st.ctx[i]:  # a loop entered after R: its test, or a read before I, sees this value next time
+            if k not in st.ctx[r] and st.kind[k] in ("loop", "do"):
+                lo = st.span[k][0]
+                if _reads(self.code[lo], self.x) or self._reached(range(lo + 1, i)):
+                    return False
+        p, ks = self._lift(i, r)  # entered conditionally: a new role only if no later read sees it merged
+        return not ks or not self._reached(range(st.span[ks[-1]][1] + 1, len(self.code)), p)
+
+    def end(self, s, r):
+        """Last line of the role starting at line S after line R: the line before X's next store beginning a
+        new role, at most the end of the innermost conditional region the role runs in (its value reaches no
+        read outside it)."""
+        ks = self._lift(s, r)[1]
+        last = (self.st.own[ks[-1]][1] if ks else None) or len(self.code) - 1
+        return next((i - 1 for i in range(s + 1, last + 1) if self.begins(i, s)), last)
+
+
+def _rename_store(code, x, new):
+    """CODE with X renamed NEW except in the right-hand side of its first plain store to X: `X = f(X);` ->
+    `NEW = f(X);`, `for (X = a; X < b; X++)` -> `for (NEW = a; NEW < b; NEW++)`."""
+    m = re.search(r"(?<![\w.])(?<!->)" + re.escape(x) + r"(?=\s*=(?!=))", code)
+    k = code.find(";", m.end())
+    k = len(code) if k < 0 else k
+    return code[:m.start()] + new + code[m.end():k] + _name(x).sub(new, code[k:])
 
 
 def _unfake(code, cm):
     """CODE with comment CM minus its `// FAKE...` part (other comment text before it kept)."""
     rest = re.sub(r"\s*(?://\s*)?FAKE\b.*$", "", cm).rstrip()
     return code.rstrip() + (" " + rest if rest.strip("/ \t") else "")
+
+
+def _declares(code, x):
+    """Whether CODE is a single-declarator declaration of a local named X."""
+    return bool(deadsweep.DECL.fullmatch(code) and (m := LOCAL.match(code)) and m.group(3) == x)
 
 
 def _top_comma(s):
@@ -241,48 +484,66 @@ def _rename(lines, lo, hi, rx, new):
     return out
 
 
-def _code(line):
-    return line.split("//")[0]
-
-
 def gen_splitlocal(text):
-    """One local serving two roles split in two: from a FAKE-tagged plain assignment `X = ...;` (or, for a
-    FAKE-tagged declaration of X, from each later plain assignment after the first) to the line before the
-    next plain assignment of X, X becomes a new local X_n declared at each slot of the declaration block."""
+    """One local serving two roles split in two: from a FAKE-tagged `X = ...;` alone on its line whose tag
+    names X (or, for a FAKE-tagged declaration of X without an initialiser, from each later store beginning a
+    new role) to the line before X's next store beginning a new role (_Roles), X becomes a new local X_n
+    declared at each slot of the declaration block; the start keeps reading X on its right-hand side. Only
+    when an untagged line of the range reads X_n and X keeps a store and an untagged read of its own (else
+    the split just renames a steer, or every use of X)."""
     lines = text.split("\n")
     if not (b := decl_block(lines)):
         return []
     o, j = b
-    decls = {}  # name -> (line index, indent, type text)
+    decls = {}  # name -> (line index, indent, type text, initialised)
     for i in range(o + 1, j):
         sc = split_code(lines[i])
         m = sc and LOCAL.match(sc[0])
         if not m or m.group(4) or (m.group(5) and (_top_comma(m.group(5)) or _name(m.group(3)).search(m.group(5)))):
             continue
-        decls[m.group(3)] = (i, m.group(1), m.group(2))
+        decls[m.group(3)] = (i, m.group(1), m.group(2), m.group(5) is not None)
+    code = [deadsweep.code_of(l) for l in lines]
+    for x in [x for x in decls if any(_declares(code[i], x) for i in range(j, len(lines)))]:
+        del decls[x]  # declared again in a nested block: the name holds two variables
+    st = _Blocks(lines, o)
+    tagged = [bool((sc := split_code(l)) and "FAKE" in sc[1]) for l in lines]
     out = []
     for n, line in enumerate(lines):
-        sc = split_code(line)
-        if not sc or "FAKE" not in sc[1]:
+        if not tagged[n]:
             continue
-        m = re.match(r"^\s*([A-Za-z_]\w*)\s*=(?!=)", sc[0])
+        m = re.fullmatch(r"([A-Za-z_]\w*)\s*=(?!=)[^;]*;", code[n])
         if m and m.group(1) in decls and n >= j:
-            x, starts = m.group(1), [n]
+            x = m.group(1)
+            roles = _Roles(st, code, x)
+            r = next((i for i in range(n - 1, o, -1) if _writes(code[i], x)), decls[x][0])
+            if not _name(x).search(split_code(line)[1]) or not roles.begins(n, r, rhs_ok=True):
+                continue  # the tag is about another construct, or the store refines X's role in place
+            starts = [(n, r)]
         else:
             x = next((k for k, d in decls.items() if d[0] == n), None)
-            if x is None:
+            if x is None or decls[x][3]:
                 continue
-            asg = [i for i in range(j, len(lines)) if _assigns(x).match(_code(lines[i]))]
-            starts = [i for i in asg[1:] if split_code(lines[i])]
-        d, ind, typ = decls[x]
+            roles, starts = _Roles(st, code, x), []
+            r = next((i for i in range(j, len(lines)) if _writes(code[i], x)), None)
+            while r is not None and (s := next((i for i in range(r + 1, len(lines)) if roles.begins(i, r)), None)):
+                starts.append((s, r))
+                r = s
+        _, ind, typ, init = decls[x]
         k = next(k for k in itertools.count(2) if not re.search(rf"\b{re.escape(x)}_{k}\b", text))
         xn = f"{x}_{k}"
-        for s in starts:
-            e = next((i - 1 for i in range(s + 1, len(lines)) if _assigns(x).match(_code(lines[i]))), len(lines) - 1)
-            if not any((c := split_code(lines[i])) and "FAKE" not in c[1] and _name(x).search(c[0])
-                       for i in range(s + 1, e + 1)):
+        for s, r in starts:
+            e = roles.end(s, r)
+            if not any(not tagged[i] and _reads(code[i], x) for i in range(s + 1, e + 1)):
                 continue  # the new local would be read only by tagged lines: a renamed steer, not a split
-            new = _rename(lines, s, e, _name(x), xn)
+            own = [i for i in range(j, len(lines)) if not s <= i <= e]  # X's own lines after the declarations
+            if not ((init or any(_writes(code[i], x) for i in own)) and (_reads(_store(code[s], x), x) or any(
+                    not tagged[i] and _reads(code[i], x) for i in own))):
+                continue  # X would keep no role of its own: the split renames every use of X
+            if any(split_code(lines[i]) is None and _name(x).search(code[i]) for i in range(s, e + 1)):
+                continue  # a literal line naming X is never renamed
+            new = _rename(lines, s + 1, e, _name(x), xn)
+            c, cm = split_code(new[s])
+            new[s] = _rename_store(c, x, xn) + cm
             new[n] = _unfake(*split_code(new[n]))
             for p in range(j - o):
                 out.append(("splitlocal", f"line {n + 1}: {x} -> new local {xn} from line {s + 1} (decl slot {p})",
@@ -292,8 +553,10 @@ def gen_splitlocal(text):
 
 def gen_unalias(text):
     """A FAKE-tagged alias `A = B;` (or `T *A = B;`) of a local A removed, A respelled B up to the next
-    plain assignment of A or B; A's separate declaration line deleted once unused (a variant keeping it,
-    for its frame slot, when that differs)."""
+    store to A or B (_store); A's separate declaration line deleted once unused (a variant keeping it, for
+    its frame slot, when that differs). Only when an untagged line of that range reads A (else the deletion
+    re-points tagged readers at B, the steer unchanged), and not when that store lies in a loop entered within
+    the range that reads A before it (its next iteration, or a `for` step, reads the stored value)."""
     lines = text.split("\n")
     b = decl_block(lines)
     decls = {}
@@ -301,6 +564,7 @@ def gen_unalias(text):
         sc = split_code(lines[i])
         if sc and (m := LOCAL.match(sc[0])) and not m.group(4):
             decls.setdefault(m.group(3), i)
+    code, st = [deadsweep.code_of(l) for l in lines], _Blocks(lines, b[0]) if b else None
     out = []
     for n, line in enumerate(lines):
         sc = split_code(line)
@@ -309,13 +573,20 @@ def gen_unalias(text):
         typ, a, bb = m.groups()
         if a == bb or (not typ and a not in decls):
             continue
-        stop = re.compile(r"^\s*(?:" + re.escape(a) + "|" + re.escape(bb) + r")\s*=(?!=)")
-        e = next((i - 1 for i in range(n + 1, len(lines)) if stop.match(_code(lines[i]))), len(lines) - 1)
+        e = next((i - 1 for i in range(n + 1, len(lines)) if _store(code[i], a) is not None
+                  or _store(code[i], bb) is not None), len(lines) - 1)
+        if not any((c := split_code(lines[i])) and "FAKE" not in c[1] and _reads(code[i], a) for i in range(n + 1, e + 1)):
+            continue  # only tagged lines read A: the deletion re-points the steer at B, nothing more
+        if any(_declares(code[i], a) or _declares(code[i], bb) for i in range(n + 1, e + 1)):
+            continue  # a nested block declares its own A or B
+        if st and e + 1 < len(lines) and any(_reads(code[t], a) for k in st.ctx[e + 1] if st.kind[k] in ("loop", "do")
+                                             and n < st.span[k][0] <= e for t in range(st.span[k][0], e + 1)):
+            continue
         new = _rename(lines, n + 1, e, _name(a), bb)
         keep = [l for i, l in enumerate(new) if i != n]
         d = None if typ else decls.get(a)
         texts = []
-        if d is not None and not any(_name(a).search(_code(l)) for i, l in enumerate(new) if i not in (n, d)):
+        if d is not None and not any(_name(a).search(deadsweep.code_of(l)) for i, l in enumerate(new) if i not in (n, d)):
             texts.append("\n".join(l for i, l in enumerate(new) if i not in (n, d)))
         texts.append("\n".join(keep))
         for t in dict.fromkeys(texts):
