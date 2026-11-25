@@ -1944,7 +1944,7 @@ void tagBarrelActorUpdate(void) {
     f32 scaleFactor;
     u32 cullMargin;
     f32 sizeScale;
-    s16 angle;
+    s16 speedY;
     f32 yOffset;
 
     sub = gCurrentActor->customState;
@@ -2121,11 +2121,11 @@ void tagBarrelActorUpdate(void) {
         sub->spinSpeed = 0;
         actorAppendCallback(gPrimaryPlayerActor, gCurrentActor, 0x40, 1, 0, NULL);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->mountMode == 1.0) {
-            angle = gBarrelMountLaunchSpeedY;
+            speedY = gBarrelMountLaunchSpeedY;
         } else {
-            angle = 0xB4;
+            speedY = 0xB4;
         }
-        actorAppendPlayerLaunch(gCurrentActor, gPrimaryPlayerActor, (gCurrentActor->yaw + 0x800) & 0xFFF, angle, 0);
+        actorAppendPlayerLaunch(gCurrentActor, gPrimaryPlayerActor, (gCurrentActor->yaw + 0x800) & 0xFFF, speedY, 0);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->mountMode == 1.0) {
             PlayerState *playerState = gPrimaryPlayerActor->customState;
             playerMountBarrel(gPrimaryPlayerActor, 0);
