@@ -392,7 +392,7 @@ s16 zbufferDepthToDistance(s16 depth) {
     s32 dist;
 
     lo = 0;
-    mid = -1; // FAKE: mid preassigned (the -1 compare reads it) steers lo/hi registers
+    mid = -1; // FAKE: mid preassigned (the -1 compare reads it) numbers mid uopt candidate before hi: mid -> v1, hi -> a1
     hi = 0x1FE;
     if (depth == mid) {
         return 0;
