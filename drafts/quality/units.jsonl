@@ -1357,3 +1357,4 @@
 {"type": "unit", "t": "2026-11-25T20:12:33Z", "unit": "2026-11-25: cleanup CleanactorTargetCourseHostUpdate", "commit": "858decc1728746e76a0fe52e36b91ee6699975a4"}
 {"type": "unit", "t": "2026-11-25T20:18:49Z", "unit": "2026-11-25: cleanup CleaninputRemapButtons", "commit": "d32d798e35e50ae7124c810a8abef8f7bcc92033"}
 {"type": "unit", "t": "2026-11-25T20:25:29Z", "unit": "2026-11-25: cleanup CleanactorSub140CreateFromData", "commit": "8038d740eacdb0f967cda50e61d16f71ed289f80"}
+{"type": "unit", "t": "2026-11-25T21:00:31Z", "unit": "2026-11-25: cleanup CleanraceRenderCoinHud", "commit": "608962541190165c098a8e1ef9722c7bcd7c53bc"}
