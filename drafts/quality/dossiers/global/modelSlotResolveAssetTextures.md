@@ -1,4 +1,4 @@
-# modelSlotResolveAssetTextures (global, src/global/36880.c)
+# modelSlotResolveAssetTextures (global, src/global/36880_model_slot.c)
 ## Sites
 global:80636D38:volatile:8d1318 volatile (REMOVED 2026-11-16): `ModelSlotAsset *volatile textures` copy of seg gave the else-arm `sw s0,60(sp)` home and `lw 60(sp)` reloads (0x178/0x198/0x1ac). Replaced by `textures = slot->unk20` as its own local (CSE shares the one `lw s0,32(a0)`; textures stays uncoloured).
 global:80636D38:other:75aced other (now ORIG): `node = ((ModelType1ObjAddrs *)slot->unk20)->texAnims`: the target reloads slot (`lw t6,72(sp)` at 0x90) and slot->unk20 (`lw t7,32(t6)` at 0xA0); `seg->texAnims` scores full=48 (also on the 2026-11-18 body). Cast stays while ModelSlot.unk20 is `void *` (model.h H1/H2 regeneration).
@@ -34,8 +34,13 @@ global:80636D38:dead-if:bb36c3 dead-if (FIXED 2026-11-21, Lever36880, Q1589): `i
 - other switch spellings: case 1 (break) + default holding the if/else 103; default-first 160; return in both case and default 103; case 1 return + `default: break;` 103; early-return `if (obj->modelKind == 1) { ...; return; }` without a switch 64 (= removal); nested one-case `switch (obj->modelKind)` re-read around the node part 105, around the fourth call 77.
 - f52946 re-measured on the switch body: store through obj 15, Q1564 u8 flags copy + obj store 4, flags copy + tagged store 4 (unchanged: those numbers never belonged to the dead test).
 - variants scan on the switch body: zeros are only truth/swap/decl spellings (no site change).
+2026-11-25 continue CleanrenderModelAnimatedSlot anthropic/claude-opus-5-5 (base 9d5aabb3, f52946 only):
+- natural obj store re-measured: 15 (`lw s1,36(a0)` for `lw v0,36(a0)` + `move s1,v0` at 0x51dc/0x51f8, `sw t8,8(s1)` at 0x51ec).
+- variants scan on the natural obj-store body (--max 1000, 44 variants): best 15 (truth/swap/declswap/width of head/cmds/tail unchanged 15; head/tail s32 16; res u16 23).
+- obj as a declaration initialiser (`ModelAssetHeader *obj = slot->asset;` in its slot, or declared first): 15.
+- reasoning: the reads of slot->asset ahead of the first kill (the lastUsedFrame `sw` itself) are only the obj definition and the store address, so the v0 CSE temp + `move s1,v0` pattern needs two source reads; the target cannot show which read the programmer wrote second. Ruling question for the lead: is `move s1,v0` (an executed copy that only a CSE of two reads produces) evidence enough for `// ORIG:`? Not applied (load-count ruling).
 ## Untried ideas
-- f52946: a construct that reads slot->asset twice before the first store without a re-read spelling (none known: macro/alias forms are the same re-read; a second local is a redundant alias).
+- f52946: none known. Every single-read spelling (store through obj, initialiser, any bb0 order, flags copy Q1564) leaves obj the defining web in s1; a second read is the tagged spelling.
 ## Evidence
 - 0x7c `lbu t2,28(s1)`, 0x80 `li at,1`, 0x88 `bne t2,at,0x178`: the one modelKind compare; the kind-1 arm ends `b 0x1b0` (0x170) into the epilogue, the Clear call (jal 0x1a8) falls through to it.
 - 0x1C `lw s0,32(a0)` (seg) then 0x2C `sw s0,60(sp)` (textures home); else arm reloads 60(sp) at 0x178, 0x198 (jal delay), 0x1ac (jal delay).

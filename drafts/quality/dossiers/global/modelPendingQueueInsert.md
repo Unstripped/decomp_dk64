@@ -1,4 +1,4 @@
-# modelPendingQueueInsert (global, src/global/36880.c)
+# modelPendingQueueInsert (global, src/global/36880_model_slot.c)
 
 ## Sites
 - other:0eb0e4 (new 2026-11-21, replaces dead-if:6a7bf8) `f32 *px = NULL, *py = NULL, *pz = NULL;` dead initialisers: number px/py/pz cand 0/3/6, ahead of i*752 (umpy cand 54) and &gPlayerSlots[i] (uixa cand 55). All five tie at adjsave 15.00 and the earlier candidate wins (Q1551), so px/py/pz take v1/a0/a1 and umpy/uixa a2/a3. Removal 14. OPEN.
@@ -24,11 +24,15 @@
 - px/py/pz dead inits on the switch body: at declaration 2 (0 with the slots/obj join), three statements before/after best = 1e8f or at the function start 0, chain px = py = pz = NULL 6-8, subsets px+py 8, px 11, px+pz 11, py/pz/py+pz 14.
 - head layouts on the final body: two lines 2, slots/obj one line 0, idx/slots/obj one line 0, slots before idx one line 64, obj from gModelSlots[idx] then slots 54 (same on one line), assignment in the obj test 2, slots after the obj test 55.
 - (f32) cast on updateRangeSq removed: 0 (the implicit conversion is the same cvt.s.w).
+2026-11-25 continue CleanrenderModelAnimatedSlot anthropic/claude-opus-5-5 (base 9d5aabb3, 0eb0e4 only)
+- dead inits removed (`f32 *px, *py, *pz;`): 14, mflo v1 / addu a0,t1,v1 for mflo a2 / addu a3,t1,a2 (0x9a2c/0x9a30) and px/py/pz in a1/a2/a3 for v1/a0/a1 (0x9a54-0x9a70).
+- variants scan on that body (--max 1000, 101 variants incl. elem `(gPlayerSlots + i)->eyeX` / `(&gPlayerSlots[i])->active|actor`): best 14.
+- default-then-override pointers (eye pointers assigned at the loop-body top, case 6 overriding in a one-case switch 25, in an if 32).
+- permuter 900 s on that body (hack-free weights, -j 2, base 75): best 60 = a redundant alias `new_var = px` read in the distance sum (steer); 68 also aliases `&entry->modelId`; 70 aliases eyeZ; no zero.
+- reasoning: every statement that assigns px/py/pz contains i*752 (via gPlayerSlots[i].actor or .eyeX), so umpy is always numbered ahead of a live px def; only a pre-loop statement can number px first, and any such statement is a dead store (fully dead declaration default ruling).
 
 ## Untried ideas
-- A live (same-role) earlier first assignment of px/py/pz that numbers them ahead of umpy/uixa without a dead store (Q1561 pattern); none known in this function.
-- A natural construct that lowers umpy/uixa below 15.00 or raises px/py/pz above it (Q1569 accesses vs blocks), replacing the numbering lever.
-- Permuter on the final body (dead inits removed, hack-free weights) to look for another tie-breaker.
+- A natural construct that lowers umpy/uixa below 15.00 or raises px/py/pz above it (Q1569 accesses vs blocks), replacing the numbering lever (not found: d temp, dx/dy/dz temps, PlayerSlot pointer, Actor pointer all tried).
 
 ## Evidence
 - target 0x9940..0x9bd4, frame 88: allow in ra, spilled `sb ra,83(sp)` around hashTableLookup and reloaded `lbu ra,83(sp)` 0x99b0; idx home 70(sp) (`sh v0,70(sp)` 0x999c), slots 52(sp) (`sw t8,52(sp)` 0x99a4 after `addu t9,t8,t7` 0x99a0), obj 84(sp); reloads 0x9b78/0x9b7c.
