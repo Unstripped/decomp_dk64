@@ -1,4 +1,4 @@
-# bossSpawnerUpdate (boss, src/boss/DAA0.c)
+# bossSpawnerUpdate (boss, src/boss/DAA0_spawner_follower.c)
 
 ## Sites
 - proto-steer fe0889/59a070 (sfxAllocateChannel K&R): FIXED. Shared `void sfxAllocateChannel(s32, f32)` with `1.0` (double literal): built per call `lui a1,0x3f80`; `1.0f` joins the function 1.0f FP web and is passed `mfc1 a1,$f2`.
@@ -47,10 +47,23 @@
 - reconstruct: natural per-role body (LIGHT_X/LIGHT_Z macros for the light position, dx/dz in case 1, stepLimit/repeatLimit/mag role locals, i and j loop counters only, no guard): 134, frame 0x88.
 - permuter perm_xzinl from the inline-light body (9 lines), 905 s, 26885 iterations, base 65: best 40 (output-40-1) only adds a case-1 copy temp (`z = p->x - a->x; x = z;`); no zero.
 
+## Attempts (2026-11-25, continue unit 2026-11-25, CleanbossSpawnerUpdate, anthropic/claude-opus-5-5, base 594af197)
+- body unchanged since the 2026-11-18b attempt (file renamed to DAA0_spawner_follower.c). quality.py sweep: 0 hits (14 checks). fakehunt: not hunted yet on this host. clint uninit 0, cfe warnings 0.
+- variants.py scan with the recipes added on 2026-11-21 (truth, switch, branch, arith; elem has no `X[i].f` site here) on every hack-free base; no variant beats its baseline:
+  - guard removed (3e88fe): 32 variants, best 23 (baseline).
+  - `i <<= 4` with `i` passed to both lightAdd calls (3e88fe): 32 variants, best 2 (baseline: intensity spill `sw/lw v0` at 0x48 instead of 0x44, 0xeec/0xf3c).
+  - inline light position (LIGHT_X/LIGHT_Z macros, x/z case 1 only; 9b9b60/df676c): 30 variants, best 9 (baseline).
+  - `s16 limit` declared after j (926eea; j home 0x52 kept): 34 variants, best 8 (baseline: `li v0,12` / `li v0,4` for `li a1` at 0x650/0x668, `slt at,t3,v0` at 0x6a0, `li a1,32000` leaves the 0x6a8 delay slot). The case 0 `if (state->phase == 2)` as a switch scores 8 too.
+- frame-kept per-role reconstruct (new: every named home at its target offset): `s32 mag` declared first in the r slot 0x7c (randomFloat() inline), `s16 stepLimit` in the 0x64 hole after topReached, `s16 repeatLimit` in the 0x50 hole after j, x/z only in case 1, LIGHT_X/LIGHT_Z macros, i and j loop counters only.
+  - no guard: 89 lines. Each role recolours on its own: loop counter `$a3` and `i >> 1` `$t0` (target t0/a3 at 0x80-0x150; the `i >> 1` spill 0xac `sw a3,72(sp)` becomes `sw t0,68(sp)`, every temp spill 0x48 -> 0x44); thresholds `$v0` (target `li t0` 0x640/0x664/0x770/0x784/0x798); repeat limit `$v1` (target a1); case 1 `$f2/$f12` + cvt `$f0` (target `$f12/$f0`, `$f2`); light block double `andi` (guard effect) and x/z table loads t2/t3 for t3/t4. mag itself takes `$t0` (`li t0,15` 0xe7c matches).
+  - with the guard kept: 437; with `mag <<= 4` passed to the calls: 453 (both recolour the whole function).
+- permuter perm_limit from the split-limit body (`s16 limit` declared after j, j home 0x52 kept; hack-free weights), 900 s, 6324 iterations, base 95: two score-0 outputs, both re-merge the case 0 repeat limit and the case 7 loop counter into one s16 (output-0-2 as `j`; output-0-1 drops `j` and runs the case 7 loop on `limit`): the 926eea reuse itself, no natural zero.
+
 ## Untried ideas
 - none left in straight-line C: the 0xe80-0xf24 block has no branch, and a block boundary there without emitted code is a dead guard (or label/loop steer) by construction.
-- repeatLimit split is 8 lines (v0 for a1 only): a natural use that forbids v0 across 0x650-0x6a0 in case 0 (none found).
-- x/z: a natural case-1 spelling that gives x adjsave >= 3.0 and a $f12 preference without the light block (none found; two-step defs recolour widely).
+- repeatLimit split is 8 lines (v0 for a1 only): a natural use that forbids v0 across 0x650-0x6a0 in case 0 (none found; the target has no other value live in v0 there, v0 is next loaded at 0x74c).
+- x/z: a natural case-1 spelling that gives x adjsave >= 3.0 and a $f12 preference without the light block (none found; two-step defs recolour widely; f64 case-1 x/z on the inline-light body, measured 2026-11-25: both `cvt.d.s` move into the def block next to the `sub.s` (target z converts at 0x420 in the third block) and the frame grows to 0x88, 206 lines).
+- i: every split measured so far (one role at a time, all roles with the frame grown, all roles with the frame kept) recolours the loop counter to $a3; a natural change that lowers the loop counter priority below the `i >> 1` CSE (a3) without a long merged range is the open question.
 
 ## Evidence
 - D_80035B38 (u8) is compared with -1 in case 0 (`lbu t6` 0x24c, `li at,-1` 0x224, `bnel t6,at` 0x250): the target performs the always-false compare, so `D_80035B38 == -1` is original code, not a steer.

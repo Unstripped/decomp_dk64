@@ -1,4 +1,4 @@
-# bossFollowerActorUpdate (boss, src/boss/DAA0.c)
+# bossFollowerActorUpdate (boss, src/boss/DAA0_spawner_follower.c)
 ## Sites
 boss:80032B08:other:d51071 other (copy only, final): `s32 id` shared by the else-arm anim id and the mirrored-arm opposite side; merged isvar adjsave 4.0 ties umpy{id}{2} (4.0) and wins on candidate number 62<150, so id is $v0 (0x11c4, 0x1520) and the side*2 index $v1 (0x1530/0x1538); replaces the three dead ifs below (all removed in the copy, fdiff 0).
 boss:80032B08:dead-if:37830d `if (anim->animId == 1) {}` in the 37/26-frame arm: only needed while 2cf154 is present. Removed alone: 373 diff lines (frame 0x38 -> 0x40, gCurrentActor address s1 -> s0 at 0x106c, parentState/anim spilled to 56/52(sp)). Removed together with 2cf154: 3 lines (only the 0x23 colour, same as 2cf154 alone).
@@ -29,8 +29,13 @@ boss:80032B08:dead-if:2cf154 `if (link->unk5 && link->unk5) {}` between the tint
 - body unchanged since e42248f8 except names; sweep 0 hits. sFireCooldown comment: stale "shadows the file-scope definition" clause dropped (no such definition exists).
 - adjsave by ref count on the per-role form (uopt -l5): `oppSide = parentState->side + 2` 2.5 (5 refs, div 2); two-step `oppSide = parentState->side; oppSide += 2;` 3.5 (7 refs: the field-load first def counts, Q1049) -> still 9 lines (index umpy{oppSide}{2} 4.0 colours first into $v0). Also 9: two-step + ternary clamp, two-step + `else oppSide = oppSide`, `if ((oppSide += 2) >= 4)`. Only a no-op `oppSide -= 2; oppSide -= 2;` (9 refs, 4.5, a steer) or the merged anim-id local (8 refs, Q0924) reach the 4.0 tie that bit 144 wins over bit 152 -> 0.
 
+2026-11-25 continue unit 2026-11-25: CleanbossSpawnerUpdate anthropic/claude-opus-5-5 (base 594af197), d51071 only:
+- body unchanged (file renamed to DAA0_spawner_follower.c); quality.py sweep 0 hits; clint uninit 0; cfe warnings 0.
+- variants.py scan with the recipes added on 2026-11-21 (truth, switch, branch, arith; no `X[i].f` site for elem) on the per-role animId/oppSide body (9 lines): 26 variants, best 9 (baseline). The `if (link->slot == 1)` / `if (parentState->fireFlag == 1)` switches and every commutative swap (x/z sums, `parentState->side + 2`) score 9 or worse.
+- Q0163 divisor check: `((nlive-2)>>2)+2` is 1 only for a one-block range, where oppSide's 5 refs would give 5.0 and beat the index (4.0); the target wraps with `slti at,v0,4` (0x1528) / `bnezl at` (0x152c, delay `sll v1,v0,1` 0x1530), so oppSide spans 3 blocks (div 2, 2.5) in any spelling that keeps that branch.
+
 ## Untried ideas
-(a natural 8th oppSide ref in the mirrored arm that emits no code: none found 2026-11-18b; none left that are natural C; the BossSpawnState/BossFollowerLink merge was applied by PolishBossDAA0Names on 2026-11-14, so that idea is closed; 2026-11-18: the permuter from the per-role body only rediscovers the merge)
+(a natural 8th oppSide ref in the mirrored arm that emits no code: none found 2026-11-18b; none left that are natural C; the BossSpawnState/BossFollowerLink merge was applied by PolishBossDAA0Names on 2026-11-14, so that idea is closed; 2026-11-18: the permuter from the per-role body only rediscovers the merge; 2026-11-25: the 2026-11-21 recipes and the one-block-range route are closed too)
 ## Evidence
 Priorities (uopt_trace -l 5, base copy): id bit 62 adjsave 4.0 -> reg 1 ($v0), live bb40/41/42 + bb11/12; index bit 150 adjsave 4.0 -> reg 2 ($v1), live bb42, forbidden [1 3]. Per-role copy: index bit 152 4.0 -> $v0; oppSide bit 144 2.5 -> $v1 (forbidden [1 3]).
 Fire block (0x13c8): `lb v0,20(t6)` is a coloured load candidate but its `sll t9,v0,1` index is a ugen ring temp; a side local there turns the index into a coloured $v1 candidate.
