@@ -1366,3 +1366,4 @@
 {"type": "unit", "t": "2026-11-25T22:25:55Z", "unit": "2026-11-25: cleanup CleanpathPlaybackAdvance", "commit": "14298be2dcefa63abd2deb56b235fa235847a857"}
 {"type": "unit", "t": "2026-11-25T22:28:49Z", "unit": "2026-11-25: cleanup CleanzbufferDepthToDistance", "commit": "47e3afe39b87ac0f22f751cee0b9d5fd82e56fe4"}
 {"type": "unit", "t": "2026-11-25T22:33:11Z", "unit": "2026-11-25: cleanup CleanrenderModelAnimatedSlot", "commit": "4cd28cc89a9ab56a24f93cdbcb09834c5eb2069d"}
+{"type": "unit", "t": "2026-11-25T22:36:26Z", "unit": "2026-11-25: cleanup CleanraceGetNextWaypointIndex", "commit": "fe6059d0ef552fb269df83f2be91a1fd2bede703"}
