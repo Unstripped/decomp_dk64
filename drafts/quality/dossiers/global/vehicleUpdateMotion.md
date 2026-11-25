@@ -1,4 +1,4 @@
-# vehicleUpdateMotion (global, src/global/936B0.c)
+# vehicleUpdateMotion (global, src/global/936B0_projectile.c)
 
 K&R definition at line 311 (was func_8068F72C; u8 params applyBuoyancy/tilt). Frame 0x60; s0 = cached
 gCurrentActor, s1 = &gCurrentActor, s2 = vehicle. Locals (frame-top offsets): turnScale (s32, was tmpA) -4 (0x5c),
@@ -181,12 +181,22 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
   9b1ca1 diagnose nohit re-checked against Q1599/Q1593/Q1602: removal piece 321 {19/6 reload, uses 44, 58} 0.0; the target
     has no kongState read after 0x1434 (a0 = s0 at 0x14b0); switch respellings of both kongState == 2 branches (turnScale
     select, jump block; case-first and default-first, alone and both, 8 bodies) add blocks (77 -> 79), no use: 45 each.
+- 2026-11-25 continue CleanmountedBarrelUpdate anthropic/claude-opus-5-5 (base 9d5aabb3; copy unchanged, fdiff 0, uninit 0,
+  cwarn 0; sweep 47 checks 0 hits):
+  6c8d63 diagnose nohit: uncapped variants scan of the removal body (all 11 recipes, --max 2000): 182 variants, best 20.
+    The sweep's recipe rung scans with --max 120, so the 62 later float/width/declswap variants had never been scored.
+  9b1ca1 diagnose nohit: uncapped scans of the removal (181 variants, best 45) and of the both-removed body (180 variants,
+    best 65); speedGain clamp as `speedGain = speedGain < 0.0f ? 0.0f : speedGain` and the heading update as `+=` / `&=`:
+    45 each (same code as the removal).
+  review nohit: fresh read at 9d5aabb3, body unchanged, FAKE 2 kept.
 
 ## Untried ideas
 - 6c8d63: a natural construct adding a block between a waterY compare and its use (bb 48->49 or bb 70->71) with no
   code; the late-arm reuse of waterY must stay (store-order probe). (One more speedY use in bb 49..53: tried 2026-11-21, nohit.)
 - 9b1ca1: one more kongState use AFTER the bb 58 compare (0x1434) with no code: ruled out by Q1599 (code-free uses are not
-  counted; the target has no later read). Aliases stay redundant-alias steers.
+  counted; the target has no later read). Aliases stay redundant-alias steers. Remaining structural lever: drop one of the
+  two reload blocks (bb 6 after the first call, bb 19 at the motion-arm join) from the tail range with the def still at
+  0xdcc-0xde0 and the 0xf10 reload kept; no spelling found (2026-11-17 entry shapes, 2026-11-25 speedGain/heading forms).
 
 ## Evidence
 0xdf8-0xe1c: `move t1,zero; c.le.s; bc1fl; sb t1,71(sp); li t1,1; sb t1,71(sp)` then `andi t3,t2,1; sb t3,70(sp)`.
@@ -203,3 +213,5 @@ uopt -l5 at c5578e18: waterY cand 24 live bb 48, 49..50, 51, 72, 73 (with guard,
 (without, 3.0, $f0); speedY cand 217/216 adjsave 3.0 both ways.
 uopt -l5 at 18884cf4 (removal body): cand 24 `48 1 1 0`, `49 1 0 0`, `70 1 1 0`, `71 1 0 0` 3.0 (reg 24); cand 216
 `49 1 1 0`, `50 1`, `53 2 deadout`, `51 1`, default [52], 3.0 (reg 25). Conditional-store body: 216 adds `54 1`, 2.33.
+Target at 9d5aabb3: kongState `lw t0,88(v0)` 0xdcc / `sw t0,88(sp)` 0xde0, reloads only `lw t1,88(sp)` 0xf10 (5000/10000 select)
+and `lw a0,88(sp)` 0x12cc (kept to `bne a0,v1` 0x12ec and 0x1434); waterY `lwc1 $f2,172(s0)` 0x1370 and 0x14e8, speedY `lwc1 $f0` 0x13b8.
