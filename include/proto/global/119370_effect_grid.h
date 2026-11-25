@@ -74,13 +74,13 @@ void effectSetBounds(s16, s16, s16, s16);
 void effectResetState(void);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtModelNode
-void effectCreateAtModelNode(void *, f32, s32, s32, u8);
+void effectCreateAtModelNode(EffectGridAsset *, f32, s32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtActorBone
-EffectNode *effectCreateAtActorBone(void *, f32, Actor *, s32, u8);
+EffectNode *effectCreateAtActorBone(EffectGridAsset *, f32, Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtPosition
-EffectNode *effectCreateAtPosition(void *, f32, f32, f32, f32);
+EffectNode *effectCreateAtPosition(EffectGridAsset *, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_effectCreate
 EffectNode *effectCreate(EffectGridAsset *, f32, f32, f32, f32, Actor *, s32, s32, u8);

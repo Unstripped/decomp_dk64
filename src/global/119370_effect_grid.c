@@ -315,7 +315,7 @@ void effectResetState(void) {
 }
 
 
-void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 anchorType) {
+void effectCreateAtModelNode(EffectGridAsset *asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 anchorType) {
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
@@ -325,7 +325,7 @@ void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeInde
 }
 
 
-EffectNode *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 boneIndex, u8 anchorType) {
+EffectNode *effectCreateAtActorBone(EffectGridAsset *asset, f32 scale, Actor *actor, s32 boneIndex, u8 anchorType) {
     f32 boneX;
     f32 boneY;
     f32 boneZ;
@@ -337,7 +337,7 @@ EffectNode *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 bo
     return effectCreate(asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, anchorType);
 }
 
-EffectNode *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
+EffectNode *effectCreateAtPosition(EffectGridAsset *asset, f32 scale, f32 x, f32 y, f32 z) {
     return effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
