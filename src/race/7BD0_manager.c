@@ -182,30 +182,21 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceParticipant *tracker) {
     s32 screenX;
     s32 screenY;
     s32 i;
-    s32 offset;
     f32 doubleX;
     s16 scaledY;
-    f32 f_offset;
+    f32 xOffset;
 
     hudPos = tracker->viewport;
     screenX = (s32)((f64)(hudPos->left + 8) + 4.0);
     screenY = hudPos->bottom - 0x22;
     WRITE_GFX(dl++, 0xFA000000, 0xFFC800B4);
-    i = 0;
-    if (tracker->projectileAmmo > 0) {
-        offset = 0;
-        doubleX = (f32)screenX + (f32)screenX;
-        scaledY = (s16)(s32)(((f32)screenY + (f32)screenY) * 4.0f);
-        do {
-            Gfx *next;
-            f_offset = offset;
-            next = renderRotatedSprite(dl, 0x4A, 3, 1, 0x10, 0x10,
-                (s32)((doubleX + f_offset) * 4.0f),
-                scaledY, 4.0f, 4.0f, 0, 0.0f);
-            i++;
-            offset += 0x10;
-            dl = next; // FAKE: delayed dl update steers the loop schedule
-        } while (i < tracker->projectileAmmo);
+    doubleX = (f32)screenX + (f32)screenX;
+    scaledY = (s16)(s32)(((f32)screenY + (f32)screenY) * 4.0f);
+    for (i = 0; i < tracker->projectileAmmo; i++) {
+        xOffset = i * 0x10;
+        dl = renderRotatedSprite(dl, 0x4A, 3, 1, 0x10, 0x10,
+            (s32)((doubleX + xOffset) * 4.0f),
+            scaledY, 4.0f, 4.0f, 0, 0.0f);
     }
     if (tracker->projectileAmmo != 0) {
         WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
@@ -221,12 +212,10 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     f32 posY;
     f32 halfFontHeight;
     ViewportLayout *hudPos;
-    f32 xOffsetF;
+    f32 xOffset;
     s16 scaledSpriteY;
-    s32 xOffset;
-    s32 count;
+    s32 i;
     u8 *labelStr;
-    Gfx *next;
 
     hudPos = tracker->viewport;
     halfFontHeight = (f32)textGetFontHeight(1) * 0.5f;
@@ -244,21 +233,14 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     posY = (f32)((f64)posY + (0.4 * (f64)halfFontHeight));
     WRITE_GFX(dl++, 0xFA000000, 0xFFFF00FF);
     scaledSpriteY = (s16)(s32)((posY + posY) * 4.0f);
-    for (xOffset = 0; xOffset < 0x78; xOffset += 0x18) {
-        xOffsetF = xOffset;
-        dl = renderRotatedSprite(dl, 0x4B, 3, 1, 0x40, 0x40, (s32)((doublePosX + xOffsetF) * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
+    for (i = 0; i < 5; i++) {
+        xOffset = i * 0x18;
+        dl = renderRotatedSprite(dl, 0x4B, 3, 1, 0x40, 0x40, (s32)((doublePosX + xOffset) * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
     }
     WRITE_GFX(dl++, 0xFA000000, 0xFF0000FF);
-    count = 0;
-    if ((5 - tracker->gateMissesLeft) > 0) {
-        xOffset = 0;
-        do {
-            xOffsetF = xOffset;
-            next = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, (s32)((doublePosX + xOffsetF) * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
-            count += 1;
-            xOffset += 0x18;
-            dl = next; // FAKE: delayed dl update steers the loop schedule
-        } while (count < (5 - tracker->gateMissesLeft));
+    for (i = 0; i < 5 - tracker->gateMissesLeft; i++) {
+        xOffset = i * 0x18;
+        dl = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, (s32)((doublePosX + xOffset) * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
     }
     WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
     return dl;
