@@ -5025,7 +5025,6 @@ sCharacterNameChunky = 0x80759280;
 sCharacterNameKrusha = 0x80759288;
 sCharacterNameRambi = 0x80759290;
 sCharacterNameEnguarde = 0x80759298;
-sTextBoxGlyphStrInit = 0x8075A740;
 sLevelNameJungle = 0x8075AA80;
 sLevelNameTemple = 0x8075AA88;
 sLevelNameToy = 0x8075AA90;

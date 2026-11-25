@@ -21,22 +21,20 @@ void textBoxRowStartHook(Actor *key, void *data) {
 }
 
 extern u8 gGfxBufferIndex;
-extern const u16 sTextBoxGlyphStrInit[];
 
 
 void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGlyph *glyph) {
-    union { u16 h; u8 b; u8 text[8]; } str;
+    Gfx *dl = *gdl;
+    u8 str[2] = "";
     f32 mtx[4][4];
     f32 tmp[4][4];
     f32 angle;
     f32 halfW;
     f32 halfH;
-    Gfx *dl;
     ResGlyphText *text;
     f32 scale;
+    s32 pad;
 
-    dl = *gdl;
-    str.h = sTextBoxGlyphStrInit[0];
     text = &glyph->text;
     guMtxIdentF(mtx);
     if ((text->attr != 0) && (glyph->fade != 0)) {
@@ -82,8 +80,8 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *state, ResRow *row, ResGly
     gSPMatrix(dl++, text->mtx[gGfxBufferIndex], G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(dl++);
     gDPSetPrimColor(dl++, 0, 0, 0x28, 0x28, 0xFF, glyph->alpha);
-    str.b = text->code;
-    *gdl = textDrawStringVtx(dl, 6, 0, 0, str.text, 0);
+    str[0] = text->code;
+    *gdl = textDrawStringVtx(dl, 6, 0, 0, str, 0);
 }
 
 
@@ -353,10 +351,10 @@ void textBoxUpdateRows(Actor *actor) {
     state->box[1] = actor->y - (state->openProgress * 79.799995f) * 0.5;
     state->box[2] = actor->x + (state->openProgress * 136.8f) * 0.5;
     state->box[3] = actor->y + (state->openProgress * 79.799995f) * 0.5;
-    state->box[0] = (gPlayerSlots->rect[0] < state->box[0]) ? state->box[0] : gPlayerSlots->rect[0];
-    state->box[1] = (gPlayerSlots->rect[1] < state->box[1]) ? state->box[1] : gPlayerSlots->rect[1];
-    state->box[2] = (state->box[2] < gPlayerSlots->rect[2]) ? state->box[2] : gPlayerSlots->rect[2];
-    state->box[3] = (state->box[3] < gPlayerSlots->rect[3]) ? state->box[3] : gPlayerSlots->rect[3];
+    state->box[0] = MAX(state->box[0], gPlayerSlots->rect[0]);
+    state->box[1] = MAX(state->box[1], gPlayerSlots->rect[1]);
+    state->box[2] = MIN(state->box[2], gPlayerSlots->rect[2]);
+    state->box[3] = MIN(state->box[3], gPlayerSlots->rect[3]);
     rowY = state->scrollY;
     i = 0;
     while ((state->rowState >= i) && (row != NULL) && (stop == 0)) {
@@ -630,5 +628,3 @@ void textBoxUpdate(void) {
         }
     }
 }
-
-const u16 sTextBoxGlyphStrInit[4] = { 0 };
