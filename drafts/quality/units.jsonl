@@ -1392,3 +1392,9 @@
 {"type": "unit", "t": "2026-11-26T04:18:19Z", "unit": "2026-11-25c: cleanup CleancollisionCheckTriangleContainsPointXZ", "commit": "cd02f1c8373ebf6c098f11d93037a2fcfbe1699a"}
 {"type": "unit", "t": "2026-11-26T04:32:35Z", "unit": "2026-11-25c: cleanup CleanarcadeUpdateOilDrumEntity", "commit": "15b7686a17aa4e56e3a3e2b458f492bb2959dce4"}
 {"type": "unit", "t": "2026-11-26T04:51:33Z", "unit": "2026-11-25c: cleanup CleanmapNodeTriangleContainsPoint", "commit": "873e33ae6ccb1ed8f2e17f53ae673ee9378af341"}
+{"type": "unit", "t": "2026-11-26T05:14:33Z", "unit": "2026-11-25c: cleanup Resume3E10Census", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
+{"type": "unit", "t": "2026-11-26T05:14:55Z", "unit": "2026-11-25c: cleanup ResumeBA790Sweep", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
+{"type": "unit", "t": "2026-11-26T05:15:24Z", "unit": "2026-11-25c: cleanup ReCheckHubPause", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
+{"type": "unit", "t": "2026-11-26T05:15:58Z", "unit": "2026-11-25c: cleanup ReCheckPlayerSink", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
+{"type": "unit", "t": "2026-11-26T05:16:26Z", "unit": "2026-11-25c: cleanup ReCheckBossAggro", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
+{"type": "unit", "t": "2026-11-26T05:17:01Z", "unit": "2026-11-25c: cleanup ReCheckCollision", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
