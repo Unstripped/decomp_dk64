@@ -32,13 +32,13 @@ import glob
 import json
 import os
 import re
-import subprocess
 import sys
 import tempfile
 
 import clang.cindex as ci
 from clang.cindex import CursorKind, TypeKind
 from shadow import posix  # stdlib-only sibling
+import cwarn  # stdlib-only sibling
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLANG_ARGS = ["-std=gnu89", "-target", "mips-linux-gnu", "-fsigned-char", "-nostdinc", "-Iinclude", "-Iassets/inc",
@@ -504,8 +504,10 @@ def layout_diff(old, new, types=False, resized=None):
 def cmd_layout(a):
     bad = False
     with tempfile.TemporaryDirectory() as tmp:
-        arch = subprocess.run(["git", "archive", a.base, "include"], cwd=ROOT, capture_output=True, check=True).stdout
-        subprocess.run(["tar", "-x", "-C", tmp], input=arch, check=True)
+        try:
+            cwarn.export_include(a.base, tmp)
+        except cwarn.CompileError as ex:
+            sys.exit(f"clint: {ex.out}")
         for h in a.headers:
             h = os.path.relpath(os.path.abspath(h), ROOT)
             old_path = os.path.join(tmp, h)

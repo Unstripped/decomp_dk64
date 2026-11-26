@@ -140,3 +140,30 @@ def test_rev_compile_links_through_the_container_when_the_host_cannot(tmp_path, 
     assert made == ["../../../../../asm", "../../../../../assets"]
     assert {"asm", "assets", "include"} <= set(seen)
     assert list((tmp_path / ".scratch" / "cwarn" / "in").iterdir()) == []
+
+
+def test_export_rev_writes_only_wanted_files(tmp_path, monkeypatch):
+    """REV's src/ holds a path Windows cannot check out (`src/arcade/lso `, as before 2ddb60d1): an
+    export of its .c files works on every host and writes nothing else."""
+    monkeypatch.setattr(cwarn, "ROOT", str(tmp_path))
+
+    def git(*args, data=None):
+        return subprocess.run(["git", *args], cwd=tmp_path, input=data, check=True, capture_output=True).stdout
+
+    def tree(*entries):  # (name, blob bytes or tree id)
+        def row(name, v):
+            if isinstance(v, bytes):
+                return f"100644 blob {git('hash-object', '-w', '--stdin', data=v).decode().strip()}\t{name}\0"
+            return f"040000 tree {v}\t{name}\0"
+        return git("mktree", "-z", data="".join(row(n, v) for n, v in entries).encode()).decode().strip()
+
+    git("init", "-q")
+    git("config", "core.autocrlf", "false")
+    src = tree(("arcade", tree(("lso ", b""), ("0_game.c", b"int a; // FAKE: x\n"))),
+               ("global", tree(("g.c", b"int g;\n"), ("g.h", b"#define H\n"))))
+    rev = git("-c", "user.email=t@example.com", "-c", "user.name=t", "commit-tree", tree(("src", src)), "-m", "a")
+    out = tmp_path / "out"
+    cwarn.export_rev(rev.decode().strip(), str(out), "src", want=lambda p: p.endswith(".c"))
+    assert sorted(p.relative_to(out).as_posix() for p in out.rglob("*") if p.is_file()) == [
+        "src/arcade/0_game.c", "src/global/g.c"]
+    assert (out / "src" / "arcade" / "0_game.c").read_bytes() == b"int a; // FAKE: x\n"

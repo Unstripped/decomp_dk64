@@ -2894,12 +2894,14 @@ ROWS = TEXT_ROWS + ["protos mismatch", "sites open", "sites exhausted", "functio
 
 
 def baseline(rev):
+    """TEXT_ROWS counts summed over REV's non-libultra src/**/*.c, exported alone (`cwarn.export_rev`:
+    no other path of REV is written, so a path this host cannot create elsewhere in REV is harmless)."""
     tot = collections.Counter()
     with tempfile.TemporaryDirectory() as tmp:
-        arc = subprocess.Popen(["git", "archive", rev, "src", "include"], cwd=ROOT, stdout=subprocess.PIPE)
-        subprocess.run(["tar", "-x", "-C", tmp], stdin=arc.stdout, check=True)
-        if arc.wait():
-            sys.exit(f"quality: git archive {rev} failed")
+        try:
+            cwarn.export_rev(rev, tmp, "src", want=lambda p: p.endswith(".c"))
+        except cwarn.CompileError as ex:
+            sys.exit(f"quality: {ex.out}")
         for root, _, names in os.walk(os.path.join(tmp, "src")):
             for n in names:
                 p = os.path.join(root, n)

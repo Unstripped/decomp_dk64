@@ -124,6 +124,39 @@ def test_layout_rejects_shifted_field(tmp_path):
     assert "Fix unk10 offset 0x10 -> 0x14" in diffs
 
 
+def test_layout_base_reads_rev_include(tmp_path, monkeypatch, capsys):
+    """`layout --base REV` exports REV's include/ with `cwarn.export_include`: a symlink there
+    (include/libultra/PR) needs no symlink privilege on the host."""
+    import argparse
+    import pytest
+    monkeypatch.setattr(clint, "ROOT", str(tmp_path))
+    monkeypatch.setattr(clint.cwarn, "ROOT", str(tmp_path))
+
+    def git(*args, data=None):
+        return subprocess.run(["git", *args], cwd=tmp_path, input=data, check=True, capture_output=True).stdout
+
+    def tree(*entries):  # (name, mode, blob bytes or tree id)
+        def row(name, mode, v):
+            if isinstance(v, bytes):
+                return f"{mode} blob {git('hash-object', '-w', '--stdin', data=v).decode().strip()}\t{name}\0"
+            return f"040000 tree {v}\t{name}\0"
+        return git("mktree", "-z", data="".join(row(*e) for e in entries).encode()).decode().strip()
+
+    git("init", "-q")
+    git("config", "core.autocrlf", "false")
+    common = b"typedef int s32;\ntypedef float f32;\n"
+    inc = tree(("common.h", "100644", common), ("fix.h", "100644", HEADER.encode()),
+               ("libultra", None, tree(("PR", "120000", b"../PR"))))
+    rev = git("-c", "user.email=t@example.com", "-c", "user.name=t", "commit-tree", tree(("include", None, inc)),
+              "-m", "a").decode().strip()
+    (tmp_path / "include").mkdir()
+    (tmp_path / "include" / "common.h").write_bytes(common)
+    (tmp_path / "include" / "fix.h").write_text(HEADER.replace("char pad4[0xC]", "char pad4[0x10]"))
+    with pytest.raises(SystemExit) as ex:
+        clint.cmd_layout(argparse.Namespace(base=rev, headers=[str(tmp_path / "include" / "fix.h")], shadow=None))
+    assert ex.value.code == 1 and "LAYOUT CHANGED Fix unk10 offset 0x10 -> 0x14" in capsys.readouterr().out
+
+
 def test_metrics_punned_scalar_only(tmp_path):
     c = tmp_path / "p.c"
     c.write_text('#include "common.h"\ntypedef struct A { s32 x; } A;\ntypedef struct B { s32 y; } B;\n'

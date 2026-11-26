@@ -1929,3 +1929,46 @@ def test_rank_rotates_least_recent_first(monkeypatch, capsys):
     rows = [l for l in capsys.readouterr().out.splitlines() if "src/global/x.c" in l]
     assert [re.search(r"src/global/x\.c  (\w+)  ", l).group(1) for l in rows] == ["g", "f"]
     assert all("next=retry" in l for l in rows)
+
+
+def test_baseline_reads_rev_c_files_only(tmp_path, monkeypatch):
+    """`report --baseline REV`: REV holds `src/arcade/lso ` (a path Windows cannot create, as before
+    2ddb60d1); the counts come from REV's non-libultra src/**/*.c alone, as the old `git archive src
+    include | tar` path counted them (compared directly on hosts where that path works)."""
+    import subprocess
+    import tempfile
+    monkeypatch.setattr(q.cwarn, "ROOT", str(tmp_path))
+
+    def git(*args, data=None):
+        return subprocess.run(["git", *args], cwd=tmp_path, input=data, check=True, capture_output=True).stdout
+
+    def tree(*entries):  # (name, blob bytes or tree id)
+        def row(name, v):
+            if isinstance(v, bytes):
+                return f"100644 blob {git('hash-object', '-w', '--stdin', data=v).decode().strip()}\t{name}\0"
+            return f"040000 tree {v}\t{name}\0"
+        return git("mktree", "-z", data="".join(row(n, v) for n, v in entries).encode()).decode().strip()
+
+    git("init", "-q")
+    git("config", "core.autocrlf", "false")
+    fake = b"    if (g) {} // FAKE: steers\n    x = 1; // LAYOUT: joined\n"
+    src = tree(("arcade", tree(("lso ", b"// FAKE: not C\n"), ("0_game.c", fake))),
+               ("boot", tree(("libultra", tree(("os.c", fake))), ("b.c", b"goto end; // FAKE: x\n"))),
+               ("global", tree(("g.c", fake), ("g.h", fake))))
+    rev = git("-c", "user.email=t@example.com", "-c", "user.name=t", "commit-tree",
+              tree(("src", src), ("include", tree(("x.h", fake)))), "-m", "a").decode().strip()
+    got = q.baseline(rev)
+    assert {k: got[k] for k in ("FAKE", "FAKE dead-if", "LAYOUT", "goto")} == {"FAKE": 3, "FAKE dead-if": 2,
+                                                                               "LAYOUT": 2, "goto": 1}
+    if os.name != "nt":  # the pre-export_rev code path
+        old = q.collections.Counter()
+        with tempfile.TemporaryDirectory() as tmp:
+            arc = subprocess.Popen(["git", "archive", rev, "src", "include"], cwd=tmp_path, stdout=subprocess.PIPE)
+            subprocess.run(["tar", "-x", "-C", tmp], stdin=arc.stdout, check=True)
+            assert arc.wait() == 0
+            for root, _, names in os.walk(os.path.join(tmp, "src")):
+                for n in names:
+                    p = os.path.join(root, n)
+                    if n.endswith(".c") and not os.path.relpath(p, tmp).startswith(os.path.join("src", "boot", "libultra")):
+                        old.update(q.text_metrics(open(p, encoding="utf-8", errors="replace").read()))
+        assert got == old

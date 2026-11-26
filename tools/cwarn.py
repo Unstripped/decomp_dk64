@@ -197,28 +197,42 @@ def export_tree(rev, tree):
 
 
 def export_include(rev, tree):
-    """REV's include/ under TREE: `git archive | tar`, except on Windows: `git checkout-index` from a
-    private index of REV:include, which writes it as this checkout has it (core.symlinks false: the
+    """REV's include/ under TREE (`export_rev`)."""
+    export_rev(rev, tree, "include")
+
+
+def export_rev(rev, tree, top, want=None):
+    """REV's files under the top-level directory TOP under TREE, only those whose path WANT accepts
+    when given. All of TOP on a POSIX host: `git archive | tar`. Otherwise (Windows, or WANT):
+    `git checkout-index` from a private index of just those files (`git ls-tree` into `update-index
+    --index-info`), which writes them as this checkout has them (core.symlinks false: the
     include/libultra/PR link is a file holding its target, where tar fails without the symlink
-    privilege) and reads no other part of REV (`git archive REV include` fails on a path Windows
-    cannot check out elsewhere in REV: `src/arcade/lso ` before 2ddb60d1)."""
+    privilege) and reads no other path of REV (`git archive` or `read-tree` of REV's src/ fail on a
+    path Windows cannot check out: `src/arcade/lso ` before 2ddb60d1)."""
     os.makedirs(tree, exist_ok=True)
-    if os.name == "nt":
+    if os.name == "nt" or want is not None:
+        r = subprocess.run(["git", "ls-tree", "-r", "-z", rev, "--", top], cwd=ROOT, capture_output=True)
+        if r.returncode:
+            raise CompileError(None, f"git ls-tree {rev} {top} failed: {r.stderr.decode('utf-8', 'replace')}", rev)
+        info = b"".join(e + b"\0" for e in r.stdout.split(b"\0")
+                        if e and (want is None or want(e.split(b"\t", 1)[1].decode("utf-8", "replace"))))
         env = dict(os.environ, GIT_INDEX_FILE=posix(os.path.join(tree, ".index")))
-        for args in (["read-tree", "--prefix=include/", f"{rev}:include"],
-                     ["checkout-index", "-a", f"--prefix={posix(tree)}/"]):
-            r = subprocess.run(["git", *args], cwd=ROOT, env=env, capture_output=True, text=True)
+        for args, data in ((["update-index", "-z", "--index-info"], info),
+                           (["checkout-index", "-a", f"--prefix={posix(tree)}/"], None)):
+            r = subprocess.run(["git", *args], cwd=ROOT, env=env, input=data, capture_output=True)
             if r.returncode:
-                raise CompileError(None, f"git {args[0]} {rev}:include failed: {r.stderr}", rev)
-        os.remove(env["GIT_INDEX_FILE"])
+                raise CompileError(None, f"git {args[0]} {rev}:{top} failed: {r.stderr.decode('utf-8', 'replace')}",
+                                   rev)
+        if os.path.exists(env["GIT_INDEX_FILE"]):
+            os.remove(env["GIT_INDEX_FILE"])
         return
-    arc = subprocess.Popen(["git", "archive", rev, "include"], cwd=ROOT, stdout=subprocess.PIPE,
+    arc = subprocess.Popen(["git", "archive", rev, top], cwd=ROOT, stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE)
     tar = subprocess.run(["tar", "-x", "-C", tree], stdin=arc.stdout, capture_output=True, text=True)
     arc.stdout.close()
     err = arc.stderr.read().decode("utf-8", "replace")
     if arc.wait() or tar.returncode:
-        raise CompileError(None, f"git archive {rev} include failed: {err}{tar.stderr}", rev)
+        raise CompileError(None, f"git archive {rev} {top} failed: {err}{tar.stderr}", rev)
 
 
 def container_symlink(target, link):
