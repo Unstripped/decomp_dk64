@@ -188,3 +188,12 @@
 {"ts":"2026-11-21T17:45:32Z","spawn_key":"TypesU4","agent":"TypesU4","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
 {"ts":"2026-11-21T17:48:50Z","spawn_key":"TypesU5","agent":"TypesU5","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
 {"ts":"2026-11-23T16:11:46Z","spawn_key":"EmuFieldsU4","agent":"EmuFieldsU4","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T04:29:58Z","spawn_key":"continue-lead-2.CleanmenuUpdateElementTargetAndColor","agent":"CleanmenuUpdateElementTargetAndColor","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T04:30:02Z","spawn_key":"continue-lead-2.CleanchaserEnemyStep","agent":"CleanchaserEnemyStep","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T04:30:22Z","spawn_key":"continue-lead-2.Resume3E10Census","agent":"Resume3E10Census","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T04:30:25Z","spawn_key":"continue-lead-2.ResumeBA790Sweep","agent":"ResumeBA790Sweep","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T05:07:38Z","spawn_key":"continue-lead-2.ReCheckBossAggro","agent":"ReCheckBossAggro","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T05:07:40Z","spawn_key":"continue-lead-2.ReCheckCollision","agent":"ReCheckCollision","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T05:07:42Z","spawn_key":"continue-lead-2.ReCheckPlayerSink","agent":"ReCheckPlayerSink","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T05:07:44Z","spawn_key":"continue-lead-2.ReCheckHubPause","agent":"ReCheckHubPause","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}
+{"ts":"2026-11-26T05:16:27Z","spawn_key":"continue-lead-2.CensusDAA0z","agent":"CensusDAA0z","agent_type":"task","invocation":"task","tier":null,"model":null,"forced":false,"functions":[]}

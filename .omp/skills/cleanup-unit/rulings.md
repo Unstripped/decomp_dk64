@@ -16,10 +16,14 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
 - a selector local at its use, also at a narrow unsigned width when the target computes and tests that exact value (478F0
   csCmdStepSequenceProgress `u8 odd = st[1] & 1; if (odd)`: `andi` 0x7054, `beqz` 0x7068; width sensitivity alone is no swap, R6 2026-11-18c)
 - a local holding one field read for use, used one or more times (Q0601): a single-use read-modify-write copy whose field the target
-  loads once and uses (A2F10 `flags = actor->flags; actor->flags = flags | 4;`: `lw` 0xbc, `ori` 0xc8, `sw` 0xcc; R10 2026-11-18c)
-- a pointer local to a global used for EVERY access, also block-scoped to an element (3E10 `MenuUiRgba *color = sMenuKongColors + idx;`
-  for all three reads, offset-first `addu` 0x96dc; R4 2026-11-18c)
-- a per-role local in a dropped local's or pads' slot
+  loads once and uses (A2F10 `flags = actor->flags; actor->flags = flags | 4;`: `lw` 0xbc, `ori` 0xc8, `sw` 0xcc; R10 2026-11-18c; F0D0
+  bossMainStep case 6 `count = byteVars[0]; if (count) byteVars[0] = count - 1;`: one `lbu` 0x1dcc, 2026-11-25c)
+- a pointer local used for EVERY access to a global, an element or an embedded sub-struct (R4 2026-11-18c, offset-first `addu`; jetpac
+  jetpacUpdatePlayerMovement `JetpacHead *head = &player->head` for all 72 head accesses, R-jetpac 2026-11-25c); only the steered
+  lines through the local while other accesses stay direct is a hack swap (R3)
+- a per-role local in a dropped local's or pads' slot, or a narrow role in an alignment hole when the value's real type is narrow (55B20
+  mapChunkTraversePortals `s16 target` after two u8 homes; A6280 `s16 id` = the callee's return type; 2026-11-25c); a width picked
+  only to fit a hole is a steer
 - one local holding two values of the SAME role, each a real value the target uses (2F550 `denom`, divisor of `dot` in both
   `dist = dot / denom` and `t = dot / denom`: `div.d` 0x43f4/0x44f4; E550 `yo`, Q0896; R9 2026-11-18c); unrelated roles are a steer (R5)
 - a loop counter reused by a later loop that reinitialises it, consecutive or not, no other role folded in, the then-unused local
@@ -59,10 +63,11 @@ layout (`// LAYOUT:`) or original behaviour (`// ORIG:`). Workers apply it befor
   lists, so the cast only steers registers; director 2026-11-20)
 - an operand-order/width/view respelling
 - a single-use local whose only effect is a frame word (copy-propagated, `{ s32 _g; }` there matches too: a pad, 36880 1a2082).
-- a local reused for an UNRELATED role whose value never reaches its own home (3E10 menuUpdateElementTargetAndColor `radius =
-  mathSinF(t)`: the sine is used from f0, R5 2026-11-18c; 3E10 menuDrawHighScoreTable flag + loop counter in s2, M39; 126260
-  commandApplyToLight `factor` = the falloff base, then `127.0f / dist`, not R9's same-role divisor; ACDC0
-  hudPauseMenuIconUpdate `radius` as sine/distance/draw/step and slot `i` as brightness, tagged 2026-11-20 71ef676a)
+- a local reused for an UNRELATED role whose value never reaches its own home, unless it passes the census rule below (3E10
+  menuDrawHighScoreTable flag + loop counter in s2, M39; 126260 commandApplyToLight `factor` = the falloff base, then
+  `127.0f / dist`, not R9's same-role divisor; arcade/0 arcadeUpdateRetractableLadder `step`: register-only evidence. No longer
+  steers: 3E10 menuUpdateElementTargetAndColor `radius = mathSinF(t)` (member-read colour + compound `+=` wobble, 0x96dc; 2026-11-25c)
+  and ACDC0 hudPauseMenuIconUpdate wobble sines (census passed; the scratch f32 renamed from `radius`, 2026-11-25c))
 - a width respelling plus a no-op value cast (F56F0 `u16 timer; index = (u8)timer - K`, declined 2026-11-18c)
 - a buffer/array size changed to free a frame word: ordinary C only with a proof from the code (not game data) that every write fits;
   otherwise rejected as a behaviour change (FCCD0 slotQueueDrawLabel `text[8]`->`text[4]`: coins via F9450.c:621 and the slot-9
@@ -98,8 +103,19 @@ a dead test keeps alive (stays FAKE, `diagnose nohit`; 627052); pre-switch const
 home is ORIG only with a cited store-without-reload offset (6AD90 `swc1` 0x3910, compare on the register copy). A reused local/parameter
 is ORIG when the value is stored to its own home slot (not the temp area below the named homes) and a separate local grows the frame (CEAE0
 f73438, arcade ff5952, arcade/0 arcadeUpdatePlayerEntity `i` sp+0x3c, frame 0x48 -> 0x50), or two values spill to one home (42630 83069d#2,
-BA790 `x` sp+64); a shared register is not. Near miss, stays FAKE until ruled: a split that keeps the frame but displaces a temp
-spill (arcade/0 arcadeUpdateOilDrumEntity `n`: only the count stored to its home 0x24; a slot local moves the a1 spill 0x1c -> 0x18).
+BA790 `x` sp+64); a shared register is not. An unrelated-role reuse that never reaches the home is ordinary C (untagged) only when
+all three hold and the dossier records the census (R-oildrum 2026-11-25c, Q1666; Q1122; arcade/0 arcadeUpdateOilDrumEntity `n`, ACDC0
+hudPauseMenuIconUpdate cf674d): (1) splitting the second role into its own local changes the frame or moves a home/spill at EVERY
+declaration position (function scope before/after each declaration, block scope; `register` compiles to the same object as the plain
+declaration, so one measurement covers both: DAA0 bossSpawnerUpdate `z`, 76 positions), the move caused by the new local's own
+stack slot (spill temps displaced by it count: ACDC0 IconUpdate, 3E10 `t`); (2) every ordinary-C spelling without a local for it fails
+(inline at each use, direct field/array write, pointer local; a function-local static always adds a .bss store, Q1680); a matching spelling that is itself a steer (a re-read the target does
+not do, a value-changing width) does not fail it (3E10 `t`: stick_x read once, `lb` 0x9114); (3) the two roles share the local's type
+and live in disjoint regions. Register-allocation-only evidence does not qualify: adjsave, $f0 vs $f2, or a split that keeps the frame
+and every named home where the change comes only from a register reassignment, also a narrow role in an alignment hole whose only
+effect is spill traffic of that reassignment (12E800 enemyAggroStateUpdate `near`, FAKE stays); BA790 chaserEnemyStep passes because
+the split drops the 64(sp) home stores. A register change on top of stack evidence does not disqualify (ACDC0 3490af/dddb5b). Q1122's
+own `bits` failed (2): `mask |= 1 << j`; D5E10 playerStateLandRecover's frame role went inline (field reloaded at each compare).
 
 ## Re-reads, widths, expressions, merged constructs
 

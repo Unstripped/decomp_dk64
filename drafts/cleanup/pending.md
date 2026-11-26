@@ -88,9 +88,9 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   static at 0x80770DC8 only with N = 160 (mod 256) extra numbered definitions; no natural count. Reopen only with another lever.
 - REOPENED (user 2026-11-24, FAKE queue never terminal): 80150 tagBarrelActorUpdate 71b822 empty `default: break;`: FAKE (2026-11-18c M19, 9de100e7): the not-2 edge `bne` 0x58fc goes straight
   to the latch 0x5928, no own block, so the empty-default rule keeps it a steer (already tagged).
-- REOPENED (user 2026-11-24, FAKE queue never terminal): 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) stay FAKE (2026-11-18c M21, 47fa703b): the
-  local area is exactly 96 bytes (88 of f64 + int i + the switch temp); an eleventh f64 fits only by byte-packing the ints (22 lines of
-  width code). Reopen only with a shape that keeps both the frame and int widths.
+- 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ): M21 (2026-11-18c, 47fa703b) kept them FAKE
+  because an eleventh f64 does not fit the 96-byte local area. M21 superseded by the census rule (2026-11-25c): the same frame fact is
+  census part 1, parts 2-3 hold, both untagged (CleancollisionCheckTriangleContainsPointXZ, dossiers). Closed.
 - REOPENED (user 2026-11-24, FAKE queue never terminal): 9DD70 actorCheckAlwaysFalse e999c8 `case 6: case 7:` stays ONE FAKE (R8, director 2026-11-18c): no 6/7 compare in the target
   (0x16e0-0x1754); no restore of the pre-merge sites c56038/0641d2.
 - Names kept (director 2026-11-14): collisionGetFloorTriangleNormal (proposal collisionCheckLedgeGrab: .scratch/close/renames.md row 105);
@@ -116,6 +116,24 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
   `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
   function's real outputs). Not dispatched: a param rename is a body change.
+- Polish follow-ups (ReviewTypes22 2026-11-25c, read at c7b5a10f; nothing edited): jetpac/1A60 jetpacIsSpawnDelay (551-557) has an
+  untagged missing return (target returns `ret` in v0: `sltiu v0` 0x158c, `beqz v0` 0x1590, `jr ra` 0x15a8; same shape as the
+  F56F0:687 `// ORIG: no final return`): tag it ORIG; 15 no-op casts in 1A60 (84, 128-137, 250, 253, 256, 261, 264, 563; all removed
+  still fdiff 0); jetpacGetEntityCenterX/Y (3060:76-82) read only head fields: a `JetpacHead *` parameter drops the
+  `(JetpacActor *)&jetpacGame.player` cast (4FC0:519; callers 4FC0:464/518/526), matches with a proto regen; JetpacItem
+  (0x08-0x37) and JetpacLedge (0x00-0x2F) share the JetpacHead layout (embed needs evidence first); `extern JetpacState
+  jetpacPlayer` is declared in 0_game.c:22 and 1A60:431 (move to jetpac.h); jetpacSnapActorToGrid also restarts the jetman
+  explosion (name too narrow).
+- R-oildrum census (2026-11-25c, Q1666) outcomes, each census in the function's dossier: untagged 3E10 menuUpdateElementTargetAndColor
+  `t`/`stepOrScale`, ACDC0 hudPauseMenuIconUpdate (6), BA790 chaserEnemyStep (2), 6AD90 ContainsPointXZ twins, 55B20
+  map(Node)TriangleContainsPoint, arcade/0 arcadeUpdateOilDrumEntity `n`, DAA0 bossSpawnerUpdate `z`; fixed by a no-local form 3E10
+  menuHandleControllerSlotInput `bits`, D5E10 playerStateLandRecover `f`; 11BC10 wobble reuses split into pad words (swayX ->
+  waveX ORIG). Census FAILED (stay FAKE; do not re-run without a new spelling): 12E800 enemyAggroStateUpdate `near` (frame-keeping
+  narrow split), D5E10 playerStateSurfaceTreadWater `target`, arcade/0 arcadeSpawnStage4Enemies `i` and arcadeDrawHud `i` (the
+  latter fails only if `buf[0x50]` is not fixed: both readings in its dossier), ACDC0 hudPauseMenuRender (6) and hudPauseMenuUpdate (2),
+  DAA0 bossSpawnerUpdate `i`/`j` (register-only).
+- ACDC0 hudPauseMenuRender a97e00 `(it->entries + j)->x` member spelling: stays FAKE unless its own addu order is target-proven at a
+  cited offset and nothing else (the mul.s operand flip) depends on the spelling (director 2026-11-25c).
 - REOPENED (user 2026-11-24, FAKE queue never terminal): Continue unit 1 (2026-11-21): the four stale reviews and every knowledge/rename-staled hack rung were re-measured (ReviewU1/U2,
   Hack* workers): reviewed 4,270/4,270, sites open 1; FAKE 168 -> 163 (80150 volatile via bare truth tests Q1585, 36880
   modelPendingQueueInsert 4 -> 2, 7130 sfxUpdateLevelAmbient 4 -> 2 via a per-block element pointer Q1586). Every other rank
@@ -173,6 +191,8 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
 - tools/objdiff.py `pair_addends` pairs a HI16 with the next same-symbol LO16 on the same base register across switch-case
   paths (6AD90 collisionFindFloorAtPoint: case-2 `lui` 0x768 paired with case-1 `%lo` 0x7e0 instead of `%lo(+2)` 0x868), so
   `--reloc-ok` fails a copy retiring split label D_807F949A as `sSourceTiltPitch[1]` although the final bytes match (2026-11-24 M7).
-- tools/variants.py `scan --max 120` (the sweep recipe rung) caps a function with more one-edit variants: vehicleUpdateMotion
-  (936B0) has ~181, so ~60 were never scored while the rung reads fresh (CleanmountedBarrelUpdate 2026-11-25). Fix: no cap
-  for the recorded rung, or record `partial` when capped.
+- 2026-11-25c landed: 15f27049 (recipe rung scores every variant, `--max 0`), d9b6c1b1 (fakehunt stops its child jobs on hosts
+  without ps/SIGKILL), 39d2c5aa (report --baseline / clint layout --base export REV without git archive of invalid paths).
+- The uncapped recipe rung makes whole-file `quality.py sweep` slow (ACDC0 ~900 recipe variants, 55B20 ~840): merge_record's sweep
+  took 12-21 min per merge and workers' `sweep --copy-of` runs timed out at 1200 s. A per-function `sweep --func` (or caching the
+  recipe scan by fp_local) would cut it.
