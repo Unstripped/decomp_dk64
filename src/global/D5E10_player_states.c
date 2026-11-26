@@ -4332,7 +4332,7 @@ void playerStateLandRecover(void) {
     f32 nodeZ;
     f32 nodeY;
     f32 nodeX;
-    f32 f; // FAKE: one local for the ledge/floor height deltas and the case 0 animation frame: a separate frame or delta local (any declaration slot) changes regalloc (Q1055)
+    f32 heightDelta;
     f32 ledgeY;
     f32 nodeHeight;
 
@@ -4343,11 +4343,11 @@ void playerStateLandRecover(void) {
         gActivePlayerState->ledgeY = ledgeY;
     }
     if (gActivePlayerState->ledgeY < gActivePlayerState->prevLedgeY) {
-        f = gActivePlayerState->prevLedgeY - gActivePlayerState->ledgeY;
+        heightDelta = gActivePlayerState->prevLedgeY - gActivePlayerState->ledgeY;
     } else {
-        f = -(gActivePlayerState->prevLedgeY - gActivePlayerState->ledgeY);
+        heightDelta = -(gActivePlayerState->prevLedgeY - gActivePlayerState->ledgeY);
     }
-    if (f > 20.0) {
+    if (heightDelta > 20.0) {
         playerEnterFall(gCurrentActor);
         actorUpdateModelMatrix(gCurrentActor, 0);
         return;
@@ -4360,17 +4360,15 @@ void playerStateLandRecover(void) {
     case 0:
         switch (gCurrentActor->actorType) {
         case 4:
-            f = gCurrentActor->sub4->model->frame;
-            if (f < 25.0f) {
+            if (gCurrentActor->sub4->model->frame < 25.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 nodeHeight = nodeY - gCurrentActor->y;
                 gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
-                f = gCurrentActor->sub4->model->frame;
             }
-            if (f < 25.0f) {
+            if (gCurrentActor->sub4->model->frame < 25.0f) {
                 gCurrentActor->x = gActivePlayerState->wallContactX;
                 gCurrentActor->z = gActivePlayerState->wallContactZ;
-            } else if (f < 31.0f) {
+            } else if (gCurrentActor->sub4->model->frame < 31.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 70.0f;
                 gCurrentActor->y = gActivePlayerState->ledgeY;
@@ -4379,17 +4377,15 @@ void playerStateLandRecover(void) {
             }
             break;
         case 5:
-            f = gCurrentActor->sub4->model->frame;
-            if (f < 17.0f) {
+            if (gCurrentActor->sub4->model->frame < 17.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 nodeHeight = nodeY - gCurrentActor->y;
                 gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
-                f = gCurrentActor->sub4->model->frame;
             }
-            if (f < 19.0f) {
+            if (gCurrentActor->sub4->model->frame < 19.0f) {
                 gCurrentActor->x = gActivePlayerState->wallContactX;
                 gCurrentActor->z = gActivePlayerState->wallContactZ;
-            } else if (f < 29.0f) {
+            } else if (gCurrentActor->sub4->model->frame < 29.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 40.0f;
                 gCurrentActor->y = gActivePlayerState->ledgeY;
@@ -4412,24 +4408,23 @@ void playerStateLandRecover(void) {
             break;
         case 6:
         case 7:
-            f = gCurrentActor->sub4->model->frame;
-            if (f < 18.0f) {
+            if (gCurrentActor->sub4->model->frame < 18.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 nodeHeight = nodeY - gCurrentActor->y;
                 gCurrentActor->y = gActivePlayerState->ledgeY - nodeHeight;
                 gCurrentActor->x = gActivePlayerState->wallContactX;
                 gCurrentActor->z = gActivePlayerState->wallContactZ;
-            } else if (f < 26.0f) {
+            } else if (gCurrentActor->sub4->model->frame < 26.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 50.0f;
                 gCurrentActor->y = gActivePlayerState->ledgeY;
             } else {
                 if (gActivePlayerState->ledgeY < gCurrentActor->floorY) {
-                    f = gCurrentActor->floorY - gActivePlayerState->ledgeY;
+                    heightDelta = gCurrentActor->floorY - gActivePlayerState->ledgeY;
                 } else {
-                    f = -(gCurrentActor->floorY - gActivePlayerState->ledgeY);
+                    heightDelta = -(gCurrentActor->floorY - gActivePlayerState->ledgeY);
                 }
-                if (f >= 20.0) {
+                if (heightDelta >= 20.0) {
                     playerEnterFall(gCurrentActor);
                 } else {
                     gCurrentActor->y = gCurrentActor->floorY;
@@ -4455,11 +4450,11 @@ void playerStateLandRecover(void) {
     case 1:
         playerApplyMotion();
         if (gActivePlayerState->ledgeY < gCurrentActor->floorY) {
-            f = gCurrentActor->floorY - gActivePlayerState->ledgeY;
+            heightDelta = gCurrentActor->floorY - gActivePlayerState->ledgeY;
         } else {
-            f = -(gCurrentActor->floorY - gActivePlayerState->ledgeY);
+            heightDelta = -(gCurrentActor->floorY - gActivePlayerState->ledgeY);
         }
-        if (f < 20.0) {
+        if (heightDelta < 20.0) {
             gCurrentActor->y = gCurrentActor->floorY;
             gCurrentActor->contactFlags |= 1;
             gCurrentActor->speedY = -50.0f;
