@@ -1406,3 +1406,4 @@
 {"type": "unit", "t": "2026-11-26T18:38:14Z", "unit": "2026-11-26: cleanup CleanbossFollowerActorUpdate", "commit": "5cdffef1ecb87bc9678ab9502bb9197e5dfc13f2"}
 {"type": "unit", "t": "2026-11-26T18:40:54Z", "unit": "2026-11-26: cleanup CleanarcadeUpdateDonkeyKongStage4", "commit": "2409e8da915626bab6eee92b5471272da29a9934"}
 {"type": "unit", "t": "2026-11-26T18:51:56Z", "unit": "2026-11-26: cleanup CleanbonusSearchlightSeekGameUpdate", "commit": "b5dc3288e33118b9958408818ebdde1736c4cf90"}
+{"type": "unit", "t": "2026-11-26T19:08:26Z", "unit": "2026-11-26: cleanup Polish26Protos", "commit": "5eba3e1c4899092d0309885e5ca8a193ebd1ab0f"}
