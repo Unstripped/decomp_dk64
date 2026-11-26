@@ -1399,3 +1399,4 @@
 {"type": "unit", "t": "2026-11-26T05:16:26Z", "unit": "2026-11-25c: cleanup ReCheckBossAggro", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
 {"type": "unit", "t": "2026-11-26T05:17:01Z", "unit": "2026-11-25c: cleanup ReCheckCollision", "commit": "5d734a8dbf968bdf2dc07f374f4bf3a188e987e1"}
 {"type": "unit", "t": "2026-11-26T05:36:13Z", "unit": "2026-11-25c: cleanup CensusDAA0z", "commit": "79088374b734b9ba60eb8112cb425c952b53b9f6"}
+{"type": "unit", "t": "2026-11-26T06:04:18Z", "unit": "2026-11-25c: names window", "commit": "f57a62829e98935a4affb4d65a9ea0379d692821"}
