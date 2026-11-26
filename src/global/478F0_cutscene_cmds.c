@@ -1842,7 +1842,7 @@ void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     static s8 sHubItemsCycle = 0;
     s32 idx;
     s32 slot;
-    s8 add;
+    s32 add;
     s32 frame;
 
     if (b == 0) {
@@ -1873,10 +1873,8 @@ void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
         } else {
             add = 0;
         }
-        idx = frame; // FAKE: idx reused as a copy of frame, then += add: keeps addu a2,t1,v0 (0x6798); idx = frame + add gives addu a2,v0,t1
-        idx += add;
-        modelSlotSetNodeFrame(csId, 1, idx, 0);
-        modelSlotSetNodeFrame(csId, 2, idx, 0);
+        modelSlotSetNodeFrame(csId, 1, frame + add, 0);
+        modelSlotSetNodeFrame(csId, 2, frame + add, 0);
     }
 }
 
