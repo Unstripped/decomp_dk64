@@ -2845,7 +2845,7 @@ extern u16 gArcadeOilFireFlareSprite[];
 extern u16 gArcadeOilFireFlareFlickerSprite[];
 
 void arcadeUpdateOilDrumEntity(s32 entIndex) {
-    s32 n; // FAKE: one local for the case-2 barrel-count limit (home sp+0x24, sw/lw +0x15c/+0x160) and the case-3 new slot (register only); a separate slot local keeps the frame 0x28 but moves the a1 spill 0x1c -> 0x18
+    s32 n;
 
     if (gArcadeFrozen == 0) {
         if (--gArcadeEntities[entIndex].param >= 0x15) {
