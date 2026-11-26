@@ -25,60 +25,6 @@
 s32 D_807482F0 = 2500;
 s32 gMapChunkFrustumCaptureIndex = 5;
 
-typedef struct MapChunkCell {
-    /* 0x00 */ s16 id;
-    /* 0x02 */ u8 layerMask;
-    /* 0x03 */ u8 pad3;
-    /* 0x04 */ s32 dl[4];
-    /* 0x14 */ void *vtx[4];
-} MapChunkCell; /* 0x24 */
-
-typedef struct MapChunk {
-    /* 0x000 */ u8 state;
-    /* 0x001 */ u8 playerMask;
-    /* 0x002 */ u8 texAnimPending;
-    /* 0x003 */ u8 lightMode;
-    /* 0x004 */ u8 lightsDone;
-    /* 0x005 */ u8 kind;
-    /* 0x006 */ u8 noSprites;
-    /* 0x007 */ u8 streamFlags;
-    /* 0x008 */ u8 *loadCursor;
-    /* 0x00C */ u8 *loadStart;
-    /* 0x010 */ u8 *loadEnd;
-    /* 0x014 */ struct RenderEntry *opaqueList;
-    /* 0x018 */ struct RenderEntry *opaqueTail;
-    /* 0x01C */ struct RenderEntry *translucentList;
-    /* 0x020 */ struct RenderEntry *translucentTail;
-    /* 0x024 */ struct SpriteDisplayNode *sprites;
-    /* 0x028 */ s32 lastSeenFrame;
-    /* 0x02C */ s32 layerDl0;
-    /* 0x030 */ s32 layerDl1;
-    /* 0x034 */ s32 layerDl2;
-    /* 0x038 */ s32 layerDl3;
-    /* 0x03C */ s32 layerSize0;
-    /* 0x040 */ s32 layerSize1;
-    /* 0x044 */ s32 layerSize2;
-    /* 0x048 */ s32 layerSize3;
-    /* 0x04C */ MapChunkCell *cells;
-    /* 0x050 */ s32 cellCount;
-    /* 0x054 */ u8 *baseVtx;
-    /* 0x058 */ u8 *curVtx;
-    /* 0x05C */ s32 vtxSize;
-    /* 0x060 */ void *litVtx[2];
-    /* 0x068 */ s32 clipLeft;
-    /* 0x06C */ s32 clipTop;
-    /* 0x070 */ s32 clipRight;
-    /* 0x074 */ s32 clipBottom;
-    /* 0x078 */ struct MapCollisionNode *collStart;
-    /* 0x07C */ struct MapCollisionNode *collEnd;
-    /* 0x080 */ s16 minX;
-    /* 0x082 */ s16 minZ;
-    /* 0x084 */ s16 maxX;
-    /* 0x086 */ s16 maxZ;
-    /* 0x088 */ PlanePoly frustum[5];
-} MapChunk;
-
-extern MapChunk *gMapChunks;
 typedef struct MapPortalSlot {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 chunk;

@@ -27,19 +27,6 @@ typedef struct EffectTableEntry {
     u8 pad17;
 } EffectTableEntry; // size = 0x18
 
-typedef struct EffectBufferEntry {
-    /* 0x000 */ u8 state;
-    /* 0x001 */ u8 pad1[2];
-    /* 0x003 */ u8 lightMode;
-    /* 0x004 */ u8 pad4[0x68 - 0x4];
-    /* 0x068 */ s32 clipLeft;
-    /* 0x06C */ s32 clipTop;
-    /* 0x070 */ s32 clipRight;
-    /* 0x074 */ s32 clipBottom;
-    /* 0x078 */ u8 pad78[0x88 - 0x78];
-    /* 0x088 */ u8 bspBounds[0x1C8 - 0x88];
-} EffectBufferEntry; /* 0x1C8 */
-
 // This TU's .data (0x80748A90-0x80748B6C + 4-byte TU pad): the per-type effect table.
 EffectTableEntry gWaterTypeTable[9] = {
     { effectInitTextureTableRGBA32, effectBuildGdlTexture32x32RGBA, effectNodeStepUVAndPos, NULL, NULL, 0, 0, 1, 0 },
@@ -55,7 +42,6 @@ EffectTableEntry gWaterTypeTable[9] = {
 s32 sMultiBlockTexShift = -2;
 
 extern WaterSurface *gEffectNodeList;
-extern EffectBufferEntry *gMapChunks;
 extern u8 gGfxBufferIndex;
 extern u8 gWaterRippleActive;
 extern f32 gWaterRippleCenter[2];
@@ -218,13 +204,12 @@ extern PlayerStruct *gPlayerSlots;
 
 void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
     WaterSurface *node;
-    u8 *bspBounds;
+    PlanePoly *bspBounds;
     s32 hasInvertedMtx;
     f32 maxWaveHeight;
+    PlanePoly frustumBounds[5];
     f32 baseHeight;
-    s32 pad1;
-    u8 frustumBounds[0x138];
-    u32 pad[2];
+    s32 pad;
     f32 playerMtx[4][4];
     f32 invPlayerMtx[4][4];
 
@@ -237,7 +222,7 @@ void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
                 baseHeight = (f32)node->sub->surfaceY + node->level;
                 maxWaveHeight = node->sub->waveAmpZ + node->sub->waveAmpX;
                 if (node->sub->chunkCount == 1) {
-                    bspBounds = &gMapChunks[node->sub->chunkIds[0]].bspBounds[0];
+                    bspBounds = &gMapChunks[node->sub->chunkIds[0]].frustum[0];
                 } else {
                     if (hasInvertedMtx == 0) {
                         guMtxL2F(playerMtx, &gPlayerSlots[playerIndex].viewMtx[gGfxBufferIndex]);
@@ -249,10 +234,10 @@ void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
                 }
                 if (mapBspBoxInFrustum(node->sub->minX, (s16)(baseHeight - maxWaveHeight), node->sub->minZ, node->sub->maxX,
                                   (s32)(baseHeight + maxWaveHeight), node->sub->maxZ, camX, camY, camZ, gViewFarClip, bspBounds) != 0 || node->forceVisible != 0) {
-                    if ((f64)node->sub->wobbleAmpX != 0.0 || (f64)node->sub->wobbleAmpZ != 0.0) {
+                    if (node->sub->wobbleAmpX != 0.0 || node->sub->wobbleAmpZ != 0.0) {
                         effectWaterSetMeshPositionsUV(node->meshVtx[gGfxBufferIndex], node);
                     }
-                    if ((f64)node->sub->waveAmpX != 0.0 || (f64)node->sub->waveAmpZ != 0.0) {
+                    if (node->sub->waveAmpX != 0.0 || node->sub->waveAmpZ != 0.0) {
                         effectWaterSetMeshHeightsAlpha(node->meshVtx[gGfxBufferIndex], node);
                     }
                     effectWaterSetMeshColors(node->meshVtx[gGfxBufferIndex], node);
@@ -264,7 +249,7 @@ void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
     }
 }
 
-void effectNodeComputeBounds(WaterSurface *node, f32 camX, f32 camY, f32 camZ, u8 playerIndex, void *invMtx, void *outBounds) {
+void effectNodeComputeBounds(WaterSurface *node, f32 camX, f32 camY, f32 camZ, u8 playerIndex, f32 (*invMtx)[4], PlanePoly *outBounds) {
     s32 rectLeft = 0;
     s32 rectTop = 0;
     s32 rectRight = 0;

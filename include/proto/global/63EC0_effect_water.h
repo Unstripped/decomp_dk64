@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_63EC0_EFFECT_WATER_H
 #include "common.h"
 #include "map.h"
+#include "render.h"
 #include "water.h"
 #ifndef PROTO_SKIP_effectWaterInitNodes
 void effectWaterInitNodes(MapFileHeader *);
@@ -23,7 +24,7 @@ void effectUpdateNodes(void);
 void effectWaterUpdateMeshes(f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_effectNodeComputeBounds
-void effectNodeComputeBounds(WaterSurface *, f32, f32, f32, u8, void *, void *);
+void effectNodeComputeBounds(WaterSurface *, f32, f32, f32, u8, f32 (*)[4], PlanePoly *);
 #endif
 #ifndef PROTO_SKIP_effectCheckTargetActive
 s32 effectCheckTargetActive(WaterSurfaceDef *);
