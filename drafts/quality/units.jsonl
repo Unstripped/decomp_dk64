@@ -1408,3 +1408,4 @@
 {"type": "unit", "t": "2026-11-26T18:51:56Z", "unit": "2026-11-26: cleanup CleanbonusSearchlightSeekGameUpdate", "commit": "b5dc3288e33118b9958408818ebdde1736c4cf90"}
 {"type": "unit", "t": "2026-11-26T19:08:26Z", "unit": "2026-11-26: cleanup Polish26Protos", "commit": "5eba3e1c4899092d0309885e5ca8a193ebd1ab0f"}
 {"type": "unit", "t": "2026-11-26T19:26:29Z", "unit": "2026-11-26: cleanup ReconBonus26", "commit": "669af42e5a03f65fae695b27472391b87dd7c574"}
+{"type": "unit", "t": "2026-11-26T19:36:51Z", "unit": "2026-11-26: names window 1 (Names26D)", "commit": "353414ad548e313a8ad3d8177a778104e6d7231d"}
