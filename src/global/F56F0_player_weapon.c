@@ -1487,7 +1487,7 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
     cur = gWaypointCursor;
     tgt = gWaypointActor->customState;
     blend = 0.2f;
-    next = gWaypointCursor + 1;
+    next = gWaypointCursor + 1;  // FAKE: re-reads gWaypointCursor while cur holds it (one lw t0 at 0x3438); the ilod keeps next a variable (addiu t1,t0,18 at 0x3460), next = cur + 1 is copy-propagated into cur offsets (lh t7,18(t0); frame 0x50 -> 0x70)
     speed = (u32)cur->speed * 0.7;
     close = (gWaypointActor->x - next->x) * (gWaypointActor->x - next->x) + (gWaypointActor->z - next->z) * (gWaypointActor->z - next->z) < 100.0f;
     starting = !gWaypointFlags;
