@@ -38,7 +38,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
     s16 yawDiff;
     s32 step;
     f32 lightRadius;
-    s32 x; // ORIG: the case 0x37 fade step and light step spill to this one home (sw v0/zero,64(sp) at 0x494/0x49c/0x4a0, sw t7/v1,64(sp) at 0x618/0x61c, reloaded at 0x4b8/0x620); a separate fade local moves the frame 0x50 -> 0x48
+    s32 tmp; // ORIG: scratch local with four switch-case roles (case 0x33 move flags, case 0/4 chase script id, case 0x37 fade step and light step); the fade and light steps spill to this one home (sw v0/zero,64(sp) at 0x494/0x49c/0x4a0, sw t7/v1,64(sp) at 0x618/0x61c, reloaded at 0x4b8/0x620); a separate fade local moves the frame 0x50 -> 0x48, and a local of its own for the move flags (s0 at 0x298/0x2ac) or the script id (s0 at 0x360/0x370) removes this home at every declaration position
     u32 alpha;
     s16 angle;
     s32 size;
@@ -91,11 +91,11 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
             gCurrentActor->moveYaw = gActorGlobalState.targetActor->moveYaw;
         }
         if (gCurrentActor->subState) {
-            x = 0;
+            tmp = 0;
         } else {
-            x = 2;
+            tmp = 2;
         }
-        actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, x, 6.0f); // FAKE: x reused as the move flags; only the s0 colour shows it (li s0,2 / move s0,zero at 0x298/0x2ac, no store to the home 64(sp)); a moveFlags local (s32 or u16, top or block scope) or the inline ternary gives .text 2912 (target 2928)
+        actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, tmp, 6.0f);
         if (gCurrentActor->actorType == 0xB6) {
             enemyAggroStateUpdate(aggroRange, 0x24E, 0x24D);
         }
@@ -109,11 +109,11 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
         }
         if (gGameMode != 1) {
             if (gCurrentActor->actorType == 0xB6) {
-                x = 0x24D;
+                tmp = 0x24D;
             } else {
-                x = 0x24C;
+                tmp = 0x24C;
             }
-            enemyAggroStateUpdate(aggroRange, 0x24E, x); // FAKE: x reused as the chase script id; only the s0 colour shows it (li s0,588/589 at 0x360/0x370, no store to the home 64(sp)); a chaseScriptId local (top or block scope) or the inline ternary gives .text 2912 (target 2928)
+            enemyAggroStateUpdate(aggroRange, 0x24E, tmp);
         }
         if (gCurrentActor->state == 0x33) {
             ret = 1;
@@ -141,16 +141,16 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
         step = gCurrentActor->subState;
         if (step >= 2) {
             if (step - 0x82 < 0) {
-                x = 0;
+                tmp = 0;
             } else {
-                x = step - 0x82;
+                tmp = step - 0x82;
             }
             if (step * 6 >= 0x23) {
                 size = 0x22;
             } else {
                 size = (step * 6) & 0xFF;
             }
-            alpha = (u32)((1.0 - x * 0.03125) * 230.0) & 0xFF;
+            alpha = (u32)((1.0 - tmp * 0.03125) * 230.0) & 0xFF;
             if (alpha != 0) {
                 billboardSubmit(gCurrentActor, 0x3C3, 0x40, 0x40, size, size, 1, 0x96, alpha, 0, 1.0f);
             } else {
@@ -158,11 +158,11 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
             }
             step = gCurrentActor->subState;
             if (step >= 0x17) {
-                x = 0x16;
+                tmp = 0x16;
             } else {
-                x = step;
+                tmp = step;
             }
-            lightRadius = (22.0 - x) / 20.0 * 200.0;
+            lightRadius = (22.0 - tmp) / 20.0 * 200.0;
             if (lightRadius > 130.0) {
                 lightRadius = 200.0f;
             }
