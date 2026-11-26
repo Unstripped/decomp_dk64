@@ -123,7 +123,8 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
 1. Dossier/history: read both, and `uv run tools/fakehunt.py show <FUNC>` (best hack-free candidate,
    as1probe multi-round hints, permuter bests/zeros); list the untried ideas (what fakehunt already
    tried counts as untried-for-agents only if no agent tried it).
-2. `uv run tools/quality.py sweep .scratch/<You>/<file>.c --copy-of <src> -j 2`: read its `HIT`
+2. `uv run tools/quality.py sweep .scratch/<You>/<file>.c --copy-of <src> --func <FUNC> -j 2` (only your
+   function; its results also fill the sweep check cache the merge's sweep reads): read its `HIT`
    lines (remove/plain/cond/classify/recipe; apply by hand, fdiff each).
 3. Diagnose: `tools/uopt_trace.sh -s <src> .scratch/<You>/<file>.c FUNC` for regalloc,
    `tools/dk python3 tools/as1probe.py keep|scan` for schedule; name the IDs (`quirks=`). libaudio

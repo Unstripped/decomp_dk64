@@ -17,7 +17,9 @@ Steps:
      MERGE = HEAD
   3. record --base BASE --model SEL --batch <ledger>
   4. tools/dk make expected
-  5. quality.py sweep <srcs> -j 4 --record --unit U
+  5. quality.py sweep <srcs> -j 4 --record --unit U (whole files, so every rung the sweep records stays
+     recorded; a function whose compile inputs are unchanged since an earlier sweep (an earlier merge's,
+     or the worker's `sweep --copy-of`) answers from the sweep check cache instead of compiling)
   6. re-record at the merge commit: <ledger> with --keymap's `<old> -> <new>` keys applied, written to
      <copy-dir>/ledger_at_merge.txt, recorded --base MERGE --skip-missing (sites the merge fixed are gone)
   7. --copy-only lines (keys that exist only in the copy): record --base MERGE

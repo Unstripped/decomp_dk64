@@ -5,7 +5,7 @@
 """Code-quality ledger of the cleanup campaign: FAKE/goto/untagged-hack sites per C function, the
 method ladder that exhausts them, and the per-function `review` coverage.
 
-  uv run tools/quality.py sweep <src.c>... [-j N] [--copy-of <src.c>] [--record --unit U]
+  uv run tools/quality.py sweep <src.c>... [-j N] [--copy-of <src.c>] [--func NAME]... [--no-cache] [--record --unit U]
   uv run tools/quality.py record --unit U --agent A [--base REV] [--model SEL] [--skip-missing] --batch FILE|-
   uv run tools/quality.py status [--file src/..c] [--func NAME]
   uv run tools/quality.py rank [--seg S] [--limit N] [--polish]
@@ -124,6 +124,20 @@ sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; 
   line with other statements, an if with a body) records remove/cond/recipe `nohit` (`no removal`) and
   classify `nohit` (`no guard`), so the next sweep refreshes them after a header change. Warning sites are not
   swept; each prints `WARN <key> line <n> [W<code> <msg>]` (a copy's warning-site keys).
+  --func NAME (repeatable): only those functions (a name no file defines exits before any check).
+  Check cache (.scratch/quality/sweep-cache/): every check of an edit inside one function (remove,
+  plain, cond, classify, and a recipe scan that found no variant; hits are rescanned) is stored under
+  a key of what decides it: the function's edited text, every top-level declaration its tokens
+  reach (`Scope.closure`: the .c's own, src/ and include/ headers' texts) and whether each .c one
+  precedes it, the `#pragma`/`#undef` lines above it, its uninit pairs in the base the check diffs
+  against, the src file (make flags), SWEEP_CACHE_VERSION and the digests of Makefile and the tools
+  the checks run (CACHE_TOOLS). A function whose compile inputs are unchanged (e.g. a merge that
+  edited other functions or unreached file-scope text) is never re-checked, yet every event is still
+  recorded: a cached result is the same complete check. Uncached: libultra (-O3), a copy with shadow
+  headers, a parse with errors, a function reaching a `##` macro, an edit outside the function, and a
+  check without an answer (fdiff/deadsweep exit 125+: a dkd failure or killed job; it still records
+  the miss it always did). --no-cache runs every check (refreshing the cache); the summary line
+  counts cached checks.
 record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N]
   [best=N] [commit=H] [note="..."] [new="..."]; all lines validated (keys at HEAD, fixed sites at --base REV:
   REV's text analysed and compiled against REV's headers) before anything is written. A failed
@@ -158,12 +172,20 @@ import clint  # noqa: E402
 import cwarn  # noqa: E402
 import ledger  # noqa: E402
 import quirks  # noqa: E402
+import shadow as shadow_headers  # noqa: E402
 from shadow import dk_argv, posix, script_argv  # noqa: E402
 from clang.cindex import CursorKind, StorageClass, TokenKind, TypeKind  # noqa: E402
 
 ROOT = clint.ROOT
 LEDGER = os.environ.get("DK64_QUALITY_LEDGER") or os.path.join(ROOT, "drafts", "quality")
 SCRATCH = os.path.join(ROOT, ".scratch", "quality")
+# Sweep check cache (`cached_check`, under SCRATCH/sweep-cache/): bump SWEEP_CACHE_VERSION whenever
+# check(), cond_check(), recipe_check() or the edits plan_file builds change meaning, so results of
+# older versions never answer; CACHE_TOOLS are the files those checks run, digested into every key.
+SWEEP_CACHE_VERSION = 1
+CACHE_TOOLS = ("Makefile", "tools/fdiff.sh", "tools/objdiff.py", "tools/shadow.py", "tools/clint.py",
+               "tools/deadsweep.py", "tools/variants.py")
+PP_STATE = re.compile(r"^\s*#\s*(pragma|undef)\b")  # compile state no declaration carries
 
 KINDS = ("dead-if", "volatile", "do-while0", "dead-store", "noop-arith", "comma", "punned-cast",
          "proto-steer", "implicit-steer", "proto-type", "goto", "other", "warning")
@@ -815,6 +837,8 @@ def function_state(fn, by_site, by_func):
 _seq = itertools.count(1)
 _lock = threading.Lock()
 _base_uninit = {}
+_tools = {}
+_cache_stats = collections.Counter()
 
 
 def job_dir():
@@ -837,20 +861,120 @@ def fdiff(copy, src):
                           capture_output=True).returncode
 
 
-def new_uninit(copy, src):
+def base_uninit(src):
+    """`clint.uninit` pairs of SRC, the base every check's new pairs are diffed against (once per src)."""
     with _lock:  # one libclang user at a time
         if src not in _base_uninit:
             _base_uninit[src] = set(clint.uninit(src))
-        return set(clint.uninit(copy)) - _base_uninit[src]
+        return _base_uninit[src]
+
+
+def new_uninit(copy, src):
+    base = base_uninit(src)
+    with _lock:
+        return set(clint.uninit(copy)) - base
+
+
+def tools_digest():
+    """sha1 of CACHE_TOOLS (once per process)."""
+    if "d" not in _tools:
+        h = hashlib.sha1()
+        for p in CACHE_TOOLS:
+            with open(os.path.join(ROOT, p), "rb") as f:
+                h.update(p.encode() + b"\0" + f.read() + b"\0")
+        _tools["d"] = h.hexdigest()
+    return _tools["d"]
+
+
+def cacheable(an, path, src):
+    """Whether checks of AN's functions (PATH a copy of SRC) may use the sweep check cache: an
+    analysis with its scope (`analyze(keep=True)`) and no parse error, outside libultra (-O3 files
+    may optimise across functions), and no shadow header beside a copy (clang's parse would not see
+    the headers its compile uses)."""
+    return ("scope" in an and not an["errors"] and "/libultra/" not in src
+            and (path == src or not shadow_headers.shadowed(path)))
+
+
+def reach_digest(an, fn, path, src, lines):
+    """sha1 of every compile input of FN beyond its own lines, or None when unknown: the top-level
+    declarations its tokens reach (`Scope.closure`, texts per file; PATH's own as `<self>`), whether
+    each of PATH's precedes FN, the `#pragma`/`#undef` lines above FN, FN's uninit pairs in SRC (what
+    check() diffs against), SRC (make flags) and FN's name, SWEEP_CACHE_VERSION and CACHE_TOOLS. A
+    `##` macro in the closure leaves its reach incomplete: None."""
+    scope = an["scope"]
+    cl = scope.closure(body_names(an["by_line"], fn))
+    if scope.pasted(cl):
+        return None
+    h = hashlib.sha1()
+    for part in (f"sweep-cache-v{SWEEP_CACHE_VERSION}", tools_digest(), src, fn["name"]):
+        h.update(part.encode() + b"\0")
+    for name, vals in sorted(cl.items()):
+        # PATH as `<self>` before ordering: a copy's path sorts before include/, the src path after it
+        for f, text in sorted(("<self>" if f == path else f, text) for f, text in vals):
+            h.update(f"{name}\0{f}\0{text}\0".encode("utf-8", "replace"))
+        for c in scope.idx[name]:
+            if rel(os.path.join(ROOT, c.location.file.name)) == path:
+                h.update(f"{name}\0{c.extent.start.line < fn['line']}\0".encode())
+    for line in lines[:fn["line"] - 1]:
+        if PP_STATE.match(line) and "GLOBAL_ASM" not in line:
+            h.update(line.strip().encode("utf-8", "replace") + b"\0")
+    h.update(repr(sorted(v for f, v in base_uninit(src) if f == fn["name"])).encode())
+    return h.hexdigest()
+
+
+def cached_check(key, read, fn, *args):
+    """FN(*ARGS) through the sweep check cache: the stored result of KEY when READ and present, else
+    FN's, stored unless it is a recipe hit's variant text (a hit is rescanned, so the text written
+    to hits/ is always the current file's). A ScanError propagates and stores nothing."""
+    p = os.path.join(SCRATCH, "sweep-cache", key[:2], key + ".json")
+    if read:
+        try:
+            with open(p) as f:
+                r = json.load(f)["result"]
+            with _lock:
+                _cache_stats["cached"] += 1
+            return r
+        except (OSError, ValueError, KeyError):
+            pass
+    r = fn(*args)
+    if r is not UNSURE and not isinstance(r, str):
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        fd, tmp = tempfile.mkstemp(dir=os.path.dirname(p), suffix=".tmp")
+        with os.fdopen(fd, "w", newline="\n") as f:
+            json.dump({"result": r}, f)
+        try:
+            os.replace(tmp, p)  # atomic: concurrent sweeps may store the same key
+        except OSError:  # a concurrent reader holds P open (Windows): it already stores this result
+            os.remove(tmp)
+    return r
+
+
+class _Unsure:
+    """A check that got no answer (dkd failure, killed job): false like a miss, so the sweep records
+    what it always did, but never stored in the sweep check cache."""
+
+    def __bool__(self):
+        return False
+
+    def __repr__(self):
+        return "UNSURE"
+
+
+UNSURE = _Unsure()
+NO_ANSWER = 125  # exit status of a dkd-level failure (tools/dkd/client.py); 128+ a killed job
 
 
 def check(text, path, src, uninit=True):
-    """Whole-object match of TEXT as a copy of PATH (fdiff exit 0) without a new uninitialised read."""
+    """Whole-object match of TEXT as a copy of PATH (fdiff exit 0) without a new uninitialised read;
+    UNSURE when fdiff got no answer (exit 125+)."""
     d = job_dir()
     copy = rel(os.path.join(d, os.path.basename(path)))
     open(os.path.join(ROOT, copy), "w", newline="\n").write(text)
     try:
-        return fdiff(copy, src) == 0 and not (uninit and new_uninit(copy, src))
+        rc = fdiff(copy, src)
+        if rc >= NO_ANSWER:
+            return UNSURE
+        return rc == 0 and not (uninit and new_uninit(copy, src))
     finally:
         cleanup(d, copy)
 
@@ -864,6 +988,8 @@ def cond_check(text, body, path, src, func):
                            cwd=ROOT, capture_output=True, text=True)
     finally:
         shutil.rmtree(d, ignore_errors=True)
+    if r.returncode >= NO_ANSWER:
+        return UNSURE
     m = re.search(r" full=(\d+) ", r.stdout)
     return bool(m) and m.group(1) == "0" and check(text, path, src)
 
@@ -875,8 +1001,9 @@ class ScanError(Exception):
 def recipe_check(text, path, src, func, recipes=None):
     """Text of the first tools/variants.py recipe variant of FUNC in TEXT (a copy of PATH) that passes
     check(), or None when the scan completed without one. The scan scores every variant (`--max 0`):
-    a None is a complete negative search. Raises ScanError when the scan itself failed (non-zero exit,
-    missing or unreadable JSON), with the command's last output lines."""
+    a None is a complete negative search; UNSURE when a variant's check got no answer. Raises
+    ScanError when the scan itself failed (non-zero exit, missing or unreadable JSON), with the
+    command's last output lines."""
     d = job_dir()
     copy = rel(os.path.join(d, os.path.basename(path)))
     open(os.path.join(ROOT, copy), "w", newline="\n").write(text)
@@ -893,12 +1020,15 @@ def recipe_check(text, path, src, func, recipes=None):
             rows = json.load(open(js))
         except (OSError, ValueError) as ex:
             raise ScanError(f"{func}: variants scan wrote no readable JSON ({ex}): {tail}") from None
+        unsure = False
         for row in rows:
             if row.get("path"):
                 t = open(os.path.join(ROOT, row["path"]), encoding="utf-8", errors="replace").read()
-                if check(t, path, src):
+                ok = check(t, path, src)
+                if ok:
                     return t
-        return None
+                unsure = unsure or ok is UNSURE
+        return UNSURE if unsure else None
     finally:
         cleanup(d, copy)
 
@@ -947,13 +1077,18 @@ def combos(items):
             yield c
 
 
-def plain_rewrites(site, lines):
-    """Whole-file texts with SITE's line rewritten by each PLAIN rule that changes it (its `// FAKE`
-    comment dropped, any other comment kept)."""
+def plain_edits(site, lines):
+    """{line index: rewritten line} per PLAIN rule that changes SITE's line (its `// FAKE` comment
+    dropped, any other comment kept)."""
     i = site["lines"][0]
     code, cm = split_comment(lines[i])
     tail = "" if "FAKE" in cm or not cm else " " + cm
-    return [apply(lines, {i: new.rstrip() + tail}) for rx, rep in PLAIN for new in [rx.sub(rep, code)] if new != code]
+    return [{i: new.rstrip() + tail} for rx, rep in PLAIN for new in [rx.sub(rep, code)] if new != code]
+
+
+def plain_rewrites(site, lines):
+    """Whole-file texts of `plain_edits`."""
+    return [apply(lines, e) for e in plain_edits(site, lines)]
 
 
 def merged(group):
@@ -963,14 +1098,38 @@ def merged(group):
     return out
 
 
-def plan_file(an, path, src, pool):
+def annotate_reach(an, path, src, lines):
+    """Set every function's `reach` (`reach_digest`, None when AN is not `cacheable` or the function
+    has no sweep site), so the TU can be dropped before planning."""
+    ok = cacheable(an, path, src)
+    for fn in an["functions"]:
+        swept = any(s["kind"] != "warning" for s in fn["sites"])
+        fn["reach"] = reach_digest(an, fn, path, src, lines) if ok and swept else None
+
+
+def plan_file(an, path, src, pool, read_cache=True):
     """Submit every sweep candidate of one file: dict(an, path, src, jobs=[(method, keys, future or
-    classify futures, variant text)], tried={(key, method): note of a method run without a hit})."""
+    classify futures, variant text)], tried={(key, method): note of a method run without a hit}).
+    A check of an edit inside one function with a `reach` digest (`annotate_reach`) goes through the
+    sweep check cache (`cached_check`, keyed by that digest, the method and the function's edited
+    lines); READ_CACHE false runs every check (storing the results)."""
     lines = open(os.path.join(ROOT, path), encoding="utf-8", errors="replace").read().split("\n")
     jobs, tried = [], {}
+    if any("reach" not in fn for fn in an["functions"]):
+        annotate_reach(an, path, src, lines)
 
-    def submit(method, group, fn, text, *args):
-        jobs.append((method, [s["key"] for s, _ in group], pool.submit(fn, text, *args), text))
+    def run(method, fn, edits, check_fn, *args):
+        """A future of CHECK_FN(*ARGS), the check of EDITS to FN's lines."""
+        lo, hi = fn["line"] - 1, fn["end"]
+        if fn["reach"] is not None and all(lo <= i < hi for i in edits):
+            key = hashlib.sha1(f"{fn['reach']}\0{method}\0{apply(lines, edits, lo, hi)}".encode(
+                "utf-8", "replace")).hexdigest()
+            return pool.submit(cached_check, key, read_cache, check_fn, *args)
+        return pool.submit(check_fn, *args)
+
+    def submit(method, group, fn, edits, check_fn, *args):
+        text = apply(lines, edits)
+        jobs.append((method, [s["key"] for s, _ in group], run(method, fn, edits, check_fn, text, *args), text))
 
     for fn in an["functions"]:
         sites = [s for s in fn["sites"] if s["kind"] != "warning"]  # retype is an agent method
@@ -978,7 +1137,7 @@ def plan_file(an, path, src, pool):
             continue
         rem = [(s, e) for s in sites if (e := remove_edit(s, lines, fn)) is not None]
         for c in combos(rem) if rem else ():
-            submit("remove", c, check, apply(lines, merged(c)), path, src)
+            submit("remove", c, fn, merged(c), check, path, src)
         flips = 0
         for rs in ([rem] + ([[x] for x in rem] if len(rem) > 1 else [])) if rem else ():
             base = merged(rs)
@@ -988,7 +1147,7 @@ def plan_file(an, path, src, pool):
                 for rx, rep in FLIPS:
                     if rx.search(lines[i]):
                         ed = {**base, i: rx.sub(rep, lines[i], count=1)}
-                        submit("cond", rs, cond_check, apply(lines, ed), apply(lines, ed, fn["line"] - 1, fn["end"]),
+                        submit("cond", rs, fn, ed, cond_check, apply(lines, ed, fn["line"] - 1, fn["end"]),
                                path, src, fn["name"])
                         flips += 1
         for s, _ in rem:
@@ -1000,34 +1159,34 @@ def plan_file(an, path, src, pool):
                 tried[(s["key"], "remove")] = tried[(s["key"], "cond")] = "no removal"
             if s["kind"] == "dead-if" and not GUARD.match(lines[s["lines"][0]]):
                 tried[(s["key"], "classify")] = "no guard"
-        first_plain = {}  # site key -> (site, its first plain rewrite): a recipe base
+        first_plain = {}  # site key -> (site, its first plain edit): a recipe base
         for s in sites:
             i = s["lines"][0]
             if s["kind"] in PLAIN_KINDS:
-                texts = plain_rewrites(s, lines)
-                for text in texts:
-                    submit("plain", [(s, None)], check, text, path, src)
-                if texts:
-                    first_plain[s["key"]] = (s, texts[0])
-                tried[(s["key"], "plain")] = None if texts else "no rewrite"
+                edits = plain_edits(s, lines)
+                for e in edits:
+                    submit("plain", [(s, None)], fn, e, check, path, src)
+                if edits:
+                    first_plain[s["key"]] = (s, edits[0])
+                tried[(s["key"], "plain")] = None if edits else "no rewrite"
             m = GUARD.match(lines[i])
             if s["kind"] == "dead-if" and m:
                 cands = [v for v, ln in fn["int_locals"] if ln < s["line"] and not re.search(rf"\b{re.escape(v)}\b", m.group(2))]
                 cands = list(dict.fromkeys(cands))[:3]
                 tried[(s["key"], "classify")] = None if cands else "no local"
                 if cands:
-                    futs = [pool.submit(check, apply(lines, {i: f"{m.group(1)}if ({v}) {{}}"}), path, src, False)
-                            for v in cands]
+                    eds = [{i: f"{m.group(1)}if ({v}) {{}}"} for v in cands]
+                    futs = [run("classify", fn, e, check, apply(lines, e), path, src, False) for e in eds]
                     jobs.append(("classify", [s["key"]], futs, None))
         # recipe: natural respellings of the function around each removal / plain rewrite
         bases = []
         if rem:
-            bases.append(([s for s, _ in rem], apply(lines, merged(rem))))
+            bases.append(([s for s, _ in rem], merged(rem)))
             if len(rem) > 1:
-                bases += [([x[0]], apply(lines, merged([x]))) for x in rem]
-        bases += [([s], text) for s, text in first_plain.values()]
-        for group, text in bases:
-            submit("recipe", [(s, None) for s in group], recipe_check, text, path, src, fn["name"])
+                bases += [([x[0]], merged([x])) for x in rem]
+        bases += [([s], e) for s, e in first_plain.values()]
+        for group, edits in bases:
+            submit("recipe", [(s, None) for s in group], fn, edits, recipe_check, path, src, fn["name"])
         based = {s["key"] for group, _ in bases for s in group}
         for s in sites:
             if "recipe" in LADDER[s["kind"]]:
@@ -1081,14 +1240,25 @@ def cmd_sweep(a):
         sys.exit("quality: --copy-of takes exactly one copy")
     if a.record and not a.unit:
         sys.exit("quality: --record needs --unit")
-    t0, plans, events = time.time(), [], []
+    t0, plans, events, todo = time.time(), [], [], []
     nchecks = nhits = nfail = 0
+    for f in a.files:  # every analysis first: libclang only on this thread, --func checked before any check
+        path = rel(f)
+        src = rel(a.copy_of) if a.copy_of else path
+        an = analyze(path, seg_of(src), src=src, keep=True)
+        require_resolved([an])
+        if a.func:
+            an["functions"] = [fn for fn in an["functions"] if fn["name"] in a.func]
+        annotate_reach(an, path, src, open(os.path.join(ROOT, path), encoding="utf-8", errors="replace").read().split("\n"))
+        for k in ("tu", "scope", "toks", "by_line"):
+            an.pop(k)
+        todo.append((path, src, an))
+    missing = sorted(set(a.func) - {fn["name"] for _, _, an in todo for fn in an["functions"]})
+    if missing:
+        sys.exit(f"quality: --func {', '.join(missing)}: not defined in {', '.join(p for p, _, _ in todo)}")
+    _cache_stats.clear()
     with ThreadPoolExecutor(a.j) as pool:
-        for f in a.files:
-            path = rel(f)
-            src = rel(a.copy_of) if a.copy_of else path
-            an = analyze(path, seg_of(src), src=src)
-            require_resolved([an])
+        for path, src, an in todo:
             for s in (s for fn in an["functions"] for s in fn["sites"] if s["kind"] == "warning"):
                 print(f"WARN {s['key']} line {s['line']} [W{s['warning']}]")  # keys of the copy's warning sites
             if not any(s["kind"] != "warning" for fn in an["functions"] for s in fn["sites"]):
@@ -1098,7 +1268,7 @@ def cmd_sweep(a):
             if rc != 0:
                 print(f"SKIP {path}: does not match before the sweep (fdiff exit {rc})")
                 continue
-            plans.append(plan_file(an, path, src, pool))
+            plans.append(plan_file(an, path, src, pool, read_cache=not a.no_cache))
         for p in plans:
             out, hits, checks = finish(p)
             an = p["an"]
@@ -1116,7 +1286,8 @@ def cmd_sweep(a):
                 events.append(event(a.unit, "sweep", dict(fn, file=p["path"]), s, method, outcome, note=note))
             nchecks += checks
             nhits += len(hits)
-    print(f"sweep: {len(plans)} files, {nchecks} checks, {nhits} hits in {time.time() - t0:.0f}s"
+    print(f"sweep: {len(plans)} files, {nchecks} checks ({_cache_stats['cached']} from the check cache), "
+          f"{nhits} hits in {time.time() - t0:.0f}s"
           + (f", {nfail} recipe scans FAILED (their sites' recipe rung not recorded)" if nfail else ""))
     if a.record:
         ev = unit_events(a.unit, load_events()) + events
@@ -2968,6 +3139,10 @@ def main(argv=None):
     c.add_argument("files", nargs="+", type=cli_path)
     c.add_argument("-j", type=int, default=2)
     c.add_argument("--copy-of", type=cli_path)
+    c.add_argument("--func", action="append", default=[], metavar="NAME",
+                   help="only this function (repeatable); a name no file defines exits before any check")
+    c.add_argument("--no-cache", action="store_true",
+                   help="run every check instead of reading the sweep check cache (results are still stored)")
     c.add_argument("--record", action="store_true")
     c.add_argument("--unit")
     c.set_defaults(fn=cmd_sweep)

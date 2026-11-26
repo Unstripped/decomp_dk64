@@ -835,6 +835,159 @@ def test_failed_recipe_scan_records_nothing(tmp_path, monkeypatch):
     assert plan["failed"] == [([key], "f: variants scan exit 125: dk: no server")]
 
 
+CACHE_C = ("typedef int s32;\ntypedef short s16;\ns32 g;\ns32 h;\n"
+           "void f(s32 x) {\n    if (g) {} // FAKE: steers\n    g = x;\n}\n"
+           "void k(s32 x) {\n    if (h) {} // FAKE: steers\n    h = x;\n}\n")
+VRAMS = {"f": 0x80600000, "k": 0x80600100}
+
+
+class _Sync:
+    def submit(self, fn, *args):
+        return _Done(fn(*args))
+
+
+@pytest.fixture
+def counted_checks(tmp_path, monkeypatch):
+    """Stand-ins for every sweep check, each call logged as (kind, function): a removal of f's or
+    k's dead if is f's or k's; recipe scans return RECIPE[function] (default None, no variant)."""
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: VRAMS[name])
+    monkeypatch.setattr(q, "SCRATCH", str(tmp_path / "scratch"))
+    calls, recipe = [], {}
+
+    def which(text):
+        return "f" if "if (g) {}" not in text else "k" if "if (h) {}" not in text else "?"
+
+    monkeypatch.setattr(q, "check", lambda text, path, src, uninit=True: calls.append(("check", which(text))) or False)
+    monkeypatch.setattr(q, "cond_check", lambda text, body, path, src, func: calls.append(("cond", func)) or False)
+    monkeypatch.setattr(q, "recipe_check",
+                        lambda text, path, src, func: calls.append(("recipe", func)) or recipe.get(func))
+    return calls, recipe
+
+
+def _cache_sweep(c, calls, read_cache=True, src=None):
+    """One sweep plan of file C (a copy of SRC, default itself) through a synchronous pool: ({(key,
+    method): outcome}, hits, the checks it ran, its analysis). Each call starts a new process's base
+    uninit memo."""
+    q._base_uninit.clear()
+    path = q.rel(str(c))
+    src = q.rel(str(src)) if src else path
+    an = q.analyze(path, "global", src=src, keep=True)
+    del calls[:]
+    out, hits, _ = q.finish(q.plan_file(an, path, src, _Sync(), read_cache=read_cache))
+    return out, hits, sorted(calls), an
+
+
+def test_sweep_check_cache_shared_by_a_copy_and_its_src(tmp_path, counted_checks):
+    """A worker's `sweep --copy-of` fills the cache the merge's in-place sweep reads: the copy's path
+    never enters a key. Its declarations count as `<self>` before ordering, so f's definition sorts
+    the same against its header prototype whether the main file is `A/x.c` (before `h/`) or
+    `src/global/x.c` (after it)."""
+    calls, _ = counted_checks
+    h = tmp_path / "h" / "x.h"
+    h.parent.mkdir()
+    h.write_text("void f(int x);\n")
+    text = f'#include "{q.posix(str(h))}"\n' + CACHE_C
+    src, copy = tmp_path / "src" / "global" / "x.c", tmp_path / "A" / "x.c"
+    for p in (src, copy):
+        p.parent.mkdir(parents=True)
+        p.write_text(text)
+    out1, _, ran, _ = _cache_sweep(copy, calls, src=src)
+    assert ran == [("check", "f"), ("check", "k"), ("recipe", "f"), ("recipe", "k")]
+    out2, _, ran, _ = _cache_sweep(src, calls)
+    assert ran == [] and out2 == out1
+
+
+def test_sweep_check_cache_skips_unchanged_functions(tmp_path, counted_checks):
+    """merge_record sweeps whole files after every merge: a function whose compile inputs did not change
+    (its text, the declarations it reaches) is answered from the check cache, every event still recorded;
+    a change to it or to a declaration it reaches checks it again."""
+    calls, _ = counted_checks
+    c = tmp_path / "x.c"
+    c.write_text(CACHE_C)
+    out1, _, ran, an1 = _cache_sweep(c, calls)
+    assert ran == [("check", "f"), ("check", "k"), ("recipe", "f"), ("recipe", "k")]
+    out2, _, ran, _ = _cache_sweep(c, calls)
+    assert ran == [] and out2 == out1  # the same events, from the cache
+    # k's body and unreached file-scope text change: f's fp_local changes, its inputs do not
+    c.write_text(CACHE_C.replace("    h = x;", "    h = x + 1;").replace("s32 h;\n", "s32 h;\ns32 unused; /* new */\n"))
+    out3, _, ran, an3 = _cache_sweep(c, calls)
+    assert ran == [("check", "k"), ("recipe", "k")]
+    assert an3["functions"][0]["fp_local"] != an1["functions"][0]["fp_local"]
+    assert {k: v for k, v in out3.items() if k[0].startswith("global:80600000")} == \
+        {k: v for k, v in out1.items() if k[0].startswith("global:80600000")}
+    c.write_text(CACHE_C.replace("s32 g;", "s16 g;"))  # a declaration f reaches
+    assert _cache_sweep(c, calls)[2] == [("check", "f"), ("recipe", "f")]
+    assert _cache_sweep(c, calls, read_cache=False)[2] == [("check", "f"), ("check", "k"), ("recipe", "f"),
+                                                           ("recipe", "k")]
+
+
+def test_sweep_check_cache_rescans_recipe_hits(tmp_path, counted_checks):
+    """A recipe hit is never stored: the variant written to hits/ is always the current file's."""
+    calls, recipe = counted_checks
+    recipe["f"] = "VARIANT"
+    c = tmp_path / "x.c"
+    c.write_text(CACHE_C)
+    _cache_sweep(c, calls)
+    out, hits, ran, an = _cache_sweep(c, calls)
+    assert ran == [("recipe", "f")]
+    key = an["functions"][0]["sites"][0]["key"]
+    assert hits == [([key], "recipe", "VARIANT")] and out[(key, "recipe")] == ["hit", None]
+
+
+def test_sweep_check_cache_off_without_scope_or_for_libultra(tmp_path, counted_checks):
+    calls, _ = counted_checks
+    c = tmp_path / "x.c"
+    c.write_text(CACHE_C)
+    path = q.rel(str(c))
+    an = q.analyze(path, "global")  # no keep=True: no scope to digest
+    assert not q.cacheable(an, path, path)
+    an = q.analyze(path, "global", keep=True)
+    assert q.cacheable(an, path, path) and not q.cacheable(an, path, "src/global/libultra/x.c")
+    for _ in range(2):
+        q.finish(q.plan_file(q.analyze(path, "global"), path, path, _Sync()))
+    assert len(calls) == 8  # every check ran twice
+
+
+def test_sweep_check_cache_never_stores_a_check_without_an_answer(tmp_path, counted_checks, monkeypatch):
+    """A dkd failure reads as a miss, as it always did, but is checked again by the next sweep."""
+    calls, _ = counted_checks
+    monkeypatch.setattr(q, "check", lambda text, path, src, uninit=True: calls.append(("check", "?")) or q.UNSURE)
+    c = tmp_path / "x.c"
+    c.write_text(CACHE_C)
+    out, _, ran, an = _cache_sweep(c, calls)
+    key = an["functions"][0]["sites"][0]["key"]
+    assert len(ran) == 4 and out[(key, "remove")] == ["nohit", None]
+    assert _cache_sweep(c, calls)[2] == [("check", "?"), ("check", "?")]  # the recipe scans were answers
+
+
+@pytest.mark.parametrize("rc, want", [(0, True), (1, False), (3, False), (125, q.UNSURE), (130, q.UNSURE)])
+def test_check_without_an_answer_is_unsure(tmp_path, monkeypatch, rc, want):
+    """fdiff exit 125 (a dkd-level failure) or 128+ (a killed job) is no answer, not a mismatch."""
+    monkeypatch.setattr(q, "SCRATCH", str(tmp_path / "scratch"))
+    monkeypatch.setattr(q, "fdiff", lambda copy, src: rc)
+    monkeypatch.setattr(q, "new_uninit", lambda copy, src: set())
+    assert q.check("int x;\n", "src/global/x.c", "src/global/x.c") is want
+
+
+def test_sweep_func_limits_the_sweep(tmp_path, counted_checks, monkeypatch, capsys):
+    calls, _ = counted_checks
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "base_uninit", lambda src: set())
+    compiled = []
+    monkeypatch.setattr(q, "fdiff", lambda copy, src: compiled.append(copy) or 0)
+    c = tmp_path / "x.c"
+    c.write_text(CACHE_C)
+    with pytest.raises(SystemExit, match="--func nope: not defined in"):
+        q.main(["sweep", str(c), "--copy-of", "src/global/x.c", "--func", "k", "--func", "nope"])
+    assert compiled == [] and calls == []  # refused before any check
+    q.main(["sweep", str(c), "--copy-of", "src/global/x.c", "--func", "k", "--record", "--unit", "u"])
+    assert sorted(calls) == [("check", "k"), ("recipe", "k")]
+    assert {e["name"] for e in q.load_events() if e.get("type") == "quality"} == {"k"}
+    del calls[:]
+    q.main(["sweep", str(c), "--copy-of", "src/global/x.c", "--func", "k"])
+    assert calls == [] and "sweep: 1 files, 2 checks (2 from the check cache)" in capsys.readouterr().out
+
+
 def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)
