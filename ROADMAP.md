@@ -186,8 +186,9 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Cleanup session 2026-11-24 (director mode, Lead20261124)** — coverage after the port-safe respellings (50304ca5) and the main-loop re-derivation staled 955 reviews: 13 polish items (31 files) re-reviewed every function; 4 signature bundles regenerated proto headers (EFDC0, 6AD90, 42630, 55B20); TypesOwner batches 16/17 (RaceRacerActor into race.h, shared KongActor, D5E10 RideState → RaceParticipant, CamZoomEntry, ActorCallbackNode `eventType`, SpawnNode `challengeType`); 15 pre-existing hidden steers tagged, 2 FAKE removed (6AD90 recompute into `val`, 478F0 textbook lerp); 14 hack items re-measured the rungs the polish edits staled; 86 cross-file function/global renames (eb53794b); Q1608-Q1625.
 - [x] **Continue unit 2026-11-24b (director mode, `autoresearch.sh` METRIC debt 5,590 → 5,581 at close → 5,441 final)** — names: the queued fields/typedefs (cbe7a15c, dcc777e3), emulator evidence for held items (EmuFieldsU5: `translucentOverlayDl`, `pushBothSides` ×2; EmuGlobalsU5: `gEnemyGridLeaping`, minecart route tables, 5 effect sprites from decoded textures) and three global aliases of overlay objects named after them by ruling R3 (8ffd3b5b); `heldButtonsPtr` → `pressedButtonsPtr`; carry re-stamps typedef/record renames (a075dea7). Types: every effect sprite extern is `EffectGridAsset` (batch_18, its H part's 21 reopened rungs re-measured), A8400 `gEffectGridAssets`, one `VehicleActor` in race.h, RaceParticipant 0x25/0x26 manager/racer unions (batch_19/20). Hack: the two re-measure leftovers stayed EXHAUSTED (Q1626-Q1628); a Q1604-Q1625 lever-transfer scout found one transfer, a one-line join retagged `// LAYOUT:` (ruling R2); ruling R1 keeps fully dead declaration defaults FAKE. Q1626-Q1636; the 4 functions the close knowledge commit reopened were re-measured against it (db9779c7): ACDC0 hudPauseMenuUpdate lost 2 FAKE to selector switches and an `&&` credits flag, two address-compare loop exits became `// ORIG:` (ruling R4); FAKE 174 → 169. Filing that re-measure's findings (1dadd028, incl. a Q1582 correction) reopened hudPauseMenuUpdate's review and 2 sites: the next unit's re-measure item (pending.md).
 - [x] **Continue units 2026-11-25 and 2026-11-25c (Windows host, director mode)** — 2026-11-25 (debt 5,416 → 5,131): 12 hack items, batch_21 callback types, splitlocal/unalias guards (95df6005). 2026-11-25c (debt 5,126 → see run-log): tooling (uncapped recipe rung 15f27049, fakehunt stop on Windows d9b6c1b1, `report --baseline` without `git archive` 39d2c5aa); `JetpacHead` embedded in both jetpac actor records (c7b5a10f, ruling R-jetpac); frame-word placement and the three-part census for unrelated-role reuses (ruling R-oildrum, Q1666; rulings.md) removed or untagged FAKE in 16 files, each census in its function's dossier; names window f57a6282; knowledge Q1666-Q1690.
+- [x] **Continue unit 2026-11-26 (Windows host, director mode, debt 4,742 → 4,728)** — the three-part census on the 4 reuse sites with fakehunt permuter zeros (the zeros were the steer re-spelled): arcade/0 arcadeUpdateDonkeyKongStage4 passes (2409e8da), commandApplyToLight, bossFollowerActorUpdate and bonusSearchlightSeekGameUpdate fail (register-only locals after the lowest stored local take no frame word, Q1691; a failed hidden reuse in bonus/2690 tagged); `MapChunk` + `gMapChunks` into render.h and the 63EC0 W709 fixed (5eba3e1c); two names windows (5cdffef1, 689be5e2) and three split-label folds (24b4d7f0, 1faa9b8a); tooling: sweep check cache + `sweep --func` (3eb5c399), `--shadow` with copy == src (5b1f35c0), objdiff HI16/LO16 pairing (cb6c08ce); every remaining reuse site censused or screened, all 25 gotos verified Q0591; rulings R1-R3; knowledge Q1691-Q1692.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 2026-11-25c close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 2026-11-26 close):
 
 | metric | total | start |
 |---|--:|--:|
@@ -200,13 +201,13 @@ Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc -
 | goto | 25 | 39 |
 | proto-type (`// PROTO:`) | 0 | 0 |
 | protos mismatch | 6 | 1,202 |
-| reviewed / exhausted functions | 4,270 / 4,185 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 4 | 1,890 |
+| reviewed / exhausted functions | 4,270 / 4,186 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 3 | 1,890 |
 | uninit warnings (clint checks every function) | 249 | 122 |
 | `func_` definitions | 12 | 457 |
 | m2c names | 0 | 5,040 |
-| `unk` field references | 73 | - |
-| `D_` references | 57 | - |
+| `unk` field references | 71 | - |
+| `D_` references | 50 | - |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
