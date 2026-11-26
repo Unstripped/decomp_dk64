@@ -1,11 +1,11 @@
-# commandApplyToLight (global, src/global/126260.c)
+# commandApplyToLight (global, src/global/126260_command_queue.c)
 ## Sites
 - global:80721814:other:bd52bc: REMOVED (2026-11-14). Byte-offset views replaced by `fb->lightSets[gLightSetIndex].l / .a / .l[lightIndex]`.
 - global:80721814:dead-if:4cea0a: REMOVED (2026-11-15). `FrameMatrices *fb = gGfxCurrentFrameBuffer;` (declared last) makes the frame-buffer base a coloured variable in v1 (lw v1 at 0x2c0, addu v0,v1,t8 at 0x2dc). This only works once 062c74 is gone: with that guard kept, the fb local swaps ambient/slot t0/t1 (0x2e8/0x304).
 - global:80721814:dead-if:062c74: REMOVED (2026-11-15). The ambient halving is spelled `(f64)col / 2.0`. uopt strength-reduces it to a separate `5.0E-1` constant web, so the ambient piece colours $f14 (loaded at 0x7ec) instead of joining the `0.5` web of `0.5 * factor * factor` in $f16 (loaded at 0x578).
 - global:80721814:dead-if:0c2321 / 0c2321#2: REMOVED (2026-11-15), replaced by copy-only global:80721814:other:f7de45 (kept, `// FAKE`; director ruling: reusing a local for an unrelated value is a hidden steer unless the target stores it to that local's home slot; this function has no swc1/sdc1). One f32 local `factor` holds the falloff base (type 5) and then `127.0f / dist` for the direction bytes (slot path). The extra def and uses give it savings 6 over 5 blocks (adjsave 3.0), tying clamped (3.0). The lower candidate index colours it first ($f2), then clamped ($f12) and the 1.0 web ($f16).
 - global:80721814:other:d00a99 (was d9b15d before the cast cleanup): REMOVED (2026-11-18, lead ruling (a): untagged ordinary C; the 2026-11-15 lead Q0816 retag is withdrawn, the director may overrule). Ambient halving `c = col + (col / 2.0 - col) * intensity` stays as is; `* 0.5` / `0.5 *` = 10 lines (the 0.5 is hoisted to 0x578 in $f16 instead of materialised at 0x7ec in $f14; mul.d at 0x818/0x8dc/0x9a0 read $f16). `/ 2.0` is the matched code base halving idiom: 9DD70 actorSagWaveUpdate:385 and A8400 textBoxRowUpdateNodes:275 are untagged `/ 2.0` halvings where `* 0.5` also fails (fdiff 1); C8C10:385 matches both ways.
-- global:80721814:other:f7de45: kept, `// FAKE`. `factor = 127.0f / dist` reuse (see 0c2321 above); no natural replacement found (2026-11-16 audit, 2026-11-17 audit, 2026-11-18 below). The local called `clamped` in all earlier notes is `falloff` since 2026-11-18 (rename only).
+- global:80721814:other:f7de45: kept, `// FAKE`. `factor = 127.0f / dist` reuse (see 0c2321 above); no natural replacement found (2026-11-16 audit, 2026-11-17 audit, 2026-11-18 below). The local called `clamped` in all earlier notes is `falloff` since 2026-11-18 (rename only). 2026-11-26: R-oildrum three-part census (Q1666) FAILS at part 1 (see `## Census (Q1666)`): a separate f32 local for `127.0f / dist` keeps frame 0x38 and every home at 22 of 25 positions; the reuse never reaches a home, so the evidence is register-only and the tag stays (rulings.md R5 example unchanged).
 ## Attempts
 - rounds 13-20 (opus:low): diagnose, permute, reconstruct h1-h10; see history.
 - 2026-11-14 U HackcommandApplyToLight opus:high: typed head 0; &lights[lightIndex] 156; Lights7 *set 177; 4cea0a alone 100, fb local 29; 062c74 alone 39; 0c2321 pair 17; clamp if-forms best 5 (guards kept).
@@ -49,10 +49,50 @@
   - `f32 falloff`: 634 (cvt pair around the 1.0 clamp).
   - variants.py scan of the current hack-free body (separate `scale`, `/ 2.0` ambient): 33 variants, all 17 (baseline), no zero.
   - permuter 6 (perm_scale: current typed fb head, separate f32 `scale`, `/ 2.0` ambient, hack-free weights, -j 2, 900 s): base 95, best 0; all six zeros put the falloff base and `127.0f / dist` back into one f32 local (`factor` for both, `scale` for both, or either plus a copy into the other): the steer, not applied.
+- 2026-11-26 U CleancommandApplyToLight anthropic/claude-opus-5-5 (base d366ec4e; R-oildrum three-part census, Q1666; 34 bodies (33 + the base as control) in `.scratch/CleancommandApplyToLight/census/`, scores `variants.py try` full=, frame/homes from `as1probe keep --body` out.o + `objdump -drz`, cfe offsets `as1probe ucode --cfe`): part 1 FAILS (22 of 25 f32 positions keep frame 0x38 and every home; only the same 17 register lines), part 2 all fail (inline 17, operand orders 20/44, static 26), part 3 holds. FAKE kept, comment unchanged (accurate). Table in `## Census (Q1666)`. Final sweep: plain/recipe nohit.
 ## Untried ideas
 - d00a99: closed (2026-11-18 lead ruling (a), see Sites).
 - f7de45: none on the uopt side. factor (bit 69, f32: 2 arm defs + 1 use over bb8/bb9/bb10) has adjsave 1.5; falloff (ex-clamped, bit 75, f64: def + compare + arm use over bb10/bb12) has 3.0. The target needs factor coloured first ($f2, so falloff takes $f12 and the 1.0 web $f16): factor needs 6 accesses over <= 5 blocks, or falloff a >= 10-block range. A different register for falloff cannot come from interference: anything live in bb10/bb12 is live in bb10 with factor. The only zero-code accesses are copy-propagated assignments (the slot-path `factor = 127.0f / dist`, whose value still lands in the udiv CSE `$f0` at 0xc80). Refining dist in place for the scale moves the accesses to dist, not factor (21). Role (2026-11-18 assessment): the falloff base is an effective distance, max(1, dist - r/2); the slot-path value is the 127/dist direction scale: unrelated quantities, so the reuse stays a steer unless the lead rules them one role.
 - f7de45 (2026-11-18c): also closed: dist as the base (merges into $f18), the Q1439 same-quantity copy (`factor = dist` in the other arm adds blocks faster than accesses: 1.5 -> 1.0) and permuter 6 (every zero is the one-local merge). Left open only a lead ruling that the base and the direction scale are one role.
+- f7de45 (2026-11-26): the R-oildrum census is complete and fails at part 1 (register-only), so untagging needs a director ruling that overrides R5 for register-only reuses; no code lever left that the history lacks. fakehunt permute pass 1 zero (output-0-1) is the same reuse respelled (lead, 2026-11-26).
+## Census (Q1666)
+Site global:80721814:other:f7de45, local `f32 factor`. Target frame 0x38 (`addiu sp,sp,-56` 0x2c8): args 0x00-0x0f, ra 0x14, local area 0x18-0x37. cfe homes (`ucode --cfe`): dist -4, dist_d -16 (hole -8..-5), lights -20, ambient -24, slot_light -28, intensity -32, falloff -40, dy_d -48, c -49, factor -56, fb -60. Memory-resident: only lights/ambient/slot_light (spilled across both sqrtf calls: `sw t1,28(sp)` / `sw t0,32(sp)` / `sw a3,36(sp)` 0x33c-0x34c and 0x4ec-0x4f4, reloads 0x384-0x38c and 0x544-0x54c), plus arg homes a0 56, a1 60 (also the a2 spill 0x350/0x37c, 0x4f8/0x53c), actorX/Y/Z 64/68/72. The frame ends at the deepest referenced home (slot_light -28 -> 0x38, Q0408/Q0561); no uopt spill temps. `factor` never reaches memory in any build (no swc1/sdc1 in the function).
+Part 1, frame proof (`factor` keeps the falloff base; a new local `scale` takes `127.0f / dist` at line 192 and its three uses at 193-195). "17 regs" = the same 17 lines in every row, all at 0x3a8-0x4bc: the 1.0 web `$f12/$f13` for `$f16/$f17` (mtc1 0x3a8/0x3ac, compare 0x3d8), falloff base `cvt.s.d $f14` for `$f2` (0x3e4-0x3f0) and `cvt.d.s $f0,$f14` (0x3f4), falloff `div.d $f2` for `$f12` (0x428, compare 0x42c, arms 0x440/0x444), the 20.0 web `$f16/$f17` for `$f12/$f13` (0x478-0x4bc); the scale itself stays `div.s $f0` 0xc80 (object offsets; function at 0x2b4).
+| body | position | score | frame | homes (lights/ambient/slot) | what moved |
+|---|---|---|---|---|---|
+| P00 | function scope, first (before dist) | 17 | 0x38 | 36/32/28 | nothing on the stack (scale -4, dist -8: fills dist_d's alignment hole); 17 regs |
+| P01 | after dist (before dist_d) | 17 | 0x38 | 36/32/28 | nothing (scale in the -8 hole); 17 regs |
+| P02 | after dist_d (before lights) | 29 | 0x38 | 32/28/24 | all three homes -4 (sw/lw a3 36->32, t0 32->28, t1 28->24) + 17 regs |
+| P03 | after lights | 25 | 0x38 | 36/28/24 | ambient 32->28, slot 28->24 + 17 regs |
+| P04 | after ambient | 21 | 0x38 | 36/32/24 | slot 28->24 + 17 regs |
+| P05 | after slot_light | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| P06 | after intensity | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| P07 | after falloff | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| P08 | after dy_d | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| P09 | after c | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| P10 | after factor | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| P11 | after fb (last) | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| R00/R01/R05/R10/R11 | `register f32 scale` at P00/P01/P05/P10/P11 | 17 each | 0x38 | 36/32/28 | identical object to the plain row |
+| B1 | block scope, head of the `intensity > 0.02` block | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| B3 | same, `register` | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| B2 | bare block `{ f32 scale = 127.0f / dist; ... }` around 192-195 | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| N1 | `factor` block-scoped in the type-5 arm, `scale` in the `> 0.02` block | 17 | 0x38 | 36/32/28 | nothing; 17 regs |
+| N2-N5 | `factor` in the type-5 arm, `scale` at function scope after c / first / after slot_light / last | 17 each | 0x38 | 36/32/28 | nothing; 17 regs |
+| W1 / W2 | `f64 scale` after factor / after ambient (not a legitimate width: value changes) | 54 / 78 | 0x38 / 0x40 | 36/32/28 ; 44/40/28 | `cvt.d.s` + `mul.d`/`trunc.w.d` for `mul.s`/`trunc.w.s` at 0xca0-0xd00 (55B20 rule: excluded) |
+Result: FAILS. At 22 of the 25 legitimate f32 positions (both sides of dist, after slot_light through fb, `register`, every block scope) the split keeps frame 0x38, the three named homes 36/32/28(sp) and the arg homes; the only effect is the colouring of the falloff region (factor's adjsave 1.5 vs 3.0 with the reuse, Q1019/Q1569): register-only evidence (R5, 12E800 `near`). Only P02-P04, between dist_d and slot_light, shift homes, and that is the new local reserving a word above the last memory-resident local (Q0408), not stack evidence for the reuse.
+Part 2, no-local proof (no local for `127.0f / dist`; `factor` keeps only the falloff base):
+| body | spelling | score | what differs |
+|---|---|---|---|
+| X1 | `(cmd->x - actorX) * (127.0f / dist)` at each of the 3 uses | 17 | uopt CSEs the three divides into one `div.s $f0` 0xc80: the same 17 regs as the split (same object as P10) |
+| X3 | `127.0f / dist * (cmd->x - actorX)` at each use | 20 | 17 regs + `mul.s` operand order at 0xca4/0xcd0/0xcfc |
+| X2 | `(cmd->x - actorX) * 127.0f / dist` at each use | 44 | value-changing (mul then div per axis, three div.s) |
+| X4 / X5 | `static f32 scale;` at function / block scope | 26 / 26 | 17 regs + `lui at` / `swc1 $f0,0(at)` .bss store (the target stores nothing; Q1680) |
+| - | direct field/array write | n/a | Light has no f32 field; `l.dir` is s8[3] (storing the scale there truncates it) |
+| - | field re-read / pointer local | n/a | the scale is a computed f32, not a field or an address |
+| Y1 | `dist = 127.0f / dist` with `* dist` (another reuse, not a no-local spelling; record only) | 21 | dist's $f18 takes the accesses |
+All fail; none matches.
+Part 3 (holds, moot after part 1): both roles f32. Role 1 (falloff base): def line 137, use line 138, only in the `cmd->type == 5` arm (target arm 0x328-0x4c8 after `bnel t2,at,0x4d0` 0x320; factor `cvt.s.d $f2` 0x3e4-0x3f0, last use `cvt.d.s $f0,$f2` 0x3f4). Role 2 (direction scale): def line 192, uses 193-195, only on the non-type-5 path after the type-5 `return 0` (line 176; target `bne t2,at,0xa48` 0x574, `div.s $f0` 0xc80, `mul.s` 0xca4/0xcd0/0xcfc). Disjoint paths; role 1 is dead after 0x3f4. `factor` is already a role-neutral name (a scale factor in both roles); no rename.
+Hidden-reuse check: dist, dist_d (one value per arm), lights, ambient, slot_light, falloff, dy_d, fb hold one value each; intensity is refined in place (`*=`, same quantity); `c` is the channel byte for all nine colour stores (one role); no parameter is reassigned. None.
 ## Evidence
 - Prologue: `lw v1,gGfxCurrentFrameBuffer` (0x2c0); v0 = v1 + set*0x78 (0x2dc); a3 = v0+0x278 (lights), t0 = v0+0x270 (ambient), t1 = v0 + idx*16 + 0x278 (slot).
 - 1.0 in $f16/$f17 (0x3a8/0x3ac). Falloff base: `cvt.s.d $f2` in both arms (0x3e4-0x3f0), `cvt.d.s $f0,$f2` at the join (0x3f4). Falloff 0.5 materialised inline by ugen (lui 0x3fe0/mtc1 $f7/$f6 at 0x40c-0x414), `mul.d $f4,$f6,$f0` at 0x41c (constant first). Clamped: `div.d $f12` (0x428).
