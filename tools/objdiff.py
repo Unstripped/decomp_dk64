@@ -45,7 +45,10 @@ def get_section_sizes(obj_path):
 DATA_SECTIONS = (".data", ".rodata", ".bss", ".sdata", ".sbss")
 
 def get_text_relocs(obj_path):
-    """(offset, type, target) of .text relocations."""
+    """(offset, type, target) of .text relocations in relocation-table order (`objdump -r` keeps it):
+    each HI16 sits right before its LO16 there (MIPS ABI; IDO and gas both emit the pair adjacently,
+    whatever the instructions' order), which `pair_addends` needs. Compare two objects by offset
+    through `sorted()`."""
     out = subprocess.check_output(["mips-linux-gnu-objdump", "-r", "-j", ".text", obj_path],
                                   stderr=subprocess.DEVNULL).decode(errors="replace")
     relocs = []
@@ -54,7 +57,7 @@ def get_text_relocs(obj_path):
         if len(parts) >= 3 and parts[1].startswith("R_MIPS_"):
             target = parts[2].split("+")[0].split("-")[0]
             relocs.append((int(parts[0], 16), parts[1], target))
-    return sorted(relocs)
+    return relocs
 
 def text_symbols(obj_path):
     """{offset: name} for symbols defined in .text."""
@@ -239,7 +242,7 @@ def apply_absolute(text, relocs, absolute):
         word = int.from_bytes(original[off:off + 4], "big")
         if rtype == "R_MIPS_LO16":
             lo = word & 0xFFFF
-        else:  # addend comes from the paired LO16 of the same symbol
+        else:  # addend comes from the paired LO16: the next LO16 of the symbol in table order
             pair = next((o for o, t, s in relocs[i + 1:] if t == "R_MIPS_LO16" and s == target), None)
             lo = int.from_bytes(original[pair:pair + 4], "big") & 0xFFFF if pair is not None else 0
         value = (absolute[target] + (lo - 0x10000 if lo & 0x8000 else lo)) & 0xFFFFFFFF
@@ -264,37 +267,30 @@ def sext16(v):
     return v - 0x10000 if v & 0x8000 else v
 
 def pair_addends(text, relocs):
-    """{offset: full addend} for HI16/LO16 relocations (REL: addends sit in the instructions).
-    A HI16 (`lui rt`) pairs with the next LO16 of the same target whose base register is rt (IDO
-    schedules several `lui`s of one symbol before their LO16s, e.g. lui a0; lui a2; addiu a2,a2,lo;
-    addiu a0,a0,0x1C), falling back to the MIPS ABI rule (the next LO16 of the target). A LO16 gets
-    the addend of the HI16 that pairs with it, else of the latest HI16 of its target; the full
-    addend is (hi << 16) + sext(lo)."""
+    """{offset: full addend} for HI16/LO16 relocations (REL: addends sit in the instructions), with
+    RELOCS in relocation-table order (`get_text_relocs`). A HI16 pairs with the next LO16 of its
+    target in the table (MIPS ABI rule; IDO and gas put it right after the HI16). Instruction order
+    cannot pair them: IDO schedules several `lui`s of one symbol before their LO16s (jetpac
+    jetpacResetPlayers: lui v1; lui a0; lui a2; addiu a2; addiu a0,0x1C; addiu v1), and two switch
+    cases may load one symbol through the same register (6AD90 collisionFindFloorAtPoint: case 2's
+    `lui` at 0x768 precedes case 1's `%lo` at 0x7E0, its own `%lo(+2)` is at 0x868). A LO16 with no
+    HI16 of its own (a second load through a shared `lui`) gets the addend of the latest HI16 of its
+    target in the table; the full addend is (hi << 16) + sext(lo)."""
     addends = {}
-    lo_of_hi = {}
-    for i, (off, rtype, tgt) in enumerate(relocs):
-        if rtype != "R_MIPS_HI16":
-            continue
-        rt = (word_at(text, off) >> 16) & 0x1F
-        los = [o for o, t, s in relocs[i + 1:] if t == "R_MIPS_LO16" and s == tgt]
-        match = next((o for o in los if (word_at(text, o) >> 21) & 0x1F == rt), None)
-        if match is None and los:
-            match = los[0]
-        if match is not None:
-            lo_of_hi[off] = match
-    hi_of_lo = {}
-    for hi, lo in lo_of_hi.items():
-        hi_of_lo.setdefault(lo, hi)
     last_hi = {}
+    pending = {}  # target -> HI16 offsets still waiting for their LO16
     for off, rtype, tgt in relocs:
         imm = word_at(text, off) & 0xFFFF
         if rtype == "R_MIPS_HI16":
             last_hi[tgt] = off
-            lo = lo_of_hi.get(off)
-            addends[off] = (imm << 16) + (sext16(word_at(text, lo)) if lo is not None else 0)
+            pending.setdefault(tgt, []).append(off)
+            addends[off] = imm << 16
         elif rtype == "R_MIPS_LO16":
-            hi = hi_of_lo.get(off, last_hi.get(tgt))
-            addends[off] = (((word_at(text, hi) & 0xFFFF) << 16) if hi is not None else 0) + sext16(imm)
+            lo = sext16(imm)
+            for hi in pending.pop(tgt, ()):
+                addends[hi] += lo
+            hi = last_hi.get(tgt)
+            addends[off] = (((word_at(text, hi) & 0xFFFF) << 16) if hi is not None else 0) + lo
     return addends
 
 def same_splat_address(b_tgt, e_tgt, b_addend, e_addend):
@@ -343,7 +339,7 @@ def text_matches(built_o, expected_o):
             return (vrams[tgt] + addend) & 0xFFFFFFFF if tgt in vrams else None
         return reloc_address(tgt, addend, syms)
 
-    for (b_off, b_type, b_tgt), (e_off, e_type, e_tgt) in zip(b_relocs, e_relocs):
+    for (b_off, b_type, b_tgt), (e_off, e_type, e_tgt) in zip(sorted(b_relocs), sorted(e_relocs)):
         if (b_off, b_type) != (e_off, e_type):
             return False
         if b_tgt == e_tgt and b_tgt not in DATA_SECTIONS:
@@ -439,14 +435,15 @@ def reloc_equivalent(built_o, expected_o):
         return False
     b_text, e_text = get_section_bytes(built_o, ".text"), get_section_bytes(expected_o, ".text")
     b_relocs, e_relocs = get_text_relocs(built_o), get_text_relocs(expected_o)
-    if len(b_text) != len(e_text) or [r[:2] for r in b_relocs] != [r[:2] for r in e_relocs]:
+    b_sorted, e_sorted = sorted(b_relocs), sorted(e_relocs)
+    if len(b_text) != len(e_text) or [r[:2] for r in b_sorted] != [r[:2] for r in e_sorted]:
         return False
     if masked_text(b_text, b_relocs) != masked_text(e_text, e_relocs):
         return False
     syms = symbol_addresses(expected_o)
     b_add, e_add = pair_addends(b_text, b_relocs), pair_addends(e_text, e_relocs)
     b_data = e_data = None
-    for (off, rtype, b_tgt), (_, _, e_tgt) in zip(b_relocs, e_relocs):
+    for (off, rtype, b_tgt), (_, _, e_tgt) in zip(b_sorted, e_sorted):
         if rtype == "R_MIPS_26":
             b_field, e_field = word_at(b_text, off) & 0x03FFFFFF, word_at(e_text, off) & 0x03FFFFFF
             if b_tgt == e_tgt and b_field == e_field:

@@ -18,6 +18,7 @@ BSS_VRAM = 0x8075A000
 BSS_SIZE = 0x1000
 FAKE_OBJ_PATH = "fake_object.o"
 REAL_SECTION_VRAMS = objdiff.object_section_vrams
+REAL_TEXT_RELOCS = objdiff.get_text_relocs
 
 
 @pytest.fixture(autouse=True)
@@ -333,19 +334,78 @@ def test_reloc_equivalent_rejects_different_instruction(monkeypatch):
     assert not objdiff.reloc_equivalent(b, e)
 
 
-def test_reloc_equivalent_pairs_hi16_by_register(monkeypatch):
-    """jetpac/0 jetpacResetPlayers: three `lui`s of one symbol precede their LO16s; the a0 pair
-    carries +0x1C, which expected reaches through the split label D_8002EC4C (= jetpacGame + 0x1C)."""
-    w = lambda *xs: b"".join(x.to_bytes(4, "big") for x in xs)
+W = lambda *xs: b"".join(x.to_bytes(4, "big") for x in xs)
+
+
+def test_reloc_equivalent_pairs_hi16_in_table_order(monkeypatch):
+    """jetpac/0 jetpacResetPlayers: three `lui`s of one symbol precede their LO16s; the relocation table
+    keeps each HI16 right before its LO16 (expected 0x390/0x3A4, 0x394/0x3A0, 0x398/0x39C), and the a0
+    pair carries +0x1C, which expected reaches through the split label D_8002EC4C (= jetpacGame + 0x1C)."""
     # lui v1; lui a0; lui a2; addiu a2,a2,0; addiu a0,a0,lo; addiu v1,v1,0
-    built = w(0x3C030000, 0x3C040000, 0x3C060000, 0x24C60000, 0x2484001C, 0x24630000)
-    exp = w(0x3C030000, 0x3C040000, 0x3C060000, 0x24C60000, 0x24840000, 0x24630000)
-    sym = lambda a0: [(0, "R_MIPS_HI16", "jetpacGame"), (4, "R_MIPS_HI16", a0), (8, "R_MIPS_HI16", "jetpacGame"),
-                      (12, "R_MIPS_LO16", "jetpacGame"), (16, "R_MIPS_LO16", a0), (20, "R_MIPS_LO16", "jetpacGame")]
+    built = W(0x3C030000, 0x3C040000, 0x3C060000, 0x24C60000, 0x2484001C, 0x24630000)
+    exp = W(0x3C030000, 0x3C040000, 0x3C060000, 0x24C60000, 0x24840000, 0x24630000)
+    sym = lambda a0: [(0, "R_MIPS_HI16", "jetpacGame"), (20, "R_MIPS_LO16", "jetpacGame"), (4, "R_MIPS_HI16", a0),
+                      (16, "R_MIPS_LO16", a0), (8, "R_MIPS_HI16", "jetpacGame"), (12, "R_MIPS_LO16", "jetpacGame")]
     b, e = _reloc_objects(monkeypatch, (built, sym("jetpacGame")), (exp, sym("D_8002EC4C")),
                           {"jetpacGame": 0x8002EC30})
     assert objdiff.pair_addends(built, sym("jetpacGame"))[4] == 0x1C
     assert objdiff.reloc_equivalent(b, e)
+
+
+# 6AD90 collisionFindFloorAtPoint (2026-11-24 M7), scaled down: switch cases 1 and 2 both load
+# sSourceTiltPitch through t2. Case 1's `lui` (0x754 -> 0) and case 2's (0x768 -> 4) both precede case
+# 1's `lh t2, %lo(sSourceTiltPitch)(t2)` (0x7E0 -> 8); case 2's `%lo(+2)` is at 0x868 (-> 12). Table order
+# (as both IDO objects emit it): 0x754/0x7E0, then 0x768/0x868.
+PITCH = {"sSourceTiltPitch": 0x807F9498}
+
+
+def _case_loads(case2_lo):
+    return W(0x3C0A0000, 0x3C0A0000, 0x854A0000, 0x854A0000 | case2_lo)
+
+
+def _case_relocs(case2_tgt):
+    return [(0, "R_MIPS_HI16", "sSourceTiltPitch"), (8, "R_MIPS_LO16", "sSourceTiltPitch"),
+            (4, "R_MIPS_HI16", case2_tgt), (12, "R_MIPS_LO16", case2_tgt)]
+
+
+def _objdump_relocs(monkeypatch, tables):
+    """The real get_text_relocs, reading `objdump -r` output that lists TABLES[path] in table order."""
+    def check_output(cmd, **kwargs):
+        rows = "".join(f"{off:08x} {rtype:<17} {tgt}\n" for off, rtype, tgt in tables[cmd[-1]])
+        return (f"\n{cmd[-1]}:     file format elf32-tradbigmips\n\nRELOCATION RECORDS FOR [.text]:\n"
+                f"OFFSET   TYPE              VALUE\n{rows}").encode()
+    monkeypatch.setattr(objdiff, "get_text_relocs", REAL_TEXT_RELOCS)
+    monkeypatch.setattr(objdiff.subprocess, "check_output", check_output)
+
+
+@pytest.mark.parametrize("case2_lo, ok", [(2, True), (4, False)])
+def test_reloc_equivalent_pairs_switch_case_lui_in_table_order(monkeypatch, case2_lo, ok):
+    """A copy retiring the split label D_807F949A as `sSourceTiltPitch[1]`: relocations sorted by
+    offset paired case 2's HI16 with case 1's `%lo` (+0: 0x807F9498 vs 0x807F949A) and failed
+    `--reloc-ok`."""
+    built = _case_loads(case2_lo)
+    assert objdiff.pair_addends(built, _case_relocs("sSourceTiltPitch"))[4] == case2_lo
+    b, e = _reloc_objects(monkeypatch, (built, None), (_case_loads(0), None), PITCH)
+    _objdump_relocs(monkeypatch, {b: _case_relocs("sSourceTiltPitch"), e: _case_relocs("D_807F949A")})
+    assert objdiff.get_text_relocs(b) == _case_relocs("sSourceTiltPitch")
+    assert objdiff.reloc_equivalent(b, e) is ok
+
+
+@pytest.mark.parametrize("case2_lo, ok", [(2, True), (4, False)])
+def test_text_matches_pairs_switch_case_lui_in_table_order(monkeypatch, case2_lo, ok):
+    b, e = _text_objects(monkeypatch, (_case_loads(case2_lo), None), (_case_loads(0), None), {}, PITCH)
+    _objdump_relocs(monkeypatch, {b: _case_relocs("sSourceTiltPitch"), e: _case_relocs("D_807F949A")})
+    assert objdiff.text_matches(b, e) is ok
+
+
+def test_pair_addends_shared_lui_and_grouped_hi16():
+    """A LO16 without its own HI16 (a second load through a shared `lui`) takes the latest HI16 of its
+    target; several HI16s before one LO16 (gas's grouping) all pair with it."""
+    text = W(0x3C010001, 0x8C220010, 0x8C230014, 0x3C040002, 0x3C050002, 0x24A5FFF0)
+    relocs = [(0, "R_MIPS_HI16", "x"), (4, "R_MIPS_LO16", "x"), (8, "R_MIPS_LO16", "x"),
+              (12, "R_MIPS_HI16", "y"), (16, "R_MIPS_HI16", "y"), (20, "R_MIPS_LO16", "y")]
+    assert objdiff.pair_addends(text, relocs) == {0: 0x10010, 4: 0x10010, 8: 0x10014,
+                                                  12: 0x1FFF0, 16: 0x1FFF0, 20: 0x1FFF0}
 
 
 def _data_offsets(monkeypatch, built, expected):
