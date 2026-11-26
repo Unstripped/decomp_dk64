@@ -1412,3 +1412,5 @@
 {"type": "unit", "t": "2026-11-26T21:18:57Z", "unit": "2026-11-26: cleanup LeadMeasure (Names26D folds)", "commit": "24b4d7f08af29cd2c4fc09d9bae919b32d8b71b4"}
 {"type": "unit", "t": "2026-11-26T22:18:53Z", "unit": "2026-11-26: names window 2 (Names26F)", "commit": "689be5e2fa4c83a050a31618bcc4d8ddd8751d90"}
 {"type": "unit", "t": "2026-11-26T22:35:19Z", "unit": "2026-11-26: cleanup LeadMeasure (Q1691 re-checks)", "commit": "6df3e565a8e76d23d018172518681a14b508b3cd"}
+{"type": "unit", "t": "2026-11-26T22:57:34Z", "unit": "2026-11-26: close re-sweep (render.h MapChunk move, 5eba3e1c)", "commit": "518ad15ef783aa6eb2ba4950eae03314d33f555d"}
+{"type": "unit", "t": "2026-11-26T23:01:02Z", "unit": "2026-11-26: cleanup LeadMeasure (close re-checks)", "commit": "518ad15ef783aa6eb2ba4950eae03314d33f555d"}
