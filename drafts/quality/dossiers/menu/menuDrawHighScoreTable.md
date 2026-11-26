@@ -7,6 +7,13 @@ menu:8002F284:other:9c13a4 other: `i = 0;` reuses the s16 loop counter `i` as th
 2026-11-09..2026-11-18 (59 events, see `quality.py history menuDrawHighScoreTable`): separate showMsg/hasMsg/drawn flag (s32 in the pad slot, s32/s16 after i, s16 in place, in the pad slot) fdiff 1 / frame 0x148 -> 0x150, s-register rotation; permuter best=0 only by reverting to the i reuse (Q0634); retypes for the cfe warnings fixed.
 2026-11-19 2026-11-18c CleanmenuDrawHighScoreTable: split flag set after the calls 62-71 (flag v1, i s1, dl s2); set before each `_sprintf` 44; initialised before a call 37 (s0, init before jal 0x758c); variants.py scan no zero; bare `if (i)` 0 (neutral, not applied).
 2026-11-25c CleanmenuUpdateElementTargetAndColor anthropic/claude-opus-5-5: lead levers checked on the target. Q1646 precondition holds (one local holds a call-free 0/1 flag and the range-limited loop counter) and predicts the measured split result: the counter keeps s2, the flag drops to v1. Q1623/Q1630/Q1635 (`flag = a && b;`) precondition fails: the target sets the flag by constant stores on the two `_sprintf` paths (`li s2,1` 0x75f0, 0x7618), never as a value of the row compares (`bltz v1` 0x75d4, `bne v1,at` 0x75f4 each guard one call). Measured anyway in the pad slot: `drawn = row >= 0 || row == -2;` before the calls 61 (shape 35); `drawn = row >= 0; if (drawn) ... else if (row == -2) { ...; drawn = 1; }` 39 (shape 13). Q1596 (definition-order tie) needs both webs to compete for one register; the call-free flag never competes for a callee-saved one.
+2026-11-25c close (CleanmenuUpdateElementTargetAndColor, resumed as Resume3E10Census; anthropic/claude-opus-5-5; base 15b7686a, file unchanged since cd02f1c8): hidden-reuse check (director item, R-oildrum refinements). No untagged unrelated-role reuse, so no census.
+- `i` (flag + loop counter) is the tagged site 9c13a4.
+- `yPos` holds the message text y `(s16)(posY * 4.0)` (2398) and then the table row y `0xC8`, `+= 0x6C` (2410/2427). Both are a text-draw y: same role (R9).
+- `posX`/`posY` are the out-params of all three menuComputeElementPosition calls (2394/2396/2409): same role.
+- `strBuf` is the text buffer of every `_sprintf`: same role.
+- `dl` is the display-list cursor threaded through every draw: same role.
+- `state`, `xBase`, `scoreTable` each hold one value; `pad` is a frame pad.
 
 ## Untried ideas
 none with a natural-C route: every split puts the call-free flag in a caller-saved register (Q1566, Q1646) or moves its init across a call; only one candidate spanning both roles gives s2 (Q1055).

@@ -15,6 +15,13 @@
 - 2026-11-14/15 PolishMenu3E10Names, RereviewSmallFiles2: reviews; three `1.0` (double) sfx speed args as `1.0f` full=5 / shift .rodata: kept.
 - 2026-11-16 HackmenuHandleControllerSlotInput (opus-5-5): file-scope function-like macro `BUTTONS_PRESSED(cur, prev) (((cur) ^ (prev)) & (cur))` used at every new-press computation in the function: `pressed`, the per-pad `edge` (`BUTTONS_PRESSED(bits, D_8003385C[i])`, xor operand order irrelevant), and the four arm tests -> fdiff OK, 4 FAKEs removed. Also checked: splitting `bits` (1<<j mask vs stick bits) into a separate `bit` local differs only by the t0 spill slot 0x44 -> 0x40 (one extra home, any declaration position) -> bits reuse is natural, untagged.
 - 2026-11-25c CleanmenuUpdateElementTargetAndColor (opus-5-5, follow-up, base 86d04c61): R-oildrum three-part census on the untagged `bits` reuse (Q1122). Part 1 holds for s32 `bit` (the `1 << j` role) at every position: before state 31 (state home 132->128), after state/step/rest/i/j/edge/bits/idx 10 (itemCount home 100->96 plus t0 spill 0x44->0x40), after itemCount/cap/lim/mask/pressed 6 (t0 spill 0x44->0x40 at 0x34b0/0x3518/0x3544); `register s32` the same (31/10/6 at before state/after bits/after pressed); block scope in the if block, the for body, or as the for-body initialiser 6. `u8 bit` beside `u8 mask` packs into mask's word (shape 0) but recolours (257, sllv t5->t6 from 0x3148). Part 2 FAILS: `mask |= 1 << j;` with no local fdiffs 0. Part 3 holds (both s32; j loop base 1159-1167 vs i loop base 1203-1217). Result: hidden steer removed, `bits` keeps only the stick-bit role; Q1122 refuted (the split's frame move is real, but the role never needed a local).
+- 2026-11-25c close (CleanmenuUpdateElementTargetAndColor, resumed as Resume3E10Census; anthropic/claude-opus-5-5; base 15b7686a, file unchanged since cd02f1c8): hidden-reuse check (director item, R-oildrum refinements). No untagged unrelated-role reuse is left, so no census.
+  - `bits` holds only the stick bits since af7e8dc8 (1203-1216).
+  - `i` is the pad loop counter (1202) and again the joined-count loop counter (1308), a sibling loop that reinitialises it (R7).
+  - `j` is the mask loop counter only (1159).
+  - `idx` is the character index in both stick arms (1225-1235, 1239-1249): same role.
+  - `buttons` (parameter) is zeroed while a match starts (1148): the same input value.
+  - step/rest/edge/itemCount/cap/lim/mask/pressed each hold one value kind.
 
 ## Untried ideas
 - (none needed for this function)
