@@ -554,8 +554,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     s16 j;
     s16 i;
     s16 y;
+    s16 slotDy;
     s32 off;
-    s32 slotBase;
+    s32 slot;
     HudTextList *it;
     PlayerInventory *tab;
     Gfx *ret;
@@ -695,33 +696,32 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 s32 slide;
                 slide = hud->slideY[i] * 4;
                 angv = -hud->carouselAngle;
-                fa = 1.0f - hud->fade;
+                fa = 1.0f - hud->fade; // FAKE: reuses the loop-1 fly-in factor fa ($f0, lwc1 at 0x12f0) for the case-1 carousel scale ($f0, sub.s at 0x19e4); its home sp+0x12C is never stored; a dedicated f32 adds a frame word (0x1A0 -> 0x1A8, homes +8) and matches only in a dropped local slot (the slotBase word, now slot)
                 if (slide < 0x3B6 && slide >= -0x3B5) {
                     if (fa > 0.05f) {
                         f32 fe;
                         f32 ff;
                         s16 sa;
                         s16 yy;
-                        slotBase = i * 5;
-                        fb = 180.0f * fa;
+                        fb = 180.0f * fa; // FAKE: reuses the case-0 melon-row centre fb (temp spill sp+0xA8 at 0x14b0) for the carousel radius ($f20, mul.s at 0x1a18); its home sp+0x128 is never stored; a dedicated f32 adds a frame word (0x1A0 -> 0x1A8) and matches only in the slotBase word
                         fa *= 3.0f;
                         fc = 32.0f * fa;
                         fc = 480.0f + fc;
-                        fd = 6.0f * fa;
+                        fd = 6.0f * fa; // FAKE: reuses the fade-max fd of cases 1/2 ($f0, mov.s at 0x1bf4/0x1bf8) for the slot x offset ($f24, mul.s at 0x1a4c); its home sp+0x120 is never stored; a dedicated f32 adds a frame word (0x1A0 -> 0x1A8) and matches only in the slotBase word
                         fe = 30.0f * fa;
                         ff = fa * 1.33;
                         for (j = 0; j < 5; j++) {
                             sa = angv;
                             yy = mathSinF(sa) * fb;
                             yy += 0x280;
-                            y0 = mathCosF(sa) * fb;
+                            slotDy = mathCosF(sa) * fb;
                             yy += 0x20;
-                            off = j + slotBase;
-                            sPauseCarouselSlotX[off] = yy - fd;
-                            sPauseCarouselSlotY[off] = (s16)((s16)(fc - y0) + slide) - fe;
-                            sPauseCarouselSlotScale[off] = ff;
+                            slot = j + i * 5;
+                            sPauseCarouselSlotX[slot] = yy - fd;
+                            sPauseCarouselSlotY[slot] = (s16)((s16)(fc - slotDy) + slide) - fe;
+                            sPauseCarouselSlotScale[slot] = ff;
                             if (sPauseKongUnlocked[j] != 0) {
-                                sPauseCarouselSlotScale[off] *= 0.75;
+                                sPauseCarouselSlotScale[slot] *= 0.75;
                             }
                             angv += 0x333;
                         }
@@ -746,7 +746,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             break;
         case 2:
             for (i = 0; i < 2; i++) {
-                off = hud->slideY[i] * 4;
+                off = hud->slideY[i] * 4; // FAKE: reuses the loop-1 x local off ($s0) for the case-2 slide; a dedicated s32 slide (block or function scope, shared with case 1, or in the slotBase word) re-colours loop 1 (lh v1,8(v0) for lh s0,8(v0) at 0x1318, list in s8): 66-213
                 if (off < 0x3B6 && off >= -0x3B5) {
                     dl = hudDrawItemLabel(dl, hud, i);
                 }
@@ -777,7 +777,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 fadeInput4 = hud->carouselProgress;
                 fadeInput0 = hud->fade;
                 if (fadeInput4 < fadeInput0) {
-                    fc = fadeInput0;
+                    fc = fadeInput0; // FAKE: reuses the y-position fc of cases 1/2 for the case-3 fade max ($f14, mov.s at 0x1f08-0x1f14); its home sp+0x124 is never stored; a dedicated f32 adds a frame word (0x1A0 -> 0x1A8) and matches only in the slotBase word; via fd (fade max of cases 1/2) 23, via fa 9
                 } else {
                     fc = fadeInput4;
                 }
