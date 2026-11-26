@@ -1404,11 +1404,11 @@ void hudPauseMenuIconUpdate(EffectNode *effect, u8 *done) {
     HudEntry *src;
     HudIconState *item;
     f32 t;
-    f32 radius;
+    f32 tmp; // scratch float: orbit radius, type-8 and type-15 wobble sines, squared target distance, heading-step draw, wander radius, clamped x and y steps
     s32 type;
     s32 bounceStep;
     s32 ang;
-    s32 i;
+    s32 n; // scratch int: case-10 carousel slot index, case 3/5/8/15 brightness
     s32 kongCount = sizeof(sPauseKongColors) / sizeof(sPauseKongColors[0]);
 
     src = effect->data;
@@ -1469,51 +1469,51 @@ void hudPauseMenuIconUpdate(EffectNode *effect, u8 *done) {
                 t = 1.0f;
             }
             ang = (s32)(item->startX * 0.25) - src->carouselAngle;
-            radius = 180.0f;
+            tmp = 180.0f;
             if (type != 3) {
-                radius = 240.0f;
+                tmp = 240.0f;
             }
-            radius *= t;
+            tmp *= t;
             effect->scaleX = item->baseScale * t * 4.0;
             effect->scaleY = effect->scaleX;
             t = 0.0;
-            effect->x = mathSinF(ang) * radius + 640.0;
-            effect->y = (480.0 - mathCosF(ang) * radius) + bounceStep;
+            effect->x = mathSinF(ang) * tmp + 640.0;
+            effect->y = (480.0 - mathCosF(ang) * tmp) + bounceStep;
             if (type == 8) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                radius = mathSinF(ang); // FAKE: radius holds the type-8 wobble sine (used from $f0, mul.s $f10,$f0,$f6 at 0x43d4; never stored to its home sp+0x48): the compound `effect->y += mathSinF(ang) * 10.0f` takes a cfe hidden temp word (Q0487, Q1537) and a dedicated f32 (any slot or block scope) a home word, either moving the uopt spill temps sp+0x24/0x30 -> 0x20/0x2c (10)
-                effect->y += radius * 10.0f;
+                tmp = mathSinF(ang);
+                effect->y += tmp * 10.0f;
             }
             if (type == 0xF) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                radius = mathSinF(ang); // FAKE: radius holds the type-15 scale sine (used from $f0, cvt.d.s $f6,$f0 at 0x442c; never stored to sp+0x48): `effect->scaleY *= 1.0 + mathSinF(ang) * 0.2` or a dedicated f32 adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10); the call inlined in the product loads scaleY before it (192)
-                effect->scaleY = effect->scaleY * (1.0 + radius * 0.2);
+                tmp = mathSinF(ang);
+                effect->scaleY = effect->scaleY * (1.0 + tmp * 0.2);
             }
             if (type == 5 || type == 8 || type == 0xF) {
-                i = 0xFF - (s32)((effect->y - 240.0) * 1.5); // FAKE: the slot index i holds the brightness (v0: subu at 0x44b8, sb at 0x44d4-0x44e4; i's home sp+0x38 unused): a dedicated s32 shade or slot adds a word and moves the case-10 slot v0 -> v1 (mfc1 at 0x48b0, 23)
-                if (i < 0x5F) {
-                    i = 0x5F;
+                n = 0xFF - (s32)((effect->y - 240.0) * 1.5);
+                if (n < 0x5F) {
+                    n = 0x5F;
                 }
-                if (i >= 0x100) {
-                    i = 0xFF;
+                if (n >= 0x100) {
+                    n = 0xFF;
                 }
-                effect->red = i;
-                effect->green = i;
-                effect->blue = i;
+                effect->red = n;
+                effect->green = n;
+                effect->blue = n;
             }
             break;
         case 6:
-            radius = (item->offsetY - item->wanderTargetY) * (item->offsetY - item->wanderTargetY) + (item->offsetX - item->wanderTargetX) * (item->offsetX - item->wanderTargetX); // FAKE: radius holds the squared target distance (add.s $f2 at 0x4528, c.lt.s at 0x452c, never stored): a dedicated f32 adds a word and takes $f12 (14), the sum inlined in the test 200
-            if (radius < 400.0f) {
+            tmp = (item->offsetY - item->wanderTargetY) * (item->offsetY - item->wanderTargetY) + (item->offsetX - item->wanderTargetX) * (item->offsetX - item->wanderTargetX);
+            if (tmp < 400.0f) {
                 item->wanderPause = item->wanderPause - 1.0;
                 if (item->wanderPause < 0.0) {
-                    radius = randomFloat(); // FAKE: radius holds the heading-step draw (used from $f0, cvt.d.s $f8,$f0 at 0x458c): a dedicated f32 or `wanderAngle += 1000.0 + randomFloat() * 2000.0` adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10), the call inlined in the plain sum swaps the add.d operands at 0x45a4 (92)
-                    item->wanderAngle = item->wanderAngle + (1000.0 + radius * 2000.0);
+                    tmp = randomFloat();
+                    item->wanderAngle = item->wanderAngle + (1000.0 + tmp * 2000.0);
                     ang = (s32)item->wanderAngle & 0xFFF;
                     item->wanderAngle = ang;
-                    radius = (randomFloat() * 40.0 + 20.0) * 4.0;
-                    item->wanderTargetX = mathSinF(ang) * (radius * 0.8);
-                    item->wanderTargetY = mathCosF(ang) * radius;
+                    tmp = (randomFloat() * 40.0 + 20.0) * 4.0;
+                    item->wanderTargetX = mathSinF(ang) * (tmp * 0.8);
+                    item->wanderTargetY = mathCosF(ang) * tmp;
                     if (randomFloat() < 0.25) {
                         item->wanderPause = randomFloat() * 40.0 + 15.0;
                     } else {
@@ -1521,40 +1521,40 @@ void hudPauseMenuIconUpdate(EffectNode *effect, u8 *done) {
                     }
                 }
             }
-            radius = (item->wanderTargetX - item->offsetX) * 0.1; // FAKE: radius holds the clamped x and y steps ($f2: cvt.s.d at 0x4728/0x47a0, add.s at 0x4770/0x47e8, never stored): a dedicated f32 step adds a word (spill temps sp+0x24/0x30 -> 0x20/0x2c, 10)
-            if (radius < -8.0) radius = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->offsetY load
-            if (radius > 8.0) {
-                radius = 8.0f;
+            tmp = (item->wanderTargetX - item->offsetX) * 0.1;
+            if (tmp < -8.0) tmp = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->offsetY load
+            if (tmp > 8.0) {
+                tmp = 8.0f;
             }
-            item->offsetX += radius;
-            radius = (item->wanderTargetY - item->offsetY) * 0.1;
-            if (radius < -8.0) {
-                radius = -8.0f;
+            item->offsetX += tmp;
+            tmp = (item->wanderTargetY - item->offsetY) * 0.1;
+            if (tmp < -8.0) {
+                tmp = -8.0f;
             }
-            if (radius > 8.0) {
-                radius = 8.0f;
+            if (tmp > 8.0) {
+                tmp = 8.0f;
             }
-            item->offsetY += radius;
+            item->offsetY += tmp;
             ang = (gFrameCounter * 0x78) & 0xFFF;
             effect->x = item->offsetX + item->startX;
             effect->y = mathSinF(ang) * 10.0f + (item->startY + item->offsetY + bounceStep + 960.0f * t);
             t = 0.0f;
             break;
         case 10:
-            i = (s32)item->startX;
-            effect->x = sPauseCarouselSlotX[i];
-            effect->y = sPauseCarouselSlotY[i];
-            effect->scaleX = sPauseCarouselSlotScale[i];
-            effect->scaleY = sPauseCarouselSlotScale[i];
-            sPauseCarouselSlotX[i] = -200.0f;
-            sPauseCarouselSlotY[i] = -200.0f;
-            if (i >= kongCount) {
-                i -= kongCount;
+            n = (s32)item->startX;
+            effect->x = sPauseCarouselSlotX[n];
+            effect->y = sPauseCarouselSlotY[n];
+            effect->scaleX = sPauseCarouselSlotScale[n];
+            effect->scaleY = sPauseCarouselSlotScale[n];
+            sPauseCarouselSlotX[n] = -200.0f;
+            sPauseCarouselSlotY[n] = -200.0f;
+            if (n >= kongCount) {
+                n -= kongCount;
             }
-            if (sPauseKongUnlocked[i] == 0) {
-                effect->red = sPauseKongColors[i][0];
-                effect->green = sPauseKongColors[i][1];
-                effect->blue = sPauseKongColors[i][2];
+            if (sPauseKongUnlocked[n] == 0) {
+                effect->red = sPauseKongColors[n][0];
+                effect->green = sPauseKongColors[n][1];
+                effect->blue = sPauseKongColors[n][2];
             }
             break;
         }
