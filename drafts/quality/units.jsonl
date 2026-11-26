@@ -1382,3 +1382,4 @@
 {"type": "unit", "t": "2026-11-26T02:45:55Z", "unit": "2026-11-25c: cleanup ReviewTypes22", "commit": "fdea9b51fda30832440bbe0fbce6fb99fd515cd2"}
 {"type": "unit", "t": "2026-11-26T02:54:25Z", "unit": "2026-11-25c: cleanup CleanactorSinkAndDespawn", "commit": "c0f9eaa68f39fde866908d6e85464342bd6cbabc"}
 {"type": "unit", "t": "2026-11-26T03:06:10Z", "unit": "2026-11-25c: cleanup CleanbossSpawnerUpdateb", "commit": "64d974d83768edeb7ba8f6edc0f97f82cf789e00"}
+{"type": "unit", "t": "2026-11-26T03:21:06Z", "unit": "2026-11-25c: cleanup CleanmapChunkTraversePortals", "commit": "6522ae5a0812706c9452cf6e24f052f08fd8b145"}
