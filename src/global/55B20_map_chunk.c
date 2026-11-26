@@ -2412,7 +2412,6 @@ s32 mapGridQuadClipToFrustum(s32 tri, f32 x, f32 y, f32 z)
 
 void mapPolyClipToFrustumPlane(MapVec3 *in, MapVec3 *out, s32 count, s32 *outCount, s32 planeIdx) {
     f32 hit[3];
-    PlanePoly *plane;
     MapVec3 *prev;
     MapVec3 *cur;
     s32 n;
@@ -2420,14 +2419,12 @@ void mapPolyClipToFrustumPlane(MapVec3 *in, MapVec3 *out, s32 count, s32 *outCou
     f64 curDist;
     f64 prevDist;
 
-    cur = in; // FAKE: redundant alias of in (only feeds prev) keeps planeIdx in s8; prev = in + (count - 1) swaps s7/s8
     n = 0;
-    prev = cur + (count - 1);
-    plane = &gFrustumPlanes[planeIdx];
+    prev = &in[count - 1];
     for (i = 0; i < count; i++, prev = cur) {
         cur = &in[i];
-        curDist = plane->d + (((plane->a * cur->x) + (plane->b * cur->y)) + (plane->c * cur->z));
-        prevDist = plane->d + (((plane->a * prev->x) + (plane->b * prev->y)) + (plane->c * prev->z));
+        curDist = PLANE_DIST(gFrustumPlanes[planeIdx], cur->x, cur->y, cur->z);
+        prevDist = PLANE_DIST(gFrustumPlanes[planeIdx], prev->x, prev->y, prev->z);
         if (curDist >= 0.0) {
             if (prevDist >= 0.0) {
                 memcpy(&out[n], cur, sizeof(MapVec3));
