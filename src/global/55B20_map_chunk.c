@@ -1118,7 +1118,7 @@ u8 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
     f64 cz;
     f64 mx;
     f64 cx;
-    f64 mz;
+    f64 tz; // z term: midpoint z of edge 1-2, then the side product (z - oz) * dx
     f64 dx;
     f64 dz;
     f64 ox;
@@ -1130,9 +1130,9 @@ u8 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
 
     flag = 0;
     mx = (tri->x2 + tri->x1) * 0.5;
-    mz = (tri->z2 + tri->z1) * 0.5;
+    tz = (tri->z2 + tri->z1) * 0.5;
     cx = (tri->x0 + mx) * 0.5;
-    cz = (tri->z0 + mz) * 0.5;
+    cz = (tri->z0 + tz) * 0.5;
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
@@ -1155,9 +1155,9 @@ u8 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
             break;
         }
         crossX = (x - ox) * dz;
-        mz = (z - oz) * dx; // FAKE: mz reused as the second cross product keeps the frame at 0xC8 (a separate f64 grows it to 0xD0)
+        tz = (z - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
-        if ((mz <= crossX ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
+        if ((tz <= crossX ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
             flag = 1;
         }
     }
@@ -1600,7 +1600,7 @@ u8 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
     f64 cz;
     f64 mx;
     f64 cx;
-    f64 mz;
+    f64 tz; // z term: midpoint z of edge 1-2, then the side product (z - oz) * dx
     f64 dx;
     f64 dz;
     f64 ox;
@@ -1612,9 +1612,9 @@ u8 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
 
     flag = 0;
     mx = (tri->x2 + tri->x1) * 0.5;
-    mz = (tri->z2 + tri->z1) * 0.5;
+    tz = (tri->z2 + tri->z1) * 0.5;
     cx = (tri->x0 + mx) * 0.5;
-    cz = (tri->z0 + mz) * 0.5;
+    cz = (tri->z0 + tz) * 0.5;
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
@@ -1637,9 +1637,9 @@ u8 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
             break;
         }
         crossX = (x - ox) * dz;
-        mz = (z - oz) * dx; // FAKE: mz reused as the second cross product keeps the frame at 0xC8 (a separate f64 grows it to 0xD0)
+        tz = (z - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
-        if ((mz <= crossX ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
+        if ((tz <= crossX ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
             flag = 1;
         }
     }
