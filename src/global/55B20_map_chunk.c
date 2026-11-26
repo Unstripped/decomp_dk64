@@ -2050,6 +2050,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
     s32 outBottom;
     u8 overlap;
     u8 emitted;
+    s16 target;
     s32 poly0;
     s32 found;
     s32 k;
@@ -2063,9 +2064,9 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                 if (mapPortalIsUnblocked(id) != 0) {
                     emitted = mapGridPointEmit(id, x, y, z);
                     if (emitted != 0) {
-                        clipRight = right;
                         clipLeft = left;
                         clipTop = top;
+                        clipRight = right;
                         clipBottom = bottom;
                     } else if (mapGridPointPlaneDistanceWithin(id, x, y, z, gMapPortalSlots[i].maxDist) != 0) {
                         poly0 = mapGridQuadClipToFrustum(id, x, y, z);
@@ -2105,17 +2106,17 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                     }
                     if (((poly0 != 0) && (overlap != 0)) || emitted) {
                         gMapPortalVisible[i] = 1;
-                        id = gMapPortalSlots[i].target; // FAKE: id (the grid quad index) reused for the target chunk keeps it in s1 (a separate local spills: frame 0xD8 -> 0xE0)
-                        if (gMapChunkEnabled[id] != 0) {
-                            gMapChunks[id].state = 1;
-                            gMapChunks[id].playerMask |= 1 << gCurrentPlayerIndex;
-                            mapRectIntersect(clipLeft, clipTop, clipRight, clipBottom, gMapChunks[id].clipLeft, gMapChunks[id].clipTop, gMapChunks[id].clipRight, gMapChunks[id].clipBottom, &outLeft, &outTop, &outRight, &outBottom);
-                            gMapChunks[id].clipLeft = outLeft;
-                            gMapChunks[id].clipTop = outTop;
-                            gMapChunks[id].clipRight = outRight;
-                            gMapChunks[id].clipBottom = outBottom;
+                        target = gMapPortalSlots[i].target;
+                        if (gMapChunkEnabled[target] != 0) {
+                            gMapChunks[target].state = 1;
+                            gMapChunks[target].playerMask |= 1 << gCurrentPlayerIndex;
+                            mapRectIntersect(clipLeft, clipTop, clipRight, clipBottom, gMapChunks[target].clipLeft, gMapChunks[target].clipTop, gMapChunks[target].clipRight, gMapChunks[target].clipBottom, &outLeft, &outTop, &outRight, &outBottom);
+                            gMapChunks[target].clipLeft = outLeft;
+                            gMapChunks[target].clipTop = outTop;
+                            gMapChunks[target].clipRight = outRight;
+                            gMapChunks[target].clipBottom = outBottom;
                             sMapPortalChunkStack[depth] = chunk;
-                            mapChunkTraversePortals(id, depth + 1, clipLeft, clipTop, clipRight, clipBottom, x, y, z);
+                            mapChunkTraversePortals(target, depth + 1, clipLeft, clipTop, clipRight, clipBottom, x, y, z);
                         }
                     }
                 }
