@@ -68,9 +68,9 @@ extern f32 gBossFollowerPlayerDistSq;
 
 void bossSpawnerUpdate(void) {
     f32 r;
-    s32 level;
+    f32 dx;
     s32 side;
-    s32 i; // FAKE: the loop counter reused as the case 0/1 step threshold and the light magnitude: one merged uopt range keeps all three in $t0 (a separate threshold or magnitude local recolours the function)
+    s32 i; // FAKE: the loop counter reused as the case 0/1 step threshold and the light level (refined in place to the intensity): one merged uopt range keeps the counter, the thresholds and the light magnitude in $t0 (a separate threshold or light-level local recolours the function)
     BossSpawnerState *state;
     s8 prevSubState;
     s8 hitPlayer;
@@ -79,8 +79,8 @@ void bossSpawnerUpdate(void) {
     s8 topReached;
     BossFollowerLink *link;
     s32 kong;
-    f32 x; // FAKE: the case 1 player offset reused as the light position: a separate dx/dz pair recolours the offsets ($f12/$f0 -> $f2/$f12 at 0x3f0) and grows the frame 0x80 -> 0x88
-    f32 z; // FAKE: the case 1 player offset reused as the light position (see x)
+    f32 x;
+    f32 z; // FAKE: the case 1 player offset reused as the light position: a separate dz recolours the case-1 offsets (z $f0 -> $f2, the cvt.d.s temp $f2 -> $f0 at 0x3f4-0x434)
     s16 j; // FAKE: the case 7 loop counter reused as the case 0 repeat limit: the merged range colours the limit $a1 (0x650/0x668/0x6a0), a separate limit takes $v0
     static s8 sLightPulseTimer = 0;
     static s8 D_80035B6C = 0;
@@ -154,9 +154,9 @@ void bossSpawnerUpdate(void) {
         break;
     case 1:
         gPrimaryPlayerActor->flags |= 4;
-        x = gPrimaryPlayerActor->x - gCurrentActor->x;
+        dx = gPrimaryPlayerActor->x - gCurrentActor->x;
         z = gPrimaryPlayerActor->z - gCurrentActor->z;
-        if (x > 700.0 || x < -700.0 || z > 700.0 || z < -700.0) {
+        if (dx > 700.0 || dx < -700.0 || z > 700.0 || z < -700.0) {
             if (gBossKongsFreed < 5) {
                 gCurrentActor->state = 0;
                 camStartPath(0, 2, 1);
@@ -398,20 +398,19 @@ void bossSpawnerUpdate(void) {
     }
     sLightPulseTimer++;
     if (topReached != 0) {
-        level = (sLightPulseTimer & 0x1F) - 0x10;
-        i = level;
+        i = (sLightPulseTimer & 0x1F) - 0x10;
         side = state->side;
-        if (level < 0) {
-            i = -level;
+        if (i < 0) {
+            i = -i;
         }
         if (i >= 0x10) {
             i = 0xF;
         }
-        level = (i << 4) & 0xFF;
-        if (level && level) {} // FAKE: pins the level def before the x/z loads
+        i <<= 4;
+        if (gCurrentActor) {} // FAKE: ends the block after i <<= 4 so the intensity spill takes the second temp slot 0x44 (sw/lw v0 at 0xeec/0xf3c; without it 0x48)
         x = gBossSideOffsetX[side] * 0.33 + gCurrentActor->x;
         z = gBossSideOffsetZ[side] * 0.33 + gCurrentActor->z;
-        lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
+        lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, i, i, i);
         if (state->phase == 1) {
             side = state->side + 2;
             if (side >= 4) {
@@ -419,7 +418,7 @@ void bossSpawnerUpdate(void) {
             }
             x = gBossSideOffsetX[side] * 0.33 + gCurrentActor->x;
             z = gBossSideOffsetZ[side] * 0.33 + gCurrentActor->z;
-            lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
+            lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, i, i, i);
         }
     }
     state->aggroTimer--;
