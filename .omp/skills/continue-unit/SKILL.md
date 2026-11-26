@@ -68,12 +68,17 @@ slowest worker. Names yield falls once every file has had a reader: the leftover
   diffs the hit against src, merges through `merge_record`, records `diagnose fixed note="fakehunt
   <recipe|remove|plain> hit <path>"`; a ZERO-PERMUTE dir goes to a worker that rewrites the permuter
   output into readable C), then `rank` top to bottom (`next=retry` included). Run `uv run tools/fakehunt.py
-  run` (`--parallel 3 -j 2`) only while no merge is expected (between units, overnight); SIGINT it before merges:
-  its as1probe scans hold shared dk locks that stall each merge's `make expected` (lost unit 2026-11-25: 27 min).
+  run` (`--parallel 3 -j 2`) only while no merge is expected: a `--stages recipes --hours 1.5` pass at unit start
+  (2026-11-25c: 9 min, 100 functions) and `--stages as1,permute` between units; never during merges (its as1probe
+  scans hold shared dk locks that stall each merge's `make expected`: lost unit 2026-11-25, 27 min).
   A pure respelling lever still goes into `tools/variants.py` as a recipe, not into a
   dispatch. Check a lever's precondition on the target asm before dispatch (unit 2: 2 fixes of 10
   transfers; Q1594/Q1595/Q1597/Q1598/Q1599/Q1602 list why the rest failed). `// LAYOUT:` lines are
   not sites.
+- a lever or ruling found mid-unit goes straight back out over every site of its kind (lever scout with asm
+  proof, then one worker per file): 2026-11-25c's frame-word placement and three-part reuse census (rulings.md)
+  removed ~20 FAKE across 11 files; each census lives in the function's dossier, and every worker also checks
+  its functions for untagged reuses so a ruling never leaves hidden steers beside the sites it untags.
 - knowledge filing reopens the named functions' OTHER sites (rungs from earlier units go stale). File
   the queue while the workers that produced it are idle, run `quality.py status | grep OPEN`, and send
   each reopened site to the worker that already holds its function's traces (`write agent://<id>`):
@@ -100,7 +105,13 @@ batches: run it before dispatching a worker onto those files (2026-11-24b: R3 wi
 batch_18 H re-measure). `[type]`/`[local]` queue lines have no names_window mode: snapshot, edit,
 `protos.py gen`, `merge_gate.sh --commit ... --stage <headers> - - <srcs>`, then `carry` (typedef and
 record renames carry since a075dea7). A carry gap is a worker-sized tooling fix (patch handed over,
-applied by the lead in a quiet window), not a lead re-review.
+applied by the lead in a quiet window), not a lead re-review. Since 15f27049 the recipe rung scores every
+variant: merge_record's sweep takes 5-30 min per file, so keep merges back to back and briefs saying "sweep once
+at the end". After a harness restart: resume from `.scratch/<lead>/dispatch.md`; a merge_record that died after
+`COMMITTED` is finished by hand in its own step order (docstring); dead workers' names stay locked, so respawn
+them under new names working in the old `.scratch/<A>/` and recording under their OWN new names from the first
+line (`--agent`, unit "cleanup <new name>"). A ledger recorded under a dead agent's name is a provenance error:
+re-record it under the real name with the note "provenance correction of <sha>: ..." (2026-11-25c, 76a354c7).
 
 ## 5. Close (user asks to stop, or every stream's queue is empty/exhausted/held)
 
