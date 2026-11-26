@@ -109,6 +109,50 @@ def test_copy_compiles_with_its_shadow_headers(tmp_path, monkeypatch):
     assert ws[0]["path"] == "include/race.h"  # the unchanged includer, under its include/ path
 
 
+def test_src_as_its_own_copy_compiles_with_the_shadow_dirs(tmp_path, monkeypatch, capsys):
+    """`list --as src/x.c --shadow DIR src/x.c` (an includer of an edited header) compiles with DIR's
+    headers ahead of include/ (it ignored DIR); a header beside the src file is never a shadow."""
+    monkeypatch.setattr(cwarn, "ROOT", str(tmp_path))
+    monkeypatch.setattr(cwarn.shadow_headers, "ROOT", str(tmp_path))
+    monkeypatch.setattr(cwarn, "SCRATCH", str(tmp_path / ".scratch" / "cwarn"))
+    monkeypatch.setattr(cwarn, "_static", {"key": ("makefile", "include")})
+    (tmp_path / "include").mkdir()
+    (tmp_path / "include" / "actor.h").write_text("#define A 0\n")
+    (tmp_path / "include" / "race.h").write_text('#include "actor.h"\n')
+    src = tmp_path / "src" / "global"
+    src.mkdir(parents=True)
+    (src / "x.c").write_text('#include "race.h"\n')
+    (src / "actor.h").write_text("#define A 2\n")  # make's own header beside the file
+    d = tmp_path / ".scratch" / "T" / "sw"
+    d.mkdir(parents=True)
+    (d / "actor.h").write_text("#define A 1\n")
+    seen, headers = [], []
+
+    def run_jobs(jobs):
+        seen.extend(jobs)
+        for job in jobs:
+            if "shadow" in job:
+                out = tmp_path / job["shadow"].split()[1]
+                headers.append({p.name: p.read_text() for p in out.iterdir()})
+        return [{"rc": 0, "out": ""} for _ in jobs]
+
+    monkeypatch.setattr(cwarn, "run_jobs", run_jobs)
+    monkeypatch.chdir(tmp_path)
+    cwarn.main(["list", "--as", "src/global/x.c", "src/global/x.c"])
+    assert "shadow" not in seen[0]  # no DIR: make's exact compile
+    cwarn.main(["list", "--as", "src/global/x.c", "--shadow", ".scratch/T/sw", "src/global/x.c"])
+    assert len(seen) == 2 and seen[1]["input"] == "src/global/x.c"
+    flags = seen[1]["shadow"].split()
+    assert flags[2:] == ["-I", ".scratch/T/sw"] and "src/global" not in flags
+    assert headers == [{"actor.h": "#define A 1\n", "race.h": '#include "actor.h"\n'}]
+    cwarn.main(["list", "--as", "src/global/x.c", "--shadow", ".scratch/T/sw", "src/global/x.c"])
+    assert len(seen) == 2  # cached under the shadow key
+    (d / "actor.h").write_text("#define A 3\n")
+    cwarn.main(["list", "--as", "src/global/x.c", "--shadow", ".scratch/T/sw", "src/global/x.c"])
+    assert len(seen) == 3  # a changed shadow header misses the cache
+    assert capsys.readouterr().out.count("total 0") == 4
+
+
 def test_rev_compile_links_through_the_container_when_the_host_cannot(tmp_path, monkeypatch):
     """No symlink privilege (Windows): the container makes the export tree's asm/assets links, and the
     stage is removed links first (rmtree cannot remove a container-made link)."""

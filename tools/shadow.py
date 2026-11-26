@@ -9,11 +9,13 @@ a quote include of an include/ header in that header's own directory first, so a
 include/ header quote-including a shadowed one (race.h and boss.h include "actor.h") would still
 reach the repo's version: every such includer is shadowed too, unchanged, transitively.
 
-  python3 tools/shadow.py COPY [--shadow DIR]... --out OUT
+  python3 tools/shadow.py COPY [--no-beside] [--shadow DIR]... --out OUT
       writes OUT (the shadowed headers plus their unchanged includers, at their include/ paths) and
       prints the flags to put ahead of `-I include`: `-I OUT -I <copy dir>` when an include/ header
       is shadowed (the copy dir for headers include/ lacks), then `-I DIR` per DIR; prints nothing
-      when neither applies. A note naming the shadowed headers goes to stderr.
+      when neither applies. A note naming the shadowed headers goes to stderr. --no-beside: COPY is
+      the src file itself (tools/fdiff.sh `<src> <src>`, `cwarn.py list --as SRC SRC`): only the DIRs
+      shadow (the *.h beside it are make's own headers, never shadows) and no `-I <copy dir>`.
 """
 import argparse
 import hashlib
@@ -76,12 +78,12 @@ def include_files():
     return {posix(os.path.relpath(os.path.join(d, f), base)) for d, _, fs in os.walk(base) for f in fs}
 
 
-def shadowed(copy, dirs=()):
-    """{include/-relative path: ROOT-relative source} of the include/ headers COPY's directory or a
-    DIRS entry shadows (the copy's directory first, then DIRS in order)."""
+def shadowed(copy, dirs=(), beside=True):
+    """{include/-relative path: ROOT-relative source} of the include/ headers COPY's directory
+    (unless not BESIDE) or a DIRS entry shadows (the copy's directory first, then DIRS in order)."""
     out = {}
     for rel in sorted(include_files()):
-        for d in (os.path.dirname(copy), *dirs):
+        for d in ((os.path.dirname(copy),) if beside else ()) + tuple(dirs):
             p = os.path.join(d, rel)
             if os.path.isfile(os.path.join(ROOT, p)):
                 out[rel] = posix(os.path.normpath(p))
@@ -110,10 +112,11 @@ def includers(rels):
     return sorted(seen - set(rels))
 
 
-def materialise(copy, dirs, out):
+def materialise(copy, dirs, out, beside=True):
     """Write OUT for COPY (ROOT-relative paths) and return (`-I` flags, shadowed map, includers,
-    {OUT path: source} of every header written)."""
-    shadow = shadowed(copy, dirs)
+    {OUT path: source} of every header written). BESIDE false: COPY is the src file itself, shadowed
+    by DIRS only, and its directory gets no `-I`."""
+    shadow = shadowed(copy, dirs, beside)
     shutil.rmtree(os.path.join(ROOT, out), ignore_errors=True)
     flags, extra, written = [], [], {}
     if shadow:
@@ -123,16 +126,18 @@ def materialise(copy, dirs, out):
             os.makedirs(os.path.dirname(os.path.join(ROOT, dst)), exist_ok=True)
             shutil.copyfile(os.path.join(ROOT, src), os.path.join(ROOT, dst))
             written[dst] = src
-        flags = ["-I", posix(os.path.normpath(out)), "-I", posix(os.path.dirname(copy)) or "."]
+        flags = ["-I", posix(os.path.normpath(out))]
+        if beside:
+            flags += ["-I", posix(os.path.dirname(copy)) or "."]
     for d in dirs:
         flags += ["-I", posix(os.path.normpath(d))]
     return flags, shadow, extra, written
 
 
-def fingerprint(copy, dirs):
-    """`path:sha1` of every file under DIRS and of every header COPY's directory shadows: what a
-    shadowed compile reads beyond include/ and the copy."""
-    paths = set(shadowed(copy).values())
+def fingerprint(copy, dirs, beside=True):
+    """`path:sha1` of every file under DIRS and of every header COPY's directory shadows (unless not
+    BESIDE): what a shadowed compile reads beyond include/ and the copy."""
+    paths = set(shadowed(copy).values()) if beside else set()
     for d in dirs:
         for base, _, fs in os.walk(os.path.join(ROOT, d)):
             paths.update(posix(os.path.relpath(os.path.join(base, f), ROOT)) for f in fs)
@@ -147,10 +152,12 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("copy")
     p.add_argument("--shadow", action="append", default=[], metavar="DIR")
+    p.add_argument("--no-beside", dest="beside", action="store_false",
+                   help="COPY is the src file itself: only the --shadow DIRs shadow")
     p.add_argument("--out", required=True)
     a = p.parse_args(argv)
     rel = lambda x: posix(os.path.relpath(os.path.abspath(x), ROOT))  # noqa: E731
-    flags, shadow, extra, _ = materialise(rel(a.copy), [rel(d) for d in a.shadow], rel(a.out))
+    flags, shadow, extra, _ = materialise(rel(a.copy), [rel(d) for d in a.shadow], rel(a.out), a.beside)
     if shadow:
         print(f"shadow: {' '.join(shadow)}" + (f" (+ unchanged includers {' '.join(extra)})" if extra else ""),
               file=sys.stderr)

@@ -7,7 +7,9 @@
                                                   FILE (a private copy) with SRC's make flags and its
                                                   shadow headers (tools/shadow.py, as tools/fdiff.sh:
                                                   include/ paths beside the copy or in a --shadow DIR,
-                                                  plus every include/ header quote-including one)
+                                                  plus every include/ header quote-including one);
+                                                  FILE = SRC (an includer of an edited header): only
+                                                  the --shadow DIRs shadow
   python3 tools/cwarn.py count [--json] [FILE...]  `<n> <path>` per file with warnings plus `TOTAL <n>`;
                                                   --json: {path: n} for every file (zeros included).
                                                   Default FILE set: every src/**/*.c outside /libultra/
@@ -288,7 +290,8 @@ def collect(items, rev=None, shadow=()):
     warnings of compiling PATH (TEXT None: in place) or TEXT with the make flags of SRC (else PATH).
     REV: compile every TEXT (required) against REV's include/ and REV's *.h beside PATH. A copy
     compiled in place (SRC another file) gets its shadow headers (tools/shadow.py: include/ paths
-    beside it or in a SHADOW dir, plus every include/ header quote-including one). Raises
+    beside it or in a SHADOW dir, plus every include/ header quote-including one); a file compiled in
+    place with its own flags only those of the SHADOW dirs (its *.h beside it are make's own). Raises
     CompileError for the first item that fails."""
     keys, todo, written = [], {}, {}
     dirs = [rel(d) for d in shadow]
@@ -305,8 +308,9 @@ def collect(items, rev=None, shadow=()):
         if rev and text is None:
             raise ValueError("cwarn.collect: rev needs the text")
         side = rev_side_headers(rev, p) if rev else {}
-        shadowing = text is None and flags != p
-        fp = shadow_headers.fingerprint(p, dirs) if shadowing else []
+        beside = flags != p
+        shadowing = text is None and (beside or bool(dirs))
+        fp = shadow_headers.fingerprint(p, dirs, beside) if shadowing else []
         data = open(os.path.join(ROOT, p), "rb").read() if text is None else text.encode("utf-8")
         key = cache_key(p, data, flags, text is None, inc, [f"{n}:{s}" for n, s in sorted(side.items())]
                         + (["shadow-v1", *dirs, *fp] if fp or (shadowing and dirs) else []))
@@ -317,7 +321,8 @@ def collect(items, rev=None, shadow=()):
         if text is None:
             job["input"] = p
             if shadowing:
-                sflags, _, _, written[key] = shadow_headers.materialise(p, dirs, rel(os.path.join(stage, key, "shadow")))
+                sflags, _, _, written[key] = shadow_headers.materialise(p, dirs, rel(os.path.join(stage, key, "shadow")),
+                                                                        beside)
                 if sflags:
                     job["shadow"] = " ".join(sflags)
         else:

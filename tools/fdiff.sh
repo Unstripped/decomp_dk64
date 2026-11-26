@@ -13,6 +13,8 @@
 # `proto/global/2F550.h`), or in a --shadow DIR (ahead of `-I include`), replaces include/'s;
 # every include/ header quote-including a shadowed one is shadowed too, unchanged, so nested
 # includes (race.h -> "actor.h") reach the private version. stderr names them (`shadow: ...`).
+# A src file given as its own copy (`--shadow DIR src/x.c src/x.c`: an includer of an edited header)
+# is shadowed by the DIRs only; the headers beside it in src/ are make's own.
 set -e
 
 if [ ! -f /.dockerenv ] && [ ! -d /opt/ido5.3 ]; then
@@ -54,10 +56,13 @@ mkdir -p build/.scratch
 # The compile command make would run for the original, retargeted at the copy.
 CMD=$(make -n -W "$ORIG" "build/${ORIG%.c}.o" | grep -E 'asm-processor|/opt/ido[0-9.]+/cc' | tail -1)
 [ -n "$CMD" ] || { echo "Error: no compile rule found for $ORIG" >&2; exit 1; }
+SHADOW_I=""
 if [ "$COPY" != "$ORIG" ]; then
     SHADOW_I=$(python3 tools/shadow.py "$COPY" --out "${OBJ%.o}.shadow" "${SHADOW_ARGS[@]}")
-    [ -z "$SHADOW_I" ] || CMD="${CMD// -I include / $SHADOW_I -I include }"
+elif [ ${#SHADOW_ARGS[@]} -gt 0 ]; then
+    SHADOW_I=$(python3 tools/shadow.py "$COPY" --no-beside --out "${OBJ%.o}.shadow" "${SHADOW_ARGS[@]}")
 fi
+[ -z "$SHADOW_I" ] || CMD="${CMD// -I include / $SHADOW_I -I include }"
 eval "${CMD% -o *} $EXTRA_CFLAGS -o $OBJ $COPY"
 
 case "$EXTRA_CFLAGS" in

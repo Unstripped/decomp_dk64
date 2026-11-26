@@ -61,6 +61,30 @@ def test_shadow_dir_and_nothing_shadowed(root):
     assert [x.split(":")[0] for x in fp] == [".scratch/A/shadow/new.h", ".scratch/A/shadow/proto/global/a.h"]
 
 
+def test_src_file_as_its_own_copy_is_shadowed_by_dirs_only(root, capsys):
+    """fdiff.sh `--shadow DIR src/x.c src/x.c` / `cwarn list --as src/x.c --shadow DIR src/x.c` (an
+    includer of an edited header): the DIR shadows, a header beside the src file never does."""
+    src = root / "src" / "global"
+    src.mkdir(parents=True)
+    (src / "x.c").write_text('#include "race.h"\n')
+    (src / "actor.h").write_text("/* make's own header beside the src file */\n")
+    d = root / ".scratch" / "T" / "sw"
+    d.mkdir(parents=True)
+    assert shadow.materialise("src/global/x.c", [], "build/sh", beside=False)[:2] == ([], {})
+    assert shadow.fingerprint("src/global/x.c", [], beside=False) == []
+    (d / "actor.h").write_text("#error deliberately broken shadow\n")
+    flags, shadowed, extra, written = shadow.materialise("src/global/x.c", [".scratch/T/sw"], "build/sh", beside=False)
+    assert shadowed == {"actor.h": ".scratch/T/sw/actor.h"} and "race.h" in extra
+    assert flags == ["-I", "build/sh", "-I", ".scratch/T/sw"]
+    assert written["build/sh/actor.h"] == ".scratch/T/sw/actor.h"
+    assert [x.split(":")[0] for x in shadow.fingerprint("src/global/x.c", [".scratch/T/sw"], beside=False)] \
+        == [".scratch/T/sw/actor.h"]
+    shadow.main([str(src / "x.c"), "--no-beside", "--shadow", str(d), "--out", str(root / "build" / "sh")])
+    assert capsys.readouterr().out.split() == ["-I", "build/sh", "-I", ".scratch/T/sw"]
+    shadow.main([str(src / "x.c"), "--out", str(root / "build" / "sh")])  # beside: src/global/actor.h shadows
+    assert capsys.readouterr().out.split() == ["-I", "build/sh", "-I", "src/global"]
+
+
 @pytest.mark.skipif(not (shutil.which("cc") or shutil.which("gcc")), reason="no host C preprocessor")
 def test_nested_include_reaches_the_private_header(root):
     (root / ".scratch" / "A" / "actor.h").write_text('#include "common.h"\n#define ACTOR_PRIVATE 1\n')
