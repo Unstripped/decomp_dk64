@@ -42,10 +42,6 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - 478F0 reads `D_807505AE[5]` (now `sPauseKongTables.unlockFlag[5]`) when sHubItemsCycle is 20, past the 5-entry table: original
   behaviour (TypesOwner14); keep, note only.
 - jetpac 0x8002BA80 Gfx split: the `jetpacInitPending` splat label (jetpac/0.c:404) spans a gSPEndDisplayList.
-- jetpac shared head (PARKED; CleanjetpacUpdatePlayerMovement, ledger 7d1cc6e8): embed one 0x30-byte head struct in JetpacActor
-  and JetpacPlayerActor. `player->head.x` compiles like the plain body; only a `head = &player->head` local used for EVERY head
-  access matches, so it retires 1A60 ba285d only if that local is ruled ordinary C (`.omp/skills/cleanup-unit/rulings.md` pointer-local precedent: 450
-  firstSetupFlag). It touches every head-field access of JetpacPlayerActor.
 - HeapBlock allocated-block tag (HOLD, director; .scratch/CleanheapRegisterSurvivor/header-request.md): byte 0x0B is the low byte
   of `next` while free and the tag while allocated (0 normal, 1 locked, 2 survives an overlay load). Every access is a byte view
   (`((u8 *)p)[0xB]` in heapInitGeneralPool, heapInitBlockPool, heapReleasePool, heapFree, heapFreeDeferred,
@@ -54,6 +50,13 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
 - REOPENED (user 2026-11-24, FAKE queue never terminal): 7130 D_80770DD9 (undefined_syms.us.txt:341) stays while 7130.c:853 stores through it (FAKE linker alias of D_80770DD8[1]).
 
 ## Closed or held by ruling (reopen only with the new evidence named)
+- Callee-declaration ORIGs confirmed with no shared route (Polish26Protos 2026-11-26, probes .scratch/Polish26Protos/owner/): boss/0
+  actorMoveWithinZone (owner (u8, f32, f32, s32, f32) fails 12E800 itself + B1F60/BA790/BDEE0), F0D0/2C910 csModelStateSetFirstByte
+  ((s16,u8) vs (s32,s16): owners (s16,s32)/(s32,s32)/(s32,s16) each fail 42630, F0D0 or 2C910), 42630 effectSetDepth (s8 owner fails
+  478F0/80150/89250/9DD70, s32 also 119370), 42630 hudSpawnCountdownTimer (4-param owner changes A7710's arg homes; 3-arg callers stop
+  compiling). The protos-mismatch polish debt (5 of 6; jetpac/0 flagGet ruled below) is permanent unless an owner type changes.
+- jetpac/6E00 jetpacDrawString W709 (4b47a2): `const void *str` DECLINED (R3, director 2026-11-26: erases the char/u8 distinction like
+  the rejected `(const u8 *)str` cast); `retype kept` recorded (669af42e). textDrawString `const char *` stays fdiff 1 (lbu -> lb).
 - Return widths: keep `u8 mapGetHubWorldIndex(u8, u8)` (OwnerHubWorldIndexWidthPlan: C2A90 func_806BE09C uses v0 unmasked) and
   `u8 flagGet(s16, u8)` (OwnerFlagGetWidthPlan: no option passes all 49 files; jetpac/0's pair is ORIG, 0x11d4).
 - ACDC0 split labels D_807FC82A..D_807FC838 KEPT (OwnerCollectibleCountsView 0c2a5e64; ACDC0.c:75): folding them into actor.h's
@@ -157,6 +160,10 @@ SchedStruct, SpawnNode, BehaviourWorkState, ActorGlobalState, ActorCallbackNode,
 global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog, gWatchdogPaused, camComputeFirstPersonEyeFocus,
 ...). Field renames now carry (quality.py carry + --header-carve): they no longer reopen reviews. What is still unnamed:
 `uv run tools/debt.py names`; queue and procedure: `.omp/skills/continue-unit/names.md`. Still held (evidence or ruling missing):
+- READY (2026-11-26, not done this unit): fold split label D_807F949A as `sSourceTiltPitch[1]` in 6AD90 collisionFindFloorAtPoint
+  (2026-11-24 M7, held in names-queue EmuGlobalsU5): blocked only by objdiff's cross-switch HI16/LO16 pairing, fixed by cb6c08ce
+  (Tools26 item 3: the M7 repro now prints RELOC-EQUIV OK). Apply with `rename.py fold global D_807F949A sSourceTiltPitch[1]`
+  (dry-run first) in a names window; then drop D_807F949A from the EmuGlobalsU5 held line.
 - Cross-segment aliases: D_80741F40, D_80760840 (D_80029FA0 / D_8002FBB0 / D_80028C30 took their overlay names by ruling R3,
   8ffd3b5b). 2026-11-24b emulator residue: `drafts/cleanup/names-queue.md` "Held" lines (EmuFieldsU5, EmuGlobalsU5).
 - D_80753354 (s16 per-kong turn rate; gKongTurnRate is CEAE0's other table), D_8076A0A6 (copy of gPadPressedButtons[0]),
@@ -185,14 +192,13 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
   994b805b (AGENTS.md) landed; the six 2026-11-18c items closed with 928f8144, 827859da, ed51d26d, 12452351, f29f1c5d, 827913fc.
   2026-11-24b: carry re-stamps typedef/record renames (a075dea7, ToolsCarryTypeRenames). Still open: names_window.py has no
   typedef or local rename mode (the 2026-11-24 queue's `[type]`/`[local]` lines were gated by hand, dcc777e3).
-- tools/fdiff.sh and cwarn.py `--as`: `--shadow DIR` is silently ignored when the copy path IS the src path (TypesOwner15
-  batch_16: a deliberately broken shadow actor.h still printed OK); helpers must copy each includer to a distinct path first
-  (batch_16 fdall.sh/cwall.sh). Fix: apply the shadow (or refuse) when copy == src. Landed gates are safe (full ROM build).
-- tools/objdiff.py `pair_addends` pairs a HI16 with the next same-symbol LO16 on the same base register across switch-case
-  paths (6AD90 collisionFindFloorAtPoint: case-2 `lui` 0x768 paired with case-1 `%lo` 0x7e0 instead of `%lo(+2)` 0x868), so
-  `--reloc-ok` fails a copy retiring split label D_807F949A as `sSourceTiltPitch[1]` although the final bytes match (2026-11-24 M7).
 - 2026-11-25c landed: 15f27049 (recipe rung scores every variant, `--max 0`), d9b6c1b1 (fakehunt stops its child jobs on hosts
   without ps/SIGKILL), 39d2c5aa (report --baseline / clint layout --base export REV without git archive of invalid paths).
-- The uncapped recipe rung makes whole-file `quality.py sweep` slow (ACDC0 ~900 recipe variants, 55B20 ~840): merge_record's sweep
-  took 12-21 min per merge and workers' `sweep --copy-of` runs timed out at 1200 s. A per-function `sweep --func` (or caching the
-  recipe scan by fp_local) would cut it.
+  2026-11-26 landed (Tools26): 3eb5c399 (sweep check cache, `sweep --func`/`--no-cache`), 5b1f35c0 (fdiff/cwarn `--shadow` when the
+  copy is the src), cb6c08ce (objdiff HI16/LO16 pairing by relocation-table order across switch paths).
+- `tools/fdiff.sh <copy> <src> FUNC` prints the whole-file diff on a mismatch instead of FUNC's only (ScoutGoto26 2026-11-26).
+- Windows host: private copies written with CRLF line ends make cfe print W513 (and count as warnings); every tool and agent that
+  writes a copy must use newline='\n' (ScoutGoto26 2026-11-26).
+- names_window.py: its carry over many files at once (2026-11-26 window 1: 6 files incl. E4090 and F56F0) failed with no output; a
+  per-file `carry --rev <gate>^` re-run worked (E4090 alone took over an hour on a loaded host). Run the window's carry per file, or
+  make the failure print its cause.

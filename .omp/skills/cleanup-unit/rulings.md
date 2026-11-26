@@ -108,14 +108,19 @@ all three hold and the dossier records the census (R-oildrum 2026-11-25c, Q1666;
 hudPauseMenuIconUpdate cf674d): (1) splitting the second role into its own local changes the frame or moves a home/spill at EVERY
 declaration position (function scope before/after each declaration, block scope; `register` compiles to the same object as the plain
 declaration, so one measurement covers both: DAA0 bossSpawnerUpdate `z`, 76 positions), the move caused by the new local's own
-stack slot (spill temps displaced by it count: ACDC0 IconUpdate, 3E10 `t`); (2) every ordinary-C spelling without a local for it fails
+stack slot (spill temps displaced by it count: ACDC0 IconUpdate, 3E10 `t`, arcade/0 arcadeUpdateDonkeyKongStage4 `tmp`: the split's cfe home
+pushes the shared switch temp -8 -> -12 and the t0 spill 0x2c -> 0x28 at all 26 positions); (2) every ordinary-C spelling without a local for it fails
 (inline at each use, direct field/array write, pointer local; a function-local static always adds a .bss store, Q1680); a matching spelling that is itself a steer (a re-read the target does
 not do, a value-changing width) does not fail it (3E10 `t`: stick_x read once, `lb` 0x9114); (3) the two roles share the local's type
 and live in disjoint regions. Register-allocation-only evidence does not qualify: adjsave, $f0 vs $f2, or a split that keeps the frame
 and every named home where the change comes only from a register reassignment, also a narrow role in an alignment hole whose only
-effect is spill traffic of that reassignment (12E800 enemyAggroStateUpdate `near`, FAKE stays); BA790 chaserEnemyStep passes because
-the split drops the 64(sp) home stores. A register change on top of stack evidence does not disqualify (ACDC0 3490af/dddb5b). Q1122's
-own `bits` failed (2): `mask |= 1 << j`; D5E10 playerStateLandRecover's frame role went inline (field reloaded at each compare).
+effect is spill traffic of that reassignment (12E800 enemyAggroStateUpdate `near`, FAKE stays), or a frame change that comes only from
+dropped callee-saved FPR saves (race/0 raceOpponentFollowWaypoints `vx`/`vz`: $f20/$f22, frame 0x58 -> 0x50; R1 2026-11-26). A register-only
+local declared after the lowest stored local takes no frame word, so such positions always keep the frame (126260 commandApplyToLight
+`factor`, DAA0 bossFollowerActorUpdate `id`, bonus/2690 bonusSearchlightSeekGameUpdate `z`/`velX`: part 1 fails, FAKE stays). BA790
+chaserEnemyStep passes because the split drops the 64(sp) home stores. A register change on top of stack evidence does not disqualify
+(ACDC0 3490af/dddb5b). Q1122's own `bits` failed (2): `mask |= 1 << j`; D5E10 playerStateLandRecover's frame role went inline (field
+reloaded at each compare). A hidden reuse found by the census sweep that fails is tagged (bonus/2690 aim `z` b25205, R2 2026-11-26).
 
 ## Re-reads, widths, expressions, merged constructs
 
