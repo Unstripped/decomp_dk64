@@ -1410,3 +1410,5 @@
 {"type": "unit", "t": "2026-11-26T19:26:29Z", "unit": "2026-11-26: cleanup ReconBonus26", "commit": "669af42e5a03f65fae695b27472391b87dd7c574"}
 {"type": "unit", "t": "2026-11-26T19:36:51Z", "unit": "2026-11-26: names window 1 (Names26D)", "commit": "353414ad548e313a8ad3d8177a778104e6d7231d"}
 {"type": "unit", "t": "2026-11-26T21:18:57Z", "unit": "2026-11-26: cleanup LeadMeasure (Names26D folds)", "commit": "24b4d7f08af29cd2c4fc09d9bae919b32d8b71b4"}
+{"type": "unit", "t": "2026-11-26T22:18:53Z", "unit": "2026-11-26: names window 2 (Names26F)", "commit": "689be5e2fa4c83a050a31618bcc4d8ddd8751d90"}
+{"type": "unit", "t": "2026-11-26T22:35:19Z", "unit": "2026-11-26: cleanup LeadMeasure (Q1691 re-checks)", "commit": "6df3e565a8e76d23d018172518681a14b508b3cd"}

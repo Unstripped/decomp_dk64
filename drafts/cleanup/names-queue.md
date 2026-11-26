@@ -6,8 +6,6 @@ the "Check"; the window that applies a line deletes it. Format:
 `held:` lines keep an item out until new evidence arrives.
 
 ## Queue
-- [field] src/global/36880_model_slot.c ModelSlotSubNode unk34 -> next | 36880:634 modelSlotInit clears it on the heapAlloc(0x38) sprite node; the same node read as SpriteDisplayNode (36880:3116) has /* 0x34 */ next, set NULL at 3287 and linked at 3315/3317 by spriteListBuildDisplayChain | Names26F
-- [field] include/actor.h Actor unkD4 -> floorTiltEntry | 7CA80:682 actorAllocate stores &sActorTiltTable[1], a row of the floor tilt table indexed by floorSlopeType/floorSurfaceType (actor.h:1326-1329, 69E60:186/193/241); no reader | Names26F
 
 ## Held
 - held: [global] global D_80753C84 -> gKongPathRespawnTimers, D_80753CA4 -> gKongPathCheckRespawnTimers (worker: tentative) | per-kong s16 tables stored to respawnTimer every frame of playerStateAttachedCallbackFall/CheckFall while proxPathFollowerStep runs | PolishglobalD5E10c (2026-11-24)
