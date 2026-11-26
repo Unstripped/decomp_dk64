@@ -672,8 +672,9 @@ typedef struct WobbleRiseState {
 
 
 void effectWobbleRiseUpdate(EffectNode *effect, u8 *isDone) {
-    f64 pad;
-    f32 swayX;
+    f32 pad;
+    f32 wobbleY;
+    f32 waveX; // ORIG: the x sway sine and the scaleX wobble sine both spill to this one home sp+0x3c (swc1 $f0,60(sp) at 0x1ebc/0x20ec, lwc1 at 0x1ef4/0x2118); a separate wobble local moves a home at every position
     f32 swayZ;
     f32 riseSpeed;
     f32 floorY;
@@ -697,9 +698,9 @@ void effectWobbleRiseUpdate(EffectNode *effect, u8 *isDone) {
         }
         effect->wobbleRise->spawnFrame = gFrameCounter;
     }
-    swayX = sinApprox(effect->wobbleRise->swayRateX * effect->wobbleRise->frame);
+    waveX = sinApprox(effect->wobbleRise->swayRateX * effect->wobbleRise->frame);
     swayZ = sinApprox(effect->wobbleRise->swayRateZ * effect->wobbleRise->frame) * 6.0f;
-    effect->x = effect->wobbleRise->centerX + swayX * 6.0f;
+    effect->x = effect->wobbleRise->centerX + waveX * 6.0f;
     effect->z = effect->wobbleRise->centerZ + swayZ;
     effect->wobbleRise->frame += 1;
     effect->wobbleRise->riseSpeed += 0.02;
@@ -730,10 +731,10 @@ void effectWobbleRiseUpdate(EffectNode *effect, u8 *isDone) {
         break;
     }
     effect->scaleY = effect->scaleX;
-    swayX = sinApprox(effect->wobbleRise->frame * 0.17);
-    swayZ = sinApprox(effect->wobbleRise->frame * 0.2267);
-    effect->scaleX += swayX * 0.03;
-    effect->scaleY += swayZ * 0.03;
+    waveX = sinApprox(effect->wobbleRise->frame * 0.17);
+    wobbleY = sinApprox(effect->wobbleRise->frame * 0.2267);
+    effect->scaleX += waveX * 0.03;
+    effect->scaleY += wobbleY * 0.03;
     if (effect->wobbleRise->spawnFrame + 100.0f < gFrameCounter) {
         *isDone = 1;
     }
@@ -868,9 +869,9 @@ void effectWobbleScaleUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 pad2[4][4];
     f32 wobbleX;
-    f32 wave;
+    f32 wobbleY;
     f32 driftX;
-    s32 pad;
+    f32 driftZ;
 
     if (effect->allocation == NULL) {
         effect->allocation = heapAlloc(0xC);
@@ -881,16 +882,16 @@ void effectWobbleScaleUpdate(EffectNode *effect, u8 *isDone) {
     ((WobbleScaleState *) effect->allocation)->baseScaleX = (f32) ((f64) ((WobbleScaleState *) effect->allocation)->baseScaleX + 0.0015);
     ((WobbleScaleState *) effect->allocation)->baseScaleY = (f32) ((f64) ((WobbleScaleState *) effect->allocation)->baseScaleY + 0.0015);
     driftX = (f32) ((f64) sinApprox((f32) (effect->speed * 2)) * 0.2);
-    wave = cosApprox((f32) (effect->speed * 2));
+    driftZ = cosApprox((f32) (effect->speed * 2));
     effect->x -= driftX;
     effect->y = (f32) ((f64) effect->y + 0.12);
-    effect->z -= (f32) ((f64) wave * 0.2);
+    effect->z -= (f32) ((f64) driftZ * 0.2);
     effect->scaleX = ((WobbleScaleState *) effect->allocation)->baseScaleX;
     effect->scaleY = ((WobbleScaleState *) effect->allocation)->baseScaleY;
     wobbleX = sinApprox((f32) ((f64) ((WobbleScaleState *) effect->allocation)->frame * 0.17));
-    wave = sinApprox((f32) ((f64) ((WobbleScaleState *) effect->allocation)->frame * 0.2267));
+    wobbleY = sinApprox((f32) ((f64) ((WobbleScaleState *) effect->allocation)->frame * 0.2267));
     effect->scaleX = (f32) ((f64) effect->scaleX * (1.0 + ((f64) wobbleX * 0.15)));
-    effect->scaleY = (f32) ((f64) effect->scaleY * (1.0 + ((f64) wave * 0.15)));
+    effect->scaleY = (f32) ((f64) effect->scaleY * (1.0 + ((f64) wobbleY * 0.15)));
     ((WobbleScaleState *) effect->allocation)->frame++;
     if ((effect->duration - effect->durationTimer) < 10) {
         if (effect->alpha >= 0x16) {
