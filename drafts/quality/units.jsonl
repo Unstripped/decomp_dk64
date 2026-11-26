@@ -1387,3 +1387,4 @@
 {"type": "unit", "t": "2026-11-26T03:48:12Z", "unit": "2026-11-25c: cleanup CleanenemyAggroStateUpdate", "commit": "d0d4ddb0bc9800a77f98e8841817c66ab768da1b"}
 {"type": "unit", "t": "2026-11-26T03:51:47Z", "unit": "2026-11-25c: cleanup CleancsCmdHubWorldItemsAdjust", "commit": "1a99d6a402ae92063e74061bdfa7c2c61c06c3f8"}
 {"type": "unit", "t": "2026-11-26T04:02:27Z", "unit": "2026-11-25c: cleanup CleanchaserEnemyStep", "commit": "e751f69478577923c60a59ef6a3a6788d44abb5b"}
+{"type": "unit", "t": "2026-11-26T04:06:11Z", "unit": "2026-11-25c: cleanup CleanplayerStateLandRecover", "commit": "45990fef5a77ee87fd63d03ec7354adbbd2ae807"}
