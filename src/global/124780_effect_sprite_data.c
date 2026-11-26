@@ -311,7 +311,7 @@ EFFECT_GRID_ASSET(8) gEffectSpriteBananaPurple = {
     73, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 1, 0, 44, 44, 8,
     { 208, 209, 210, 211, 212, 213, 214, 215 },
 };
-EFFECT_GRID_ASSET(38) D_80720630 = {
+EFFECT_GRID_ASSET(38) gEffectSpriteChaserRemains = {
     74, 1, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 64, 32, 38,
     {
         5488, 5489, 5490, 5489, 5488, 5488, 5488, 5488, 5488, 5488, 5488, 5488, 5488, 5488, 5489, 5490,

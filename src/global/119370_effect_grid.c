@@ -73,7 +73,7 @@ extern EffectGridAsset gEffectSpriteGrape, gEffectSpriteMelonSplat, gEffectSprit
 extern EffectGridAsset gEffectSpriteCoinRed, gEffectSpriteCoinGreen, gEffectSpriteCoinBlue, gEffectSpriteCoinYellow, gEffectSpriteCoinPurple;
 extern EffectGridAsset D_80720464, gEffectSpriteFilm, gEffectSpriteOrange, gEffectSpriteCrystal, gEffectSpriteGoldenBanana;
 extern EffectGridAsset gEffectSpriteBananaMedal, gEffectSpriteBananaRed, gEffectSpriteBananaGreen, gEffectSpriteBananaBlue, gEffectSpriteBananaYellow;
-extern EffectGridAsset gEffectSpriteBananaPurple, D_80720630, D_80720690, gEffectSpriteCoconut, gEffectSpriteCoconutShard;
+extern EffectGridAsset gEffectSpriteBananaPurple, gEffectSpriteChaserRemains, D_80720690, gEffectSpriteCoconut, gEffectSpriteCoconutShard;
 extern EffectGridAsset gEffectSpriteMelonSlice, gEffectSpriteShardGold, gEffectSpriteCrate, gEffectSpriteDkCoin, gEffectSpriteBlueprintBlue;
 extern EffectGridAsset gEffectSpriteCannonball, D_80720830, gEffectSpriteFeather, gEffectSpriteGuitar, gEffectSpriteBongos;
 extern EffectGridAsset gEffectSpriteSaxophone, gEffectSpriteTriangle, gEffectSpriteTrombone, gEffectSpriteNotePairYellow, gEffectSpriteNoteYellow;
@@ -110,7 +110,7 @@ EffectGridAsset *gEffectGridAssets[176] = {
     &gEffectSpriteExplosion, &gEffectSpriteEmber, &gEffectSpriteCoinRed, &gEffectSpriteCoinGreen, &gEffectSpriteCoinBlue, &gEffectSpriteCoinYellow,
     &gEffectSpriteCoinPurple, &D_80720464, &gEffectSpriteFilm, &gEffectSpriteOrange, &gEffectSpriteCrystal, &gEffectSpriteGoldenBanana,
     &gEffectSpriteBananaMedal, &gEffectSpriteBananaRed, &gEffectSpriteBananaGreen, &gEffectSpriteBananaBlue, &gEffectSpriteBananaYellow, &gEffectSpriteBananaPurple,
-    &D_80720630, &D_80720690, &gEffectSpriteCoconut, &gEffectSpriteCoconutShard, &gEffectSpriteMelonSlice, &gEffectSpriteShardGold,
+    &gEffectSpriteChaserRemains, &D_80720690, &gEffectSpriteCoconut, &gEffectSpriteCoconutShard, &gEffectSpriteMelonSlice, &gEffectSpriteShardGold,
     &gEffectSpriteCrate, &gEffectSpriteDkCoin, &gEffectSpriteBlueprintBlue, &gEffectSpriteCannonball, &D_80720830, &gEffectSpriteFeather,
     &gEffectSpriteGuitar, &gEffectSpriteBongos, &gEffectSpriteSaxophone, &gEffectSpriteTriangle, &gEffectSpriteTrombone, &gEffectSpriteNotePairYellow,
     &gEffectSpriteNoteYellow, &gEffectSpriteNoteGreen, &gEffectSpriteNotePairPink, &gEffectSpriteNotePairRed, &gEffectSpriteNoteRed, &gEffectSpriteNotePairPaleBlue,

@@ -217,7 +217,7 @@ void dynamicBufferFree(DynamicBuffer *buf) {
 }
 
 extern s32 gCurrentMap;
-extern s32 D_807FB530;
+extern s32 sStaticCollisionTriCount;
 
 
 void collisionInitStaticCache(MapFileHeader *header) {
@@ -252,7 +252,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
         sStaticCollisionResident = 1;
     }
     assetSize = assetGetRomAddress(2, gCurrentMap);
-    D_807FB530 = *(s32 *)data;
+    sStaticCollisionTriCount = *(s32 *)data;
     sStaticCollisionCells = heapAlloc(0x1518);
     cellHeader = (s32 *)(data + 4);
     sStaticCollisionCellCount = header->staticCellsX * header->staticCellsZ;

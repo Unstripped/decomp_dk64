@@ -31,7 +31,7 @@
 #include "proto/global/EFDC0_player_state_enter.h"
 
 // This TU's .data (0x807503B0-0x807503EC + 4-byte TU pad), in address order. actorBannerTextRender reads the
-// name table D_807503B0 for banner ids 0x1E..0x26.
+// name table sBannerNameWords for banner ids 0x1E..0x26.
 extern const char D_8075A410[];
 extern const char D_8075A418[];
 extern const char D_8075A420[];
@@ -41,7 +41,7 @@ extern const char D_8075A438[];
 extern const char D_8075A440[];
 extern const char D_8075A444[];
 extern const char D_8075A44C[];
-const char *D_807503B0[9] = {
+const char *sBannerNameWords[9] = {
     D_8075A410, D_8075A418, D_8075A420, D_8075A428, D_8075A430,
     D_8075A438, D_8075A440, D_8075A444, D_8075A44C,
 };
@@ -534,7 +534,7 @@ Gfx *actorBannerTextRender(Gfx *dl, Actor *actor) {
     case 0x25:
     case 0x26:
         centered = 1;
-        _sprintf(text, D_807503B0[sel - 0x1E]);
+        _sprintf(text, sBannerNameWords[sel - 0x1E]);
         break;
     default:
         if (sel & 0x80) {

@@ -30,7 +30,7 @@ extern u8 gGameMode;
 extern s16 gSfxSourceVoice[];
 extern s16 gSfxVoiceSoundId[];
 
-extern EffectGridAsset D_80720630;
+extern EffectGridAsset gEffectSpriteChaserRemains;
 
 
 s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
@@ -195,7 +195,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
             effectSetFrameDelay(1);
             effectSetScale(-0.4f, 0.4f);
             effectSetCallback(effectSparkSpawnUpdate);
-            effectCreateAtPosition(&D_80720630, 0.3f, gCurrentActor->x, gCurrentActor->floorY + 7.0f, gCurrentActor->z);
+            effectCreateAtPosition(&gEffectSpriteChaserRemains, 0.3f, gCurrentActor->x, gCurrentActor->floorY + 7.0f, gCurrentActor->z);
             gCurrentActor->flags &= ~4;
             gCurrentActor->subState++;
             break;

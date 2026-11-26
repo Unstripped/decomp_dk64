@@ -3061,7 +3061,7 @@ extern f32 gKongUnderwaterEntryThrustSpeeds[];
 extern f32 gKongSurfaceStrokeSpeeds[];
 extern f32 gKongSurfaceStrokeRepeatSpeeds[];
 extern s16 gKongSurfaceStrokeFrames[];
-extern s16 D_8075395C[];
+extern s16 gKongSurfaceSwimThrustFrames[];
 extern s16 gKongStickRollAngles[];
 
 void playerInputRecordAPress(void) {
@@ -3167,7 +3167,7 @@ void playerInputUpdateStickTurnYaw(void) {
     mathAngleStepToward(&gCurrentActor->pitch, 0, 0x10);
     gActivePlayerState->subTimer = 0;
     gActivePlayerState->pitchAngle = gCurrentActor->yaw;
-    gActivePlayerState->actionTimer = D_8075395C[gCurrentCharacterIndex];
+    gActivePlayerState->actionTimer = gKongSurfaceSwimThrustFrames[gCurrentCharacterIndex];
     gActivePlayerState->targetSpeed = gKongSwimTopSpeeds[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickMagNorm;
     if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x4000) {
         gActivePlayerState->targetSpeed = gActivePlayerState->targetSpeed * 1.33;
