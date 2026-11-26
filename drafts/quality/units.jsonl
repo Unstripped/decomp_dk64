@@ -1403,3 +1403,4 @@
 {"type": "unit", "t": "2026-11-26T06:23:08Z", "unit": "2026-11-25c: close re-sweep (uncapped recipe rung, 15f27049)", "commit": "4b1c8b18aa2282b2b5fd5ac9500428cdf181bf1c"}
 {"type": "unit", "t": "2026-11-26T17:35:45Z", "unit": "2026-11-26: cleanup permbatch", "commit": "52185e4a40fd24eb73c83c9c90477906ef9cdbb8"}
 {"type": "unit", "t": "2026-11-26T17:58:09Z", "unit": "2026-11-26: cleanup CleancommandApplyToLight", "commit": "d366ec4e47e43b257b23f6ff79cb486ec59ede7a"}
+{"type": "unit", "t": "2026-11-26T18:38:14Z", "unit": "2026-11-26: cleanup CleanbossFollowerActorUpdate", "commit": "5cdffef1ecb87bc9678ab9502bb9197e5dfc13f2"}
