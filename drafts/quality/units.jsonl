@@ -1374,3 +1374,4 @@
 {"type": "unit", "t": "2026-11-25T23:01:04Z", "unit": "2026-11-25: cleanup CleanhudPauseMenuIconUpdate", "commit": "dd99071490b5ab4f9bb2c3a118ec49a8a5cba5e8"}
 {"type": "unit", "t": "2026-11-26T01:01:24Z", "unit": "2026-11-25c: cleanup CleanplayerWeaponCalculateTrajectory22", "commit": "5f37f212b127de66e7e2b7e6a6c61d6835a1cbda"}
 {"type": "unit", "t": "2026-11-26T01:13:36Z", "unit": "2026-11-25c: cleanup CleanrenderBannerText", "commit": "8a4c94b93b433883b6a6b4fe45167569c65af60d"}
+{"type": "unit", "t": "2026-11-26T01:17:35Z", "unit": "2026-11-25c: cleanup CleanmenuUpdateElementTargetAndColor", "commit": "39d2c5aa2b820ad6036e7b637347d0996284c532"}
