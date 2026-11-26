@@ -1,4 +1,4 @@
-# playerWeaponCalculateTrajectory22 (global, src/global/F56F0.c)
+# playerWeaponCalculateTrajectory22 (global, src/global/F56F0_player_weapon.c)
 ## Sites
 global:806F18F4:other:2fa922 other (kept): `angle = 0x16;` then `tableIndex = recoilTimer - angle;`.
 - The 0x16 is folded into `addiu v1,v1,-22` at 0xf14, so the store emits no code.
@@ -35,6 +35,15 @@ global:806F18F4:other:2fa922 other (kept): `angle = 0x16;` then `tableIndex = re
   - tableIndex assigned inside the if test: 9.
   - variants scan on the literal body (12 variants): best 9, no zero.
   - `u16 timer; timer = recoilTimer; tableIndex = (u8)timer - 0x16;`: whole-file fdiff 0 (trial_phantom.c). The wide timer is a phantom bit-0 candidate in $v0 that emits no code (Q1230; see the playerWeaponCalculateTrajectory4 dossier for the width table). It swaps `angle = 0x16` for a width respelling plus a value cast: not applied.
+  - Result: nohit.
+- 2026-11-25 "2026-11-25c continue" CleanplayerWeaponCalculateTrajectory22 claude-opus-5-5 (base 7fb29a74; variants.py try full=):
+  - Q1643 does not apply: no ternary or switch, so cfe makes no temp. The bound is the immediate `sltiu at,v1,4` at 0xf1c.
+  - The Q0214 tag reading ("one temp, two roles") has no cfe temp behind it here: angle is the user local at -6vreg.
+  - No tableIndex local, `recoilTimer - 0x16` written at each use (Q1653/Q1656): 7 (shape 1).
+    - recoilTimer lands in $v0 (`lbu v0`), the difference in $v1 (`addiu v1,v0,-22`), and the table read is `lhu v1,-44(v1)` off `sll t7,v0,1`.
+    - The target has `lbu v1` / `addiu v1,v1,-22` at 0xf10/0xf14 and `lhu v0` at 0xf38.
+  - Constant-first split `tableIndex = -0x16; tableIndex += recoilTimer;` (Q1619): 9.
+  - Literal body re-measured: 9. variants scan of the literal body (26 variants): best 9, no zero.
   - Result: nohit.
 ## Untried ideas
 - None natural. The target needs the table-value variable referenced before tableIndex in the ucode while emitting no code there.

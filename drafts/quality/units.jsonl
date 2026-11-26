@@ -1372,3 +1372,4 @@
 {"type": "unit", "t": "2026-11-25T22:40:06Z", "unit": "2026-11-25: cleanup CleantagBarrelCheckKongFlag", "commit": "6425b1105165a30edf9fdf0598ef7be953e93479"}
 {"type": "unit", "t": "2026-11-25T23:00:25Z", "unit": "2026-11-25: cleanup CleancsCmdShowRemainingDigits", "commit": "769a34b4a0234b7b277569e6b74d032dbf155c57"}
 {"type": "unit", "t": "2026-11-25T23:01:04Z", "unit": "2026-11-25: cleanup CleanhudPauseMenuIconUpdate", "commit": "dd99071490b5ab4f9bb2c3a118ec49a8a5cba5e8"}
+{"type": "unit", "t": "2026-11-26T01:01:24Z", "unit": "2026-11-25c: cleanup CleanplayerWeaponCalculateTrajectory22", "commit": "5f37f212b127de66e7e2b7e6a6c61d6835a1cbda"}

@@ -1,9 +1,13 @@
-# playerStateWaypointAimUpdate (global, src/global/F56F0.c)
+# playerStateWaypointAimUpdate (global, src/global/F56F0_player_weapon.c)
 
 ## Sites
 global:806F3E0C:dead-if:8092af  `if (gWaypointIndex && gWaypointIndex) {}` at the top of the `if (eq)` arm:
 keeps the gWaypointIndex load (lh 0x3534, uses 0x3540/0x35f4) the higher-priority uopt candidate so it
 takes $v0 and eq {M -40vreg} takes $v1 (without it eq, live in one block, adjsave 2.0, beats the load's 1.5).
+global:806F3E0C:other:543a88 (copy-only, tagged 2026-11-25 as pre-existing) `next = gWaypointCursor + 1;` re-reads the global
+while cur holds it. The target loads gWaypointCursor once (`lw t0,0(a3)` 0x3438), and next is a variable in t1
+(`addiu t1,t0,18` 0x3460, spilled to 56(sp)). The ilod blocks copy propagation (Q0510). `cur + 1` is propagated into cur
+offsets (`lh t7,18(t0)`) and the frame grows 0x50 -> 0x70 (full=156).
 ORIG (not a site): `if (starting & 1)` = target `andi t4,a1,0x1` at 0x3504 on the sltiu a1 result.
 Fixed 2026-11-17 (were 1ea72b f7b1c1 bc0c83 e7e05f 23f09e 2797cb 69b9dd 718e35, 2223db, 523ab5, proto-type 14204c).
 
@@ -62,12 +66,29 @@ Result: no change.
   (`sb zero` 0x3554), so the D2 width change adds no candidate.
 Result: no change.
 
+2026-11-25 "2026-11-25c continue" CleanplayerWeaponCalculateTrajectory22 claude-opus-5-5 (base 7fb29a74; variants.py try full=):
+- Q1593 switch respellings of tests the target already has, guard removed:
+  `switch (gGameMode) { case 0: ...; break; }` in the eq arm 3; `switch (gWaypointActor->state) { case 0x4F: ...;
+  break; default: ...; break; }` 3; both 3. Each is the same diff: `lh v1,0(a0)` 0x3534, `addiu t9,v1,2` 0x3540,
+  `addiu t6,v1,1` 0x35f4. The added switch blocks lie outside both ranges (eq: bb3 only; the gWaypointIndex
+  load: bb3 + else arm), so neither priority moves.
+- Q1602/Q1599: the then-arm 0x354c-0x35ec has no gWaypointIndex access. a0 is reloaded with `lui a0,%hi(gWaypointCallbackId)`
+  at 0x355c and $v0 is reused for &gScreenRenderFlags 0x3560 and &gGlobalPauseFlags 0x35b8. No target instruction exists for a
+  real use to take, and a code-free use is dropped before counting.
+- No-eq body, uopt -l5/-l6: the load {1055} is bit 62, 1.5, and takes reg 1 ($v0). &gWaypointIndex {1121} is bit 213, adjsave 0.5,
+  forbidden [1 6 7 8 10], interfering with 212 211 207 206 62 54 12 4 0. It takes reg 2 ($v1); the target has a0.
+  So the target needs a reg-2 occupant live in bb3 or the else arm that emits no code: eq's compare fused into `bnel` 0x3544.
+- variants scan of the guard-free body (all four sites removed in one copy; 73 variants incl. truth/swap/width/float/branch): best 3, no zero.
+Result: no change.
+
 ## Untried ideas
 - a real (code-free) then-arm use of gWaypointIndex to replace the 8092af guard; none found.
 - a natural way to number the gWaypointIndex load before eq (then one same-value read would win the 2.0 tie);
   eq's own store always numbers it first in `eq = idx + 2 == count` (HackplayerStateWaypointAimUpdate4).
 - a v1 occupant other than eq for the no-eq body (needs an invisible candidate live in bb3/else with
   adjsave between 0.5 and 1.5) (HackplayerStateWaypointAimUpdate4).
+- 543a88: a natural def of next that copy propagation keeps as its own variable without the global re-read.
+  Measured 156 each: `cur + 1`, `&cur[1]`, `next = cur; next++;`, cur assigned just before next.
 
 ## Evidence
 target 0x3500 `sltiu a1,a2,1`, 0x3504 `andi t4,a1,0x1`, 0x3508 `beqz t4`: the flag is a coloured variable (a1)

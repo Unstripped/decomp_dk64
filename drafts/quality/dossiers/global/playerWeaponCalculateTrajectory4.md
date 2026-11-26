@@ -1,4 +1,4 @@
-# playerWeaponCalculateTrajectory4 (global, src/global/F56F0.c)
+# playerWeaponCalculateTrajectory4 (global, src/global/F56F0_player_weapon.c)
 ## Sites
 - global:806F1858:other:3ee789 other (kept): `angle = 4U`; same candidate-order steer as Trajectory7.
   - Target: `lbu v1,0x8e`, `sltiu at,v1,4` at 0xe80, table value `lhu v0` at 0xe9c.
@@ -43,6 +43,14 @@
     - a u32 alias of `recoilTimer - 0x14` defined before index: 1.
     - the u16 -> u8 timer copy chain (phantom first candidate): 1.
     - Result: nohit.
+- 2026-11-25 "2026-11-25c continue" CleanplayerWeaponCalculateTrajectory22 claude-opus-5-5 (base 7fb29a74; variants.py try full=):
+  - Q1643 does not apply: no ternary or switch, so cfe makes no temp. The bound is the immediate `sltiu at,v1,4` at 0xe80.
+  - No index local, `recoilTimer - 0x14` written at each use (Q1653/Q1656 one-block temp lever): 7 (shape 1).
+    - recoilTimer lands in $v0 (`lbu v0,142(t6)`), the CSE'd difference in $v1 (`addiu v1,v0,-20`), and the table address is `sll t7,v0,1` with `lhu v1,-40(v1)`.
+    - The target has `lbu v1` / `addiu v1,v1,-20` at 0xe74/0xe78 and `lhu v0` at 0xe9c.
+  - Constant-first split `index = -0x14; index += recoilTimer;` (Q1619): 9, index still first.
+  - Literal body re-measured: 9. variants scan of the literal body (26 variants): best 9, no zero.
+  - Result: nohit.
 ## Untried ideas
 - None natural (see the playerWeaponCalculateTrajectory22 dossier: the $v0 holder must be referenced before index and emit no code in bb0/bb1).
 - Lead decision (open since 2026-11-14): accept `angle = ARRAY_COUNT(D_80752F30)` (one temp, two roles, Q0214) as natural, or keep the tag. The 2026-11-18 rulings (Q0814 constant-local exception, reuse = steer) point to keep.

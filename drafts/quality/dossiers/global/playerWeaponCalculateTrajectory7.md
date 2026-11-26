@@ -1,4 +1,4 @@
-# playerWeaponCalculateTrajectory7 (global, src/global/F56F0.c)
+# playerWeaponCalculateTrajectory7 (global, src/global/F56F0_player_weapon.c)
 ## Sites
 - global:806F1768:other:b7ba3b other (kept):
   - `angle = 7U` is the first def of angle. It numbers angle as uopt candidate 0, ahead of index (3), so angle colours first-fit to $v0 and index to $v1. The sltiu at 0xd94 folds the 7.
@@ -60,6 +60,14 @@
   - `u16 timer; timer = recoilTimer; index = (u8)timer - 0x14;` with the literal `7U` bound: whole-file fdiff 0 (trial_phantom.c, all three siblings in that form).
     - -l6: timer (-2vreg) bit 0 -> $v0 but emits no code (the lbu feeds the index expression), uadd isop bit 9 -> $v1, angle bit 14 -> $v0, index var bit 5 not coloured (propagated into the expression).
     - A wide local narrowed back to u8 at its use is a phantom first candidate (extends Q1230). It swaps `angle = 7U` for a u16 width respelling plus a no-op `(u8)` value cast: still one steer, so not applied (no net drop).
+  - Result: nohit.
+- 2026-11-25 "2026-11-25c continue" CleanplayerWeaponCalculateTrajectory22 claude-opus-5-5 (base 7fb29a74; variants.py try full=):
+  - Q1643 check (cfe's shared switch/ternary temp): fails. The cfe ucode (as1probe keep, `ucode --cfe`) lowers both `lastFireHand != 0 ? ... : ...` assignments into per-arm stores (`fjp` lab 12 / lab 14, one `istr u8 i 1` / `istr u16 i 4` in each arm) and defines only `Mmt len 6` (index -4, angle -6): no cfe temp exists.
+  - Target agrees: 0xe14 `beqzl t4`, then `sh v0,4(t8)` at 0xe2c in one arm and `negu t9,v0` 0xe34 + `sh t9,4(t3)` 0xe40 in the other. No register carries a ternary result.
+  - The bound is the immediate `sltiu at,v1,7` at 0xd94 (no `sltu` against a register), so nothing holds 7 at run time either.
+  - Sibling without a steer: trajectory23 has no bound and no index local (recoilTimer `lbu t7` 0xfb0 is a ugen temp), so the table value is the only candidate and takes $v0 (`lhu v0` 0xfc4). trajectory26 is a flag/return function with no table read.
+  - Constant-first split `index = -0x14; index += recoilTimer;` (Q1619 operand-order lever): 10, index still numbered first.
+  - variants scan of the literal-bound body (all four sites removed in one copy; 28 variants): best 10, no zero.
   - Result: nohit.
 ## Untried ideas
 - If the lead rules a habitual declaration zero-initialiser (`u16 angle = 0;`) ordinary C, it fixes this site and both siblings (4, 22) with one uniform form (measured 0/0/0). Otherwise it is a dead-store steer, the same count as `angle = 7U` (Q1301: director ruled both steers).
