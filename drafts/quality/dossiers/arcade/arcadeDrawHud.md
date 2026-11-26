@@ -63,6 +63,33 @@
     clamp back into i and fills the freed slot with a new steer (constant local, `&g` alias, volatile pad, `&gArcadeTexWidth`
     alias); best non-zero 136 also reuses i.
   - only 148(sp) stores in the function: the loop's `sw a3` 0xdafc (+ `lw` 0xdb00): stays FAKE.
+- 2026-11-25c continue-lead-2 CleanarcadeUpdateOilDrumEntity anthropic/claude-opus-5-5 (base 9fb6f661): R-oildrum
+  three-part census (director 2026-11-25c + refinements); bodies in census_hud/ (`bonus` = the clamp role), scores
+  `variants.py try`, stack slots from `as1probe keep` t.s (census_hud/census_raw.txt). ORIG test (rulings.md:98-101):
+  148(sp) holds only the counter (`sw a3` 0xdafc / `lw a3` 0xdb00); the clamp is register-only (0xdf08/0xdf0c/0xdf14): not ORIG.
+## R-oildrum census (target R0: frame 152, counter i 148 (a3), g 144, n 59 (sb/lbu), IV uopt spill 52 (v0))
+Part 1, frame proof (separate `bonus` local for the clamped timer; 5 widths x 5 positions x 2 buffer sizes + register):
+| buf | positions (all widths s32/s8/u8/s16/u16 unless noted) | scores | stack vs target |
+|---|---|---|---|
+| 0x50 | first / after i | 87-117 | frame 152, counter or g home moves (144/140), n 59 -> 55, IV spill 52 -> 48 |
+| 0x50 | after g | 59-91 | n 59 -> 55, IV spill 52 -> 48 |
+| 0x50 | after buf | u8/u16 19, s32 31, s8/s16 52 | n 59 -> 55, IV spill 52 -> 48 |
+| 0x50 | block (mode 5/4 block) | u8 15, u16 15, s32 31, s8/s16 52 | n 59 -> 58 (u8/s8) / 57 (halfwords) / 55 (s32), spill 52 or 48 |
+| 0x50 | `register s32` after i / after g / block | 98 / 70 / 31 | n 59 -> 55, spill 52 -> 48 |
+| 0x4C | after g | u8 13, u16 13, s32 25, reg 25, s8/s16 52 | IDENTICAL (frame 152, i 148, g 144, n 59, spill 52): colours only (counter v0, IV v1); s8/s16 add sign-extension code |
+| 0x4C | after buf | u8/u16 53, s32 64, s8/s16 91 | IDENTICAL stack, colours/width code only |
+| 0x4C | block | s32 64, reg 64; u8/u16/s8/s16 91-120 | s32/reg IDENTICAL stack; narrow: frame 152 -> 144 |
+| 0x4C | first / after i | 41-78 | counter/g homes move (144/140) |
+Result: FAILS. buf's 0x50 is m2c's size (longest string 22 chars); with buf[0x4C] a dedicated bonus local after g
+(u8/u16/s32/register), after buf or block-scoped s32 keeps the frame and every home and spill; the reuse shows only in
+the colouring (Q1256). Register-only evidence (R5 / 12E800 near ruling). If the director treats buf[0x50] as fixed, part 1
+holds (every buf[0x50] position moves n or the IV spill), part 2 holds (below) and part 3 holds (counter loop 3921-3923
+vs clamp 3995-4001 in the mode-5/4 block, disjoint, both int-valued: s8 gArcadeBonusTimer clamped, u8 life count bound).
+Part 2, no-local: `_sprintf(buf, "%02d00", gArcadeBonusTimer > 0 ? gArcadeBonusTimer : 0)` 29 (buf 0x50) / 66 (0x4C);
+`_sprintf` in each arm 23 / 101; `static s32 bonus` 16 / 94. All fail.
+Hidden-reuse check (director item 2026-11-25c): no untagged unrelated-role reuse. `buf` holds every formatted HUD string
+(one role, R9, no census); `g` (display-list cursor), block-scoped `u8 n` (stage count), `glistp` and `sFrameCount` hold
+one role each; `i`'s second role is the tagged clamp (216e1c). None.
 ## Untried ideas
 - none natural: the frame objection is gone (buf[0x4C]) and the colour-order tie can be flipped (Q1590/Q1551), but a3 for
   both the lives counter and the clamp comes only from one variable whose clamp web carries the `_sprintf` a2 preference

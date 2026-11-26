@@ -1390,3 +1390,4 @@
 {"type": "unit", "t": "2026-11-26T04:06:11Z", "unit": "2026-11-25c: cleanup CleanplayerStateLandRecover", "commit": "45990fef5a77ee87fd63d03ec7354adbbd2ae807"}
 {"type": "unit", "t": "2026-11-26T04:14:10Z", "unit": "2026-11-25c: cleanup CleaneffectWobbleRiseUpdate", "commit": "b401510bde30fb8c1d56ffcb2a7be12fd7fece35"}
 {"type": "unit", "t": "2026-11-26T04:18:19Z", "unit": "2026-11-25c: cleanup CleancollisionCheckTriangleContainsPointXZ", "commit": "cd02f1c8373ebf6c098f11d93037a2fcfbe1699a"}
+{"type": "unit", "t": "2026-11-26T04:32:35Z", "unit": "2026-11-25c: cleanup CleanarcadeUpdateOilDrumEntity", "commit": "15b7686a17aa4e56e3a3e2b458f492bb2959dce4"}
