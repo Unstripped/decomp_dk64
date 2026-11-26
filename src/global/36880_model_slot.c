@@ -366,7 +366,7 @@ typedef struct ModelSlotSubNode {
     /* 0x2F */ u8 pad2F;
     /* 0x30 */ u8 zBuffered;
     /* 0x31 */ u8 pad31[3];
-    /* 0x34 */ s32 unk34;
+    /* 0x34 */ s32 next;
 } ModelSlotSubNode;
 
 // Display-list span starting at a texture's G_SETTIMG command (0xFD).
@@ -631,7 +631,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     if (info->spriteTexture != -1) {
         node = heapAlloc(0x38);
         *link = node;
-        node->unk34 = 0;
+        node->next = 0;
         node->scaleXZ = 1.0f;
         node->baseHalfWidth = info->spriteHalfWidth;
         node->baseHalfDepth = info->spriteHalfDepth;

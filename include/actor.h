@@ -438,7 +438,7 @@ typedef struct Actor {
     /* 0x0D0 */ u8 floorSurfaceType;
     /* 0x0D1 */ u8 floorSlopeType;
     /* 0x0D2 */ u8 padD2[2];
-    /* 0x0D4 */ void *unkD4;
+    /* 0x0D4 */ void *floorTiltEntry;
     /* 0x0D8 */ s16 floorTiltYaw;
     /* 0x0DA */ s16 floorTiltPitch;
     /* 0x0DC */ s16 floorSlopeYaw;

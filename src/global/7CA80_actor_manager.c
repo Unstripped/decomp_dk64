@@ -679,7 +679,7 @@ u16 type;
         actor->spawnData = NULL;
         actor->segmentBuffers[0] = NULL;
         actor->segmentBuffers[1] = NULL;
-        actor->unkD4 = &sActorTiltTable[1];
+        actor->floorTiltEntry = &sActorTiltTable[1];
         actor->segmentFlags = -1;
         actor->collisionFlags = gActorTypeCollisionFlags[type];
         actor->floorTiltPitch = 0x400;
