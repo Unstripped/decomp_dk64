@@ -80,7 +80,7 @@ void bossSpawnerUpdate(void) {
     BossFollowerLink *link;
     s32 kong;
     f32 x;
-    f32 z; // FAKE: the case 1 player offset reused as the light position: a separate dz recolours the case-1 offsets (z $f0 -> $f2, the cvt.d.s temp $f2 -> $f0 at 0x3f4-0x434)
+    f32 z;
     s16 j; // FAKE: the case 7 loop counter reused as the case 0 repeat limit: the merged range colours the limit $a1 (0x650/0x668/0x6a0), a separate limit takes $v0
     static s8 sLightPulseTimer = 0;
     static s8 D_80035B6C = 0;
