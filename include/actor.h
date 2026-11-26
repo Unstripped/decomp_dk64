@@ -1326,7 +1326,7 @@ extern CamFloorHit sCamFloorHits[];
 extern u8 sCamFloorHitCount;
 
 // One row of the floor tilt table sActorTiltTable[19] (69E60.c), indexed by an actor's floorSlopeType or
-// floorSurfaceType; actorAllocate (7CA80) points a new actor's unkD4 at entry 1.
+// floorSurfaceType; actorAllocate (7CA80) points a new actor's floorTiltEntry at entry 1.
 typedef struct {
     s16 slopeDivisor;
     u8 maxPitchDegAlt;

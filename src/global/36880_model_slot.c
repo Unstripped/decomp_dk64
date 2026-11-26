@@ -344,7 +344,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
 }
 
 // A model's sprite draw node as modelSlotInit builds it; spriteListBuildDisplayChain reads the same 0x38 bytes as
-// SpriteDisplayNode (asset is the texture its key holds; unk34 is its chain link, cleared here).
+// SpriteDisplayNode (asset is the texture its key holds; next is its chain link, cleared here).
 typedef struct ModelSlotSubNode {
     /* 0x00 */ void *asset;
     /* 0x04 */ f32 scaleXZ;
