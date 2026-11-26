@@ -766,7 +766,6 @@ void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     *count = index;
 }
 
-extern s8 D_80752CBF[];
 
 void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) {
     KongChain *state = ((F56AActor *) actor)->weaponState;
@@ -813,7 +812,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
         s16 idx = actor->sub4->model->animId;
 
         if (idx >= 0) {
-            target = D_80752CBF[idx];
+            target = gDiddyChainAnimWeights[idx - 0x131];
         } else {
             target = -128.0f;
         }
