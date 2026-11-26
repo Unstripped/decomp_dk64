@@ -30,7 +30,9 @@ Fallback checks and `--model` selectors: `skill://cleanup-unit` §0.
 
 1. `git status` + `git log -3` (unexpected changes are the user's: never stage them). ok-fine:
    `list_projects` (repository = `git remote get-url origin`), `search_concepts` for the files the
-   ranking below names.
+   ranking below names. No git identity in the session (`git var GIT_COMMITTER_IDENT` fails): process env only in every
+   committing shell (`GIT_AUTHOR_*`/`GIT_COMMITTER_*` + `GIT_CONFIG_*` commit.gpgsign=false), never `.git/config`; the eval
+   `commit` bridge cannot see it, so lead commits are `git commit -m ... -- <paths>` (2026-11-26).
 2. `bash autoresearch.sh` (full rebuild gate + both reports, ~5 min). It must exit 0: a non-matching
    tree is fixed first, nothing else runs. Note `METRIC debt=` as the unit's start.
 3. `tools/dk make expected`; `uv run tools/clint.py compdb`; `uv run tools/protos.py gen --check`.
@@ -67,7 +69,8 @@ slowest worker. Names yield falls once every file has had a reader: the leftover
 - hack: first every open `uv run tools/fakehunt.py hits` line (one apply item per function: the worker
   diffs the hit against src, merges through `merge_record`, records `diagnose fixed note="fakehunt
   <recipe|remove|plain> hit <path>"`; a ZERO-PERMUTE dir goes to a worker that rewrites the permuter
-  output into readable C), then `rank` top to bottom (`next=retry` included). Run `uv run tools/fakehunt.py
+  output into readable C; on a reuse site the zeros are the steer re-spelled (2026-11-26: 7 sites, 164 zeros, every one
+  re-merges the split local): send the census instead), then `rank` top to bottom (`next=retry` included). Run `uv run tools/fakehunt.py
   run` (`--parallel 3 -j 2`) only while no merge is expected: a `--stages recipes --hours 1.5` pass at unit start
   (2026-11-25c: 9 min, 100 functions) and `--stages as1,permute` between units; never during merges (its as1probe
   scans hold shared dk locks that stall each merge's `make expected`: lost unit 2026-11-25, 27 min).
@@ -75,6 +78,8 @@ slowest worker. Names yield falls once every file has had a reader: the leftover
   dispatch. Check a lever's precondition on the target asm before dispatch (unit 2: 2 fixes of 10
   transfers; Q1594/Q1595/Q1597/Q1598/Q1599/Q1602 list why the rest failed). `// LAYOUT:` lines are
   not sites.
+  Since 2026-11-26 every reuse site is censused or screened (frame-keeping split: part 1 fails) and all 25 gotos are
+  verified Q0591 shared tails: hack yield needs new knowledge or a new lever, not more `rank` retries.
 - a lever or ruling found mid-unit goes straight back out over every site of its kind (lever scout with asm
   proof, then one worker per file): 2026-11-25c's frame-word placement and three-part reuse census (rulings.md)
   removed ~20 FAKE across 11 files; each census lives in the function's dossier, and every worker also checks
@@ -112,6 +117,10 @@ at the end". After a harness restart: resume from `.scratch/<lead>/dispatch.md`;
 them under new names working in the old `.scratch/<A>/` and recording under their OWN new names from the first
 line (`--agent`, unit "cleanup <new name>"). A ledger recorded under a dead agent's name is a provenance error:
 re-record it under the real name with the note "provenance correction of <sha>: ..." (2026-11-25c, 76a354c7).
+quality.py agent names are `[A-Za-z0-9_]` (no `-`): the lead records under a CamelCase spelling of its id (LeadMeasure).
+Run a names window with `--no-carry`, then `carry --rev <gate>^` per touched file and `--header-carve` after a header field
+rename: the in-window carry over 6 files died silently on a loaded host (2026-11-26; E4090 alone took 68 min). The window
+refuses uncommitted src/include, so a comment naming a renamed field goes in a separate comment-only gate.
 
 ## 5. Close (user asks to stop, or every stream's queue is empty/exhausted/held)
 
