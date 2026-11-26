@@ -247,9 +247,10 @@ extern EffectGridAsset gEffectSpriteDustPuff;
 
 void actorSinkAndDespawn(void) {
     s32 count;
-    s32 i; // FAKE: also carries the actorListLookupEntry ids beside the rider index: a separate local adds a home word (frame 0x68 -> 0x70)
-    s32 node; // FAKE: carries the actorListFindIdByActor ids before it counts bone nodes: a separate local adds a home word (frame 0x68 -> 0x70)
+    s32 i;
+    s32 entry;
     u8 found;
+    s16 id;
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
@@ -264,9 +265,9 @@ void actorSinkAndDespawn(void) {
         sub->baseY = gCurrentActor->y;
         gCurrentActor->cullMarginX = 0x46;
         gCurrentActor->cullMarginY = 0x14;
-        node = actorListFindIdByActor(gCurrentActor);
-        i = actorListLookupEntry(node);
-        if (flagGet(i, 0) != 0) {
+        id = actorListFindIdByActor(gCurrentActor);
+        entry = actorListLookupEntry(id);
+        if (flagGet(entry, 0) != 0) {
             actorDespawn(gCurrentActor);
         }
     }
@@ -282,18 +283,16 @@ void actorSinkAndDespawn(void) {
             }
         }
         if (found != 0) {
-            node = 1;
             if (sub->sinkTimer == 0) {
-                do {
+                for (i = 1; i < 9; i++) {
                     effectSetFrameDelay(2);
                     effectSetDepth(1);
                     effectSetCallback(&effectSinkBySpeedUpdate);
                     effectSetSpeed(-0x64);
                     effectSetColor(0x64, 0x46, 0x1E, 0xFF);
-                    actorGetNodePos(gCurrentActor, node, &nodeX, &nodeY, &nodeZ);
+                    actorGetNodePos(gCurrentActor, i, &nodeX, &nodeY, &nodeZ);
                     effectCreateAtPosition(&gEffectSpriteDustPuff, 2.0f, nodeX, nodeY + 10.0, nodeZ);
-                    node++;
-                } while (node != 9);
+                }
                 sub->sinkTimer = 0xF;
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C1, 0xFF, 0x7F, 1);
             }
@@ -303,9 +302,9 @@ void actorSinkAndDespawn(void) {
         sub->sinkTimer--;
     }
     if (sub->sinkTimer == 2) {
-        node = actorListFindIdByActor(gCurrentActor);
-        i = actorListLookupEntry(node);
-        actorSpawnNodeEntryScaled(0x8C, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z, 0, 1, i, 0);
+        id = actorListFindIdByActor(gCurrentActor);
+        entry = actorListLookupEntry(id);
+        actorSpawnNodeEntryScaled(0x8C, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z, 0, 1, entry, 0);
     }
     if (sub->sinkTimer < 0xA && sub->sinkTimer != 0) {
         sub->sinkDepth = sub->sinkDepth + 1.0;
