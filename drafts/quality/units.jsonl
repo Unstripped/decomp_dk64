@@ -1385,3 +1385,4 @@
 {"type": "unit", "t": "2026-11-26T03:21:06Z", "unit": "2026-11-25c: cleanup CleanmapChunkTraversePortals", "commit": "6522ae5a0812706c9452cf6e24f052f08fd8b145"}
 {"type": "unit", "t": "2026-11-26T03:47:45Z", "unit": "2026-11-25c: cleanup CleanenemyGridStateStep", "commit": "87a0c104cd4c7168e6b54c1e8eeea125243bf742"}
 {"type": "unit", "t": "2026-11-26T03:48:12Z", "unit": "2026-11-25c: cleanup CleanenemyAggroStateUpdate", "commit": "d0d4ddb0bc9800a77f98e8841817c66ab768da1b"}
+{"type": "unit", "t": "2026-11-26T03:51:47Z", "unit": "2026-11-25c: cleanup CleancsCmdHubWorldItemsAdjust", "commit": "1a99d6a402ae92063e74061bdfa7c2c61c06c3f8"}
