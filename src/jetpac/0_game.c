@@ -255,7 +255,7 @@ void jetpacStateGameplay(Gfx **glist) {
     jetpacDrawLasers();
     jetpacGridDraw(glist);
     if (jetpacIsSpawnDelay() != 0) {
-        jetpacGame.player.timer++;
+        jetpacGame.player.head.timer++;
     }
     if (jetpacGame.pressedButtons & 0x1000) {
         jetpacGame.gameState = 3;
@@ -397,7 +397,7 @@ void jetpacSetState(s32 state) {
         jetpacSetRocketSpriteFrames(player);
         break;
     case 4:
-        jetpacPlayer.player.state = 1;
+        jetpacPlayer.player.head.state = 1;
         jetpacPlaceRocketOnPad();
         jetpacGame.stateSettleFrames = 3;
         player->lives++;

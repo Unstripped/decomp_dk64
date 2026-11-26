@@ -13,8 +13,8 @@ typedef struct JetpacExplosion {
     /* 0x0C */ u8 color[4];
 } JetpacExplosion; // size 0x10
 
-/* Enemies (jetpacActors) and lasers (jetpacLasers). */
-typedef struct JetpacActor {
+/* Position, motion, colour and hitbox shared by JetpacActor and JetpacPlayerActor. */
+typedef struct JetpacHead {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;
     /* 0x08 */ f32 vx;
@@ -27,6 +27,11 @@ typedef struct JetpacActor {
     /* 0x24 */ s32 boxX2;
     /* 0x28 */ s32 boxY2;
     /* 0x2C */ s32 timer;
+} JetpacHead; // size 0x30
+
+/* Enemies (jetpacActors) and lasers (jetpacLasers). */
+typedef struct JetpacActor {
+    /* 0x00 */ JetpacHead head;
     /* 0x30 */ JetpacExplosion explosion;
     /* 0x40 */ u32 lifetime;
     /* 0x44 */ s32 points;
@@ -34,20 +39,9 @@ typedef struct JetpacActor {
     /* 0x4C */ TextureDescriptor *sprite;
 } JetpacActor; // size 0x50
 
-/* The jetman (jetpacPlayer): JetpacActor's first 0x30 bytes, then player state. */
+/* The jetman (jetpacPlayer): JetpacActor's head, then player state. */
 typedef struct JetpacPlayerActor {
-    /* 0x00 */ f32 x;
-    /* 0x04 */ f32 y;
-    /* 0x08 */ f32 vx;
-    /* 0x0C */ f32 vy;
-    /* 0x10 */ u8 color[4];
-    /* 0x14 */ s32 state;
-    /* 0x18 */ s32 flip;
-    /* 0x1C */ s32 boxX1;
-    /* 0x20 */ s32 boxY1;
-    /* 0x24 */ s32 boxX2;
-    /* 0x28 */ s32 boxY2;
-    /* 0x2C */ s32 timer;
+    /* 0x00 */ JetpacHead head;
     /* 0x30 */ s32 flying;
     /* 0x34 */ s32 ledge;
     /* 0x38 */ s32 fireCooldown;

@@ -189,7 +189,7 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
     }
     jetman = &jetpacGame.player;
     if (item->carryState == 0) {
-        if (item->vy > 0.0f && jetman->state != 4) {
+        if (item->vy > 0.0f && jetman->head.state != 4) {
             s32 hit = jetpacCheckLedgeCollision(item->boxX1 + item->x + item->vx, item->boxY1 + item->y + item->vy,
                                                 item->boxX2 + item->x + item->vx, item->boxY2 + item->y + item->vy, 0);
             if (hit >= 0) {
@@ -199,10 +199,10 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
                 item->y += item->vy;
             }
         }
-        if (jetman->state == 3) {
+        if (jetman->head.state == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->x + item->boxX1, item->y + item->boxY1, item->x + item->boxX2, item->y + item->boxY2,
-                              jetman->x + jetman->boxX1, jetman->y + jetman->boxY1, jetman->x + jetman->boxX2,
-                              jetman->y + jetman->boxY2)) {
+                              jetman->head.x + jetman->head.boxX1, jetman->head.y + jetman->head.boxY1, jetman->head.x + jetman->head.boxX2,
+                              jetman->head.y + jetman->head.boxY2)) {
                 item->carryState = 1;
                 player->score += item->points;
                 jetpacPlaySound(4);
@@ -210,12 +210,12 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
         }
     }
     if (item->carryState == 1) {
-        if (jetman->state == 4) {
+        if (jetman->head.state == 4) {
             item->carryState = 0;
             item->vy = 0.8f;
         } else {
-            item->x = (jetman->x - 2 * jetman->vx + jetman->boxX1) + (jetman->boxX2 - jetman->boxX1 - item->boxX2 + item->boxX1) * 0.5;
-            item->y = jetman->y - jetman->vy + jetman->boxY2 - item->boxY2;
+            item->x = (jetman->head.x - 2 * jetman->head.vx + jetman->head.boxX1) + (jetman->head.boxX2 - jetman->head.boxX1 - item->boxX2 + item->boxX1) * 0.5;
+            item->y = jetman->head.y - jetman->head.vy + jetman->head.boxY2 - item->boxY2;
             if (jetpacIsOverRocket(item->x)) {
                 item->x = 168.0f;
                 item->vy = 0.8f;
@@ -324,10 +324,10 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
                 item->y += item->vy;
             }
         }
-        if (jetpacGame.gameState == 2 && jetman->state == 3) {
+        if (jetpacGame.gameState == 2 && jetman->head.state == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->x + item->boxX1, item->y + item->boxY1, item->x + item->boxX2, item->y + item->boxY2,
-                              jetman->x + jetman->boxX1, jetman->y + jetman->boxY1, jetman->x + jetman->boxX2,
-                              jetman->y + jetman->boxY2)) {
+                              jetman->head.x + jetman->head.boxX1, jetman->head.y + jetman->head.boxY1, jetman->head.x + jetman->head.boxX2,
+                              jetman->head.y + jetman->head.boxY2)) {
                 if (item->kind == 6) {
                     flagSet(0x62, 1, 2);
                 }
