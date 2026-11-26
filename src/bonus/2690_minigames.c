@@ -2003,7 +2003,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             velZ = subExt->velZ;
             z = gCurrentContPad->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x: its 5-block web scores 4.5 over the velX error var's 4.0 and takes $f2 (mul.s at 0x5e18); an honest stickX local scores 3.0 in bb43 and ranks below that var (Q1049, Q0739; pre-existing, tagged)
             stickY = gCurrentContPad->stick_y * 0.06f;
-            velX = ((z * cosYaw) - (stickY * sinYaw)) - velX; // FAKE: velX (the velX pre-read) also holds the x velocity error ($f12, sub.s at 0x5e48): its counted pre-read def + use score 4.0 over the subExt->velX load ($f14, 3.0); an honest error local scores 2.0 and takes $f18 (Q1049; pre-existing, now tagged)
+            velX = ((z * cosYaw) - (stickY * sinYaw)) - velX; // FAKE: velX (the velX pre-read) also holds the x velocity error ($f12, sub.s at 0x5e48): its counted pre-read def + use score 4.0 over the subExt->velX load ($f14, 3.0); a separate errX is copy-propagated into the update (error in a $f6 temp, load in $f12) and, after spawnAngle or block-scoped, keeps frame 0x88 and every home (Q1049, Q1666 census part 1 fails; pre-existing, tagged)
             subExt->velX = subExt->velX + velX * 0.155f;
             subExt->velZ = subExt->velZ + ((z * sinYaw + stickY * cosYaw) - velZ) * 0.25f;
             subExt->offsetX = subExt->offsetX + subExt->velX;
@@ -2021,7 +2021,7 @@ void bonusSearchlightSeekGameUpdate(void) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 x = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX; // ORIG: the target stores the aim point into the clamp's x/y homes (swc1 $f6,124(sp) at 0x5f5c, swc1 $f10,120(sp) at 0x5f68); separate aim locals grow the frame
                 y = gPlayerSlots->camY - 25.0f;
-                z = mathCosF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camZ;
+                z = mathCosF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camZ; // FAKE: z also holds the aim point z ($f2, add.s at 0x5f90 -> mfc1 a2 at 0x5f94, never stored to z's home 116(sp)): this block keeps z one 5-block web, so the stick role (line 2004) and the clamp z keep $f2; a separate aimZ after spawnAngle or block-scoped keeps frame 0x88 and every home and only recolours them (Q1666 census fails; pre-existing, now tagged)
                 projectileSetTargetCoords(x, y, z);
                 projectileAimAndSpawn(0x23, 1, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 625.0f, gCurrentActor);
                 subExt->fireCooldown = 0x1E;
