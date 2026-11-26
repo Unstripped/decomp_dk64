@@ -33,7 +33,8 @@ Never edits src/ and never writes the quality ledger: it writes hits for workers
           SITES`). A run filtered by --seg/--file/--func works the current pass for its sites and exits
           (the counter advances only in an unfiltered run); without the permute stage any run exits
           after one round. Ctrl-C (SIGINT) stops every child job (SIGINT, which tools/dk forwards to its
-          container job, then SIGTERM/SIGKILL after 30 s each), waits for them, saves the state and exits
+          container job, then SIGTERM/SIGKILL after 30 s each; on Windows TerminateProcess, then a wait
+          until the dkd server lists no request of a killed client), waits for them, saves the state and exits
           130 (`INTERRUPTED pass=<N>`); interrupted jobs record nothing and re-run next time. --dry-run
           prints the planned jobs (`RECIPES <func>`, `AS1 <key>`, `PERMUTE <key> seconds=<S>`) and writes
           nothing.
@@ -408,15 +409,8 @@ class Hunter:
 
 def descendants():
     """PIDs of this process's live job descendants (zombies and multiprocessing's resource tracker, which
-    ignores SIGINT/SIGTERM and exits with this process, excluded), from one `ps` snapshot."""
-    ps = subprocess.Popen(["ps", "-Ao", "pid=,ppid=,stat=,command="], stdout=subprocess.PIPE, text=True)
-    out = ps.communicate()[0]
-    kids = collections.defaultdict(list)
-    for line in out.splitlines():
-        f = line.split(None, 3)
-        if (len(f) >= 3 and int(f[0]) != ps.pid and not f[2].startswith("Z")
-                and "multiprocessing.resource_tracker" not in (f[3] if len(f) > 3 else "")):
-            kids[int(f[1])].append(int(f[0]))
+    ignores SIGINT/SIGTERM and exits with this process, excluded), from one process-table snapshot."""
+    kids = nt_children() if os.name == "nt" else ps_children()
     found, todo = [], [os.getpid()]
     while todo:
         for c in kids.get(todo.pop(), ()):
@@ -425,22 +419,112 @@ def descendants():
     return found
 
 
+def ps_children():
+    """{ppid: [pid]} of one `ps` snapshot (the ps itself, zombies and the resource tracker left out)."""
+    ps = subprocess.Popen(["ps", "-Ao", "pid=,ppid=,stat=,command="], stdout=subprocess.PIPE, text=True)
+    out = ps.communicate()[0]
+    kids = collections.defaultdict(list)
+    for line in out.splitlines():
+        f = line.split(None, 3)
+        if (len(f) >= 3 and int(f[0]) != ps.pid and not f[2].startswith("Z")
+                and "multiprocessing.resource_tracker" not in (f[3] if len(f) > 3 else "")):
+            kids[int(f[1])].append(int(f[0]))
+    return kids
+
+
+def nt_children():
+    """{ppid: [pid]} of one Toolhelp32 process snapshot: Windows has no `ps` (and no zombies, no
+    resource tracker). Windows reuses a dead parent's PID, so a process created before the live
+    process its parent PID names now is no child of it (and one whose times cannot be read is none
+    of ours: this process can query every process it started)."""
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        _fields_ = [("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD), ("th32ProcessID", wintypes.DWORD),
+                    ("th32DefaultHeapID", ctypes.c_size_t), ("th32ModuleID", wintypes.DWORD),
+                    ("cntThreads", wintypes.DWORD), ("th32ParentProcessID", wintypes.DWORD),
+                    ("pcPriClassBase", wintypes.LONG), ("dwFlags", wintypes.DWORD),
+                    ("szExeFile", wintypes.WCHAR * 260)]
+
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    k32.CreateToolhelp32Snapshot.argtypes = (wintypes.DWORD, wintypes.DWORD)
+    k32.Process32FirstW.argtypes = k32.Process32NextW.argtypes = (wintypes.HANDLE, ctypes.POINTER(Entry))
+    k32.OpenProcess.restype = wintypes.HANDLE
+    k32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    k32.GetProcessTimes.argtypes = (wintypes.HANDLE, *[ctypes.POINTER(ctypes.c_ulonglong)] * 4)
+    k32.CloseHandle.argtypes = (wintypes.HANDLE,)
+    snap = k32.CreateToolhelp32Snapshot(0x2, 0)  # TH32CS_SNAPPROCESS
+    if snap is None or snap == wintypes.HANDLE(-1).value:
+        raise ctypes.WinError(ctypes.get_last_error())
+    pairs = []
+    try:
+        e = Entry(dwSize=ctypes.sizeof(Entry))
+        ok = k32.Process32FirstW(snap, ctypes.byref(e))
+        while ok:
+            pairs.append((e.th32ProcessID, e.th32ParentProcessID))
+            ok = k32.Process32NextW(snap, ctypes.byref(e))
+    finally:
+        k32.CloseHandle(snap)
+    born = {}
+
+    def created(pid):
+        if pid not in born:
+            born[pid] = None
+            h = k32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+            if h:
+                t = [ctypes.c_ulonglong() for _ in range(4)]
+                if k32.GetProcessTimes(h, *map(ctypes.byref, t)):
+                    born[pid] = t[0].value
+                k32.CloseHandle(h)
+        return born[pid]
+
+    alive = {pid for pid, _ in pairs}
+    kids = collections.defaultdict(list)
+    for pid, ppid in pairs:
+        if ppid in alive and pid != ppid:
+            child, parent = created(pid), created(ppid)
+            if child is not None and parent is not None and child >= parent:
+                kids[ppid].append(pid)
+    return kids
+
+
 def stop_children(grace=30):
     """SIGINT every descendant (a tools/dk client forwards it to its container job, so the permuter or
     scorer stops there too), then SIGTERM and SIGKILL what is still alive after GRACE seconds each;
-    returns once none is left, so a resumed run never shares a run directory with a live job."""
-    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGKILL):
+    returns once none is left, so a resumed run never shares a run directory with a live job. On
+    Windows every os.kill is TerminateProcess (no SIGKILL there; the first round ends each process):
+    a killed tools/dk client forwards nothing, and the dkd server kills its container job (SIGTERM,
+    SIGKILL 2 s later, then frees its lock) once it sees the connection drop, which Docker Desktop's
+    port forward delivers some 10-15 s later; so it then waits, up to GRACE, until the server lists
+    no job of a killed client (`client_jobs`)."""
+    gone = OSError if os.name == "nt" else ProcessLookupError  # nt: an exited PID gives WinError 5/87
+    killed = set()
+    for sig in (signal.SIGINT, signal.SIGTERM, getattr(signal, "SIGKILL", signal.SIGTERM)):
         pids = descendants()
         if not pids:
-            return
+            break
+        killed.update(pids)
         for p in pids:
             try:
                 os.kill(p, sig)
-            except ProcessLookupError:
+            except gone:
                 pass
         end = time.monotonic() + grace
         while time.monotonic() < end and descendants():
             time.sleep(0.5)
+    if os.name == "nt" and killed:
+        end = time.monotonic() + grace
+        while time.monotonic() < end and client_jobs(killed):
+            time.sleep(0.5)
+
+
+def client_jobs(pids):
+    """`tools/dk --status` lines (granted, waiting, jobs) of requests whose client is one of PIDS: the
+    client names its PID in each request (`<desc> [pid N]`)."""
+    r = subprocess.run(dk_argv("--status"), cwd=q.ROOT, capture_output=True, text=True, errors="replace")
+    return [l for l in r.stdout.splitlines() if (m := re.search(r"\[pid (\d+)\]$", l)) and int(m.group(1)) in pids]
 
 
 def cmd_run(a):
