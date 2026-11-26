@@ -1,0 +1,15 @@
+# renderBannerText (global, src/global/CBEA0_banner_text.c)
+## Sites
+global:806C75A4:other:0dfaeb other (was 9c13a4 `i = 0;`, now on the first `for (i = 0; ...)` line): one s16 `i` holds the banner side (`lb s2,4(t2)` 0x490; uses 0x494, 0x4bc, 0x620, switch 0x680-0x698) and then the text line counter of both loops (`move s2,zero` 0x808/0x830, increments 0x818-0x820 and 0x8d8-0x8e4). Steers the side and the counter into one live range in s2. No stack home for either role (frame 0x120, no spill), so register sharing only: not ORIG.
+## Attempts
+2026-11-09 bootstrap: consolidate the two viewportSetMargins proto steers -> fixed 2026-11-10 (450.c s8->u8 bundle).
+2026-11-18b Polishglobal42630b (opus xhigh): separate counter n (s16 after yoff, s32, declared first, before i) -> 66+ lines; field read in place at every side use (Q0911) -> fails. Tagged FAKE.
+2026-11-25c CleanrenderBannerText anthropic/claude-opus-5-5: loops rewritten as two for loops sharing i (Q1650 form) -> fdiff 0 (kept, tag moved to the first for line). Hack-free bodies (variants.py try): side + shared counter, guarded do-whiles 43; side + shared counter, for loops 43; side + separate skip/draw counters 55; switch on the field (Q1643) 92; side s32 64; side s8 43; counter declared before v 43; side declared first 64; yoff declared before side 43; no tbl local (sBannerSlideDistance[side] in place) 61. variants.py scan of the for-loop split body: 30+ variants, best 43, no zero. Permuter 900 s -j 2 from the split body (base 235, hack-free weights): its only zeros (output-0-1, output-0-2) delete one of the two locals and run the side through the counter (or the counter through side), i.e. the steer itself.
+## Untried ideas
+none with a concrete lever: the split needs the side coloured after the tbl address (adjsave 1.0) and the gBannerSlide address constant, i.e. a side priority below 1.0, which no natural use pattern gives (Q1566 analogue: flag + loop counter in one s-register = one variable).
+## Evidence
+- Target colours: s0 = tbl (0x4b8) then p (0x800); s1 = &gBannerSlide (0x470) then yoff (0x848); s2 = side (0x490) then counter (0x808); s3 gdl; s4-s6 address/stride constants.
+- uopt -l5 adjsave, merged form (v3): p 76.2, yoff 10.33, i 7.78, gdl 4.42, tbl address 1.0 -> p s0, yoff s1, i s2, then tbl s0 and slide s1 (non-interfering).
+- Split form (v2): p 76.2, counter 12.4, yoff 10.33, side 1.6 -> counter s1, yoff s2; side forbidden only {v0,v1,a0-a3,s3} takes s0, tbl address s1, slide address s2 (43 lines, every hunk a register rename).
+- Q1643 precondition fails: the cfe switch temp (-212vreg, candidate bit 114, `ustr{883}{32}`) is copy-propagated; the dispatch compares read the side variable itself (bits 224-227 `uequ{32|0}{1..3}`), bit 114 is never an active live range, so no temp register exists to carry the counter. The target dispatch 0x680-0x698 tests s2 directly.
+- Q1650 holds for the counter only: one counter over both loops matches (second init 0x830 sits on the skip-loop exit path; uopt drops it on the blez path where s2 is already 0 from 0x808).
