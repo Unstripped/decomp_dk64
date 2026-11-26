@@ -1589,7 +1589,7 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *tri, f32 x, f32 z) {
 
     outside = 0;
     hx = (tri->x[1] + tri->x[2]) * 0.5;
-    b = (tri->z[1] + tri->z[2]) * 0.5; // FAKE: b reused for the z edge midpoint before its side-product role; a separate hz gives the same code but the frame holds only ten f64 locals (dx/dz/ox/oz homes fixed at sp+0xa0..0x88), so it grows 0xc8 -> 0xd0
+    b = (tri->z[1] + tri->z[2]) * 0.5;
     cx = (tri->x[0] + hx) * 0.5;
     cz = (tri->z[0] + b) * 0.5;
     for (i = 0; i < 3; i++) {
@@ -1858,7 +1858,7 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *tri, f32 x, f32 z) 
 
     outside = 0;
     hx = (tri->x2 + tri->x1) * 0.5;
-    b = (tri->z2 + tri->z1) * 0.5; // FAKE: b reused for the z edge midpoint before its side-product role; a separate hz gives the same code but the frame holds only ten f64 locals (dx/dz/ox/oz homes fixed at sp+0xa0..0x88), so it grows 0xc8 -> 0xd0
+    b = (tri->z2 + tri->z1) * 0.5;
     cx = (tri->x0 + hx) * 0.5;
     cz = (tri->z0 + b) * 0.5;
     for (i = 0; i < 3; i++) {
