@@ -76,10 +76,8 @@ extern s16 D_807FC82A;
 extern s16 D_807FC838;
 extern s16 gWorldClearedFlags[];
 extern s16 gKongUnlockFlags[];
-extern s16 D_807505B2[];
 extern s8 gPauseMenuMode;
 extern s8 sPauseKongUnlocked[5];
-extern u8 D_80750531[];
 extern s32 gCurrentMap;
 extern s8 sPauseStickHeld;
 extern s8 gPausingPlayer;
@@ -113,8 +111,8 @@ s8 sPauseLevelOrder[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
 s16 sPauseCollectibleTotals[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
 s8 sPauseMenuOpened = 0;
 f32 sPauseBumpFade[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
-// Two per-kong tables in one object (a separate s16[5] would start 4-aligned at 0xD0, not 0xCE); 478F0, FCCD0
-// and menu/3E10 read unlockFlag through it, hudPauseMenuRefreshTotals through the interior label D_807505B2.
+// Two per-kong tables in one object (a separate s16[5] would start 4-aligned at 0xD0, not 0xCE); 478F0, FCCD0,
+// menu/3E10 and hudPauseMenuRefreshTotals read unlockFlag through it (the last two with a cursor at &unlockFlag[2], Q1372).
 PauseKongTables sPauseKongTables = { { 0, 0x333, 0x666, 0x999, 0xCCC }, { 0, 6, 0x46, 0x42, 0x75 } };
 // battle crown flag per level index (0..8); [9] is the Isles' second crown
 s16 sPauseCrownFlags[10] = { 0x261, 0x262, 0x263, 0x264, 0x265, 0x268, 0x269, 0x266, 0x26A, 0x267 };
@@ -1369,8 +1367,8 @@ void hudPauseMenuRefreshTotals(void) {
     gPauseCollectibleCounts[4] = flagGet(0x17B, 0);
     gPauseCollectibleCounts[7] = flagCountRange(0x1FD, 0x28, 0);
     sPauseKongUnlocked[0] = 1;
-    for (i = 0; i < 4; i++) {
-        D_80750531[i] = flagGet(D_807505B2[i - 1], 0);
+    for (i = 1, p = &sPauseKongTables.unlockFlag[2]; i < 5; i++, p++) {
+        sPauseKongUnlocked[i] = flagGet(p[-1], 0);
     }
     D_807FC838 = 1;
 }
