@@ -1,12 +1,13 @@
-# bonusSearchlightSeekGameUpdate (bonus, src/bonus/2690.c)
+# bonusSearchlightSeekGameUpdate (bonus, src/bonus/2690_minigames.c)
 
 ## Sites
 bonus:8002BF98:other:2818d5 other: aim point for projectileSetTargetCoords written into the 3rd/4th/5th declared f32 locals so aimX/aimY spill to homes 124(sp)/120(sp) across mathCosF; now `// ORIG:` (own-home rule), no longer a site.
 bonus:8002BF98:other:60fd8d other: offset clamp reads offsetX/offsetZ into the same 3rd/5th locals so they spill to 124(sp)/116(sp) across sqrtf; the distance reused cosYaw. Now `// ORIG:`; distance is its own `f32 dist` in the former `s32 pad` word.
 bonus:8002BF98:other:9b1a7c other: case-0 velZ pre-read held in x. FIXED (HackbonusSearchlightSeekGameUpdate3): own `f32 velZ` declared after `s16 spawnAngle`.
 bonus:8002BF98:other:5a458f other: clamp scale 110.0f / dist held in y. FIXED (HackbonusSearchlightSeekGameUpdate3): own `f32 scale` declared after `s16 spawnAngle`.
-bonus:8002BF98:noop-arith:83418a noop-arith: case-0 stick_x * 0.06f held in z (aim/clamp z home): the z web 602|1 scores 4.5 and takes $f2 (mul.s at 0x5e18) ahead of the velX error var (4.0); an honest stickX is 3.0 in bb43. Needed only because d3c36c holds 4.0. Still FAKE.
-bonus:8002BF98:other:d3c36c other (copy-only, new tag): velX also holds the x velocity error (`velX = ... - velX`, $f12 vs pre-read $f14): the counted pre-read def (Q1049) lifts the var to 4.0 over the subExt->velX load (3.0); an honest error is 2.0 and takes $f18. Pre-existing, now tagged FAKE.
+bonus:8002BF98:other:83418a other (re-keyed from noop-arith:83418a by 73393b44): case-0 stick_x * 0.06f held in z (aim/clamp z home): the z web 602|1 scores 4.5 and takes $f2 (mul.s at 0x5e18) ahead of the velX error var (4.0); an honest stickX is 3.0 in bb43. Needed only because d3c36c holds 4.0. Still FAKE: Q1666 census part 1 fails (2026-11-26, below).
+bonus:8002BF98:other:d3c36c other: velX also holds the x velocity error (`velX = ... - velX`, $f12 vs pre-read $f14): the counted pre-read def (Q1049) lifts the var to 4.0 over the subExt->velX load (3.0); a separate errX on this body is copy-propagated into the update (error in a $f6 temp, load in $f12). Still FAKE: Q1666 census part 1 fails (2026-11-26, below); comment refreshed.
+bonus:8002BF98:other:b25205 other (copy-only, 2026-11-26 hidden-reuse sweep, pre-existing, now tagged): z also holds the aim point z (line 2024, $f2 add.s 0x5f90 -> mfc1 a2 0x5f94, never stored to z's home 116(sp)); that block keeps z one web over the stick, aim and clamp roles, so the stick role (83418a) and the clamp z keep $f2. Q1666 census parts 1 and 2 fail (below).
 
 ## Attempts
 2026-11-10 cleanup round 8 CleanBonus2690 anthropic/claude-opus-5-5:low: views (PlayerState camActor, PlayerStruct camX/Y/Z, heldButtonsPtr), sinYaw/cosYaw names swapped -> fdiff 0
@@ -95,9 +96,83 @@ bonus:8002BF98:other:d3c36c other (copy-only, new tag): velX also holds the x ve
 2026-11-21 continue unit 2 LeverBonus2690 follow-up anthropic/claude-opus-5-5 (base 48370a9c, fresh copy .scratch/LeverBonus2690/f/2690.c; Q1599 re-check of d3c36c; variants.py try, uopt -l 5):
 - Honest trailing `f32 errX` with the z steer and both pre-reads kept: 99. errX (1581|0 bit 171) is copy-propagated into the velX update and has no live range; the pre-read velX var 538|1 is a 2.0 phantom -> $f18, the velX load 1252|6 3.0 -> $f12, the velZ load -> $f14. Q1599 code-free uses of errX (`errX *= 1.0f;`, `errX = errX;`, `+ (errX - errX)`, dead copy `x = errX;`): 99 each, all five bb43 records unchanged.
 - Q1599 real-code condition: in bb43 the target writes $f12 only at 0x5e48 (sub.s $f12,$f10,$f14) and reads it only at 0x5e4c (mul.s $f4,$f12,$f6); the partial sum (0x5e44) and the product go to $f10/$f4 temps, so no target instruction can take a third counted ref of the error. Q1596/Q1597 need a tie (split error 2.0 vs 3.0 loads); Q1601/Q1602 concern call-crossing or spilled values (the error is single-block). No change, fdiff 0, clint uninit 0, cwarn 0.
+2026-11-26 cleanup CleanbonusSearchlightSeekGameUpdate anthropic/claude-opus-5-5 (base d366ec4e; R-oildrum three-part census, Q1666; bodies in .scratch/CleanbonusSearchlightSeekGameUpdate/census/{b,n,h}/, scores `variants.py try` (try1-4.txt), stack facts from `deadsweep.py score --diff` per body (d/*.diff, summarised by census/analyze.py into part1_summary.txt / part2_summary.txt / hidden_summary.txt)):
+- Census on 83418a (stick role of z) and d3c36c (error role of velX), each split alone and both together, 114 part-1 bodies + 22 no-local bodies: no body matches; both FAKEs stay (part 1 fails for each, see `## Census (Q1666)`). d3c36c's comment refreshed (it described the BB1 template's 2.0/$f18 error; on this body a separate errX is copy-propagated).
+- Hidden-reuse sweep of every local: z's aim-point role (line 2024) is an untagged unrelated-role reuse whose census fails (21 bodies): tagged `// FAKE` (pre-existing, now tagged, copy-only key).
+- variants.py scan --max 0 (135 variants each) of the stickX-split copy (trailing f32 stickX, base 10): best 10, every variant ties the base (truth/swap/switch respellings), no zero; of the errX-split copy (trailing f32 errX, base 99): best 69 (`110.0f` -> `110.0`, a value-changing double literal), then `0.25f` -> `0.25` 73, `errX * 0.155f` operands swapped 76, other float suffixes 81-89; no zero (census/scan/*.txt).
+- fakehunt pass-1 zero (83418a output-0-1) not re-run (the lead's reading: it re-merges stick_x into z). d3c36c's as1 hints (99 -> 93 by deleting record 542 `add.s $f8,$f6,$f4` or swapping it with its `s.s`, i.e. the offsetX update's add in records 540-543 `l.s l.s add.s s.s`) drop the add or store before computing it; no C spelling follows from them.
+- Final: two comment-only edits (d3c36c refreshed, line 2024 tagged), fdiff exit 0, clint uninit exit 0 (only the pre-existing bonusBigBugBashGameUpdate diffDelta line), cwarn 0.
 
+## Census (Q1666)
+Target stack (expected object): frame 0x88 (`addiu sp,sp,-136` 0x5908); named homes used: sinYaw 132 (swc1 0x5dc4, lwc1 0x5e20/0x5e58), x 124 (aim 0x5f5c/0x5f80, clamp 0x60a8/0x60dc), y 120 (0x5f68/0x5f8c), z 116 (clamp 0x60ac/0x60c4), spawnAngle 90 (sh 0x5c34, lh 0x5c48); outgoing args 16..40. Locals declared after spawnAngle (velZ, scale) never take a home and do not size the frame.
+Positions: function scope F00 (first) and after each of sinYaw cosYaw x y z velX stickY subExt spawnExt i dist spawnAngle velZ scale (F01-F14); block scope: `case 0: { ... }` block (Bcase), bare block over the role's lines (Bbare), bare block with the initialised declaration (Binit); `register` at F00, F07, F14, Bcase, Bbare (each identical to the plain body). Type f32 only: both values are floats (no narrow width applies).
+### Part 1, 83418a: `f32 stickX` for the scaled stick_x (velX FAKE kept)
+| positions | full | frame | what moved |
+|---|---|---|---|
+| F00-F11 (before spawnAngle, 12 slots + register) | 25 | 0x88 -> 0x90 | every home shifts: below the new slot +4, above it +8 (e.g. F00: sinYaw 132->136, x 124->128, y 120->124, z 116->120, spawnAngle 90->94); bb43 recoloured as below |
+| F12-F14 (after spawnAngle/velZ/scale) + register | 10 | 0x88 kept | NO stack change: every home and offset identical; only bb43 colours: stickX $f16 (mul.s 0x5e18), velX load $f12, velZ load $f14, error $f2 |
+| Bcase, Bbare, Binit + register | 10 | 0x88 kept | as F12-F14 (register-only) |
+Result: FAILS (frame-keeping, home-keeping split at 3 function slots and every block scope: register-only, 12E800 `near` ruling).
+### Part 1, d3c36c: `f32 errX` for the x velocity error (z FAKE kept)
+| positions | full | frame | what moved |
+|---|---|---|---|
+| F00-F03 | 112 | 0x88 -> 0x90 | homes +4/+8 as above; errX copy-propagated (below) |
+| F04-F11 | 110 | 0x88 -> 0x90 | homes +4/+8 |
+| F12-F14 + register | 99 | 0x88 kept | NO stack change; errX copy-propagated into the update: `sub.s $f6,$f10,$f12` (error a $f6 temp), velX load $f12, velZ load $f14, stickY $f16, the sub.s hoisted above the 0.155f load, every later FP temp rotated |
+| Bcase, Bbare, Binit + register | 99 | 0x88 kept | as F12-F14 |
+Result: FAILS (register/schedule-only at the frame-keeping positions).
+### Part 1, both splits together
+| positions | full | frame | what moved |
+|---|---|---|---|
+| both at F00 (both orders, register) | 103 | 0x90 | frame only (homes keep their sp offsets: the two new words sit on top) |
+| both at F01/F02 | 105 | 0x90 | sinYaw 132->140 |
+| both at F03 / F04 | 107 / 108 | 0x90 | x/y homes move |
+| both at F05-F11 | 110 | 0x90 | sinYaw/x/y/z homes move |
+| both at F12-F14 (both orders, register), Bcase, Bbare, Binit | 101 | 0x88 kept | NO stack change (register-only) |
+| one local at F14, the other at F00-F11 | 112-114 | 0x90 | homes move |
+| one local at F14, the other at F12-F14 | 101 | 0x88 kept | NO stack change |
+### Part 2, no-local spellings
+| role | spelling | full | stack |
+|---|---|---|---|
+| stick | `gCurrentContPad->stick_x * 0.06f` inline at both uses (also parenthesised) | 187 | stick_x read twice (`lb t1,3`/`lb t2,2`, then `lb t3,2(t4)` after the velX store); the target reads it once (`lb t1,2(v0)` 0x5dec), so this re-read would be a steer anyway |
+| stick | `OSContPad *pad` local (trailing, assigned at the stick line or before the pre-reads; stick_y through pad too) | 185 | frame kept |
+| stick | `OSContPad *pad` declared first | 199 | frame 0x90 |
+| stick | `static f32 stickX` | 21 | .bss store + reload (R HI16/LO16 .bss) |
+| stick | direct field/array write | n/a | no field holds the scaled stick (only an arithmetic operand of two products) |
+| error | inline in the update `subExt->velX = subExt->velX + (t - velX) * 0.155f` / `+=` | 101 | sinYaw reload 132 dropped |
+| error | inline with the pre-read as the base `subExt->velX = velX + (t - velX) * 0.155f` | 88 | 681 lines |
+| error | field re-read, no pre-read (`... - subExt->velX`, `=` and `+=`) | 101 | |
+| error | error first stored to the field (`subExt->velX = t - velX; subExt->velX = velX + subExt->velX * 0.155f`) | 88 | an extra store the target lacks |
+| error | `f32 *pv = &subExt->velX` (with and without the pre-read through pv) | 101 | |
+| error | `static f32 errX` | 107 | .bss store |
+| both | both inline (stick inline + error inline / re-read / `+=`) | 174 | |
+| both | both static | 126 | |
+Result: FAILS for both roles (best 21 stick static, 88 error).
+### Part 3, roles
+- z: f32 throughout. Stick role lines 2004-2008, $f2 `mul.s $f2,$f10,$f4` 0x5e18, reads 0x5e30/0x5e5c; aim z lines 2024-2025, `add.s $f2,$f4,$f8` 0x5f90 -> `mfc1 a2,$f2` 0x5f94; clamp z lines 2056-2061, `lwc1 $f2,16(s5)` 0x60a0, home `swc1 $f2,116(sp)` 0x60ac / `lwc1 $f2,116(sp)` 0x60c4, `mul.s` 0x60e8. Disjoint (case-0 arm, then the fire block, then after the switch); one colour ($f2) for the whole web. Plausibility of the stick role in `z`: weak (an x-axis stick value in the z coordinate scratch). Holds as a disjointness fact; moot after part 1.
+- velX: f32. Pre-read line 2002 (`lwc1 $f14,20(s5)` 0x5e00), last read by the error statement (sub.s 0x5e48; the add.s 0x5e50 reads the CSE'd field load in the same register); error lines 2006-2007 (`sub.s $f12,$f10,$f14` 0x5e48, `mul.s $f4,$f12,$f6` 0x5e4c). Disjoint: the error starts where the pre-read dies. Moot after part 1.
+### Hidden-reuse sweep (every local)
+| local | values (lines) | target | outcome |
+|---|---|---|---|
+| sinYaw | sin(camYaw) (2000) | home 132 across mathCosF | one role |
+| cosYaw | cos(camYaw) (2001) | copy-propagated into $f0 | one role |
+| x | aim x (2022), clamp offsetX (2055) | both stored to home 124 (0x5f5c, 0x60a8) | ORIG (two values spill to one home), lines 2022/2055 |
+| y | aim y (2023) | home 120 (0x5f68) | one role |
+| z | stick (2004, FAKE 83418a), aim z (2024), clamp z (2056, home 116) | aim z never stored | aim role: census below, FAILS -> tagged |
+| velX | pre-read (2002), error (2006, FAKE d3c36c) | | censused above |
+| stickY | stick_y * 0.06f (2005) | $f18 | one role |
+| subExt, spawnExt | customState pointers (1914, 1972) | s5 / s0 | one role each |
+| i | respawnTimers index in the init do-while (1962) and the respawn for loop (1968) | | same role, each loop reinitialises (R7) |
+| dist, spawnAngle, velZ, scale | one assignment each (2057, 1978, 2003, 2059) | | one role |
+z's aim role census (bodies h/, `f32 aimZ` for line 2024-2025, z keeps stick + clamp):
+| positions | full | frame | what moved |
+|---|---|---|---|
+| F00-F11 | 29 | 0x88 -> 0x90 | homes +4/+8 |
+| F12-F14, the fire if-block, bare block, initialised block | 16 | 0x88 kept | NO stack change: the z web loses the aim block; stick role $f2 -> $f14 (mul.s 0x5e18), error $f12 -> $f2, velX load $f14 -> $f12, clamp z $f2 -> $f14 (0x60a0-0x60e8), clamp scale $f12 -> $f2 |
+| aimZ and stickX both split, trailing | 19 | 0x88 kept | register-only |
+No-local: the aim z inline as the projectileSetTargetCoords argument 67 (frame kept); `static f32 aimZ` 21 (.bss store). Part 3: f32, aim 0x5f90-0x5f94 vs clamp 0x60a0-0x60e8, disjoint. Result: parts 1 and 2 FAIL -> line 2024 tagged `// FAKE` (pre-existing, now tagged). x's ORIG does not extend to z: x's aim value reaches x's home (0x5f5c), z's never does, and a separate aimZ keeps the frame.
 ## Untried ideas
-stickX (83418a) / velX error (d3c36c): closed under the uopt model by the 2026-11-18 single-read argument (Attempts): an extra natural use of the error needs a second read of $f12 that the target does not have, and stickY's position cannot help while the honest error stays at 2.0. A second block for stickY is only reachable across the mathCosF call, which homes it (2026-11-18c). The Q1590 tie lever (2026-11-21) is closed too: a code-free extra ref after the mul is not counted, and a counted in-block def holds its value in stickX's register. Left only: a new uopt counting mechanism (another code-free counted ref besides Q1049's CSE-load first def) found in another function, then retried here.
+stickX (83418a) / velX error (d3c36c): closed under the uopt model by the 2026-11-18 single-read argument (Attempts): an extra natural use of the error needs a second read of $f12 that the target does not have, and stickY's position cannot help while the honest error stays at 2.0. A second block for stickY is only reachable across the mathCosF call, which homes it (2026-11-18c). The Q1590 tie lever (2026-11-21) is closed too: a code-free extra ref after the mul is not counted, and a counted in-block def holds its value in stickX's register. The Q1666 census (2026-11-26) fails at part 1 for both and for z's aim role (register-only splits after spawnAngle and in blocks). Left only: a new uopt counting mechanism (another code-free counted ref besides Q1049's CSE-load first def) found in another function, then retried here; the three z roles and the velX roles are coupled (one z web over 5 blocks), so any lever must move all of them together.
 
 ## Evidence
 - Frame 0x88: saves s0-s6 at 56..80(sp), ra 84(sp), 12 declared local words 88..135(sp) highest-first: sinYaw 132 (spilled at 0x5dc4), cosYaw 128, x 124, y 120, z 116, velX 112, stickY 108, subExt 104, spawnExt 100, i 96, dist 92, spawnAngle 88.
