@@ -263,7 +263,7 @@ void bossMainStep(void) {
     f32 sx;
     f32 sy;
     u8 idx;
-    u8 v;
+    u8 count;
     s16 i;
     f32 boneX;
     f32 boneY;
@@ -421,9 +421,9 @@ void bossMainStep(void) {
             break;
         case 5:
             waypoints->current = waypoints->next;
-            v = scriptState->byteVars[0];
-            left = v - 1;
-            if (v) {
+            count = scriptState->byteVars[0];
+            left = count - 1;
+            if (count) {
                 scriptState->byteVars[0] = left;
                 waypoints->next = gBossIntroWaypointPath[left];
                 gCurrentActor->subState = 3;
@@ -507,12 +507,7 @@ void bossMainStep(void) {
             actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             bossInterpolateWaypoints(waypoints, gCurrentActor->sub4->animId == 0x223 ? 0.02173913f : 0.041666664f);
-            if (gCurrentActor->sub4->animId == 0x223) {
-                v = 0x35;
-            } else {
-                v = 0x17;
-            }
-            if ((f32)(s32)v <= gCurrentActor->sub4->model->frame) { // FAKE: v (case 5's unk18[0] counter copy) reused for the hit frame 0x35/0x17; a separate u8 or s32 local in any declaration slot changes regalloc
+            if ((gCurrentActor->sub4->animId == 0x223 ? 0x35 : 0x17) <= gCurrentActor->sub4->model->frame) {
                 gCurrentActor->contactFlags |= 1;
             } else {
                 gCurrentActor->contactFlags = 0;
@@ -594,8 +589,9 @@ void bossMainStep(void) {
                 gCurrentActor->subState = 5;
                 break;
             case 6:
-                if (scriptState->byteVars[0] != 0) {
-                    scriptState->byteVars[0]--;
+                count = scriptState->byteVars[0];
+                if (count) {
+                    scriptState->byteVars[0] = count - 1;
                     gBehaviourWorkState->timer = scriptState->byteVars[1];
                     gCurrentActor->subState = 7;
                 } else {
