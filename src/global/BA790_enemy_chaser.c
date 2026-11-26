@@ -38,7 +38,7 @@ s32 chaserEnemyStep(s32 aggroRange, s32 unused) {
     s16 yawDiff;
     s32 step;
     f32 lightRadius;
-    s32 tmp; // ORIG: scratch local with four switch-case roles (case 0x33 move flags, case 0/4 chase script id, case 0x37 fade step and light step); the fade and light steps spill to this one home (sw v0/zero,64(sp) at 0x494/0x49c/0x4a0, sw t7/v1,64(sp) at 0x618/0x61c, reloaded at 0x4b8/0x620); a separate fade local moves the frame 0x50 -> 0x48, and a local of its own for the move flags (s0 at 0x298/0x2ac) or the script id (s0 at 0x360/0x370) removes this home at every declaration position
+    s32 tmp; // ORIG: scratch local with four switch-case roles (case 0x33 move flags, case 0/4 chase script id, case 0x37 fade step and light step); the fade and light steps spill to this one home (sw v0/zero,64(sp) at 0x494/0x49c/0x4a0, sw t7/v1,64(sp) at 0x618/0x61c, reloaded at 0x4b8/0x620); a separate fade or light local grows the frame 0x50 -> 0x58 when declared before this one and leaves the home to the other step after it, and a local of its own for the move flags (s0 at 0x298/0x2ac) or the script id (s0 at 0x360/0x370) removes this home at every declaration position
     u32 alpha;
     s16 angle;
     s32 size;
