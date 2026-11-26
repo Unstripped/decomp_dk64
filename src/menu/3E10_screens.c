@@ -1157,10 +1157,9 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                 mask = 0;
                 gActivePlayerCount = 0;
                 for (j = 0; j != 4; j++) {
-                    bits = 1 << j;
                     if (!(gMenuPlayerCharacterSel[j] & 0x80)) {
                         gPlayerCharacterId[j] = gMenuPlayerCharacterSel[j];
-                        mask |= bits;
+                        mask |= 1 << j;
                         gMpSettings.playerControllerSlots[gActivePlayerCount] = gMenuPlayerCharacterVariant[j];
                         gActivePlayerCount++;
                     }
@@ -3041,8 +3040,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             elemActor->scaleY = elemActor->scaleX;
             if (type == 7) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                radius = mathSinF(t); // FAKE: radius holds the sine: the compound += mathSinF(t) takes a cfe hidden temp word (Q0487) that the case-15 color pointer needs (frame 120, spill temps sp+52/sp+60); ACDC0 hudPauseMenuIconUpdate routes its wobble sine through its radius local sc the same way
-                elemActor->y += radius * 10.0f;
+                elemActor->y += mathSinF(t) * 10.0f;
             }
             if (type == 0x12) {
                 elemActor->red = colorComponent;
@@ -3158,8 +3156,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             }
             if (type == 0xE) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                radius = mathSinF(t); // FAKE: radius holds the sine: the compound += mathSinF(t) takes a cfe hidden temp word (Q0487) that the case-15 color pointer needs (frame 120, spill temps sp+52/sp+60); ACDC0 hudPauseMenuIconUpdate routes its wobble sine through its radius local sc the same way
-                elemActor->y += radius * 10.0f;
+                elemActor->y += mathSinF(t) * 10.0f;
             }
             if (type == 0x13 && (sMenuJoinedPlayerCount == 4 || sMenuJoinedPlayerCount == 1 || gMenuMpMatchTypeSel == 1)) {
                 elemActor->x = -400.0f;
@@ -3219,11 +3216,9 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             sMenuElementX[idx] = -200.0f;
             sMenuElementY[idx] = -200.0f;
             if (sMenuKongUnlocked[idx] == 0) {
-                MenuUiRgba *color = sMenuKongColors + idx;
-
-                elemActor->red = color->r;
-                elemActor->green = color->g;
-                elemActor->blue = color->b;
+                elemActor->red = (sMenuKongColors + idx)->r;
+                elemActor->green = (sMenuKongColors + idx)->g;
+                elemActor->blue = (sMenuKongColors + idx)->b;
             }
             break;
         }
