@@ -2031,7 +2031,7 @@ void actorCopyPoseAndScale(Actor *dest, Actor *src, f32 scale) {
     }
 }
 
-void func_8067B280(void) {}
+void actorTypeAEUpdate(void) {}
 void func_8067B288(void) {}
 void func_8067B290(void) {}
 void func_8067B298(void) {}

@@ -790,7 +790,7 @@ void actorNpcChunkyUpdate(void) {
 extern EffectGridAsset gEffectSpriteSleepZ;
 extern EffectGridAsset gEffectSpriteWaterDroplet;
 
-void func_806C1E44(void) {
+void actorNpcSleepWakePatrolUpdate(void) {
     s32 i;
 
     behaviourFrameBegin();

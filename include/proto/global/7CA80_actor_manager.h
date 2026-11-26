@@ -226,8 +226,8 @@ u8 playerFindIndexByActor(Actor *);
 #ifndef PROTO_SKIP_actorCopyPoseAndScale
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
 #endif
-#ifndef PROTO_SKIP_func_8067B280
-void func_8067B280(void);
+#ifndef PROTO_SKIP_actorTypeAEUpdate
+void actorTypeAEUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_8067B288
 void func_8067B288(void);
