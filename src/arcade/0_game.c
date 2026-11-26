@@ -3242,7 +3242,7 @@ extern u16 gArcadeKongDazedEyesDownSprite[];
 extern ArcadeEntity gArcadeKongStarsTemplate;
 
 void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
-    s32 tmp; // FAKE: one register-only local for the incremented param byte and the frame selector; a separate s32 frame local moves the t0 spill 0x2c -> 0x28, the frame inline flips bne v0,v1 at 0xbc7c
+    s32 tmp; // case 2: the incremented param byte; case 8: the dazed-eyes frame selector
 
     switch (gArcadeEntities[entIndex].state) {
     case 2:
