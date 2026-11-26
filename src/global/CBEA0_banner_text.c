@@ -275,29 +275,19 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     guMtxCatF(mf, mf2, mf);
     guMtxF2L(mf, mtx);
     p = gBannerText;
-    i = 0; // FAKE: the side index i is reused as the line counter; a separate s16/s32 counter in any declaration slot changes the s-register colouring (Q0162)
-    if (gBannerTextLine > 0) {
-        do {
-            if (*p == 0) {
-                i++;
-            }
-            p++;
-        } while (i < gBannerTextLine);
-        i = 0;
+    for (i = 0; i < gBannerTextLine; p++) { // FAKE: the side index i is reused as the line counter; a separate side local lets the counter outrank yoff (s1/s2 swapped) and the side take s0 (Q0162, Q1566)
+        if (*p == 0) {
+            i++;
+        }
     }
     yoff = -gBannerTextSteps[gBannerTextStepIndex].lineCount * 0x23;
-    if (gBannerTextSteps[gBannerTextStepIndex].lineCount > 0) {
-        do {
-            gdl = textDrawStringVtx(gdl, 1, -(s16)(textGetStringWidth(1, p) * 2), yoff, p, 0);
-            yoff += 0x60;
-            if (*p != 0) {
-                do {
-                    p++;
-                } while (*p != 0);
-            }
-            i++;
+    for (i = 0; i < gBannerTextSteps[gBannerTextStepIndex].lineCount; i++) {
+        gdl = textDrawStringVtx(gdl, 1, -(s16)(textGetStringWidth(1, p) * 2), yoff, p, 0);
+        yoff += 0x60;
+        while (*p != 0) {
             p++;
-        } while (i < gBannerTextSteps[gBannerTextStepIndex].lineCount);
+        }
+        p++;
     }
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
     gDPPipeSync(gdl++);
