@@ -9,7 +9,8 @@ tools/dk on the host):
   tools/dk python3 tools/variants.py try <copy.c> <src/seg/file.c> FUNC BODY.c... [-j 2]
 
   scan   FUNC's definition in <copy.c> (plain, or parked under NON_MATCHING) is the start body. Each recipe
-         makes one-edit variants of it, in this order, truncated to --max:
+         makes one-edit variants of it, in this order, truncated to --max (0: every variant, as the recipe
+         rung of tools/quality.py sweep scans):
            truth     a truth test respelled inside a condition: `x != 0` <-> bare `x`, `x == 0` <-> `!x`
                      (operand a plain name/member/array element; only where the test is a whole operand
                      of `(`, `!`, `&&`, `||`): the same value, but cfe compares the variable itself instead
@@ -788,9 +789,10 @@ GENERATORS = {"swap": gen_swap, "float": gen_float, "width": gen_width, "declswa
 
 
 def variants(text, recipes=RECIPES, max_n=None):
-    """[(recipe, desc, new_text)] of TEXT (a function definition), in RECIPES order, at most MAX_N."""
+    """[(recipe, desc, new_text)] of TEXT (a function definition), in RECIPES order, at most MAX_N (None or
+    0: all)."""
     out = [v for r in RECIPES if r in recipes for v in GENERATORS[r](text)]
-    return out[:max_n] if max_n is not None else out
+    return out[:max_n] if max_n else out
 
 
 def cmd_scan(a):
@@ -860,7 +862,7 @@ def main(argv=None):
         p.add_argument("-j", "--jobs", type=int, default=2)
         if name == "scan":
             p.add_argument("--recipes", default=",".join(RECIPES))
-            p.add_argument("--max", type=int, default=120)
+            p.add_argument("--max", type=int, default=120, help="score the first N variants (0: every one)")
             p.add_argument("--out")
             p.add_argument("--json")
         else:

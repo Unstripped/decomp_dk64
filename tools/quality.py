@@ -116,8 +116,8 @@ sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; 
   singles, pairs if >2, triples if 3..6), plain (one rewrite per site line), cond (condition flips
   with all / each removal, pre-scored by deadsweep score --body), classify (dead if -> `if (<int
   local>) {}`: kept = class 1), recipe (tools/variants.py natural respellings, swapped comparison
-  operands, float literal suffixes, local widths, declaration order, scanned on the all-removal,
-  each single removal when there are several, and each plain rewrite). A hit needs tools/fdiff.sh --reloc-ok exit 0 (OK or RELOC-EQUIV OK) and no new clint uninit pair; it
+  operands, float literal suffixes, local widths, declaration order; every variant scored, scanned on
+  the all-removal, each single removal when there are several, and each plain rewrite). A hit needs tools/fdiff.sh --reloc-ok exit 0 (OK or RELOC-EQUIV OK) and no new clint uninit pair; it
   is written to .scratch/quality/hits/<seg>_<file>_<n>.c (`HIT <keys> <method> <path>`), never
   applied. --record appends one event per site and method (agent `sweep`), every sweep method of
   the site's ladder included: a site the sweep has no edit for (a dead test or `do {` sharing its
@@ -872,17 +872,18 @@ class ScanError(Exception):
     """A variants.py scan that did not complete (dkd error, crash, no JSON): not a negative search."""
 
 
-def recipe_check(text, path, src, func, recipes=None, max_n=120):
+def recipe_check(text, path, src, func, recipes=None):
     """Text of the first tools/variants.py recipe variant of FUNC in TEXT (a copy of PATH) that passes
-    check(), or None when the scan completed without one. Raises ScanError when the scan itself
-    failed (non-zero exit, missing or unreadable JSON), with the command's last output lines."""
+    check(), or None when the scan completed without one. The scan scores every variant (`--max 0`):
+    a None is a complete negative search. Raises ScanError when the scan itself failed (non-zero exit,
+    missing or unreadable JSON), with the command's last output lines."""
     d = job_dir()
     copy = rel(os.path.join(d, os.path.basename(path)))
     open(os.path.join(ROOT, copy), "w", newline="\n").write(text)
     js = os.path.join(d, "v.json")
     try:
         rs = ["--recipes", ",".join(recipes)] if recipes else []
-        r = subprocess.run(dk_argv("python3", "tools/variants.py", "scan", copy, src, func, *rs, "--max", str(max_n),
+        r = subprocess.run(dk_argv("python3", "tools/variants.py", "scan", copy, src, func, *rs, "--max", "0",
                                    "-j", "2", "--out", rel(os.path.join(d, "zeros")), "--json", rel(js)),
                            cwd=ROOT, capture_output=True, text=True)
         tail = " | ".join(((r.stdout or "") + (r.stderr or "")).strip().splitlines()[-3:])

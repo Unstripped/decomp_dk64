@@ -52,6 +52,30 @@ def test_variants_order_and_limit():
     assert [r for r, _, _ in v.variants(text)] == ["swap", "float"] + ["width"] * 14 + ["declswap"]
     assert [r for r, _, _ in v.variants(text, ("swap",))] == ["swap"]
     assert len(v.variants(text, max_n=3)) == 3
+    assert len(v.variants(text, max_n=0)) == len(v.variants(text)) == 17
+
+
+def test_scan_max_zero_scores_every_variant(tmp_path, monkeypatch, capsys):
+    text = "void f(void) {\n    s16 a;\n    s32 b;\n    if (a < b) {}\n    b = 0.5f;\n}\n"
+    scored = []
+
+    class Scorer:
+        parked = False
+
+        def __init__(self, copy, src, func, body, w):
+            self.body0 = text
+
+        def evaluate(self, body):
+            scored.append(body)
+            return dict(full=1, text=1, reloc=0, key=(1,))
+
+    monkeypatch.setattr(v.deadsweep, "Scorer", Scorer)
+    copy = tmp_path / "x.c"
+    copy.write_text(text)
+    for args, n in ((["--max", "0"], 17), (["--max", "3"], 3), ([], 17)):
+        scored.clear()
+        assert v.main(["scan", str(copy), "src/global/x.c", "f", *args, "--out", str(tmp_path / "o")]) == 0
+        assert f"\n{n} variants\n" in capsys.readouterr().out and len(scored) == n + 1  # + the baseline
 
 
 def test_truth_respells_whole_tests():

@@ -791,6 +791,22 @@ def test_recipe_scan_failure_is_not_a_nohit(tmp_path, monkeypatch, rc, msg):
         q.recipe_check("int x;\n", "src/global/x.c", "src/global/x.c", "f")
 
 
+def test_recipe_scan_scores_every_variant(tmp_path, monkeypatch):
+    """The recorded recipe rung is a complete negative search: its scan is uncapped (`--max 0`)."""
+    import subprocess
+    monkeypatch.setattr(q, "SCRATCH", str(tmp_path / "scratch"))
+    cmds = []
+
+    def run(cmd, **kw):
+        cmds.append(cmd)
+        Path(q.ROOT, cmd[cmd.index("--json") + 1]).write_text("[]\n")
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(q.subprocess, "run", run)
+    assert q.recipe_check("int x;\n", "src/global/x.c", "src/global/x.c", "f") is None
+    assert cmds[0][cmds[0].index("--max") + 1] == "0"
+
+
 def test_failed_recipe_scan_records_nothing(tmp_path, monkeypatch):
     monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
 
