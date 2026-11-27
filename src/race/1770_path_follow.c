@@ -186,7 +186,7 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
 }
 
 extern EffectGridAsset gSparkEffectSprite;
-void *gRaceSparkEffects[4] = { 0 };
+EffectNode *gRaceSparkEffects[4] = { 0 };
 u8 gRaceSparkEffectNext = 0;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     s16 angle;

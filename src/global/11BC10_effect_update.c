@@ -1098,7 +1098,7 @@ void effectTimedLightIntensityFade(EffectNode *effect, u8 *isDone) {
     }
 }
 
-extern void *gRaceSparkEffects[4]; // lives in the race overlay: only valid while it is loaded
+extern EffectNode *gRaceSparkEffects[4]; // lives in the race overlay: only valid while it is loaded
 void timedLightOrbitUpdate(EffectNode *effect, u8 *isDone) {
     f32 ratio;
     s32 i;
