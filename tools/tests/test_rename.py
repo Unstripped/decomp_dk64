@@ -288,3 +288,109 @@ def test_files_refusals_write_nothing(tmp_path):
         before[tmp_path / "batch.txt"] = (tmp_path / "batch.txt").read_bytes()
         assert _run(tmp_path, "files", str(tmp_path / "batch.txt"), "--no-gen") == 1, row
         assert _snapshot(tmp_path) == before, row
+
+
+# ---- cross-segment aliases: one VRAM symbol named in symbol_addrs.us.txt and an overlay's symbol file ----
+
+WHEEL = 0x80028C30
+
+
+def _aliastree(tmp_path, glob_name="gWheel", ovl_name="sWheel", glob_src=None, ovl_src=None):
+    _tree(tmp_path, {
+        "symbol_addrs.us.txt": f"{glob_name} = 0x{WHEEL:08X};\nother = 0x80700000;\n",
+        "symbol_addrs.minecart.us.txt": f"first = 0x80028000;\n{ovl_name} = 0x{WHEEL:08X};\n",
+        "symbol_addrs.jetpac.us.txt": "jetOnly = 0x80029000;\n",
+        "src/global/e.c": glob_src or f'#include "common.h"\nextern s32 *{glob_name};\nvoid f(void) {{ {glob_name} = 0; }}\n',
+        "src/minecart/m.c": ovl_src or f'#include "common.h"\ns32 *{ovl_name};\nvoid g(void) {{ {ovl_name} = 0; }}\n',
+        "src/jetpac/j.c": '#include "common.h"\nvoid h(void) {}\n',
+    })
+
+
+def _syms(tmp_path, f):
+    return (tmp_path / f).read_text().splitlines()
+
+
+def test_global_alias_already_named_by_the_other_side_is_not_in_use(tmp_path):
+    # the real case (139135b3): symbol_addrs.us.txt already says gWheel, the overlay still sWheel
+    _aliastree(tmp_path)
+    assert _run(tmp_path, "global", "minecart", "sWheel", "gWheel") == 0
+    assert "s32 *gWheel;" in (tmp_path / "src/minecart/m.c").read_text()
+    assert _syms(tmp_path, "symbol_addrs.minecart.us.txt") == ["first = 0x80028000;", f"gWheel = 0x{WHEEL:08X};"]
+    assert _syms(tmp_path, "symbol_addrs.us.txt") == [f"gWheel = 0x{WHEEL:08X};", "other = 0x80700000;"]  # untouched
+    assert "extern s32 *gWheel;" in (tmp_path / "src/global/e.c").read_text()
+
+
+def test_global_alias_after_the_global_run_already_renamed_the_overlay_src(tmp_path):
+    # `global global D_<VRAM> gWheel` renamed every src file; only the overlay's symbol line is left
+    _aliastree(tmp_path, ovl_src='#include "common.h"\ns32 *gWheel;\nvoid g(void) { gWheel = 0; }\n')
+    assert _run(tmp_path, "global", "minecart", "sWheel", "gWheel") == 0
+    assert _syms(tmp_path, "symbol_addrs.minecart.us.txt") == ["first = 0x80028000;", f"gWheel = 0x{WHEEL:08X};"]
+
+
+def test_global_alias_reverse_order_overlay_first_then_global(tmp_path):
+    _aliastree(tmp_path, glob_name="D_80028C30", glob_src='#include "common.h"\nvoid f(void) { D_80028C30 = 0; }\n')
+    (tmp_path / "symbol_addrs.us.txt").write_text("other = 0x80700000;\n")
+    assert _run(tmp_path, "global", "minecart", "sWheel", "gWheel") == 0
+    assert "s32 *gWheel;" in (tmp_path / "src/minecart/m.c").read_text()
+    assert "D_80028C30 = 0;" in (tmp_path / "src/global/e.c").read_text()  # no alias yet: the global run does it
+    assert _run(tmp_path, "global", "global", "D_80028C30", "gWheel") == 0
+    assert "gWheel = 0;" in (tmp_path / "src/global/e.c").read_text()
+    assert "s32 *gWheel;" in (tmp_path / "src/minecart/m.c").read_text()
+    assert f"gWheel = 0x{WHEEL:08X};" in _syms(tmp_path, "symbol_addrs.us.txt")
+
+
+def test_global_same_name_in_both_files_renames_every_line_and_reference(tmp_path):
+    _aliastree(tmp_path, glob_name="gShared", ovl_name="gShared")
+    assert _run(tmp_path, "global", "minecart", "gShared", "gShared2") == 0
+    for f in ("symbol_addrs.us.txt", "symbol_addrs.minecart.us.txt"):
+        assert f"gShared2 = 0x{WHEEL:08X};" in _syms(tmp_path, f) and "gShared" not in "".join(_syms(tmp_path, f)).replace("gShared2", "")
+    assert "extern s32 *gShared2;" in (tmp_path / "src/global/e.c").read_text()  # the global side's src too
+    assert "s32 *gShared2;" in (tmp_path / "src/minecart/m.c").read_text()
+    # global side first: the overlay's file follows
+    _aliastree(tmp_path / "t2", glob_name="gShared", ovl_name="gShared")
+    assert _run(tmp_path / "t2", "global", "global", "gShared", "gShared2") == 0
+    assert f"gShared2 = 0x{WHEEL:08X};" in _syms(tmp_path / "t2", "symbol_addrs.minecart.us.txt")
+    assert "s32 *gShared2;" in (tmp_path / "t2/src/minecart/m.c").read_text()
+
+
+def test_global_alias_dry_run_lists_both_symbol_files_and_writes_nothing(tmp_path, capsys):
+    _aliastree(tmp_path, glob_name="gShared", ovl_name="gShared")
+    before = _snapshot(tmp_path)
+    assert _run(tmp_path, "global", "minecart", "gShared", "gShared2", "--dry-run") == 0
+    out = capsys.readouterr().out
+    assert "symbol_addrs.us.txt:1:1 gShared→gShared2" in out and "symbol_addrs.minecart.us.txt:2:1 gShared→gShared2" in out
+    assert _snapshot(tmp_path) == before
+
+
+def test_global_alias_keeps_the_real_collisions(tmp_path):
+    # new defined elsewhere at another address
+    _aliastree(tmp_path)
+    (tmp_path / "symbol_addrs.us.txt").write_text(f"gWheel = 0x80028C34;\nother = 0x80700000;\n")
+    before = _snapshot(tmp_path)
+    assert _run(tmp_path, "global", "minecart", "sWheel", "gWheel") == 1
+    assert _snapshot(tmp_path) == before
+    # new already in the own file, or in another overlay's file (overlays share VRAM, never aliases)
+    _aliastree(tmp_path / "t2")
+    (tmp_path / "t2/symbol_addrs.minecart.us.txt").write_text(f"first = 0x80028000;\nsWheel = 0x{WHEEL:08X};\ngWheel = 0x80028C34;\n")
+    assert _run(tmp_path / "t2", "global", "minecart", "sWheel", "gWheel") == 1
+    _aliastree(tmp_path / "t3")
+    (tmp_path / "t3/symbol_addrs.us.txt").write_text("other = 0x80700000;\n")
+    (tmp_path / "t3/symbol_addrs.jetpac.us.txt").write_text(f"gWheel = 0x{WHEEL:08X};\n")
+    assert _run(tmp_path / "t3", "global", "minecart", "sWheel", "gWheel") == 1
+    # new is a real src name with no symbol alias; a comment in a symbol file naming it
+    _aliastree(tmp_path / "t4", glob_name="gOther")
+    (tmp_path / "t4/src/minecart/m3.c").write_text('#include "common.h"\ns32 gWheel;\n')
+    assert _run(tmp_path / "t4", "global", "minecart", "sWheel", "gWheel") == 1
+    _aliastree(tmp_path / "t5", glob_name="gOther")
+    (tmp_path / "t5/symbol_addrs.us.txt").write_text(f"gOther = 0x{WHEEL:08X}; // was gWheel in the draft\n")
+    assert _run(tmp_path / "t5", "global", "minecart", "sWheel", "gWheel") == 1
+
+
+def test_global_alias_still_refuses_address_names_and_macro_refs(tmp_path):
+    _aliastree(tmp_path)
+    before = _snapshot(tmp_path)
+    assert _run(tmp_path, "global", "minecart", "sWheel", "D_80028C30") == 1
+    _tree(tmp_path, {"src/minecart/m2.c": '#include "common.h"\nextern s32 *sWheel;\n#define W (sWheel)\n'})
+    before = _snapshot(tmp_path)
+    assert _run(tmp_path, "global", "minecart", "sWheel", "gWheel") == 1
+    assert _snapshot(tmp_path) == before

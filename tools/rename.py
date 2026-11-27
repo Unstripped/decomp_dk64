@@ -59,6 +59,12 @@ Every subcommand takes --dry-run (print `file:line:col old→new`, write nothing
 Exit 1 with nothing written when <new> encodes an address/offset or is m2c-shaped, <new> already names a
 symbol, macro or field in scope, a reference lies inside a macro expansion, or (func) <old> is declared
 in include/PR, include/PRinternal or include/libultra (`header-prototyped: <header>`).
+
+A symbol named in both symbol_addrs.us.txt and an overlay's symbol_addrs.<ovl>.us.txt at one address (a global
+an overlay defines) is one symbol: `global|func <seg> <old> <new>` renames <old>'s line in the other file too
+(and every reference in the global side's src), and a <new> already defined at that address in the other file
+(a half-applied rename, or the global side named first) is its alias, not "in use". <new> at another address,
+twice in the own file, or in another overlay's file is still refused.
 """
 import argparse
 import collections
@@ -225,23 +231,84 @@ def data_inc_edits(seg, old, new):
     return edits
 
 
+SYMDEF = re.compile(r"\s*(\w+)\s*=\s*0x([0-9A-Fa-f]+)\s*;")
+
+
+def symbol_defs(name):
+    """{symbol file: [(line, vram)]} of the `NAME = 0x...;` definitions in every symbol file."""
+    out = {}
+    for sf in repo_glob("symbol_addrs*.txt"):
+        for i, line in enumerate(read(sf).split("\n"), 1):
+            m = SYMDEF.match(line)
+            if m and m.group(1) == name:
+                out.setdefault(sf, []).append((i, int(m.group(2), 16)))
+    return out
+
+
+def alias_symfiles(seg):
+    """Symbol files that can name the same symbol as SEG's own: the global one for an overlay (a global
+    variable an overlay defines, or the reverse), every overlay's for boot/global. Two overlays share
+    VRAM, so one overlay's file never aliases another's."""
+    own = rel(ledger.symfile(seg))
+    cand = repo_glob("symbol_addrs.*.us.txt") if seg in ("boot", "global") else ["symbol_addrs.us.txt"]
+    return [f for f in cand if f != own and os.path.exists(os.path.join(ROOT, f))]
+
+
+def alias_state(seg, old, new, vram):
+    """(alias rename edits, in-use refusal or None, same) for one symbol present in more than one segment's
+    symbol file. The same symbol is OLD at VRAM in an alias file (renamed there too: one run renames every
+    line) and/or NEW at VRAM in an alias file (`same`: the other side was already renamed, so NEW is not
+    "in use", in the symbol files or in src). NEW at another address, twice in the own file, or in a
+    non-alias file stays a collision."""
+    own, aliases = rel(ledger.symfile(seg)), alias_symfiles(seg)
+    new_defs = symbol_defs(new)
+    for sf, defs in new_defs.items():
+        if vram is None or sf == own or sf not in aliases or any(v != vram for _, v in defs):
+            return [], f"in use: {new} at {sf}:{defs[0][0]}", False
+    edits = []
+    for sf, defs in (symbol_defs(old) if vram is not None else {}).items():
+        if sf in aliases and sf not in new_defs:
+            edits += [(sf, i, SYMDEF.match(read(sf).split("\n")[i - 1]).start(1) + 1, old, new)
+                      for i, v in defs if v == vram]
+    return edits, None, bool(new_defs)
+
+
+def symbol_mentions(name, paths):
+    """'file:line' of the first line of PATHS naming NAME other than as a `NAME = 0x...;` definition."""
+    rx = word(name)
+    for p in paths:
+        for i, line in enumerate(read(p).split("\n"), 1):
+            m = SYMDEF.match(line)
+            if rx.search(line) and not (m and m.group(1) == name):
+                return f"{p}:{i}"
+    return None
+
+
 def cmd_symbol(a, func):
     old, new, seg = a.old, a.new, a.seg
     check_name(new)
+    m = re.fullmatch(r"D_([0-9A-F]{8})", old)
+    vram = int(m.group(1), 16) if m else ledger.vram_of(seg, old)
+    alias_edits, in_use, same = alias_state(seg, old, new, vram)
+    if in_use:
+        raise Refuse(in_use)
+    aliased = same or bool(alias_edits)
     files = scope_files(seg)
+    if aliased and seg not in ("boot", "global"):  # the global-VRAM side's references are in every segment's src
+        files = sorted(set(files) | set(scope_files("global")))
     rx = word(old)
     heads = [p for d in LIBULTRA_HEADERS for p in repo_glob(f"{d}/**/*.h")]
     if func and (hit := first_hit(rx, heads)):
         raise Refuse(f"header-prototyped: {hit.split(':')[0]}")
-    if seg in ("boot", "global"):
+    if seg in ("boot", "global") or aliased:
         ultra = repo_glob("src/**/libultra/**/*.c")
         if hit := first_hit(rx, ultra):
             raise Refuse(f"referenced in libultra: {hit}")
-    syms = repo_glob("symbol_addrs*.txt")
-    if hit := first_hit(word(new), files + syms + repo_glob("include/**/*.h")):
+    # NEW already defined at VRAM in the alias file (`same`) names this symbol: its uses in src/include are not
+    # collisions; any other mention of NEW (a different symbol, a comment in a symbol file) still is
+    where = [] if same else files + repo_glob("include/**/*.h")
+    if hit := first_hit(word(new), where) or symbol_mentions(new, repo_glob("symbol_addrs*.txt")):
         raise Refuse(f"in use: {new} at {hit}")
-    m = re.fullmatch(r"D_([0-9A-F]{8})", old)
-    vram = int(m.group(1), 16) if m else ledger.vram_of(seg, old)
     pats = [(rx, new), (word(f"PROTO_SKIP_{old}"), f"PROTO_SKIP_{new}")]
     if vram is not None and f"D_{vram:08X}" != old:
         pats.append((word(f"D_{vram:08X}"), new))
@@ -257,8 +324,9 @@ def cmd_symbol(a, func):
     if macro and not a.in_macros:
         raise Refuse("reference inside a macro: " + " ".join(macro)
                      + " (a global named in a #define body is one symbol: inspect the macro, then pass --in-macros)")
-    if not edits:
+    if not edits and not aliased:
         raise Refuse(f"not found: {old}")
+    edits += alias_edits
     edits += symbol_edits(seg, old, new, vram, func)
     inc = data_inc_edits(seg, old, new)
     edits += inc
