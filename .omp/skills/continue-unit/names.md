@@ -50,8 +50,10 @@ One line per accepted proposal, appended by the lead, deleted by the window that
    [--fields F]... [--globals SEG:F.tsv]... [--funcs SEG:F.tsv]... [--macro-arg FILE:LINE:COL]...
    [--in-macros D_X]...` (dry-run first with `--dry-run`; keep func and global tsv names distinct: a
    `w-global-*` glob once swallowed func files). It snapshots, renames, splits, builds, gates, then
-   runs `carry --rev <gate>^` over the touched files (aliasing renamed `assets/inc` files for REV's
-   text) and `carry --header-carve` when a header changed: without it every function reaching a
+   runs `carry --rev <gate>^` once per touched file (aliasing renamed `assets/inc` files for REV's text),
+   printing each file's result (a failure prints the command, exit code and stderr tail and names the
+   files not yet carried: finish with the printed `retry:` command), and `carry --header-carve` when a
+   header changed: without it every function reaching a
    renamed field loses its automatic rungs (unit 1: sites_open 8 -> 120). Commit `drafts/quality`.
 4. Macro uses: a field spelled as a macro argument at the call site (`MIN(p->unkD, x)`) or a global in
    a `#define` body is renamed only after reading that line: `--macro-arg` with the exact column,

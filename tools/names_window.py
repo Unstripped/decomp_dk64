@@ -8,18 +8,23 @@
 (tab or space separated) for `rename.py global|func <SEG>`. Steps: dry-run everything (refusals printed and skipped;
 `--dry-run` stops here), snapshot every src file a rename touches, apply, `tools/dk make split`, touch src, `tools/dk
 make` (must end `build/dk64.us.z64: OK`), `make expected`, `unit_check.py vanished`, one `merge_gate.sh --commit`
-staging every changed include/, symbol and data_inc file, then `quality.py carry --rev <gate>^` over the touched src
-files with functions (data-only files skipped). Prints `NAMES_WINDOW_OK gate=<sha> renamed=<n> refused=<n>` or
+staging every changed include/, symbol and data_inc file, then `quality.py carry --rev <gate>^` once per touched src
+file with functions (data-only files skipped; each file's last output line is printed). A failing carry prints its
+command, exit code and stderr tail, names the files not yet carried and the retry command, and ends
+`NAMES_WINDOW_FAIL: carry (not yet carried: <files>)`. Prints `NAMES_WINDOW_OK gate=<sha> renamed=<n> refused=<n>` or
 `NAMES_WINDOW_FAIL: <step>`; the ledger commit is left to the caller (`drafts/quality`)."""
 import argparse
 import os
 import re
+import shlex
 import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from shadow import dk_argv, script_argv  # noqa: E402
+
+STDERR_TAIL = 20  # lines of a failed carry's stderr printed
 
 LOC = re.compile(r"^((?:src|include)/[^:\s]+|symbol_addrs[^:\s]*|data_inc\.us\.txt):\d+:\d+ ")
 
@@ -42,6 +47,35 @@ def pairs(spec):
         if len(f) >= 2 and not line.lstrip().startswith("#"):
             out.append((seg, f[0], f[1]))
     return out
+
+
+def carry_files(files, gate, unit, runner=None):
+    """`quality.py carry --rev GATE^` once per file (one long carry over every file died silently on a loaded
+    host), printing each file's last output line. None when every file carried; else (command, result, files
+    not yet carried: the failing one first) for the first failure."""
+    runner = runner or run
+    for i, f in enumerate(files):
+        cmd = ["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", unit, f]
+        r = runner(cmd)
+        if r.returncode:
+            return cmd, r, list(files[i:])
+        out = r.stdout.strip()
+        print(f"carry {f}: {out.splitlines()[-1] if out else 'nothing'}", flush=True)
+    return None
+
+
+def carry_failed(cmd, r, left, gate, unit, header_carve=False):
+    """Report a failed carry command (the command, its exit code, the tail of its stderr, what is not yet
+    carried and the command that finishes it) and exit through `fail`. HEADER_CARVE: the `--header-carve`
+    carry has not run either (the per-file carry failed first)."""
+    tail = "\n".join((r.stderr or "").rstrip().splitlines()[-STDERR_TAIL:])
+    sys.stderr.write(f"carry failed: {shlex.join(cmd)}\nexit code: {r.returncode}\nstderr tail:\n{tail}\n")
+    if left:
+        retry = ["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", unit, *left]
+        sys.stderr.write(f"not yet carried ({len(left)}): {' '.join(left)}\nretry: {shlex.join(retry)}\n")
+    if header_carve:
+        sys.stderr.write("not yet run: carry --header-carve\n")
+    fail("carry" + (f" (not yet carried: {' '.join(left)})" if left else " --header-carve"))
 
 
 def main(argv=None):
@@ -159,19 +193,19 @@ def main(argv=None):
                 open(dst_inc, "w", newline="\n").write(open(src_inc).read())
                 aliases.append(dst_inc)
         try:
-            r = run(["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", a.unit, *funcs])
+            failed = carry_files(funcs, gate, a.unit)
         finally:
             for p_ in aliases:
                 os.unlink(p_)
-        if r.returncode:
-            fail("carry", r.stdout + r.stderr)
-        print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "carry: nothing")
+        if failed:
+            carry_failed(*failed, gate, a.unit, header_carve=any(s.startswith("include/") for s in stage))
         if any(s.startswith("include/") for s in stage):
             # functions whose body did not change but which reach a renamed header field: their automatic
             # rungs carry only with --header-carve (field renames keep every layout)
-            r = run(["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", a.unit, "--header-carve"])
+            cmd = ["uv", "run", "tools/quality.py", "carry", "--rev", f"{gate}^", "--unit", a.unit, "--header-carve"]
+            r = run(cmd)
             if r.returncode:
-                fail("carry --header-carve", r.stdout + r.stderr)
+                carry_failed(cmd, r, [], gate, a.unit)
             print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "carry --header-carve: nothing")
     print(f"NAMES_WINDOW_OK gate={gate} renamed={n_fields + len(ok_syms)} refused={len(refused)}")
     return 0
