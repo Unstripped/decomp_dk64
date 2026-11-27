@@ -108,9 +108,6 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   enemyGridStateStep; the post-close re-measure (ReMeasureKnow24b, db9779c7 + ledgers 633e5116 / dfac70e2) fixed hudPauseMenuUpdate
   c127b7 + db430c (switches on gCurrentMap / hud->page, `credits = hubWorld == 8 && menuGetTimerFlag() != 0;`), retagged cc0f6b /
   706cd2 ORIG (R4) and kept the rest. Its findings were filed in 1dadd028 (Q1635, Q1636, Q1582 correction).
-- Type idea (Polish11BC10_27 2026-11-27, untested): race/1770 `void *gRaceSparkEffects[4]` holds effectCreateAtPosition results
-  (race/1770:323) and 11BC10 timedLightOrbitUpdate compares EffectNode pointers against it: `EffectNode *gRaceSparkEffects[4]` in
-  race/1770 plus the 11BC10 extern (fdiff both). The ReviewTypes21 11BC10 follow-ups landed in 9fb06572.
 - Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
   `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
   function's real outputs). Not dispatched: a param rename is a body change.
