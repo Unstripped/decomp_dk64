@@ -30,7 +30,7 @@ import shutil
 import subprocess
 import sys
 import time
-from pathlib import Path
+from pathlib import Path, PurePath
 
 # Repo root detection
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -102,16 +102,49 @@ BUTTON_MAP = {
 def container_name(session: str) -> str:
     return f"{CONTAINER_PREFIX}{session}"
 
+
+def container_path(p, root=None):
+    """`/dk64/<posix path>` for host path P under ROOT (default: the repo, mounted at /dk64 in the container),
+    else None. Always `/` separators: a Windows host's str(relative path) has backslashes, which the container
+    reads as one file name (`emu\\maps\\map_0x07.png` written at the repo root)."""
+    try:
+        return "/dk64/" + PurePath(p).relative_to(root or REPO_ROOT).as_posix()
+    except ValueError:
+        return None
+
+
+def _link_present(link) -> bool:
+    """Whether anything is at LINK, symlink or not, without following it. A link made by the Linux container
+    on a Windows host is a reparse point the host cannot open: Path.exists() raises WinError 1920 on it, so any
+    OSError other than "not found" counts as present."""
+    try:
+        os.lstat(link)
+        return True
+    except FileNotFoundError:
+        return False
+    except OSError:
+        return True
+
+
+def ensure_states_link(d, windows=None):
+    """The `Nintendo 64 -> .` link in session states dir D that ares expects. On a Windows host the container
+    creates it (entrypoint.sh) and the host never does: a host-made or container-made link both break
+    Path.exists() there."""
+    if os.name == "nt" if windows is None else windows:
+        return
+    link = Path(d) / "Nintendo 64"
+    if not _link_present(link):
+        try:
+            link.symlink_to(".")
+        except OSError:
+            pass
+
+
 def get_session_states_dir(session: str) -> Path:
     """Return the save-state directory for a session."""
     d = REPO_ROOT / "emu" / "sessions" / session / "states"
     d.mkdir(parents=True, exist_ok=True)
-    sym = d / "Nintendo 64"
-    if not sym.exists() and not sym.is_symlink():
-        try:
-            sym.symlink_to(".")
-        except OSError:
-            pass
+    ensure_states_link(d)
     return d
 
 
@@ -196,7 +229,11 @@ def cmd_start(args):
             print("Error: No ROM found at baserom.us.z64 or build/dk64.us.z64", file=sys.stderr)
             return 1
     elif not rom.startswith("/"):
-        rom = f"/dk64/{rom}"
+        p = Path(rom)
+        rom = container_path(p if p.is_absolute() else REPO_ROOT / p)
+        if rom is None:
+            print(f"Error: ROM {args.rom} is outside the repo (the container only sees {REPO_ROOT} as /dk64)", file=sys.stderr)
+            return 1
 
     # Determine VNC port
     vnc_port = args.vnc_port
@@ -545,10 +582,8 @@ def cmd_gdb(args):
 
     if args.script:
         script_path = Path(args.script).resolve()
-        try:
-            rel = script_path.relative_to(REPO_ROOT)
-            container_script = f"/dk64/{rel}"
-        except ValueError:
+        container_script = container_path(script_path)
+        if container_script is None:
             container_script = f"/tmp/{script_path.name}"
             subprocess.run(["docker", "cp", str(script_path), f"{c_name}:{container_script}"], check=True)
         gdb_args.extend(["-x", container_script])

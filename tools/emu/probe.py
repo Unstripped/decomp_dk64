@@ -53,7 +53,10 @@ from study import pick_state_for_func, resolve_target
 
 
 def container_path(p: Path) -> str:
-    return "/dk64/" + str(p.relative_to(REPO_ROOT))
+    c = emu.container_path(p, REPO_ROOT)
+    if c is None:
+        raise ValueError(f"{p} is not under {REPO_ROOT}")
+    return c
 
 
 def slot_file(session: str) -> Path:

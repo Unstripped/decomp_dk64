@@ -179,11 +179,7 @@ def take_screenshot(session, out_path):
     c_name = emu.container_name(session)
     path_obj = Path(out_path).resolve()
     path_obj.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        rel = path_obj.relative_to(REPO_ROOT)
-        container_path = f"/dk64/{rel}"
-    except ValueError:
-        container_path = str(path_obj)
+    container_path = emu.container_path(path_obj) or str(path_obj)
     cmd = ["docker", "exec", "-e", "DISPLAY=:99", c_name, "import", "-window", "root", container_path]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return res.returncode == 0
