@@ -81,7 +81,7 @@ s32 jetpacGetAnimFrame(JetpacPlayerActor *actor) {
 
 void jetpacSetFlying(JetpacPlayerActor *actor, s32 isFlying) {
     if (isFlying == 0 && actor->flying != 0) {
-        actor->head.x = (f32)((s32)actor->head.x & 0xFFFE);
+        actor->head.x = (s32)actor->head.x & 0xFFFE;
     } else if (isFlying != 0 && actor->flying == 0) {
         jetpacSnapActorToGrid(actor);
     }
@@ -125,16 +125,16 @@ void jetpacUpdateLaser(JetpacActor *laser) {
     if (laser->head.state != 0) {
         if (laser->head.state == 3) {
             if (laser->head.flip != 0) {
-                x1 = (f32)laser->head.boxX1;
+                x1 = laser->head.boxX1;
                 step = laser->head.timer < 4 ? laser->head.timer : 4;
-                x2 = (f32)(step * 8) + x1;
+                x2 = step * 8 + x1;
             } else {
-                x2 = (f32)laser->head.boxX2;
+                x2 = laser->head.boxX2;
                 step = laser->head.timer < 4 ? laser->head.timer : 4;
-                x1 = x2 - (f32)(step * 8);
+                x1 = x2 - step * 8;
             }
-            y1 = (f32)laser->head.boxY1;
-            y2 = (f32)laser->head.boxY2;
+            y1 = laser->head.boxY1;
+            y2 = laser->head.boxY2;
             if (jetpacKillActorInBox(x1, y1, x2, y2) != 0) {
                 jetpacResetActorState(laser);
                 return;
@@ -247,21 +247,21 @@ void jetpacFireLaser(JetpacPlayerActor *player) {
     } else {
         laser->head.flip = player->head.flip;
         if (laser->head.flip != 0) {
-            laser->head.x = (f32)(((s32)(player->head.x + (f32)player->head.boxX1) / 8) * 8);
+            laser->head.x = ((s32)(player->head.x + player->head.boxX1) / 8) * 8;
             laser->head.vx = -8.0f;
         } else {
-            laser->head.x = (f32)(((s32)(player->head.x + (f32)player->head.boxX2 + 6.0f) / 8) * 8);
+            laser->head.x = ((s32)(player->head.x + player->head.boxX2 + 6.0f) / 8) * 8;
             laser->head.vx = 8.0f;
         }
-        ix = (s32)laser->head.x;
+        ix = laser->head.x;
         laser->head.boxX1 = ix;
         laser->head.boxX2 = ix;
         laser->head.y = player->head.y + 10.0f;
         laser->head.vy = 0.0f;
-        iy = (s32)laser->head.y;
+        iy = laser->head.y;
         laser->head.boxY2 = iy + 1;
         laser->head.boxY1 = iy;
-        col = (s32)(jetpacRandFloat() * 3.0f);
+        col = jetpacRandFloat() * 3.0f;
         laser->head.color[0] = 0xFF;
         laser->head.color[1] = 0xFF;
         if (col < 2) {
@@ -428,8 +428,6 @@ void jetpacUpdatePlayerDeath(JetpacPlayerActor *player) {
     }
 }
 
-extern JetpacState jetpacPlayer;
-
 void jetpacDrawPlayer(void) {
     f32 x;
     f32 y;
@@ -447,15 +445,15 @@ void jetpacDrawPlayer(void) {
         }
         frame = jetpacGetAnimFrame(player);
         x = player->head.x;
-        y = jetpacPlayer.player.head.y;
+        y = player->head.y;
         if (draw != 0) {
-            color = jetpacPlayer.player.head.color;
+            color = player->head.color;
             if (player->flying == 0) {
-                x = (s16)x & 0xFFFE;
-                jetpacGridAddTiledSprite(&jetpacPlayerWalkSprites[frame], x, y, color, jetpacGame.player.head.flip);
+                x = (s16)x & 0xFFFE; // FAKE: (s16) width steer: the masked value equals (s32)x & 0xFFFE, and (s32) only renumbers a temp (lui t7 -> t5 at 0x1214)
+                jetpacGridAddTiledSprite(&jetpacPlayerWalkSprites[frame], x, y, color, player->head.flip);
             } else {
-                jetpacGridAddTiledSprite(&jetpacPlayerFlySprite, x, y, color, jetpacGame.player.head.flip);
-                if (jetpacGame.player.head.flip == 0) {
+                jetpacGridAddTiledSprite(&jetpacPlayerFlySprite, x, y, color, player->head.flip);
+                if (player->head.flip == 0) {
                     if (frame == 4) {
                         x -= 1.0f;
                     }
@@ -466,7 +464,7 @@ void jetpacDrawPlayer(void) {
                     }
                     x += 10.0f;
                 }
-                jetpacGridAddTiledSprite(&jetpacPlayerExhaustSprites[frame], x, y + 18.0f, color, jetpacGame.player.head.flip);
+                jetpacGridAddTiledSprite(&jetpacPlayerExhaustSprites[frame], x, y + 18.0f, color, player->head.flip);
             }
         }
         if (player->explosion.timer < 14) {
@@ -505,11 +503,11 @@ void jetpacPlayerStateUpdate(void) {
         }
         jetpacGame.player.head.state = state;
         if (state == 3) {
-            jetpacUpdatePlayerMovement(&jetpacPlayer.player);
+            jetpacUpdatePlayerMovement(&jetpacGame.player);
         }
         state = jetpacGame.player.head.state;
         if (state == 4) {
-            jetpacUpdatePlayerDeath(&jetpacPlayer.player);
+            jetpacUpdatePlayerDeath(&jetpacGame.player);
         }
     }
 }
@@ -517,6 +515,7 @@ void jetpacPlayerStateUpdate(void) {
 void jetpacInitPlayer(void) {
     JetpacPlayerActor *player = &jetpacGame.player;
     JetpacActor tmpl;
+    s32 i;
 
     tmpl = jetpacLaserTemplate;
     player->head.vx = 0.0f;
@@ -540,11 +539,8 @@ void jetpacInitPlayer(void) {
     jetpacSetFlying(player, 0);
     player->ledge = 3;
     player->fireCooldown = 4;
-    {
-        s32 i;
-        for (i = 0; i < 4; i++) {
-            jetpacPlayer.lasers[i] = tmpl;
-        }
+    for (i = 0; i < 4; i++) {
+        jetpacGame.lasers[i] = tmpl;
     }
 }
 
@@ -553,13 +549,13 @@ s32 jetpacIsSpawnDelay(void) {
 
     if (ret) {
         return jetpacPlayer.player.head.timer < 180;
-    }
+    } // ORIG: no final return; the target falls through with ret in $v0 (0x158c sltiu v0,t6,1 -> 0x1590 beqz v0,15a8 straight to 0x15a8 jr ra, no $v0 write on that path; the true path sets it at 0x15a0 slti t7,v0,180 / 0x15a4 move v0,t7)
 }
 
 void jetpacSnapActorToGrid(JetpacPlayerActor *actor) {
     if (actor->explosion.timer >= 0xE) {
         actor->explosion.timer = 0;
         actor->explosion.x = (s32)actor->head.x & 0xFFF8;
-        actor->explosion.y = (s32)(actor->head.y + 7.0f);
+        actor->explosion.y = actor->head.y + 7.0f;
     }
 }

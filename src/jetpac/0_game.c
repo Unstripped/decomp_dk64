@@ -19,7 +19,6 @@
 #include "proto/jetpac/4FC0_enemies.h"
 #include "proto/jetpac/6E00_text.h"
 
-extern JetpacState jetpacPlayer;
 extern struct GfSndState *gLoopSfxHandles[];
 extern ALBank *gSfxBank;
 typedef struct {

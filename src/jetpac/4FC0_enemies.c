@@ -7,8 +7,6 @@
 #include "proto/jetpac/3480_rocket_items.h"
 #include "proto/jetpac/4FC0_enemies.h"
 extern s32 jetpacBlinkPhase;
-extern f32 D_8002F054;
-extern s32 D_8002F078;
 
 // .data 0x8002DEB0-0x8002E9B4 (sprite pixel layout: see 0.c).
 Gfx D_8002DEB0[1] = { gsSPEndDisplayList() };
@@ -461,7 +459,9 @@ void jetpacActorUpdateFighter(JetpacActor *actor) {
         }
 
         if (actor->head.timer == 0 && (jetpacGame.stateTimer & 2)) {
-            if (jetpacGetEntityCenterY(actor) < D_8002F054 + D_8002F078) {
+            JetpacPlayerActor *player = &jetpacGame.player;
+
+            if (jetpacGetEntityCenterY(&actor->head) < player->head.y + player->head.boxY2) {
                 actor->head.vy = 0.8f;
             } else {
                 actor->head.vy = -0.8f;
@@ -514,16 +514,17 @@ void jetpacActorSteerToPlayer(JetpacActor *actor) {
     f32 dyw;
     f32 ry;
     f32 cx1;
+    JetpacPlayerActor *player = &jetpacGame.player;
 
-    cx1 = jetpacGetEntityCenterX(actor);
-    cx2 = jetpacGetEntityCenterX((JetpacActor *)&jetpacGame.player);
+    cx1 = jetpacGetEntityCenterX(&actor->head);
+    cx2 = jetpacGetEntityCenterX(&player->head);
     dx = cx2 - cx1;
     if (cx1 < cx2) {
         dxw = dx - 256.0f;
     } else {
         dxw = dx + 256.0f;
     }
-    dy = D_8002F054 + D_8002F078 - jetpacGetEntityCenterY(actor);
+    dy = player->head.y + player->head.boxY2 - jetpacGetEntityCenterY(&actor->head);
     if (dy > 0.0f) {
         dyw = dy - 288.0;
     } else {

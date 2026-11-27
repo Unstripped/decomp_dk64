@@ -73,12 +73,12 @@ int jetpacIsOverRocket(f32 x) {
     return (165.0f <= x) && (x <= 171.0f);
 }
 
-f32 jetpacGetEntityCenterX(JetpacActor *actor) {
-    return actor->head.x + actor->head.boxX1 + (f32)(actor->head.boxX2 - actor->head.boxX1) * 0.5;
+f32 jetpacGetEntityCenterX(JetpacHead *head) {
+    return head->x + head->boxX1 + (f32)(head->boxX2 - head->boxX1) * 0.5;
 }
 
-f32 jetpacGetEntityCenterY(JetpacActor *actor) {
-    return actor->head.y + actor->head.boxY1 + (f32)(actor->head.boxY2 - actor->head.boxY1) * 0.5;
+f32 jetpacGetEntityCenterY(JetpacHead *head) {
+    return head->y + head->boxY1 + (f32)(head->boxY2 - head->boxY1) * 0.5;
 }
 
 f32 jetpacRoundFloat(f32 val) {

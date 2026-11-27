@@ -143,6 +143,7 @@ typedef struct JetpacCell {
 } JetpacCell;
 
 extern JetpacGlobal jetpacGame;
+extern JetpacState jetpacPlayer;
 extern JetpacCell jetpacGrid[24][32];
 
 #endif

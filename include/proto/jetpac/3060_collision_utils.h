@@ -19,10 +19,10 @@ int jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
 int jetpacIsOverRocket(f32);
 #endif
 #ifndef PROTO_SKIP_jetpacGetEntityCenterX
-f32 jetpacGetEntityCenterX(JetpacActor *);
+f32 jetpacGetEntityCenterX(JetpacHead *);
 #endif
 #ifndef PROTO_SKIP_jetpacGetEntityCenterY
-f32 jetpacGetEntityCenterY(JetpacActor *);
+f32 jetpacGetEntityCenterY(JetpacHead *);
 #endif
 #ifndef PROTO_SKIP_jetpacRoundFloat
 f32 jetpacRoundFloat(f32);
