@@ -1416,3 +1416,4 @@
 {"type": "unit", "t": "2026-11-26T23:01:02Z", "unit": "2026-11-26: cleanup LeadMeasure (close re-checks)", "commit": "518ad15ef783aa6eb2ba4950eae03314d33f555d"}
 {"type": "unit", "t": "2026-11-27T21:35:39Z", "unit": "2026-11-27: names window (fold D_807F949A)", "commit": "aba76a2220648c7b35a10361716816a08d17f1fc"}
 {"type": "unit", "t": "2026-11-27T22:18:58Z", "unit": "2026-11-27: cleanup Polish11BC10_27", "commit": "9fb06572fa063ca6dc616335e45073d04e5070d4"}
+{"type": "unit", "t": "2026-11-27T22:40:33Z", "unit": "2026-11-27: cleanup PolishJetpac27", "commit": "b6e98c7e106550867cf550f5a9359701a501081e"}
