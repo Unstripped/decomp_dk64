@@ -799,6 +799,12 @@ extern u16 gCollisionCellsX;
 extern u16 gCollisionCellsZ;
 extern u8 sMapOffsetSlotsMoving;
 
+// Fraction t along the vertical probe y = -1000 + 2000 * t at which the triangle plane
+// nx * x + ny * y + nz * z + d = 0 crosses the column (x, z); callers turn it into the
+// height (2000.0 * t) - 1000.0.
+#define PLANE_PROBE_FRACTION(x, z, nx, ny, nz, d) \
+    (0.0 - ((((x) * (nx)) + ((ny) * -1000.0) + ((nz) * (z)) + (d)) / ((ny) * 2000.0)))
+
 u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     f32 offset;
     CollisionStaticTri *triEnd;
@@ -849,7 +855,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     collisionCellEnsureLoaded(cell);
     x = x * 6.0f;
     z = z * 6.0f;
-    if (actor != NULL && actor->floorTriangle != NULL && collisionCheckTriangleXZBoundsS16(actor->floorTriangle, (s32)x, (s32)z) != 0 &&
+    if (actor != NULL && actor->floorTriangle != NULL && collisionCheckTriangleXZBoundsS16(actor->floorTriangle, x, z) != 0 &&
         collisionPointInTriangleXZS16(actor->floorTriangle, x, z) != 0 && sMapOffsetSlotsMoving == 0) {
         tri = actor->floorTriangle;
         triEnd = tri + 1;
@@ -857,8 +863,8 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
         tri = sCollisionCells[cell].tris;
         triEnd = sCollisionCells[cell].trisEnd;
     }
-    iz = (s32)z;
-    ix = (s32)x;
+    iz = z;
+    ix = x;
     while (tri != triEnd) {
         if (collisionCheckTriangleXZBoundsS16(tri, ix, iz) != 0 && collisionPointInTriangleXZS16(tri, x, z) != 0) {
             dx01 = tri->x[0] - tri->x[1];
@@ -871,11 +877,11 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
             ny = (dz01 * dx02) - (dx01 * dz02);
             d = -((nx * tri->x[1]) + (ny * tri->y[1]) + (((dx01 * dy02) - (dy01 * dx02)) * tri->z[1]));
             if (ny * 2000.0 > 0.01 || ny * 2000.0 < -0.01) {
-                val = 0.0 - ((((x * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                val = PLANE_PROBE_FRACTION(x, z, nx, ny, (dx01 * dy02) - (dy01 * dx02), d);
                 h2 = (2000.0 * val) - 1000.0;
                 if (tri->flags & 4) {
                     offset = mapOffsetSlotGetValue(tri->offsetSlot) * 6.0f;
-                    val = 0.0 - ((((x * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                    val = PLANE_PROBE_FRACTION(x, z, nx, ny, (dx01 * dy02) - (dy01 * dx02), d);
                     h2 = ((2000.0 * val) - 1000.0) + offset;
                 }
                 if ((tri->flags & 0x4000) && actor != NULL && (actor->collisionFlags & 1)) {
@@ -1309,9 +1315,9 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
                 ny = (dz01 * dx02) - (dx01 * dz02);
                 nzPart = dx01 * dy02;
                 d = -((nx * tri->x[1]) + (ny * tri->y[1]) + ((nzPart - (dy01 * dx02)) * tri->z[1]));
-                if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
+                if (ny * 2000.0 > 0.01 || ny * 2000.0 < -0.01) {
                     if (actor != NULL) {
-                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                        val = PLANE_PROBE_FRACTION(x, z, nx, ny, nzPart - (dy01 * dx02), d);
                         y = (2000.0 * val) - 1000.0;
                         collisionCheckSlopeAngle(refY, y, 0, actor, 0);
                         if (collisionGetFloorTriangleNormal(refY, y, 0, tri->slopeType) != 0 && sAllowObjectAttach != 0) {
@@ -1320,11 +1326,11 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
                         }
                     }
                     if (sRecordCamFloorHits != 0) {
-                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                        val = PLANE_PROBE_FRACTION(x, z, nx, ny, nzPart - (dy01 * dx02), d);
                         collisionRecordTriangleF(tri, (2000.0 * val) - 1000.0);
                     }
                     if (collisionCheckTriangleWindingF32(tri) != 0) {
-                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                        val = PLANE_PROBE_FRACTION(x, z, nx, ny, nzPart - (dy01 * dx02), d);
                         y = (2000.0 * val) - 1000.0;
                         if (collisionPickCloserFloor(hitY, y, refY + 4.0, 0) != 0) {
                             hitTri = tri;
@@ -1694,8 +1700,8 @@ s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloo
                         ny = (dz01 * dx02) - (dx01 * dz02);
                         nzPart = dx01 * dy02;
                         d = -((tri->z1 * (nzPart - (dy01 * dx02))) + (nx * tri->x1 + ny * tri->y1));
-                        if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
-                            val = (0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0)));
+                        if (ny * 2000.0 > 0.01 || ny * 2000.0 < -0.01) {
+                            val = PLANE_PROBE_FRACTION(x, z, nx, ny, nzPart - (dy01 * dx02), d);
                             y = (2000.0 * val) - 1000.0;
                             if (self != NULL) {
                                 collisionCheckSlopeAngle(refY, y, 0, self, 0);

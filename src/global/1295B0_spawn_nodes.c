@@ -490,13 +490,13 @@ s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone, s16 *un
         sel = e->flags & 0x7F;
         if (!(e->flags & 0x80)) {
             if ((sel == 0) || (sel == 1) ||
-                ((sel == 5) && ((f64)actor->speedXZ < (f64)(u32)gBehaviourExtraState->chaseSpeed * 1.4))) {
-                if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
+                ((sel == 5) && (actor->speedXZ < (u32)gBehaviourExtraState->chaseSpeed * 1.4))) {
+                if ((e->y <= y) && (y <= e->y + e->height)) {
                     if ((e->flags == 0) || (e->flags == 5)) {} // FAKE: flags + const-5 uses and 2 blocks steer count/flags (t0/a1) and s3/s4 colouring
-                    if (!(((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius))) {
+                    if (!(((x - e->x) * (x - e->x)) + ((z - e->z) * (z - e->z)) < e->radius * e->radius)) {
                         continue;
                     }
-                    collisionComputeArcYawBounds((s32)x, (s32)z, e->x, e->z, &actor->arcYawMin, &actor->arcYawMax);
+                    collisionComputeArcYawBounds(x, z, e->x, e->z, &actor->arcYawMin, &actor->arcYawMax);
                     found = 1;
                     actor->hasArcBounds = 1;
                     actor->collisionHit = 1;

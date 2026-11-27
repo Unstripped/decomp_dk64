@@ -2395,7 +2395,7 @@ Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     dl = textDrawStringVtx(dl, 1, 0x280, posY * 4.0, sMenuTextTable[gMenuHighScoreGame + 0x5F], 0x81);
     menuComputeElementPosition(state, 160.0f, 205.0f, &posX, &posY, 2, 0, 1.0f);
     i = 0; // FAKE: loop counter i doubles as the message-drawn flag; a separate flag local recolours
-    yPos = (s16)(posY * 4.0);
+    yPos = posY * 4.0;
     if (sMenuHighScoreEditRow >= 0) {
         _sprintf(strBuf, "%s", sMenuTextTable[0x63]);
         i = 1;
@@ -3027,8 +3027,8 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
     if (elemActor->allocation != NULL) {
         target = elemActor->allocation;
         progress = state->fade;
-        offsetY = (s32)((&state->scrollY)[(s32)target->offsetIndex] * 4.0);
-        type = (s32)target->kind;
+        offsetY = (&state->scrollY)[(s32)target->offsetIndex] * 4.0;
+        type = target->kind;
 
         switch (type) {
         case 6:
@@ -3042,7 +3042,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
                 elemActor->y += mathSinF(t) * 10.0f;
             }
-            if (type == 0x12) {
+            if (type == 18) {
                 elemActor->red = colorComponent;
                 elemActor->green = colorComponent;
                 elemActor->blue = colorComponent;
@@ -3078,18 +3078,18 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                 elemActor->scaleY = elemActor->scaleX;
             }
             progress = 0;
-            elemActor->y = target->spawnY + (f32)offsetY;
+            elemActor->y = target->spawnY + offsetY;
             if (type == 8) {
                 sMenuEraseSliderAtEdge = 0;
                 t = gCurrentContPad->stick_x;
                 if (t >= 0xB) {
-                    elemActor->x += (f32)t;
+                    elemActor->x += t;
                     if (elemActor->x > 960.0f) {
                         elemActor->x = 960.0f;
                         sMenuEraseSliderAtEdge = 1;
                     }
                 } else if (t < -0xA) {
-                    elemActor->x += (f32)t;
+                    elemActor->x += t;
                     if (elemActor->x < 320.0f) {
                         elemActor->x = 320.0f;
                         sMenuEraseSliderAtEdge = 1;
@@ -3111,7 +3111,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
         case 16:
         case 17:
         case 19:
-            if (type != 0 && type != 0xB && type != 0x13 && type != 0xD && type != 0xE) {
+            if (type != 0 && type != 11 && type != 19 && type != 13 && type != 14) {
                 progress *= 0.5f;
                 progress += state->scroll;
                 progress = 2.0f * progress - 1.0f;
@@ -3124,12 +3124,12 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                 }
             }
             elemActor->x = target->slideXOrScale * progress + target->spawnX;
-            elemActor->y = target->slideY * progress + target->spawnY + (f32)offsetY;
+            elemActor->y = target->slideY * progress + target->spawnY + offsetY;
             if (type == 9) {
                 elemActor->y = sMenuSummaryTextY - 140.0f;
             }
-            if (type == 0xC) {
-                elemActor->y += (f32)sMenuZPromptOffsetY;
+            if (type == 12) {
+                elemActor->y += sMenuZPromptOffsetY;
             }
             if (type == 0) {
                 if (offsetY < -0x3BC) {
@@ -3138,7 +3138,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                     elemActor->scaleY = elemActor->scaleX;
                 }
             }
-            if (type == 0xB || type == 0x13) {
+            if (type == 11 || type == 19) {
                 elemActor->y += 960;
                 if (offsetY >= -3 || offsetY < -0x77C) {
                     elemActor->scaleY = 0.0f;
@@ -3146,7 +3146,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                     elemActor->scaleY = elemActor->scaleX;
                 }
             }
-            if (type == 0xD) {
+            if (type == 13) {
                 elemActor->y += 1920.0f;
                 if (offsetY >= -0x3C3) {
                     elemActor->scaleY = 0.0f;
@@ -3154,24 +3154,24 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                     elemActor->scaleY = elemActor->scaleX;
                 }
             }
-            if (type == 0xE) {
+            if (type == 14) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
                 elemActor->y += mathSinF(t) * 10.0f;
             }
-            if (type == 0x13 && (sMenuJoinedPlayerCount == 4 || sMenuJoinedPlayerCount == 1 || gMenuMpMatchTypeSel == 1)) {
+            if (type == 19 && (sMenuJoinedPlayerCount == 4 || sMenuJoinedPlayerCount == 1 || gMenuMpMatchTypeSel == 1)) {
                 elemActor->x = -400.0f;
             }
-            if (type == 0x10 && state->selection >= 3) {
+            if (type == 16 && state->selection >= 3) {
                 elemActor->x = -400.0f;
             }
-            if (type == 0x11 && state->selection < 3) {
+            if (type == 17 && state->selection < 3) {
                 elemActor->x = -400.0f;
             }
             break;
         case 2:
         case 3:
         case 10: {
-            idx = (s32)target->spawnX;
+            idx = target->spawnX;
             switch (type) {
             case 2:
                 splineStep = 4;
@@ -3208,7 +3208,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             break;
         }
         case 15: {
-            idx = (s32)target->spawnX;
+            idx = target->spawnX;
             elemActor->x = sMenuElementX[idx];
             elemActor->y = sMenuElementY[idx];
             elemActor->scaleX = sMenuElementScale[idx];
