@@ -193,11 +193,11 @@ typedef struct {
     s16 speedStep;
 } RandomDriftState;
 
-void effectRandomDriftVelocityUpdate(EffectNode *effect, void *unused) {
+void effectRandomDriftVelocityUpdate(EffectNode *effect, u8 *isDone) {
     RandomDriftState *motion;
 
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(4);
+        effect->allocation = heapAlloc(sizeof(RandomDriftState));
         motion = effect->allocation;
         motion->angle = (randomNonNegative() >> 15) % 4095;
         motion->speedStep = ((randomNonNegative() >> 15) % 10) + 2;
@@ -268,10 +268,7 @@ typedef struct {
 
 extern PlayerStruct *gPlayerSlots;
 
-void effectPlayerDistanceFadeUpdate(effect, isDone)
-EffectNode *effect;
-u8 *isDone;
-{
+void effectPlayerDistanceFadeUpdate(EffectNode *effect, u8 *isDone) {
     PlayerDistanceFadeState *state;
     f32 dy;
     f32 scale;
@@ -281,9 +278,9 @@ u8 *isDone;
     s32 curStep;
     s32 value;
 
-    scale = (f32) ((s32) (effect->maxDistance * 3) / 4);
+    scale = effect->maxDistance * 3 / 4;
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(6);
+        effect->allocation = heapAlloc(sizeof(PlayerDistanceFadeState));
         state = effect->allocation;
         state->step = 0;
         state->stepCount = effect->grid->frameCount * effect->frameDelay;
@@ -304,31 +301,25 @@ u8 *isDone;
         effect->alpha = state->baseAlpha;
         return;
     }
-    value = (s32) ((f32) state->baseAlpha * ((dist - scale) / ((f32) effect->maxDistance - scale)));
+    value = state->baseAlpha * ((dist - scale) / (effect->maxDistance - scale));
     if (state->baseAlpha < value) {
-        value = (s32) state->baseAlpha;
+        value = state->baseAlpha;
     }
     effect->alpha = state->baseAlpha - value;
 }
 
-void effectFadeInSinkUpdate(effect, isDone)
-EffectNode *effect;
-u8 *isDone;
-{
+void effectFadeInSinkUpdate(EffectNode *effect, u8 *isDone) {
     if (effect->alpha != 0xFF) {
         effect->alpha += 0x14;
     }
-    if ((s32) effect->alpha >= 0xEB) {
-        effect->alpha = 0xFFU;
+    if (effect->alpha >= 0xEB) {
+        effect->alpha = 0xFF;
     }
-    effect->y = (f32) ((f64) effect->y - ((f64) effect->speed / 100.0));
+    effect->y -= effect->speed / 100.0;
 }
 
-void effectSinkBySpeedUpdate(effect, isDone)
-EffectNode *effect;
-u8 *isDone;
-{
-    effect->y = (f32) ((f64) effect->y - ((f64) effect->speed / 100.0));
+void effectSinkBySpeedUpdate(EffectNode *effect, u8 *isDone) {
+    effect->y -= effect->speed / 100.0;
 }
 
 void effectLinearFadeAlphaUpdate(EffectNode *effect, u8 *isDone) {
@@ -382,16 +373,13 @@ typedef struct {
     f32 scaleFactor;
 } VelocityMotionState;
 
-void effectShrinkOffsetUpdate(effect, isDone)
-EffectNode *effect;
-s8 *isDone;
-{
+void effectShrinkOffsetUpdate(EffectNode *effect, u8 *isDone) {
     VelocityMotionState *state;
     Actor *parent;
 
     if (effect->allocation == NULL) {
         parent = effect->owner;
-        effect->allocation = heapAlloc(0x10);
+        effect->allocation = heapAlloc(sizeof(VelocityMotionState));
         state = effect->allocation;
         if (parent != NULL) {
             state->velocityX = (parent->speedXZ * 0.025f) * mathSinF(parent->moveYaw);
@@ -404,11 +392,11 @@ s8 *isDone;
         state->scaleFactor = 0.2f;
     }
     state = effect->allocation;
-    effect->y = (f32) ((f64) effect->y - (f64) effect->speed / 100.0);
+    effect->y -= effect->speed / 100.0;
     effect->x += state->velocityX;
     effect->z += state->velocityZ;
-    state->velocityX = (f32) ((f64) state->velocityX * 0.93);
-    state->velocityZ = (f32) ((f64) state->velocityZ * 0.93);
+    state->velocityX *= 0.93;
+    state->velocityZ *= 0.93;
 }
 
 
@@ -573,7 +561,7 @@ extern f32 sEffectInterpStartX;
 extern f32 sEffectInterpStartY;
 extern f32 sEffectInterpStartZ;
 
-void effectInterpolationUpdate(EffectNode *effect, s8 *isDone) {
+void effectInterpolationUpdate(EffectNode *effect, u8 *isDone) {
     EffectMatrix mtx;
     EffectMatrix rotMtx;
     f32 start[3];
@@ -931,20 +919,18 @@ void effectDecelerateDriftUpdate(EffectNode *effect, u8 *isDone) {
 
 
 void timedEffectCountdownTick(EffectNode *effect, u8 *isDone) {
-    u8 newAlpha;
     s32 alpha;
     s32 step;
 
     effectDecelerateDriftUpdate(effect, isDone);
     alpha = effect->alpha;
-    effect->y = (f32)((f64)effect->y + 0.8);
+    effect->y += 0.8;
     if (alpha < 0x10) {
         step = alpha;
     } else {
         step = 0x10;
     }
-    newAlpha = alpha - step;
-    effect->alpha = newAlpha;
+    effect->alpha = alpha - step;
     if (effect->alpha == 0) {
         *isDone = 1;
     }
@@ -1048,10 +1034,8 @@ typedef struct {
     f32 velocityZ;
 } ParticleArcMotionState;
 
-void effectParticleArcUpdate(EffectNode *effect, s8 *isDone) {
-    void *ptr;
-    s32 pad0;
-    s32 pad1;
+void effectParticleArcUpdate(EffectNode *effect, u8 *isDone) {
+    s32 pad[3];
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     s8 dirX;
@@ -1064,32 +1048,31 @@ void effectParticleArcUpdate(EffectNode *effect, s8 *isDone) {
     f32 velZ;
 
     if (effect->allocation == NULL) {
-        yaw = (u32)-(s32)(randomLcgNext() / 10000U) % 30U;
-        tilt = (u32)(randomLcgNext() / 10000U) % 180U;
-        guRotateF(mtx, (f32)yaw, 0.0f, 1.0f, 0.0f);
+        yaw = -(randomLcgNext() / 10000) % 30;
+        tilt = randomLcgNext() / 10000 % 180;
+        guRotateF(mtx, yaw, 0.0f, 1.0f, 0.0f);
         dirX = effect->speed >> 0x10;
         dirY = (effect->speed >> 8) & 0xFF;
         dirZ = effect->speed & 0xFF;
-        ptr = heapAlloc(0xC);
-        effect->allocation = ptr;
-        guAlignF(tmpMtx, (f32)tilt, (f32)dirX, (f32)dirY, (f32)dirZ);
+        effect->allocation = heapAlloc(sizeof(ParticleArcMotionState));
+        guAlignF(tmpMtx, tilt, dirX, dirY, dirZ);
         guMtxCatF(mtx, tmpMtx, mtx);
         guMtxXFMF(mtx, 0.0f, 0.0f, -2.0f, &velX, &velY, &velZ);
-        ((ParticleArcMotionState *)effect->allocation)->velocityX = (f32)((f64)velX * 0.5);
+        ((ParticleArcMotionState *)effect->allocation)->velocityX = velX * 0.5;
         if (velY < 0.0f) {
-            ((ParticleArcMotionState *)effect->allocation)->velocityY = (f32)((f64)-velY * 0.5);
+            ((ParticleArcMotionState *)effect->allocation)->velocityY = -velY * 0.5;
         } else {
-            ((ParticleArcMotionState *)effect->allocation)->velocityY = (f32)((f64)velY * 0.5);
+            ((ParticleArcMotionState *)effect->allocation)->velocityY = velY * 0.5;
         }
-        ((ParticleArcMotionState *)effect->allocation)->velocityZ = (f32)((f64)velZ * 0.5);
+        ((ParticleArcMotionState *)effect->allocation)->velocityZ = velZ * 0.5;
     }
     effect->x += ((ParticleArcMotionState *)effect->allocation)->velocityX;
     effect->y += ((ParticleArcMotionState *)effect->allocation)->velocityY;
     effect->z += ((ParticleArcMotionState *)effect->allocation)->velocityZ;
     if ((effect->duration - effect->durationTimer) < 0xA) {
-        ((ParticleArcMotionState *)effect->allocation)->velocityY = (f32)((f64)((ParticleArcMotionState *)effect->allocation)->velocityY - 0.1);
-        if ((s32)effect->alpha >= 0x16) {
-            effect->alpha = effect->alpha - 0x14;
+        ((ParticleArcMotionState *)effect->allocation)->velocityY -= 0.1;
+        if (effect->alpha >= 0x16) {
+            effect->alpha -= 0x14;
             return;
         }
         effect->alpha = 0;
@@ -1097,7 +1080,7 @@ void effectParticleArcUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 extern PlayerState *gActivePlayerState;
-extern void *sMinecartWheelEffect; // lives in the minecart overlay: only valid while it is loaded
+extern EffectNode *sMinecartWheelEffect; // lives in the minecart overlay: only valid while it is loaded
 
 void effectTimedLightIntensityFade(EffectNode *effect, u8 *isDone) {
     f32 ratio;
@@ -1106,7 +1089,7 @@ void effectTimedLightIntensityFade(EffectNode *effect, u8 *isDone) {
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
-    if ((gActivePlayerState->actor == effect->target) && ((void *)effect == sMinecartWheelEffect)) {
+    if ((gActivePlayerState->actor == effect->target) && (effect == sMinecartWheelEffect)) {
         lightSetFlags(1);
         lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
                  ratio * 50.0, 0, 0xFF,
@@ -1115,19 +1098,17 @@ void effectTimedLightIntensityFade(EffectNode *effect, u8 *isDone) {
     }
 }
 
-extern void *gRaceSparkEffects[]; // lives in the race overlay: only valid while it is loaded
-extern void *gLightSlotNext;
+extern void *gRaceSparkEffects[4]; // lives in the race overlay: only valid while it is loaded
 void timedLightOrbitUpdate(EffectNode *effect, u8 *isDone) {
     f32 ratio;
-    void **slot;
+    s32 i;
 
     ratio = (f32)(effect->grid->frameCount - effect->frame) / (f32)effect->grid->frameCount;
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
-    slot = gRaceSparkEffects;
-    do {
-        if (effect == *slot) {
+    for (i = 0; i < 4; i++) {
+        if (effect == gRaceSparkEffects[i]) {
             lightSetFlags(1);
             lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
                      ratio * 50.0, 0, 0xFF,
@@ -1135,8 +1116,7 @@ void timedLightOrbitUpdate(EffectNode *effect, u8 *isDone) {
                      (-205.0f * ratio) + 255.0f);
             return;
         }
-        slot++;
-    } while (slot != &gLightSlotNext);
+    }
 }
 
 
@@ -1368,7 +1348,7 @@ void effectSineDriftUpdate(EffectNode *effect, u8 *isDone) {
 }
 
 
-void effectGroundBounceUpdate(EffectNode *effect, s8 *isDone) {
+void effectGroundBounceUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx0[4][4];
     f32 mtx1[4][4];
     f32 groundY;
@@ -1379,16 +1359,16 @@ void effectGroundBounceUpdate(EffectNode *effect, s8 *isDone) {
     groundY = effect->y;
     if ((collisionCheckGroundAtPoint(effect->x, effect->z, &groundY) == 0) ||
         (((effect->y < groundY) ? (groundY - effect->y) : -(groundY - effect->y)) > 10.0)) {
-        progress = (f32) effect->frame + ((f32) (u32) effect->frameTimer / (f32) (u32) effect->frameDelay);
+        progress = effect->frame + ((f32) (u32) effect->frameTimer / (f32) (u32) effect->frameDelay);
         if (effect->frame >= 7) {
-            effect->y = (f32) ((f64) effect->y - (0.3 * ((f64) (14 - (s32) (20.0f - progress)) / 14.0)));
+            effect->y -= 0.3 * ((14 - (s32)(20.0f - progress)) / 14.0);
         }
     }
     if (effect->frame == 0x10) {
         effect->frameDelay = 0xA;
     }
     guScaleF(mtx0, effect->scaleX, effect->scaleY, 0.0f);
-    guRotateF(mtx1, (f32) ((effect->speed * 360) / 4096), 0.0f, 1.0f, 0.0f);
+    guRotateF(mtx1, (effect->speed * 360) / 4096, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx0, mtx1, mtx0);
     guTranslateF(mtx1, effect->x, effect->y, effect->z);
     guMtxCatF(mtx0, mtx1, mtx0);
@@ -1399,12 +1379,12 @@ void effectGroundBounceUpdate(EffectNode *effect, s8 *isDone) {
     effect->state = 3;
 }
 
-void effectFadeRatioStepUpdate(EffectNode *effect, s8 *isDone) {
+void effectFadeRatioStepUpdate(EffectNode *effect, u8 *isDone) {
     f32 ratio;
     u8 intensity;
 
     ratio = (f32)(effect->grid->frameCount - effect->frame) / (f32)effect->grid->frameCount;
-    if ((f64)ratio > 0.7) {
+    if (ratio > 0.7) {
         ratio = 1.0f;
     }
     intensity = (u32)((-155.0f * ratio) + 255.0f);
@@ -1963,16 +1943,16 @@ void effectOrbitSourceUpdate(EffectNode *effect, u8 *isDone) {
     }
 }
 
-void effectShockwaveRingUpdate(EffectNode *effect, s8 *isDone) {
+void effectShockwaveRingUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     Actor *player;
     s32 radius;
 
-    radius = (s32) (effect->scaleX * 20.0f);
+    radius = effect->scaleX * 20.0f;
     player = gPrimaryPlayerActor;
-    if ((player->y <= effect->y) && (effect->y < player->y + (f32) player->eyeHeight)) {
-        if ((((player->x - effect->x) * (player->x - effect->x)) + ((player->z - effect->z) * (player->z - effect->z))) < (f32) (radius * radius)) {
+    if ((player->y <= effect->y) && (effect->y < player->y + player->eyeHeight)) {
+        if ((((player->x - effect->x) * (player->x - effect->x)) + ((player->z - effect->z) * (player->z - effect->z))) < radius * radius) {
             playerStateQueueCallback(0x2E, 0, 0);
         }
     }
@@ -1986,7 +1966,7 @@ void effectShockwaveRingUpdate(EffectNode *effect, s8 *isDone) {
     } else {
         *isDone = 1;
     }
-    effect->scaleX = effect->scaleX * 1.08;
+    effect->scaleX *= 1.08;
     effect->scaleY = effect->scaleX;
     guMtxF2L(mtx, &effect->matrices[0][gGfxBufferIndex]);
     effect->state = 3;
@@ -1995,7 +1975,7 @@ void effectShockwaveRingUpdate(EffectNode *effect, s8 *isDone) {
 f32 gEffectBallisticGravity = -0.1f;
 f32 gEffectBallisticLaunchSpeed = 2.0f;
 
-void effectBallisticUpdate(EffectNode *effect, s8 *isDone) {
+void effectBallisticUpdate(EffectNode *effect, u8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     s32 pad;
@@ -2006,17 +1986,17 @@ void effectBallisticUpdate(EffectNode *effect, s8 *isDone) {
     if (effect->allocation == NULL) {
         effect->allocation = heapAlloc(sizeof(BallisticVelocityState));
         guRotateF(mtx, -(f32) ((randomLcgNext() % 36000U) / 1000U), 1.0f, 0.0f, 0.0f);
-        guRotateF(tmpMtx, (f32) ((effect->speed * 360) / 4096), 0.0f, 1.0f, 0.0f);
+        guRotateF(tmpMtx, (effect->speed * 360) / 4096, 0.0f, 1.0f, 0.0f);
         guMtxCatF(mtx, tmpMtx, mtx);
         guMtxXFMF(mtx, 0.0f, 0.0f, gEffectBallisticLaunchSpeed, &dirX, &dirY, &dirZ);
         ((BallisticVelocityState *) effect->allocation)->velocityX = dirX;
         ((BallisticVelocityState *) effect->allocation)->velocityY = dirY;
         ((BallisticVelocityState *) effect->allocation)->velocityZ = dirZ;
     }
-    effect->x = effect->x + ((BallisticVelocityState *) effect->allocation)->velocityX;
-    effect->y = effect->y + ((BallisticVelocityState *) effect->allocation)->velocityY;
-    ((BallisticVelocityState *) effect->allocation)->velocityY = ((BallisticVelocityState *) effect->allocation)->velocityY + gEffectBallisticGravity;
-    effect->z = effect->z + ((BallisticVelocityState *) effect->allocation)->velocityZ;
+    effect->x += ((BallisticVelocityState *) effect->allocation)->velocityX;
+    effect->y += ((BallisticVelocityState *) effect->allocation)->velocityY;
+    ((BallisticVelocityState *) effect->allocation)->velocityY += gEffectBallisticGravity;
+    effect->z += ((BallisticVelocityState *) effect->allocation)->velocityZ;
     if (effect->y <= gPrimaryPlayerActor->y) {
         *isDone = 1;
     }
@@ -2434,7 +2414,7 @@ void effectEaseToTargetNodeUpdate(EffectNode *effect, u8 *isDone) {
     effect->z = effect->z + (nodeZ - effect->z) * 0.1;
 }
 
-void effectScaleYFromSpeedUpdate(EffectNode *effect, s32 unused) {
+void effectScaleYFromSpeedUpdate(EffectNode *effect, u8 *isDone) {
     effect->scaleY = effect->speed / 100.0 + 1.0;
 }
 
