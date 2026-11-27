@@ -192,9 +192,5 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
   without ps/SIGKILL), 39d2c5aa (report --baseline / clint layout --base export REV without git archive of invalid paths).
   2026-11-26 landed (Tools26): 3eb5c399 (sweep check cache, `sweep --func`/`--no-cache`), 5b1f35c0 (fdiff/cwarn `--shadow` when the
   copy is the src), cb6c08ce (objdiff HI16/LO16 pairing by relocation-table order across switch paths).
-- `tools/fdiff.sh <copy> <src> FUNC` prints the whole-file diff on a mismatch instead of FUNC's only (ScoutGoto26 2026-11-26).
-- Windows host: private copies written with CRLF line ends make cfe print W513 (and count as warnings); every tool and agent that
-  writes a copy must use newline='\n' (ScoutGoto26 2026-11-26).
-- names_window.py: its carry over many files at once (2026-11-26 window 1: 6 files incl. E4090 and F56F0) failed with no output; a
-  per-file `carry --rev <gate>^` re-run worked (E4090 alone took over an hour on a loaded host). Run the window's carry per file, or
-  make the failure print its cause.
+  2026-11-27 landed (Tools27): e7b2bc4c (fdiff/objdiff FUNC prints that function's diff only, tools/asmdiff_func.py), 5ac42a0f
+  (LF writers; fdiff.sh/cwarn refuse CRLF copies), 40b1d4bd (names_window carries per file and reports a failed carry).
