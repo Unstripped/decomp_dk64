@@ -108,25 +108,15 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   enemyGridStateStep; the post-close re-measure (ReMeasureKnow24b, db9779c7 + ledgers 633e5116 / dfac70e2) fixed hudPauseMenuUpdate
   c127b7 + db430c (switches on gCurrentMap / hud->page, `credits = hubWorld == 8 && menuGetTimerFlag() != 0;`), retagged cc0f6b /
   706cd2 ORIG (R4) and kept the rest. Its findings were filed in 1dadd028 (Q1635, Q1636, Q1582 correction).
-- Polish follow-ups (ReviewTypes21 2026-11-25, re-read at aaff5a58; nothing edited): 11BC10 effectShrinkOffsetUpdate K&R `s8 *isDone`
-  -> `u8 *` (only caller passes u8 *); effectTimedLightIntensityFade `(void *)effect` vs sMinecartWheelEffect: declare it
-  `EffectNode *` here and in minecart/0_player_cart.c:97; timedLightOrbitUpdate ends at `&gLightSlotNext` (= &gRaceSparkEffects[4];
-  race/1770 declares it u8): `extern ...[4]` + `--reloc-ok`; timedEffectCountdownTick single-use `u8 newAlpha` (try the direct
-  store, else tag); effectWobbleRiseUpdate swayX/swayZ and effectWobbleScaleUpdate `wave` reused for an unrelated role (split or
-  tag); K&R effectPlayerDistanceFadeUpdate/effectFadeInSinkUpdate/effectSinkBySpeedUpdate; 8 uncalled-by-C callbacks keep old
-  second-parameter types (effectInterpolationUpdate & 5 more `s8 *`, effectRandomDriftVelocityUpdate `void *`,
-  effectScaleYFromSpeedUpdate `s32`) for a later types batch.
+- Type idea (Polish11BC10_27 2026-11-27, untested): race/1770 `void *gRaceSparkEffects[4]` holds effectCreateAtPosition results
+  (race/1770:323) and 11BC10 timedLightOrbitUpdate compares EffectNode pointers against it: `EffectNode *gRaceSparkEffects[4]` in
+  race/1770 plus the 11BC10 extern (fdiff both). The ReviewTypes21 11BC10 follow-ups landed in 9fb06572.
 - Polish note (2026-11-24b EmuGlobalsU5): the callers of the 6AD90 water probe that sets D_807F9468 / D_807F946C discard its
   `outHasWater` / `outWaterY` outputs, so those parameter names look wrong; no replacement name proposed (needs a reader of the
   function's real outputs). Not dispatched: a param rename is a body change.
-- Polish follow-ups (ReviewTypes22 2026-11-25c, read at c7b5a10f; nothing edited): jetpac/1A60 jetpacIsSpawnDelay (551-557) has an
-  untagged missing return (target returns `ret` in v0: `sltiu v0` 0x158c, `beqz v0` 0x1590, `jr ra` 0x15a8; same shape as the
-  F56F0:687 `// ORIG: no final return`): tag it ORIG; 15 no-op casts in 1A60 (84, 128-137, 250, 253, 256, 261, 264, 563; all removed
-  still fdiff 0); jetpacGetEntityCenterX/Y (3060:76-82) read only head fields: a `JetpacHead *` parameter drops the
-  `(JetpacActor *)&jetpacGame.player` cast (4FC0:519; callers 4FC0:464/518/526), matches with a proto regen; JetpacItem
-  (0x08-0x37) and JetpacLedge (0x00-0x2F) share the JetpacHead layout (embed needs evidence first); `extern JetpacState
-  jetpacPlayer` is declared in 0_game.c:22 and 1A60:431 (move to jetpac.h); jetpacSnapActorToGrid also restarts the jetman
-  explosion (name too narrow).
+- jetpac types note (ReviewTypes22 2026-11-25c; the rest of that item landed in b6e98c7e, PolishJetpac27): JetpacItem (0x08-0x37)
+  and JetpacLedge (0x00-0x2F) share the JetpacHead layout; embedding JetpacHead needs evidence first (a function that treats
+  items/ledges and actors alike).
 - R-oildrum census (2026-11-25c, Q1666) outcomes, each census in the function's dossier: untagged 3E10 menuUpdateElementTargetAndColor
   `t`/`stepOrScale`, ACDC0 hudPauseMenuIconUpdate (6), BA790 chaserEnemyStep (2), 6AD90 ContainsPointXZ twins, 55B20
   map(Node)TriangleContainsPoint, arcade/0 arcadeUpdateOilDrumEntity `n`, DAA0 bossSpawnerUpdate `z`; fixed by a no-local form 3E10
