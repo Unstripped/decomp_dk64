@@ -187,11 +187,9 @@ extern f32 sRiderPointY;
 extern f32 sRiderPointZ;
 extern u32 sRiderMtxOffset;
 extern u8 sWaterSurfaceHit;
-// Per-source floor tables indexed by source (0 mesh, 1 dynamic, 2 box). The case-2 sFloorTiltPitch store in
-// collisionFindFloorAtPoint reads sSourceTiltPitch[1] through its own symbol D_807F949A, which the reloc check requires.
+// Per-source floor tables indexed by source (0 mesh, 1 dynamic, 2 box).
 extern s16 sSourceTiltYaw[];
 extern s16 sSourceTiltPitch[];
-extern s16 D_807F949A;
 extern u8 sSourceSlopeType[];
 extern s16 sFloorTiltYaw;
 extern s16 sFloorTiltPitch;
@@ -341,7 +339,7 @@ u8 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor,
                 actor->attachMode = 1;
             }
         }
-        sFloorTiltPitch = D_807F949A;
+        sFloorTiltPitch = sSourceTiltPitch[1];
         sFloorTiltYaw = sSourceTiltYaw[1];
         sFloorY = dynY;
         sFloorGrabbable = sObjectFloorGrabbable;
