@@ -7,6 +7,8 @@
 # The copy is compiled with exactly the flags make uses for the original (asm-processor
 # included) into build/.scratch/. Output and exit codes are tools/objdiff.py's:
 # 0 OK, 3 TEXT OK (code matches, own data differs), 1 mismatch (asm-differ diff of FUNC).
+# With FUNC, the printed diff is FUNC's only (tools/asmdiff_func.py); without it, the first function and
+# everything after it.
 # --reloc-ok: a relocation-only difference resolving to the same addresses (e.g. `D_807506D0 + 5`
 # for a split splat label `D_807506D5`) prints `RELOC-EQUIV OK` and exits 0.
 # Shadow headers (tools/shadow.py): a header beside the copy at an include/ path (`actor.h`,

@@ -472,6 +472,25 @@ def reloc_equivalent(built_o, expected_o):
             return False
     return True
 
+DIFF_PY = "/opt/asm-differ/diff.py"
+ASMDIFF_FUNC_PY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "asmdiff_func.py")
+
+def asm_differ_command(built_o, expected_o, func_name, only_func):
+    """asm-differ command line for FUNC. -n: the caller already compiled built_o; asm-differ's own
+    `make` only prints a misleading "Nothing to be done". only_func: tools/asmdiff_func.py, which
+    disassembles just that function (plain diff.py prints it and every function after it)."""
+    script = ASMDIFF_FUNC_PY if only_func else DIFF_PY
+    return [sys.executable, script, "-o", "-n", "-f", built_o, "-F", expected_o, "--no-pager", func_name]
+
+def objdump_fallback_diff(built_o, expected_o, func_name=None):
+    """Unified diff of the two objects' disassembly (FUNC's only when given), expected first."""
+    cmd = ["mips-linux-gnu-objdump", "-d", "-r"]
+    if func_name:
+        cmd.append(f"--disassemble={func_name}")
+    d1 = subprocess.check_output(cmd + [built_o]).decode(errors="replace").splitlines()
+    d2 = subprocess.check_output(cmd + [expected_o]).decode(errors="replace").splitlines()
+    return difflib.unified_diff(d2, d1, fromfile="expected", tofile="built", lineterm="")
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: objdiff.py <built.o> <expected.o> [func_name]", file=sys.stderr)
@@ -547,8 +566,10 @@ def main():
     for m in mismatches:
         print(f"FAILED: {m}", file=sys.stderr)
 
-    # Try asm-differ if available
-    diff_py = "/opt/asm-differ/diff.py"
+    # Try asm-differ if available. An explicit FUNC limits the printed diff to that function (objdump's
+    # --disassemble=FUNC ends at the symbol's size); without FUNC the first function and everything after it prints.
+    diff_py = DIFF_PY
+    explicit_func = bool(func_name)
     if not func_name:
         try:
             nm_out = subprocess.check_output(["mips-linux-gnu-nm", built_o], stderr=subprocess.DEVNULL).decode(errors="replace")
@@ -559,14 +580,10 @@ def main():
             pass
 
     if os.path.exists(diff_py) and func_name:
-        # -n: the caller already compiled built_o; asm-differ's own `make` only prints a misleading "Nothing to be done".
-        cmd = [sys.executable, diff_py, "-o", "-n", "-f", built_o, "-F", expected_o, "--no-pager", func_name]
-        subprocess.run(cmd)
+        subprocess.run(asm_differ_command(built_o, expected_o, func_name, explicit_func))
     else:
         # Fallback to objdump diff
-        d1 = subprocess.check_output(["mips-linux-gnu-objdump", "-d", "-r", built_o]).decode(errors="replace").splitlines()
-        d2 = subprocess.check_output(["mips-linux-gnu-objdump", "-d", "-r", expected_o]).decode(errors="replace").splitlines()
-        for line in difflib.unified_diff(d2, d1, fromfile="expected", tofile="built", lineterm=""):
+        for line in objdump_fallback_diff(built_o, expected_o, func_name if explicit_func else None):
             print(line)
 
     sys.exit(1)
