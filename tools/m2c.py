@@ -115,7 +115,7 @@ def generate_context() -> Path:
         sys.exit(f"error running C preprocessor ({cpp_bin}):\n{res.stderr}")
 
     cleaned = strip_unsupported_c(res.stdout)
-    ctx_path.write_text(cleaned)
+    open(ctx_path, "w", newline="\n").write(cleaned)
     return ctx_path
 
 

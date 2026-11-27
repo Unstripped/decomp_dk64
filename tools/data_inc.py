@@ -77,7 +77,7 @@ def gen(manifest: Path) -> int:
         out.parent.mkdir(parents=True, exist_ok=True)
         text = render(data[off:off + row["size"]], row["width"])
         if not out.is_file() or out.read_text(encoding="utf-8") != text:
-            out.write_text(text, encoding="utf-8")
+            open(out, "w", encoding="utf-8", newline="\n").write(text)
         written += 1
     print(f"data_inc: {written} include(s) in assets/inc")
     return 0

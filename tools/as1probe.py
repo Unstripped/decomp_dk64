@@ -312,7 +312,7 @@ def keep(a):
     d = Path(a.out) if a.out else ROOT / ".scratch" / "as1probe" / f"{seg}_{a.func}"
     shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True)
-    (d / "t.c").write_text(head + "\n" + body + "\n")
+    open(d / "t.c", "w", newline="\n").write(head + "\n" + body + "\n")
     cc, flags = ds.compile_flags(a.src)
     # the TU is compiled in DIR (so -K leaves the phase files there): make relative -I paths absolute
     flags = [str(ROOT / f) if k and flags[k - 1] == "-I" and not f.startswith("/") else
@@ -327,7 +327,7 @@ def keep(a):
         sys.exit("no as1 command in cc -v output")
     t = shlex.split(line)
     t[0] = str(Path(cc).parent / Path(t[0]).name)  # cc -v prints IDO's own /usr/lib/as1 path
-    (d / "as1.cmd").write_text(shlex.join(t) + "\n")
+    open(d / "as1.cmd", "w", newline="\n").write(shlex.join(t) + "\n")
     info = {"func": a.func, "src": a.src}
     (d / "probe.json").write_text(json.dumps(info))
     print(d)
@@ -494,7 +494,7 @@ def corpus_compile(src, out):
              "-I" + str(ROOT / f[2:]) if f.startswith("-I") and len(f) > 2 and not f[2:].startswith("/") else f
              for k, f in enumerate(flags)]
     with tempfile.TemporaryDirectory() as d:
-        (Path(d) / "t.c").write_text(text)
+        open(Path(d) / "t.c", "w", newline="\n").write(text)
         r = subprocess.run([cc] + flags + ["-K", "-c", "-o", "out.o", "t.c"], cwd=d, capture_output=True, text=True)
         s = Path(d) / "t.s"
         if not s.exists():

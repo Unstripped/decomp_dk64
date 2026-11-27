@@ -91,7 +91,7 @@ def test_copy_compiles_with_its_shadow_headers(tmp_path, monkeypatch):
     (tmp_path / "include" / "race.h").write_text('#include "actor.h"\n')
     a = tmp_path / ".scratch" / "A"
     a.mkdir(parents=True)
-    (a / "x.c").write_text('#include "race.h"\n')
+    (a / "x.c").write_bytes(b'#include "race.h"\n')  # LF: a CRLF copy is refused (Path.write_text writes CRLF on Windows)
     item = [(".scratch/A/x.c", None, "src/global/x.c")]
     seen = []
 
@@ -121,7 +121,7 @@ def test_src_as_its_own_copy_compiles_with_the_shadow_dirs(tmp_path, monkeypatch
     (tmp_path / "include" / "race.h").write_text('#include "actor.h"\n')
     src = tmp_path / "src" / "global"
     src.mkdir(parents=True)
-    (src / "x.c").write_text('#include "race.h"\n')
+    (src / "x.c").write_bytes(b'#include "race.h"\n')
     (src / "actor.h").write_text("#define A 2\n")  # make's own header beside the file
     d = tmp_path / ".scratch" / "T" / "sw"
     d.mkdir(parents=True)
@@ -211,3 +211,20 @@ def test_export_rev_writes_only_wanted_files(tmp_path, monkeypatch):
     assert sorted(p.relative_to(out).as_posix() for p in out.rglob("*") if p.is_file()) == [
         "src/arcade/0_game.c", "src/global/g.c"]
     assert (out / "src" / "arcade" / "0_game.c").read_bytes() == b"int a; // FAKE: x\n"
+
+
+def test_crlf_copy_is_refused_before_compiling(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cwarn, "ROOT", str(tmp_path))
+    monkeypatch.setattr(cwarn, "SCRATCH", str(tmp_path / ".scratch" / "cwarn"))
+    monkeypatch.setattr(cwarn, "_static", {"key": ("makefile", "include")})
+    (tmp_path / ".scratch" / "A").mkdir(parents=True)
+    (tmp_path / ".scratch" / "A" / "x.c").write_bytes(b"int x;\r\nint y;\r\n")
+    monkeypatch.setattr(cwarn, "run_jobs", lambda jobs: pytest.fail("a CRLF copy must not be compiled"))
+    with pytest.raises(cwarn.CompileError, match="copy has CRLF line endings: .scratch/A/x.c"):
+        cwarn.collect([(".scratch/A/x.c", None, "src/global/x.c")])
+    with pytest.raises(cwarn.CompileError, match="copy has CRLF line endings: src/global/x.c"):
+        cwarn.collect([("src/global/x.c", "int x;\r\n", None)])  # text given: the same refusal
+    with pytest.raises(SystemExit) as ex:
+        cwarn.main(["list", "--as", "src/global/x.c", ".scratch/A/x.c"])
+    assert str(ex.value) == "cwarn: copy has CRLF line endings: .scratch/A/x.c"

@@ -250,7 +250,7 @@ class Scorer:
         """dict(full, text, reloc, shape, key, n, lines) or dict(err=..., key=inf)."""
         base = self.dir / uuid.uuid4().hex
         c, o = f"{base}.c", f"{base}.o"
-        Path(c).write_text(self.head + "\n" + body + "\n")
+        open(c, "w", newline="\n").write(self.head + "\n" + body + "\n")
         try:
             r = subprocess.run([self.cc] + self.flags + ["-o", o, c], cwd=ROOT, capture_output=True, text=True, timeout=300)
             msg = r.stdout + r.stderr
@@ -356,7 +356,7 @@ def cmd_sweep(a):
     row = lambda r: f"{r['full']:>5} {r['text']:>5} {r['reloc']:>5} {r['shape']:>5}"
     print(f"{a.func}: {len(syms)} symbols: {' '.join(n for n, _ in syms)}")
     print(f"round  full  text reloc shape  inserted (line in new body, after which line)\n{0:>5} {row(cur)}  (start body)", flush=True)
-    (out / "round0.c").write_text(body)
+    open(out / "round0.c", "w", newline="\n").write(body)
     with ThreadPoolExecutor(a.jobs) as ex:
         for rd in range(1, a.rounds + 1):
             if cur["text"] == 0:
@@ -374,7 +374,7 @@ def cmd_sweep(a):
             prev = next(l.strip() for l in reversed(lines[:p + 1]) if l.strip())
             print(f"{rd:>5} {row(cur)}  `{stmt}` at line {p + 2} after `{prev[:50]}` ({len(vs)} variants, {nerr} errors)", flush=True)
             for n in (f"round{rd}.c", "best.c"):
-                (out / n).write_text(f"// deadsweep round {rd}: full={cur['full']} text={cur['text']} inserted `{stmt}` at line {p + 2}\n{body}")
+                open(out / n, "w", newline="\n").write(f"// deadsweep round {rd}: full={cur['full']} text={cur['text']} inserted `{stmt}` at line {p + 2}\n{body}")
     if cur["text"] == 0:
         print(f"floor: instruction text identical to expected; remaining reloc diff lines: {cur['reloc']}")
     print(f"best body: {out / 'best.c'}" if (out / "best.c").exists() else "no improving statement found")

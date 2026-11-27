@@ -124,6 +124,16 @@ class CompileError(Exception):
         return f"cannot compile {self.path}" + (f" at {self.rev}" if self.rev else "") + f": {self.first()}"
 
 
+class CrlfError(CompileError):
+    """PATH (a private copy, its text, or a src file) has CRLF line endings; never compiled."""
+
+    def __init__(self, path):
+        super().__init__(path, "")
+
+    def __str__(self):
+        return f"copy has CRLF line endings: {self.path}"
+
+
 def parse(out):
     """[dict(code, path, line, col, msg)] of every `cfe: Warning` line of OUT, in output order; COL is
     the caret's index in the second following line, else -1."""
@@ -312,6 +322,8 @@ def collect(items, rev=None, shadow=()):
         shadowing = text is None and (beside or bool(dirs))
         fp = shadow_headers.fingerprint(p, dirs, beside) if shadowing else []
         data = open(os.path.join(ROOT, p), "rb").read() if text is None else text.encode("utf-8")
+        if b"\r\n" in data:  # IDO cfe prints W513 for each carriage return: a CRLF copy would count them
+            raise CrlfError(p)
         key = cache_key(p, data, flags, text is None, inc, [f"{n}:{s}" for n, s in sorted(side.items())]
                         + (["shadow-v1", *dirs, *fp] if fp or (shadowing and dirs) else []))
         keys.append(key)
@@ -437,7 +449,7 @@ def main(argv=None):
         a.fn(a)
     except CompileError as ex:
         tail = "\n".join(ex.out.rstrip().splitlines()[-5:])
-        sys.exit(f"cwarn: {ex}\n{tail}")
+        sys.exit(f"cwarn: {ex}" + (f"\n{tail}" if tail else ""))
 
 
 if __name__ == "__main__":

@@ -831,7 +831,7 @@ def cmd_scan(a):
                 nz += 1
                 out.mkdir(parents=True, exist_ok=True)
                 path = out / f"zero_{nz}.c"
-                path.write_text(copy_text.replace(body, text.rstrip("\n"), 1))
+                open(path, "w", newline="\n").write(copy_text.replace(body, text.rstrip("\n"), 1))
                 path = os.path.relpath(path.resolve(), ROOT)  # ROOT-relative: the same on the host
                 print(f"ZERO {path} {recipe} {desc}")
         rows.append(dict(recipe=recipe, desc=desc, full=r.get("full"), text=r.get("text"), reloc=r.get("reloc"),

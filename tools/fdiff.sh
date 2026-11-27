@@ -51,6 +51,11 @@ COPY="${1#./}"
 ORIG="${2#./}"
 EXP="expected/build/${ORIG%.c}.o"
 [ -f "$EXP" ] || { echo "Error: expected object '$EXP' not found (run make expected)." >&2; exit 1; }
+# A CRLF copy makes cfe print W513 for every line (and cwarn count them): refuse it before compiling.
+if grep -q $'\r' "$COPY" 2>/dev/null; then
+    echo "Error: copy has CRLF line endings: $COPY (write private copies with LF: newline='\\n')" >&2
+    exit 2
+fi
 
 OBJ="build/.scratch/${COPY//\//_}.o"
 mkdir -p build/.scratch

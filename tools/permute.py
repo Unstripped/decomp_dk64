@@ -898,7 +898,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
         except ValueError as e:
             sys.exit(f"error: cannot extract '{func}' from '{expected_o}': {e}")
         asm_path = out_dir / "target.s"
-        asm_path.write_text(target_asm, encoding="utf-8")
+        open(asm_path, "w", encoding="utf-8", newline="\n").write(target_asm)
 
     # Assemble with project prelude and VR4300 flags
     as_bin = shutil.which("mips-linux-gnu-as") or "mips-linux-gnu-as"
@@ -926,7 +926,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
     sh_content = f"""#!/bin/bash
 {cc} {cflags} "$1" -o "$3"
 """
-    compile_sh.write_text(sh_content, encoding="utf-8")
+    open(compile_sh, "w", encoding="utf-8", newline="\n").write(sh_content)
     compile_sh.chmod(0o755)
 
     # 4. Build settings.toml
@@ -985,7 +985,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
                                              str(headers / "include") if headers is not None else "include")
     base_c_content = wrap_multi_statement_lines(base_c_content, func)
     base_c = out_dir / "base.c"
-    base_c.write_text(base_c_content, encoding="utf-8")
+    open(base_c, "w", encoding="utf-8", newline="\n").write(base_c_content)
 
     # 6. Verify compilation and compute starting score
     base_o = out_dir / "base.o"
@@ -996,7 +996,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
         perms = perm_parse(base_c_content)
         test_c_content, _ = perm_evaluate_one(perms)
         test_c_file = out_dir / "test_base.c"
-        test_c_file.write_text(test_c_content, encoding="utf-8")
+        open(test_c_file, "w", encoding="utf-8", newline="\n").write(test_c_content)
         comp_file = test_c_file
     else:
         comp_file = base_c
@@ -1044,7 +1044,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
         cand = Candidate.from_source(base_source, eval_state, func, weights, rng_seed=0)
         cand_c = out_dir / "cand_base.c"
         cand_o = out_dir / "cand_base.o"
-        cand_c.write_text(cand.get_source(), encoding="utf-8")
+        open(cand_c, "w", encoding="utf-8", newline="\n").write(cand.get_source())
         cand_comp = subprocess.run(
             [str(compile_sh), str(cand_c), "-o", str(cand_o)],
             cwd=out_dir,
