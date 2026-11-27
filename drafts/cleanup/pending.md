@@ -187,6 +187,7 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
   (emu container paths with `/` on a Windows host; states `Nintendo 64` link left to the container).
 - rename.py cannot rename a cross-segment alias in both segments (names window 2, 2026-11-27): `global global` renames every
   non-libultra src file + symbol_addrs.us.txt, but not the owning overlay's symbol file; `global <overlay>` first and `global
-  global` second refuses (`in use: <new> at src/<overlay>/...`), and the reverse order hits the same check. sMinecartWheelEffect ->
+  global` second refuses (`in use: <new> at src/<overlay>/...`; tested in a worktree; the reverse order was not tried, its overlay
+  rename should hit the same check). sMinecartWheelEffect ->
   gMinecartWheelEffect needed a hand edit of symbol_addrs.minecart.us.txt:29 in a separate symbol-only gate (139135b3). Wanted:
   one rename that also renames the same-address line in the defining overlay's symbol file (Tools27 to patch).
