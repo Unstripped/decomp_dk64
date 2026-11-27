@@ -183,4 +183,10 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
   2026-11-26 landed (Tools26): 3eb5c399 (sweep check cache, `sweep --func`/`--no-cache`), 5b1f35c0 (fdiff/cwarn `--shadow` when the
   copy is the src), cb6c08ce (objdiff HI16/LO16 pairing by relocation-table order across switch paths).
   2026-11-27 landed (Tools27): e7b2bc4c (fdiff/objdiff FUNC prints that function's diff only, tools/asmdiff_func.py), 5ac42a0f
-  (LF writers; fdiff.sh/cwarn refuse CRLF copies), 40b1d4bd (names_window carries per file and reports a failed carry).
+  (LF writers; fdiff.sh/cwarn refuse CRLF copies), 40b1d4bd (names_window carries per file and reports a failed carry), ebaf2cad
+  (emu container paths with `/` on a Windows host; states `Nintendo 64` link left to the container).
+- rename.py cannot rename a cross-segment alias in both segments (names window 2, 2026-11-27): `global global` renames every
+  non-libultra src file + symbol_addrs.us.txt, but not the owning overlay's symbol file; `global <overlay>` first and `global
+  global` second refuses (`in use: <new> at src/<overlay>/...`), and the reverse order hits the same check. sMinecartWheelEffect ->
+  gMinecartWheelEffect needed a hand edit of symbol_addrs.minecart.us.txt:29 in a separate symbol-only gate (139135b3). Wanted:
+  one rename that also renames the same-address line in the defining overlay's symbol file (Tools27 to patch).
