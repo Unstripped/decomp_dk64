@@ -160,10 +160,6 @@ SchedStruct, SpawnNode, BehaviourWorkState, ActorGlobalState, ActorCallbackNode,
 global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog, gWatchdogPaused, camComputeFirstPersonEyeFocus,
 ...). Field renames now carry (quality.py carry + --header-carve): they no longer reopen reviews. What is still unnamed:
 `uv run tools/debt.py names`; queue and procedure: `.omp/skills/continue-unit/names.md`. Still held (evidence or ruling missing):
-- READY (2026-11-26, not done this unit): fold split label D_807F949A as `sSourceTiltPitch[1]` in 6AD90 collisionFindFloorAtPoint
-  (2026-11-24 M7, held in names-queue EmuGlobalsU5): blocked only by objdiff's cross-switch HI16/LO16 pairing, fixed by cb6c08ce
-  (Tools26 item 3: the M7 repro now prints RELOC-EQUIV OK). Apply with `rename.py fold global D_807F949A sSourceTiltPitch[1]`
-  (dry-run first) in a names window; then drop D_807F949A from the EmuGlobalsU5 held line.
 - Cross-segment aliases: D_80741F40, D_80760840 (D_80029FA0 / D_8002FBB0 / D_80028C30 took their overlay names by ruling R3,
   8ffd3b5b). 2026-11-24b emulator residue: `drafts/cleanup/names-queue.md` "Held" lines (EmuFieldsU5, EmuGlobalsU5).
 - D_80753354 (s16 per-kong turn rate; gKongTurnRate is CEAE0's other table), D_8076A0A6 (copy of gPadPressedButtons[0]),

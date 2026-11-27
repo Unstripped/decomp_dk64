@@ -1414,3 +1414,4 @@
 {"type": "unit", "t": "2026-11-26T22:35:19Z", "unit": "2026-11-26: cleanup LeadMeasure (Q1691 re-checks)", "commit": "6df3e565a8e76d23d018172518681a14b508b3cd"}
 {"type": "unit", "t": "2026-11-26T22:57:34Z", "unit": "2026-11-26: close re-sweep (render.h MapChunk move, 5eba3e1c)", "commit": "518ad15ef783aa6eb2ba4950eae03314d33f555d"}
 {"type": "unit", "t": "2026-11-26T23:01:02Z", "unit": "2026-11-26: cleanup LeadMeasure (close re-checks)", "commit": "518ad15ef783aa6eb2ba4950eae03314d33f555d"}
+{"type": "unit", "t": "2026-11-27T21:35:39Z", "unit": "2026-11-27: names window (fold D_807F949A)", "commit": "aba76a2220648c7b35a10361716816a08d17f1fc"}
