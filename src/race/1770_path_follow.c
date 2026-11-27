@@ -187,7 +187,7 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
 
 extern EffectGridAsset gSparkEffectSprite;
 void *gRaceSparkEffects[4] = { 0 };
-u8 gLightSlotNext = 0;
+u8 gRaceSparkEffectNext = 0;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     s16 angle;
     f32 dist;
@@ -320,9 +320,9 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
             mathPickCloserTargetPoint3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, cur, &points[next], &points[next], nxt2, &sparkX, &sparkY, &sparkZ);
             effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(timedLightOrbitUpdate);
-            gRaceSparkEffects[gLightSlotNext] = effectCreateAtPosition(&gSparkEffectSprite, 0.4f, sparkX, sparkY, sparkZ);
-            gLightSlotNext++;
-            gLightSlotNext = gLightSlotNext % 4;
+            gRaceSparkEffects[gRaceSparkEffectNext] = effectCreateAtPosition(&gSparkEffectSprite, 0.4f, sparkX, sparkY, sparkZ);
+            gRaceSparkEffectNext++;
+            gRaceSparkEffectNext = gRaceSparkEffectNext % 4;
             sfxPlayAtPositionPooled(sparkX, sparkY, sparkZ, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
         }
     }

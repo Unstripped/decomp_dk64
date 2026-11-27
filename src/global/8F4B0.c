@@ -230,7 +230,7 @@ extern u16 gWorldBossMaps[];
 extern u8 gCurrentWorldId;
 extern s32 gHubReturnExit;
 extern Actor *gActivePlayerActor;
-extern u16 D_8076A0A6;
+extern u16 gVolumeTriggerPressedButtons;
 
 void actorCutsceneDispatchEvents(void) {
     CutsceneActorState *csState;
@@ -394,7 +394,7 @@ void actorCutsceneDispatchEvents(void) {
             mapTransitionToWorldHub(hubWorld);
             break;
         case 0x1C:
-            D_8076A0A6 = gPadPressedButtons[0];
+            gVolumeTriggerPressedButtons = gPadPressedButtons[0];
             break;
         case 0x1A:
             ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x80000000;

@@ -111,7 +111,7 @@ s32 jetpacCheckPlayerHit(JetpacActor *actor) {
     if (hit != 0) {
         player->head.state = 4;
         player->head.timer = 0;
-        jetpacSnapActorToGrid(player);
+        jetpacPlayerStartExplosion(player);
         jetpacActorExplode(actor);
     }
     return hit;

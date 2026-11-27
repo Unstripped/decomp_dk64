@@ -197,7 +197,7 @@ u16 D_8076A09E;
 s16 *gZbufferDistanceTable;
 u8 gGfxSubListEnabled;
 u8 D_8076A0A5;
-u16 D_8076A0A6;
+u16 gVolumeTriggerPressedButtons;
 s32 gCurrentMap;
 s32 gHubReturnExit;
 u8 D_8076A0B0;

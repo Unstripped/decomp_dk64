@@ -83,7 +83,7 @@ void jetpacSetFlying(JetpacPlayerActor *actor, s32 isFlying) {
     if (isFlying == 0 && actor->flying != 0) {
         actor->head.x = (s32)actor->head.x & 0xFFFE;
     } else if (isFlying != 0 && actor->flying == 0) {
-        jetpacSnapActorToGrid(actor);
+        jetpacPlayerStartExplosion(actor);
     }
     actor->head.boxX1 = 0;
     actor->head.boxX2 = 0x10;
@@ -552,7 +552,7 @@ s32 jetpacIsSpawnDelay(void) {
     } // ORIG: no final return; the target falls through with ret in $v0 (0x158c sltiu v0,t6,1 -> 0x1590 beqz v0,15a8 straight to 0x15a8 jr ra, no $v0 write on that path; the true path sets it at 0x15a0 slti t7,v0,180 / 0x15a4 move v0,t7)
 }
 
-void jetpacSnapActorToGrid(JetpacPlayerActor *actor) {
+void jetpacPlayerStartExplosion(JetpacPlayerActor *actor) {
     if (actor->explosion.timer >= 0xE) {
         actor->explosion.timer = 0;
         actor->explosion.x = (s32)actor->head.x & 0xFFF8;

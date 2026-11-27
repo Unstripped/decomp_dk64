@@ -54,7 +54,7 @@ void jetpacInitPlayer(void);
 #ifndef PROTO_SKIP_jetpacIsSpawnDelay
 s32 jetpacIsSpawnDelay(void);
 #endif
-#ifndef PROTO_SKIP_jetpacSnapActorToGrid
-void jetpacSnapActorToGrid(JetpacPlayerActor *);
+#ifndef PROTO_SKIP_jetpacPlayerStartExplosion
+void jetpacPlayerStartExplosion(JetpacPlayerActor *);
 #endif
 #endif

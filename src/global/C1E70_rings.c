@@ -102,7 +102,7 @@ void actorNodeRingSpawnRings(void) {
 
 // buttons newly pressed this frame, latched by event 0x1C of actorCutsceneDispatchEvents (8F4B0.c copies gPadPressedButtons[0])
 // and cleared by actorNodeRingUpdate every frame
-extern u16 D_8076A0A6;
+extern u16 gVolumeTriggerPressedButtons;
 // squared xz distance from the ring node to the player; actorRingUpdate starts a waiting ring under 400 units
 extern f32 gRingNodePlayerDistSq;
 
@@ -116,7 +116,7 @@ void actorNodeRingUpdate(void) {
     f32 dz;
     u8 shakeMagnitude;
     u16 shakeDuration;
-    s16 buttons = D_8076A0A6;
+    s16 buttons = gVolumeTriggerPressedButtons;
     s16 button;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -199,7 +199,7 @@ void actorNodeRingUpdate(void) {
             sButtonSequencePos = 0;
         }
     }
-    D_8076A0A6 = 0;
+    gVolumeTriggerPressedButtons = 0;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

@@ -94,7 +94,7 @@ MinecartElem D_80028BF0[4] = { { 0x10, 0x12, 0x0D, 0x1B }, { 0x20, 0x12, 0x01, 0
 MinecartElem D_80028C00[4] = { { 0x06, 0x13, 0x06, 0x1F }, { 0x12, 0x13, 0x0F, 0x1D }, { 0x0C, 0x11, 0x11, 0x1A }, { 0x18, 0x11, 0x01, 0x18 } };
 MinecartElem D_80028C10[4] = { { 0xFF, 0, 0, 0 }, { 0xFF, 0, 0, 0 }, { 0x05, 0x12, 0x07, 0x1E }, { 0x0E, 0x12, 0x13, 0x1C } };
 MinecartElem *sMinecartJunctionTable[4] = { D_80028BE0, D_80028BF0, D_80028C00, D_80028C10 };
-EffectNode *sMinecartWheelEffect = NULL;
+EffectNode *gMinecartWheelEffect = NULL;
 // Track routes: point indices ending in 0xFF.
 u8 sMinecartRouteMap06[8] = { 0x00, 0x01, 0x03, 0x04, 0x06, 0x07, 0x09, 0xFF };
 u8 sMinecartDefaultRoute[4] = { 0x00, 0xFF };
@@ -130,7 +130,7 @@ void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThresho
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
         effectSetSpeed((s32)gCurrentActor);
         effectSetCallback(effectTimedLightIntensityFade);
-        sMinecartWheelEffect = effectCreateAtActorBone(&gSparkEffectSprite, 0.4f, gCurrentActor, side + 7, 2);
+        gMinecartWheelEffect = effectCreateAtActorBone(&gSparkEffectSprite, 0.4f, gCurrentActor, side + 7, 2);
     }
 }
 

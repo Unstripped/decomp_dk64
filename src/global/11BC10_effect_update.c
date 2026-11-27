@@ -1080,7 +1080,7 @@ void effectParticleArcUpdate(EffectNode *effect, u8 *isDone) {
 }
 
 extern PlayerState *gActivePlayerState;
-extern EffectNode *sMinecartWheelEffect; // lives in the minecart overlay: only valid while it is loaded
+extern EffectNode *gMinecartWheelEffect; // lives in the minecart overlay: only valid while it is loaded
 
 void effectTimedLightIntensityFade(EffectNode *effect, u8 *isDone) {
     f32 ratio;
@@ -1089,7 +1089,7 @@ void effectTimedLightIntensityFade(EffectNode *effect, u8 *isDone) {
     if (ratio > 0.7) {
         ratio = 1.0f;
     }
-    if ((gActivePlayerState->actor == effect->target) && (effect == sMinecartWheelEffect)) {
+    if ((gActivePlayerState->actor == effect->target) && (effect == gMinecartWheelEffect)) {
         lightSetFlags(1);
         lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
                  ratio * 50.0, 0, 0xFF,
