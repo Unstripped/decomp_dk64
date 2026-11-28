@@ -1419,3 +1419,4 @@
 {"type": "unit", "t": "2026-11-27T22:40:33Z", "unit": "2026-11-27: cleanup PolishJetpac27", "commit": "b6e98c7e106550867cf550f5a9359701a501081e"}
 {"type": "unit", "t": "2026-11-27T23:09:10Z", "unit": "2026-11-27: names window 2 (Lead5)", "commit": "1aae5e38504af1c8e3031b5459ae7a3c3f7d2bcb"}
 {"type": "unit", "t": "2026-11-28T00:00:30Z", "unit": "2026-11-27: cleanup PolishMisc27", "commit": "3be217756041dff70bfa60ccbc6704487b7f9ac6"}
+{"type": "unit", "t": "2026-11-28T00:22:28Z", "unit": "2026-11-27: continue close (Lead5)", "commit": "b732bfa47fb9b59da6aa011fffcb44c650f67131"}
