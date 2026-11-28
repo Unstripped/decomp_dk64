@@ -134,3 +134,12 @@ sentinel cases; Q0844/Q0845); else it is invented code and the base sites stay (
 schedHandleRetrace `osRecvMesg(...) == -1 || (s32)msg == -1`, R2 2026-11-18c). A merge of several steers whose added case values the
 target lacks stays one FAKE (9DD70 actorCheckAlwaysFalse e999c8 `case 6: case 7:`: as1 deletes its `li a3,6`/`li t0,7`, 0x16e0-0x1754
 compares only 2/3; R8 2026-11-18c). The lead checks the compares in the expected asm.
+
+## Split-label folds (R1-27/R2-27, director 2026-11-27)
+
+A split splat label folds into its parent's spelling (`rename.py fold`, `fdiff --reloc-ok`) when the parent spelling, or a pointer
+local the function holds for every access of that object (Q0601), reproduces the target's separate `%hi/%lo`: jetpac 4FC0
+`JetpacPlayerActor *player = &jetpacGame.player;` folds D_8002F054 + D_8002F078 together as `player->head.y + player->head.boxY2`
+(ordinary C, R2-27; Q1604). A new local whose only role is to reproduce a separate base symbol is a view chosen for codegen (55B20
+`MapSearchEntry *e = &gMapSearchTable[2];` for D_807F72B8 while its siblings D_807F72A1/A4/B5 fail by base CSE: the labels were
+distinct symbols), and a single-label fold that its siblings cannot share is no fold evidence (R1-27): the labels stay held.

@@ -61,6 +61,8 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
   `protos.py gen`, restore src, compare with header.patch, then merge the clean dir with one `--stage
   include/proto/<seg>/<f>.h` per regenerated header (a partial gen misses headers: DS/90D80.h); `gen --check`
   exits 0. `fdiff.sh --shadow` shadows every `include/*.h` that quote-includes a shadowed one (tools/shadow.py).
+  A regenerated prototype that the base definition contradicts makes merge_record's record-at-base fail (redeclaration):
+  `merge_gate.sh --commit --stage ...` by hand, then make expected, sweep --record, record --base MERGE, carry (9fb06572, b6e98c7e).
 - Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
   (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
   `critter/0` vs `minecart/0`) need separate dirs and gates, unless they all see the changed header (a partial gate breaks the

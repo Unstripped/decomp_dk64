@@ -1,4 +1,4 @@
-# Cleanup pending (unresolved items only; checked against the tree at the 2026-11-24 close)
+# Cleanup pending (unresolved items only; checked against the tree at the 2026-11-27 close)
 
 Open functions come from `uv run tools/quality.py rank` / `rank --polish` (SKILL §2) or `status --file <f>`. This file keeps what
 `rank` cannot show: the `TypesOwner` queue (`.omp/skills/cleanup-unit/types-stream.md`: oldest first, skipping HELD/PARKED items), director rulings, held
@@ -133,12 +133,6 @@ names and tooling fixes. Delete an item once it lands (git and `drafts/cleanup/s
   a fix needs another free frame word for the int-width selector (dossier).
 - Polish proposals (2026-11-18c reports): 136820 gFaultFramebuffer s32 -> u16 * with faultFontInit's first parameter (after the
   13980/136820 gFramebuffers[] s32/u32 unification).
-- Polish proposals (2026-11-20 reports, hack-function bodies, ordinary-C only with fresh rungs re-run): redundant casts in 3E10
-  menuDrawHighScoreTable `(s16)(posY * 4.0)`, menuUpdateElementTargetAndColor five `(f32)`, 1295B0 zoneCheckActorInside two
-  `(f64)` + seven `(f32)` (each fdiff 0 in a probe copy, Polishglobal42630d); 70FD0 420f8c FAKE comments still say unk140.
-- Polish proposal (2026-11-24 M17, untested): one function-like macro for 6AD90's six plane-parameter computations
-  `0.0 - (((x * nx) + (ny * -1000.0) + (nzTerm * z) + d) / (ny * 2000.0))` (collisionTestStaticMeshFloor 876/880,
-  collisionTestDynamicActorFloor 1315/1324/1328, collisionTestActorBoxFloor 1699); needs fdiff (a macro is one source line).
 
 ## Held names
 Continue unit 1 (2026-11-20/21, names windows 4b47df82..741670df, union carves e14a06d4) landed ~1,360 names, including every
@@ -149,7 +143,11 @@ global/function proposals (gArcadeEntities, gArcadeScreenMode, gMainLoopWatchdog
 `uv run tools/debt.py names`; queue and procedure: `.omp/skills/continue-unit/names.md`. Still held (evidence or ruling missing):
 - Cross-segment aliases: D_80741F40, D_80760840 (D_80029FA0 / D_8002FBB0 / D_80028C30 took their overlay names by ruling R3,
   8ffd3b5b). 2026-11-24b emulator residue: `drafts/cleanup/names-queue.md` "Held" lines (EmuFieldsU5, EmuGlobalsU5).
-- D_80753354 (s16 per-kong turn rate; gKongTurnRate is CEAE0's other table), D_8076A0A6 (copy of gPadPressedButtons[0]),
+- Emulator runtime on the Windows host was blocked until ebaf2cad (container paths with `\`, the states `Nintendo 64` link; EmuNames27
+  2026-11-27 reached only cutscenes and two warps crashed the game thread). Next unit: retest a session start + warp, then the
+  watches the held lines name (D_807530D0 kind-0x32 break at 0x806EB0C0, ActorGlobalState.unk18 store at 0x80679798, and the
+  D_8076A0A6 awatch on map 0x61 that would confirm the static gVolumeTriggerPressedButtons name, 1aae5e38).
+- D_80753354 (s16 per-kong turn rate; gKongTurnRate is CEAE0's other table),
   D_807FC952 (= gPlayerInventoryTable[0].kong[0].weaponFlags; cannot fold), race/0 D_8002FB10/D_8002FB70 route tables (D_80750650 is
   gEnemyGridLeaping since f79601f5).
 - Function renames: playerCheckLandingSfx -> playerCheckLandingSlide, effectSpawnDebrisParticles/effectActorCheckGroundScaleSpawn

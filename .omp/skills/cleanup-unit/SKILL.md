@@ -56,8 +56,9 @@ Keep up to 5 workers plus one `TypesOwner` (harness cap: 6 subagents in total). 
   only polish workers on `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review`
   (met once all are in flight). A blocked item waits for a director ruling: write the exact decision options (dispatch.md).
   Small files go out as polish bundles of ~25-45 reviews (one ledger per file, one merge over all; never two same-basename files).
-  A hack function reviewed by a polish item gets a `review` line only; a body with any fresh site rung stays byte-identical; an
-  all-stale body may take ordinary-C fixes, its FAKE/ORIG/LAYOUT lines untouched unless that worker runs the hack ladder (2026-11-18b).
+  A hack function reviewed by a polish item gets a `review` line only; a body with fresh site rungs stays byte-identical unless the
+  whole object stays fdiff 0 with every site key unchanged and the worker writes one `diagnose nohit` re-check per site (PolishMisc27
+  2026-11-27); an all-stale body may take ordinary-C fixes, FAKE/ORIG/LAYOUT lines untouched unless it runs the hack ladder (18b).
 - **After coverage.** Five slots take the top of `rank`, one the top of `rank --polish` (a hack item too when polish is empty).
 - **Hack item:** one function with 3+ hack sites, or up to 4 functions with 1–2 sites from the same file, in queue order.
 - When a worker reports, merge it (§5), then fill its slot at once. No rounds: nothing waits for the slowest worker.
@@ -145,6 +146,5 @@ session, a consolidation in a quiet window runs steps 1-3 only. Once every worke
 
 A function leaves the hack queue only when it has no hack site (fixed, or `// ORIG:` with a cited offset). The FAKE queue
 never ends: once its rungs are fresh a FAKE function shows `next=retry` and `rank` brings it back, least recently attempted
-first. Its next attempt follows the retry rule (`new=` naming what history lacks, `fakehunt.py show` output in the brief).
-goto-only functions finish at `goto-hand` kept. A `proto-type` site stops blocking once the types stream recorded `views`
-`blocked` with a reason.
+first. Its next attempt follows the retry rule (`new=` naming what history lacks, `fakehunt.py show` output in the brief). goto-only
+functions finish at `goto-hand` kept. A `proto-type` site stops blocking once the types stream recorded `views` `blocked` with a reason.
