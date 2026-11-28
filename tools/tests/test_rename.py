@@ -394,3 +394,57 @@ def test_global_alias_still_refuses_address_names_and_macro_refs(tmp_path):
     before = _snapshot(tmp_path)
     assert _run(tmp_path, "global", "minecart", "sWheel", "gWheel") == 1
     assert _snapshot(tmp_path) == before
+
+
+# overlays share VRAM: another overlay's D_<VRAM> (src/race/ here) is its own object, never the alias
+RACE_SRC = '#include "common.h"\ns32 D_80028C30;\nvoid r(void) { D_80028C30 = 1; }\n'
+
+
+def _racetree(tmp_path, glob_name="gShared", ovl_name="gShared"):
+    _aliastree(tmp_path, glob_name=glob_name, ovl_name=ovl_name,
+               glob_src=f'#include "common.h"\nextern s32 *{glob_name};\nvoid f(void) {{ {glob_name} = 0; D_80028C30 = 0; }}\n',
+               ovl_src=f'#include "common.h"\ns32 *{ovl_name};\nvoid g(void) {{ {ovl_name} = 0; D_80028C30 = 0; }}\n')
+    _tree(tmp_path, {"symbol_addrs.race.us.txt": "raceOnly = 0x80029000;\n", "src/race/r.c": RACE_SRC})
+
+
+@pytest.mark.parametrize("seg", ["minecart", "global"])
+def test_global_alias_address_label_only_in_the_owning_overlay(tmp_path, capsys, seg):
+    _racetree(tmp_path)
+    before = _snapshot(tmp_path)
+    assert _run(tmp_path, "global", seg, "gShared", "gWheel2", "--dry-run") == 0
+    out = capsys.readouterr().out
+    assert "src/race/" not in out and "src/global/e.c:3:" in out and "src/minecart/m.c:3:" in out
+    assert _snapshot(tmp_path) == before
+    assert _run(tmp_path, "global", seg, "gShared", "gWheel2") == 0
+    assert "gWheel2 = 0; gWheel2 = 0;" in (tmp_path / "src/global/e.c").read_text()
+    assert "gWheel2 = 0; gWheel2 = 0;" in (tmp_path / "src/minecart/m.c").read_text()
+    assert (tmp_path / "src/race/r.c").read_text() == RACE_SRC
+    for f in ("symbol_addrs.us.txt", "symbol_addrs.minecart.us.txt"):
+        assert f"gWheel2 = 0x{WHEEL:08X};" in _syms(tmp_path, f)
+    # race's own label in a #define is not a reference to this symbol either
+    _racetree(tmp_path / "t2")
+    _tree(tmp_path / "t2", {"src/race/r2.c": '#include "common.h"\nextern s32 D_80028C30;\n#define R (D_80028C30)\n'})
+    assert _run(tmp_path / "t2", "global", seg, "gShared", "gWheel2") == 0
+    assert "#define R (D_80028C30)" in (tmp_path / "t2/src/race/r2.c").read_text()
+
+
+def test_global_side_old_address_label_only_in_the_owning_overlay(tmp_path):
+    # overlay named first; `global global D_<VRAM> <new>` must not take race's D_<VRAM> along
+    _racetree(tmp_path, ovl_name="gWheel")
+    (tmp_path / "symbol_addrs.us.txt").write_text("other = 0x80700000;\n")
+    (tmp_path / "src/global/e.c").write_text('#include "common.h"\nvoid f(void) { D_80028C30 = 0; }\n')
+    assert _run(tmp_path, "global", "global", "D_80028C30", "gWheel") == 0
+    assert "gWheel = 0;" in (tmp_path / "src/global/e.c").read_text()
+    assert "gWheel = 0; gWheel = 0;" in (tmp_path / "src/minecart/m.c").read_text()
+    assert (tmp_path / "src/race/r.c").read_text() == RACE_SRC
+    assert f"gWheel = 0x{WHEEL:08X};" in _syms(tmp_path, "symbol_addrs.us.txt")
+
+
+def test_global_alias_outside_overlay_vram_renames_the_label_everywhere(tmp_path):
+    # a global address is unique: every overlay's D_<VRAM> names it
+    _aliastree(tmp_path, glob_name="gHigh", ovl_name="gHigh")
+    for f in ("symbol_addrs.us.txt", "symbol_addrs.minecart.us.txt"):
+        (tmp_path / f).write_text("gHigh = 0x80744474;\n")
+    _tree(tmp_path, {"src/race/r.c": '#include "common.h"\nvoid r(void) { D_80744474 = 1; }\n'})
+    assert _run(tmp_path, "global", "minecart", "gHigh", "gHigh2") == 0
+    assert "gHigh2 = 1;" in (tmp_path / "src/race/r.c").read_text()

@@ -65,6 +65,10 @@ an overlay defines) is one symbol: `global|func <seg> <old> <new>` renames <old>
 (and every reference in the global side's src), and a <new> already defined at that address in the other file
 (a half-applied rename, or the global side named first) is its alias, not "in use". <new> at another address,
 twice in the own file, or in another overlay's file is still refused.
+Overlays share VRAM 0x80024000-0x805FB300, so there the address label `D_<VRAM8>` (the fallback, or <old>
+itself) is renamed only in src/boot, src/global, include/*.h and the owning overlay's src: <seg>, or for
+boot/global the overlays whose symbol file defines <old> or <new> at that address. Another overlay's
+`D_<VRAM8>` is its own object.
 """
 import argparse
 import collections
@@ -254,6 +258,30 @@ def alias_symfiles(seg):
     return [f for f in cand if f != own and os.path.exists(os.path.join(ROOT, f))]
 
 
+OVERLAY_VRAM = range(0x80024000, 0x805FB300)  # shared by every overlay: one address, one object per overlay
+
+
+def src_seg(path):
+    """The segment directory of a src/<seg>/ PATH, or None (include/ headers)."""
+    parts = path.split("/")
+    return parts[1] if parts[0] == "src" and len(parts) > 2 else None
+
+
+def label_segs(seg, names, vram):
+    """src_seg values whose files may spell VRAM's symbol `D_<VRAM>`, or None for every file (an address
+    outside overlay VRAM is unique). In overlay VRAM another overlay's `D_<VRAM>` is its own object: only
+    boot/global, include/ and the owning overlay(s): SEG itself, or for boot/global the overlays whose
+    symbol file defines one of NAMES at VRAM."""
+    if vram is None or vram not in OVERLAY_VRAM:
+        return None
+    if seg not in ("boot", "global"):
+        return {None, "boot", "global", seg}
+    files = alias_symfiles(seg)
+    return {None, "boot", "global"} | {re.fullmatch(r"symbol_addrs\.(\w+)\.us\.txt", sf).group(1)
+                                       for n in names for sf, defs in symbol_defs(n).items()
+                                       if sf in files and any(v == vram for _, v in defs)}
+
+
 def alias_state(seg, old, new, vram):
     """(alias rename edits, in-use refusal or None, same) for one symbol present in more than one segment's
     symbol file. The same symbol is OLD at VRAM in an alias file (renamed there too: one run renames every
@@ -309,17 +337,23 @@ def cmd_symbol(a, func):
     where = [] if same else files + repo_glob("include/**/*.h")
     if hit := first_hit(word(new), where) or symbol_mentions(new, repo_glob("symbol_addrs*.txt")):
         raise Refuse(f"in use: {new} at {hit}")
-    pats = [(rx, new), (word(f"PROTO_SKIP_{old}"), f"PROTO_SKIP_{new}")]
-    if vram is not None and f"D_{vram:08X}" != old:
-        pats.append((word(f"D_{vram:08X}"), new))
+    addr = None if vram is None else f"D_{vram:08X}"
+    segs = label_segs(seg, (old, new), vram)
+    # (pattern, replacement, is the address label: only in SEGS' files); OLD may be the label itself
+    pats = [(rx, new, old == addr), (word(f"PROTO_SKIP_{old}"), f"PROTO_SKIP_{new}", old == addr)]
+    if addr and addr != old:
+        pats.append((word(addr), new, True))
     edits, macro = [], []
     for f in files:
+        fp = [(p, n) for p, n, label in pats if not label or segs is None or src_seg(f) in segs]
+        if not fp:
+            continue
         text = read(f)
         for ln, d in define_lines(text):
-            if any(p.search(d) for p, n in pats if not n.startswith("PROTO_SKIP_")):  # skip defines are fine
+            if any(p.search(d) for p, n in fp if not n.startswith("PROTO_SKIP_")):  # skip defines are fine
                 macro.append(f"{f}:{ln}")
         for i, line in enumerate(text.split("\n"), 1):
-            for p, n in pats:
+            for p, n in fp:
                 edits += [(f, i, mm.start() + 1, mm.group(0), n) for mm in p.finditer(line)]
     if macro and not a.in_macros:
         raise Refuse("reference inside a macro: " + " ".join(macro)
