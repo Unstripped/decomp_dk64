@@ -187,27 +187,28 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Continue unit 2026-11-24b (director mode, `autoresearch.sh` METRIC debt 5,590 → 5,581 at close → 5,441 final)** — names: the queued fields/typedefs (cbe7a15c, dcc777e3), emulator evidence for held items (EmuFieldsU5: `translucentOverlayDl`, `pushBothSides` ×2; EmuGlobalsU5: `gEnemyGridLeaping`, minecart route tables, 5 effect sprites from decoded textures) and three global aliases of overlay objects named after them by ruling R3 (8ffd3b5b); `heldButtonsPtr` → `pressedButtonsPtr`; carry re-stamps typedef/record renames (a075dea7). Types: every effect sprite extern is `EffectGridAsset` (batch_18, its H part's 21 reopened rungs re-measured), A8400 `gEffectGridAssets`, one `VehicleActor` in race.h, RaceParticipant 0x25/0x26 manager/racer unions (batch_19/20). Hack: the two re-measure leftovers stayed EXHAUSTED (Q1626-Q1628); a Q1604-Q1625 lever-transfer scout found one transfer, a one-line join retagged `// LAYOUT:` (ruling R2); ruling R1 keeps fully dead declaration defaults FAKE. Q1626-Q1636; the 4 functions the close knowledge commit reopened were re-measured against it (db9779c7): ACDC0 hudPauseMenuUpdate lost 2 FAKE to selector switches and an `&&` credits flag, two address-compare loop exits became `// ORIG:` (ruling R4); FAKE 174 → 169. Filing that re-measure's findings (1dadd028, incl. a Q1582 correction) reopened hudPauseMenuUpdate's review and 2 sites: the next unit's re-measure item (pending.md).
 - [x] **Continue units 2026-11-25 and 2026-11-25c (Windows host, director mode)** — 2026-11-25 (debt 5,416 → 5,131): 12 hack items, batch_21 callback types, splitlocal/unalias guards (95df6005). 2026-11-25c (debt 5,126 → see run-log): tooling (uncapped recipe rung 15f27049, fakehunt stop on Windows d9b6c1b1, `report --baseline` without `git archive` 39d2c5aa); `JetpacHead` embedded in both jetpac actor records (c7b5a10f, ruling R-jetpac); frame-word placement and the three-part census for unrelated-role reuses (ruling R-oildrum, Q1666; rulings.md) removed or untagged FAKE in 16 files, each census in its function's dossier; names window f57a6282; knowledge Q1666-Q1690.
 - [x] **Continue unit 2026-11-26 (Windows host, director mode, debt 4,742 → 4,728)** — the three-part census on the 4 reuse sites with fakehunt permuter zeros (the zeros were the steer re-spelled): arcade/0 arcadeUpdateDonkeyKongStage4 passes (2409e8da), commandApplyToLight, bossFollowerActorUpdate and bonusSearchlightSeekGameUpdate fail (register-only locals after the lowest stored local take no frame word, Q1691; a failed hidden reuse in bonus/2690 tagged); `MapChunk` + `gMapChunks` into render.h and the 63EC0 W709 fixed (5eba3e1c); two names windows (5cdffef1, 689be5e2) and three split-label folds (24b4d7f0, 1faa9b8a); tooling: sweep check cache + `sweep --func` (3eb5c399), `--shadow` with copy == src (5b1f35c0), objdiff HI16/LO16 pairing (cb6c08ce); every remaining reuse site censused or screened, all 25 gotos verified Q0591; rulings R1-R3; knowledge Q1691-Q1692.
+- [x] **Continue unit 2026-11-27 (Windows host, director mode, debt 4,728 → 4,740)** — polish follow-ups as item bundles: 11BC10 effect callbacks take the `EffectCallback` shape (K&R → ANSI, `u8 *isDone`, 12 prototypes), `sMinecartWheelEffect`/`gRaceSparkEffects` are `EffectNode *`, timedLightOrbitUpdate an index loop (9fb06572, f0043d3b); jetpac `jetpacPlayer` extern in jetpac.h, `JetpacHead *` center helpers, jetpacIsSpawnDelay ORIG, the D_8002F054/D_8002F078 pair folded through one pointer local (b6e98c7e, ruling R2-27); 3E10/1295B0 redundant casts and one 6AD90 `PLANE_PROBE_FRACTION` macro for six recomputations (3be21775); D_807F949A folded (aba76a22); names window 2 (1aae5e38, 139135b3); tooling: fdiff FUNC-only diff, CRLF refusal, per-file names-window carry, emulator paths on Windows, cross-segment alias renames (e7b2bc4c, 5ac42a0f, 40b1d4bd, ebaf2cad, 9496edbb); knowledge Q1693-Q1694; split-label fold rulings R1-27/R2-27. The debt rise is one pre-existing untagged width steer now tagged (FAKE 135 → 136); D_ refs 50 → 42.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 2026-11-26 close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, continue unit 2026-11-27 close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 135 | 583 |
+| FAKE | 136 | 583 |
 | FAKE dead-if | 36 | 263 |
 | FAKE proto-steer | 1 | 134 |
-| FAKE other kinds | 98 | 186 |
-| ORIG (cited target offset) | 112 | 0 |
+| FAKE other kinds | 99 | 186 |
+| ORIG (cited target offset) | 113 | 0 |
 | LAYOUT | 84 | 47 |
 | goto | 25 | 39 |
 | proto-type (`// PROTO:`) | 0 | 0 |
 | protos mismatch | 6 | 1,202 |
-| reviewed / exhausted functions | 4,270 / 4,186 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,270 / 4,185 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 3 | 1,890 |
 | uninit warnings (clint checks every function) | 249 | 122 |
 | `func_` definitions | 12 | 457 |
 | m2c names | 0 | 5,040 |
 | `unk` field references | 71 | - |
-| `D_` references | 50 | - |
+| `D_` references | 42 | - |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
