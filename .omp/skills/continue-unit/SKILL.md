@@ -91,7 +91,9 @@ slowest worker. Names yield falls once every file has had a reader: the leftover
   Do it mid-unit, not only at the close: findings filed at the close stale functions no slot can
   re-measure any more (2026-11-24b: 4 functions, +45 debt as next-unit leftovers).
 - polish: uninit reads are almost all original control flow (36880: 34/34 kept, 36 plain-C fixes
-  all fdiff 1); no slots for them without a function-specific reason.
+  all fdiff 1); no slots for them without a function-specific reason. While hack is EXHAUSTED, pending.md's
+  polish follow-ups (cast drops, file-local macros, view/type retypes) are the cheap remaining work: one item
+  bundle each, brief re-checked against the tree first (2026-11-27: 4 bundle merges, 2 items had already landed).
 
 ## 4. Merge and record
 

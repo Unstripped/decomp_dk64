@@ -45,7 +45,8 @@ One line per accepted proposal, appended by the lead, deleted by the window that
    `rename.py global|func --dry-run <seg> <old> <new>`, `python3 tools/merge_drafts.py snapshot <every src
    file listed>` (the gate needs a base for each), then the command (it also renames `data_inc.us.txt`
    rows and regenerates their `assets/inc` file). Two workers naming one symbol: the first applied wins
-   (the second prints `not found`). A refusal stays in the queue with the reason.
+   (the second prints `not found`). A refusal stays in the queue with the reason. A cross-segment alias (one
+   address named in symbol_addrs.us.txt and an overlay's file) renames in one run from either side (9496edbb).
 3. All of steps 2-4 in one command: `python3 tools/names_window.py --unit "<unit>" --message MSG
    [--fields F]... [--globals SEG:F.tsv]... [--funcs SEG:F.tsv]... [--macro-arg FILE:LINE:COL]...
    [--in-macros D_X]...` (dry-run first with `--dry-run`; keep func and global tsv names distinct: a
